@@ -23,7 +23,8 @@
 ##                         as well as matched 10-922. Flood      ## 
 ##                         severity 1,2,3,U for dam failure ONLY ##
 ##                         DR19217                               ## 
-##      Evan Bookbinder -  9-17-2017 DR 19007 test message spacing ##
+##      Evan Bookbinder  9-17-2017 DR 19007 test message spacing ##
+##  Mike Rega 04/20/2018 DR 20671 3rd bullet EMER mixed case fix ##
 ###################################################################
 ##
 #parse("config.vm")
@@ -298,7 +299,7 @@ THIS IS A TEST MESSAGE. ##
 ## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
 ##########################################################################
 #if(${list.contains(${bullets}, "ffwEmergency")})
-This is a FLASH FLOOD EMERGENCY for ${emergencyText}. SEEK HIGHER GROUND NOW!
+THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyText}. SEEK HIGHER GROUND NOW!
 
 #end
 #set($phenomena = "FLASH FLOOD") 

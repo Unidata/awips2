@@ -26,7 +26,7 @@
     name="PHISH height w/50% chance of being exceeded - cumulative [agl]" unit="ft">
     <!-- This parameter provides a custom legend and parameter name for the cumulative surge that is coming from PHISH.
          This makes it possible to easily distinguish it from the cumulative surge from Psurge + Tide. -->
-    <Method models="TPCSurgeProb P-ETSS P-ETSS-LoRes" name="Alias" levels="0FHAG">
+    <Method models="TPCSurgeProb TPCSurgeProbLoRes P-ETSS P-ETSS-LoRes" name="Alias" levels="0FHAG">
         <Field abbreviation="Surge50pctCumul" />
     </Method>
 </DerivedParameter>

@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
+import com.raytheon.uf.common.activetable.response.RestoreLastEtnResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -91,6 +92,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  * Sep 15, 2015  4858       dgilling    Disable store/transmit in DRT mode.
  * Nov 03, 2016  5934       randerso    Moved VtecObject and VtecUtil to a
  *                                      separate plugin.
+ * Feb 07, 2018  20531      ryu         Fix ETN finalization to assign 
+ *                                      same ETN to time-overlapping VTECs
+ * Oct 09, 2018  20557      ryu         Restore ETN when transmission fails.
  *
  * </pre>
  *
@@ -152,6 +156,10 @@ public class StoreTransmitDlg extends CaveSWTDialog {
 
     private boolean isCancelled;
 
+    private Map<String, Integer> baseETNmap;
+    
+    private String office;
+    
     /**
      * @param parent
      *            Parent shell.
@@ -350,78 +358,8 @@ public class StoreTransmitDlg extends CaveSWTDialog {
         // Store/Transmit the product...
         if (!this.isCancelled) {
             try {
-                if (updateVtec) {
-                    // With GFE VTEC products, it's possible to have multiple
-                    // segments with NEW vtec action codes and the same phensig.
-                    // For
-                    // this reason, HazardsTable.py implemented a "cache" that
-                    // would
-                    // ensure all NEWs for the same phensig would be assigned
-                    // the
-                    // same ETN. This Map replicates that legacy behavior.
-                    //
-                    // This "cache" has two levels:
-                    // 1. The first level is keyed by the hazard's phensig.
-                    // 2. The second level is keyed by the valid period of the
-                    // hazard.
-                    // Effectively, making this a Map<Phensig, Map<ValidPeriod,
-                    // ETN>>.
-                    Map<String, List<VtecObject>> vtecsToAssignEtn = GFEVtecUtil
-                            .initETNCache(productText);
-                    Map<String, Map<TimeRange, Integer>> etnCache = new HashMap<String, Map<TimeRange, Integer>>();
-
-                    for (String phensig : vtecsToAssignEtn.keySet()) {
-                        Map<TimeRange, Integer> l2EtnCache = new HashMap<TimeRange, Integer>();
-                        List<VtecObject> vtecs = vtecsToAssignEtn.get(phensig);
-
-                        for (int i = 0; i < vtecs.size(); i++) {
-                            VtecObject vtec = vtecs.get(i);
-                            TimeRange validPeriod = new TimeRange(
-                                    vtec.getStartTime(), vtec.getEndTime());
-                            Integer currentEtn = vtec.getSequence();
-
-                            // the first time we select a new, unique ETN, any
-                            // other
-                            // VTEC lines in the product that have the same
-                            // phensig
-                            // and an adjacent TimeRange can also re-use this
-                            // ETN
-                            if (currentEtn == 0) {
-                                currentEtn = getNextEtn(vtec);
-                                l2EtnCache.put(validPeriod, currentEtn);
-                            } else {
-                                // BUT...once we've made our one pass through
-                                // the
-                                // product and re-used the ETN where
-                                // appropriate, we
-                                // should not check again
-                                continue;
-                            }
-
-                            for (int j = i + 1; j < vtecs.size(); j++) {
-                                VtecObject vtec2 = vtecs.get(j);
-                                TimeRange validPeriod2 = new TimeRange(
-                                        vtec2.getStartTime(),
-                                        vtec2.getEndTime());
-                                Integer currentEtn2 = vtec2.getSequence();
-
-                                if ((currentEtn2 == 0) && (validPeriod2
-                                        .isAdjacentTo(validPeriod)
-                                        || validPeriod2
-                                                .overlaps(validPeriod))) {
-                                    l2EtnCache.put(validPeriod2, currentEtn);
-                                    vtec2.setSequence(currentEtn);
-                                }
-                            }
-                        }
-
-                        etnCache.put(phensig, l2EtnCache);
-                    }
-
-                    productText = GFEVtecUtil.finalizeETNs(productText,
-                            etnCache);
-                }
-
+                updateProductVTEC();
+                
                 String pid = productIdText.getText();
                 if (parentEditor.isTestVTEC()) {
                     if (isStoreDialog) {
@@ -459,6 +397,95 @@ public class StoreTransmitDlg extends CaveSWTDialog {
         close();
     }
 
+    private void updateProductVTEC() throws VizException {
+        if (!updateVtec) {
+            return;
+        }
+        
+        // With GFE VTEC products, it's possible to have multiple
+        // segments with NEW vtec action codes and the same phensig.
+        // For
+        // this reason, HazardsTable.py implemented a "cache" that
+        // would
+        // ensure all NEWs for the same phensig would be assigned
+        // the
+        // same ETN. This Map replicates that legacy behavior.
+        //
+        // This "cache" has two levels:
+        // 1. The first level is keyed by the hazard's phensig.
+        // 2. The second level is keyed by the valid period of the
+        // hazard.
+        // Effectively, making this a Map<Phensig, Map<ValidPeriod,
+        // ETN>>.
+        baseETNmap = new HashMap<>();
+        
+        Map<String, List<VtecObject>> vtecsToAssignEtn = GFEVtecUtil
+                .initETNCache(productText);
+        Map<String, Map<TimeRange, Integer>> etnCache = new HashMap<>();
+
+        for (String phensig : vtecsToAssignEtn.keySet()) {
+            Map<TimeRange, Integer> l2EtnCache = new HashMap<>();
+            List<VtecObject> vtecs = vtecsToAssignEtn.get(phensig);
+
+            // vtecs are already ordered by start time and end times
+
+            TimeRange currentPeriod = new TimeRange();
+            Integer currentEtn = 0;
+
+            for (int i = 0; i < vtecs.size(); i++) {
+                VtecObject vtec = vtecs.get(i);
+                TimeRange validPeriod = new TimeRange(
+                        vtec.getStartTime(), vtec.getEndTime());
+
+                // the first time we select a new, unique ETN, any
+                // other
+                // VTEC lines in the product that have the same
+                // phensig
+                // and an adjacent TimeRange can also re-use this
+                // ETN
+
+                currentPeriod = currentPeriod.join(validPeriod);
+                if (!currentPeriod.isValid()) {
+                    // first or a non-overlapping time range
+                    currentEtn = getNextEtn(vtec);
+                    currentPeriod = validPeriod;
+                    if (office == null || office.isEmpty()) {
+                        office = vtec.getOffice();
+                    }
+                    if (!baseETNmap.containsKey(phensig)) {
+                        baseETNmap.put(phensig, currentEtn - 1);
+                    }
+                }
+
+                vtec.setSequence(currentEtn);
+                l2EtnCache.put(validPeriod, currentEtn);
+            }
+
+            etnCache.put(phensig, l2EtnCache);
+        }
+
+        productText = GFEVtecUtil.finalizeETNs(productText,
+                etnCache);
+    }
+    
+    private void restoreLastETNs() {
+        for (String phensig : baseETNmap.keySet()) {
+            try {
+                RestoreLastEtnResponse sr = GFEVtecUtil
+                        .restoreLastEtn(office, phensig, true, false,
+                                baseETNmap.get(phensig));
+                if (!sr.isOkay()) {
+                    String msg = "Server returned error from restoring ETN: "
+                            + sr.toString();
+                    statusHandler.warn(msg);
+                }
+            }
+            catch (VizException ve) {
+                statusHandler.error("Exception occurred while restoring ETN", ve);
+            }
+        }
+    }
+    
     private Integer getNextEtn(VtecObject vtec) throws VizException {
         GetNextEtnResponse serverResponse = GFEVtecUtil
                 .getNextEtn(vtec.getOffice(), vtec.getPhensig(), true, true);
@@ -546,15 +573,25 @@ public class StoreTransmitDlg extends CaveSWTDialog {
 
             sendTransmissionStatus(state);
             parentEditor.setProductText(productText, false);
-            parentEditor.brain();
+
+            if (ConfigData.ProductStateEnum.Transmitted == state) {
+                parentEditor.brain();
+            }
+            else {
+                restoreLastETNs();
+            }
         } catch (VizException e) {
             statusHandler.handle(Priority.CRITICAL, "Error sending product", e);
             sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
             parentEditor.revive();
+            
+            restoreLastETNs();
         } catch (SimulatedTimeProhibitedOpException e) {
             statusHandler.error(e.getLocalizedMessage(), e);
             sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
             parentEditor.brain();
+            
+            restoreLastETNs();
         }
     }
 

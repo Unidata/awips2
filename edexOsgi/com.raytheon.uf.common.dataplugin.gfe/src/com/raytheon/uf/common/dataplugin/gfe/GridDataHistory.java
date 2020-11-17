@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -50,27 +50,29 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * GridDataHistory
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *                         randerso    Initial creation
- * 02/27/2008   879        rbell       Added clone()
- * 04/18/2008   #875       bphillip    Changed date fields to use java.util.Calendar
- * Feb 15, 2013 1638       mschenke    Moved Util.getUnixTime into TimeUtil
- * 03/28/2013   1949       rjpeter     Normalized database structure.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ *                        randerso  Initial creation
+ * Feb 27, 2008  879      rbell     Added clone()
+ * Apr 18, 2008  875      bphillip  Changed date fields to use
+ *                                  java.util.Calendar
+ * Feb 15, 2013  1638     mschenke  Moved Util.getUnixTime into TimeUtil
+ * Mar 28, 2013  1949     rjpeter   Normalized database structure.
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 @Entity
 @Table(name = "gfe_gridhistory")
 @DynamicSerialize
-public class GridDataHistory implements Cloneable {
-
-    private static final long serialVersionUID = 1L;
+public class GridDataHistory {
 
     /**
      * Auto-generated surrogate key
@@ -80,21 +82,29 @@ public class GridDataHistory implements Cloneable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GFE_HISTORY_GENERATOR")
     private int id;
 
+    /** Grid Origin Type enum */
     public enum OriginType {
-        INITIALIZED("Populated"), TIME_INTERPOLATED("Interpolated"), SCRATCH(
-                "Scratch"), CALCULATED("Calculated"), OTHER("Other");
+        /** Populated from another database (e.g. smartInit) */
+        INITIALIZED("Populated"),
 
-        String display;
+        /** Grid interpolated between surrounding grids */
+        TIME_INTERPOLATED("Interpolated"),
+
+        /** Grid created from scratch */
+        SCRATCH("Scratch"),
+
+        /** Grid calculated using smart tool */
+        CALCULATED("Calculated"),
+
+        /** Unknown/Other origin */
+        OTHER("Other");
+
+        private String display;
 
         OriginType(String display) {
             this.display = display;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Enum#toString()
-         */
         @Override
         public String toString() {
             return display;
@@ -158,8 +168,33 @@ public class GridDataHistory implements Cloneable {
     }
 
     /**
+     * Copy constructor
+     *
+     * @param other
+     */
+    public GridDataHistory(GridDataHistory other) {
+        this.origin = other.origin;
+        this.originParm = other.originParm;
+        this.originTimeRange = other.originTimeRange.clone();
+        if (other.timeModified != null) {
+            this.timeModified = (Date) other.timeModified.clone();
+        }
+        this.whoModified = other.whoModified;
+        if (other.updateTime != null) {
+            this.updateTime = (Date) other.updateTime.clone();
+        }
+        if (other.publishTime != null) {
+            this.publishTime = (Date) other.publishTime.clone();
+        }
+        if (other.lastSentTime != null) {
+            this.lastSentTime = (Date) other.lastSentTime.clone();
+        }
+
+    }
+
+    /**
      * Initializer constructor
-     * 
+     *
      * @param originType
      * @param originParmID
      * @param originTimeRange
@@ -177,7 +212,7 @@ public class GridDataHistory implements Cloneable {
 
     /**
      * Initializer constructor
-     * 
+     *
      * @param originType
      * @param originParmID
      * @param originTimeRange
@@ -191,11 +226,11 @@ public class GridDataHistory implements Cloneable {
 
     /**
      * Initializer constructor
-     * 
+     *
      * @param originType
      * @param originParmID
      * @param originTimeRange
-     * @param lastSentTime
+     * @param lastSent
      * @param lastStored
      */
     public GridDataHistory(OriginType originType, ParmID originParmID,
@@ -209,7 +244,7 @@ public class GridDataHistory implements Cloneable {
 
     /**
      * Constructor taking an encoded string
-     * 
+     *
      * @param codedString
      */
     public GridDataHistory(String codedString) {
@@ -218,28 +253,39 @@ public class GridDataHistory implements Cloneable {
         String[] codedTokens = codedString.split(" ");
 
         // analyze origin
-        this.origin = OriginType.values()[Integer
-                .parseInt(codedTokens[index++])];
+        this.origin = OriginType.values()[Integer.parseInt(codedTokens[index])];
+        index++;
 
         // read origin parmID
-        this.originParm = new ParmID(codedTokens[index++]);
+        this.originParm = new ParmID(codedTokens[index]);
+        index++;
 
         // read origin time range
         this.originTimeRange = new TimeRange(
-                Long.parseLong(codedTokens[index++]) * 1000l,
-                Long.parseLong(codedTokens[index++]) * 1000l);
+                Long.parseLong(codedTokens[index]) * 1000l,
+                Long.parseLong(codedTokens[index + 1]) * 1000l);
+        index += 2;
 
         // read modification time
-        String modTime = codedTokens[index++];
-        if (!modTime.equals("0")) { // modification time exists
+        String modTime = codedTokens[index];
+        index++;
+
+        if (!"0".equals(modTime)) {
+            // modification time exists
             // process modification time and who modified
             this.timeModified = new Date(Long.parseLong(modTime) * 1000l);
-            this.whoModified = new WsId(codedTokens[index++]);
+            this.whoModified = new WsId(codedTokens[index]);
+            index++;
         }
 
-        long updateTime = Long.parseLong(codedTokens[index++]) * 1000l;
-        long publishTime = Long.parseLong(codedTokens[index++]) * 1000l;
-        long lastSentTime = Long.parseLong(codedTokens[index++]) * 1000l;
+        long updateTime = Long.parseLong(codedTokens[index]) * 1000l;
+        index++;
+
+        long publishTime = Long.parseLong(codedTokens[index]) * 1000l;
+        index++;
+
+        long lastSentTime = Long.parseLong(codedTokens[index]) * 1000l;
+        index++;
 
         // read the update time (allow for none), ignore any errors
         if (updateTime != 0) {
@@ -339,37 +385,18 @@ public class GridDataHistory implements Cloneable {
         this.whoModified = whoModified;
     }
 
+    /**
+     * @return WsId of last CAVE session to modify this grid
+     */
     public WsId getModified() {
         return this.whoModified;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
+    /**
+     * @return a copy of this object
      */
-    @Override
-    public GridDataHistory clone() throws CloneNotSupportedException {
-        GridDataHistory gdh = new GridDataHistory();
-
-        gdh.origin = this.origin;
-        gdh.originParm = this.originParm;
-        gdh.originTimeRange = this.originTimeRange.clone();
-        if (this.timeModified != null) {
-            gdh.timeModified = (Date) this.timeModified.clone();
-        }
-        gdh.whoModified = this.whoModified;
-        if (this.updateTime != null) {
-            gdh.updateTime = (Date) this.updateTime.clone();
-        }
-        if (this.publishTime != null) {
-            gdh.publishTime = (Date) this.publishTime.clone();
-        }
-        if (this.lastSentTime != null) {
-            gdh.lastSentTime = (Date) this.lastSentTime.clone();
-        }
-
-        return gdh;
+    public GridDataHistory copy() {
+        return new GridDataHistory(this);
     }
 
     /**
@@ -419,7 +446,7 @@ public class GridDataHistory implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("Origin:").append(this.origin).append("\n");
         buffer.append("Origin Parm:").append(this.originParm.toString())
                 .append("\n");
@@ -436,18 +463,18 @@ public class GridDataHistory implements Cloneable {
 
     /**
      * Returns the coded string for GridDataHistory.
-     * 
+     *
      * @return The coded String
      */
     public String getCodedString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(this.origin.ordinal()).append(" ");
         buffer.append(this.originParm.toString()).append(" ");
         buffer.append(TimeUtil.getUnixTime(this.originTimeRange.getStart()))
                 .append(" ");
-        buffer.append(TimeUtil.getUnixTime(this.originTimeRange.getEnd())).append(
-                " ");
+        buffer.append(TimeUtil.getUnixTime(this.originTimeRange.getEnd()))
+                .append(" ");
 
         if (this.timeModified == null) {
             buffer.append("0");
@@ -484,13 +511,18 @@ public class GridDataHistory implements Cloneable {
     }
 
     /**
-     * @param key
-     *            the key to set
+     * @param id
+     *            the id to set
      */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Update this GridDataHistory with values from another
+     *
+     * @param replacement
+     */
     public void replaceValues(GridDataHistory replacement) {
         this.setLastSentTime(replacement.getLastSentTime());
         this.setWhoModified(replacement.getWhoModified());
@@ -502,38 +534,28 @@ public class GridDataHistory implements Cloneable {
         this.setUpdateTime(replacement.getUpdateTime());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((lastSentTime == null) ? 0 : lastSentTime.hashCode());
-        result = prime * result + ((origin == null) ? 0 : origin.hashCode());
-        result = prime * result
+        result = (prime * result) + ((origin == null) ? 0 : origin.hashCode());
+        result = (prime * result)
                 + ((originParm == null) ? 0 : originParm.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((originTimeRange == null) ? 0 : originTimeRange.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((publishTime == null) ? 0 : publishTime.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((timeModified == null) ? 0 : timeModified.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((updateTime == null) ? 0 : updateTime.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((whoModified == null) ? 0 : whoModified.hashCode());
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

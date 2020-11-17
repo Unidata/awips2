@@ -68,7 +68,6 @@ done
 
 # Copy entire directories to site-packages/gfe/ (each requires __init__.py)
 pydirs=(%{_baseline_workspace}/com.raytheon.viz.gfe/localization/gfe/userPython/utilities/
-%{_baseline_workspace}/com.raytheon.edex.plugin.gfe/utility/common_static/base/gfe/python/isc/
 %{_baseline_workspace}/com.raytheon.edex.plugin.gfe/utility/common_static/base/gfe/textproducts/
 %{_baseline_workspace}/com.raytheon.uf.tools.gfesuite/cli/src/activeTable/)
 
@@ -80,7 +79,6 @@ mv %{_build_root}/awips2/python/lib/python2.7/site-packages/gfe/textproducts/tem
 mv %{_build_root}/awips2/python/lib/python2.7/site-packages/gfe/textproducts/templates/utility/*.py %{_build_root}/awips2/python/lib/python2.7/site-packages/gfe/
 
 cp %{_baseline_workspace}/rpms/awips2.upc/Installer.gfe/__init__.py %{_build_root}/awips2/python/lib/python2.7/site-packages/gfe/activeTable/
-cp %{_baseline_workspace}/rpms/awips2.upc/Installer.gfe/__init__.py %{_build_root}/awips2/python/lib/python2.7/site-packages/gfe/isc/
 cp %{_baseline_workspace}/rpms/awips2.upc/Installer.gfe/__init__.py %{_build_root}/awips2/python/lib/python2.7/site-packages/gfe/utilities/
 
 find %{_build_root}/awips2/python/lib/python2.7/site-packages/gfe -name "*.pyc" | xargs rm -rf 

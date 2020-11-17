@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
  * Mar 10, 2017 29276       gvalenzuela Fix for unable to create/update Location QC records for DR19573
  * Mar 13, 2017 29276       gvalenzuela Fix null handling for clazz field collector
+ * Mar 27, 2018 DR20497     JLinahan    DbUtils should return arealobs as tablename when querying PP PM data
  * </pre>
  * 
  * @author mpduff
@@ -84,6 +85,9 @@ public class DbUtils {
             if (procObs.equalsIgnoreCase("ON")) {
                 treatProcessedAsObserverd = true;
             } else {
+                if (pe.equalsIgnoreCase("PP") && ts.equalsIgnoreCase("PM") ){
+                    retVal = "arealobs";
+                }
                 return retVal;
             }
         }

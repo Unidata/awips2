@@ -56,6 +56,8 @@ import com.raytheon.viz.gfe.dialogs.GFEConfigDialog;
  * Apr 21, 2017  6239     randerso  Prevent UI deadlock if an async task calls
  *                                  getPreferenceStore() while the dialog is
  *                                  open.
+ * Jan 29, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
  *
  * </pre>
  *
@@ -68,7 +70,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
     // The shared instance
     private static Activator plugin;
 
-    private PythonPreferenceStore pythonPrefs;
+    private final PythonPreferenceStore pythonPrefs = new PythonPreferenceStore();
 
     private GFEConfigDialog cfgDlg;
 
@@ -119,7 +121,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
      */
     public boolean checkPreferenceStore(EventHandler handler) {
         synchronized (this) {
-            if (pythonPrefs == null) {
+            if (!pythonPrefs.isConfigurationLoaded()) {
                 if (handler != null) {
                     preferenceListeners.add(handler);
                 }
@@ -137,7 +139,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
          * set from the dialog
          */
         Display display = Display.getDefault();
-        while (pythonPrefs == null) {
+        while (!pythonPrefs.isConfigurationLoaded()) {
             if (!display.readAndDispatch()) {
                 display.sleep();
             }
@@ -147,14 +149,14 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 
     @Override
     public PythonPreferenceStore getPreferenceStore() {
-        if (pythonPrefs != null) {
+        if (pythonPrefs.isConfigurationLoaded()) {
             return pythonPrefs;
         }
 
         /* Open the dialog if it's not already open */
         synchronized (this) {
-            if (pythonPrefs == null) {
-                if (cfgDlg == null) {
+            if (!pythonPrefs.isConfigurationLoaded()) {
+                if ((cfgDlg == null) || cfgDlg.isDisposed()) {
                     Shell shell = null;
                     if (PlatformUI.isWorkbenchRunning()) {
                         shell = PlatformUI.getWorkbench()
@@ -175,22 +177,22 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
     }
 
     /**
-     * Set the preference store
+     * Load a configuration
      *
-     * @param prefs
+     * @param configName
      */
-    public void setPreferenceStore(PythonPreferenceStore prefs) {
+    public void loadConfiguration(String configName) {
         synchronized (this) {
-            this.pythonPrefs = prefs;
+            this.pythonPrefs.loadConfiguration(configName);
             this.cfgDlg = null;
-            if (!preferenceListeners.isEmpty()) {
-                Event event = new Event("GfeConfig",
-                        Collections.<String, Object> emptyMap());
-                for (EventHandler handler : preferenceListeners) {
-                    handler.handleEvent(event);
+                if (!preferenceListeners.isEmpty()) {
+                    Event event = new Event("GfeConfig",
+                            Collections.<String, Object> emptyMap());
+                    for (EventHandler handler : preferenceListeners) {
+                        handler.handleEvent(event);
+                    }
+                    preferenceListeners.clear();
                 }
-                preferenceListeners.clear();
-            }
         }
     }
 }

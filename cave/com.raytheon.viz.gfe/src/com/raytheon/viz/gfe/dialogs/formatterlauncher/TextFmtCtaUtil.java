@@ -28,6 +28,7 @@ import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -46,6 +47,7 @@ import jep.JepException;
  * ------------ ---------- ----------- --------------------------
  * 12 JAN 2010  DR3463      rtran         Initial creation
  * 13 Jul 2017  #6346       dgilling      Fix include path.
+ * 20 Feb 2018  #6602       dgilling      Update for new text utilities path.
  * </pre>
  *
  * @author rtran
@@ -57,10 +59,8 @@ public class TextFmtCtaUtil {
     private static PythonScript getScript() throws JepException {
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        File scriptFile = pm.getStaticFile("gfe" + File.separator
-                + "userPython" + File.separator + "textUtilities"
-                + File.separator + "regular" + File.separator
-                + "CallToActions.py");
+        File scriptFile = pm.getStaticFile(LocalizationUtil
+                .join(GfePyIncludeUtil.TEXT_UTILITIES, "CallToActions.py"));
 
         /*
          * The 3 functions below used to be defined in CallToActions.py

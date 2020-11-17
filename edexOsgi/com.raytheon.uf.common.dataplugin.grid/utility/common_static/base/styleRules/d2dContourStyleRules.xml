@@ -220,13 +220,13 @@ dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF| | 0 | 6
             </contourLabeling>
         </contourStyle>
     </styleRule>
-<!--  * NAM40, GH, GHxSM, 1050MB > 850MB 
+<!--  * NAM, GH, GHxSM, 1050MB > 850MB 
 m  | 1.0 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 15
 -->
     <styleRule>
         <paramLevelMatches>
             <creatingEntity>NAM40</creatingEntity>
-            <creatingEntity>NAM40</creatingEntity>
+            <creatingEntity>NAM12</creatingEntity>
             <parameter>GH</parameter>
             <parameter>GHxSM</parameter>
             <rangeLevel units="MB">
@@ -243,13 +243,13 @@ m  | 1.0 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 15
             </contourLabeling>
         </contourStyle>
     </styleRule>
-<!--  * NAM40, GH, GHxSM, 875MB > 500MB 
+<!--  * NAM, GH, GHxSM, 875MB > 500MB 
 dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 3
 -->
     <styleRule>
         <paramLevelMatches>
             <creatingEntity>NAM40</creatingEntity>
-            <creatingEntity>NAM40</creatingEntity>
+            <creatingEntity>NAM12</creatingEntity>
             <parameter>GH</parameter>
             <parameter>GHxSM</parameter>
             <rangeLevel units="MB">
@@ -266,13 +266,13 @@ dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,150 | 0 | 3
             </contourLabeling>
         </contourStyle>
     </styleRule>
-<!--  * NAM40, GH, GHxSM, 475MB > 50MB 
+<!--  * NAM, GH, GHxSM, 475MB > 50MB 
 dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,150 | 0 | 6
 -->
     <styleRule>
         <paramLevelMatches>
             <creatingEntity>NAM40</creatingEntity>
-            <creatingEntity>NAM40</creatingEntity>
+            <creatingEntity>NAM12</creatingEntity>
             <parameter>GH</parameter>
             <parameter>GHxSM</parameter>
             <rangeLevel units="MB">
@@ -821,15 +821,13 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
     </styleRule>
 
 
-<!--  * NAM40,AV,RV
+<!--  * NAM,AV,RV
 /1e5s   | 1e5 | 0.0 | 4 |    | X |NX|8000F0FF|,,,100 | 0 | 2
 -->
     <styleRule>
         <paramLevelMatches>
             <creatingEntity>NAM40</creatingEntity>
-            <creatingEntity>NAM40</creatingEntity>
-            <creatingEntity>NAM20</creatingEntity>
-            <creatingEntity>NAM20</creatingEntity>
+            <creatingEntity>NAM12</creatingEntity>
             <parameter>AV</parameter>
             <parameter>RV</parameter>
         </paramLevelMatches>
@@ -875,13 +873,13 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
             </contourLabeling>
         </contourStyle>
     </styleRule>
-<!--  * NAM40,VAdv, dVAdv
+<!--  * NAM,VAdv, dVAdv
 /1e9s   | 1e9 | 0.0 | 4 | | |..|8000F0FF|m,,,100| 5 | 1 5 10 20 50
 -->
     <styleRule>
         <paramLevelMatches>
             <creatingEntity>NAM40</creatingEntity>
-            <creatingEntity>NAM40</creatingEntity>
+            <creatingEntity>NAM12</creatingEntity>
             <parameter>VAdv</parameter>
             <parameter>dVAdv</parameter>
         </paramLevelMatches>
@@ -920,8 +918,8 @@ C/hr    |-3600| 0.0 | 4 | | | |8000F0FF| | -10 | 1
         </paramLevelMatches>
         <contourStyle>
             <displayUnits label="C/hr">K/(h*-1)</displayUnits>
-            <contourLabeling labelSpacing="4" numberOfContours="10">
-                <increment>1</increment>
+            <contourLabeling labelSpacing="4">
+                <increment>30</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2673,6 +2671,202 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF| | 0 | 4
             </contourLabeling>
         </contourStyle>
     </styleRule>
+<!--  * DGEX, GH, 850MB > 500MB 
+dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF|,,,80 | 0 | 3
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>GH</parameter>
+            <creatingEntity>DGEX</creatingEntity>
+            <rangeLevel units="MB">
+                <upper>850</upper>
+                <lower>500</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>dam</displayUnits>
+            <contourLabeling labelSpacing="4" labelFormat="#"
+                minMaxLabelFormat="#" minLabel="L" maxLabel="H">
+                <increment>3</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, GH, 250MB 
+dam | 0.1 | 0.0 | 4 | i5 | X |LH|8000F0FF|,,,80 | 0 | 6
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>GH</parameter>
+            <rangeLevel units="MB">
+                <upper>250</upper>
+                <lower>250</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>dam</displayUnits>
+            <contourLabeling labelSpacing="4" labelFormat="#"
+                minMaxLabelFormat="#" minLabel="L" maxLabel="H">
+                <increment>6</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, msl-P
+mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF|,,,80 | 0 | 4
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>PMSL</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>mb</displayUnits>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="4" labelFormat="#"
+                minMaxLabelFormat="#" minLabel="L" maxLabel="H">
+                <increment>4</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>msl-P</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>mb</displayUnits>
+            <displayFlags>NoPlane</displayFlags>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="4" labelFormat="#"
+                minMaxLabelFormat="#" minLabel="L" maxLabel="H">
+                <increment>4</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, T, 850MB > 500MB
+C  | 1 |-273.15| 4 |    |   |..|8000F0FF|,,,80 | 0 | 2
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>T</parameter>
+            <rangeLevel units="MB">
+                <upper>850</upper>
+                <lower>500</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>C</displayUnits>
+            <contourLabeling labelSpacing="4">
+                <increment>2</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, RH, 850MB > 500MB
+%  | 1.0 | 0.0 | 4 |    |   |..|8000F0FF|,,,80 | 0 | 10
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>RH</parameter>
+            <rangeLevel units="MB">
+                <upper>850</upper>
+                <lower>500</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>%</displayUnits>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="4">
+                <increment>10</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, PVV
+-ubar/s | -10 | 0.0 | 4 | | |..|8000F0FF|m,,,80 | 11 | 1 2 3 4 5 6 8 10 12 15 20
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>PVV</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <smoothingDistance>80</smoothingDistance>
+            <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+            <contourLabeling labelSpacing="4"
+                createNegativeValues="true">
+                <values>1 2 3 4 5 6 8 10 12 15 20</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>   
+<!--  * DGEX, SLI
+C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>SLI</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <smoothingDistance>80</smoothingDistance>
+            <displayUnits label="C">K</displayUnits>
+            <displayFlags>NoPlane</displayFlags>
+            <contourLabeling labelSpacing="4">
+                <increment>2</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, AV
+/1e5s   | 1e5 | 0.0 | 4 |    | X |NX|8000F0FF|,,,80 | 0 | 2
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>AV</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="4" minMaxLabelFormat=""
+                minLabel="N" maxLabel="X">
+                <increment>2</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, wDiv
+/1e5s   | 1e5 | 0.0 | 8 |    |   |..|8000F0FF|,,,80|11|1 2 3 4 5 6 8 10 12 15 20
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>wDiv</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="8">
+                <values>1 2 3 4 5 6 8 10 12 15 20</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, VAdv, dVAdv, PIVA
+/1e9s   | 1e9 | 0.0 | 4 | | |..|8000F0FF|,,,80| 5 | 1 5 10 20 50
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>VAdv</parameter>
+            <parameter>dVAdv</parameter>
+            <parameter>PIVA</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="/1e9s">/s*1.0E9</displayUnits>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="4">
+                <values>1 5 10 20 50</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
 <!--  * diam
 km | 0.001 | 0.0 | 4 |  |   |..|8000F0FF| | 0 | 1
 -->
@@ -2857,6 +3051,69 @@ kt|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 10
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
                 <increment>10</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, TAdv
+C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>TAdv</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits labe="C/12hr">C/(h*12)</displayUnits>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="4">
+                <values>1 5 10 20 50</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, MAdv
+g/Kg/12hr| 43200| 0.0 | 4 | | |..|8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>MAdv</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="g/Kg/12hr">(g/kg)/(h*12)</displayUnits>
+            <contourLabeling labelSpacing="4">
+                <values>1 2 5 10 20 50 100 200</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, PoTA, EPTA
+C/12hr  |43200| 0.0 | 4 | | | |8000F0FF|,,,80| 5 | 1 5 10 20 50
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>PoTA</parameter>
+            <parameter>EPTA</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="C/12hr">K/h*12</displayUnits>
+            <contourLabeling>
+                <values>1 5 10 20 50</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+<!--  * DGEX, MCon
+g/Kg/12hr|43200| 0.0 | 4 | | | |8000F0FF|,,,80| 8 | 1 2 5 10 20 50 100 200
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>DGEX</creatingEntity>
+            <parameter>MCon</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="g/Kg/12hr">(g/kg)/(h*12)</displayUnits>
+            <smoothingDistance>80</smoothingDistance>
+            <contourLabeling labelSpacing="4">
+                <values>1 2 5 10 20 50 100 200</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>

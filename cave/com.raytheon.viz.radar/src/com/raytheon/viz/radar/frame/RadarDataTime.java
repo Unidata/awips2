@@ -34,11 +34,11 @@ import com.raytheon.uf.common.time.DataTime;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 13, 2015  4461     bsteffen    Initial creation
+ * Feb 16, 2018  7032     njensen     Added nullary constructor for JAXB
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class RadarDataTime extends DataTime {
 
@@ -47,6 +47,10 @@ public class RadarDataTime extends DataTime {
     private Integer elevationNumber;
 
     private int volumeScanNumber;
+
+    public RadarDataTime() {
+        super();
+    }
 
     public RadarDataTime(DataTime time) {
         super(time.getRefTime());

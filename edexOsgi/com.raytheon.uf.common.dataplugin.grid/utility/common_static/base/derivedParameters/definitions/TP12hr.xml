@@ -23,7 +23,7 @@
         at different localization levels will be combined. 
     -->
 <DerivedParameter unit="mm" name="12 Hr Accum Precip" abbreviation="TP12hr">
-    <Method models="SREF40" name="Alias">
+    <Method models="SREF212" name="Alias">
         <Field abbreviation="TP12mean" />
     </Method>
     <Method name="Alias">

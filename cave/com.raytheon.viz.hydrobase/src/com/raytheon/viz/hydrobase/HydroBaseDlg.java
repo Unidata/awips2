@@ -113,7 +113,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 4, 2008				lvenable	Initial creation.
+ * Sep 4, 2008              lvenable    Initial creation.
  * 12/18/2008   1782        grichard    Added lid to constructors.
  * 03/27/2009   2145        mduff       Removed the Vector/Areal Definition menu items.
  * 04/23/2009   2181        mduff       Made station search case-insensitive.
@@ -128,7 +128,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      stay highlighted in the hydrobase list after
  *                                      an update.
  * 
- * 05/09/2011   9151	   lbousaid     open Modify Location window on double click
+ * 05/09/2011   9151        lbousaid    open Modify Location window on double click
  * 04/16/2013   1790        rferrel     Changes for non-blocking AddModifyLocationDlg.
  *                                      Changes for non-blocking AdministrationDlg.
  *                                      Changes for non-blocking ArealDefinitionsDlg.
@@ -170,15 +170,16 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      closing all of CAVE.
  * 04/11/2016   5483       dgilling     Fix hard-coded layouts in HBPasswordDlg.
  * 04/22/2016   5483       dgilling     Code cleanup.
- * Oct 27, 2016 5969       randerso     Add support for locating hydroapps on the correct monitor
+ * 10/27/2016   5969       randerso     Add support for locating hydroapps on the correct monitor
+ * 01/19/2018   6832       mduff        Search selection now appears at the top of the list rather than the bottom.
  * 
  * </pre>
  * 
  * @author lvenable
  */
-public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
-        IPreferencesListener, IStationFilterListener, IStationListener,
-        KeyListener {
+public class HydroBaseDlg extends CaveSWTDialog
+        implements IGetSortType, IPreferencesListener, IStationFilterListener,
+        IStationListener, KeyListener {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(HydroBaseDlg.class);
 
@@ -368,71 +369,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     private final Map<String, TextReportDlg> textReportDlgMap = new HashMap<>();
 
     /**
-     * Flood category menu item.
-     */
-    private MenuItem floodCategoryMI;
-
-    /**
-     * Impact statement menu item.
-     */
-    private MenuItem impactStatementMI;
-
-    /**
-     * Low water statement menu item.
-     */
-    private MenuItem lowWaterStatementMI;
-
-    /**
-     * Flood damage menu item.
-     */
-    private MenuItem floodDamageMI;
-
-    /**
-     * Rating curve menu item.
-     */
-    private MenuItem ratingCurveMI;
-
-    /**
-     * Unit hydrograph menu item.
-     */
-    private MenuItem unitHydrographMI;
-
-    /**
-     * Crest history menu item.
-     */
-    private MenuItem crestHistoryMI;
-
-    /**
-     * Low water menu item.
-     */
-    private MenuItem lowWaterMI;
-
-    /**
-     * Benchmark menu item.
-     */
-    private MenuItem benchmarkMI;
-
-    /**
-     * Datum menu item.
-     */
-    private MenuItem datumMI;
-
-    /**
-     * Description menu item.
-     */
-    private MenuItem descriptionMI;
-
-    /**
-     * Publications menu item.
-     */
-    private MenuItem publicationsMI;
-
-    /**
-     * References menu item.
-     */
-    private MenuItem referencesMI;
-
-    /**
      * Data list control.
      */
     private List dataList;
@@ -485,8 +421,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      *            Dialog title information.
      */
     public HydroBaseDlg(Shell parent, String titleInfo, String selectedLid) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL
-                | CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM | SWT.MIN,
+                CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("HydroBase on " + titleInfo);
         this.selectedLid = selectedLid;
     }
@@ -769,8 +705,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         final String lid = getSelectedLocation().getStation();
         DataSourcesDlg dataSourcesDlg = dataSourcesDlgMap.get(lid);
         if (dataSourcesDlg == null || dataSourcesDlg.isDisposed()) {
-            dataSourcesDlg = new DataSourcesDlg(shell, getStationAndName(),
-                    lid, true);
+            dataSourcesDlg = new DataSourcesDlg(shell, getStationAndName(), lid,
+                    true);
             dataSourcesDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
@@ -839,7 +775,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         new MenuItem(riverGageMenu, SWT.SEPARATOR);
 
         // Flood Category menu item
-        floodCategoryMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem floodCategoryMI = new MenuItem(riverGageMenu, SWT.NONE);
         floodCategoryMI.setText("Flood Ca&tegory...\tCtrl+T");
         floodCategoryMI.setAccelerator(SWT.CTRL + 'T');
         floodCategoryMI.addSelectionListener(new SelectionAdapter() {
@@ -871,7 +807,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(floodCategoryMI);
 
         // Impact Statement menu item
-        impactStatementMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem impactStatementMI = new MenuItem(riverGageMenu, SWT.NONE);
         impactStatementMI.setText("&Impact Statement...\tCtrl+I");
         impactStatementMI.setAccelerator(SWT.CTRL + 'I');
         impactStatementMI.addSelectionListener(new SelectionAdapter() {
@@ -883,7 +819,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(impactStatementMI);
 
         // Low Water Statement menu item
-        lowWaterStatementMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem lowWaterStatementMI = new MenuItem(riverGageMenu, SWT.NONE);
         lowWaterStatementMI.setText("Lo&w Water Statement...\tCtrl+W");
         lowWaterStatementMI.setAccelerator(SWT.CTRL + 'W');
         lowWaterStatementMI.addSelectionListener(new SelectionAdapter() {
@@ -895,7 +831,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(lowWaterStatementMI);
 
         // Flood Damage menu item
-        floodDamageMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem floodDamageMI = new MenuItem(riverGageMenu, SWT.NONE);
         floodDamageMI.setText("&Flood Damage...\tCtrl+F");
         floodDamageMI.setAccelerator(SWT.CTRL + 'F');
         floodDamageMI.addSelectionListener(new SelectionAdapter() {
@@ -905,8 +841,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 FloodDamageDlg floodDamDlg = floodDamDlgMap.get(lid);
 
                 if (floodDamDlg == null) {
-                    floodDamDlg = new FloodDamageDlg(shell,
-                            getStationAndName(), lid);
+                    floodDamDlg = new FloodDamageDlg(shell, getStationAndName(),
+                            lid);
                     floodDamDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
@@ -927,7 +863,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(floodDamageMI);
 
         // Rating Curve menu item
-        ratingCurveMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem ratingCurveMI = new MenuItem(riverGageMenu, SWT.NONE);
         ratingCurveMI.setText("Rati&ng Curve...\tCtrl+N");
         ratingCurveMI.setAccelerator(SWT.CTRL + 'N');
         ratingCurveMI.addSelectionListener(new SelectionAdapter() {
@@ -939,7 +875,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(ratingCurveMI);
 
         // Unit Hydrograph menu item
-        unitHydrographMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem unitHydrographMI = new MenuItem(riverGageMenu, SWT.NONE);
         unitHydrographMI.setText("Unit Hydrograph...");
         unitHydrographMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -953,7 +889,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         new MenuItem(riverGageMenu, SWT.SEPARATOR);
 
         // Crest History menu item
-        crestHistoryMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem crestHistoryMI = new MenuItem(riverGageMenu, SWT.NONE);
         crestHistoryMI.setText("Cre&st History...\tCtrl+S");
         crestHistoryMI.setAccelerator(SWT.CTRL + 'S');
         crestHistoryMI.addSelectionListener(new SelectionAdapter() {
@@ -965,7 +901,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(crestHistoryMI);
 
         // Low Water menu item
-        lowWaterMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem lowWaterMI = new MenuItem(riverGageMenu, SWT.NONE);
         lowWaterMI.setText("&Low Water...\tCtrl+L");
         lowWaterMI.setAccelerator(SWT.CTRL + 'L');
         lowWaterMI.addSelectionListener(new SelectionAdapter() {
@@ -999,7 +935,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         new MenuItem(riverGageMenu, SWT.SEPARATOR);
 
         // Benchmark menu item
-        benchmarkMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem benchmarkMI = new MenuItem(riverGageMenu, SWT.NONE);
         benchmarkMI.setText("&Benchmark...\tCtrl+B");
         benchmarkMI.setAccelerator(SWT.CTRL + 'B');
         benchmarkMI.addSelectionListener(new SelectionAdapter() {
@@ -1030,7 +966,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(benchmarkMI);
 
         // Datum menu item
-        datumMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem datumMI = new MenuItem(riverGageMenu, SWT.NONE);
         datumMI.setText("Datu&m...\tCtrl+J");
         datumMI.setAccelerator(SWT.CTRL + 'J');
         datumMI.addSelectionListener(new SelectionAdapter() {
@@ -1060,7 +996,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(datumMI);
 
         // Description menu item
-        descriptionMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem descriptionMI = new MenuItem(riverGageMenu, SWT.NONE);
         descriptionMI.setText("Des&cription...\tCtrl+K");
         descriptionMI.setAccelerator(SWT.CTRL + 'K');
         descriptionMI.addSelectionListener(new SelectionAdapter() {
@@ -1094,7 +1030,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         new MenuItem(riverGageMenu, SWT.SEPARATOR);
 
         // Publications menu item
-        publicationsMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem publicationsMI = new MenuItem(riverGageMenu, SWT.NONE);
         publicationsMI.setText("&Publications...\tCtrl+P");
         publicationsMI.setAccelerator(SWT.CTRL + 'P');
         publicationsMI.addSelectionListener(new SelectionAdapter() {
@@ -1125,7 +1061,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMenuItems.add(publicationsMI);
 
         // References menu item
-        referencesMI = new MenuItem(riverGageMenu, SWT.NONE);
+        MenuItem referencesMI = new MenuItem(riverGageMenu, SWT.NONE);
         referencesMI.setText("R&eferences...\tCtrl+E");
         referencesMI.setAccelerator(SWT.CTRL + 'E');
         referencesMI.addSelectionListener(new SelectionAdapter() {
@@ -1218,8 +1154,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         RatingCurveDlg ratingCurveDlg = ratingCurveDlgMap.get(lid);
 
         if (ratingCurveDlg == null || ratingCurveDlg.isDisposed()) {
-            ratingCurveDlg = new RatingCurveDlg(shell, lid,
-                    getStationAndName(), true);
+            ratingCurveDlg = new RatingCurveDlg(shell, lid, getStationAndName(),
+                    true);
             ratingCurveDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
@@ -1600,8 +1536,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             public void widgetSelected(SelectionEvent event) {
 
                 IPathManager pm = PathManagerFactory.getPathManager();
-                LocalizationFile file = pm
-                        .getStaticLocalizationFile(HydroConstants.GROUP_DEFINITION);
+                LocalizationFile file = pm.getStaticLocalizationFile(
+                        HydroConstants.GROUP_DEFINITION);
 
                 if (file != null) {
                     ILocalizationService service = LocalizationPerspectiveUtils
@@ -1609,8 +1545,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                     service.selectFile(file);
                     service.openFile(file);
                 } else {
-                    MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR
-                            | SWT.OK);
+                    MessageBox mb = new MessageBox(getParent(),
+                            SWT.ICON_ERROR | SWT.OK);
                     mb.setText("File Error");
                     mb.setMessage("The following file does not exist:\n"
                             + "group_definition.cfg");
@@ -1654,8 +1590,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 900;
         gd.heightHint = 600;
-        dataList = new List(shell, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL
-                | SWT.H_SCROLL);
+        dataList = new List(shell,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
         dataList.setLayoutData(gd);
 
         dataList.setFont(controlFont);
@@ -1758,14 +1694,14 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     private void sortAndUpdateListControl() {
         int index = 0;
 
-        stationArray = HydroStationDataManager.getInstance().getStationData(
-                this);
+        stationArray = HydroStationDataManager.getInstance()
+                .getStationData(this);
 
         dataList.removeAll();
         int selectedLid = 0;
 
         for (HydroStationData stationData : stationArray) {
-            StringBuffer station = new StringBuffer();
+            StringBuilder station = new StringBuilder();
 
             // Find the station selected in the main HydroView display
             if (stationData.getStation().equalsIgnoreCase(this.selectedLid)) {
@@ -1842,7 +1778,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * @return The label text;
      */
     private String getListLabelText() {
-        StringBuffer format = new StringBuffer();
+        StringBuilder format = new StringBuilder();
         format.append(String.format("%-8S %-25S", "Station", "Name"));
 
         // append the appropriate columns
@@ -1863,8 +1799,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     }
 
     private void populateListControl() {
-        stationArray = HydroStationDataManager.getInstance().getStationData(
-                this);
+        stationArray = HydroStationDataManager.getInstance()
+                .getStationData(this);
 
         sortAndUpdateListControl();
     }
@@ -1888,8 +1824,10 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
 
         showBasin = (columnsToDisplay & PreferencesData.SHOW_BASIN) != 0;
         showLatLon = (columnsToDisplay & PreferencesData.SHOW_LAT_LON) != 0;
-        showRiverStream = (columnsToDisplay & PreferencesData.SHOW_RIVER_STREAM) != 0;
-        showStateCounty = (columnsToDisplay & PreferencesData.SHOW_STATE_COUNTY) != 0;
+        showRiverStream = (columnsToDisplay
+                & PreferencesData.SHOW_RIVER_STREAM) != 0;
+        showStateCounty = (columnsToDisplay
+                & PreferencesData.SHOW_STATE_COUNTY) != 0;
     }
 
     private void getSortPreferences() {
@@ -1899,9 +1837,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         String[] data = sortByCbo.getItems();
 
         for (int i = 0; i < data.length; i++) {
-            if (((data[i].compareTo("Name") == 0) && (selectedSort == SortCriteria.NAME))
-                    || ((data[i].compareTo("Station") == 0) && (selectedSort == SortCriteria.STATION))
-                    || ((data[i].compareTo("State,County") == 0) && (selectedSort == SortCriteria.STATE_COUNTY))) {
+            if (((data[i].compareTo("Name") == 0)
+                    && (selectedSort == SortCriteria.NAME))
+                    || ((data[i].compareTo("Station") == 0)
+                            && (selectedSort == SortCriteria.STATION))
+                    || ((data[i].compareTo("State,County") == 0)
+                            && (selectedSort == SortCriteria.STATE_COUNTY))) {
                 sortByCbo.select(i);
                 break;
             }
@@ -1926,7 +1867,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (stationArray.get(i).getStation().toUpperCase()
                         .startsWith(stationSearch)) {
                     dataList.setSelection(i);
-                    dataList.showSelection();
+                    dataList.setTopIndex(i);
                     handleSiteSelection();
                     break;
                 }
@@ -2119,7 +2060,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
 
             Label label = new Label(composite, SWT.NONE);
             label.setText("Enter Password:");
-            label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true));
+            label.setLayoutData(
+                    new GridData(SWT.LEFT, SWT.CENTER, false, true));
 
             text = new Text(composite, SWT.SINGLE | SWT.PASSWORD | SWT.BORDER);
             text.setFocus();
@@ -2181,8 +2123,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                     pw = data.get(0).getHbPassword();
                 }
             } catch (VizException e) {
-                statusHandler.error("Data Query:"
-                        + " Error retrirving HB Password.", e);
+                statusHandler.error(
+                        "Data Query:" + " Error retrirving HB Password.", e);
             }
 
             return pw;

@@ -24,12 +24,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * 
@@ -41,7 +40,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 16, 2009 1883       lvenable     Initial creation
- * 10 Feb 2009             wkwocked      Add functions.
+ * 10 Feb 2009             wkwocked     Add functions.
+ * 13 Dec 2017  6778       mduff        Fixed reading of the groups file to handle comments and white space.
  * 
  * </pre>
  * 
@@ -55,7 +55,7 @@ public class ReadIDsList {
     /**
      * Array of IDs.
      */
-    private ArrayList<String[]> idsList;
+    private List<String[]> idsList = new ArrayList<>();
 
     /**
      * Constructor
@@ -63,40 +63,26 @@ public class ReadIDsList {
      * @param groupFileName
      */
     public ReadIDsList(File groupFile) {
-
-        InputStream is = null;
-        BufferedReader br = null;
-        String line;
-        idsList = new ArrayList<String[]>();
-
-        try {
-            br = new BufferedReader(new FileReader(groupFile));
-
-            /*
-             * The readLine call reads in the first line of the file which is
-             * ignored because we don't care how many lines are in the file.
-             */
-            line = br.readLine();
-
-            while (null != (line = br.readLine())) {
-                String IDandPEStr[] = line.split(" ", 2);
-                idsList.add(IDandPEStr);
-            }
-        } catch (Exception e) {
-            String msg = "Error reading " + groupFile.getAbsolutePath();
-            statusHandler.handle(Priority.ERROR, msg, e);
-        } finally {
-            try {
-                if (br != null) {
-                    br.close();
+        if (groupFile == null) {
+            statusHandler.error("Null group file provided.");
+            return;
+        }
+        try (BufferedReader in = new BufferedReader(
+                new FileReader(groupFile))) {
+            String str;
+            while ((str = in.readLine()) != null) {
+                // Skip comment lines that start with $
+                if (str.startsWith("$")) {
+                    continue;
                 }
-
-                if (is != null) {
-                    is.close();
+                String IDandPEStr[] = str.trim().split("\\s+");
+                if (IDandPEStr.length >= 2) {
+                    idsList.add(IDandPEStr);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            statusHandler.error("Error reading " + groupFile.getAbsolutePath(),
+                    e);
         }
     }
 
@@ -105,7 +91,7 @@ public class ReadIDsList {
      * 
      * @return ArrayList<String[]> Array of IDs.
      */
-    public ArrayList<String[]> getIDsList() {
+    public List<String[]> getIDsList() {
         return idsList;
     }
 }

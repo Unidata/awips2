@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.ui.runtimeui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -38,6 +39,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.python.swt.widgets.CheckWidget;
+import com.raytheon.uf.viz.python.swt.widgets.CompactTextWidget;
 import com.raytheon.uf.viz.python.swt.widgets.LabelWidget;
 import com.raytheon.uf.viz.python.swt.widgets.ListWidget;
 import com.raytheon.uf.viz.python.swt.widgets.NumberWidget;
@@ -65,8 +67,15 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition.FieldType;
  * Dec 11, 2014  638      mgamazaychikov  Set isFloat in makeScale.
  * Nov 28, 2017  6540     randerso        Changed makeScale to check for Double
  *                                        instead of Float for Jep 3.6
- * Dec 27, 2017 19773     ryu             Use of check widget (not switch to list widget
- *                                        when item count exceeds 20)
+ * Dec 27, 2017  19773    ryu             Use of check widget (not switch to
+ *                                        list widget when item count exceeds
+ *                                        20)
+ * Jan 15, 2018  6684     randerso        Added support for DELTASCALE and
+ *                                        COMPACTTEXT types. Restructured code
+ *                                        for improved maintainability/
+ *                                        readability. Code cleanup.
+ * Oct 23, 2018  6684     randerso        Fixed return values for MODEL and
+ *                                        D2DMODEL fields
  *
  * </pre>
  *
@@ -74,13 +83,15 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition.FieldType;
  */
 
 public class DialogAreaComposite extends ScrolledComposite {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DialogAreaComposite.class);
 
     private static final double MAX_HEIGHT_RATIO = 0.80;
 
     private static final double MAX_WIDTH_RATIO = 0.85;
+
+    private static final List<FieldType> SINGLE_SELECTION_TYPES = Arrays
+            .asList(FieldType.RADIO, FieldType.MODEL, FieldType.D2DMODEL);
 
     private List<Widget> widgetList;
 
@@ -94,18 +105,20 @@ public class DialogAreaComposite extends ScrolledComposite {
      * @param parent
      * @param fieldDefs
      * @param dataMgr
-     * @param style
      */
     public DialogAreaComposite(Composite parent,
             List<FieldDefinition> fieldDefs, DataManager dataMgr) {
         super(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-
-        varFrame = new Composite(this, SWT.NONE);
-
-        this.setContent(varFrame);
+        GridLayout layout = new GridLayout();
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        layout.verticalSpacing = 0;
+        layout.horizontalSpacing = 0;
         this.setLayout(new GridLayout());
 
-        GridLayout layout = new GridLayout();
+        varFrame = new Composite(this, SWT.NONE);
+        this.setContent(varFrame);
+
         layout.marginHeight = 0;
         layout.marginWidth = 0;
         layout.verticalSpacing = 0;
@@ -116,118 +129,184 @@ public class DialogAreaComposite extends ScrolledComposite {
         widgetList = new ArrayList<>();
         this.packType = "";
         for (FieldDefinition fieldDef : fieldDefs) {
+            // See if we have to start a new frame
+            if ((this.topFrame == null)
+                    || !this.packType.equals(fieldDef.getPackType())) {
+                this.topFrame = new Composite(this.varFrame, SWT.NONE);
+                layout = new GridLayout(1, false);
+                layout.marginHeight = 0;
+                layout.marginWidth = 0;
+                layout.verticalSpacing = 0;
+                layout.horizontalSpacing = 0;
+                this.topFrame.setLayout(layout);
+                this.packType = fieldDef.getPackType();
+            }
+
             Widget widget = null;
 
             // TODO: handle unimplemented FieldType values--see TODOs below
             // Refer to AWIPS 1's SelectionDialog.py body() function for details
-            if (fieldDef.getType() == FieldType.LABEL) {
-                widget = makeLabel(fieldDef.getDescription(),
-                        fieldDef.getDefaultValue());
-            } else if (fieldDef.getType() == FieldType.ALPHANUMERIC
-                    || fieldDef.getType() == FieldType.NUMERIC) {
-                widget = makeEntry(fieldDef.getDescription(),
-                        fieldDef.getDefaultValue(),
-                        (fieldDef.getType() == FieldType.NUMERIC));
-            } else if (fieldDef.getType() == FieldType.CHECK
-                    || fieldDef.getType() == FieldType.RADIO) {
-                widget = makeButtonList(
-                        (fieldDef.getType() == FieldType.RADIO),
-                        fieldDef.getDescription(), fieldDef.getValueList(),
-                        fieldDef.getDefaultValue());
-            } else if (fieldDef.getType() == FieldType.SCALE) {
-                widget = makeScale(fieldDef.getDescription(),
-                        fieldDef.getValueList(), fieldDef.getDefaultValue(),
-                        fieldDef.getResolution(), fieldDef.getPrecision());
-            } else if (fieldDef.getType() == FieldType.SCROLLBAR) {
-                widget = makeScrollbar(fieldDef.getDescription(),
-                        fieldDef.getDefaultValue());
-            } else if (fieldDef.getType() == FieldType.STARTTIME
-                    || fieldDef.getType() == FieldType.ENDTIME
-                    || fieldDef.getType() == FieldType.OUTPUT_DIRECTORY
-                    || fieldDef.getType() == FieldType.OUTPUT_FILE) {
+            switch (fieldDef.getType()) {
+            case LABEL:
+                widget = makeLabel(fieldDef);
+                break;
+            case ALPHANUMERIC:
+            case NUMERIC:
+                widget = makeEntry(fieldDef);
+                break;
+            case COMPACTTEXT:
+                widget = makeCompactTextWidget(fieldDef);
+                break;
+
+            case CHECK:
+            case RADIO:
+                widget = makeButtonList(fieldDef);
+                break;
+
+            case SCALE:
+            case DELTASCALE:
+                widget = makeScale(fieldDef);
+                break;
+
+            case SCROLLBAR:
+                widget = makeScrollbar(fieldDef);
+                break;
+
+            case STARTTIME:
+            case ENDTIME:
+            case OUTPUT_DIRECTORY:
+            case OUTPUT_FILE:
                 // TODO: Implement "startTime", "endTime", "output file" and
                 // "output directory" AWIPS 1 smart script GUI widgets
-            } else if (fieldDef.getType() == FieldType.DATABASE
-                    || fieldDef.getType() == FieldType.DATABASES) {
+                break;
+
+            case DATABASE:
+            case DATABASES:
                 // TODO: Implement "database" and "databases" AWIPS 1 smart
                 // script GUI widgets
-            } else if (fieldDef.getType() == FieldType.MODEL
-                    || fieldDef.getType() == FieldType.MODELS) {
+                break;
+
+            case MODEL:
+            case MODELS:
                 if (dataMgr != null) {
                     List<DatabaseID> models = dataMgr.getParmManager()
                             .getAvailableDbs();
                     List<String> filteredDbIdList = new ArrayList<>();
 
                     for (DatabaseID dbId : models) {
-                        if (dbId.getDbType().equals("")
-                                && !(dbId.getModelName().contains("Fcst")
-                                        || dbId.getModelName().contains(
-                                                "Official") || dbId
-                                        .getModelName().contains("Slider"))) {
+                        if ("".equals(dbId.getDbType()) && !(dbId.getModelName()
+                                .contains("Fcst")
+                                || dbId.getModelName().contains("Official")
+                                || dbId.getModelName().contains("Slider"))) {
                             filteredDbIdList.add(dbId.getModelId());
                         }
                     }
 
-                    widget = makeButtonList(
-                            (fieldDef.getType() == FieldType.MODEL),
-                            fieldDef.getDescription(), filteredDbIdList,
-                            fieldDef.getDefaultValue());
+                    widget = makeButtonList(fieldDef, filteredDbIdList);
                 } else {
-                    statusHandler
-                    .handle(Priority.ERROR,
+                    statusHandler.handle(Priority.ERROR,
                             "No dataMgr supplied to ProcessVariableList, cannot retrieve models");
                 }
-            } else if (fieldDef.getType() == FieldType.D2DMODEL
-                    || fieldDef.getType() == FieldType.D2DMODELS) {
+                break;
+
+            case D2DMODEL:
+            case D2DMODELS:
                 if (dataMgr != null) {
                     List<DatabaseID> models = dataMgr.getParmManager()
                             .getAvailableDbs();
                     List<String> filteredDbIdList = new ArrayList<>();
 
                     for (DatabaseID dbId : models) {
-                        if (dbId.getDbType().equals("D2D")
-                                && !(dbId.getModelName().contains("Fcst")
-                                        || dbId.getModelName().contains(
-                                                "Official") || dbId
-                                        .getModelName().contains("Slider"))) {
+                        if ("D2D".equals(dbId.getDbType()) && !(dbId
+                                .getModelName().contains("Fcst")
+                                || dbId.getModelName().contains("Official")
+                                || dbId.getModelName().contains("Slider"))) {
                             filteredDbIdList.add(dbId.getModelId());
                         }
                     }
 
-                    widget = makeButtonList(
-                            (fieldDef.getType() == FieldType.D2DMODEL),
-                            fieldDef.getDescription(), filteredDbIdList,
-                            fieldDef.getDefaultValue());
+                    widget = makeButtonList(fieldDef, filteredDbIdList);
                 } else {
-                    statusHandler
-                    .handle(Priority.ERROR,
+                    statusHandler.handle(Priority.ERROR,
                             "No dataMgr supplied to ProcessVariableList, cannot retrieve models");
                 }
-            } else if (fieldDef.getType().getPythonWidgetName()
-                    .contains("parm")) {
+                break;
+
+            case PARM:
+            case PARMMUTABLE:
+            case PARMMUTABLEPLUSVARIABLE:
+            case PARMPLUSVARIABLE:
+            case PARMS:
+            case PARMSMUTABLE:
+            case PARMSMUTABLEPLUSVARIABLE:
+            case PARMSPLUSVARIABLE:
                 // TODO: Implement all parm-related AWIPS 1 smart script GUI
                 // widgets
-            } else if (fieldDef.getType() == FieldType.REFSET
-                    || fieldDef.getType() == FieldType.REFSETS) {
+                break;
+
+            case REFSET:
+            case REFSETS:
                 // TODO: Implement "refset" and "refsets" AWIPS 1 smart script
                 // GUI widgets
-            } else if (fieldDef.getType() == FieldType.MAP
-                    || fieldDef.getType() == FieldType.MAPS) {
+                break;
+
+            case MAP:
+            case MAPS:
                 // TODO: Implement "map" and "maps" AWIPS 1 smart script GUI
                 // widgets
-            } else if (fieldDef.getType() == FieldType.TIMERANGE
-                    || fieldDef.getType() == FieldType.TIMERANGES) {
+                break;
+
+            case TIMERANGE:
+            case TIMERANGES:
                 // TODO: Implement "timerange" and "timeranges" AWIPS 1 smart
                 // script GUI widgets
-            } else {
-                widget = makeLabel("ERROR: " + fieldDef.getDescription()
-                + " unknown widget type: "
-                + fieldDef.getType().getPythonWidgetName(), null);
+                break;
+
+            default:
+                FieldDefinition errorField = new FieldDefinition();
+                errorField.setDescription("ERROR: " + fieldDef.getDescription()
+                        + " unknown widget type: "
+                        + fieldDef.getType().getPythonWidgetName());
+                widget = makeLabel(errorField);
             }
 
             if (widget != null) {
                 widget.setVariable(fieldDef.getName());
+
                 widgetList.add(widget);
+            }
+
+            Boolean newRow = fieldDef.getNewRow();
+            if (newRow == null) {
+                if ("button".equals(fieldDef.getPackType())) {
+                    ((GridLayout) this.topFrame.getLayout()).numColumns++;
+                }
+            } else {
+                if (newRow) {
+                    this.packType = "newRow";
+                } else {
+                    ((GridLayout) this.topFrame.getLayout()).numColumns++;
+                }
+            }
+        }
+
+        // Make sure widgets are scrolled into view when they gain focus
+        Listener listener = new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                if (event.widget instanceof Control) {
+                    DialogAreaComposite.this
+                            .showControl((Control) event.widget);
+                }
+            }
+        };
+
+        for (Control control : varFrame.getChildren()) {
+            if (control instanceof Composite) {
+                for (Control child : ((Composite) control).getChildren()) {
+                    child.addListener(SWT.Activate, listener);
+                }
             }
         }
 
@@ -239,126 +318,75 @@ public class DialogAreaComposite extends ScrolledComposite {
         this.setExpandHorizontal(true);
         this.setExpandVertical(true);
 
-        Rectangle monitorBounds = this.getDisplay().getPrimaryMonitor()
-                .getBounds();
+        Rectangle monitorBounds = getMonitor().getBounds();
         int maxXSize = (int) (monitorBounds.width * MAX_WIDTH_RATIO);
         int maxYSize = (int) (monitorBounds.height * MAX_HEIGHT_RATIO);
 
         maxXSize = Math.min(maxXSize, xSize);
         maxYSize = Math.min(maxYSize, ySize);
 
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.heightHint = maxYSize;
-        gd.widthHint = maxXSize;
-        this.setLayoutData(gd);
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gridData.heightHint = maxYSize;
+        gridData.widthHint = maxXSize;
 
-        // Make sure widgets are scrolled into view when they gain focus
-        // see:
-        // http://www.java2s.com/Code/Java/SWT-JFace-Eclipse/ScrollSWTwidgetsintoviewwhentheygetfocus.htm
-        final DialogAreaComposite sc = this;
-        Listener scrollOnFocus = new Listener() {
-
-            @Override
-            public void handleEvent(Event event) {
-                Control child = (Control) event.widget;
-                Rectangle bounds = child.getBounds();
-                Rectangle area = sc.getClientArea();
-                Point origin = sc.getOrigin();
-                if (origin.x > bounds.x) {
-                    origin.x = Math.max(0, bounds.x);
-                }
-                if (origin.y > bounds.y) {
-                    origin.y = Math.max(0, bounds.y);
-                }
-                if (origin.x + area.width < bounds.x + bounds.width) {
-                    origin.x = Math
-                            .max(0, bounds.x + bounds.width - area.width);
-                }
-                if (origin.y + area.height < bounds.y + bounds.height) {
-                    origin.y = Math.max(0, bounds.y + bounds.height
-                            - area.height);
-                }
-                sc.setOrigin(origin);
+        for (Widget widget : widgetList) {
+            if (widget instanceof ScrollbarWidget) {
+                gridData.heightHint = (Integer) widget.getValue();
             }
-
-        };
-
-        Control[] controls = varFrame.getChildren();
-        for (Control c : controls) {
-            c.addListener(SWT.Activate, scrollOnFocus);
         }
-
+        setLayoutData(gridData);
     }
 
-    private Widget makeLabel(String labelText, Object value) {
-        if (labelText.isEmpty()) {
-            this.packType = "";
+    private Widget makeLabel(FieldDefinition fieldDef) {
+        if (fieldDef.getDescription().isEmpty()) {
             return null;
         }
-        // See if we have to start a new frame
-        if (!this.packType.equals("label")) {
-            this.topFrame = new Composite(this.varFrame, SWT.NONE);
-            GridLayout layout = new GridLayout();
-            layout.marginHeight = 0;
-            layout.marginWidth = 0;
-            layout.verticalSpacing = 0;
-            layout.horizontalSpacing = 0;
-            this.topFrame.setLayout(layout);
-            this.packType = "label";
-        }
 
-        Widget widget = new LabelWidget(labelText, value);
+        Widget widget = new LabelWidget(fieldDef.getDescription(),
+                fieldDef.getDefaultValue());
         widget.buildComposite(this.topFrame);
         return widget;
     }
 
-    private Widget makeEntry(String labelText, Object value, boolean numericOnly) {
-        // See if we have to start a new frame
-        if (!this.packType.equals("entry")) {
-            this.topFrame = new Composite(this.varFrame, SWT.NONE);
-            GridLayout layout = new GridLayout();
-            layout.marginHeight = 0;
-            layout.marginWidth = 0;
-            layout.verticalSpacing = 0;
-            layout.horizontalSpacing = 0;
-            this.topFrame.setLayout(layout);
-            this.packType = "entry";
-        }
+    private Widget makeEntry(FieldDefinition fieldDef) {
 
         Widget widget = null;
-        if (numericOnly) {
-            widget = new NumberWidget(labelText);
+        if (fieldDef.getType() == FieldType.NUMERIC) {
+            widget = new NumberWidget(fieldDef.getDescription());
         } else {
-            widget = new TextWidget(labelText);
+            widget = new TextWidget(fieldDef.getDescription());
         }
-        widget.setValue(value);
+        widget.setValue(fieldDef.getDefaultValue());
 
         widget.buildComposite(this.topFrame);
         return widget;
     }
 
-    private Widget makeButtonList(boolean radioButton, String label,
-            List<? extends Object> elementList, Object initialValue) {
-        // See if we have to start a new frame
-        if (!this.packType.equals("button")) {
-            this.topFrame = new Composite(this.varFrame, SWT.NONE);
-            GridLayout layout = new GridLayout(0, false);
-            layout.marginHeight = 0;
-            layout.marginWidth = 0;
-            layout.verticalSpacing = 0;
-            layout.horizontalSpacing = 0;
-            this.topFrame.setLayout(layout);
-            this.packType = "button";
-        }
+    private Widget makeCompactTextWidget(FieldDefinition fieldDef) {
+        CompactTextWidget widget = new CompactTextWidget(
+                fieldDef.getDescription());
+        widget.setValue(fieldDef.getDefaultValue());
+
+        widget.buildComposite(this.topFrame);
+        return widget;
+    }
+
+    private Widget makeButtonList(FieldDefinition fieldDef) {
+        return makeButtonList(fieldDef, fieldDef.getValueList());
+    }
+
+    private Widget makeButtonList(FieldDefinition fieldDef,
+            List<? extends Object> elementList) {
 
         Widget widget;
-        if (radioButton) {
-            widget = makeRadioList(label, elementList, initialValue);
+        if (SINGLE_SELECTION_TYPES.contains(fieldDef.getType())) {
+            widget = makeRadioList(fieldDef.getDescription(), elementList,
+                    fieldDef.getDefaultValue());
         } else {
-            widget = makeCheckList(label, elementList, initialValue);
+            widget = makeCheckList(fieldDef.getDescription(), elementList,
+                    fieldDef.getDefaultValue());
         }
 
-        ((GridLayout) this.topFrame.getLayout()).numColumns++;
         widget.buildComposite(this.topFrame);
         return widget;
     }
@@ -380,32 +408,26 @@ public class DialogAreaComposite extends ScrolledComposite {
     private Widget makeCheckList(String label,
             List<? extends Object> elementList, Object initialValue) {
         Widget checkList;
-        checkList = new CheckWidget(label);
+        if (elementList.size() > 20) {
+            checkList = new ListWidget(label, true);
+        } else {
+            checkList = new CheckWidget(label);
+        }
         checkList.setValue(initialValue);
         checkList.setOptions(elementList);
 
         return checkList;
     }
 
-    private ScaleWidget makeScale(String labelText,
-            List<? extends Object> valueList, Object initialValue, double res,
-            int precision) {
-        // See if we have to start a new frame
-        if (!this.packType.equals("entry")) {
-            this.topFrame = new Composite(this.varFrame, SWT.NONE);
-            GridLayout layout = new GridLayout();
-            layout.marginHeight = 0;
-            layout.marginWidth = 0;
-            layout.verticalSpacing = 0;
-            layout.horizontalSpacing = 0;
-            this.topFrame.setLayout(layout);
-            this.packType = "entry";
-        }
+    private ScaleWidget makeScale(FieldDefinition fieldDef) {
 
-        ScaleWidget scale = new ScaleWidget(labelText);
-        scale.setOptions(valueList);
-        scale.setResolution(res);
-        scale.setPrecision(precision);
+        ScaleWidget scale = new ScaleWidget(fieldDef.getDescription(),
+                fieldDef.getType() == FieldType.DELTASCALE);
+        scale.setOptions(fieldDef.getValueList());
+        scale.setResolution(fieldDef.getResolution());
+        scale.setPrecision(fieldDef.getPrecision());
+
+        Object initialValue = fieldDef.getDefaultValue();
         if (initialValue instanceof Double) {
             scale.setFloat(true);
         } else {
@@ -417,11 +439,15 @@ public class DialogAreaComposite extends ScrolledComposite {
         return scale;
     }
 
-    private Widget makeScrollbar(String label, Object initialValue) {
-        Widget scrollbar = new ScrollbarWidget(label);
-        scrollbar.setValue(initialValue);
+    private Widget makeScrollbar(FieldDefinition fieldDef) {
+        if (fieldDef.getDefaultValue() instanceof Number) {
+            Widget scrollbar = new ScrollbarWidget(fieldDef.getDescription());
+            scrollbar
+                    .setValue(((Number) fieldDef.getDefaultValue()).intValue());
 
-        return scrollbar;
+            return scrollbar;
+        }
+        return null;
     }
 
     /**

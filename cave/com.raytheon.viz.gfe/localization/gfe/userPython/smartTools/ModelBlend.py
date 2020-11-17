@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -45,7 +45,7 @@
 #                optional edge effects when working on an edit area,
 #                simplify using previous model runs, and make negative
 #                weights optional.
-#    2002-10-09: Original Implementation from Les Colin Idea 
+#    2002-10-09: Original Implementation from Les Colin Idea
 #----------------------------------------------------------------------------
 #
 # SOFTWARE HISTORY
@@ -54,13 +54,15 @@
 # ------------- -------- --------- ---------------------------------------------
 # Feb 10, 2016  5283     nabowle   Remove NGM support.
 # Feb 06, 2017  5959     randerso  Removed Java .toString() calls
-# 
+# Feb 07, 2018  6882     randerso  Changed to use ReferenceData.isEmpty()
+#
 ##
 
 ##
 # This is an absolute override file, indicating that a higher priority version
 # of the file will completely replace a lower priority version of the file.
 ##
+from __future__ import print_function
 
 #---------------------------------------------------------------------
 #
@@ -72,12 +74,12 @@
 #  maximum number of weights in a column of the dialog.  It will try
 #  to balance columns if needed.
 #
-MAX_IN_COLUMN=15
+MAX_IN_COLUMN = 15
 #
 #  If you do not want to allow negative weights (which can be used to
 #  extrapolate trends), then set USE_NEGATIVE_WEIGHTS to zero.
 #
-USE_NEGATIVE_WEIGHTS=1
+USE_NEGATIVE_WEIGHTS = 1
 #
 #  List of GFE model databases that you will potentially blend.
 #  The name is followed by a number (separated by a colon) that
@@ -90,7 +92,7 @@ USE_NEGATIVE_WEIGHTS=1
 #  weather elements in the Fcst database, and not the actual weather element
 #  names in the ISC database (since they can be renamed by the system).
 #
-Models=("ADJMET:2",
+Models = ("ADJMET:2",
         "ADJMETBC:2:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
         "Eta12:2",
         "Eta12BC:2:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
@@ -105,13 +107,15 @@ Models=("ADJMET:2",
         "ADJMEH:1:MaxT,MinT,PoP",
         "ADJMEN:1:MaxT,MinT,PoP",
         "ADJMEL:1:MaxT,MinT,PoP",
+        "DGEX:1",
+        "DGEXBC:1:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
         "ADJHPC:1:MaxT,MinT,PoP,Sky,Td,Wind",
         "ADJKAF:2:MaxT,MinT,Wind,T,Td,MaxRH,MinRH,RH,TdMrn,TdAft",
         "ADJKAFBC:2:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
         "NWHAS:3:QPF",
         )
 
-edgestyleDefault="Flat"
+edgestyleDefault = "Flat"
 #---------------------------------------------------------------------
 #
 #  END OF CONFIGURATION SECTION
@@ -122,7 +126,7 @@ edgestyleDefault="Flat"
 #
 ToolType = "numeric"
 WeatherElementEdited = "variableElement"
-ScreenList = ["SCALAR","VECTOR"]
+ScreenList = ["SCALAR", "VECTOR"]
 #
 #
 #
@@ -131,7 +135,7 @@ import Tkinter
 import AppDialog
 import SmartScript
 
-edgestyles=["Flat","Edge","Taper"]
+edgestyles = ["Flat", "Edge", "Taper"]
 #
 #
 #
@@ -148,10 +152,10 @@ class ToolDialog(AppDialog.AppDialog):
         if labels is not None:
             self.labels.extend(labels)
             self.numrows = min(len(labels), MAX_IN_COLUMN)
-            self.numcolumns = (len(labels)-1)/MAX_IN_COLUMN + 1
+            self.numcolumns = (len(labels) - 1) / MAX_IN_COLUMN + 1
         AppDialog.AppDialog.__init__(self, **kwargs)
         self.title(title)
-        
+
     def buttonbox(self):
         buttonFrame = Tkinter.Frame(self)
         # create the buttons associated with this dialog
@@ -180,7 +184,7 @@ class ToolDialog(AppDialog.AppDialog):
     # is called. Therefore, validate() must also preserve any data in such
     # variables that apply() will need.
     def validate(self):
-        rtnval = True;
+        rtnval = True
         self.weights = []
         for wv in self.__weightVars:
             self.weights.append(wv.get())
@@ -193,20 +197,20 @@ class ToolDialog(AppDialog.AppDialog):
     # This is primarily a callback method invoked by the scale widgets.
     # @param weight: Weight of the scale widget that changed
     # @type weight: int
-    #        
+    #
     def setPercents(self, weight):
         "Set the percent labels based on the slider weights."
-        total=0
+        total = 0
         for wv in self.__weightVars:
-           total+=wv.get()
-        if total==0:
+           total += wv.get()
+        if total == 0:
             for pctVar in self.__percents:
-                pctVar.set("%4d%%"%0)
+                pctVar.set("%4d%%" % 0)
         else:
             wpct = 100 / float(total)
             for i, pctVar in enumerate(self.__percents):
-                pctVar.set("%4d%%"%(self.__weightVars[i].get() * wpct))
-                
+                pctVar.set("%4d%%" % (self.__weightVars[i].get() * wpct))
+
     def __runCB(self):
         "The callback invoked by the Run button"
         self.validate()
@@ -222,13 +226,13 @@ class ToolDialog(AppDialog.AppDialog):
         "The callback invoked by the Cancel button"
         self.__callbackMethod("Cancel")
         self.cancel()
-        
+
     def apply(self, event=None):
         pass
 
     def buildWeightSliders(self, master):
         hull = Tkinter.Frame(master)
-        lastColumn = len(self.labels)/MAX_IN_COLUMN
+        lastColumn = len(self.labels) / MAX_IN_COLUMN
         row = 0
         column = 0
         fc = None
@@ -247,67 +251,67 @@ class ToolDialog(AppDialog.AppDialog):
             self.__percents.append(pctVar)
             # Initialize the weight and percent variables
             weightVar.set(0)
-            pctVar.set("%4d%%"%0)
+            pctVar.set("%4d%%" % 0)
             # Create labels and sliders
             lbl = Tkinter.Label(fc, text=labelText)
-            slider = Tkinter.Scale(fc,orient=Tkinter.HORIZONTAL,
-                                   from_=origin,to=10,resolution=1,
+            slider = Tkinter.Scale(fc, orient=Tkinter.HORIZONTAL,
+                                   from_=origin, to=10, resolution=1,
                                    command=self.setPercents,
-                                   variable=weightVar,length=150)
-            lab2=Tkinter.Label(fc,textvariable=pctVar,width=5)
+                                   variable=weightVar, length=150)
+            lab2 = Tkinter.Label(fc, textvariable=pctVar, width=5)
             # Grid the items left-to-right in the current row
             lbl.grid(row=row, column=0, sticky=Tkinter.SE)
             slider.grid(row=row, column=1, sticky=Tkinter.SE)
-            lab2.grid(row=row,column=2,sticky=Tkinter.SE)
+            lab2.grid(row=row, column=2, sticky=Tkinter.SE)
             if column < lastColumn:
-                f2=Tkinter.Frame(fc,bg="black",width=1)
-                f2.grid(row=row,column=3,sticky=Tkinter.NS)
-            row+=1
+                f2 = Tkinter.Frame(fc, bg="black", width=1)
+                f2.grid(row=row, column=3, sticky=Tkinter.NS)
+            row += 1
             if row >= MAX_IN_COLUMN:
                 fc.grid(row=0, column=column, sticky=Tkinter.N)
-                row=0
-                column+=1
+                row = 0
+                column += 1
                 fc = None
         if fc is not None:
             fc.grid(row=0, column=column, sticky=Tkinter.N)
         # Revise the weight of the forecast item
         self.__weightVars[0].set(1)
         self.setPercents(1)
-        hull.grid(row=0,column=0, sticky=Tkinter.S)
-    
+        hull.grid(row=0, column=0, sticky=Tkinter.S)
+
     def buildEdgeControl(self, master):
-        edgeFrame=Tkinter.Frame(master,relief=Tkinter.GROOVE,borderwidth=2)
-        edgestyleFrame=Tkinter.Frame(edgeFrame)
-        edgewidthFrame=Tkinter.Frame(edgeFrame)
+        edgeFrame = Tkinter.Frame(master, relief=Tkinter.GROOVE, borderwidth=2)
+        edgestyleFrame = Tkinter.Frame(edgeFrame)
+        edgewidthFrame = Tkinter.Frame(edgeFrame)
         # Create the edge style radio buttons
-        self.edgestyleString=Tkinter.StringVar(master)
+        self.edgestyleString = Tkinter.StringVar(master)
         for edgestyle in edgestyles:
-           a=Tkinter.Radiobutton(edgestyleFrame,text=edgestyle,
-                               variable=self.edgestyleString,value=edgestyle)
+           a = Tkinter.Radiobutton(edgestyleFrame, text=edgestyle,
+                               variable=self.edgestyleString, value=edgestyle)
            if edgestyle == edgestyleDefault:
               a.invoke()
-           a.pack(side=Tkinter.TOP,anchor=Tkinter.W)
-        edgestyleFrame.pack(side=Tkinter.LEFT,anchor=Tkinter.W)
+           a.pack(side=Tkinter.TOP, anchor=Tkinter.W)
+        edgestyleFrame.pack(side=Tkinter.LEFT, anchor=Tkinter.W)
         # Create the edge width slider
-        self.edgeWidthVar=Tkinter.IntVar(master)
+        self.edgeWidthVar = Tkinter.IntVar(master)
         self.edgeWidthVar.set(5)
-        a=Tkinter.Scale(edgewidthFrame,from_=1,to=30,variable=self.edgeWidthVar,
-                      showvalue=1,label="Edge Width:",orient=Tkinter.HORIZONTAL)
-        a.pack(side=Tkinter.TOP,anchor=Tkinter.N,fill=Tkinter.X)
-        edgewidthFrame.pack(side=Tkinter.RIGHT,anchor=Tkinter.W,fill=Tkinter.X,expand=1)
-        
+        a = Tkinter.Scale(edgewidthFrame, from_=1, to=30, variable=self.edgeWidthVar,
+                      showvalue=1, label="Edge Width:", orient=Tkinter.HORIZONTAL)
+        a.pack(side=Tkinter.TOP, anchor=Tkinter.N, fill=Tkinter.X)
+        edgewidthFrame.pack(side=Tkinter.RIGHT, anchor=Tkinter.W, fill=Tkinter.X, expand=1)
+
         # Add the edge control below the weight sliders
-        edgeFrame.grid(row=self.numrows,column=0,columnspan=self.numcolumns,sticky=Tkinter.EW)
+        edgeFrame.grid(row=self.numrows, column=0, columnspan=self.numcolumns, sticky=Tkinter.EW)
 
 #========================================================================
 class TestDialog(object):
     "A dummy object used to test the back end."
-    
+
     def __init__(self, title="Tk", callbackMethod=None, labels=None, **kwargs):
-        print "TestDialog constructor:"
-        print "Title=", title
-        print "labels=", labels
-        print "kwargs=", kwargs
+        print("TestDialog constructor:")
+        print("Title=", title)
+        print("labels=", labels)
+        print("kwargs=", kwargs)
         self.__callbackMethod = callbackMethod
         self.edgestyle = "Taper"
         self.edgeWidth = ""
@@ -322,10 +326,10 @@ class TestDialog(object):
 #
 class Tool (SmartScript.SmartScript):
     def __init__(self, dbss):
-        self._dbss=dbss
+        self._dbss = dbss
         SmartScript.SmartScript.__init__(self, dbss)
-        
-    def preProcessGrid(self,WEname):
+
+    def preProcessGrid(self, WEname):
         #
         #  Setup the arrays of information for the dialog
         #  box that sets the weights
@@ -339,13 +343,13 @@ class Tool (SmartScript.SmartScript):
         self.labels = []
         self.dbIds = []
 
-        db=self.mutableID()
-        id=db.modelIdentifier()
-        self._addModel('Forecast:', id)
+        db = self.mutableID()
+        modelId = db.modelIdentifier()
+        self._addModel('Forecast:', modelId)
         #
-        db=self.findDatabase("Official")
-        id=db.modelIdentifier()
-        self._addModel("Official", id)
+        db = self.findDatabase("Official")
+        modelId = db.modelIdentifier()
+        self._addModel("Official", modelId)
         #
         plist = None
         allOfficeTypes = None
@@ -355,18 +359,18 @@ class Tool (SmartScript.SmartScript):
                 continue
             if not self.acceptPL(WEname, parmlist):
                 continue
-             
+
             #
             #  Make labels for each of the model runs we want.
             #  Singleton databases (like FCST or Official) that have
             #  no date (actually a 1970 date) have no date/run label.
             #
-            for run in range(0,-versions,-1):
-                db=self.findDatabase(model,run)
+            for run in range(0, -versions, -1):
+                db = self.findDatabase(model, run)
                 if db is None:
                     continue
-                id=db.modelIdentifier()
-                if id is None or ""==id or id in self.dbIds:
+                modelId = db.modelIdentifier()
+                if modelId is None or "" == modelId or modelId in self.dbIds:
                     continue
                 if "ISC" == db.modelName():
                     if allOfficeTypes is None:
@@ -375,31 +379,31 @@ class Tool (SmartScript.SmartScript):
                     if plist is None:
                         plist = self.availableParms()
                     for pname, plevel, pdb in plist:
-                        if id != pdb.modelIdentifier():
+                        if modelId != pdb.modelIdentifier():
                             continue
                         for ot in allOfficeTypes:
                             if pname.endswith(ot) and \
                               ot not in iscOfficeTypes:
                                 iscOfficeTypes.append(ot)
                     for otype in iscOfficeTypes:
-                        ltext = "%s (%s):"%(model, otype)
-                        self._addModel(ltext, id)                        
+                        ltext = "%s (%s):" % (model, otype)
+                        self._addModel(ltext, modelId)
                 else:
-                    modtime=db.modelTime()
-                    year=modtime.year
-                    if year==1970:
-                        lbltext="%s:"%model
+                    modtime = db.modelTime()
+                    year = modtime.year
+                    if year == 1970:
+                        lbltext = "%s:" % model
                     else:
-                        month=modtime.month
-                        day=modtime.day
-                        hour=modtime.hour
-                        lbltext="%s %2.2d/%2.2d %2.2dZ:" % (model,month,day,hour)
-                    self._addModel(lbltext,id)
+                        month = modtime.month
+                        day = modtime.day
+                        hour = modtime.hour
+                        lbltext = "%s %2.2d/%2.2d %2.2dZ:" % (model, month, day, hour)
+                    self._addModel(lbltext, modelId)
         #
         #  Now run the dialog box to get the weights
         #  resulting weights stored in Weights array
         #
-        self.dlg=ToolDialog("Set Model Weights",
+        self.dlg = ToolDialog("Set Model Weights",
                        callbackMethod=self.execWeights,
                        labels=self.labels)
 #        self.dlg=TestDialog("Set Model Weights",
@@ -413,7 +417,7 @@ class Tool (SmartScript.SmartScript):
         #
         self.dlg.mainloop()
         self.cancel()
-    
+
     def parseMS(self, modelstring):
         """Parse a model string into a model, versions, and parmlist."""
         model = None
@@ -433,25 +437,25 @@ class Tool (SmartScript.SmartScript):
             if len_pcs > 2:
                 parmlist = pieces[2]
         return (model, versions, parmlist)
-    
+
     def acceptPL(self, WEName, parmlist):
         """Check WEName against parmlist."""
         invert = False
         parms = parmlist.split(",")
-        if '^'==parms[0][0]:
+        if '^' == parms[0][0]:
             parms[0] = parms[0][1:]
             invert = True
-        result = ('ALL'==parms[0]) or (WEName in parms) 
+        result = ('ALL' == parms[0]) or (WEName in parms)
         result = invert ^ result
         return result
-        
+
     ##
     #
-    #     
-    def _addModel(self, text, id):
-        "Add text and id to self.labels and self.dbIds, respecively."
+    #
+    def _addModel(self, text, modelId):
+        "Add text and modelId to self.labels and self.dbIds, respectively."
         self.labels.append(text)
-        self.dbIds.append(id)
+        self.dbIds.append(modelId)
 
     #=================================================================
     #
@@ -459,7 +463,7 @@ class Tool (SmartScript.SmartScript):
     #  and all the real action is accomplished in execWeights which
     #  is called when the user presses a button on the dialog
     #
-    def execute(self,variableElement):
+    def execute(self, variableElement):
         "Specified blend of any/all model/forecast fields"
         return variableElement
     #=================================================================
@@ -468,47 +472,47 @@ class Tool (SmartScript.SmartScript):
     #                is pressed in the dialog.  Passes in the string
     #                name of the button pressed
     #
-    def execWeights(self,button):
+    def execWeights(self, button):
         #
         #  If user presses cancel, do an immediate return and stop
         #
-        if button=="Cancel":
+        if button == "Cancel":
             return
-        
+
         #
         #  Get the results from the dialog
         #
         #for num in range(len(Labels)):
         #    Weights[num]=ScaleIDs[num].get()
-        EdgeType=self.dlg.edgestyle
-        EdgeWidth=self.dlg.edgeWidth
+        EdgeType = self.dlg.edgestyle
+        EdgeWidth = self.dlg.edgeWidth
         #
         #  If user presses run or run/dismiss, first add up the
         #  weights (in the ScaleIDs variables) and check for
         #  common issues like all weights zero, only weights on
         #  current grid, or grids add up to zero.
         #
-        totweight=0
-        fcstweight=0
-        someweights=0
-        otherweights=0
+        totweight = 0
+        fcstweight = 0
+        someweights = 0
+        otherweights = 0
 
         dbIds = self.dbIds # alias
         weights = self.dlg.weights
-        maxAbsWeight = max( max(weights), abs(min(weights)) )
+        maxAbsWeight = max(max(weights), abs(min(weights)))
         someweights = (maxAbsWeight > 0.5)
         fcstweight = weights[0]
         otherweights = sum(weights[1:])
         totweight = fcstweight + otherweights
-        
+
         if not someweights:
-            self.statusBarMsg("ModelBlend has no weights","R")
+            self.statusBarMsg("ModelBlend has no weights", "R")
             return
-        if abs(fcstweight) > 0.5 and otherweights==0:
-            self.statusBarMsg("ModelBlend Weights add to no change","R")
+        if abs(fcstweight) > 0.5 and otherweights == 0:
+            self.statusBarMsg("ModelBlend Weights add to no change", "R")
             return
-        if totweight==0:
-            self.statusBarMsg("Weights cannot add up to zero","A")
+        if totweight == 0:
+            self.statusBarMsg("Weights cannot add up to zero", "A")
             return
         #
         #  Get stuff usually provided by tool code:
@@ -534,7 +538,7 @@ class Tool (SmartScript.SmartScript):
             model = parm[2].modelIdentifier()
             if model == fcst:
                 parms.append(parm)
-                
+
         #
         #  loop over the mutable parms.
         #  get:  wxType - type of parm
@@ -543,128 +547,128 @@ class Tool (SmartScript.SmartScript):
         #
         for WEname, parmlevel, dbId in parms:
             # Another AWIPS1 derivation: Use of different selectedParms()
-            # call forces us to retrieve Parm to retrieve some of these 
+            # call forces us to retrieve Parm to retrieve some of these
             # pieces of information
             #
             parm = self.getParm(dbId, WEname, parmlevel)
             rateParm = parm.getGridInfo().isRateParm()
             wxType = str(parm.getGridInfo().getGridType())
             del parm
-            
+
             #
             #  Get list of grids for this parm within the selcted time range
             #  and loop over each of those grids
             #
-            gridinfos=self.getGridInfo(fcst,WEname,parmlevel,selectTR)
+            gridinfos = self.getGridInfo(fcst, WEname, parmlevel, selectTR)
             for gridinfo in gridinfos:
-                GridTimeRange=gridinfo.gridTime()
+                GridTimeRange = gridinfo.gridTime()
                 #
                 #  Easier when just a scalar
                 #
-                if 'SCALAR'==wxType:
+                if 'SCALAR' == wxType:
                     #
                     #  read each 'model' grid with a non-zero weight
                     #  add up the weights again, because we cannot count
                     #  weights for grids that cannot be read.
                     #
-                    gsum=self.empty()
-                    totweight=0
-                    fcstweight=0
-                    oldgrid=self.getGrids(self.dbIds[0],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
-                    if oldgrid==None:
-                        self.statusBarMsg("ModelBlend tool could not get Fcst data for " + WEName,"A")
+                    gsum = self.empty()
+                    totweight = 0
+                    fcstweight = 0
+                    oldgrid = self.getGrids(self.dbIds[0], WEname, "SFC", GridTimeRange, noDataError=0, cache=0)
+                    if oldgrid == None:
+                        self.statusBarMsg("ModelBlend tool could not get Fcst data for " + WEName, "A")
                     for num, label in enumerate(self.labels):
-                        weight=weights[num]
-                        if weight!=0:
-                            modeType="TimeWtAverage"
-                            if rateParm==1:
-                                modeType="Sum"
+                        weight = weights[num]
+                        if weight != 0:
+                            modeType = "TimeWtAverage"
+                            if rateParm == 1:
+                                modeType = "Sum"
                             #determine source - special if from ISC
                             idx = label.find("(")
-                            idx1 = label.find(")",idx)
+                            idx1 = label.find(")", idx)
                             if idx == -1 or idx1 == -1:
                                 WEnameSource = WEname
                             else:
-                                ot = label[idx+1:idx1]
+                                ot = label[idx + 1:idx1]
                                 if ot == self.myOfficeType():
                                     WEnameSource = WEname
                                 else:
                                     WEnameSource = WEname + ot
-                            grid=self.getGrids(self.dbIds[num],WEnameSource,"SFC",GridTimeRange,mode=modeType,noDataError=0,cache=0)
+                            grid = self.getGrids(self.dbIds[num], WEnameSource, "SFC", GridTimeRange, mode=modeType, noDataError=0, cache=0)
                             if grid != None:
-                                gsum+=(grid*weight)
-                                totweight+=weight
-                                if (num==0):
-                                    fcstweight=weight
+                                gsum += (grid * weight)
+                                totweight += weight
+                                if (num == 0):
+                                    fcstweight = weight
                             else:
-                                errorstring="ModelBlend tool could not get data for %s" % label
-                                self.statusBarMsg(errorstring,"A")
+                                errorstring = "ModelBlend tool could not get data for %s" % label
+                                self.statusBarMsg(errorstring, "A")
                     #
                     #  Check again for no weights, or only weights for the current
                     #  grid - in which case we make no changes and write info message
                     #  otherwise - save the grid
                     #
-                    if (totweight!=0):
-                        if fcstweight==totweight:
-                            self.statusBarMsg("ModelBlend makes no change","R")
-                        else:    
-                            newgrid=gsum/totweight
-                            finalgrid=self.inEditArea(newgrid,oldgrid,EdgeType,EdgeWidth)
-                            self.createGrid(fcst,WEname,wxType,finalgrid,GridTimeRange)
-                    else:            
-                        self.statusBarMsg("ModelBlend weights ended up Zero - so cancelled","A")
+                    if (totweight != 0):
+                        if fcstweight == totweight:
+                            self.statusBarMsg("ModelBlend makes no change", "R")
+                        else:
+                            newgrid = gsum / totweight
+                            finalgrid = self.inEditArea(newgrid, oldgrid, EdgeType, EdgeWidth)
+                            self.createGrid(fcst, WEname, wxType, finalgrid, GridTimeRange)
+                    else:
+                        self.statusBarMsg("ModelBlend weights ended up Zero - so cancelled", "A")
                 #
                 #  A little more complicated when a vector
                 #
-                if 'VECTOR'==wxType:
+                if 'VECTOR' == wxType:
                     #
                     #  read each 'model' grid with a non-zero weight
                     #  add up the weights again, because we cannot count
                     #  weights for grids that cannot be read.
                     #
-                    oldgrid=self.getGrids(dbIds[0],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
-                    if oldgrid==None:
-                        self.statusBarMsg("ModelBlend tool could not get Fcst data for " + WEName,"A")
-                    (mag,direc)=oldgrid
-                    (uold,vold)=self.MagDirToUV(mag,direc)
-                    
-                    usum=self.empty()
-                    vsum=self.empty()
-                    
-                    totweight=0
-                    fcstweight=0
+                    oldgrid = self.getGrids(dbIds[0], WEname, "SFC", GridTimeRange, noDataError=0, cache=0)
+                    if oldgrid == None:
+                        self.statusBarMsg("ModelBlend tool could not get Fcst data for " + WEName, "A")
+                    (mag, direc) = oldgrid
+                    (uold, vold) = self.MagDirToUV(mag, direc)
+
+                    usum = self.empty()
+                    vsum = self.empty()
+
+                    totweight = 0
+                    fcstweight = 0
                     for num, weight in enumerate(weights):
-                        if weight!=0:
-                            grid=self.getGrids(self.dbIds[num],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
+                        if weight != 0:
+                            grid = self.getGrids(self.dbIds[num], WEname, "SFC", GridTimeRange, noDataError=0, cache=0)
                             if grid != None:
-                                (mag,direc)=grid
-                                (u,v)=self.MagDirToUV(mag,direc)
-                                usum+=(u*weight)
-                                vsum+=(v*weight)
-                                totweight+=weight
-                                if (num==0):
-                                    fcstweight=weight
+                                (mag, direc) = grid
+                                (u, v) = self.MagDirToUV(mag, direc)
+                                usum += (u * weight)
+                                vsum += (v * weight)
+                                totweight += weight
+                                if (num == 0):
+                                    fcstweight = weight
                             else:
-                                errorstring="ModelBlend tool could not get data for %s" % self.labels[num]
-                                self.statusBarMsg(errorstring,"A")
+                                errorstring = "ModelBlend tool could not get data for %s" % self.labels[num]
+                                self.statusBarMsg(errorstring, "A")
                     #
                     #  Check again for no weights, or only weights for the current
                     #  grid - in which case we make no changes and write info message
                     #  otherwise - save the grid.
                     #
-                    if (totweight!=0):
-                        if fcstweight==totweight:
-                            self.statusBarMsg("ModelBlend makes no change","R")
+                    if (totweight != 0):
+                        if fcstweight == totweight:
+                            self.statusBarMsg("ModelBlend makes no change", "R")
                         else:
-                            unew=usum/totweight
-                            vnew=vsum/totweight
-                            ufinal=self.inEditArea(unew,uold,EdgeType,EdgeWidth)
-                            vfinal=self.inEditArea(vnew,vold,EdgeType,EdgeWidth)
-                            result=self.UVToMagDir(ufinal,vfinal)
-                            self.createGrid(fcst,WEname,wxType,result,GridTimeRange)
+                            unew = usum / totweight
+                            vnew = vsum / totweight
+                            ufinal = self.inEditArea(unew, uold, EdgeType, EdgeWidth)
+                            vfinal = self.inEditArea(vnew, vold, EdgeType, EdgeWidth)
+                            result = self.UVToMagDir(ufinal, vfinal)
+                            self.createGrid(fcst, WEname, wxType, result, GridTimeRange)
                             #self.callSmartTool("DoNothing",WEname,None,GridTimeRange)
-                    else:            
-                        self.statusBarMsg("ModelBlend weights ended up Zero - so cancelled","A")
+                    else:
+                        self.statusBarMsg("ModelBlend weights ended up Zero - so cancelled", "A")
 
     #=====================================================================
     #  inEditArea - Take an old grid and a new grid - and return the
@@ -682,31 +686,30 @@ class Tool (SmartScript.SmartScript):
     #
     #               Returns the final grid that should be returned.
     #
-    def inEditArea(self,new,old,EdgeType,EdgeWidth):
+    def inEditArea(self, new, old, EdgeType, EdgeWidth):
         #
         #  Get the active editarea
         #
-        editArea=self.getActiveEditArea()
+        editArea = self.getActiveEditArea()
         #
         #  We don't have the benefit of the usual GFE question about what
         #  to do with empty edit areas.  We assume they want to run it over
         #  the entire domain - but have to switch the edit area ourselves
         #
-        editAreaMask=editArea.getGrid()
-        if not editAreaMask.isAnyBitsSet():
+        if editArea.isEmpty():
             editArea.invert()
         #
         #  Make edgegrid 0-1 across edit area
         #
-        if (EdgeType=="Flat"):
-           edgegrid=editArea.getGrid().getNDArray()
-        elif (EdgeType=="Edge"):
-           edgegrid=self.taperGrid(editArea,EdgeWidth)
+        if (EdgeType == "Flat"):
+           edgegrid = editArea.getGrid().getNDArray()
+        elif (EdgeType == "Edge"):
+           edgegrid = self.taperGrid(editArea, EdgeWidth)
         else:
-           edgegrid=self.taperGrid(editArea,0)
+           edgegrid = self.taperGrid(editArea, 0)
         #
         #  return the final grid
         #
-        diff=new-old
-        final=old+(diff*edgegrid)
+        diff = new - old
+        final = old + (diff * edgegrid)
         return(final)

@@ -16,7 +16,7 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-pypies
 Requires: awips2-python >= 2.7-1
-Requires: awips2-tools
+Requires: awips2-hdf5
 
 %description
 AWIPS II PyPIES Installation - Sets Up AWIPS II PyPIES.

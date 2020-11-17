@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -40,6 +41,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.PreferenceConstants;
@@ -55,34 +57,42 @@ import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.msgs.TEOverlayModeChangedMsg;
 import com.raytheon.viz.gfe.core.msgs.TEweModeChangedMsg;
 import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.viz.gfe.gridmanager.GridBarPreferences;
 import com.raytheon.viz.gfe.gridmanager.GridManager;
 
 /**
  * TemporalEditor widget containing a TemporalEditorBar for each displayed
  * unit/parm
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009 2159       rjpeter      Initial creation
- * Nov 14, 2012 1298       rferrel     Remove no longer used reference to MoveWeatherElementDialog.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 30, 2009  2159     rjpeter   Initial creation
+ * Nov 14, 2012  1298     rferrel   Remove no longer used reference to
+ *                                  MoveWeatherElementDialog.
+ * Jan 23, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 
-public class TemporalEditor extends Composite implements IMessageClient {
+public class TemporalEditor extends Composite implements IMessageClient,
+        IParmIDChangedListener, IPropertyChangeListener {
     public enum StatisticsMode {
         ABSOLUTE, MODERATED, STANDARD_DEVIATION
     }
 
     public enum TemporalEditorMode {
-        ALL("All Weather Elements"), ALL_NOISC("All Weather Elements w/o ISC"), MUTABLE(
-                "Fcst Elements Only"), ACTIVE("Active Element Only"), VISIBLE(
-                "Visible Elements Only");
+        ALL("All Weather Elements"),
+        ALL_NOISC("All Weather Elements w/o ISC"),
+        MUTABLE("Fcst Elements Only"),
+        ACTIVE("Active Element Only"),
+        VISIBLE("Visible Elements Only");
 
         private String displayString;
 
@@ -102,23 +112,19 @@ public class TemporalEditor extends Composite implements IMessageClient {
 
     private DisplayedParmListChangedListener displayedParmListener = new DisplayedParmListChangedListener();
 
-    private IParmIDChangedListener parmIdChangeListener = new ParmIDChangedListener();
-
-    private PropertyChangeListener propChangeListener = new PropertyChangeListener();
-
     private TemporalEditorMode teMode;
 
     protected ScrolledComposite parent;
 
     private GridManager gridManager;
 
-    private List<AbstractTemporalEditorBar> teBarList = new ArrayList<AbstractTemporalEditorBar>();
+    private List<AbstractTemporalEditorBar> teBarList = new ArrayList<>();
 
-    private Map<Parm, AbstractTemporalEditorBar> parmToTEBar = new HashMap<Parm, AbstractTemporalEditorBar>();
+    private Map<Parm, AbstractTemporalEditorBar> parmToTEBar = new HashMap<>();
 
-    private Map<String, AbstractTemporalEditorBar> unitToGridBar = new HashMap<String, AbstractTemporalEditorBar>();
+    private Map<String, AbstractTemporalEditorBar> unitToGridBar = new HashMap<>();
 
-    private Map<String, List<AbstractTemporalEditorBar>> unitToMovedGridBarList = new HashMap<String, List<AbstractTemporalEditorBar>>();
+    private Map<String, List<AbstractTemporalEditorBar>> unitToMovedGridBarList = new HashMap<>();
 
     private TemporalEditorUtil teUtil;
 
@@ -135,9 +141,12 @@ public class TemporalEditor extends Composite implements IMessageClient {
     private long deactivateTime = 0;
 
     /**
-     * 
+     * Constructor
+     *
+     * @param parent
+     * @param gridManager
+     *
      */
-    @SuppressWarnings("unchecked")
     public TemporalEditor(ScrolledComposite parent, GridManager gridManager) {
         super(parent, SWT.NONE);
 
@@ -155,24 +164,24 @@ public class TemporalEditor extends Composite implements IMessageClient {
         teUtil = new TemporalEditorUtil(gridManager);
         this.gridManager = gridManager;
         DataManager dataMgr = gridManager.getDataManager();
-        dataMgr.getParmManager().addDisplayedParmListChangedListener(
-                displayedParmListener);
+        dataMgr.getParmManager()
+                .addDisplayedParmListChangedListener(displayedParmListener);
         teMode = Message.inquireLastMessage(TEweModeChangedMsg.class).getMode();
-        statMode = StatisticsMode
-                .valueOf(GFEPreference
-                        .getPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE));
-        moderatedMin = GFEPreference
-                .getIntPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN);
-        moderatedMax = GFEPreference
-                .getIntPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX);
-        stdDevMin = (float) GFEPreference
-                .getDoublePreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN);
-        stdDevMax = (float) GFEPreference
-                .getDoublePreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX);
+        statMode = StatisticsMode.valueOf(GFEPreference.getString(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE));
+        moderatedMin = GFEPreference.getInt(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN);
+        moderatedMax = GFEPreference.getInt(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX);
+        stdDevMin = (float) GFEPreference.getDouble(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN);
+        stdDevMax = (float) GFEPreference.getDouble(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX);
 
         Message.registerInterest(this, TEweModeChangedMsg.class);
-        GFEPreference.addPropertyChangeListener(propChangeListener);
-        dataMgr.getParmManager().addParmIDChangedListener(parmIdChangeListener);
+        GFEPreference.addPropertyChangeListener(this);
+        dataMgr.getParmManager().addParmIDChangedListener(this);
+
         addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
@@ -184,9 +193,9 @@ public class TemporalEditor extends Composite implements IMessageClient {
                         .getDataManager();
                 dm.getParmManager().removeDisplayedParmListChangedListener(
                         displayedParmListener);
-                dm.getParmManager().removeParmIDChangedListener(
-                        parmIdChangeListener);
-                GFEPreference.removePropertyChangeListener(propChangeListener);
+                dm.getParmManager()
+                        .removeParmIDChangedListener(TemporalEditor.this);
+                GFEPreference.removePropertyChangeListener(TemporalEditor.this);
                 Message.unregisterInterest(TemporalEditor.this,
                         TEweModeChangedMsg.class);
                 ISpatialDisplayManager sdm = dm.getSpatialDisplayManager();
@@ -198,7 +207,14 @@ public class TemporalEditor extends Composite implements IMessageClient {
     }
 
     /**
-     * 
+     * @return the gridBarPrefs
+     */
+    public GridBarPreferences getGridBarPrefs() {
+        return this.gridManager.getGridBarPrefs();
+    }
+
+    /**
+     * Called when control is resized
      */
     public void resize() {
         VizApp.runSync(new Runnable() {
@@ -218,7 +234,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
     /**
      * Adds a parm to the TE. Parm is checked to make sure it is not already
      * displayed.
-     * 
+     *
      * @param parm
      */
     protected void addParm(Parm parm) {
@@ -228,8 +244,9 @@ public class TemporalEditor extends Composite implements IMessageClient {
             // if bar with same unit already exists, append to it
             AbstractTemporalEditorBar bar;
             GridType gridType = parm.getGridInfo().getGridType();
-            boolean overlay = Message.inquireLastMessage(
-                    TEOverlayModeChangedMsg.class).isEnabled();
+            boolean overlay = Message
+                    .inquireLastMessage(TEOverlayModeChangedMsg.class)
+                    .isEnabled();
 
             // Discrete/Wx parms always get their own bar to start with
             if (!overlay || GridType.DISCRETE.equals(gridType)
@@ -253,8 +270,10 @@ public class TemporalEditor extends Composite implements IMessageClient {
     }
 
     /**
-     * 
+     * Add a temporal editor bar for parm
+     *
      * @param parm
+     * @param bar
      */
     protected void addBar(Parm parm, AbstractTemporalEditorBar bar) {
         if ((parm != null) && !parmToTEBar.containsKey(parm)) {
@@ -280,7 +299,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
                             .get(unit);
 
                     if (barList == null) {
-                        barList = new ArrayList<AbstractTemporalEditorBar>();
+                        barList = new ArrayList<>();
                         unitToMovedGridBarList.put(unit, barList);
                     }
 
@@ -299,7 +318,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
     }
 
     /**
-     * 
+     *
      * @param parm
      * @param sourceBar
      * @param destBar
@@ -324,7 +343,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
     }
 
     /**
-     * 
+     *
      * @param parm
      */
     protected void removeParm(Parm parm) {
@@ -335,7 +354,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
             bar.removeParm(parm);
 
             // check if the bar been depleted of parms
-            if (bar.getParms().size() == 0) {
+            if (bar.getParms().isEmpty()) {
                 teBarList.remove(bar);
 
                 // remove it from the unitToGridBar mapping
@@ -347,11 +366,11 @@ public class TemporalEditor extends Composite implements IMessageClient {
                     // add the next with the correct unit??
                     List<AbstractTemporalEditorBar> barList = unitToMovedGridBarList
                             .get(unit);
-                    if ((barList != null) && (barList.size() > 0)) {
+                    if ((barList != null) && (!barList.isEmpty())) {
                         // grab the first item of the moved list
                         unitToGridBar.put(unit, barList.remove(0));
 
-                        if (barList.size() == 0) {
+                        if (barList.isEmpty()) {
                             unitToMovedGridBarList.remove(unit);
                         }
                     }
@@ -361,7 +380,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
                     List<AbstractTemporalEditorBar> barList = unitToMovedGridBarList
                             .get(unit);
                     barList.remove(bar);
-                    if (barList.size() == 0) {
+                    if (barList.isEmpty()) {
                         unitToMovedGridBarList.remove(unit);
                     }
                 }
@@ -374,11 +393,6 @@ public class TemporalEditor extends Composite implements IMessageClient {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.swt.widgets.Control#computeSize(int, int)
-     */
     @Override
     public Point computeSize(int hint, int hint2) {
         int y = 0;
@@ -394,9 +408,6 @@ public class TemporalEditor extends Composite implements IMessageClient {
         return new Point(x, y);
     }
 
-    /**
-     * 
-     */
     @Override
     public void redraw() {
         if (!isDisposed()) {
@@ -415,14 +426,14 @@ public class TemporalEditor extends Composite implements IMessageClient {
     }
 
     /**
-     * 
+     *
      * @param parm
      * @param sourceBar
-     * @return
+     * @return the combinable bars
      */
     public List<AbstractTemporalEditorBar> getCombinableBars(Parm parm,
             AbstractTemporalEditorBar sourceBar) {
-        List<AbstractTemporalEditorBar> barList = new ArrayList<AbstractTemporalEditorBar>();
+        List<AbstractTemporalEditorBar> barList = new ArrayList<>();
         String unit = parm.getGridInfo().getUnitString();
 
         if (unitToGridBar.containsKey(unit)) {
@@ -437,34 +448,48 @@ public class TemporalEditor extends Composite implements IMessageClient {
         return barList;
     }
 
+    /**
+     * @return the statistics mode
+     */
     public StatisticsMode getMode() {
         return statMode;
     }
 
+    /**
+     * @return the moderatedMin
+     */
     public int getModeratedMin() {
         return moderatedMin;
     }
 
+    /**
+     * @return the moderatedMax
+     */
     public int getModeratedMax() {
         return moderatedMax;
     }
 
+    /**
+     * @return the stdDevMin
+     */
     public float getStdDevMin() {
         return stdDevMin;
     }
 
+    /**
+     * @return the stdDevMax
+     */
     public float getStdDevMax() {
         return stdDevMax;
     }
 
+    /**
+     * @return the horizontal offset
+     */
     public int getHorizOffset() {
-        // SCALE_WIDTH + 2, +2 accounts for boundary
         return AbstractTemporalEditorBar.SCALE_WIDTH + 2;
     }
 
-    /**
-     * 
-     */
     private void handleTEMode() {
         DataManager dm = gridManager.getDataManager();
         ISpatialDisplayManager sdm = dm.getSpatialDisplayManager();
@@ -473,7 +498,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
         sdm.removeActivatedParmChangedListener(activeParmListener);
 
         // default to all parm currently in te
-        final List<Parm> parmsToAdd = new ArrayList<Parm>();
+        final List<Parm> parmsToAdd = new ArrayList<>();
 
         switch (teMode) {
         case ACTIVE:
@@ -492,7 +517,8 @@ public class TemporalEditor extends Composite implements IMessageClient {
         case ALL_NOISC:
             // add any non ISC parms not already displayed
             for (Parm parmAdd : ipm.getDisplayedParms()) {
-                if (!parmAdd.getParmID().getDbId().getModelName().equals("ISC")) {
+                if (!"ISC"
+                        .equals(parmAdd.getParmID().getDbId().getModelName())) {
                     parmsToAdd.add(parmAdd);
                 }
             }
@@ -513,8 +539,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
             break;
         }
 
-        final ArrayList<Parm> parmsToRemove = new ArrayList<Parm>(
-                parmToTEBar.keySet());
+        final List<Parm> parmsToRemove = new ArrayList<>(parmToTEBar.keySet());
         parmsToRemove.removeAll(parmsToAdd);
 
         VizApp.runAsync(new Runnable() {
@@ -531,26 +556,30 @@ public class TemporalEditor extends Composite implements IMessageClient {
         });
     }
 
+    /**
+     * Activate temporal editor
+     */
     public void activate() {
         deactivateTime = 0;
     }
 
+    /**
+     * Deactivate temporal editor
+     */
     public void deactivate() {
         deactivateTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
                 .getTimeInMillis();
     }
 
     /**
-     * 
-     * @param activate
-     * @return
+     * @return true if deactivated for 1 minute
      */
     public boolean checkDeactive() {
         if (deactivateTime > 0) {
-            long currentTime = Calendar
-                    .getInstance(TimeZone.getTimeZone("GMT")).getTimeInMillis();
+            long currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+                    .getTimeInMillis();
 
-            if ((currentTime - deactivateTime) > 60000) {
+            if ((currentTime - deactivateTime) > TimeUtil.MILLIS_PER_MINUTE) {
                 return true;
             }
         }
@@ -558,11 +587,11 @@ public class TemporalEditor extends Composite implements IMessageClient {
         return false;
     }
 
-    private class ActivatedParmChangedListener implements
-            IActivatedParmChangedListener {
+    private class ActivatedParmChangedListener
+            implements IActivatedParmChangedListener {
         @Override
         public void activatedParmChanged(Parm newParm) {
-            ArrayList<Parm> parmsToDelete = new ArrayList<Parm>();
+            List<Parm> parmsToDelete = new ArrayList<>();
             // make separate list from keyset to prevent concurrent
             // modification
             for (Parm parmToProcess : parmToTEBar.keySet()) {
@@ -579,11 +608,11 @@ public class TemporalEditor extends Composite implements IMessageClient {
         }
     }
 
-    private class GridVisibilityChangedListener implements
-            IGridVisibilityChangedListener {
+    private class GridVisibilityChangedListener
+            implements IGridVisibilityChangedListener {
         /**
          * Callback that grid visibility has changed.
-         * 
+         *
          * @param parm
          *            parm whose visibility has changed
          * @param visible
@@ -595,7 +624,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
         public void gridVisibilityChanged(Parm parm, boolean visible,
                 boolean makeOnlyVisible) {
             if (makeOnlyVisible) {
-                ArrayList<Parm> parmsToDelete = new ArrayList<Parm>();
+                List<Parm> parmsToDelete = new ArrayList<>();
                 // make separate list from keyset to prevent concurrent
                 // modification
                 for (Parm parmToProcess : parmToTEBar.keySet()) {
@@ -617,8 +646,8 @@ public class TemporalEditor extends Composite implements IMessageClient {
         }
     }
 
-    private class DisplayedParmListChangedListener implements
-            IDisplayedParmListChangedListener {
+    private class DisplayedParmListChangedListener
+            implements IDisplayedParmListChangedListener {
         @Override
         public void displayedParmListChanged(Parm[] parms, Parm[] deletions,
                 Parm[] additions) {
@@ -635,8 +664,8 @@ public class TemporalEditor extends Composite implements IMessageClient {
                 break;
             case ALL_NOISC:
                 for (Parm parmAdd : additions) {
-                    if (!parmAdd.getParmID().getDbId().getModelName()
-                            .equals("ISC")) {
+                    if (!"ISC".equals(
+                            parmAdd.getParmID().getDbId().getModelName())) {
                         addParm(parmAdd);
                     }
                 }
@@ -653,61 +682,46 @@ public class TemporalEditor extends Composite implements IMessageClient {
             }
 
             Rectangle r = TemporalEditor.this.parent.getClientArea();
-            TemporalEditor.this.parent.setMinSize(TemporalEditor.this
-                    .computeSize(r.width, SWT.DEFAULT));
+            TemporalEditor.this.parent.setMinSize(
+                    TemporalEditor.this.computeSize(r.width, SWT.DEFAULT));
             redraw();
         }
     }
 
-    private class PropertyChangeListener implements
-            org.eclipse.jface.util.IPropertyChangeListener {
-        @Override
-        public void propertyChange(PropertyChangeEvent event) {
-            String id = event.getProperty();
-            if (id.equals(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE)) {
-                statMode = StatisticsMode
-                        .valueOf(GFEPreference
-                                .getPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE));
-                redraw();
-            } else if (id
-                    .equals(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN)) {
-                moderatedMin = GFEPreference
-                        .getIntPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN);
-                redraw();
-            } else if (id
-                    .equals(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX)) {
-                moderatedMax = GFEPreference
-                        .getIntPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX);
-                redraw();
-            } else if (id
-                    .equals(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN)) {
-                stdDevMin = (float) GFEPreference
-                        .getDoublePreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN);
-                redraw();
-            } else if (id
-                    .equals(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX)) {
-                stdDevMax = (float) GFEPreference
-                        .getDoublePreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX);
-                redraw();
-            }
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        String id = event.getProperty();
+        if (id.equals(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE)) {
+            statMode = StatisticsMode.valueOf(GFEPreference.getString(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE));
+            redraw();
+        } else if (id.equals(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN)) {
+            moderatedMin = GFEPreference.getInt(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN);
+            redraw();
+        } else if (id.equals(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX)) {
+            moderatedMax = GFEPreference.getInt(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX);
+            redraw();
+        } else if (id.equals(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN)) {
+            stdDevMin = (float) GFEPreference.getDouble(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN);
+            redraw();
+        } else if (id.equals(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX)) {
+            stdDevMax = (float) GFEPreference.getDouble(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX);
+            redraw();
         }
     }
 
-    public class ParmIDChangedListener implements IParmIDChangedListener {
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.viz.gfe.core.msgs.IParmIDChangedListener#parmIDChanged
-         * (com.raytheon.viz.gfe.core.parm.Parm,
-         * com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID)
-         */
-        @Override
-        public void parmIDChanged(Parm parm, ParmID newParmID) {
-            redraw();
-        }
-
+    @Override
+    public void parmIDChanged(Parm parm, ParmID newParmID) {
+        redraw();
     }
 
     @Override

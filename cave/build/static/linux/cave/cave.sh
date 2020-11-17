@@ -58,7 +58,7 @@ CAVE_INSTALL="/awips2/cave"
 JAVA_INSTALL="/awips2/java"
 PYTHON_INSTALL="/awips2/python"
 export AWIPS_INSTALL_DIR="${CAVE_INSTALL}"
-
+export SWT_GTK3=0
 MAX_MEM_PROPORTION="0.85"
 
 source ${CAVE_INSTALL}/caveUtil.sh

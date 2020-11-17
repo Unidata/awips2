@@ -1,24 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This is an absolute override file, indicating that a higher priority
-        version of the file will completely replace a lower priority version
-        of the file.
-    -->
-    <!-- 
-	 TURBULENCE
-	 EMBEDED THUNDERSTORMS
-	 CANCEL
-	 OBSCURE THUNDERSTORMS
-	 CUMULONIMBUS
-	 FREQUENT THUNDERSTORMS
-	 NIL
-	 THUNDERSTORM
-	 UNKNOWN ???
-	 ICING
-	 ISOLATED THUNDERSTORMS
-	 ISOLATED EMBEDED THUNDERSTORMS
-	 EMBEDED THUNDERSTORMS HAIL
-     -->
+<!-- This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version of the 
+    file. -->
 <bundle>
     <displayList>
         <displays xsi:type="d2DMapRenderableDisplay"
@@ -27,59 +10,20 @@
                 <resource>
                     <loadProperties loadWithoutData="false">
                         <capabilities>
-                            <capability xsi:type="magnificationCapability" magnification="2"/>
-                            <capability xsi:type="outlineCapability" outlineWidth="3" outlineOn="true" lineStyle="DEFAULT"/>
                         </capabilities>
                     </loadProperties>
                     <resourceData xsi:type="advisoryResourceData"
                         isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true" name="Thunderstorm SIGMET"
-                        colorString="#00ffff">
-                        <dataAdapter xsi:type="intlSigmetDataAdapter" hazardType="THUNDERSTORM" />
-                        <binOffset posOffset="2700" negOffset="900" virtualOffset="0" />
+                        isRequeryNecessaryOnTimeMatch="true" name="${name}"
+                        colorString="${color}">
+                        <dataAdapter xsi:type="intlSigmetDataAdapter"
+                            hazardType="${hazardType}" />
+                        <binOffset posOffset="20400"
+                            negOffset="1200" virtualOffset="0" />
                         <metadataMap>
                             <mapping key="pluginName">
-                                <constraint constraintValue="intlsigmet"  constraintType="EQUALS" />
-                            </mapping>
-                        </metadataMap>
-                    </resourceData>
-                </resource>
-                <resource>
-                	<loadProperties loadWithoutData="false">
-                        <capabilities>
-                            <capability xsi:type="magnificationCapability" magnification="2"/>
-                            <capability xsi:type="outlineCapability" outlineWidth="3" outlineOn="true" lineStyle="DEFAULT"/>
-                        </capabilities>
-                    </loadProperties>
-                    <resourceData xsi:type="advisoryResourceData"
-                        isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true" name="Turbulence SIGMET"
-                        colorString="#ffff00">
-                        <dataAdapter xsi:type="intlSigmetDataAdapter" hazardType="TURBULENCE" />
-                        <binOffset posOffset="2700" negOffset="900" virtualOffset="0" />
-                        <metadataMap>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="intlsigmet" constraintType="EQUALS" />
-                            </mapping>
-                        </metadataMap>
-                    </resourceData>
-                </resource>
-                <resource>
-                    <loadProperties loadWithoutData="false">
-                        <capabilities>
-                            <capability xsi:type="magnificationCapability" magnification="2"/>
-                            <capability xsi:type="outlineCapability" outlineWidth="3" outlineOn="true" lineStyle="DEFAULT"/>
-                        </capabilities>
-                    </loadProperties>
-                    <resourceData xsi:type="advisoryResourceData"
-                        isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true" name="Icing SIGMET"
-                        colorString="#00ff00">
-                        <dataAdapter xsi:type="intlSigmetDataAdapter" hazardType="ICING" />
-                        <binOffset posOffset="2700" negOffset="900" virtualOffset="0" />
-                        <metadataMap>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="intlsigmet" constraintType="EQUALS" />
+                                <constraint constraintValue="intlsigmet"
+                                    constraintType="EQUALS" />
                             </mapping>
                         </metadataMap>
                     </resourceData>

@@ -21,16 +21,19 @@ package com.raytheon.uf.edex.plugin.redbook;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
@@ -61,12 +64,13 @@ import com.raytheon.uf.edex.plugin.redbook.decoder.RedbookParser;
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Oct 24, 2014 3720       mapeters    Identify existing records using unique 
  *                                     constraints instead of dataURI.
+ * Jan 18, 2018 7194       njensen     detectForeign checks for BUFR and GRIB
+ * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.0
  */
-public class RedbookDecoder extends AbstractDecoder {
+public class RedbookDecoder {
 
     private static class ForeignDetect {
         public final boolean isForeign;
@@ -96,11 +100,18 @@ public class RedbookDecoder extends AbstractDecoder {
 
     private static final String DIFAX_SIG = "DFAX";
 
+    private static final String BUFR_SIG = "BUFR";
+
+    private static final String GRIB_SIG = "GRIB";
+
     // Name of the plugin controlling this decoder.
     private final String PLUGIN_NAME;
 
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(RedbookDecoder.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("Redbook:");
 
     private String traceId = null;
 
@@ -133,6 +144,8 @@ public class RedbookDecoder extends AbstractDecoder {
             String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
             WMOHeader wmoHeader = new WMOHeader(rawMessage, fileName);
             if (wmoHeader.isValid()) {
+                ITimer timer = TimeUtil.getTimer();
+                timer.start();
 
                 int start = wmoHeader.getMessageDataStart();
 
@@ -143,8 +156,7 @@ public class RedbookDecoder extends AbstractDecoder {
                 RedbookRecord report = null;
                 ForeignDetect foreign = detectForeign(data);
                 if (foreign.isForeign) {
-                    logger.info(traceId
-                            + "- File is not Redbook data. Type is "
+                    logger.info(traceId + "- File is not Redbook data. Type is "
                             + foreign.dataType);
                 } else {
                     report = new RedbookParser(traceId, data, wmoHeader)
@@ -152,13 +164,10 @@ public class RedbookDecoder extends AbstractDecoder {
                 }
                 if (report != null) {
                     report.setPersistenceTime(new Date());
-                    try {
-                        reports = createMergedRecordList(report);
-                    } catch (PluginException e) {
-                        logger.error(traceId + "- Error constructing datauri",
-                                e);
-                    }
+                    reports = createMergedRecordList(report);
                 }
+                timer.stop();
+                perfLog.logDuration("Time to Decode", timer.getElapsedTime());
             } else {
                 logger.error(traceId + "- No valid WMO header found in data.");
             }
@@ -173,9 +182,8 @@ public class RedbookDecoder extends AbstractDecoder {
         return reports;
     }
 
-    private PluginDataObject[] createMergedRecordList(RedbookRecord report)
-            throws PluginException {
-        ArrayList<PluginDataObject> listResult = new ArrayList<PluginDataObject>();
+    private PluginDataObject[] createMergedRecordList(RedbookRecord report) {
+        List<PluginDataObject> listResult = new ArrayList<>();
 
         RedbookRecord newRecord = report;
         while (newRecord != null) {
@@ -188,13 +196,14 @@ public class RedbookDecoder extends AbstractDecoder {
         return listResult.toArray(new PluginDataObject[listResult.size()]);
     }
 
-    private RedbookRecord createdBackDatedVersionIfNeeded(RedbookRecord record) {
+    private RedbookRecord createdBackDatedVersionIfNeeded(
+            RedbookRecord record) {
         RedbookDao dao;
         RedbookRecord existingRecord = null;
 
         try {
-            dao = (RedbookDao) PluginFactory.getInstance().getPluginDao(
-                    PLUGIN_NAME);
+            dao = (RedbookDao) PluginFactory.getInstance()
+                    .getPluginDao(PLUGIN_NAME);
             DatabaseQuery query = new DatabaseQuery(RedbookRecord.class);
             query.addQueryParam("wmoTTAAii", record.getWmoTTAAii());
             query.addQueryParam("corIndicator", record.getCorIndicator());
@@ -220,9 +229,8 @@ public class RedbookDecoder extends AbstractDecoder {
             try {
                 existingRecord = dao.getFullRecord(existingRecord);
             } catch (Exception e) {
-                logger.error(
-                        traceId + "Could not retrieve existing "
-                                + record.getDataURI(), e);
+                logger.error(traceId + "Could not retrieve existing "
+                        + record.getDataURI(), e);
                 return null;
             }
             RedbookRecord backDatedRecord;
@@ -238,8 +246,8 @@ public class RedbookDecoder extends AbstractDecoder {
                 return null;
             }
             record.setOverwriteAllowed(true);
-            dao.delete(existingRecord); // replace op does not update metadata
-                                        // ?!
+            // replace op does not update metadata ?!
+            dao.delete(existingRecord);
             logger.info("Storing new version of " + record.getDataURI());
 
             return backDatedRecord;
@@ -272,12 +280,15 @@ public class RedbookDecoder extends AbstractDecoder {
             } else if (s.indexOf(GIF87A_SIG) >= 0) {
                 foreign = true;
                 foreignType = "GIF87A";
-            } else if (s.indexOf(PNG_SIG) >= 0) {
-                foreign = true;
-                foreignType = "GIF89A";
             } else if (s.indexOf(DIFAX_SIG) >= 0) {
                 foreign = true;
                 foreignType = "DIFAX";
+            } else if (s.indexOf(BUFR_SIG) >= 0) {
+                foreign = true;
+                foreignType = "BUFR";
+            } else if (s.indexOf(GRIB_SIG) >= 0) {
+                foreign = true;
+                foreignType = "GRIB";
             }
             foreignDetect = new ForeignDetect(foreignType, foreign);
         }

@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="exportJobConfig"
+        class="com.raytheon.uf.edex.damagepath.handler.ExportToLdadJobConfig">
+        <constructor-arg value="${damage.path.ldad.export.user}" />
+        <constructor-arg value="${damage.path.ldad.export.host}" />
+        <constructor-arg value="${damage.path.ldad.export.dir}" />
+        <constructor-arg value="${damage.path.ldad.post.process.command}" />
+    </bean>
+    <bean id="exportToLdadHandler"
+        class="com.raytheon.uf.edex.damagepath.handler.ExportToLdadHandler">
+        <constructor-arg ref="exportJobConfig" />
+    </bean>
+
+</beans>

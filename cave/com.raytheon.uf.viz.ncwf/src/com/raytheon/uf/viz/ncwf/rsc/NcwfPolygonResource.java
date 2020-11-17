@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.ncwf.rsc;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,18 +50,19 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 16, 2009            bsteffen    Initial creation
- * Feb 04, 2016 5310       tgurney     Remove dependency on dataURI
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------------------------
+ * Sep 16, 2009           bsteffen  Initial creation
+ * Feb 04, 2016  5310     tgurney   Remove dependency on dataURI
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class NcwfPolygonResource extends
-        AbstractNcwfResource<NcwfPolygonResourceData> {
+public class NcwfPolygonResource
+        extends AbstractNcwfResource<NcwfPolygonResourceData> {
 
     // Default Paramerers for a forecast
     private static final String latParam = "alat";
@@ -76,21 +76,18 @@ public class NcwfPolygonResource extends
     private class NcwfPolygonFrame {
 
         // Records which still needs to be parsed
-        Collection<BUFRncwf> recordsToParse = new ArrayList<BUFRncwf>();
+        public Collection<BUFRncwf> recordsToParse = new ArrayList<>();
 
         // the polygons
-        Collection<Coordinate[]> outlines = new ArrayList<Coordinate[]>();
+        public Collection<Coordinate[]> outlines = new ArrayList<>();
 
         // A shape compiled from outlines, needs to be rebuilt if new data is
         // added
-        IWireframeShape shape;
-
-        public NcwfPolygonFrame() {
-        }
+        public IWireframeShape shape;
 
     }
 
-    private Map<DataTime, NcwfPolygonFrame> frames = new HashMap<DataTime, NcwfPolygonFrame>();
+    private Map<DataTime, NcwfPolygonFrame> frames = new HashMap<>();
 
     protected NcwfPolygonResource(NcwfPolygonResourceData resourceData,
             LoadProperties loadProperties) {
@@ -147,8 +144,8 @@ public class NcwfPolygonResource extends
             }
             GeometryFactory factory = new GeometryFactory();
             for (Coordinate[] boundary : curOutlines) {
-                compiler.handle((Geometry) factory.createLinearRing(boundary)
-                        .clone());
+                compiler.handle(
+                        (Geometry) factory.createLinearRing(boundary).clone());
             }
             shape.compile();
             activeFrame.shape = shape;
@@ -165,7 +162,7 @@ public class NcwfPolygonResource extends
             throws VizException {
         Collection<BUFRncwf> records = activeFrame.recordsToParse;
         // Return if there is nothing to do
-        if (records == null || records.size() == 0) {
+        if (records == null || records.isEmpty()) {
             return false;
         }
 
@@ -179,11 +176,13 @@ public class NcwfPolygonResource extends
             dataTime = r.getDataTime();
         }
         PointDataContainer pdc = PointDataRequest.requestPointDataAllLevels(
-                dataTime, resourceData.getMetadataMap().get("pluginName")
-                        .getConstraintValue(), parameters, null,
-                resourceData.getMetadataMap());
+                dataTime,
+                resourceData.getMetadataMap().get("pluginName")
+                        .getConstraintValue(),
+                parameters, null, resourceData.getMetadataMap());
 
-        for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
+        for (int uriCounter = 0; uriCounter < pdc
+                .getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
             int num_of_vertices = pdv.getInt(lenParam);
             Number[] lat = pdv.getNumberAllLevels(latParam);
@@ -214,7 +213,6 @@ public class NcwfPolygonResource extends
         if (!frames.containsKey(time)) {
             frames.put(time, new NcwfPolygonFrame());
             this.dataTimes.add(time);
-            Collections.sort(this.dataTimes);
         }
         // Add this record to the frame
         this.frames.get(time).recordsToParse.add(obj);

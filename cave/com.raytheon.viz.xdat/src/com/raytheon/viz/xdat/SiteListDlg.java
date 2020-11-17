@@ -35,8 +35,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.xdat.XdatDlg.UpdateType;
 
 /**
  * This class displays the Site List dialog.
@@ -51,6 +51,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10 Feb 2009             wkwock      Added functions.
  * 31 May 2015  4501       skorolev    Got rid of Vector.
  * 04 Aug 2016  5800       mduff       Cleanup
+ * 12 Mar 2018  DCS18260   astrakovsky Moved most of displayListSelection code to 
+ *                                     XdatDlg to avoid repeating code.
  * 
  * </pre>
  * 
@@ -94,12 +96,10 @@ public class SiteListDlg extends CaveSWTDialog {
      * This is for TESTING PURPOSES ONLY. There can be a subset of states in the
      * state combo control.
      */
-    private String[] allStates = new String[] { "AK", "AL", "AR", "AZ", "CA",
-            "CO", "CT", "DE", "FL", "GA", "HI", "IA", "ID", "IL", "IN", "KS",
-            "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC",
-            "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA",
-            "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VT", "WA", "WI", "WV",
-            "WY" };
+    private String[] allStates = new String[] { "AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "IA",
+            "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH",
+            "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VT", "WA", "WI",
+            "WV", "WY" };
 
     /**
      * Database manager.
@@ -123,8 +123,7 @@ public class SiteListDlg extends CaveSWTDialog {
      * @param displayCB
      *            Display callback interface.
      */
-    public SiteListDlg(Shell parentShell, XdatDB database,
-            ITextDisplay displayCB) {
+    public SiteListDlg(Shell parentShell, XdatDB database, ITextDisplay displayCB) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
         setText("Site List");
 
@@ -196,8 +195,7 @@ public class SiteListDlg extends CaveSWTDialog {
         searchTF.addListener(SWT.KeyUp, new Listener() {
             @Override
             public void handleEvent(org.eclipse.swt.widgets.Event event) {
-                if ((event.keyCode == SWT.CR)
-                        || (event.keyCode == SWT.KEYPAD_CR)) {
+                if ((event.keyCode == SWT.CR) || (event.keyCode == SWT.KEYPAD_CR)) {
                     updateDataListLabelWithSearchStr();
                 }
             }
@@ -220,8 +218,7 @@ public class SiteListDlg extends CaveSWTDialog {
         gd.widthHint = 350;
         gd.heightHint = 400;
         gd.horizontalSpan = 2;
-        dataListLst = new List(controlComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL | SWT.H_SCROLL);
+        dataListLst = new List(controlComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
         dataListLst.setLayoutData(gd);
         dataListLst.setFont(controlFont);
 
@@ -308,8 +305,7 @@ public class SiteListDlg extends CaveSWTDialog {
             dataListLst.add(String.format(listFmt, rowData[0], des));
         }
 
-        String str = String.format(searchFmt, dataArray.size(), peType,
-                searchStr);
+        String str = String.format(searchFmt, dataArray.size(), peType, searchStr);
         dataListLbl.setText(str);
     }
 
@@ -359,12 +355,9 @@ public class SiteListDlg extends CaveSWTDialog {
     }
 
     /**
-     * Display the data associate with the item selected in the data list.
+     * Display the data associated with the item selected in the data list.
      */
     private void displayListSelection() {
-
-        // Get the PE type from main window
-        String peType = displayCB.getSelectedPE();
 
         // Get the ID from the data array.
         int selectionIndex = dataListLst.getSelectionIndex();
@@ -373,65 +366,9 @@ public class SiteListDlg extends CaveSWTDialog {
             selectedId = dataArray.get(selectionIndex)[0];
         }
 
-        java.util.List<String[]> dataList = databaseMgr.getListData(selectedId,
-                peType, displayCB.getStartDate(), displayCB.getEndDate());
+        displayCB.displayIdSelection(selectedId);
 
-        if (dataList == null) {
-            String[] msg = new String[] { "No data available." };
-            displayCB.setDisplayText(msg);
-            return;
-        }
-
-        /*
-         * Format the data.
-         */
-        String locationDes = databaseMgr.getLocationDes(selectedId);
-
-        if (locationDes.equals("null")) {
-            locationDes = "";
-        }
-
-        /*
-         * Add 3 for the first 3 lines, which are header rows
-         */
-        String[] displayData = new String[dataList.size() + 3];
-        String dataFmt = "%-8S %2s   %-4S %2S %1S %19S %13S % 6.2f   % 6.2f";
-        String displayHeader = " ID      PE  DUR   TS E       OBSTIME           PRODUCT    VALUE   CHANGE";
-        String dashLine = "---------------------------------------------------------------------------";
-        displayData[0] = "\t\t" + selectedId + "\t  " + locationDes;
-        displayData[1] = displayHeader;
-        displayData[2] = dashLine;
-
-        for (int i = 0; i < dataList.size(); i++) {
-            String[] rowData = dataList.get(i);
-
-            double dblVal = Double.valueOf(rowData[5]);
-            double rndVal = (Math.round(dblVal * 100.0)) / 100.0;
-            double change = 0;
-
-            /*
-             * If this is not the last one then calculate the change
-             */
-            if (i < (dataList.size() - 1)) {
-                String[] nextRowData = dataList.get(i + 1);
-                double nextDblVal = Double.valueOf(nextRowData[5]);
-                if ((dblVal != HydroConstants.MISSING_VALUE)
-                        && (nextDblVal != HydroConstants.MISSING_VALUE)) {
-                    change = dblVal - nextDblVal;
-                    change = (Math.round(change * 100.0)) / 100.0;
-                }
-            }
-
-            String productID = rowData[0];
-            if (productID == null) {
-                productID = "";
-            }
-
-            displayData[i + 3] = String.format(dataFmt, selectedId, peType,
-                    rowData[1], rowData[2], rowData[3], rowData[4], productID,
-                    rndVal, change);
-        }
-
-        displayCB.setDisplayText(displayData);
+        displayCB.setLastUpdate(UpdateType.LIST_SELECTION);
     }
+
 }

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -76,64 +76,70 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The formatter launcher dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 28, 2008            ebabin      Initial Creation
- * Jul 16, 2008            njensen     Dynamic products menu
- * Jan 15, 2010 3395       ryu         Fix &quot;issued by&quot; functionality
- * Jun 19, 2010 4684       mduff       Corrected the Data Sources menu for 
- *                                     practice and test modes
- * Sep 16, 2010 6831       ryu         Show same product for different areas on a sub-menu
- * Nov 22, 2011 8781       mli         remove Processor menu
- * Jul 26, 2012 15165      ryu         Set default db source when formatter has no db defined.
- * Oct 23, 2012 1287       rferrel     Changes for non-blocking dialogs and code clean up.
- * Nov 08, 2012 1298       rferrel     Changes for non-blocking IssuanceSiteIdDlg.
- * Apr 24, 2013 1936       dgilling    Remove initialization of 
- *                                     TextProductManager from this class, clean
- *                                     up warnings.
- * May 15, 2013 1842       dgilling    Pass DataManager instance down to sub-
- *                                     components.
- * Feb 12, 2014 2801       randerso    Added prompting if formatter is run against non-normal database
- * Jul 29, 2015 4263       dgilling    Support changes to TextProductManager.
- * Aug 24, 2015 4749       dgilling    Reorganize dialog close and dispose.
- * Nov 18, 2015 5129       dgilling    Support new IFPClient.
- * Aug 22, 2017 18044      wkwock      Auto fill-in issued site for backup mode.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 28, 2008           ebabin    Initial Creation
+ * Jul 16, 2008           njensen   Dynamic products menu
+ * Jan 15, 2010  3395     ryu       Fix &quot;issued by&quot; functionality
+ * Jun 19, 2010  4684     mduff     Corrected the Data Sources menu for practice
+ *                                  and test modes
+ * Sep 16, 2010  6831     ryu       Show same product for different areas on a
+ *                                  sub-menu
+ * Nov 22, 2011  8781     mli       remove Processor menu
+ * Jul 26, 2012  15165    ryu       Set default db source when formatter has no
+ *                                  db defined.
+ * Oct 23, 2012  1287     rferrel   Changes for non-blocking dialogs and code
+ *                                  clean up.
+ * Nov 08, 2012  1298     rferrel   Changes for non-blocking IssuanceSiteIdDlg.
+ * Apr 24, 2013  1936     dgilling  Remove initialization of TextProductManager
+ *                                  from this class, clean up warnings.
+ * May 15, 2013  1842     dgilling  Pass DataManager instance down to sub-
+ *                                  components.
+ * Feb 12, 2014  2801     randerso  Added prompting if formatter is run against
+ *                                  non-normal database
+ * Jul 29, 2015  4263     dgilling  Support changes to TextProductManager.
+ * Aug 24, 2015  4749     dgilling  Reorganize dialog close and dispose.
+ * Nov 18, 2015  5129     dgilling  Support new IFPClient.
+ * Aug 22, 2017 18044     wkwock    Auto fill-in issued site for backup mode.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ * Jun 25, 2019  ----     mjames    Remove svcbu check.
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
 
-public class FormatterLauncherDialog extends CaveJFACEDialog implements
-        IProductTab {
+public class FormatterLauncherDialog extends CaveJFACEDialog
+        implements IProductTab {
 
     // formatter data sources. Fcst must be first
     private static enum FormatterDataSource {
         Fcst, ISC, Official, Default,
     }
 
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FormatterLauncherDialog.class);
 
     private IssuanceSiteIdDlg issuedByDlg;
 
-    private final String BASELINE = "Baseline";
+    private static final String BASELINE = "Baseline";
 
-    private final String CIVIL_EMERGENCY = "CivilEmergency";
+    private static final String CIVIL_EMERGENCY = "CivilEmergency";
 
-    private final String HAZARD = "Hazard";
+    private static final String HAZARD = "Hazard";
 
-    private final String BASELINE_HAZARD = BASELINE + HAZARD;
+    private static final String BASELINE_HAZARD = BASELINE + HAZARD;
 
-    private final String REGION = "Region";
+    private static final String REGION = "Region";
 
-    private final String OTHERS = "";
+    private static final String OTHERS = "";
 
-    private final String PRODUCT_EDITOR = "Product Editor";
+    private static final String PRODUCT_EDITOR = "Product Editor";
 
     /**
      * Tab folder containing the product tabs.
@@ -186,11 +192,6 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     private HashMap<String, ProductAreaComp> productMap;
 
     /**
-     * Status label.
-     */
-    private Label statusLbl;
-
-    /**
      * Status text control.
      */
     private Text textStatusTF;
@@ -199,7 +200,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     private ImageRegistry registry;
 
-    private ArrayList<String> statusMessages = new ArrayList<String>();
+    private ArrayList<String> statusMessages = new ArrayList<>();
 
     private ViewMessagesDialog viewMessageDialog;
 
@@ -211,7 +212,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent Shell.
      * @param dataMgr
@@ -225,15 +226,14 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
         String currentSite = dataMgr.getSiteID();
         textProductMgr.setIssuedBy(currentSite);
-        
     }
 
     @Override
     protected Control createDialogArea(Composite parent) {
         top = (Composite) super.createDialogArea(parent);
 
-        // Code to allow the dialog the have keymappings
-        IContextService svc = (IContextService) PlatformUI.getWorkbench()
+        // Code to allow the dialog the have key mappings
+        IContextService svc = PlatformUI.getWorkbench()
                 .getService(IContextService.class);
         svc.registerShell(getShell(), IContextService.TYPE_DIALOG);
 
@@ -254,7 +254,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * Initialize the controls on the display.
      */
     private void initializeComponents() {
-        productMap = new HashMap<String, ProductAreaComp>();
+        productMap = new HashMap<>();
 
         runningImg = getImageRegistry().get("running");
         queuedImg = getImageRegistry().get("queued");
@@ -289,7 +289,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Create the Products menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -306,14 +306,14 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         MenuItem productsMenuItem = new MenuItem(menuBar, SWT.CASCADE);
         LocalizationManager lm = LocalizationManager.getInstance();
         String site = lm.getCurrentSite();
-        productsMenuItem.setText("&Products (" + site
-                + " and Surrounding CWA's) ");
+        productsMenuItem
+                .setText("&Products (" + site + " and Surrounding CWA's) ");
         productsMenuItem.setMenu(productsMenu);
     }
 
     /**
      * Create the Data Source menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -335,7 +335,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         // Get the CAVE operating mode
         CAVEMode mode = dataMgr.getOpMode();
 
-        this.dataSourceMI = new ArrayList<MenuItem>();
+        this.dataSourceMI = new ArrayList<>();
         // create menu items
         for (FormatterDataSource source : FormatterDataSource.values()) {
             MenuItem item = new MenuItem(dataSourceMenu, SWT.RADIO);
@@ -356,8 +356,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 public void widgetSelected(SelectionEvent e) {
                     MenuItem item = (MenuItem) e.getSource();
                     if (item.getSelection()) {
-                        statusHandler.handle(
-                                Priority.EVENTB,
+                        statusHandler.handle(Priority.EVENTB,
                                 "User selected formatter data source: "
                                         + item.getText());
                     }
@@ -381,7 +380,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Create the Issued By menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -406,7 +405,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         issuanceSiteMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (issuedByDlg == null || issuedByDlg.getShell() == null
+                if ((issuedByDlg == null) || (issuedByDlg.getShell() == null)
                         || issuedByDlg.isDisposed()) {
                     String issuedBy = textProductMgr.getIssuedBy();
                     issuedByDlg = new IssuanceSiteIdDlg(
@@ -416,8 +415,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                         @Override
                         public void dialogClosed(Object returnValue) {
                             if (returnValue instanceof String) {
-                                textProductMgr.setIssuedBy(returnValue
-                                        .toString());
+                                textProductMgr
+                                        .setIssuedBy(returnValue.toString());
                             }
                         }
                     });
@@ -431,7 +430,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Create the Help menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -493,18 +492,18 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         }
 
         // Get extra config file categories; create a Map to manage their lists
-        String[] categories = Activator.getDefault().getPreferenceStore()
+        String[] categories = GFEPreference
                 .getStringArray("FormatterLauncherDialog_Categories");
-        Map<String, ArrayList<String>> categoryMap = new HashMap<String, ArrayList<String>>();
+        Map<String, ArrayList<String>> categoryMap = new HashMap<>();
 
         java.util.List<String> names = textProductMgr.getProductNames();
         if (!names.isEmpty()) {
-            ArrayList<String> civilEmergencies = new ArrayList<String>();
-            ArrayList<String> hazards = new ArrayList<String>();
-            ArrayList<String> baselines = new ArrayList<String>();
-            ArrayList<String> baselineHazards = new ArrayList<String>();
-            ArrayList<String> regions = new ArrayList<String>();
-            ArrayList<String> others = new ArrayList<String>();
+            ArrayList<String> civilEmergencies = new ArrayList<>();
+            ArrayList<String> hazards = new ArrayList<>();
+            ArrayList<String> baselines = new ArrayList<>();
+            ArrayList<String> baselineHazards = new ArrayList<>();
+            ArrayList<String> regions = new ArrayList<>();
+            ArrayList<String> others = new ArrayList<>();
 
             for (String productName : names) {
                 if (productName.startsWith(CIVIL_EMERGENCY)) {
@@ -565,7 +564,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     private void createCategoriedProducts(String name,
             ArrayList<String> productNames) {
-        if (productNames.size() == 0) {
+        if (productNames.isEmpty()) {
             return;
         }
 
@@ -585,7 +584,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         for (int i = 0; i < productNames.size(); i++) {
             String[] tArray = productNames.get(i).split("_");
             String gname;
-            if (name.equals(tArray[0]) && tArray.length > 1) {
+            if (name.equals(tArray[0]) && (tArray.length > 1)) {
                 gname = tArray[0] + "_" + tArray[1];
             } else {
                 gname = tArray[0];
@@ -625,8 +624,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 subitem.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
-                        createProductTab(((MenuItem) event.getSource())
-                                .getText());
+                        createProductTab(
+                                ((MenuItem) event.getSource()).getText());
                     }
                 });
             }
@@ -657,17 +656,13 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * Create the tab folder that will contain the product tabs.
      */
     private void createFormatterTabFolder() {
-        Rectangle screenRect = getShell().getDisplay().getPrimaryMonitor()
-                .getBounds();
+        Rectangle screenRect = getShell().getMonitor().getClientArea();
 
-        int mapWidth = (int) (screenRect.width * 0.60);
-        if (GFEPreference.contains("ZoneCombiner_width")) {
-            mapWidth = GFEPreference.getIntPreference("ZoneCombiner_width");
-        }
-        int mapHeight = (int) (screenRect.height * 0.60);
-        if (GFEPreference.contains("ZoneCombiner_height")) {
-            mapHeight = GFEPreference.getIntPreference("ZoneCombiner_height");
-        }
+        int mapWidth = GFEPreference.getInt("ZoneCombiner_width",
+                (int) (screenRect.width * 0.60));
+        int mapHeight = GFEPreference.getInt("ZoneCombiner_height",
+                (int) (screenRect.height * 0.60));
+
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         // Old fixed tab size was 700x900.
         // Pad zcHeight and zcWidth so default matches.
@@ -685,12 +680,12 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Create the product tab.
-     * 
+     *
      * @param tabName
      *            Tab name.
      */
     private void createProductTab(String tabName) {
-        if (productMap.containsKey(tabName) == true) {
+        if (productMap.containsKey(tabName)) {
             return;
         }
 
@@ -701,8 +696,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
         ProductAreaComp comp = new ProductAreaComp(tabFolder, this,
                 newTab.getText(), tabName.equals(PRODUCT_EDITOR),
-                textProductMgr, dataMgr, CAVEMode.getMode().equals(
-                        CAVEMode.PRACTICE));
+                textProductMgr, dataMgr,
+                CAVEMode.getMode().equals(CAVEMode.PRACTICE));
         productMap.put(tabName, comp);
 
         newTab.setControl(productMap.get(tabName));
@@ -711,7 +706,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Get the selected data source for this product type.
-     * 
+     *
      * @param productName
      *            The name of the product
      * @return The data source
@@ -739,7 +734,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 StringBuilder msg = new StringBuilder();
                 msg.append("The ");
                 msg.append(productName);
-                msg.append(" product definition contains an invalid database selection: \"");
+                msg.append(
+                        " product definition contains an invalid database selection: \"");
                 msg.append(dbString);
                 msg.append("\". Valid values are: [");
                 for (FormatterDataSource src : FormatterDataSource.values()) {
@@ -749,7 +745,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 }
                 msg.delete(msg.length() - 2, msg.length());
                 msg.append("]");
-                statusHandler.error(msg.toString());
+                statusHandler.error(msg.toString(), e);
                 return null;
             }
         }
@@ -791,12 +787,9 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 // If the database is not explicitly defined (default), provide
                 // a a warning to the forecaster that requires acknowledgment
                 // before running if the database being used is ISC
-                MessageDialog dlg = new MessageDialog(
-                        getShell(),
-                        "Confirm Data Source",
-                        null,
-                        "You are about to run the "
-                                + productName
+                MessageDialog dlg = new MessageDialog(getShell(),
+                        "Confirm Data Source", null,
+                        "You are about to run the " + productName
                                 + " formatter against the ISC database.\n\nDo you wish to continue?",
                         MessageDialog.WARNING, new String[] { "Yes", "No" }, 1);
                 int retVal = dlg.open();
@@ -830,9 +823,9 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         statusComp.setLayoutData(gd);
 
         gd = new GridData(30, SWT.DEFAULT);
-        statusLbl = new Label(statusComp, SWT.BORDER);
-        statusLbl.setBackground(Display.getCurrent().getSystemColor(
-                SWT.COLOR_GREEN));
+        Label statusLbl = new Label(statusComp, SWT.BORDER);
+        statusLbl.setBackground(
+                Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
         statusLbl.setLayoutData(gd);
 
         Label textStatusLbl = new Label(statusComp, SWT.NONE);
@@ -853,7 +846,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Remove a product tab.
-     * 
+     *
      * @param tabName
      *            Name of the tab to be removed.
      */
@@ -873,7 +866,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Set the state of the tab (changes the tab image).
-     * 
+     *
      * @param state
      *            Product state.
      * @param tabName
@@ -893,7 +886,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Set the image of the product tab.
-     * 
+     *
      * @param ti
      *            Tab item.
      * @param state
@@ -924,26 +917,18 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                     Activator.PLUGIN_ID, "icons/queued.gif"));
             registry.put("newtab", AbstractUIPlugin.imageDescriptorFromPlugin(
                     Activator.PLUGIN_ID, "icons/newTab.gif"));
-            registry.put("finished", AbstractUIPlugin
-                    .imageDescriptorFromPlugin(Activator.PLUGIN_ID,
-                            "icons/finished.gif"));
+            registry.put("finished", AbstractUIPlugin.imageDescriptorFromPlugin(
+                    Activator.PLUGIN_ID, "icons/finished.gif"));
             registry.put("failed", AbstractUIPlugin.imageDescriptorFromPlugin(
                     Activator.PLUGIN_ID, "icons/failed.gif"));
-            registry.put("transmitted", AbstractUIPlugin
-                    .imageDescriptorFromPlugin(Activator.PLUGIN_ID,
-                            "icons/transmitted.gif"));
+            registry.put("transmitted",
+                    AbstractUIPlugin.imageDescriptorFromPlugin(
+                            Activator.PLUGIN_ID, "icons/transmitted.gif"));
         }
 
         return registry;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -972,17 +957,12 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     }
 
     /**
-     * @see createButtonBar
+     * @see #createButtonBar
      */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-     */
     @Override
     protected void buttonPressed(int buttonId) {
         if (buttonId == IDialogConstants.CLIENT_ID) {
@@ -992,13 +972,6 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         super.buttonPressed(buttonId);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.dialogs.formatterlauncher.IProductTab#updateStatus
-     * (java.lang.String)
-     */
     @Override
     public void updateStatus(String significance, String status) {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss ");
@@ -1010,7 +983,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     }
 
     private void showViewMessagesDialog() {
-        if (viewMessageDialog == null || viewMessageDialog.getShell() == null
+        if ((viewMessageDialog == null)
+                || (viewMessageDialog.getShell() == null)
                 || viewMessageDialog.isDisposed()) {
             viewMessageDialog = new ViewMessagesDialog(getParentShell());
             viewMessageDialog.setBlockOnOpen(false);
@@ -1043,8 +1017,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
             shell.setSize(500, 400);
             shell.setLocation(50, 50);
             // Initialize all of the controls and layouts
-            messageList = new List(shell, SWT.BORDER | SWT.SINGLE
-                    | SWT.V_SCROLL | SWT.H_SCROLL);
+            messageList = new List(shell,
+                    SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
             GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
             gd.heightHint = 320;
             gd.widthHint = 475;
@@ -1063,7 +1037,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Get the FcstDataSource
-     * 
+     *
      * @return The FcstDataSource
      */
     private DatabaseID getFcstDataSource() {
@@ -1072,17 +1046,17 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Get the ISC Data Source
-     * 
+     *
      * Note: The call to getIscDatabases returns an array of DatabaseID objects.
      * Here we've decided we are only taking the last one in the list.
-     * 
+     *
      * @return The ISC Data Source
      */
     private DatabaseID getIscDataSource() {
         java.util.List<DatabaseID> dbs = dataMgr.getParmManager()
                 .getIscDatabases();
 
-        if (dbs.size() > 0) {
+        if (!dbs.isEmpty()) {
             // Always return the last one in the list
             return dbs.get(dbs.size() - 1);
         }
@@ -1092,7 +1066,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Get the Official Data source.
-     * 
+     *
      * @return The Official Data source
      */
     private DatabaseID getOfficialDataSource() {
@@ -1101,8 +1075,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     /**
      * Perform a real close of the dialog instead of just hiding it.
-     * 
-     * @return
+     *
+     * @return true if dialog is actually closed
      */
     public boolean closeDialog() {
         doClose = true;
@@ -1110,7 +1084,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     }
 
     /**
-     * This hides the fromat launcher dialog and any dialogs it creates.
+     * This hides the format launcher dialog and any dialogs it creates.
      */
     public void hideDialog() {
         if (viewMessageDialog != null) {
@@ -1119,11 +1093,6 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         hide();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#close()
-     */
     @Override
     public boolean close() {
         if (doClose) {
@@ -1131,14 +1100,16 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
             return super.close();
         }
 
-        // make clicking the x in the upper right corner just hide the dialog
-        // instead of closing it
+        /*
+         * make clicking the x in the upper right corner just hide the dialog
+         * instead of closing it
+         */
         hideDialog();
         return false;
     }
 
     private void closeFormatters() {
-        Set<String> keys = new HashSet<String>();
+        Set<String> keys = new HashSet<>();
         keys.addAll(productMap.keySet());
         for (String key : keys) {
             removeProductTab(key);

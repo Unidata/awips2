@@ -20,7 +20,6 @@
 package com.raytheon.viz.redbook.rsc;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -76,20 +75,19 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
  * May 19, 2016  3253     bsteffen  Allow extra legend to be rendered as extra
  *                                  text.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author chammack
  */
-public class RedbookResource extends
-        AbstractVizResource<RedbookResourceData, MapDescriptor> implements
-        IResourceDataChanged, IExtraTextGeneratingResource {
+public class RedbookResource
+        extends AbstractVizResource<RedbookResourceData, MapDescriptor>
+        implements IResourceDataChanged, IExtraTextGeneratingResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookResource.class);
 
     private final Map<DataTime, RedbookFrame> redbookFrames;
-
-    private DataTime displayedDataTime;
 
     private IFont font;
 
@@ -103,8 +101,7 @@ public class RedbookResource extends
 
     protected RedbookResource(RedbookResourceData resourceData,
             LoadProperties loadProperties) throws VizException {
-        super(resourceData, loadProperties);
-        this.dataTimes = new ArrayList<>();
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(this);
         this.redbookFrames = new HashMap<>();
         wxSymbols = new WxSymbols();
@@ -137,16 +134,18 @@ public class RedbookResource extends
     private void buildHumanReadableName() {
         this.humanReadableName = "Redbook Resource";
 
-        RequestConstraint wmo = this.resourceData.getMetadataMap().get(
-                "wmoTTAAii");
+        RequestConstraint wmo = this.resourceData.getMetadataMap()
+                .get("wmoTTAAii");
         if (wmo != null) {
             RedbookWMOMap map;
             try {
                 map = RedbookWMOMap.load();
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error loading redbook mapping: "
-                                + "Unable to load redbook mapping file", e);
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Error loading redbook mapping: "
+                                        + "Unable to load redbook mapping file",
+                                e);
                 return;
             }
             for (String wmoStr : wmo.getConstraintValue().split(",")) {
@@ -174,8 +173,8 @@ public class RedbookResource extends
     @Override
     public DataTime[] getDataTimes() {
         Set<DataTime> dataTimeSet = this.redbookFrames.keySet();
-        DataTime[] dataTimes = dataTimeSet.toArray(new DataTime[dataTimeSet
-                .size()]);
+        DataTime[] dataTimes = dataTimeSet
+                .toArray(new DataTime[dataTimeSet.size()]);
         return dataTimes;
     }
 
@@ -200,10 +199,10 @@ public class RedbookResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        this.displayedDataTime = paintProps.getDataTime();
+        DataTime displayedDataTime = paintProps.getDataTime();
 
         RedbookStatus status = null;
-        RedbookFrame frame = this.redbookFrames.get(this.displayedDataTime);
+        RedbookFrame frame = this.redbookFrames.get(displayedDataTime);
         if (frame != null) {
             magnification = getCapability(MagnificationCapability.class)
                     .getMagnification();
@@ -213,8 +212,9 @@ public class RedbookResource extends
                     font.dispose();
                     font = null;
                 }
-                font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), (float) (8 * magnification), null);
+                font = target.initializeFont(
+                        target.getDefaultFont().getFontName(),
+                        (float) (8 * magnification), null);
                 magnificationChanged = false;
             }
 
@@ -228,11 +228,11 @@ public class RedbookResource extends
 
         if (status != null) {
             if (status.unhandledPackets) {
-                statusHandler
-                        .debug("Warning: Unrecognized redbook packets found. Rendering may not be complete.");
+                statusHandler.debug(
+                        "Warning: Unrecognized redbook packets found. Rendering may not be complete.");
             } else if (status.vectorRenderingWarning) {
-                statusHandler
-                        .debug("Warning: Some redbook vectors could not be rendered. Rendering may not be complete.");
+                statusHandler.debug(
+                        "Warning: Some redbook vectors could not be rendered. Rendering may not be complete.");
             }
         }
     }
@@ -266,7 +266,8 @@ public class RedbookResource extends
             for (PluginDataObject record : pdos) {
                 Validate.notNull(record, "PluginDataObject was null");
                 Validate.isTrue(record instanceof RedbookRecord,
-                        "RedbookResource expects RedbookRecords, got " + record);
+                        "RedbookResource expects RedbookRecords, got "
+                                + record);
 
                 addRecord((RedbookRecord) record);
             }
@@ -306,7 +307,8 @@ public class RedbookResource extends
 
         ByteDataRecord bdr = (ByteDataRecord) dr;
 
-        RedbookFrame redbookFrame = new RedbookFrame(this, this.descriptor, bdr);
+        RedbookFrame redbookFrame = new RedbookFrame(this, this.descriptor,
+                bdr);
 
         this.redbookFrames.put(dataTime, redbookFrame);
     }

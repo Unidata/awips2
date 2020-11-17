@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,20 +45,21 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Display FFMP Basin Table Attributes.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Dec 6, 2012            rferrel      Change to non-blocking dialog.
  * Oct, 21 2015  4821     dhladky      Fixed bad ffgType subString and width.
  * Mar 16, 2016  5463      dhladky     Fixed config loading and button matching.
- * 
+ * Nov 26, 2018  DR 11861   mfontaine  FFMP use of QPF in Basin Table
+ *
  * </pre>
- * 
+ *
  * @author rferrel
  * @version 1.0
  */
@@ -128,29 +129,30 @@ public class AttributesDlg extends CaveSWTDialog {
     private void createAttributeControls() {
         attributeChkBtns = new ArrayList<Button>();
 
-        Composite attrComp = new Composite(shell, SWT.NONE | SWT.NO_RADIO_GROUP);
+        Composite attrComp = new Composite(shell,
+                SWT.NONE | SWT.NO_RADIO_GROUP);
         attrComp.setLayout(new GridLayout(1, false));
 
         rateChk = new Button(attrComp, SWT.CHECK);
         rateChk.setText("rate");
-        rateChk.setSelection(attrData.isColumnVisible(COLUMN_NAME.RATE
-                .getColumnName()));
+        rateChk.setSelection(
+                attrData.isColumnVisible(COLUMN_NAME.RATE.getColumnName()));
         rateChk.setData(COLUMN_NAME.RATE.getColumnName());
         addCheckBoxListener(rateChk);
         attributeChkBtns.add(rateChk);
 
         qpeChk = new Button(attrComp, SWT.CHECK);
         qpeChk.setText("qpe");
-        qpeChk.setSelection(attrData.isColumnVisible(COLUMN_NAME.QPE
-                .getColumnName()));
+        qpeChk.setSelection(
+                attrData.isColumnVisible(COLUMN_NAME.QPE.getColumnName()));
         qpeChk.setData(COLUMN_NAME.QPE.getColumnName());
         addCheckBoxListener(qpeChk);
         attributeChkBtns.add(qpeChk);
 
         qpfChk = new Button(attrComp, SWT.CHECK);
         qpfChk.setText("qpf");
-        qpfChk.setSelection(attrData.isColumnVisible(COLUMN_NAME.QPF
-                .getColumnName()));
+        qpfChk.setSelection(
+                attrData.isColumnVisible(COLUMN_NAME.QPF.getColumnName()));
         qpfChk.setData(COLUMN_NAME.QPF.getColumnName());
         attributeChkBtns.add(qpfChk);
         qpfChk.addSelectionListener(new SelectionAdapter() {
@@ -193,11 +195,11 @@ public class AttributesDlg extends CaveSWTDialog {
                         Button rdo = qpfRdoBtns.get(i);
                         if (rdo.getText().equals(qpfType)) {
 
-                            parent.setCursor(getDisplay().getSystemCursor(
-                                    SWT.CURSOR_WAIT));
+                            parent.setCursor(getDisplay()
+                                    .getSystemCursor(SWT.CURSOR_WAIT));
                             FfmpTableConfigData ffmpTableCfgData = FfmpTableConfig
-                                    .getInstance().getTableConfigData(
-                                            resource.getSiteKey());
+                                    .getInstance()
+                                    .getTableConfigData(resource.getSiteKey());
                             ffmpTableCfgData.setQpfType(qpfType,
                                     resource.getSiteKey());
                             attrData.setQpfType(qpfType);
@@ -218,24 +220,24 @@ public class AttributesDlg extends CaveSWTDialog {
         }
         guidChk = new Button(attrComp, SWT.CHECK);
         guidChk.setText("guid");
-        guidChk.setSelection(attrData.isColumnVisible(COLUMN_NAME.GUID
-                .getColumnName()));
+        guidChk.setSelection(
+                attrData.isColumnVisible(COLUMN_NAME.GUID.getColumnName()));
         guidChk.setData(COLUMN_NAME.GUID.getColumnName());
         addCheckBoxListener(guidChk);
         attributeChkBtns.add(guidChk);
 
         ratioChk = new Button(attrComp, SWT.CHECK);
         ratioChk.setText("ratio");
-        ratioChk.setSelection(attrData.isColumnVisible(COLUMN_NAME.RATIO
-                .getColumnName()));
+        ratioChk.setSelection(
+                attrData.isColumnVisible(COLUMN_NAME.RATIO.getColumnName()));
         ratioChk.setData(COLUMN_NAME.RATIO.getColumnName());
         addCheckBoxListener(ratioChk);
         attributeChkBtns.add(ratioChk);
 
         diffChk = new Button(attrComp, SWT.CHECK);
         diffChk.setText("diff");
-        diffChk.setSelection(attrData.isColumnVisible(COLUMN_NAME.DIFF
-                .getColumnName()));
+        diffChk.setSelection(
+                attrData.isColumnVisible(COLUMN_NAME.DIFF.getColumnName()));
         diffChk.setData(COLUMN_NAME.DIFF.getColumnName());
         addCheckBoxListener(diffChk);
         attributeChkBtns.add(diffChk);
@@ -259,13 +261,13 @@ public class AttributesDlg extends CaveSWTDialog {
                     updateAction(ffgBtn);
                 }
             });
-            
+
             // default selection(s) based on config
             if (attrData.getGuidanceList().containsKey(name)) {
                 ffgBtn.setSelection(true);
                 updateAction(ffgBtn);
             }
-            
+
             ffgChkBtns.add(ffgBtn);
         }
     }
@@ -273,8 +275,8 @@ public class AttributesDlg extends CaveSWTDialog {
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(1, false));
-        buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        buttonComp.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         Button closeBtn = new Button(buttonComp, SWT.PUSH);
@@ -310,6 +312,8 @@ public class AttributesDlg extends CaveSWTDialog {
         String key = null;
         String guidSrc = null;
         String data = (String) chk.getData();
+
+
         if (data.contains(":")) {
             String[] parts = data.split(":");
             guidSrc = parts[1];

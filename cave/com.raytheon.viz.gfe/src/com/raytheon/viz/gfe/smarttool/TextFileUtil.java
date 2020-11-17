@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,6 +31,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -39,21 +40,24 @@ import com.raytheon.viz.gfe.GFEOperationFailedException;
 
 /**
  * Utility to replace in a similar way some of the legacy TextFileID features.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 28, 2009            njensen     Initial creation
- * Apr 20, 2015   4027     randerso    Changes to support GFE formatter auto tests
- * Nov 12, 2015   4834     njensen     Changed LocalizationOpFailedException to LocalizationException
- * Feb 05, 2016   5242     dgilling    Remove calls to deprecated Localization APIs.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 28, 2009           njensen   Initial creation
+ * Apr 20, 2015  4027     randerso  Changes to support GFE formatter auto tests
+ * Nov 12, 2015  4834     njensen   Changed LocalizationOpFailedException to
+ *                                  LocalizationException
+ * Feb 05, 2016  5242     dgilling  Remove calls to deprecated Localization
+ *                                  APIs.
+ * Feb 28, 2018  6602     randerso  Updated for consolidated text utilities.
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class TextFileUtil {
@@ -61,7 +65,8 @@ public class TextFileUtil {
     private static final IPathManager PATH_MGR = PathManagerFactory
             .getPathManager();
 
-    public static LocalizationFile getTextFile(String filename, String fileType) {
+    public static LocalizationFile getTextFile(String filename,
+            String fileType) {
         LocalizationFile file = null;
         String name = getPathFromType(filename, fileType);
 
@@ -91,8 +96,9 @@ public class TextFileUtil {
     }
 
     public static LocalizationFile getUserTextFile(LocalizationFile source) {
-        LocalizationContext ctx = PATH_MGR.getContext(source.getContext()
-                .getLocalizationType(), LocalizationLevel.USER);
+        LocalizationContext ctx = PATH_MGR.getContext(
+                source.getContext().getLocalizationType(),
+                LocalizationLevel.USER);
 
         LocalizationFile destLf = getTextFile(ctx, source.getPath());
         return destLf;
@@ -101,20 +107,19 @@ public class TextFileUtil {
     private static String getPathFromType(String filename, String fileType) {
         String name = null;
         if (fileType.equalsIgnoreCase("TextUtility")) {
-            name = GfePyIncludeUtil.TEXT_UTILITIES + File.separator + "regular"
-                    + File.separator + filename + PythonFileFilter.EXTENSION;
+            name = LocalizationUtil.join(GfePyIncludeUtil.TEXT_UTILITIES,
+                    filename + PythonFileFilter.EXTENSION);
         } else if (fileType.equalsIgnoreCase("TextProduct")) {
-            name = GfePyIncludeUtil.TEXT_PRODUCTS + File.separator + filename
-                    + PythonFileFilter.EXTENSION;
+            name = LocalizationUtil.join(GfePyIncludeUtil.TEXT_PRODUCTS,
+                    filename + PythonFileFilter.EXTENSION);
         } else if (fileType.equalsIgnoreCase("Combinations")) {
-            name = GfePyIncludeUtil.GFE + File.separator + "combinations"
-                    + File.separator + filename + PythonFileFilter.EXTENSION;
+            name = LocalizationUtil.join(GfePyIncludeUtil.GFE, "combinations",
+                    filename + PythonFileFilter.EXTENSION);
         } else if (fileType.equalsIgnoreCase("EditAreaGroups")) {
-            name = "gfe" + File.separator + "editAreaGroups" + File.separator
-                    + filename + ".txt";
+            name = LocalizationUtil.join("gfe", "editAreaGroups",
+                    filename + ".txt");
         } else if (fileType.equalsIgnoreCase("Reference")) {
-            name = "gfe" + File.separator + "editAreas" + File.separator
-                    + filename + ".xml";
+            name = LocalizationUtil.join("gfe", "editAreas", filename + ".xml");
         }
         return name;
     }
@@ -125,15 +130,20 @@ public class TextFileUtil {
     }
 
     public static void makeWritableCopy(String source, String fileType,
-            String dest, boolean deleteFlag) throws GFEOperationFailedException {
+            String dest, boolean deleteFlag)
+            throws GFEOperationFailedException {
         LocalizationFile srcLf = getTextFile(source, fileType);
-        if ((srcLf.getContext().getLocalizationLevel() == LocalizationLevel.BASE)
-                || (srcLf.getContext().getLocalizationLevel() == LocalizationLevel.CONFIGURED)
-                || (srcLf.getContext().getLocalizationLevel() == LocalizationLevel.SITE)) {
+        if ((srcLf.getContext()
+                .getLocalizationLevel() == LocalizationLevel.BASE)
+                || (srcLf.getContext()
+                        .getLocalizationLevel() == LocalizationLevel.CONFIGURED)
+                || (srcLf.getContext()
+                        .getLocalizationLevel() == LocalizationLevel.SITE)) {
 
             IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext ctx = pathMgr.getContext(srcLf.getContext()
-                    .getLocalizationType(), LocalizationLevel.USER);
+            LocalizationContext ctx = pathMgr.getContext(
+                    srcLf.getContext().getLocalizationType(),
+                    LocalizationLevel.USER);
 
             LocalizationFile destLf = getTextFile(ctx,
                     getPathFromType(dest, fileType));
@@ -143,14 +153,16 @@ public class TextFileUtil {
                 throw new GFEOperationFailedException(
                         "Unable to save localization file", e);
             }
-        } else if (srcLf.getContext().getLocalizationLevel() == LocalizationLevel.USER) {
+        } else if (srcLf.getContext()
+                .getLocalizationLevel() == LocalizationLevel.USER) {
             if (deleteFlag) {
                 try {
                     srcLf.delete();
                 } catch (Exception e) {
                     throw new GFEOperationFailedException(
                             "Unable to delete localization file "
-                                    + srcLf.toString(), e);
+                                    + srcLf.toString(),
+                            e);
                 }
             } else {
                 System.out.println("USER version already exists " + source);

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,10 +25,11 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DInteger;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.contours.util.CLine;
 import com.raytheon.viz.gfe.contours.util.ContourValueDistance;
 import com.raytheon.viz.gfe.contours.util.SearchDir;
-import com.raytheon.viz.gfe.contours.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
@@ -44,7 +45,7 @@ import com.vividsolutions.jts.geom.LineString;
  * provides the required functionality.
  * <P>
  * Legacy Documentation:
- * 
+ *
  * <PRE>
  * Computes a grid of values from contours.
  * Uses a simple analysis scheme. Contour points with values are used as
@@ -143,23 +144,24 @@ import com.vividsolutions.jts.geom.LineString;
  *    2. call member function analyzer.recomputeGrid()
  *       that returns the new modified grid.
  * </PRE>
- * 
+ *
  * Note: Functionality that was common to ContourAnalyzer.C and SIRSGrid.C was
  * abstracted into a common base class, {@link AbstractGfeAnalyzer}.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 13Mar2008    968        MW Fegan    Initial implementation. Rehosted
- *                                      from legacy C++ ContourAnalyzer.H
- *                                      and ContourAnalyzer.C
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 13, 2008  968      MW Fegan  Initial implementation. Rehosted from legacy
+ *                                  C++ ContourAnalyzer.H and ContourAnalyzer.C
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Replaced clone() with copy()
+ *
  * </pre>
- * 
+ *
  * @author mfegan
- * @version 1.0
  */
 
 public class ContourAnalyzer extends AbstractGfeAnalyzer {
@@ -169,19 +171,19 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
     /* for analyzing the grid */
     private int nsta = -1;
 
-    private ArrayList<Float> sLon = new ArrayList<Float>();
+    private List<Float> sLon = new ArrayList<>();
 
-    private ArrayList<Float> sLat = new ArrayList<Float>();
+    private List<Float> sLat = new ArrayList<>();
 
-    private ArrayList<Float> values = new ArrayList<Float>();
+    private List<Float> values = new ArrayList<>();
 
-    private ArrayList<Float> seenValues = new ArrayList<Float>(8);
+    private List<Float> seenValues = new ArrayList<>(8);
 
     /**
      * Constructor.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Load all data about grid &amp; contours into the
      * &quot;ContourAnalyzer&quot; data structure.
@@ -193,7 +195,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * Requires about 0.05 sec on the HP 750 for typical 73x73 grid and contours.
      * 0.013 sec on the Dell 500 Mhz PC.
      * </PRE>
-     * 
+     *
      * @param dataGrid
      *            an original grid of float values.
      * @param contourLines
@@ -227,8 +229,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
             int xMin, int xMax, int yMin, int yMax, boolean clampOn, float max,
             float min) {
         super(dataGrid, xMin, xMax, yMin, yMax, clampOn, max, min);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         /* retrieve data dimensions */
         this.xDim = dataGrid.getXdim();
@@ -268,7 +270,9 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                     + " to " + this.xMax + " , y " + this.yMin + " to "
                     + this.yMax);
 
-            /* set how many subgrid points there are per one main grid cell side */
+            /*
+             * set how many subgrid points there are per one main grid cell side
+             */
             setSubGridFactor(4);
 
             /* read in data for input to analysis */
@@ -286,29 +290,30 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
             readOldContours(contourLines, xOrigin, yOrigin, xGridRatio,
                     yGridRatio);
         }
-        stopWatch.stop();
-        this.timeUsed = stopWatch.getWallClockTime();
-        logger.info("    ContourAnalyzer cstr         "
-                + stopWatch.getWallClockTime() + " seconds");
+        timer.stop();
+        this.timeUsed = timer.getElapsedTime();
+        logger.info(
+                "    ContourAnalyzer cstr         " + this.timeUsed + " ms");
     }
 
     /**
      * Recomputes grid values.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * The public function to make a data grid from contours.
-     * 
+     *
      * Call this, for example as analyzer.recomputeGrid()
      * after constructing ContourAnalyzer object &quot;analyzer&quot;
      * </PRE>
-     * 
+     *
      * @return a copy of the original grid
      */
+    @Override
     public Grid2DFloat recomputeGrid() {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         /*
          * if have trivial case of only one contour line input, set all grid
@@ -316,11 +321,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
          */
         if (this.oneLine) {
             this.finalResultData.setAllValues(this.oneValue);
-            try {
-                return this.finalResultData.clone();
-            } catch (CloneNotSupportedException e) {
-                return new Grid2DFloat();
-            }
+            return this.finalResultData.copy();
         }
 
         /*
@@ -349,17 +350,13 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
          */
         trimGridValues();
 
-        stopWatch.stop();
-        this.timeUsed += stopWatch.getWallClockTime();
+        timer.stop();
+        this.timeUsed += timer.getElapsedTime();
 
         logger.info("    ContourAnalyzer.RecomputeGrid() used " + this.timeUsed
-                + " seconds");
+                + " ms");
 
-        try {
-            return this.finalResultData.clone();
-        } catch (CloneNotSupportedException e) {
-            return new Grid2DFloat();
-        }
+        return this.finalResultData.copy();
     }
 
     /* helper methods */
@@ -368,7 +365,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * fall on grid points.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * Trace along all contours, loading information
      * into arrays used by analysis.
@@ -376,7 +373,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * This method gets exact contour positions input,
      * but misses the gap filling points made in other functions.
      * </PRE>
-     * 
+     *
      * @param contourLines
      *            collection of contours to apply to grid
      * @param xOrigin
@@ -430,12 +427,12 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                  */
                 if (z.x < xOrigin) {
                     z.x = xOrigin;
-                } else if (z.x > xOrigin + xWrldWidth) {
+                } else if (z.x > (xOrigin + xWrldWidth)) {
                     z.x = xOrigin + xWrldWidth;
                 }
                 if (z.y < yOrigin) {
                     z.y = yOrigin;
-                } else if (z.y > yOrigin + yWrldWidth) {
+                } else if (z.y > (yOrigin + yWrldWidth)) {
                     z.y = yOrigin + yWrldWidth;
                 }
 
@@ -461,14 +458,14 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * Updates contours by integrating data from new or modified lines.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * read in data supplied by all new or modified contour lines.
      * implementation:&lt;BR&gt;
      * also fills gaps or holes in contours - very important
      * to advoid the SIRS search routine finding the wrong neighbor contour.
      * </PRE>
-     * 
+     *
      * @param contourLines
      *            collection of contours to apply to grid
      * @param xOrigin
@@ -504,7 +501,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
          * Find and fill gaps in contours, if there are any gaps. Load arrays
          * needed. If contour lies exactly on a grid point, set values
          * accordingly.
-         * 
+         *
          * Do not use old contours that have points at same position as new or
          * modified contours
          */
@@ -558,12 +555,12 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                  */
                 if (z.x < xOrigin) {
                     z.x = xOrigin;
-                } else if (z.x > xOrigin + xWrldWidth) {
+                } else if (z.x > (xOrigin + xWrldWidth)) {
                     z.x = xOrigin + xWrldWidth;
                 }
                 if (z.y < yOrigin) {
                     z.y = yOrigin;
-                } else if (z.y > yOrigin + yWrldWidth) {
+                } else if (z.y > (yOrigin + yWrldWidth)) {
                     z.y = yOrigin + yWrldWidth;
                 }
 
@@ -588,9 +585,12 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                 }
                 /* check for gaps in the contour line, and set values there */
                 /* how big is the gap in x and y directions */
-                int numx = Math.abs(i - oldi); // typically 1 or 2
-                int numy = Math.abs(j - oldj); // typically 1 or 2
-                if (numx > 1 || numy > 1) {
+
+                // typically 1 or 2
+                int numx = Math.abs(i - oldi);
+                // typically 1 or 2
+                int numy = Math.abs(j - oldj);
+                if ((numx > 1) || (numy > 1)) {
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("     gap from " + oldi + "," + oldj
@@ -603,18 +603,21 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                     }
 
                     /*
-                     * 
+                     *
                      */
-                    int signdi = (i - oldi > 0) ? 1 : -1;
-                    int signdj = (j - oldj > 0) ? 1 : -1;
-                    if (maxStep > 0) { // should ALWAYS be true if you reach
-                        // here
+                    int signdi = ((i - oldi) > 0) ? 1 : -1;
+                    int signdj = ((j - oldj) > 0) ? 1 : -1;
+
+                    // should ALWAYS be true if you reach here
+                    if (maxStep > 0) {
                         for (int nn = 1; nn < maxStep; nn++) {
-                            /* convert to x,y position in gap (nearest integer) */
-                            int m = oldi + signdi
-                                    * Math.round(nn * (float) numx / maxStep);
-                            int n = oldj + signdj
-                                    * Math.round(nn * (float) numy / maxStep);
+                            /*
+                             * convert to x,y position in gap (nearest integer)
+                             */
+                            int m = oldi + (signdi * Math
+                                    .round((nn * (float) numx) / maxStep));
+                            int n = oldj + (signdj * Math
+                                    .round((nn * (float) numy) / maxStep));
                             /* set SIRS search control values in gaps */
                             this.onContour.set(m, n, lineIndex + 1);
                             this.contourValue.set(m, n, contourLevel);
@@ -636,7 +639,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                              * slight error in contour line point position
                              */
 
-                            // 
+                            //
                             // float xx = (float) m / (float)
                             // this.subGridFactor;
                             // float yy = (float) n / (float)
@@ -651,7 +654,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
 
                         }
                     }
-                } // end if checking for gaps in contour
+                    // end if checking for gaps in contour
+                }
                 oldi = i;
                 oldj = j;
 
@@ -670,23 +674,26 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                  * computed right on contours, and also speeds things, by a very
                  * small amount, roughly 5%.
                  */
-                if (i % this.subGridFactor == 0 && j % this.subGridFactor == 0) {
+                if (((i % this.subGridFactor) == 0)
+                        && ((j % this.subGridFactor) == 0)) {
                     i /= this.subGridFactor;
                     j /= this.subGridFactor;
                     this.finalResultData.set(i, j, contourLevel);
                     this.valueFound.set(i, j, 1);
-                    this.howFound.set(i, j, 9); // 9 = value copied new contour
-                    // level
+
+                    // 9 = value copied new contour level
+                    this.howFound.set(i, j, 9);
                 }
-            } /* end loop over one contour line's points */
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("   modified cont line " + lineIndex
-                        + " at level " + contourLevel);
-
+                /* end loop over one contour line's points */
             }
 
-        } /* end loop over all contour lines */
+            if (logger.isDebugEnabled()) {
+                logger.debug("   modified cont line " + lineIndex + " at level "
+                        + contourLevel);
+
+            }
+            /* end loop over all contour lines */
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("  contour levels input = " + this.contourLevels);
@@ -698,14 +705,14 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * Reads data from unchanged contours.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * read in data from unchanged contours
      * &lt;BR&gt;
      * Implementation:
      * also fills in gaps or holes in contours
      * </PRE>
-     * 
+     *
      * @param contourLines
      *            collection of contours to apply to grid
      * @param xOrigin
@@ -725,8 +732,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
         int oldj = 0;
 
         /* keep list of added positions for each line (temporary) */
-        ArrayList<Integer> iList = new ArrayList<Integer>();
-        ArrayList<Integer> jList = new ArrayList<Integer>();
+        List<Integer> iList = new ArrayList<>();
+        List<Integer> jList = new ArrayList<>();
 
         /*
          * x and y width of grid in world coordinates (often pixels) (distance
@@ -752,7 +759,9 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
             /* get complete information for this contour line */
             CLine cline = contourLines.get(lineIndex);
 
-            /* if this line is modified go try the next contour line in the loop */
+            /*
+             * if this line is modified go try the next contour line in the loop
+             */
             if (cline.isModified()) {
                 continue;
             }
@@ -781,12 +790,12 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                  */
                 if (z.x < xOrigin) {
                     z.x = xOrigin;
-                } else if (z.x > xOrigin + xWrldWidth) {
+                } else if (z.x > (xOrigin + xWrldWidth)) {
                     z.x = xOrigin + xWrldWidth;
                 }
                 if (z.y < yOrigin) {
                     z.y = yOrigin;
-                } else if (z.y > yOrigin + yWrldWidth) {
+                } else if (z.y > (yOrigin + yWrldWidth)) {
                     z.y = yOrigin + yWrldWidth;
                 }
 
@@ -808,25 +817,30 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  crossing contour found, index "
                                 + lineIndex + ", new level"
-                                + this.contourValue.get(i, j) + " position "
-                                + i + ", " + j);
+                                + this.contourValue.get(i, j) + " position " + i
+                                + ", " + j);
                     }
 
                     iList.add(i);
                     jList.add(j);
                     /* remove points from this crossed old line already added */
                     removePoints(iList, jList);
-                    break; // break off point loop and go to next line
+
+                    // break off point loop and go to next line
+                    break;
                 }
                 if (ptIndex == 0) {
                     oldi = i;
                     oldj = j;
                 }
                 /* check for gaps in the contour line, and set values there */
-                if (Math.abs(i - oldi) > 1 || Math.abs(j - oldj) > 1) {
-                    /* how bing is the gap in x and y directions */
-                    int numx = Math.abs(i - oldi); // typically 1 or 2
-                    int numy = Math.abs(j - oldj); // typically 1 or 2
+                if ((Math.abs(i - oldi) > 1) || (Math.abs(j - oldj) > 1)) {
+                    /* how big is the gap in x and y directions */
+
+                    // typically 1 or 2
+                    int numx = Math.abs(i - oldi);
+                    // typically 1 or 2
+                    int numy = Math.abs(j - oldj);
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("     gap from " + oldi + ", " + oldj
@@ -838,24 +852,22 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                     if (logger.isDebugEnabled()) {
                         logger.debug("     gap size " + maxStep);
                     }
-                    int signdi = (i - oldi > 0) ? 1 : -1;
-                    int signdj = (j - oldj > 0) ? 1 : -1;
+                    int signdi = ((i - oldi) > 0) ? 1 : -1;
+                    int signdj = ((j - oldj) > 0) ? 1 : -1;
 
-                    if (maxStep > 0) { /*
-                                        * should ALWAYS be true if you reach
-                                        * here
-                                        */
+                    // should ALWAYS be true if you reach here
+                    if (maxStep > 0) {
                         for (int nn = 1; nn < maxStep; nn++) {
                             /* convert to x,y position in gap */
-                            int m = oldi + signdi
-                                    * Math.round(nn * (float) numx / maxStep);
-                            int n = oldj + signdj
-                                    * Math.round(nn * (float) numy / maxStep);
+                            int m = oldi + (signdi * Math
+                                    .round((nn * (float) numx) / maxStep));
+                            int n = oldj + (signdj * Math
+                                    .round((nn * (float) numy) / maxStep));
 
                             if (logger.isDebugEnabled()) {
-                                logger
-                                        .debug("       fill in gap with new pt at "
-                                                + m + ", " + n);
+                                logger.debug(
+                                        "       fill in gap with new pt at " + m
+                                                + ", " + n);
                             }
 
                             /* check is this crosses another contour */
@@ -901,7 +913,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                             this.values.add(contourLevel);
                         }
                     }
-                } /* end if checking for gaps in contour */
+                    /* end if checking for gaps in contour */
+                }
                 oldi = i;
                 oldj = j;
 
@@ -915,35 +928,37 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                 this.contourNew.set(i, j, (byte) 0);
                 iList.add(i);
                 jList.add(j);
-            } /* end loop over one contour line's points */
+
+                /* end loop over one contour line's points */
+            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("   done with old cont line, index " + lineIndex
                         + ", level " + contourLevel);
             }
-
-        } /* end loop over all unmodified contour lines */
+            /* end loop over all unmodified contour lines */
+        }
     }
 
     /**
      * Computes values for grid points between contours having different values.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * For points on grid between contours of differing values and in sight of
      * a modified contour, compute a new grid point value.
-     * 
+     *
      * For typical data, this is where most grid point values are computed.
-     * 
+     *
      * Implementation:
      * Check each unassigned point on the main grid.
      * If in unmodified area, copy data from existing data grid.
      * If in sight of modified contours, recompute by analysis.
-     * 
+     *
      * It may not be possible to determine some grid point values here,
      * and steps 2 or 3 may apply.
-     * 
+     *
      * Two actions are combined here - copying old data for
      * main grid points which are not in sight of a modified contour, and
      * computing a new grid value if in sight of a modified (or all new) contour.
@@ -953,11 +968,11 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
         float cv;
         double dist;
         boolean modContourFound;
-        int modContourPoint;
+        boolean modContourPoint;
         int numDiffValues;
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         float cPrevious;
 
@@ -966,9 +981,9 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
         /* check all main grid points */
         for (int i = 0; i < this.xDim; i++) {
             for (int j = 0; j < this.yDim; j++) {
-                if (this.valueFound.get(i, j) != 1) { // no value set for this
-                    // point yet
-                    modContourPoint = 0;
+                if (this.valueFound.get(i, j) != 1) {
+                    // no value set for this point yet
+                    modContourPoint = false;
                     numDiffValues = 0;
                     cPrevious = (float) -9999.0;
                     this.seenValues.clear();
@@ -983,8 +998,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                         modContourFound = findNearestContour(i, j, dir, cvd);
                         cv = (float) cvd.value;
                         dist = cvd.distance;
-                        if (modContourFound && dist != 0) {
-                            modContourPoint = 1; // can this be a boolean?
+                        if (modContourFound && (dist != 0)) {
+                            modContourPoint = true;
                         }
 
                         /* compute average value using ALL "seen" values */
@@ -993,56 +1008,64 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                              * count how many different contour values seen and
                              * add to list of different values seen
                              */
-                            if (numDiffValues == 0 || cv != cPrevious) {
+                            if ((numDiffValues == 0) || (cv != cPrevious)) {
                                 numDiffValues++;
                                 this.seenValues.add(cv);
                             }
                             cPrevious = cv;
                         }
-                    } /* end of search in all [8] directions from this point */
+                        /*
+                         * end of search in all [8] directions from this point
+                         */
+                    }
+
                     /*
                      * if a modified contour seen, and 2 or more different
                      * contours were seen, do analysis for this grid point.
                      */
-                    if (modContourPoint == 1 && numDiffValues > 1) {
+                    if (modContourPoint && (numDiffValues > 1)) {
                         this.finalResultData.set(i, j, analyzeAtPoint(i, j));
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(i, j, 1); // found by analysis
+
+                        // found by analysis
+                        this.howFound.set(i, j, 1);
                         /* add up how many data points made by analysis */
                         numStep1++;
-                    } else if (modContourPoint != 1 && !this.allNew) {
+                    } else if (!modContourPoint && !this.allNew) {
                         /*
                          * this prevents recomputing the entire grid, except
                          * when making an all new grid
-                         * 
+                         *
                          * if this point is not in sight of a modified contour
                          * copy data from old grid (no change)
                          */
                         this.finalResultData.set(i, j, this.oldData.get(i, j));
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(i, j, -1); // means old data value
-                        // copied
+
+                        // means old data value copied
+                        this.howFound.set(i, j, -1);
                     }
-                } /* end if (valueFount != 1) */
+                    /* end if (valueFound != 1) */
+                }
             }
-        } /* end loop on all grid (i,j) points */
+            /* end loop on all grid (i,j) points */
+        }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("    ContourAnalyzer has " + this.nsta
-                    + " input points");
+            logger.debug(
+                    "    ContourAnalyzer has " + this.nsta + " input points");
         }
-        logger.info("    CountourAnalyzer analyzed " + numStep1
-                + " grid points");
+        logger.info(
+                "    CountourAnalyzer analyzed " + numStep1 + " grid points");
 
         /*
          * Note: the points in the grid which do not now have values determined
          * already should be recomputed by step 2 or 3.
          */
 
-        stopWatch.stop();
+        timer.stop();
         if (logger.isDebugEnabled()) {
-            logger.debug("   analysis used " + stopWatch.getWallClockTime()
-                    + " seconds");
+            logger.debug("   analysis used " + timer.getElapsedTime() + " ms");
         }
 
     }
@@ -1051,11 +1074,11 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * Determines the correct grid value for a point not on a contour.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Determine the value at a single grid point, using analysis of
      *  input values (contour points' positions and values)
-     * 
+     *
      * Implementation:
      * This short routine is the heart of the entire class. It is a kind
      * of analysis using squared distance weighing, and only using
@@ -1065,12 +1088,12 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * If distance measure is less than figure shown (say 0.0001) then
      * do not recompute but rather use the value of the nearest contour point.
      * </PRE>
-     * 
+     *
      * @param i
      *            horizontal index of the point
      * @param j
      *            vertical index of the point
-     * 
+     *
      * @return computed grid value of the point
      */
     protected float analyzeAtPoint(int i, int j) {
@@ -1098,8 +1121,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                 float tLat = this.sLat.get(k);
                 float tLon = this.sLon.get(k);
                 tVal = this.values.get(k);
-                disqd = (gLon - tLon) * (gLon - tLon) + (gLat - tLat)
-                        * (gLat - tLat);
+                disqd = ((gLon - tLon) * (gLon - tLon))
+                        + ((gLat - tLat) * (gLat - tLat));
                 if (disqd < 0.0001) {
                     test = 1;
                     data = tVal;
@@ -1108,7 +1131,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                  * Legacy notes: convert filter or weighing function to
                  * Gaussian; this does no help & doubles the total time to make
                  * a grid from contours. DISQD = exp(DISQD)
-                 * 
+                 *
                  * 1/R filter; in principle this should give better results than
                  * the 1/R2 function, but in proctice the results arevery
                  * similar and this increases total time to make grid from
@@ -1120,7 +1143,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
             if (test == 1) {
                 break;
             }
-        } /* end of "for K = 0" loop */
+            /* end of "for K = 0" loop */
+        }
 
         /*
          * Note this was modified from if (test == 1) { data = tVal; } else {
@@ -1137,38 +1161,44 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * Computes grid values based on gradients when unable to see contour.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * Make grid values for points where two or more different contours
      * can NOT be seen among the nearest contours.
      * Use gradients of contours seen: nearest and next further-out contours.
-     * 
+     *
      * Implementation:
      * For grid points that can only &quot;see&quot; nearest contours of one value
-     * 
+     *
      * two cases: if the point cannot see a grid edge it is inside a closed
      * contour and extrapolated gradients should be ised. (Analysis will
      * give a poor answer, converging on the mean.
-     * 
+     *
      * of if you see at least one pair of contours in some direction
      * using findDistantContours() (even is a grid edge
      * is also visible) then also compute values from gradient (s)
      * </PRE>
      */
     protected void gridValueFromGradient() {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         int numFound;
         int numcavg;
         int numstep2 = 0;
 
-        double[] c1 = new double[8]; // nearest contour values found in each
-        // direction
-        double[] d1 = new double[8]; // distance to a contour found in each
-        // direction
-        double[] grad = new double[8]; // gradient in each direction
-        double[] v = new double[8]; // first estimate of grid point value
+        // nearest contour values found in each direction
+        double[] c1 = new double[8];
+
+        // distance to a contour found in each direction
+        double[] d1 = new double[8];
+
+        // gradient in each direction
+        double[] grad = new double[8];
+
+        // first estimate of grid point value
+        double[] v = new double[8];
+
         double top;
         double bottom;
         double cavg;
@@ -1186,9 +1216,9 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
             this.contourLevels.add(0, this.contourLevels.get(0) - delta);
             delta = this.contourLevels.get(this.contourLevels.size() - 1)
                     - this.contourLevels.get(this.contourLevels.size() - 2);
-            this.contourLevels.add(this.contourLevels.get(this.contourLevels
-                    .size() - 1)
-                    + delta);
+            this.contourLevels
+                    .add(this.contourLevels.get(this.contourLevels.size() - 1)
+                            + delta);
         }
         if (logger.isInfoEnabled()) {
             logger.info("  extended contour level = "
@@ -1218,7 +1248,7 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                         ContourValueDistance cvdb = new ContourValueDistance();
                         numFound = findDistantContours(i, j, dir, cvda, cvdb);
 
-                        if (numFound == 1 || numFound == 2) {
+                        if ((numFound == 1) || (numFound == 2)) {
                             c1[k] = cvda.value;
                             d1[k] = cvda.distance;
 
@@ -1230,33 +1260,36 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                             cavg += cvda.value;
                             numcavg++;
 
-                            /*
-                             * if ca = cb then in a shadow zone (do step 3); (da
-                             * == db makes zero divide but should never occur -
-                             * that would mean two contours at the same point.)
-                             */
+                            // if ca = cb then in a shadow zone (do step 3);
+                            // (da == db makes zero divide but should never
+                            // occur - that would mean two contours at the same
+                            // point.)
 
-                            /* if saw TWO DIFFERENT contours in this direction */
+                            /*
+                             * if saw TWO DIFFERENT contours in this direction
+                             */
                             // if (!cvda.equals(cvdb)) {
-                            if (cvda.value != cvdb.value
-                                    && cvda.distance != cvdb.distance) {
+                            if ((cvda.value != cvdb.value)
+                                    && (cvda.distance != cvdb.distance)) {
                                 grad[k] = cvdb.gradient(cvda);
                                 /*
                                  * estimate the value at this grid point, given
                                  * by gradient at this distance
                                  */
-                                v[k] = cvda.value - grad[k] * cvda.distance;
+                                v[k] = cvda.value - (grad[k] * cvda.distance);
                             }
                         }
                         /* augment values used for composing final average */
-                        if (grad[k] != 0.0 && d1[k] != 0.0) {
+                        if ((grad[k] != 0.0) && (d1[k] != 0.0)) {
                             top += v[k] / d1[k];
                             bottom += 1.0 / d1[k];
                         }
-                    } /* end looking in all directions from this point */
+
+                        // end looking in all directions from this point
+                    }
 
                     /* making grid value from gradient */
-                    if (numcavg != 0.0 && bottom != 0.0) {
+                    if ((numcavg != 0.0) && (bottom != 0.0)) {
 
                         /*
                          * ave. contour value surrounding this point; default
@@ -1278,7 +1311,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                              * requires contours listed in increasing value
                              * order
                              */
-                            for (int jj = 1; jj < this.contourLevels.size() - 2; jj++) {
+                            for (int jj = 1; jj < (this.contourLevels.size()
+                                    - 2); jj++) {
                                 if (cavg == this.contourLevels.get(jj)) {
                                     if (gridValue < this.contourLevels
                                             .get(jj - 1)) {
@@ -1294,8 +1328,8 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                             /* force check at ends of contour value range */
                             if (gridValue > this.contourLevels
                                     .get(this.contourLevels.size() - 1)) {
-                                gridValue = this.contourLevels
-                                        .get(this.contourLevels.size() - 1) - 0.001;
+                                gridValue = this.contourLevels.get(
+                                        this.contourLevels.size() - 1) - 0.001;
                             } else if (gridValue < this.contourLevels.get(0)) {
                                 gridValue = this.contourLevels.get(0) + 0.001;
                             }
@@ -1308,26 +1342,31 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                         }
                         this.finalResultData.set(i, j, (float) gridValue);
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(i, j, 2); // found by step 2
+
+                        // found by step 2
+                        this.howFound.set(i, j, 2);
                         numstep2++;
 
-                    } /* end if making from gradient */
-                } /* end if found a grid point to make value for */
-            } /* end loop on all grid points */
+                        // end if making from gradient
+                    }
+                    // end if found a grid point to make value for
+                }
+                // end loop on all grid points
+            }
         }
 
-        logger.info("   ContourAnalyzer step 2 did " + numstep2
-                + " grid points");
+        logger.info(
+                "   ContourAnalyzer step 2 did " + numstep2 + " grid points");
 
-        stopWatch.stop();
-        logger.info("    step 2 " + stopWatch.getWallClockTime() + " seconds");
+        timer.stop();
+        logger.info("    step 2 " + timer.getElapsedTime() + " ms");
     }
 
     /**
      * Computes any grid values not determined by steps 1 & 2.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * Case of remaining unfilled grid values.
      * One situation is all contours seen from a grid point are of the same value,
@@ -1341,11 +1380,13 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
      * </PRE>
      */
     protected void computeShadowAreas() {
-        int numStep3 = 0; // counter of how many grid values made here
+        // counter of how many grid values made here
+        int numStep3 = 0;
         for (int i = 0; i < this.xDim; i++) {
             for (int j = 0; j < this.yDim; j++) {
-                if (this.valueFound.get(i, j) != 1) { // value not yet computed
-                    // here
+                if (this.valueFound.get(i, j) != 1) {
+                    // value not yet computed here
+
                     int na = 0;
                     double sumValues = 0.0;
                     /*
@@ -1361,17 +1402,19 @@ public class ContourAnalyzer extends AbstractGfeAnalyzer {
                         }
                     }
                     if (na != 0) {
-                        this.finalResultData
-                                .set(i, j, (float) (sumValues / na));
+                        this.finalResultData.set(i, j,
+                                (float) (sumValues / na));
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(i, j, 3); // the values was found by
-                        // step 3
+
+                        // the values were found by step 3
+                        this.howFound.set(i, j, 3);
+
                         numStep3++;
                     }
                 }
             }
         }
-        logger.info("   ContourAnalyzer step 3 did  " + numStep3
-                + " grid points");
+        logger.info(
+                "   ContourAnalyzer step 3 did  " + numStep3 + " grid points");
     }
 }

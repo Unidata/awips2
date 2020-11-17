@@ -1,6 +1,6 @@
 /*****************************************************************************************
  * COPYRIGHT (c), 2007, RAYTHEON COMPANY
- * ALL RIGHTS RESERVED, An Unpublished Work 
+ * ALL RIGHTS RESERVED, An Unpublished Work
  *
  * RAYTHEON PROPRIETARY
  * If the end user is not the U.S. Government or any agency thereof, use
@@ -19,7 +19,8 @@
  ******************************************************************************************/
 package com.raytheon.viz.awipstools.ui.layer;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
@@ -38,9 +39,9 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
 
 /**
  * Port of Distance Speed tool
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -51,21 +52,21 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * 02/15/2011   7975       bkowal      The Distance Speed Tools will
  *                                     operate independently of each other;
  *                                     the dialogs will have unique titles.
- * 15Mar2013	15693	mgamazaychikov Added magnification capability.
- * 
+ * 15Mar2013    15693      mgamazay    Added magnification capability.
+ * Feb 14, 2018 6911       tgurney     Prevent multiple copies of same dialog
+ *                                     from being open at once
+ *
  * </pre>
- * 
+ *
  * @author mschenke
- * @version 1.0
  */
 
 public class DistanceSpeedLayer extends AbstractStormTrackResource {
 
-    public static ArrayList<String> dialogsInUse = new ArrayList<String>();
+    private static final Set<String> dialogTitlesInUse = new HashSet<>();
 
     public static final String NAME = "Distance Speed";
 
-    /** Distance Speed dialog */
     public String dialogTitle = "Distance Speed";
 
     private DistanceSpeedDialog dialog;
@@ -74,9 +75,20 @@ public class DistanceSpeedLayer extends AbstractStormTrackResource {
             GenericToolsResourceData<DistanceSpeedLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties, descriptor);
-    	// add magnification capability
+        // add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
-        this.determineDialogTitle();
+        /*
+         * Use the dialog title with the lowest number that is not already in
+         * use
+         */
+        synchronized (dialogTitlesInUse) {
+            int suffix = 2;
+            while (dialogTitlesInUse.contains(dialogTitle)) {
+                dialogTitle = "Distance Speed <" + suffix + ">";
+                suffix++;
+            }
+            dialogTitlesInUse.add(dialogTitle);
+        }
         reopenDialog();
     }
 
@@ -84,22 +96,9 @@ public class DistanceSpeedLayer extends AbstractStormTrackResource {
     protected void disposeInternal() {
         super.disposeInternal();
         dialog.close();
-        DistanceSpeedLayer.dialogsInUse.remove(this.dialogTitle);
-    }
-
-    private void determineDialogTitle() {
-        /* The Default Dialog Title. */
-        this.dialogTitle = "Distance Speed";
-
-        /* We Want To Use The First Available Dialog Title. */
-        int counter = 1;
-        while (DistanceSpeedLayer.dialogsInUse.contains(this.dialogTitle)) {
-            ++counter;
-            if (counter > 1) {
-                this.dialogTitle = "Distance Speed <" + counter + ">";
-            }
+        synchronized (dialogTitlesInUse) {
+            dialogTitlesInUse.remove(dialogTitle);
         }
-        DistanceSpeedLayer.dialogsInUse.add(this.dialogTitle);
     }
 
     @Override
@@ -113,8 +112,8 @@ public class DistanceSpeedLayer extends AbstractStormTrackResource {
             double desiredPixelWidth = widthInPixels / 6;
             double distanceThreshold = (paintProps.getView().getExtent()
                     .getWidth() / paintProps.getCanvasBounds().width) * 10;
-            displayState.lineOfStormsLength = (zoomLevel * desiredPixelWidth * metersPerPixel)
-                    / (distanceThreshold * 2);
+            displayState.lineOfStormsLength = (zoomLevel * desiredPixelWidth
+                    * metersPerPixel) / (distanceThreshold * 2);
         }
 
         super.paintInternal(target, paintProps);
@@ -148,21 +147,17 @@ public class DistanceSpeedLayer extends AbstractStormTrackResource {
      * Re-opens the dialog if closed
      */
     public void reopenDialog() {
-        // Open the dialog
-        if (dialog == null || dialog.getShell() == null
-                || dialog.getShell().isDisposed()) {
-            VizApp.runAsync(new Runnable() {
+        VizApp.runAsync(() -> {
+            if (dialog == null || !dialog.isOpen()) {
+                dialog = new DistanceSpeedDialog(VizWorkbenchManager
+                        .getInstance().getCurrentWindow().getShell(),
+                        DistanceSpeedLayer.this);
+                dialog.setBlockOnOpen(false);
+                dialog.open();
+            } else {
+                dialog.bringToTop();
+            }
 
-                @Override
-                public void run() {
-                    dialog = new DistanceSpeedDialog(VizWorkbenchManager
-                            .getInstance().getCurrentWindow().getShell(),
-                            DistanceSpeedLayer.this);
-                    dialog.setBlockOnOpen(false);
-                    dialog.open();
-                }
-            });
-
-        }
+        });
     }
 }

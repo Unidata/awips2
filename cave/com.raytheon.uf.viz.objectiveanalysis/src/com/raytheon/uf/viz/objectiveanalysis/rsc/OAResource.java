@@ -23,7 +23,6 @@ import java.nio.FloatBuffer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -68,8 +67,8 @@ import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay;
-import com.raytheon.uf.viz.core.grid.display.GriddedVectorDisplay;
 import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay.GriddedImagePaintProperties;
+import com.raytheon.uf.viz.core.grid.display.GriddedVectorDisplay;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -94,24 +93,24 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Nov 05, 2009           randerso    Initial creation
- * Jan 08, 2010  4205     jelkins     add equals checking for OA resources
- * Aug 27, 2013  2287     randerso    Added new parameters to
- *                                    GriddedVectorDisplay constructor
- * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
- * Jun 30, 2014  3165     njensen     Use ColorMapLoader to get ColorMap
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Nov 05, 2009           randerso  Initial creation
+ * Jan 08, 2010  4205     jelkins   add equals checking for OA resources
+ * Aug 27, 2013  2287     randerso  Added new parameters to GriddedVectorDisplay
+ *                                  constructor
+ * Sep 23, 2013  2363     bsteffen  Add more vector configuration options.
+ * Jun 30, 2014  3165     njensen   Use ColorMapLoader to get ColorMap
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
-
-public class OAResource extends
-        AbstractVizResource<OAResourceData, MapDescriptor> implements
-        IResourceDataChanged {
+public class OAResource
+        extends AbstractVizResource<OAResourceData, MapDescriptor>
+        implements IResourceDataChanged {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(OAResource.class);
 
@@ -144,7 +143,7 @@ public class OAResource extends
     }
 
     private class Request implements Comparable<Request> {
-        DataTime dataTime;
+        public DataTime dataTime;
 
         public Request(DataTime dataTime) {
             this.dataTime = dataTime;
@@ -156,6 +155,7 @@ public class OAResource extends
         public int compareTo(Request o) {
             return o.dataTime.compareTo(this.dataTime);
         }
+
     }
 
     private final OAUpateJob updateJob;
@@ -172,22 +172,21 @@ public class OAResource extends
 
     private String parameterUnitString;
 
-    private OAGridTransformer transformer; // robot in disguise
+    private OAGridTransformer transformer;
 
     protected OAResource(OAResourceData resourceData,
             LoadProperties loadProperties) throws VizException {
-        super(resourceData, loadProperties);
-        renderableMap = new ConcurrentHashMap<DataTime, IRenderable>();
-        requestQueue = new ConcurrentSkipListSet<Request>();
+        super(resourceData, loadProperties, false);
+        renderableMap = new ConcurrentHashMap<>();
+        requestQueue = new ConcurrentSkipListSet<>();
         updateJob = new OAUpateJob();
-        pendingUpdates = new ConcurrentSkipListSet<DataTime>();
-        dataTimes = new ArrayList<DataTime>(Arrays.asList(resourceData
-                .getAvailableTimes()));
+        pendingUpdates = new ConcurrentSkipListSet<>();
+        dataTimes.addAll(Arrays.asList(resourceData.getAvailableTimes()));
 
         this.displayType = getCapability(DisplayTypeCapability.class)
                 .getDisplayType();
-        getCapability(DisplayTypeCapability.class).setAlternativeDisplayTypes(
-                Arrays.asList(DisplayType.IMAGE));
+        getCapability(DisplayTypeCapability.class)
+                .setAlternativeDisplayTypes(Arrays.asList(DisplayType.IMAGE));
         resourceData.addChangeListener(this);
         if (this.displayType == DisplayType.IMAGE) {
             this.getCapability(ImagingCapability.class);
@@ -249,7 +248,8 @@ public class OAResource extends
         if (renderable != null) {
             if (renderable instanceof GriddedImageDisplay) {
                 GriddedImageDisplay image = (GriddedImageDisplay) renderable;
-                ImagingCapability imagingCap = getCapability(ImagingCapability.class);
+                ImagingCapability imagingCap = getCapability(
+                        ImagingCapability.class);
                 GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
                         paintProps, imagingCap.getBrightness(),
                         imagingCap.getContrast(),
@@ -275,12 +275,15 @@ public class OAResource extends
                 RGB color = getCapability(ColorableCapability.class).getColor();
                 contour.setColor(color);
 
-                OutlineCapability outlineCap = getCapability(OutlineCapability.class);
+                OutlineCapability outlineCap = getCapability(
+                        OutlineCapability.class);
                 contour.setLineStyle(outlineCap.getLineStyle());
                 contour.setOutlineWidth(outlineCap.getOutlineWidth());
-                DensityCapability densityCap = getCapability(DensityCapability.class);
+                DensityCapability densityCap = getCapability(
+                        DensityCapability.class);
                 contour.setDensity(densityCap.getDensity());
-                MagnificationCapability magCap = getCapability(MagnificationCapability.class);
+                MagnificationCapability magCap = getCapability(
+                        MagnificationCapability.class);
                 if (magCap != null) {
                     contour.setMagnification(magCap.getMagnification());
                 }
@@ -289,22 +292,21 @@ public class OAResource extends
                 GriddedVectorDisplay vector = (GriddedVectorDisplay) renderable;
                 RGB color = getCapability(ColorableCapability.class).getColor();
                 vector.setColor(color);
-                OutlineCapability outlineCap = getCapability(OutlineCapability.class);
+                OutlineCapability outlineCap = getCapability(
+                        OutlineCapability.class);
                 vector.setLineStyle(outlineCap.getLineStyle());
                 vector.setLineWidth(outlineCap.getOutlineWidth());
-                DensityCapability densityCap = getCapability(DensityCapability.class);
+                DensityCapability densityCap = getCapability(
+                        DensityCapability.class);
                 vector.setDensity(densityCap.getDensity());
-                MagnificationCapability magCap = getCapability(MagnificationCapability.class);
+                MagnificationCapability magCap = getCapability(
+                        MagnificationCapability.class);
                 vector.setMagnification(magCap.getMagnification());
                 vector.paint(target, paintProps);
             }
         }
     }
 
-    /**
-     * @param dataTime
-     * @throws VizException
-     */
     private void computeNewFrame(DataTime dataTime) throws VizException {
         if (!this.dataTimes.contains(dataTime)) {
             return;
@@ -313,10 +315,10 @@ public class OAResource extends
             System.out.println("OA new frame " + dataTime.getLegendString());
             long t0 = System.currentTimeMillis();
 
-            TimeRange tr = this.resourceData.getBinOffset().getTimeRange(
-                    dataTime);
+            TimeRange tr = this.resourceData.getBinOffset()
+                    .getTimeRange(dataTime);
 
-            HashMap<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+            HashMap<String, RequestConstraint> constraints = new HashMap<>(
                     this.resourceData.getMetadataMap());
 
             DataTime start = new DataTime(tr.getStart());
@@ -371,9 +373,10 @@ public class OAResource extends
                     }
                 }
 
-                cmapParams = ColorMapParameterFactory.build(grid, transformer
-                        .getParmDescription().getParameterName(), transformer
-                        .getParmDescription().getUnitObject(), level);
+                cmapParams = ColorMapParameterFactory.build(grid,
+                        transformer.getParmDescription().getParameterName(),
+                        transformer.getParmDescription().getUnitObject(),
+                        level);
 
                 if (cmapParams.getDisplayUnit() == null) {
                     cmapParams.setDisplayUnit(cmapParams.getDataUnit());
@@ -392,8 +395,8 @@ public class OAResource extends
                     cmapParams.setColorMapName(colorMapName);
                 }
 
-                getCapability(ColorMapCapability.class).setColorMapParameters(
-                        cmapParams);
+                getCapability(ColorMapCapability.class)
+                        .setColorMapParameters(cmapParams);
 
                 GriddedImageDisplay image = new GriddedImageDisplay(data,
                         this.descriptor, transformer.getGridGeom());
@@ -408,10 +411,10 @@ public class OAResource extends
 
                 ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
                 match.setLevel(level);
-                match.setParameterName(new ArrayList<String>(Arrays
-                        .asList(parameter)));
-                StyleRule sr = StyleManager.getInstance().getStyleRule(
-                        StyleManager.StyleType.CONTOUR, match);
+                match.setParameterName(
+                        new ArrayList<>(Arrays.asList(parameter)));
+                StyleRule sr = StyleManager.getInstance()
+                        .getStyleRule(StyleManager.StyleType.CONTOUR, match);
                 if (sr != null) {
                     ContourPreferences prefs = (ContourPreferences) sr
                             .getPreferences();
@@ -438,8 +441,8 @@ public class OAResource extends
                 FloatBuffer mag = data;
                 data.position(transformer.getNx() * transformer.getNy());
                 FloatBuffer dir = data.slice();
-                GriddedVectorDisplay vector = new GriddedVectorDisplay(mag,
-                        dir, descriptor, transformer.getGridGeom(),
+                GriddedVectorDisplay vector = new GriddedVectorDisplay(mag, dir,
+                        descriptor, transformer.getGridGeom(),
                         VECTOR_DENSITY_FACTOR, true, displayType,
                         new VectorGraphicsConfig());
 
@@ -447,8 +450,7 @@ public class OAResource extends
                 break;
             }
             default: {
-                statusHandler.handle(
-                        Priority.PROBLEM,
+                statusHandler.handle(Priority.PROBLEM,
                         "OAResource cannot display data as "
                                 + displayType.toString());
             }
@@ -472,11 +474,11 @@ public class OAResource extends
                 level.setValue(displayedDataTime.getLevelValue());
             }
             match.setLevel(level);
-            match.setParameterName(new ArrayList<String>(Arrays
-                    .asList(this.resourceData.getParameter())));
+            match.setParameterName(new ArrayList<>(
+                    Arrays.asList(this.resourceData.getParameter())));
             try {
-                StyleRule sr = StyleManager.getInstance().getStyleRule(
-                        StyleManager.StyleType.CONTOUR, match);
+                StyleRule sr = StyleManager.getInstance()
+                        .getStyleRule(StyleManager.StyleType.CONTOUR, match);
                 if (sr != null) {
                     ContourPreferences prefs = (ContourPreferences) sr
                             .getPreferences();
@@ -491,13 +493,6 @@ public class OAResource extends
         return parameterUnitString;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         try {
@@ -568,22 +563,17 @@ public class OAResource extends
             }
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new VizException("Error inspecting objective analysis data",
+                    e);
         }
 
         return "NO DATA";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
-     */
     @Override
     public String getName() {
         displayedDataTime = descriptor.getTimeForResource(this);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(this.resourceData.getSource());
         double levelvalue = -1;
         if (displayedDataTime != null && displayedDataTime.isSpatial()) {
@@ -613,13 +603,6 @@ public class OAResource extends
         return sb.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#setDescriptor(com.raytheon
-     * .uf.viz.core.drawables.IDescriptor)
-     */
     @Override
     public void setDescriptor(MapDescriptor descriptor) {
         System.out.println("OA setDescriptor called");
@@ -627,9 +610,8 @@ public class OAResource extends
 
         try {
             float smoothPts = 200 * 1000 * GRID_SIZE / descriptor.getMapWidth();
-            if (resourceData.getLevelKey().endsWith("deg")
-                    || resourceData.getLevelKey().equals(
-                            OAResourceData.ALL_TILTS)) {
+            if (resourceData.getLevelKey().endsWith("deg") || resourceData
+                    .getLevelKey().equals(OAResourceData.ALL_TILTS)) {
                 transformer = new OATiltGridTransformer(
                         this.descriptor.getGridGeometry(),
                         this.descriptor.getCRS(), GRID_SIZE, smoothPts);
@@ -654,13 +636,6 @@ public class OAResource extends
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         System.out.println("OA project called:");
@@ -679,42 +654,24 @@ public class OAResource extends
                 try {
 
                     DataTime dataTime = this.resourceData.getBinOffset()
-                            .getNormalizedTime(
-                                    (DataTime) message.decodedAlert
-                                            .get("dataTime"));
+                            .getNormalizedTime((DataTime) message.decodedAlert
+                                    .get("dataTime"));
                     pendingUpdates.add(dataTime);
 
-                    if (!dataTimes.contains(dataTime)) {
-                        dataTimes.add(dataTime);
-                        Collections.sort(dataTimes);
-                    }
+                    dataTimes.add(dataTime);
                 } catch (Exception e) {
-                    // TODO: handle exception
-                    e.printStackTrace();
+                    statusHandler.error("Error processing data update", e);
                 }
             }
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#remove(com.raytheon.
-     * uf.common.time.DataTime)
-     */
     @Override
     public void remove(DataTime dataTime) {
         super.remove(dataTime);
         disposeRenderable(renderableMap.remove(dataTime));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#getRenderingOrderId()
-     */
     @Override
     public ResourceOrder getResourceOrder() {
         if (displayType.equals(DisplayType.IMAGE)) {

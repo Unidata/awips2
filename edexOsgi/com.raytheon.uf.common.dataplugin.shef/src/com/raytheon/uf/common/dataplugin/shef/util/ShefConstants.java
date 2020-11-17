@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
  * 02/02/2009   1943        jsanchez    Added shef_load_maxfcst.
  * 06/03/2009   2410        jsanchez    Changed kk to HH.
  * 04/29/2014   3088        mpduff      Added MILLLIS_PER_SECOND;
+ * 01/23/2018   6784        mduff       Refactored shef missing var names.
  * 
  * </pre>
  */
@@ -62,11 +63,9 @@ public class ShefConstants {
 
     public static final String SHEF_SKIPPED = "-9998";
 
-    public static final String SHEF_MISSING = "-9999";
+    public static final String SHEF_MISSING_STR = "-9999";
 
-    public static final String SHEF_MISSING_DEC = "-9999.0";
-
-    public static final int SHEF_MISSING_INT = -9999;
+    public static final int SHEF_MISSING = -9999;
 
     public static final String SHEF_TRACE = "0.001";
 
@@ -218,7 +217,7 @@ public class ShefConstants {
 
     public static final String DATE_INC_CODES = "SNHDMEY";
 
-    public static final int[] DATE_INC_VALS = new int[] { Calendar.SECOND, // S
+    protected static final int[] DATE_INC_VALS = new int[] { Calendar.SECOND, // S
             Calendar.MINUTE, // N
             Calendar.HOUR_OF_DAY, // H
             Calendar.DAY_OF_MONTH, // D
@@ -355,23 +354,23 @@ public class ShefConstants {
     /***************************************************************************
      * Bit pattern 0110111111111111 1111111111111111 yields 1,879,048,191.
      **************************************************************************/
-    public static final long DEFAULT_QC_VALUE = 1879048191;
+    public static final long DEFAULT_QC_VALUE = 1_879_048_191;
 
     /***************************************************************************
      * Bit pattern 0110000000000000 0000000000000000 yields 1,610,612,736.
      **************************************************************************/
-    public static final long GOOD_QUESTIONABLE_THRESHOLD = 1610612736;
+    public static final long GOOD_QUESTIONABLE_THRESHOLD = 1_610_612_736;
 
     /***************************************************************************
      * Bit pattern 0100000000000000 0000000000000000 yields 1,073,741,824.
      **************************************************************************/
-    public static final long QUESTIONABLE_BAD_THRESHOLD = 1073741824;
+    public static final long QUESTIONABLE_BAD_THRESHOLD = 1_073_741_824;
 
     /***************************************************************************
      * Bit pattern 0111111111111111 1111111111111111 yields 2,147,483,647. =
      * 2**31 - 1
      **************************************************************************/
-    public static final long ALL_ONES = 2147483647;
+    public static final long ALL_ONES = 2_147_483_647;
 
     /* Spatial Consistency Check */
     public static final long SCC_QC = 16;

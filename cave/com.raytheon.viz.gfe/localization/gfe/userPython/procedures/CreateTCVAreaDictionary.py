@@ -14,16 +14,7 @@
 # of the file will completely replace a lower priority version of the file.
 ##
 
-# The MenuItems list defines the GFE menu item(s) under which the
-# Procedure is to appear.
-# Possible items are: Populate, Edit, Consistency, Verify, Hazards
 MenuItems = ["Populate"]
-
-try:  # See if this is the AWIPS I environment
-    import AFPS
-    AWIPS_ENVIRON = "AWIPS1"
-except:  # Must be the AWIPS II environment
-    AWIPS_ENVIRON = "AWIPS2"
 
 
 import SmartScript
@@ -40,14 +31,8 @@ class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
         
-    def execute(self, editArea, timeRange, varDict):
+    def execute(self):
         self._siteID = self.getSiteID()
-        
-        if AWIPS_ENVIRON == "AWIPS1":
-            import siteConfig
-            self._gfeHome = siteConfig.GFESUITE_HOME
-            self._gfeServer = siteConfig.GFESUITE_SERVER
-            self._gfePort = siteConfig.GFESUITE_PORT
         
         self._tcvAreaDictionaryContents = \
 """
@@ -57,7 +42,7 @@ class Procedure (SmartScript.SmartScript):
 # any purpose.
 #
 # TCV_AreaDictionary
-#   TCV_AreaDictionary file
+#   TCV_AreaDictionary fd
 #
 # Author: GFE Installation Script
 # ----------------------------------------------------------------------------
@@ -136,19 +121,14 @@ TCV_AreaDictionary = {
         
         TCVAreaDictionary = {}
         try:
-            if AWIPS_ENVIRON == "AWIPS1":
-                import TCVAreaDictionary
-                TCVAreaDictionary = TCVAreaDictionary.TCV_AreaDictionary
-            else:
-                filename = "gfe/userPython/textUtilities/regular/TCVAreaDictionary.py"
-                fileContents = self._getFileContents(LocalizationType.CAVE_STATIC,
-                                                     LocalizationLevel.SITE,
-                                                     self._siteID,
-                                                     filename)
-                
-                exec(fileContents)
+            filename = "gfe/userPython/textUtilities/TCVAreaDictionary.py"
+            fileContents = self._getFileContents(LocalizationType.CAVE_STATIC,
+                                                 LocalizationLevel.SITE,
+                                                 self._siteID,
+                                                 filename)
+            exec(fileContents)
                     
-                TCVAreaDictionary = TCV_AreaDictionary
+            TCVAreaDictionary = TCV_AreaDictionary
         except Exception:
             pass
         
@@ -178,30 +158,21 @@ TCV_AreaDictionary = {
 
         self._tcvAreaDictionaryContents += "}\n"
 
-        with open("/tmp/TCVAreaDictionary.TextUtility", "w") as file:
-            file.write(self._tcvAreaDictionaryContents)
+        with open("/tmp/TCVAreaDictionary.TextUtility", "w") as fd:
+            fd.write(self._tcvAreaDictionaryContents)
 
         self._installDictionary()
 
     def _installDictionary(self):
         from subprocess import call
-        if AWIPS_ENVIRON == "AWIPS1":
-            call([self._gfeHome + "/bin/ifpServerText",
-                  "-h", self._gfeServer,
-                  "-p", self._gfePort,
-                  "-s",
-                  "-u", "SITE",
-                  "-n", "TCVAreaDictionary",
-                  "-f", "/tmp/TCVAreaDictionary.TextUtility",
-                  "-c", "TextUtility"])
-        else:
-            call(["/awips2/GFESuite/bin/ifpServerText",
-                  "-o", self._siteID,
-                  "-s",
-                  "-u", "SITE",
-                  "-n", "TCVAreaDictionary",
-                  "-f", "/tmp/TCVAreaDictionary.TextUtility",
-                  "-c", "TextUtility"])
+
+        call(["/awips2/GFESuite/bin/ifpServerText",
+              "-o", self._siteID,
+              "-s",
+              "-u", "SITE",
+              "-n", "TCVAreaDictionary",
+              "-f", "/tmp/TCVAreaDictionary.TextUtility",
+              "-c", "TextUtility"])
 
     def _getZones(self):
         editAreasFilename = "gfe/combinations/EditAreas_PublicZones_" + \

@@ -143,6 +143,16 @@
 # This is a base file that is not intended to be overridden.
 ##
 
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/16/2018      6965          tgurney        Fix regex for vsby in meters
+#
+
+from __future__ import print_function
+
 import exceptions, time, types
 import tpg
 import Avn
@@ -155,7 +165,8 @@ _ValidVcnty = dict.fromkeys(['TS', 'SH', 'FG'])
 
 ###############################################################################
 # local exceptions
-class Error(exceptions.Exception): pass
+class Error(exceptions.Exception):
+    pass
 
 ##############################################################################
 # parser stuff
@@ -186,7 +197,8 @@ _TokList = [
     ('autocor', r'AUTO|COR|RTD'),
     ('wind', r'(VRB|\d{3})\d{2,3}(G\d{2,3})?(KT|MPS)'),
     ('wind_vrb', r'\d{3}V\d{3}'),
-    ('vsby', r'(M\d/\d|%s|\d{1,3})SM|\d{1,4}[NEWS]{0,2}' % _Fract),
+    # Only two-digit visibility allowed by the METAR spec is 50 (meters)
+    ('vsby', r'(M\d/\d|%s|\d{1,3})SM|(?:\d{3,4}|50)[NEWS]{0,2}' % _Fract),
     ('rvr', r'R\w+/[MP]?\d{3,4}(V?P?\d{4})?(FT)?'),
     ('funnel', r'[+]?FC'),
     ('pcp', r'%s|TS(\s+%s)?' % (_pcptok, _pcptok)),
@@ -321,7 +333,7 @@ tms contains day, hour, min of the report, current year and month
         d = self._metar['alt'] = {'str': s, 'index': self.index()}
         v = int(s[1:])
         if s[0] == 'A':
-            v *= IN_TO_MB/100.0;
+            v *= IN_TO_MB/100.0
         if 900 < v < 1080:
             d['value'] = v
         else:
@@ -332,12 +344,12 @@ tms contains day, hour, min of the report, current year and month
 
     def itime(self, s):
         d = self._metar['itime'] = {'str': s, 'index': self.index()}
-        mday, hour, min = int(s[:2]), int(s[2:4]), int(s[4:6])
+        mday, hour, minute = int(s[:2]), int(s[2:4]), int(s[4:6])
         try:
-            if mday > 31 or hour > 23 or min > 59:
+            if mday > 31 or hour > 23 or minute > 59:
                 raise Error('Invalid time')
             tms = list(time.gmtime())
-            tms[2:6] = mday, hour, min, 0
+            tms[2:6] = mday, hour, minute, 0
             self.fix_date(tms)
             if not valid_day(tms):
                 raise Error('Invalid day')
@@ -382,7 +394,6 @@ tms contains day, hour, min of the report, current year and month
         try:
             num, den = v.group('vfrachi').split('/', 1)
             vis += float(num)/float(den)
-            metric = False            
         except (AttributeError, ValueError):
             pass
 
@@ -644,23 +655,22 @@ def errors(decoded):
 ##############################################################################
 # test
 def main(report):
-    import Avn
     for n, line in enumerate(report):
         if line.startswith('METAR') or line.startswith('SPECI'):
             metar = ''.join(report[n:])
             break
     else:
         raise Avn.AvnError('Cannot find METAR')
-    print metar
+    print(metar)
     decoder = Decoder()
     decoded = decoder(metar)
     if 'fatal' in decoded:
-        print 'Fatal error at', decoded['fatal']
+        print('Fatal error at ' + str(decoded['fatal']))
     for key in decoded:
-        print key, decoded[key]
+        print(str(key) + ' ' + str(decoded[key]))
     errlist = errors(decoded)
     for k, d in errlist['error']:
-        print k, d['index'], d['error']
+        print(str(k) + ' ' + str(d['index']) + ' ' + str(d['error']))
     # decoder does not produce warnings
 
 if __name__ == '__main__':

@@ -88,6 +88,7 @@ import com.raytheon.viz.grid.GridExtensionManager;
  * Mar 03, 2016  5439     bsteffen    Split grid inventory into common and viz
  * Aug 15, 2017  6332     bsteffen    Move radar specific logic to extension
  * Aug 23, 2017  6125     bsteffen    Handle updates through super class.
+ * Jun 24, 2019  ----     mjames@ucar Remove DatasetInfo
  * 
  * </pre>
  * 

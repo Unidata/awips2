@@ -100,21 +100,22 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 30, 2011            mschenke    Initial creation
- * Feb 21, 2012 #30        mschenke    Fixed sampling issue
- * Aug 2,  2013 #2190      mschenke    Switched interrogate to use Measure objects
- * Aug 27, 2013 #2190      mschenke    Made interrogate more efficient
- * Nov 08, 2016 5976       bsteffen    Update deprecated method calls.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Nov 30, 2011           mschenke  Initial creation
+ * Feb 21, 2012  30       mschenke  Fixed sampling issue
+ * Aug 02, 2013  2190     mschenke  Switched interrogate to use Measure objects
+ * Aug 27, 2013  2190     mschenke  Made interrogate more efficient
+ * Nov 08, 2016  5976     bsteffen  Update deprecated method calls.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author mschenke
  */
-public class VIIRSResource extends
-        AbstractVizResource<VIIRSResourceData, IMapDescriptor> implements
-        IResourceDataChanged, ImageProvider {
+public class VIIRSResource
+        extends AbstractVizResource<VIIRSResourceData, IMapDescriptor>
+        implements IResourceDataChanged, ImageProvider {
 
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(VIIRSResource.class);
@@ -122,7 +123,8 @@ public class VIIRSResource extends
     /** String id to look for satellite-provided data values */
     public static final String SATELLITE_DATA_INTERROGATE_ID = "satelliteDataValue";
 
-    private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
+    private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat(
+            "0.00");
 
     private class VIIRSTileImageCreator implements TileImageCreator {
 
@@ -135,8 +137,7 @@ public class VIIRSResource extends
         @Override
         public DrawableImage createTileImage(IGraphicsTarget target, Tile tile,
                 GeneralGridGeometry targetGeometry) throws VizException {
-            IImage image = target
-                    .getExtension(IColormappedImageExtension.class)
+            IImage image = target.getExtension(IColormappedImageExtension.class)
                     .initializeRaster(
                             new VIIRSDataCallback(record, tile.tileLevel,
                                     tile.getRectangle()),
@@ -169,8 +170,8 @@ public class VIIRSResource extends
 
         public RecordData(VIIRSDataRecord dataRecord) {
             this.tileSet = new TileSetRenderable(
-                    getCapability(ImagingCapability.class), dataRecord
-                            .getCoverage().getGridGeometry(),
+                    getCapability(ImagingCapability.class),
+                    dataRecord.getCoverage().getGridGeometry(),
                     new VIIRSTileImageCreator(dataRecord),
                     dataRecord.getLevels(), 256);
             this.resolution = Math.min(dataRecord.getCoverage().getDx(),
@@ -207,28 +208,28 @@ public class VIIRSResource extends
 
                     targetIntersection = null;
                     Geometry intersection = EnvelopeIntersection
-                            .createEnvelopeIntersection(
-                                    tileSetEnvelope,
-                                    targetGeometry.getEnvelope(),
-                                    resolution,
-                                    (int) (tileSetEnvelope.getSpan(0) / (resolution * INTERSECTION_FACTOR)),
-                                    (int) (tileSetEnvelope.getSpan(1) / (resolution * INTERSECTION_FACTOR)));
+                            .createEnvelopeIntersection(tileSetEnvelope,
+                                    targetGeometry.getEnvelope(), resolution,
+                                    (int) (tileSetEnvelope.getSpan(0)
+                                            / (resolution
+                                                    * INTERSECTION_FACTOR)),
+                                    (int) (tileSetEnvelope.getSpan(1)
+                                            / (resolution
+                                                    * INTERSECTION_FACTOR)));
                     if (intersection != null) {
                         int numGeoms = intersection.getNumGeometries();
-                        targetIntersection = new ArrayList<>(
-                                numGeoms);
+                        targetIntersection = new ArrayList<>(numGeoms);
                         for (int n = 0; n < numGeoms; ++n) {
-                            targetIntersection.add(PreparedGeometryFactory
-                                    .prepare(intersection.getGeometryN(n)
-                                            .buffer(resolution
+                            targetIntersection.add(
+                                    PreparedGeometryFactory.prepare(intersection
+                                            .getGeometryN(n).buffer(resolution
                                                     * INTERSECTION_FACTOR)));
                         }
                     }
                 } catch (Exception e) {
-                    Activator.statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Error constructing envelope intersection for tileset",
-                                    e);
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            "Error constructing envelope intersection for tileset",
+                            e);
                 }
             }
         }
@@ -271,12 +272,12 @@ public class VIIRSResource extends
      * @param loadProperties
      */
     public VIIRSResource(VIIRSResourceData resourceData,
-            LoadProperties loadProperties, List<VIIRSDataRecord> initialRecords) {
-        super(resourceData, loadProperties);
+            LoadProperties loadProperties,
+            List<VIIRSDataRecord> initialRecords) {
+        super(resourceData, loadProperties, false);
         dataRecordMap = new LinkedHashMap<>();
         groupedRecords = new HashMap<>();
         resourceData.addChangeListener(this);
-        dataTimes = new ArrayList<>();
         for (VIIRSDataRecord record : initialRecords) {
             dataRecordMap.put(record, null);
         }
@@ -394,14 +395,14 @@ public class VIIRSResource extends
                 if (attrs.containsKey(VIIRSDataRecord.MISSING_VALUE_ID)) {
                     colorMapParameters.setNoDataValue(((Number) attrs
                             .get(VIIRSDataRecord.MISSING_VALUE_ID))
-                            .doubleValue());
+                                    .doubleValue());
                 }
                 if (unitStr != null) {
                     try {
-                        dataUnit = UnitFormat.getUCUMInstance().parseObject(
-                                unitStr, new ParsePosition(0));
+                        dataUnit = UnitFormat.getUCUMInstance()
+                                .parseObject(unitStr, new ParsePosition(0));
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        statusHandler.debug("Viirs unit conversion error", e);
                     }
                 }
                 if (offset != null && offset != 0.0) {
@@ -461,12 +462,12 @@ public class VIIRSResource extends
         }
 
         if (colorMapParameters.getPersisted() != null) {
-            colorMapParameters.applyPersistedParameters(colorMapParameters
-                    .getPersisted());
+            colorMapParameters.applyPersistedParameters(
+                    colorMapParameters.getPersisted());
         }
 
-        getCapability(ColorMapCapability.class).setColorMapParameters(
-                colorMapParameters);
+        getCapability(ColorMapCapability.class)
+                .setColorMapParameters(colorMapParameters);
     }
 
     public void addRecords(PluginDataObject... records) {
@@ -476,10 +477,10 @@ public class VIIRSResource extends
                     try {
                         addRecord((VIIRSDataRecord) record);
                     } catch (VizException e) {
-                        statusHandler.handle(
-                                Priority.PROBLEM,
+                        statusHandler.handle(Priority.PROBLEM,
                                 "Error adding record from update: "
-                                        + e.getLocalizedMessage(), e);
+                                        + e.getLocalizedMessage(),
+                                e);
 
                     }
                 }
@@ -487,10 +488,8 @@ public class VIIRSResource extends
 
             Map<DataTime, Collection<VIIRSDataRecord>> groupedRecords = resourceData
                     .groupRecordTimes(dataRecordMap.keySet());
-            List<DataTime> dataTimes = new ArrayList<>(
-                    groupedRecords.keySet());
-            Collections.sort(dataTimes);
-            this.dataTimes = dataTimes;
+            this.dataTimes.retainAll(groupedRecords.keySet());
+            this.dataTimes.addAll(groupedRecords.keySet());
             this.groupedRecords = groupedRecords;
         }
     }
@@ -528,7 +527,7 @@ public class VIIRSResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         Collection<DrawableImage> images = getImages(target, paintProps);
-        if (images.size() > 0) {
+        if (!images.isEmpty()) {
             if (!target.drawRasters(paintProps,
                     images.toArray(new DrawableImage[images.size()]))) {
                 issueRefresh();
@@ -540,8 +539,8 @@ public class VIIRSResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         getCapability(ImagingCapability.class).setProvider(this);
         synchronized (dataRecordMap) {
-            PluginDataObject[] pdos = dataRecordMap.keySet().toArray(
-                    new PluginDataObject[0]);
+            PluginDataObject[] pdos = dataRecordMap.keySet()
+                    .toArray(new PluginDataObject[0]);
             resourceChanged(ChangeType.DATA_UPDATE, pdos);
         }
     }
@@ -597,8 +596,8 @@ public class VIIRSResource extends
             latLon = coord.asLatLon();
             Coordinate grid = coord.asGridCell(descriptor.getGridGeometry(),
                     PixelInCell.CELL_CENTER);
-            MathTransform mt = descriptor.getGridGeometry().getGridToCRS(
-                    PixelInCell.CELL_CENTER);
+            MathTransform mt = descriptor.getGridGeometry()
+                    .getGridToCRS(PixelInCell.CELL_CENTER);
             double[] out = new double[2];
             mt.transform(new double[] { grid.x, grid.y }, 0, out, 0, 1);
             crs = new Coordinate(out[0], out[1]);
@@ -613,8 +612,8 @@ public class VIIRSResource extends
         VIIRSDataRecord bestRecord = null;
 
         synchronized (dataRecordMap) {
-            Collection<VIIRSDataRecord> records = groupedRecords.get(descriptor
-                    .getTimeForResource(this));
+            Collection<VIIRSDataRecord> records = groupedRecords
+                    .get(descriptor.getTimeForResource(this));
             if (records != null) {
                 // Since there is overlap between granules, the best value is
                 // the one that is closest to 0
@@ -622,8 +621,7 @@ public class VIIRSResource extends
                     RecordData data = dataRecordMap.get(record);
                     if (data.contains(crsPoint)) {
                         double value = data.interrogate(latLon);
-                        if (Double.isNaN(value) == false
-                                && value != noDataValue) {
+                        if (!Double.isNaN(value) && value != noDataValue) {
                             bestValue = value;
                             bestRecord = record;
                             break;
@@ -632,12 +630,13 @@ public class VIIRSResource extends
                 }
             }
 
-            if (Double.isNaN(bestValue) == false) {
-                dataValue = params.getDataToDisplayConverter().convert(
-                        bestValue);
+            if (!Double.isNaN(bestValue)) {
+                dataValue = params.getDataToDisplayConverter()
+                        .convert(bestValue);
             }
             if (bestRecord != null) {
-                interMap.put(IGridGeometryProvider.class.toString(), bestRecord);
+                interMap.put(IGridGeometryProvider.class.toString(),
+                        bestRecord);
             }
         }
 
@@ -665,14 +664,14 @@ public class VIIRSResource extends
             PaintProperties paintProps) throws VizException {
         List<DrawableImage> images = new ArrayList<>();
         synchronized (dataRecordMap) {
-            Collection<VIIRSDataRecord> records = groupedRecords.get(paintProps
-                    .getDataTime());
+            Collection<VIIRSDataRecord> records = groupedRecords
+                    .get(paintProps.getDataTime());
             if (records != null) {
                 for (VIIRSDataRecord record : records) {
                     RecordData data = dataRecordMap.get(record);
                     if (data != null) {
-                        images.addAll(data
-                                .getImagesToRender(target, paintProps));
+                        images.addAll(
+                                data.getImagesToRender(target, paintProps));
                     }
                 }
             }

@@ -29,11 +29,13 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Dec 12, 2008	1787    	askripsky	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Dec 12, 2008 1787        askripsky   Initial creation
  * Aug 07, 2015 4500        rjpeter     Fix type case.
  * JUN 29, 2016 19149       amoore      Fix PK statement based on table joining.
+ * Jan 03, 2018  6806       mduff       Moved string formatting to this data object for caching and optimizations.
+ * 
  * </pre>
  * 
  * @author askripsky
@@ -93,10 +95,13 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     private String whereClause = "";
 
+    private String formattedString;
+
     /**
      * Constructor
      */
     public DataIngestFilterData() {
+
     }
 
     /**
@@ -127,6 +132,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setLid(String lid) {
         this.lid = lid;
+        formattedString = null;
     }
 
     public String getWfo() {
@@ -135,6 +141,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setWfo(String wfo) {
         this.wfo = wfo;
+        formattedString = null;
     }
 
     public String getPe() {
@@ -143,6 +150,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setPe(String pe) {
         this.pe = pe;
+        formattedString = null;
     }
 
     public int getDuration() {
@@ -151,6 +159,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setDuration(int duration) {
         this.duration = duration;
+        formattedString = null;
     }
 
     public String getTypeSource() {
@@ -159,6 +168,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setTypeSource(String typeSource) {
         this.typeSource = typeSource;
+        formattedString = null;
     }
 
     public String getExtremum() {
@@ -167,6 +177,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setExtremum(String extremum) {
         this.extremum = extremum;
+        formattedString = null;
     }
 
     public int getTsRank() {
@@ -175,6 +186,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setTsRank(int tsRank) {
         this.tsRank = tsRank;
+        formattedString = null;
     }
 
     public String getIngest() {
@@ -183,6 +195,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setIngest(String ingest) {
         this.ingest = ingest;
+        formattedString = null;
     }
 
     public String getOfsInput() {
@@ -191,6 +204,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setOfsInput(String ofsInput) {
         this.ofsInput = ofsInput;
+        formattedString = null;
     }
 
     public String getStg2Input() {
@@ -199,6 +213,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setStg2Input(String stg2Input) {
         this.stg2Input = stg2Input;
+        formattedString = null;
     }
 
     public String getWhereClause() {
@@ -211,8 +226,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getConstrainedSelectStatement() {
-        return getSelectStatement()
-                + whereClause
+        return getSelectStatement() + whereClause
                 + " ORDER BY lid, wfo, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input";
     }
 
@@ -230,8 +244,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
     public String getInsertStatement() {
         String columns = "lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input";
 
-        String rval = "INSERT INTO ingestfilter ( "
-                + columns
+        String rval = "INSERT INTO ingestfilter ( " + columns
                 + " ) VALUES ( '%s', '%s', %s, '%s', '%s', %s, '%s', '%s', '%s' )";
 
         rval = String.format(rval, lid, pe, getDBString(duration), typeSource,
@@ -249,13 +262,13 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getSelectStatement() {
-        StringBuffer rval = new StringBuffer();
-
-        String columns = "ingestfilter.lid, wfo, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input";
+        StringBuilder rval = new StringBuilder();
 
         rval.append("SELECT ");
-        rval.append(columns);
-        rval.append(" FROM ingestfilter LEFT JOIN location ON ingestfilter.lid = location.lid");
+        rval.append(
+                "ingestfilter.lid, wfo, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input");
+        rval.append(
+                " FROM ingestfilter LEFT JOIN location ON ingestfilter.lid = location.lid");
 
         return rval.toString();
     }
@@ -272,5 +285,38 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
                 getPKStatement());
 
         return rval;
+    }
+
+    /**
+     * Returns the display string for the whole db record.
+     * 
+     * @param currData
+     *            The record to display.
+     * @return The display string for the data.
+     */
+    public String getIngestFilterString() {
+        if (formattedString == null || formattedString.isEmpty()) {
+            String dataFormat = "%-9S %-4S %-4S %-6S %-7S %-6S %-7S %-5S %-5S %-5S";
+            formattedString = String.format(dataFormat, lid, wfo, pe,
+                    getDisplayString(duration), typeSource, extremum,
+                    getDisplayString(tsRank), ingest, ofsInput, stg2Input);
+        }
+
+        return formattedString;
+    }
+
+    /**
+     * Returns the string corresponding to the DB value. Takes the MISSING_VALUE
+     * into account.
+     * 
+     * @param val
+     *            The int to get a display string for.
+     * @return The corresponding string or "" if the value is MISSING_VALUE
+     */
+    private String getDisplayString(int val) {
+        String temp = (val != HydroConstants.MISSING_VALUE)
+                ? Integer.toString(val) : "";
+
+        return temp;
     }
 }

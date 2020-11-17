@@ -41,7 +41,7 @@
     <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml"
         menuText="Ciudad Victoria, MX (MCVM)" id="raobCiudadVictoria_MX"
         editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
-        <substitute key="stationId" value="76225" />
+        <substitute key="stationId" value="76491" />
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml"
         menuText="Cozumel_2, MX (MCZM)" id="raobCozumel2_MX"
@@ -81,7 +81,7 @@
     <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml"
         menuText="Mexico/Central, MX (MMDF)" id="raobCentral_MX"
         editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
-        <substitute key="stationId" value="76679" />
+        <substitute key="stationId" value="76680" />
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml"
         menuText="Guadalajara, MX (MMGL)" id="raobGuadalajara_MX"

@@ -83,36 +83,37 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Nov 20, 2006           brockwoo    Initial creation.
- * Feb 17, 2009           njensen     Refactored to new rsc architecture.
- * Mar 17, 2009  2105     jsanchez    Plot goessounding/poessounding
- *                                    availability.
- * Mar 30, 2009  2169     jsanchez    Updated initNewFrame.
- * Apr 09, 2009  952      jsanchez    Plot acars.
- * Apr 13, 2009  2251     jsanchez    Plot profilers.
- * Apr 21, 2009           chammack    Refactor to common pointData model
- * Feb 01, 2013  1567     njensen     Refactor handling of updates
- * May 14, 2013  1869     bsteffen    Get plots working without dataURI
- * May 23, 2013  14996    snaples     Updated processUpdatedPlot to handle AWOS 
- *                                    stations updates properly
- * Jun 06, 2013  2072     bsteffen    Fix concurrency problems when init is
- *                                    called before time matching is done.
- * Jun 25, 2013  1869     bsteffen    Fix plot sampling.
- * Sep 04, 2013  16519    kshresth    Fix Metar Display Problem
- * Dec 02, 2013  2473     njensen     Prog Disclose paint frames at high priority
- * Mar 21, 2014  2868     njensen     Use PlotThreadOverseer for increased efficiency
- * Jun 06, 2014  2061     bsteffen    Rename and remove old PlotResource
- * Mar 29, 2016  5514     bsteffen    Include DPI in size calculations
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Nov 20, 2006           brockwoo  Initial creation.
+ * Feb 17, 2009           njensen   Refactored to new rsc architecture.
+ * Mar 17, 2009  2105     jsanchez  Plot goessounding/poessounding availability.
+ * Mar 30, 2009  2169     jsanchez  Updated initNewFrame.
+ * Apr 09, 2009  952      jsanchez  Plot acars.
+ * Apr 13, 2009  2251     jsanchez  Plot profilers.
+ * Apr 21, 2009           chammack  Refactor to common pointData model
+ * Feb 01, 2013  1567     njensen   Refactor handling of updates
+ * May 14, 2013  1869     bsteffen  Get plots working without dataURI
+ * May 23, 2013  14996    snaples   Updated processUpdatedPlot to handle AWOS
+ *                                  stations updates properly
+ * Jun 06, 2013  2072     bsteffen  Fix concurrency problems when init is called
+ *                                  before time matching is done.
+ * Jun 25, 2013  1869     bsteffen  Fix plot sampling.
+ * Sep 04, 2013  16519    kshresth  Fix Metar Display Problem
+ * Dec 02, 2013  2473     njensen   Prog Disclose paint frames at high priority
+ * Mar 21, 2014  2868     njensen   Use PlotThreadOverseer for increased
+ *                                  efficiency
+ * Jun 06, 2014  2061     bsteffen  Rename and remove old PlotResource
+ * Mar 29, 2016  5514     bsteffen  Include DPI in size calculations
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author brockwoo
- * @version 1.0
  */
-public class PlotResource extends
-        AbstractVizResource<PlotResourceData, MapDescriptor> implements
+public class PlotResource
+        extends AbstractVizResource<PlotResourceData, MapDescriptor> implements
         IResourceDataChanged, IPlotModelGeneratorCaller, IProgDiscListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotResource.class);
@@ -131,8 +132,8 @@ public class PlotResource extends
 
     private RGB imageColor = null;
 
-    private JobPool frameRetrievalPool = new JobPool("Retrieving plot frame",
-            8, true);
+    private JobPool frameRetrievalPool = new JobPool("Retrieving plot frame", 8,
+            true);
 
     private class FrameRetriever implements Runnable {
 
@@ -145,7 +146,8 @@ public class PlotResource extends
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error retrieving frame information for time: "
-                                + dataTime, e);
+                                + dataTime,
+                        e);
             }
         }
 
@@ -186,9 +188,9 @@ public class PlotResource extends
     }
 
     public class FrameInformation {
-        Map<String, Station> stationMap = new ConcurrentHashMap<String, Station>();
+        public Map<String, Station> stationMap = new ConcurrentHashMap<>();
 
-        List<Station> lastComputed = Collections.emptyList();
+        public List<Station> lastComputed = Collections.emptyList();
     }
 
     /**
@@ -201,12 +203,11 @@ public class PlotResource extends
      * @throws VizException
      */
     public PlotResource(PlotResourceData data, LoadProperties props) {
-        super(data, props);
+        super(data, props, false);
         if (data.getAlertParser() == null) {
             data.setAlertParser(new PlotAlertParser());
         }
-        this.dataTimes = new ArrayList<DataTime>();
-        this.frameMap = new ConcurrentHashMap<DataTime, FrameInformation>();
+        this.frameMap = new ConcurrentHashMap<>();
         data.addChangeListener(this);
     }
 
@@ -236,7 +237,8 @@ public class PlotResource extends
             resourceData.getPlotInfoRetriever().updateActiveFrame(
                     paintProps.getDataTime(),
                     descriptor.pixelToWorld(paintProps.getView().getExtent(),
-                            descriptor.getCRS()), descriptor.getCRS());
+                            descriptor.getCRS()),
+                    descriptor.getCRS());
         }
 
         if (!progressiveDisclosure.isDone() || !generator.isDone()
@@ -250,7 +252,7 @@ public class PlotResource extends
             return;
         }
 
-        List<PointImage> images = new ArrayList<PointImage>(stationList.size());
+        List<PointImage> images = new ArrayList<>(stationList.size());
         for (Station station : stationList) {
             if (station.plotImage == null) {
                 continue;
@@ -261,8 +263,8 @@ public class PlotResource extends
             images.add(station.plotImage);
         }
 
-        aTarget.getExtension(IPointImageExtension.class).drawPointImages(
-                paintProps, images);
+        aTarget.getExtension(IPointImageExtension.class)
+                .drawPointImages(paintProps, images);
     }
 
     @Override
@@ -274,31 +276,31 @@ public class PlotResource extends
                 this.resourceData.getPlotModelFile(),
                 this.resourceData.getLevelKey(), plugin.getConstraintValue(),
                 this.resourceData.getMetadataMap(), this);
-        this.generator.setPlotModelColor(getCapability(
-                ColorableCapability.class).getColor());
+        this.generator.setPlotModelColor(
+                getCapability(ColorableCapability.class).getColor());
         this.imageColor = getCapability(ColorableCapability.class).getColor();
-        this.generator.setPlotModelLineStyle(getCapability(
-                OutlineCapability.class).getLineStyle());
-        this.generator.setPlotModelLineWidth(getCapability(
-                OutlineCapability.class).getOutlineWidth());
+        this.generator.setPlotModelLineStyle(
+                getCapability(OutlineCapability.class).getLineStyle());
+        this.generator.setPlotModelLineWidth(
+                getCapability(OutlineCapability.class).getOutlineWidth());
         this.generator.setPlotMissingData(resourceData.isPlotMissingData());
         this.generator.setLowerLimit(resourceData.getLowerLimit());
         this.generator.setUpperLimit(resourceData.getUpperLimit());
-        
-        // TODO this should be in a factory or something
+
         if (resourceData.getSpiFile() != null) {
             progressiveDisclosure = new SpiProgDisclosure(this, descriptor,
                     resourceData.getSpiFile());
         } else {
             progressiveDisclosure = new DynamicProgDisclosure(this, descriptor);
         }
-        progressiveDisclosure.setMagnification(this.getCapability(
-                MagnificationCapability.class).getMagnification());
-        progressiveDisclosure.setDensity(this.getCapability(
-                DensityCapability.class).getDensity());
+        progressiveDisclosure.setMagnification(
+                this.getCapability(MagnificationCapability.class)
+                        .getMagnification());
+        progressiveDisclosure.setDensity(
+                this.getCapability(DensityCapability.class).getDensity());
         progressiveDisclosure.setPixelSizeHint(resourceData.getPixelSizeHint());
         calculateActualPlotWidth();
-        
+
         DataTime[] dts = this.descriptor.getFramesInfo().getTimeMap().get(this);
         // if this is null then the time matcher has not yet had time to time
         // match this, in which case frames will have to load when they are
@@ -340,14 +342,14 @@ public class PlotResource extends
     protected void updateRecords(PlotInfo[] stationsToParse)
             throws VizException {
         Validate.notNull(stationsToParse);
-        Map<DataTime, List<PlotInfo>> plots = new HashMap<DataTime, List<PlotInfo>>();
+        Map<DataTime, List<PlotInfo>> plots = new HashMap<>();
         // Sort plots into normalized datatimes that should match frames
         for (PlotInfo info : stationsToParse) {
             DataTime normTime = getNormalizedTime(info.dataTime);
             if (frameMap.containsKey(normTime)) {
                 List<PlotInfo> list = plots.get(normTime);
                 if (list == null) {
-                    list = new ArrayList<PlotInfo>();
+                    list = new ArrayList<>();
                     plots.put(normTime, list);
                 }
                 list.add(info);
@@ -388,11 +390,10 @@ public class PlotResource extends
                                     plot);
                         } else {
                             double[] thisLocationPixel = descriptor
-                                    .worldToPixel(new double[] {
-                                            plot.longitude, plot.latitude });
-                            if ((thisLocationPixel != null)
-                                    && worldExtent.contains(
-                                            thisLocationPixel[0],
+                                    .worldToPixel(new double[] { plot.longitude,
+                                            plot.latitude });
+                            if ((thisLocationPixel != null) && worldExtent
+                                    .contains(thisLocationPixel[0],
                                             thisLocationPixel[1])) {
                                 Station station = new Station();
                                 station.info = new PlotInfo[] { plot };
@@ -428,7 +429,7 @@ public class PlotResource extends
             PlotInfo[] samplePlot = new PlotInfo[1];
             samplePlot[0] = new PlotInfo();
             samplePlot[0] = plot;
-            List<PlotInfo[]> list = new ArrayList<PlotInfo[]>();
+            List<PlotInfo[]> list = new ArrayList<>();
             list.add(samplePlot);
             Params params = Params.PLOT_AND_SAMPLE;
             GetDataTask task = new GetDataTask(list, params);
@@ -492,8 +493,8 @@ public class PlotResource extends
             long frameInMillis = thisFrameTime.getValidTime().getTimeInMillis();
             tr = new TimeRange(frameInMillis - offset, frameInMillis);
         } else if (this.resourceData.getDefaultPeriod() != null) {
-            tr = this.resourceData.getDefaultPeriod().getTimeRange(
-                    thisFrameTime);
+            tr = this.resourceData.getDefaultPeriod()
+                    .getTimeRange(thisFrameTime);
         } else {
             tr = tmpBinOffset.getTimeRange(thisFrameTime);
         }
@@ -510,7 +511,7 @@ public class PlotResource extends
             time.setConstraintValue(thisFrameTime.toString());
         }
 
-        HashMap<String, RequestConstraint> metadataMap = new HashMap<String, RequestConstraint>(
+        HashMap<String, RequestConstraint> metadataMap = new HashMap<>(
                 resourceData.getMetadataMap());
         metadataMap.put("dataTime", time);
 
@@ -527,7 +528,8 @@ public class PlotResource extends
             if (!this.frameMap.containsKey(displayedTime)) {
                 return message;
             }
-            Map<String, Station> stationMap = this.frameMap.get(displayedTime).stationMap;
+            Map<String, Station> stationMap = this.frameMap
+                    .get(displayedTime).stationMap;
             Coordinate latlon = null;
             try {
                 latlon = coord.asLatLon();
@@ -541,12 +543,14 @@ public class PlotResource extends
             Coordinate mouseLocation = new Coordinate(pml[0], pml[1]);
             double screenToWorldRatio = progressiveDisclosure
                     .getScreenToWorldRatio();
-            List<Station> availableStations = new ArrayList<Station>();
+            List<Station> availableStations = new ArrayList<>();
             for (Station station : stationMap.values()) {
                 if (station != null) {
                     Coordinate pixelLocation = station.pixelLocation;
-                    if (distanceBetween(pixelLocation, mouseLocation) <= (this
-                            .getResourceData().getPixelSampleDistance() / screenToWorldRatio)) {
+                    if (distanceBetween(pixelLocation,
+                            mouseLocation) <= (this.getResourceData()
+                                    .getPixelSampleDistance()
+                                    / screenToWorldRatio)) {
 
                         availableStations.add(station);
                     }
@@ -569,7 +573,7 @@ public class PlotResource extends
                 message = inspectPlot.rawMessage;
                 if (message == null) {
                     message = "Generating...";
-                    List<PlotInfo[]> list = new ArrayList<PlotInfo[]>(1);
+                    List<PlotInfo[]> list = new ArrayList<>(1);
                     list.add(inspectPlot.info);
                     Params params = Params.PLOT_AND_SAMPLE;
                     if (inspectPlot.info[0].pdv != null) {
@@ -605,14 +609,15 @@ public class PlotResource extends
         } else if (type.equals(ChangeType.CAPABILITY)) {
             if (object instanceof ColorableCapability) {
                 if (generator != null) {
-                    generator.setPlotModelColor(((ColorableCapability) object)
-                            .getColor());
+                    generator.setPlotModelColor(
+                            ((ColorableCapability) object).getColor());
                     this.imageColor = ((ColorableCapability) object).getColor();
                 }
             } else if (object instanceof DensityCapability) {
                 if (progressiveDisclosure != null) {
-                    progressiveDisclosure.setDensity(getCapability(
-                            DensityCapability.class).getDensity());
+                    progressiveDisclosure
+                            .setDensity(getCapability(DensityCapability.class)
+                                    .getDensity());
                     issueRefresh();
                 }
             } else if (object instanceof MagnificationCapability) {
@@ -629,7 +634,7 @@ public class PlotResource extends
         }
         issueRefresh();
     }
-    
+
     /**
      * Calculate a width for the plot based off the original plot width, the
      * magnification, and the DPI. The new width will be applied to the
@@ -637,12 +642,12 @@ public class PlotResource extends
      * 
      * @return the new plot width.
      */
-    protected double calculateActualPlotWidth(){
+    protected double calculateActualPlotWidth() {
         double plotWidth = Double.NaN;
         if (generator != null) {
             plotWidth = generator.getOriginalPlotModelWidth();
-            plotWidth *= getCapability(
-                    MagnificationCapability.class).getMagnification();
+            plotWidth *= getCapability(MagnificationCapability.class)
+                    .getMagnification();
             IDisplayPaneContainer container = getResourceContainer();
             if (container != null) {
                 IDisplayPane pane = container.getActiveDisplayPane();
@@ -669,8 +674,9 @@ public class PlotResource extends
 
             generator.setPlotModelSize(Math.round(plotWidth));
             if (progressiveDisclosure != null) {
-                progressiveDisclosure.setMagnification(getCapability(
-                        MagnificationCapability.class).getMagnification());
+                progressiveDisclosure.setMagnification(
+                        getCapability(MagnificationCapability.class)
+                                .getMagnification());
                 progressiveDisclosure.setPlotWidth(plotWidth);
             }
         }
@@ -712,7 +718,8 @@ public class PlotResource extends
 
     @Override
     public void clearImages() {
-        for (Entry<DataTime, FrameInformation> entry : this.frameMap.entrySet()) {
+        for (Entry<DataTime, FrameInformation> entry : this.frameMap
+                .entrySet()) {
             FrameInformation frameInfo = entry.getValue();
             for (Station station : frameInfo.stationMap.values()) {
                 if (station.plotImage != null) {
@@ -787,14 +794,14 @@ public class PlotResource extends
             frame.lastComputed = disclosed;
             issueRefresh();
             Map<String, Station> stationMap = frame.stationMap;
-            List<PlotInfo[]> toQueue = new ArrayList<PlotInfo[]>(200);
+            List<PlotInfo[]> toQueue = new ArrayList<>(200);
             for (Station station : disclosed) {
                 if ((station.plotImage == null)
                         && stationMap.containsKey(station.info[0].stationId)) {
                     toQueue.add(station.info);
                 }
             }
-            if (toQueue.size() > 0) {
+            if (!toQueue.isEmpty()) {
                 GetDataTask task = new GetDataTask(toQueue, Params.PLOT_ONLY);
                 generator.enqueueDataRetrieval(task);
             }

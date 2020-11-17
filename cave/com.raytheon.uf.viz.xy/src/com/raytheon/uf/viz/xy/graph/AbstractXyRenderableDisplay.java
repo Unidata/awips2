@@ -26,9 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizConstants;
@@ -52,13 +49,13 @@ import com.raytheon.uf.viz.xy.map.rsc.GraphResource;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 10, 2009            mschenke     Initial creation
- * 06/24/2013   2140       randerso    Changed to use standardized paint error handling
+ * Oct 10, 2009            mschenke    Initial creation
+ * Jun 24, 2013 2140       randerso    Changed to use standardized paint error handling
+ * Feb 16, 2018 6999       njensen     Removed override of clear()
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -83,7 +80,7 @@ public abstract class AbstractXyRenderableDisplay extends
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         super.paint(target, paintProps);
-        if ((getDescriptor() instanceof XyGraphDescriptor) == false) {
+        if (!(getDescriptor() instanceof XyGraphDescriptor)) {
             return;
         }
         GraphProperties gProps = new GraphProperties(paintProps);
@@ -96,7 +93,7 @@ public abstract class AbstractXyRenderableDisplay extends
 
         for (ResourcePair rp : getDescriptor().getResourceList()) {
             AbstractVizResource<?, ?> rsc = rp.getResource();
-            if ((rsc == null) || (rp.getProperties().isVisible() == false)) {
+            if (rsc == null || !rp.getProperties().isVisible()) {
                 continue;
             }
             if (rsc.hasCapability(ImagingCapability.class)) {
@@ -126,14 +123,6 @@ public abstract class AbstractXyRenderableDisplay extends
         } else {
             return null;
         }
-    }
-
-    @Override
-    public void clear() {
-        super.clear();
-        IWorkbenchPage page = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow().getActivePage();
-        page.closeEditor(getEditor(), false);
     }
 
     @Override

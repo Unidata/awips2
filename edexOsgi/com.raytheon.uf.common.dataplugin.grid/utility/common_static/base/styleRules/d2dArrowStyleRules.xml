@@ -53,6 +53,21 @@
     </styleRule>
     <styleRule>
         <paramLevelMatches>
+            <parameter>WVdir</parameter>
+            <parameter>Wind Wave Direction</parameter>
+            <parameter>SWdir</parameter>
+            <parameter>Swell Direction</parameter>
+            <parameter>dirPW</parameter>
+            <paraemter>Prim Wave Dir</paraemter>
+            <parameter>dirSW</parameter>
+            <parameter>2nd Wave Dir</parameter>
+        </paramLevelMatches>
+        <arrowStyle>
+            <displayFlags>Direction</displayFlags>
+        </arrowStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
             <parameter>BlkShr</parameter>
             <parameter>geoW</parameter>
             <parameter>ageoW</parameter>

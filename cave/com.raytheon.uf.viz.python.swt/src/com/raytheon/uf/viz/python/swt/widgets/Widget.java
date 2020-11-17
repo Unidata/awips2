@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -32,17 +32,18 @@ import com.raytheon.uf.common.python.PyUtil;
  * <p>
  * Runtime widgets are built by extending this class.
  * </p>
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 3, 2008	1164     	jelkins     Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------
+ * Jun 03, 2008  1164     jelkins   Initial creation
+ * Jan 15, 2018  6684     randerso  Code cleanup.
+ *
  * </pre>
- * 
+ *
  * @author jelkins
- * @version 1.0
  */
 
 public abstract class Widget {
@@ -59,12 +60,12 @@ public abstract class Widget {
      * Class constructor
      */
     protected Widget() {
-        this.options = new ArrayList<Object>();
+        this.options = new ArrayList<>();
     }
 
     /**
      * Class constructor initializing this widget with the given label.
-     * 
+     *
      * @param label
      *            this widget's label
      */
@@ -86,7 +87,7 @@ public abstract class Widget {
      * The label is use to visually identify the widget in the user interface
      * and identify the widget within the <code>values</code> Map.
      * </p>
-     * 
+     *
      * @param label
      *            displayed by the widget
      */
@@ -117,23 +118,21 @@ public abstract class Widget {
     }
 
     /**
-     * @param elementList
+     * @param options
      *            the options to set
      */
-    public void setOptions(List<? extends Object> elementList) {
-        this.options = elementList;
+    public void setOptions(List<? extends Object> options) {
+        this.options = options;
     }
 
+    /**
+     * @param options
+     *            the options to set
+     */
     public void setOptions(Object[] options) {
         this.options = Arrays.asList(options);
     }
 
-    /*
-     * (non-Javadoc) Format the Widget according to: ("Variable Name", default
-     * value, variable type, optional list)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         char Q = '\''; // quote
@@ -152,7 +151,7 @@ public abstract class Widget {
 
     /**
      * Builds a composite for the widget attached to the given parent.
-     * 
+     *
      * @param parent
      * @return Composite capable of being placed into an SWT container.
      */

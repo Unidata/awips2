@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 
-import static com.raytheon.viz.gfe.product.StringUtil.stringJoin;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
@@ -60,7 +57,7 @@ import com.raytheon.uf.common.status.ProductEditorLogger;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ProductEditorComp.PTypeCategory;
 import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
@@ -69,53 +66,66 @@ import jep.JepException;
 
 /**
  * Composite containing the product editor.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05 Jan 2008  1784       lvenable    Initial creation
- * 19 Feb 2010  4132       ryu         Product correction.
- * 30 Jul 2010  6719       jnjanga     Placed cursor at the end of inserted CTA
- * 26 Sep 2012  15423      ryu         Avoid resetting text when possible.
- * 03 Dec 2012  15620      ryu         Unlock framed cities list for editing.
- * 30 APR 2013  16095      ryu         Modified updateTextStyle() to not lock edited text.
- * 29 AUG 2013  #2250      dgilling    Better error handling for parseProductText().
- * 04 SEP 2013  16534      ryu         Fixed word wrap to not insert duplicate text; refactor.
- * 20 DEC 2013  16854      ryu         Force re-parsing of text on type change.
- * 28 JAN 2015  4018       randerso    Code cleanup. Fixed reparsing when framing codes are cut
- *                                     or pasted instead of just typed over.
- *                                     Added logging of text changes to help diagnose future issues.
- * 04 FEB 2015  17039      ryu         Removed HighlightFramingCodes feature which prevented
- *                                     editing of framing codes.
- * 07/02/2015  13753       lshi        Update times for products in Product Editor
- * 08/06/2015  13753       lshi        use isSystemTextChange instead of isUpdateTime
- * 14 OCT 2015 4959        dgilling    Use WordWrapperPythonExecutor to get 
- *                                     python calls off UI thread.
- * 12/04/2015  13753       lshi        revert 13753
- * 12/22/2015  18428       lshi        Issuing a Correction of a corrected product via an existing
- *                                     Product Editor in GFE throws and error and unlocks text,
- *                                     wordWrap
- * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
- * 06/17/2016   18940      arickert    Remove startIndex check to allow word wrapping on the first line
- * Aug 08, 2016 #5787      dgilling    Prevent product header line from wrapping.
- * Aug 09, 2016 #5685      dgilling    Tweak word wrapping to prevent pulling up words from the previous
- *                                     line if it will make the line too long.
- * Nov 07, 2016 #5984      dgilling    Tweak Pattern used to strip leading
- *                                     spaces on lines.
- * Dec 22, 2016 19616      ryu         Added logic for dashed-bullets and colon-terminated paragraphs.
- *                                     Fixed indentation for bulleted text below the first line.
- * Feb 08, 2017 #6127      dgilling    Remove errant calls to startUpdate/endUpdate
- *                                     added under 5787.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 05, 2008  1784     lvenable  Initial creation
+ * Feb 19, 2010  4132     ryu       Product correction.
+ * Jul 30, 2010  6719     jnjanga   Placed cursor at the end of inserted CTA
+ * Sep 26, 2012  15423    ryu       Avoid resetting text when possible.
+ * Dec 03, 2012  15620    ryu       Unlock framed cities list for editing.
+ * Apr 30, 2013  16095    ryu       Modified updateTextStyle() to not lock
+ *                                  edited text.
+ * Aug 29, 2013  2250     dgilling  Better error handling for
+ *                                  parseProductText().
+ * Sep 04, 2013  16534    ryu       Fixed word wrap to not insert duplicate
+ *                                  text; refactor.
+ * Dec 20, 2013  16854    ryu       Force re-parsing of text on type change.
+ * Jan 28, 2015  4018     randerso  Code cleanup. Fixed reparsing when framing
+ *                                  codes are cut or pasted instead of just
+ *                                  typed over. Added logging of text changes to
+ *                                  help diagnose future issues.
+ * Feb 04, 2015  17039    ryu       Removed HighlightFramingCodes feature which
+ *                                  prevented editing of framing codes.
+ * Jul 02, 2015  13753    lshi      Update times for products in Product Editor
+ * Aug 06, 2015  13753    lshi      use isSystemTextChange instead of
+ *                                  isUpdateTime
+ * Oct 14, 2015  4959     dgilling  Use WordWrapperPythonExecutor to get python
+ *                                  calls off UI thread.
+ * Dec 04, 2015  13753    lshi      revert 13753
+ * Dec 22, 2015  18428    lshi      Issuing a Correction of a corrected product
+ *                                  via an existing Product Editor in GFE throws
+ *                                  and error and unlocks text, wordWrap
+ * Mar 10, 2016  5479     randerso  Use improved GFEFonts API
+ * Jun 17, 2016  18940    arickert  Remove startIndex check to allow word
+ *                                  wrapping on the first line
+ * Aug 08, 2016  5787     dgilling  Prevent product header line from wrapping.
+ * Aug 09, 2016  5685     dgilling  Tweak word wrapping to prevent pulling up
+ *                                  words from the previous line if it will make
+ *                                  the line too long.
+ * Nov 07, 2016  5984     dgilling  Tweak Pattern used to strip leading spaces
+ *                                  on lines.
+ * Dec 22, 2016  19616    ryu       Added logic for dashed-bullets and
+ *                                  colon-terminated paragraphs. Fixed
+ *                                  indentation for bulleted text below the
+ *                                  first line.
+ * Feb 08, 2017  6127     dgilling  Remove errant calls to startUpdate/endUpdate
+ *                                  added under 5787.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
  * Mar 20, 2018 20585      ryu         Fix verify listener to prevent joining of normal text
  *                                     and locked text causing unlocking and garble.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  */
 
 public class StyledTextComp extends Composite {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(StyledTextComp.class);
 
     private static final String DFT_BG = "#ffffff";
@@ -124,8 +134,6 @@ public class StyledTextComp extends Composite {
 
     private static final String DFT_FRAME = "#ff0000";
 
-    private static final String DFT_INSERT = "cyan";
-
     private static final String DFT_LOCK = "#0000ff";
 
     private static final String SETTING_BG = "ProductOutputDialog_bgColor";
@@ -133,8 +141,6 @@ public class StyledTextComp extends Composite {
     private static final String SETTING_FG = "ProductOutputDialog_fgColor";
 
     private static final String SETTING_FRAME = "ProductOutputDialog_frameColor";
-
-    private static final String SETTING_INSERT = "ProductOutputDialog_insertColor";
 
     private static final String SETTING_LOCK = "ProductOutputDialog_lockColor";
 
@@ -209,25 +215,15 @@ public class StyledTextComp extends Composite {
 
     protected Color frameColor;
 
-    protected Color insertColor;
-
     protected Color lockColor;
 
     private boolean updatingForCor = false;
 
     private final ProductEditorLogger peLog;
 
-    public boolean isAutoWrapMode() {
-        return autoWrapMode;
-    }
-
-    public void setAutoWrapMode(boolean autoWrapMode) {
-        this.autoWrapMode = autoWrapMode;
-    }
-
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent composite.
      * @param wrapMode
@@ -251,7 +247,7 @@ public class StyledTextComp extends Composite {
      * Initialize method.
      */
     private void init() {
-        String fontSetting = Activator.getDefault().getPreferenceStore()
+        String fontSetting = GFEPreference
                 .getString("ProductOutputDialog_font");
         if (fontSetting.isEmpty()) {
             textFont = GFEFonts.getFont(parent.getDisplay(), 2);
@@ -281,10 +277,24 @@ public class StyledTextComp extends Composite {
                 bgColor.dispose();
                 fgColor.dispose();
                 frameColor.dispose();
-                insertColor.dispose();
                 lockColor.dispose();
             }
         });
+    }
+
+    /**
+     * @return the autoWrapMode
+     */
+    public boolean isAutoWrapMode() {
+        return autoWrapMode;
+    }
+
+    /**
+     * @param autoWrapMode
+     *            the autoWrapMode to set
+     */
+    public void setAutoWrapMode(boolean autoWrapMode) {
+        this.autoWrapMode = autoWrapMode;
     }
 
     /**
@@ -334,7 +344,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Get the StyledText editor.
-     * 
+     *
      * @return The StyledText editor.
      */
     public StyledText getTextEditorST() {
@@ -343,7 +353,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Set the product text.
-     * 
+     *
      * @param text
      *            The product text.
      */
@@ -428,8 +438,8 @@ public class StyledTextComp extends Composite {
                 // should be unlocked. Cities list is unlocked for editing
                 // when framing codes are present.
                 if (newProduct) {
-                    if ((cityTip != null)
-                            && (cityTip.getText().indexOf("|*") > 0)) {
+                    if (cityTip != null
+                            && cityTip.getText().indexOf("|*") > 0) {
                         unlockCitySegs.add(ugc);
                     }
                 }
@@ -467,7 +477,7 @@ public class StyledTextComp extends Composite {
                  * correct the end value.
                  */
                 int endLineOffset = 0;
-                if (endLine == (productTextArray.length - 1)) {
+                if (endLine == productTextArray.length - 1) {
                     ++endLineOffset;
                 }
 
@@ -514,7 +524,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Parse the product text string.
-     * 
+     *
      * @param productText
      *            Complete product text.
      * @throws JepException
@@ -526,6 +536,12 @@ public class StyledTextComp extends Composite {
         prodDataStruct = new ProductDataStruct(fmtResult, productText);
     }
 
+    /**
+     * Patch the MND header
+     *
+     * @param tag
+     * @param strip
+     */
     public void patchMND(String tag, boolean strip) {
         if (prodDataStruct == null) {
             return;
@@ -537,7 +553,7 @@ public class StyledTextComp extends Composite {
         String pline = tip.getText();
         String[] tokens = pline.split("\\.\\.\\.");
         int start;
-        if (tokens[0].equals("TEST") || tokens[0].equals("EXPERIMENTAL")) {
+        if ("TEST".equals(tokens[0]) || "EXPERIMENTAL".equals(tokens[0])) {
             start = 2;
         } else {
             start = 1;
@@ -556,7 +572,7 @@ public class StyledTextComp extends Composite {
                 new_tokens.add(tokens[i]);
             }
             for (i = start; i < tokens.length; i++) {
-                if (tokens[i].equals("TEST")) {
+                if ("TEST".equals(tokens[i])) {
                     new_tokens.add(tokens[i]);
                 }
             }
@@ -577,6 +593,9 @@ public class StyledTextComp extends Composite {
         }
     }
 
+    /**
+     * @param newfield
+     */
     public void updatePType(String newfield) {
         if (prodDataStruct == null) {
             return;
@@ -591,8 +610,9 @@ public class StyledTextComp extends Composite {
         TextIndexPoints pit = prodDataStruct.getPIT();
 
         if (ff == null) {
-            if ((pit == null) || (newfield.length() == 0)) {
-                return; // No typecode or ci block found
+            if (pit == null || newfield.length() == 0) {
+                // No typecode or ci block found
+                return;
             } else {
                 ff = new TextIndexPoints();
                 Point p = pit.getEndIndex();
@@ -607,13 +627,20 @@ public class StyledTextComp extends Composite {
         }
     }
 
+    /**
+     * Replace text
+     *
+     * @param tip
+     *            the point at which to replace the text
+     * @param text
+     */
     public void replaceText(TextIndexPoints tip, String text) {
         replaceText(tip, text, false);
     }
 
     /**
      * Replacement of the text in the given range with new text.
-     * 
+     *
      * @param tip
      *            the range of text to be replaced
      * @param text
@@ -631,7 +658,7 @@ public class StyledTextComp extends Composite {
 
             // only reparse if we replaced with different length text or forced
             // else, replace StyleRanges since the operation is safe
-            if ((tip.getText().length() != text.length()) || forceReparse) {
+            if (tip.getText().length() != text.length() || forceReparse) {
                 dirty = true;
             } else {
                 for (StyleRange range : ranges) {
@@ -657,7 +684,7 @@ public class StyledTextComp extends Composite {
         try {
             startUpdate();
             List<SegmentData> segs = prodDataStruct.getSegmentsArray();
-            if ((segs == null) || (segs.size() == 0)) {
+            if (segs == null || segs.isEmpty()) {
                 return;
             }
 
@@ -669,7 +696,7 @@ public class StyledTextComp extends Composite {
                 int start = prodDataStruct
                         .positionToOffset(tipUgc.getStartIndex());
                 int end = prodDataStruct.positionToOffset(tipUgc.getEndIndex());
-                if ((offset <= start) || (offset >= end)) {
+                if (offset <= start || offset >= end) {
                     continue;
                 }
                 TextIndexPoints tipVtec = segMap.get("vtec");
@@ -686,17 +713,16 @@ public class StyledTextComp extends Composite {
                 for (int i = 0; i < lineCount; i++) {
                     String vtec = prodDataStruct.getProductTextArray()[i
                             + tipVtec.getStartIndex().x];
-                    if (vtec.indexOf("-") < 0) {
+                    if (vtec.indexOf('-') < 0) {
                         newVtec[i] = vtec;
                     } else {
                         Matcher matcher = codePattern.matcher(vtec);
                         if (matcher.find()) {
                             String code = matcher.group();
-                            if (code.equals(".UPG.") || code.equals(".COR.")) {
+                            if (".UPG.".equals(code) || ".COR.".equals(code)) {
                                 newVtec[i] = vtec;
-                            } else if ((code.equals(".EXP.")
-                                    || code.equals(".CAN."))
-                                    && (lineCount > 1)) {
+                            } else if ((".EXP.".equals(code)
+                                    || ".CAN.".equals(code)) && lineCount > 1) {
                                 newVtec[i] = vtec;
                             } else {
                                 newVtec[i] = vtec.substring(0, matcher.start())
@@ -709,7 +735,7 @@ public class StyledTextComp extends Composite {
                 }
 
                 if (changed) {
-                    replaceText(tipVtec, stringJoin(newVtec, "\n"));
+                    replaceText(tipVtec, String.join("\n", newVtec));
                 }
                 break;
             }
@@ -723,7 +749,7 @@ public class StyledTextComp extends Composite {
      * A verify event occurs after the user has done something to modify the
      * text (typically typed a key), but before the text is modified. The doit
      * field in the verify event indicates whether or not to modify the text.
-     * 
+     *
      * @param event
      *            Verify event that was fired.
      */
@@ -788,7 +814,7 @@ public class StyledTextComp extends Composite {
     }
 
     private void updateTextStyle(ExtendedModifyEvent event) {
-        if ((event.start + event.length + 1) < textEditorST.getCharCount()) {
+        if (event.start + event.length + 1 < textEditorST.getCharCount()) {
             int start = Math.max(0, event.start - 1);
             int end = Math.min(textEditorST.getCharCount() - 1,
                     event.start + event.length + 1);
@@ -796,9 +822,9 @@ public class StyledTextComp extends Composite {
             StyleRange endRange = textEditorST.getStyleRangeAtOffset(end);
 
             // if it's in a framing code, turn it red
-            if ((startRange != null) && (endRange != null)
-                    && (event.start > startRange.start)
-                    && ((event.start + event.length) < endRange.start)
+            if (startRange != null && endRange != null
+                    && event.start > startRange.start
+                    && event.start + event.length < endRange.start
                     && startRange.similarTo(endRange)
                     && startRange.foreground.equals(frameColor)) {
                 StyleRange style = (StyleRange) startRange.clone();
@@ -829,7 +855,7 @@ public class StyledTextComp extends Composite {
     /**
      * Check if there is selected text and if there is locked text in the
      * selected text.
-     * 
+     *
      * @return True if there is selected text that contains locked text.
      */
     private boolean selectionHasLockedText() {
@@ -843,12 +869,12 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if there is locked text in the specified range of text.
-     * 
+     *
      * @param offset
      *            The starting point of the locked text search.
      * @param length
      *            The length of the search.
-     * 
+     *
      * @return Whether or not there is text in the range that contains locked
      *         text.
      */
@@ -894,16 +920,16 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if the key being pressed is a "non-edit" key.
-     * 
+     *
      * @param event
      *            Verify event.
      * @return True if the key is an arrow or "non-edit" key.
      */
     private boolean isNonEditKey(KeyEvent event) {
-        if ((event.keyCode == SWT.ARROW_UP) || (event.keyCode == SWT.ARROW_DOWN)
-                || (event.keyCode == SWT.ARROW_LEFT)
-                || (event.keyCode == SWT.ARROW_RIGHT)
-                || (event.keyCode == SWT.SHIFT)) {
+        if (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN
+                || event.keyCode == SWT.ARROW_LEFT
+                || event.keyCode == SWT.ARROW_RIGHT
+                || event.keyCode == SWT.SHIFT) {
             return true;
         }
 
@@ -927,7 +953,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Handle the mouse down event.
-     * 
+     *
      * @param e
      *            Event fired.
      */
@@ -944,7 +970,7 @@ public class StyledTextComp extends Composite {
 
             boolean selectTextLocked = selectionHasLockedText();
 
-            if (selectTextLocked == true) {
+            if (selectTextLocked) {
                 e.doit = false;
                 return;
             }
@@ -965,7 +991,7 @@ public class StyledTextComp extends Composite {
      */
     public void cutText() {
         // Do not cut text if the selection contains locked text.
-        if (selectionHasLockedText() == true) {
+        if (selectionHasLockedText()) {
             return;
         }
 
@@ -987,7 +1013,7 @@ public class StyledTextComp extends Composite {
     public void pasteText() {
         // Do not paste text if the there is selected text and it contains
         // locked text.
-        if (selectionHasLockedText() == true) {
+        if (selectionHasLockedText()) {
             return;
         }
 
@@ -1017,14 +1043,25 @@ public class StyledTextComp extends Composite {
         textEditorST.paste();
     }
 
+    /**
+     * @return the product text
+     */
     public String getProductText() {
         return textEditorST.getText();
     }
 
+    /**
+     * @return the ProductDataStruct
+     */
     public ProductDataStruct getProductDataStruct() {
         return prodDataStruct;
     }
 
+    /**
+     * Start update of this text comp
+     *
+     * Disables editing from the GUI, forces a reparse.
+     */
     public void startUpdate() {
         textEditorST.setEditable(false);
         if (dirty) {
@@ -1032,6 +1069,11 @@ public class StyledTextComp extends Composite {
         }
     }
 
+    /**
+     * End update of this text comp
+     *
+     * Forces a reparse, enables editing from the GUI
+     */
     public void endUpdate() {
         if (dirty) {
             reParse();
@@ -1042,7 +1084,7 @@ public class StyledTextComp extends Composite {
     /**
      * Checks if the system is editing, e.g. updating the issue time every
      * minute, vs a user typing text in the text area
-     * 
+     *
      * @return
      */
     private boolean isSystemTextChange() {
@@ -1114,14 +1156,14 @@ public class StyledTextComp extends Composite {
             String line = textEditorST.getLine(lineNum);
             int lineLength = line.length();
 
-            if ((lineLength < wrapColumn)
-                    && (event.length >= event.replacedText.length())) {
+            if (lineLength < wrapColumn
+                    && event.length >= event.replacedText.length()) {
                 return;
             }
 
             String NL = textEditorST.getLineDelimiter();
 
-            line += (((lineNum + 1) < totalLines) ? NL : EMPTY);
+            line += lineNum + 1 < totalLines ? NL : EMPTY;
             lineLength = line.length();
             if (NL.equals(line) || EMPTY.equals(line)) {
                 return;
@@ -1151,14 +1193,14 @@ public class StyledTextComp extends Composite {
             // check for locked text
             StyleRange styleRange = textEditorST
                     .getStyleRangeAtOffset(lineOff + index);
-            if ((styleRange != null) && (styleRange.foreground == lockColor)) {
+            if (styleRange != null && styleRange.foreground == lockColor) {
                 return;
             }
 
             // deal with programmatic changes distant from the cursor
             int eventCursor = cursorOffset;
-            if ((eventCursor < event.start)
-                    || (eventCursor > (event.start + event.length))) {
+            if (eventCursor < event.start
+                    || eventCursor > event.start + event.length) {
                 eventCursor = event.start + event.length;
             }
 
@@ -1198,7 +1240,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     * 
+     *
      * @return the column number
      */
     public int getWrapColumn() {
@@ -1207,7 +1249,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     * 
+     *
      * @param wrapColumn
      *            the column number
      */
@@ -1220,23 +1262,21 @@ public class StyledTextComp extends Composite {
      */
     protected void getColorSettings() {
 
-        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
         Display display = getDisplay();
 
         // get color settings
-        bgColor = loadColor(prefs, display, SETTING_BG, DFT_BG);
-        fgColor = loadColor(prefs, display, SETTING_FG, DFT_FG);
-        frameColor = loadColor(prefs, display, SETTING_FRAME, DFT_FRAME);
-        insertColor = loadColor(prefs, display, SETTING_INSERT, DFT_INSERT);
-        lockColor = loadColor(prefs, display, SETTING_LOCK, DFT_LOCK);
+        bgColor = loadColor(display, SETTING_BG, DFT_BG);
+        fgColor = loadColor(display, SETTING_FG, DFT_FG);
+        frameColor = loadColor(display, SETTING_FRAME, DFT_FRAME);
+        lockColor = loadColor(display, SETTING_LOCK, DFT_LOCK);
 
         // It's BAD if any two editor colors are exactly the same.
         // If it happens, scold the user. The component may be unusable.
         Color[] colors = new Color[] { bgColor, fgColor, frameColor,
-                insertColor, lockColor };
+                lockColor };
         String[] labels = new String[] { "Background", "Foreground", "Frame",
-                "Insert", "Locked" };
-        for (int i = 0; i < (colors.length - 1); i++) {
+                "Locked" };
+        for (int i = 0; i < colors.length - 1; i++) {
             for (int j = i + 1; j < colors.length; j++) {
                 warnIfEqual(colors[i], colors[j], labels[i], labels[j]);
             }
@@ -1244,24 +1284,22 @@ public class StyledTextComp extends Composite {
     }
 
     /**
-     * Query the prefs for setting. If it does not exist, use colorDft as its
-     * value. Create an SWT Color for display from the value and return it.
-     * 
-     * @param prefs
-     *            A preference store which might have config values.
+     * Query the GFEPreferences for setting. If it does not exist, use
+     * colorDefault as its value. Create an SWT Color for display from the value
+     * and return it.
+     *
      * @param display
      *            The SWT display on which the color will appear
      * @param setting
      *            The name of the config setting to look up
-     * @param colorDft
-     *            The vaule to use if the config setting is missing
+     * @param colorDefault
+     *            The value to use if the config setting is missing
      * @return The SWT color.
      */
-    protected Color loadColor(IPreferenceStore prefs, Display display,
-            String setting, String colorDft) {
+    protected Color loadColor(Display display, String setting,
+            String colorDefault) {
         Color color = null;
-        String colorStr = prefs.getString(setting);
-        colorStr = "".equals(colorStr) ? colorDft : colorStr;
+        String colorStr = GFEPreference.getString(setting, colorDefault);
         RGB colorRGB = RGBColors.getRGBColor(colorStr);
         color = new Color(display, colorRGB);
         return color;
@@ -1269,7 +1307,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Send a PROBLEM message if color1 is exactly equal to color2.
-     * 
+     *
      * @param color1
      *            the first color
      * @param color2
@@ -1296,7 +1334,7 @@ public class StyledTextComp extends Composite {
      * <p>
      * The getter name is different to avoid confusion with the getFgColor()
      * method of Control.
-     * 
+     *
      * @return the foreground Color
      */
     public Color getFgndColor() {
@@ -1307,7 +1345,7 @@ public class StyledTextComp extends Composite {
      * Get the framed text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     * 
+     *
      * @return the frameColor
      */
     public Color getFrameColor() {
@@ -1315,21 +1353,10 @@ public class StyledTextComp extends Composite {
     }
 
     /**
-     * Get the insert color of the StyledTextComp. This is the actual color, not
-     * a copy. It will be disposed when the StyledTextComp is, and should not be
-     * disposed before then.
-     * 
-     * @return the insertColor
-     */
-    public Color getInsertColor() {
-        return insertColor;
-    }
-
-    /**
      * Get the locked text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     * 
+     *
      * @return the lockColor
      */
     public Color getLockColor() {
@@ -1339,7 +1366,7 @@ public class StyledTextComp extends Composite {
     /**
      * Word wrap the text in the block around cursorIndex. Adjust the cursor
      * position to account for inserted or deleted whitespace.
-     * 
+     *
      * @param cursorIndex
      *            The cursor index
      * @param width
@@ -1429,7 +1456,7 @@ public class StyledTextComp extends Composite {
             lineCursorPos = 0;
 
             // remember last good endIndex
-            endIndex = (lineStartOffset + line.length()) - 1;
+            endIndex = lineStartOffset + line.length() - 1;
 
             // colon terminated line ends paragraph
             COLON_END_MATCHER.reset(line);
@@ -1466,7 +1493,7 @@ public class StyledTextComp extends Composite {
 
         // get the text from the caret to the end of the block
         String post = "";
-        if ((endIndex >= cursorIndex) && (cursorIndex < st.getCharCount())) {
+        if (endIndex >= cursorIndex && cursorIndex < st.getCharCount()) {
             post = st.getText(cursorIndex, endIndex);
         }
 
@@ -1475,7 +1502,7 @@ public class StyledTextComp extends Composite {
         if (cursorIndex > 0) {
             lchar = st.getTextRange(cursorIndex - 1, 1);
             char lchar0 = lchar.charAt(0);
-            if (Character.isSpaceChar(lchar0) && (lchar0 != NL.charAt(0))) {
+            if (Character.isSpaceChar(lchar0) && lchar0 != NL.charAt(0)) {
                 lchar = " ";
             } else {
                 lchar = "";
@@ -1485,7 +1512,7 @@ public class StyledTextComp extends Composite {
         String rchar = "";
         if (post.length() > 0) {
             char post0 = post.charAt(0);
-            if (Character.isSpaceChar(post0) && (post0 != NL.charAt(0))) {
+            if (Character.isSpaceChar(post0) && post0 != NL.charAt(0)) {
                 rchar = " ";
             }
         }
@@ -1510,7 +1537,7 @@ public class StyledTextComp extends Composite {
                     e);
         }
 
-        if ((pre.isEmpty()) && (!initialIndent.isEmpty())) {
+        if (pre.isEmpty() && !initialIndent.isEmpty()) {
             pre = initialIndent;
             lchar = "";
         }
@@ -1547,7 +1574,7 @@ public class StyledTextComp extends Composite {
         }
 
         String text = pre + rchar + post;
-        st.replaceTextRange(startIndex, (1 + endIndex) - startIndex, text);
+        st.replaceTextRange(startIndex, 1 + endIndex - startIndex, text);
 
         int newCaretOffset = startIndex + pre.length();
         st.setCaretOffset(newCaretOffset);
@@ -1556,11 +1583,11 @@ public class StyledTextComp extends Composite {
     }
 
     protected void logTextChange(ExtendedModifyEvent event) {
-        StyledText st = ((StyledText) event.widget);
+        StyledText st = (StyledText) event.widget;
         String oldText = event.replacedText;
         String newText = "";
         if (event.length > 0) {
-            newText = st.getText(event.start, (event.start + event.length) - 1);
+            newText = st.getText(event.start, event.start + event.length - 1);
         }
 
         if (!newText.equals(oldText)) {

@@ -14,6 +14,9 @@
 ## Phil Kurimski   -- OCT 20 2015 - changed wind to 30 kts ##
 ## Phil Kurimski   -- JAN 30 2017 Additional Basis options ##
 ##                      fixed ellipses in CTAs, DCS19347   ##
+## Bookbinder 3/19/2018 DR 19650 Watch phrasing/location   ##
+## Phil Kurimski   -- MAR 19 2018 Capitalized Coast Guard  ##
+##                    for DR 20164                         ##
 #############################################################
 #parse("config.vm")
 #####################################################
@@ -353,9 +356,15 @@ Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialE
 ## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
 ## Added CTA statements for the possibility of future SMW.
 #######################################################################
+#set($svrWatchPhrase = "#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
+#set($torWatchPhrase = "#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
+#if(${svrWatchPhrase.length()} > 10 || ${torWatchPhrase.length()} > 10)
+#set($ctaSelected = "YES")
+#else
 #foreach (${bullet} in ${bullets})
 #if(${bullet.endsWith("CTA")})
 #set($ctaSelected = "YES")
+#end
 #end
 #end
 
@@ -364,6 +373,11 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 ##
 
+#if(${list.contains(${includedWatches}, "TO.A")})
+${torWatchPhrase}
+#elseif(${list.contains(${includedWatches}, "SV.A")})
+${svrWatchPhrase}
+#end
 #if(${list.contains(${bullets}, "genericCTA")})
 #if(${stormType} == "line")
 Mariners can expect gusty winds to around 30 knots, locally higher waves, and lightning strikes. Boaters should seek safe harbor immediately until these storms pass.
@@ -410,7 +424,7 @@ Intense lightning is occurring with this storm. If caught on the open water stay
 #end
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-Report severe weather to the coast guard or nearest law enforcement agency. They will relay your report to the National Weather Service forecast office.
+Report severe weather to the Coast Guard or nearest law enforcement agency. They will relay your report to the National Weather Service forecast office.
 
 #end
 #if(${list.contains(${bullets}, "fogCTA")})
@@ -421,19 +435,9 @@ Dense fog was reducing visibilities to below ${visibility}. Reduce your speed, a
 &&
 #end
 
-#############
-## WATCHES ##
-#############
-#if(${list.contains($includedWatches, "TO.A")} && ${list.contains(${bullets}, "includeTorWatches")})
-#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
-#end
-#if(${list.contains(${includedWatches}, "SV.A")} && ${list.contains(${bullets}, "includeSvrWatches")})
-#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
-#end
-####################################
+
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
-####################################
 #end
 
 #printcoords(${areaPoly}, ${list})

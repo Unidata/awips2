@@ -22,11 +22,10 @@ package com.raytheon.viz.texteditor.scripting.dialogs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -42,8 +41,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 29, 2009            mfegan     Initial creation
+ * Jun 29, 2009            mfegan      Initial creation
  * Sep 27, 2012 1196       rferrel     No longer blocks.
+ * Jan 18, 2018 7196       lvenable    Fixed sizing issue when opening the dialog.
  * 
  * </pre>
  * 
@@ -51,7 +51,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 
-public class ScriptOutputDlg extends CaveSWTDialog implements SelectionListener {
+public class ScriptOutputDlg extends CaveSWTDialog
+        implements SelectionListener {
     private static final String DLG_TITLE_FMT = "Text %s Script Output";
 
     /** the window displaying the script output */
@@ -78,26 +79,28 @@ public class ScriptOutputDlg extends CaveSWTDialog implements SelectionListener 
 
     @Override
     protected void initializeComponents(Shell shell) {
-        Point size = new Point(500, 300);
-        shell.setSize(size);
 
-        outputDisplay = new Text(shell, SWT.BORDER | SWT.H_SCROLL
-                | SWT.V_SCROLL | SWT.MULTI);
-        outputDisplay.setLayoutData(new GridData(GridData.FILL_BOTH));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = 500;
+        gd.heightHint = 300;
+        outputDisplay = new Text(shell,
+                SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+        outputDisplay.setLayoutData(gd);
 
-        Canvas cv = new Canvas(shell, SWT.NONE);
+        Composite buttonComp = new Composite(shell, SWT.NONE);
         GridLayout layout = new GridLayout(2, true);
-        cv.setLayout(layout);
-        cv.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_CENTER));
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        buttonComp.setLayout(layout);
+        buttonComp.setLayoutData(gd);
 
-        GridData gd = new GridData(SWT.CENTER);
-        gd.widthHint = 50;
-        Button btn = new Button(cv, SWT.PUSH);
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        Button btn = new Button(buttonComp, SWT.PUSH);
         btn.setText("Clear");
         btn.setLayoutData(gd);
         btn.addSelectionListener(this);
 
-        btn = new Button(cv, SWT.PUSH);
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
+        btn = new Button(buttonComp, SWT.PUSH);
         btn.setText("Close");
         btn.setLayoutData(gd);
         btn.addSelectionListener(this);
@@ -116,7 +119,6 @@ public class ScriptOutputDlg extends CaveSWTDialog implements SelectionListener 
         }
         Button source = (Button) object;
         String name = source.getText();
-        System.out.println("widgetSelected(): " + name);
         if ("clear".equalsIgnoreCase(name)) {
             outputDisplay.setText("");
         } else if ("close".equalsIgnoreCase(name)) {

@@ -70,8 +70,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  */
 
-public class FFMPSourceConfigurationManager implements
-        ILocalizationPathObserver {
+public class FFMPSourceConfigurationManager
+        implements ILocalizationPathObserver {
 
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "ffmp"
@@ -145,7 +145,8 @@ public class FFMPSourceConfigurationManager implements
                     .unmarshalFromInputStream(is);
 
             configXml = configXmltmp;
-        } catch (SerializationException | LocalizationException | IOException e) {
+        } catch (SerializationException | LocalizationException
+                | IOException e) {
             statusHandler.error("Error reading file: " + lf.getPath(), e);
         }
 
@@ -234,8 +235,8 @@ public class FFMPSourceConfigurationManager implements
             guidances = new ArrayList<>();
 
             for (SourceXML xml : configXml.getSource()) {
-                if (xml.getSourceType().equals(
-                        SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                if (xml.getSourceType()
+                        .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
                     guidances.add(xml.getSourceName());
                 }
             }
@@ -273,7 +274,8 @@ public class FFMPSourceConfigurationManager implements
             accumulators = new ArrayList<>();
 
             for (SourceXML xml : configXml.getSource()) {
-                if (xml.getSourceType().equals(SOURCE_TYPE.QPE.getSourceType())) {
+                if (xml.getSourceType()
+                        .equals(SOURCE_TYPE.QPE.getSourceType())) {
                     accumulators.add(xml.getSourceName());
                 }
             }
@@ -310,7 +312,8 @@ public class FFMPSourceConfigurationManager implements
             forecasts = new ArrayList<>();
 
             for (SourceXML xml : configXml.getSource()) {
-                if (xml.getSourceType().equals(SOURCE_TYPE.QPF.getSourceType())) {
+                if (xml.getSourceType()
+                        .equals(SOURCE_TYPE.QPF.getSourceType())) {
                     forecasts.add(xml.getSourceName());
                 }
             }
@@ -344,8 +347,12 @@ public class FFMPSourceConfigurationManager implements
      */
     public enum DATA_TYPE {
 
-        RADAR("RADAR"), XMRG("XMRG"), GRID("GRID"), PDO("PDO"), DB("DB"), NETCDF(
-                "NETCDF");
+        RADAR("RADAR"),
+        XMRG("XMRG"),
+        GRID("GRID"),
+        PDO("PDO"),
+        DB("DB"),
+        NETCDF("NETCDF");
 
         private final String dataType;
 
@@ -366,7 +373,11 @@ public class FFMPSourceConfigurationManager implements
      */
     public enum SOURCE_TYPE {
 
-        RATE("RATE"), QPE("QPE"), QPF("QPF"), GUIDANCE("GUIDANCE"), GAGE("GAGE");
+        RATE("RATE"),
+        QPE("QPE"),
+        QPF("QPF"),
+        GUIDANCE("GUIDANCE"),
+        GAGE("GAGE");
 
         private final String sourceType;
 
@@ -498,7 +509,8 @@ public class FFMPSourceConfigurationManager implements
             } catch (Exception e) {
                 statusHandler.handle(Priority.WARN,
                         "FFMPSourceConfigurationManager: " + file.getPath()
-                                + " couldn't be updated.", e);
+                                + " couldn't be updated.",
+                        e);
             }
         }
     }

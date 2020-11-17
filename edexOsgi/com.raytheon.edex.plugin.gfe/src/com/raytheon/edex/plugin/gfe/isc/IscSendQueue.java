@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Oct 16, 2014  3454     bphillip  Upgrading to Hibernate 4
  * Feb 02, 2017  3847     randerso  Change parmId to link to parmId table
  *                                  Made a true singleton instead of half-static class
+ * Feb 16, 2018  7161     dgilling  Fix Hibernate Criteria query in sendPending.
  *
  * </pre>
  *
@@ -608,9 +609,10 @@ public class IscSendQueue {
 
             Criteria pendingCrit = lookupSess
                     .createCriteria(IscSendRecord.class);
-            pendingCrit.add(Restrictions.and(
+            pendingCrit = pendingCrit.createAlias("parmId.dbId", "dbID");
+            pendingCrit = pendingCrit.add(Restrictions.and(
                     Restrictions.eq("state", IscSendState.PENDING),
-                    Restrictions.eq("parmId.dbId.siteId", siteId)));
+                    Restrictions.eq("dbID.siteId", siteId)));
             pendingToSending = pendingCrit.list();
         } catch (Throwable t) {
             statusHandler.error("Error querying for PENDING ISC send jobs", t);

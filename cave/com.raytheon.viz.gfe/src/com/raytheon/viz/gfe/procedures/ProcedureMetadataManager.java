@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,86 +25,86 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
-import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
-import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IAsyncStartupObjectListener;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
 
+import jep.JepException;
+
 /**
  * Manages the procedure inventory and the associated metadata for each
  * procedure for the current GFE session.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 24, 2015  #4263     dgilling     Initial creation
- * Dec 14, 2015  #4816     dgilling     Support refactored PythonJobCoordinator API.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 24, 2015  4263     dgilling  Initial creation
+ * Dec 14, 2015  4816     dgilling  Support refactored PythonJobCoordinator API.
+ * Feb 13, 2018  6906     randerso  Refactored for on demand update of metadata.
+ * Dec 12, 2018  6906     randerso  Changed getMetaData to package scope
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
-public final class ProcedureMetadataManager implements
-        ILocalizationFileObserver {
+public final class ProcedureMetadataManager {
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(getClass());
 
-    private static final String THREAD_POOL_NAME = "procedure-metadata";
+    private final Semaphore semaphore;
 
-    private static final int NUM_POOL_THREADS = 1;
+    private Map<String, ProcedureMetadata> metadata;
 
-    private final PythonJobCoordinator<ProcedureMetadataController> jobCoordinator;
+    private MetadataControllerJob job;
 
-    private final Map<String, ProcedureMetadata> metadata;
-
-    private final Object accessLock;
-
-    private final LocalizationFile proceduresDir;
-
-    private final LocalizationFile utilitiesDir;
-
+    /**
+     * Constructor
+     *
+     * @param dataMgr
+     */
     public ProcedureMetadataManager(final DataManager dataMgr) {
-        ProcedureMetadataScriptFactory scriptFactory = new ProcedureMetadataScriptFactory(
-                dataMgr);
-        this.jobCoordinator = new PythonJobCoordinator<>(NUM_POOL_THREADS,
-                THREAD_POOL_NAME, scriptFactory);
-
         this.metadata = new HashMap<>();
-        this.accessLock = new Object();
+        this.semaphore = new Semaphore(0);
 
-        LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-                .getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.BASE);
-        this.proceduresDir = GfePyIncludeUtil.getProceduresLF(baseCtx);
-        this.utilitiesDir = GfePyIncludeUtil.getUtilitiesLF(baseCtx);
+        this.job = new MetadataControllerJob(dataMgr);
+        this.job.schedule();
     }
 
+    /**
+     * Initialize procedure metadata
+     *
+     * @param startupListener
+     *            listener to notify when initialization is complete
+     */
     public void initialize(final IAsyncStartupObjectListener startupListener) {
-        ProcedureMetadataExecutor executor = new ProcedureMetadataExecutor();
-        IPythonJobListener<Map<String, ProcedureMetadata>> listener = new IPythonJobListener<Map<String, ProcedureMetadata>>() {
+        IPythonJobListener<Object> listener = new IPythonJobListener<Object>() {
 
             @Override
-            public void jobFinished(Map<String, ProcedureMetadata> result) {
-                updateMetadata(result);
+            public void jobFinished(Object result) {
+                @SuppressWarnings("unchecked")
+                Map<String, ProcedureMetadata> castResult = (Map<String, ProcedureMetadata>) result;
+                updateMetadata(castResult);
                 startupListener.objectInitialized();
+                semaphore.release();
             }
 
             @Override
@@ -112,56 +112,95 @@ public final class ProcedureMetadataManager implements
                 statusHandler.error("Error initializing procedure inventory.",
                         e);
                 startupListener.objectInitialized();
+                semaphore.release();
             }
         };
+
         try {
-            jobCoordinator.submitJobWithCallback(executor, listener);
-        } catch (Exception e1) {
-            statusHandler.error("Error initializing procedure metadata.", e1);
-        }
+            job.getMetadata(listener);
 
-        proceduresDir.addFileUpdatedObserver(this);
-        utilitiesDir.addFileUpdatedObserver(this);
-    }
-
-    public void dispose() {
-        proceduresDir.removeFileUpdatedObserver(this);
-        utilitiesDir.removeFileUpdatedObserver(this);
-        jobCoordinator.shutdown();
-    }
-
-    private void updateMetadata(Map<String, ProcedureMetadata> newMetadata) {
-        synchronized (accessLock) {
-            metadata.clear();
-            metadata.putAll(newMetadata);
+        } catch (Exception e) {
+            statusHandler.error("Error initializing procedure metadata.", e);
         }
     }
 
     /**
+     * Called when object is no longer needed
+     */
+    public void dispose() {
+        job.cancel();
+        try {
+            job.join();
+        } catch (InterruptedException e) {
+            // ignore since we're shutting down anyway
+        }
+    }
+
+    private void updateMetadata(Map<String, ProcedureMetadata> newMetadata) {
+        this.metadata = newMetadata;
+    }
+
+    /**
+     * All access to the metadata should be done through this method to ensure
+     * it is up-to-date
+     *
+     * @return the procedure metadata
+     */
+    Map<String, ProcedureMetadata> getMetadata() {
+        if (job.needsUpdated()) {
+            semaphore.acquireUninterruptibly();
+
+            IPythonJobListener<Object> listener = new IPythonJobListener<Object>() {
+
+                @Override
+                public void jobFinished(Object result) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, ProcedureMetadata> castResult = (Map<String, ProcedureMetadata>) result;
+                    updateMetadata(castResult);
+                    semaphore.release();
+                }
+
+                @Override
+                public void jobFailed(Throwable e) {
+                    statusHandler.error("Error updating procedure metadata.",
+                            e);
+                    semaphore.release();
+                }
+            };
+            job.getMetadata(listener);
+        }
+
+        semaphore.acquireUninterruptibly();
+        Map<String, ProcedureMetadata> retVal = this.metadata;
+        semaphore.release();
+        return retVal;
+    }
+
+    /**
      * Lists all the procedures that correspond to the menu name
-     * 
+     *
      * @param menuName
      *            the name of the menu
      * @return the names of procedures that should appear in the menu.
      */
     public List<String> getMenuItems(String menuName) {
         List<String> proceduresForMenu = new ArrayList<>();
-        synchronized (accessLock) {
-            for (ProcedureMetadata procMetadata : metadata.values()) {
-                if (procMetadata.getMenuNames().contains(menuName)) {
-                    proceduresForMenu.add(procMetadata.getName());
-                }
+        for (ProcedureMetadata procMetadata : getMetadata().values()) {
+            if (procMetadata.getMenuNames().contains(menuName)) {
+                proceduresForMenu.add(procMetadata.getName());
             }
         }
         Collections.sort(proceduresForMenu);
         return proceduresForMenu;
     }
 
+    /**
+     * @param procedureName
+     * @return the varDict widgets for the specified procedure
+     */
     public List<FieldDefinition> getVarDictWidgets(String procedureName) {
         ProcedureMetadata procMetadata = null;
-        synchronized (accessLock) {
-            procMetadata = metadata.get(procedureName);
-        }
+        procMetadata = getMetadata().get(procedureName);
 
         if (procMetadata != null) {
             return procMetadata.getVarDictWidgets();
@@ -169,11 +208,13 @@ public final class ProcedureMetadataManager implements
         return Collections.emptyList();
     }
 
+    /**
+     * @param procedureName
+     * @return the arguments for the specified procedure
+     */
     public Collection<String> getMethodArguments(String procedureName) {
         ProcedureMetadata procMetadata = null;
-        synchronized (accessLock) {
-            procMetadata = metadata.get(procedureName);
-        }
+        procMetadata = getMetadata().get(procedureName);
 
         if (procMetadata != null) {
             return procMetadata.getArgNames();
@@ -181,34 +222,121 @@ public final class ProcedureMetadataManager implements
         return Collections.emptyList();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
-    @Override
-    public void fileUpdated(FileUpdatedMessage message) {
-        ProcedureMetadataExecutor executor = new ProcedureMetadataExecutor(
-                message);
-        IPythonJobListener<Map<String, ProcedureMetadata>> listener = new IPythonJobListener<Map<String, ProcedureMetadata>>() {
+    private static class MetadataControllerJob extends Job {
+        private static class MetadataRequest {
+            private String methodName;
 
-            @Override
-            public void jobFinished(Map<String, ProcedureMetadata> result) {
-                updateMetadata(result);
+            private Map<String, Object> args;
+
+            private IPythonJobListener<Object> listener;
+
+            public MetadataRequest(String methodName, Map<String, Object> args,
+                    IPythonJobListener<Object> listener) {
+                this.methodName = methodName;
+                this.args = args;
+                this.listener = listener;
             }
 
-            @Override
-            public void jobFailed(Throwable e) {
-                statusHandler.error("Error updating procedure metadata.", e);
+            public String getMethodName() {
+                return methodName;
             }
-        };
-        try {
-            jobCoordinator.submitJobWithCallback(executor, listener);
-        } catch (Exception e1) {
-            statusHandler.error("Error updating procedure metadata.", e1);
+
+            public Map<String, Object> getArgs() {
+                return args;
+            }
+
+            public IPythonJobListener<Object> getListener() {
+                return listener;
+            }
+
+        }
+
+        private static final BlockingQueue<MetadataRequest> workQueue = new LinkedBlockingQueue<>();
+
+        private final IUFStatusHandler statusHandler = UFStatus
+                .getHandler(getClass());
+
+        private ProcedureController controller;
+
+        private final DataManager dataMgr;
+
+        private MetadataControllerJob(DataManager dataMgr) {
+            super("GFE-ProcedureMataDataControllerJob");
+            this.dataMgr = dataMgr;
+            this.setSystem(true);
+        }
+
+        public boolean needsUpdated() {
+            return controller.needsUpdated();
+        }
+
+        public void getMetadata(IPythonJobListener<Object> listener) {
+            MetadataRequest request = new MetadataRequest("getScripts", null,
+                    listener);
+            workQueue.offer(request);
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
+                controller = new ProcedureScriptFactory(dataMgr)
+                        .createPythonScript();
+            } catch (JepException e) {
+                statusHandler.error("Error initializing procedure controller",
+                        e);
+                return Status.CANCEL_STATUS;
+            }
+
+            IStatus statusCode = Status.OK_STATUS;
+            try {
+                while (!monitor.isCanceled()) {
+                    try {
+                        MetadataRequest request = null;
+                        try {
+                            request = workQueue.poll(TimeUtil.MILLIS_PER_SECOND,
+                                    TimeUnit.MILLISECONDS);
+                        } catch (InterruptedException e) {
+                            statusCode = Status.CANCEL_STATUS;
+                            break;
+                        }
+
+                        if (monitor.isCanceled()) {
+                            statusCode = Status.CANCEL_STATUS;
+                            break;
+                        }
+
+                        if (request != null) {
+                            controller.processFileUpdates();
+                            if (monitor.isCanceled()) {
+                                statusCode = Status.CANCEL_STATUS;
+                                break;
+                            }
+
+                            String methodName = request.getMethodName();
+                            Map<String, Object> args = request.getArgs();
+                            Object result = controller.execute(methodName,
+                                    "interface", args);
+
+                            IPythonJobListener<Object> listener = request
+                                    .getListener();
+                            if (listener != null) {
+                                listener.jobFinished(result);
+                            }
+                        }
+                    } catch (Throwable t) {
+                        statusHandler.error(
+                                "Unhandled exception in ProcedureInterface ",
+                                t);
+                    }
+                }
+            } finally {
+                if (controller != null) {
+                    controller.dispose();
+                    controller = null;
+                }
+            }
+
+            return statusCode;
         }
     }
-
 }

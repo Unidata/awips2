@@ -5,7 +5,7 @@
 ## UPDATED -- Bookbinder 2/22/13 2013 IBW Changes                          ##
 ## UPDATED -- Kurimski 5/20/13 Addl IBW Changes                            ##
 ## UPDATED -- Kurimski 9/17/13 Tor Emer Headline                           ##
-## UPDATED -- Bookbinder 9/18/2013 implement config.vm                     ## 
+## UPDATED -- Bookbinder 9/18/2013 implement config.vm                     ##
 ## UPDATED -- Dangelo 1/24/2014 added logic to keep defaultCTAs from being ##
 ##                              used in a TOR EMER (duplication)           ##
 ## UPDATED -- Bookbinder 2/27/2014 TOR EMER CTA                            ##
@@ -18,6 +18,8 @@
 ##            Bookbinder 12-07-15 fixed lowercase preAmble on lne 283      ##
 ## UPDATED -- Bookbinder 12-16-16 fixed <0.75IN hail tag default           ##
 ##                                fixed DR19038 TEST wording               ##
+## UPDATED -- Phil Kurimski 03-19-2018 Removed extraThreat variable        ##
+##            Kurimski   03-21-18 Added Torrential Rainfall CTA DR 20671   ##
 #############################################################################
 ## NOTE: Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
@@ -177,15 +179,6 @@
   #set($hailSize = 4.50)
   #set($hailTag = "4.50IN")
   #set($hailHazard = "grapefruit size hail")
-#end
-#if(${hailSize} >= 1.50)
-  #if(${stormType} == "line")
-    #set($extraThreat = "In addition to a tornado, ${hailthreat} is expected with these storms.")
-  #else
-    #set($extraThreat = "In addition to a tornado, ${hailthreat} is expected with this storm.")
-  #end
-#else
-  #set($extraThreat = "")
 #end
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 ${productId}${siteId}
@@ -638,6 +631,15 @@ This cluster of thunderstorms is capable of producing tornadoes and widespread s
 #if(${list.contains(${bullets}, "waterCTA")})
 If on or near !** NAME OF WATER BODY **!, get away from the water and move to safe shelter immediately. If you can hear thunder, you are close enough to be struck by lightning. Severe thunderstorms can produce large capsizing waves, even on small bodies of water. Move into dock and seek safe shelter now! Do not be caught on the water in a thunderstorm.
 
+#end
+#if(${list.contains(${bullets}, "torrentialRainfallCTA")})
+#if(${stormType} == "line")
+Torrential rainfall is occurring with these storms, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
+
+#else
+Torrential rainfall is occurring with this storm, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
+
+#end
 #end
 #if(${ctaSelected} == "YES") 
 &&

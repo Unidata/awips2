@@ -76,6 +76,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Apr 11, 2016  5564     bsteffen  Move localization files to common_static
  * Apr 15, 2016  5182     tjensen     Changed processorMap population to be done
  *                                       during processing instead of up front.
+ * Jun 24, 2019  ----     mjames    Remove REGION
  * 
  * </pre>
  * 

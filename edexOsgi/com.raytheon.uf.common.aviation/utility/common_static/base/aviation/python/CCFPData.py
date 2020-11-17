@@ -29,7 +29,8 @@ from com.raytheon.viz.aviation.monitor import CcfpData
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    09/15/09                      njensen       Initial Creation.
+#    09/15/09                      njensen        Initial Creation.
+#    Feb 09, 2018    6763          njensen        Don't add blank data to empty list
 #    
 # 
 #
@@ -46,8 +47,6 @@ def retrieve(siteID):
     for i in range(sz):
         text = str(vals.get(i))
         ret.append(Avn.Bunch(text=text))
-    if len(ret) < 1:
-        ret.append(Avn.Bunch(text=''))
     return ret
         
     

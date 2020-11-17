@@ -39,6 +39,7 @@
 #                                                 when comparing records for merge.
 #    08/03/16         5747         dgilling       Move edex_static to common_static.
 #    09/01/16         5872         dgilling       Fix error-handling in previous revision.
+#    01/31/18         20537        ryu            Fix issuetime assignment to prior year for EXB.
 #
 
 ##
@@ -128,23 +129,30 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
         timer.start()
         compare = ['phen', 'sig', 'officeid', 'pil', 'etn']
         for newR in newRecords:
-            cyear = time.gmtime(newR['issueTime'])[0]  #current year issuance time
-            lastYearIssueTime = time.mktime((cyear-1, 12, 31, 23, 59,
-                                                0, -1, -1, -1))
+            # not needed for NEWs
+            if newR['act'] == 'NEW':
+                continue
+
+            lastyear = time.gmtime(newR['issueTime']).tm_year - 1 # year prior to issuance time
             for oldR in activeTable:
-                if self.hazardCompare(oldR, newR, compare):
-                  oldYear = time.gmtime(oldR['issueTime'])[0]
-                  newYear = time.gmtime(newR['issueTime'])[0]
-                  if oldYear < newYear:
-                      if (newR['act'] == "EXP" and newR['endTime'] == oldR['endTime']) or \
-                        self.__overlaps((oldR['startTime'],oldR['endTime']), (newR['startTime'],newR['endTime'])):
-                          LogStream.logEvent("Reset issuance time to last year:",
-                            "\nNewRec: ", self.printEntry(newR),
-                            "OldRec: ", self.printEntry(oldR))
-                          newR['issueTime'] = lastYearIssueTime
+                if self.hazardCompare(oldR, newR, compare) and \
+                        time.gmtime(oldR['issueTime']).tm_year == lastyear:
+                    if (newR['act'] in ["EXP", "CAN", "UPG"] and \
+                            newR['endTime'] == oldR['endTime']) or \
+                            self.__overlaps((oldR['startTime'],oldR['endTime']), \
+                                            (newR['startTime'],newR['endTime'])) or \
+                            (newR['act'] == "EXB" and \
+                                 (oldR['startTime'] == newR['endTime'] or \
+                                  oldR['endTime'] == newR['startTime'])):
+                        LogStream.logEvent("Reset issuance time to last year:",
+                                           "\nNewRec: ", self.printEntry(newR),
+                                           "OldRec: ", self.printEntry(oldR))
+                        newR['issueTime'] = time.mktime((lastyear, 12, 31, 23, 59,
+                                                         0, -1, -1, -1))
+                        break
+
         timer.stop();
         perfStat.logDuration("updateActiveTable match", timer.getElapsedTime());
-
 
         # split records out by issuance year for processing
         timer.reset()
@@ -153,14 +161,14 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
         oldRecDict = {}
         years = []
         for newR in newRecords:
-            issueYear = time.gmtime(newR['issueTime'])[0]
+            issueYear = time.gmtime(newR['issueTime']).tm_year
             records = newRecDict.get(issueYear, [])
             records.append(newR)
             newRecDict[issueYear] = records
             if issueYear not in years:
                 years.append(issueYear)
         for oldR in activeTable:
-            issueYear = time.gmtime(oldR['issueTime'])[0]
+            issueYear = time.gmtime(oldR['issueTime']).tm_year
             records = oldRecDict.get(issueYear, [])
             records.append(oldR)
             oldRecDict[issueYear] = records
@@ -267,6 +275,7 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                         rec = (newR['officeid'], newR['pil'], newR['phensig'], newR['xxxid'])
                         if rec not in changes:
                             changes.append(rec)
+
         timer.stop();
         perfStat.logDuration("updateActiveTable add", timer.getElapsedTime());
 
@@ -306,9 +315,6 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
         return cats
     
     def activeTableMerge(self, activeTable, newRecords, offsetSecs=0):
-        #add in the Previous state
-        for r in activeTable:
-            r['state'] = "Previous"
         
         updatedTable, purgedRecords, changes, changedFlag = self.updateActiveTable(activeTable, newRecords, offsetSecs)
         
@@ -330,7 +336,7 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
     pyActive = []
     szActive = activeTable.size()
     for i in range(szActive):
-        pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i)))
+        pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i), "Previous"))
     
     pyNew = []
     szNew = newRecords.size()

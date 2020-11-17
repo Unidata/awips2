@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
 import com.raytheon.viz.gfe.core.parm.ParmState.CombineMode;
@@ -56,82 +57,109 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 /**
- * Ported discrete grid data implementation
- * 
+ * Grid containing discrete data.
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 04/29/2008              dfitch      Initial creation.
- * 06/17/2008              njensen     Added set() and gridSet()
- * 05Aug2008    #1383       ebabin      Fix for time shift not working.
- * 06Nov2008    #1591      wdougherty  Fix isValid() so it can return true
- *                                     Tweak doSet() for filtered grids, fix bugs
- * 30Jan2013    #15719     jdynina     Fixed allowed field size to accept more
- *                                     than 128 characters
- * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
- * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
- * Apr 23, 2015 4259       njensen     Removed unused INumpyable
- * Apr 04, 2016 5539       randerso    Fix unsigned byte issues
- * Aug 02, 2016 5744       mapeters    Remove unused cache code
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Apr 29, 2008           dfitch      Initial creation.
+ * Jun 17, 2008           njensen     Added set() and gridSet()
+ * Aug 05, 2008  1383     ebabin      Fix for time shift not working.
+ * Nov 06, 2008  1591     wdougherty  Fix isValid() so it can return true Tweak
+ *                                    doSet() for filtered grids, fix bugs
+ * Jan 30, 2013  15719    jdynina     Fixed allowed field size to accept more
+ *                                    than 128 characters
+ * Feb 19, 2013  1637     randerso    Added throws declarations to
+ *                                    translateDataFrom
+ * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
+ * Apr 23, 2015  4259     njensen     Removed unused INumpyable
+ * Apr 04, 2016  5539     randerso    Fix unsigned byte issues
+ * Aug 02, 2016  5744     mapeters    Remove unused cache code
+ * Dec 13, 2017  7178     randerso    Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso    Changes to support IDataObject. Code
+ *                                    cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
 public class DiscreteGridData extends AbstractGridData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DiscreteGridData.class);
 
-    public DiscreteGridData(Parm aParm, IGridSlice aSlice) {
-        super(aParm, aSlice);
-        if (!(aSlice instanceof DiscreteGridSlice)) {
+    /**
+     * Constructor
+     *
+     * @param parm
+     * @param slice
+     * @param unsaved
+     *            true if data is unsaved and must not be depopulated
+     */
+    public DiscreteGridData(Parm parm, IGridSlice slice, boolean unsaved) {
+        super(parm, slice, unsaved);
+        if (!(slice instanceof DiscreteGridSlice)) {
             throw new IllegalArgumentException(
-                    "DiscreteGridSlice required for DiscreteGridData");
+                    "slice must be an instance of DiscreteGridSlice, received: "
+                            + slice.getClass().getName());
         }
     }
 
+    /**
+     * Constructor, not for general use
+     *
+     * @param parm
+     * @param dataObject
+     */
+    public DiscreteGridData(Parm parm, DiscreteDataObject dataObject) {
+        super(parm, dataObject);
+    }
+
+    /**
+     * Copy constructor
+     *
+     * @param other
+     */
+    public DiscreteGridData(DiscreteGridData other) {
+        super(other);
+    }
+
     @Override
-    public DiscreteGridData clone() throws CloneNotSupportedException {
-        DiscreteGridData agd = new DiscreteGridData(this.parm,
-                this.gridSlice.clone());
-        return agd;
+    public DiscreteGridData copy() {
+        return new DiscreteGridData(this);
     }
 
     @Override
     protected Grid2DBit doSmooth(Date time, Grid2DBit pointsToSmooth) {
-        DiscreteGridSlice thisSlice = getDiscreteSlice();
-        Grid2DByte grid = thisSlice.getDiscreteGrid();
+        Grid2DByte grid = getDiscreteGrid();
 
         if ((grid.getXdim() != pointsToSmooth.getXdim())
                 || (grid.getYdim() != pointsToSmooth.getYdim())) {
-            statusHandler.handle(
-                    Priority.ERROR,
-                    "Dimension mismatch in doSmooth: " + getGrid().getXdim()
-                            + ',' + getGrid().getYdim() + ' '
-                            + pointsToSmooth.getXdim() + ','
-                            + pointsToSmooth.getYdim());
-            return new Grid2DBit(getGrid().getXdim(), getGrid().getYdim());
+            statusHandler.error(
+                    "Dimension mismatch in doSmooth: " + grid.getXdim() + ','
+                            + grid.getYdim() + ' ' + pointsToSmooth.getXdim()
+                            + ',' + pointsToSmooth.getYdim());
+            return new Grid2DBit(grid.getXdim(), grid.getYdim());
         }
 
         Grid2DByte originalGrid;
-        DiscreteKey[] originalKey;
-        try {
-            DiscreteGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            originalGrid = slice.getDiscreteGrid();
-            originalKey = slice.getKeys();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DByte();
-            originalKey = new DiscreteKey[0];
+        DiscreteKey[] originalKeys;
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            DiscreteDataObject dataObject = (DiscreteDataObject) p.getSecond()
+                    .getDataObject();
+            originalGrid = dataObject.getDiscreteGrid();
+            originalKeys = dataObject.getKeys();
+        } else {
+            originalGrid = getDiscreteGrid().copy();
+            originalKeys = getKeys();
         }
 
         Point ll = new Point();
         Point ur = new Point();
         int maxCount, maxIndex, same;
-        short histo[] = new short[originalKey.length]; // histogram
+        short histo[] = new short[originalKeys.length]; // histogram
 
         // Get the smooth factor and divide by 2 for the loop
         int ss = getParm().getParmState().getSmoothSize() / 2;
@@ -139,8 +167,8 @@ public class DiscreteGridData extends AbstractGridData {
         // overlapping discrete?
         ParmID parmId = getParm().getParmID();
         String siteId = parmId.getDbId().getSiteId();
-        boolean overlapping = DiscreteKey.discreteDefinition(siteId).overlaps(
-                parmId.getCompositeName());
+        boolean overlapping = DiscreteKey.discreteDefinition(siteId)
+                .overlaps(parmId.getCompositeName());
 
         // check if points to smooth contains valid points, and get grid
         // limits
@@ -160,7 +188,8 @@ public class DiscreteGridData extends AbstractGridData {
                             for (int newy = j - ss; newy <= (j + ss); newy++) {
                                 // if inside grid limits, make a smoothed value
                                 if (originalGrid.isValid(newx, newy)) {
-                                    histo[0xFF & originalGrid.get(newx, newy)]++;
+                                    histo[0xFF
+                                            & originalGrid.get(newx, newy)]++;
                                 }
                             }
                         }
@@ -168,7 +197,7 @@ public class DiscreteGridData extends AbstractGridData {
                         // find the max occurrence and assign
                         maxCount = -1;
                         maxIndex = 0;
-                        for (int k = 0; k < originalKey.length; k++) {
+                        for (int k = 0; k < originalKeys.length; k++) {
                             if (histo[k] > maxCount) {
                                 maxCount = histo[k];
                                 maxIndex = k;
@@ -179,7 +208,7 @@ public class DiscreteGridData extends AbstractGridData {
                         // if overlapping type of discrete
                         if (overlapping) {
                             same = 0;
-                            for (int k = 0; k < originalKey.length; k++) {
+                            for (int k = 0; k < originalKeys.length; k++) {
                                 if (histo[k] == maxCount) {
                                     same++;
                                 }
@@ -189,11 +218,11 @@ public class DiscreteGridData extends AbstractGridData {
                                 grid.set(i, j, (byte) maxIndex);
                             } else {
                                 // make a combined key
-                                List<String> subKeys = new ArrayList<String>();
-                                for (int k = 0; k < originalKey.length; k++) {
+                                List<String> subKeys = new ArrayList<>();
+                                for (int k = 0; k < originalKeys.length; k++) {
                                     if (histo[k] == maxCount) {
-                                        subKeys.addAll(originalKey[k]
-                                                .getSubKeys());
+                                        subKeys.addAll(
+                                                originalKeys[k].getSubKeys());
                                     }
                                 }
 
@@ -203,15 +232,14 @@ public class DiscreteGridData extends AbstractGridData {
                                 byte index = lookupKeyValue(ky);
                                 grid.set(i, j, index);
                             }
-                        } else {// non-overlapping
+                        } else {
+                            // non-overlapping
                             grid.set(i, j, (byte) maxIndex);
                         }
                     }
                 }
             }
         }
-
-        thisSlice.setDiscreteGrid(grid);
 
         // return the points that were changed
         return pointsToSmooth;
@@ -223,27 +251,30 @@ public class DiscreteGridData extends AbstractGridData {
             throws FactoryException, TransformException {
         if (!(sourceGrid instanceof DiscreteGridData)) {
             throw new IllegalArgumentException(
-                    "Expected DiscreteGridData as source.");
+                    "sourceGrid must be an instance of DiscreteGridData, received: "
+                            + sourceGrid.getClass().getName());
         }
 
         // simple case - no translation necessary - direct copy
         if (parm.getGridInfo().getGridLoc()
                 .equals(sourceGrid.getParm().getGridInfo().getGridLoc())) {
-            substitudeDS(sourceGrid.getGridSlice());
+            substitudeDataObject(sourceGrid);
         }
 
         // complex case - translation is necessary
         else {
             // copy the key from the source to the destination
-            setKey(((DiscreteGridSlice) sourceGrid.getGridSlice()).getKeys());
+            setKey(((DiscreteDataObject) sourceGrid.getDataObject()).getKeys());
 
             // find no discrete key, which is always the 1st one
             int nowx = 0;
 
-            RemapGrid remap = new RemapGrid(sourceGrid.getParm().getGridInfo()
-                    .getGridLoc(), gridSlice.getGridInfo().getGridLoc());
-            setGrid(remap.remap(((DiscreteGridSlice) sourceGrid.getGridSlice())
-                    .getDiscreteGrid(), (byte) 255, (byte) nowx));
+            RemapGrid remap = new RemapGrid(
+                    sourceGrid.getParm().getGridInfo().getGridLoc(),
+                    getGridInfo().getGridLoc());
+            setGrid(remap
+                    .remap(((DiscreteDataObject) sourceGrid.getDataObject())
+                            .getDiscreteGrid(), (byte) 255, (byte) nowx));
         }
         return true;
     }
@@ -256,61 +287,50 @@ public class DiscreteGridData extends AbstractGridData {
 
     @Override
     public WxValue getWxValue(int x, int y) {
-        // throw new UnsupportedOperationException("Attempt to getWxValue: ");
-        populate();
-        int index = 0xFF & getGrid().get(x, y);
+        int index = 0xFF & getDiscreteGrid().get(x, y);
         DiscreteWxValue tmpDiscreteWxValue = new DiscreteWxValue(
-                getKey()[index], getParm());
+                getKeys()[index], getParm());
 
         return tmpDiscreteWxValue;
     }
 
     @Override
-    public IGridSlice gridMax(IGridSlice gridSlice) {
+    public IDataObject gridMax(IDataObject dataObject) {
         throw new UnsupportedOperationException(
                 "Attempt to gridMax: on a Discrete Grid");
     }
 
     @Override
-    public IGridSlice gridMin(IGridSlice gridSlice) {
+    public IDataObject gridMin(IDataObject dataObject) {
         throw new UnsupportedOperationException(
                 "Attempt to gridMin: on a Discrete Grid");
     }
 
     @Override
-    public IGridSlice gridMultiply(float factor) {
+    public IDataObject gridMultiply(float factor) {
         throw new UnsupportedOperationException(
                 "Attempt to gridMultiply: on a Discrete Grid");
     }
 
     @Override
-    public IGridSlice gridSum(IGridSlice gridSlice) {
+    public IDataObject gridSum(IDataObject dataObject) {
         throw new UnsupportedOperationException(
                 "Attempt to gridSum: on a Discrete Grid");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.AbstractGridData#doContiguous(java
-     * .util.Date, java.awt.Point)
-     */
     @Override
     protected Grid2DBit doContiguous(Date time, Point location) {
         Point size = getParm().getGridInfo().getGridLoc().gridSize();
         Grid2DBit valid = new Grid2DBit(size.x, size.y, true);
 
-        // get the grid
         Grid2DByte originalGrid;
-        try {
-            DiscreteGridSlice slice = this.getDiscreteSlice().clone();
-            if (iscMode()) {
-                valid = getISCGrid(time, slice);
-            }
-            originalGrid = slice.getDiscreteGrid();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DByte();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            valid = p.getFirst();
+            originalGrid = ((DiscreteDataObject) p.getSecond().getDataObject())
+                    .getDiscreteGrid();
+        } else {
+            originalGrid = getDiscreteGrid();
         }
 
         Grid2DBit contig = new Grid2DBit(size.x, size.y);
@@ -340,7 +360,7 @@ public class DiscreteGridData extends AbstractGridData {
     @Override
     protected Grid2DBit doPencilStretch(Date time, WxValue value,
             Coordinate[] path, Grid2DBit editArea) {
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getDiscreteGrid();
         if ((grid.getXdim() != editArea.getXdim())
                 || (grid.getYdim() != editArea.getYdim())) {
             statusHandler.handle(Priority.ERROR,
@@ -386,8 +406,15 @@ public class DiscreteGridData extends AbstractGridData {
         throw new UnsupportedOperationException("Attempt to set: ");
     }
 
+    /**
+     * Compares a specified value to this grid using the specified op
+     *
+     * @param value
+     * @param op
+     * @return mask containing grid cells where comparison is true
+     */
     public Grid2DBit comparisonOperate(String value, Op op) {
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getDiscreteGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         switch (op) {
         case EQ:
@@ -399,17 +426,17 @@ public class DiscreteGridData extends AbstractGridData {
             if (!dkey.isValid()) {
                 return bits;
             }
-            bits = getDiscreteSlice().eq(dkey);
+            bits = getDataObject().eq(dkey);
             if (op == Op.NOT_EQ) {
                 bits.negate();
             }
             break;
         }
         case ALMOST:
-            bits = getDiscreteSlice().almost(value);
+            bits = getDataObject().almost(value);
             break;
         case NOT_ALMOST:
-            bits = getDiscreteSlice().almost(value);
+            bits = getDataObject().almost(value);
             bits.negate();
             break;
         default:
@@ -421,31 +448,37 @@ public class DiscreteGridData extends AbstractGridData {
         return bits;
     }
 
+    /**
+     * Compares a specified grid to this grid using the specified op
+     *
+     * @param gridData
+     * @param op
+     * @return mask containing grid cells where comparison is true
+     */
     public Grid2DBit comparisonOperate(IGridData gridData, Op op) {
-        if (gridData.getParm().getGridInfo().getGridType() != GridType.DISCRETE) {
+        if (!(gridData instanceof DiscreteGridData)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid gridData type in DiscreteGridData::operate().");
             return new Grid2DBit();
         }
 
-        Grid2DByte grid = getGrid();
+        DiscreteDataObject discreteDataObject = (DiscreteDataObject) gridData
+                .getDataObject();
+
+        Grid2DByte grid = getDiscreteGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         switch (op) {
         case EQ:
-            bits = getDiscreteSlice().eq(
-                    (DiscreteGridSlice) gridData.getGridSlice());
+            bits = getDataObject().eq(discreteDataObject);
             break;
         case NOT_EQ:
-            bits = getDiscreteSlice().notEq(
-                    (DiscreteGridSlice) gridData.getGridSlice());
+            bits = getDataObject().notEq(discreteDataObject);
             break;
         case ALMOST:
-            bits = getDiscreteSlice().almost(
-                    (DiscreteGridSlice) gridData.getGridSlice());
+            bits = getDataObject().almost(discreteDataObject);
             break;
         case NOT_ALMOST:
-            bits = getDiscreteSlice().almost(
-                    (DiscreteGridSlice) gridData.getGridSlice());
+            bits = getDataObject().almost(discreteDataObject);
             bits.negate();
             break;
         default:
@@ -457,8 +490,15 @@ public class DiscreteGridData extends AbstractGridData {
         return bits;
     }
 
+    /**
+     * Compares a specified discrete key to this grid using the specified op
+     *
+     * @param value
+     * @param op
+     * @return mask containing grid cells where comparison is true
+     */
     public Grid2DBit comparisonOperate(DiscreteKey value, Op op) {
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getDiscreteGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         if (!value.isValid()) {
             statusHandler.handle(Priority.PROBLEM,
@@ -468,10 +508,10 @@ public class DiscreteGridData extends AbstractGridData {
 
         switch (op) {
         case EQ:
-            bits = getDiscreteSlice().eq(value);
+            bits = getDataObject().eq(value);
             break;
         case NOT_EQ:
-            bits = getDiscreteSlice().notEq(value);
+            bits = getDataObject().notEq(value);
             break;
         default:
             statusHandler.handle(Priority.ERROR, "Invalid operator: " + op
@@ -482,9 +522,19 @@ public class DiscreteGridData extends AbstractGridData {
         return bits;
     }
 
+    /**
+     * Performs the specified op on this grid using another discrete grid and
+     * edit area edit area
+     *
+     * @param gridData
+     * @param op
+     * @param refData
+     * @return true if successful
+     */
     public boolean operate(DiscreteGridData gridData, Op op,
             ReferenceData refData) {
-        if (gridData.getParm().getGridInfo().getGridType() != GridType.DISCRETE) {
+        if (gridData.getParm().getGridInfo()
+                .getGridType() != GridType.DISCRETE) {
             statusHandler.handle(Priority.ERROR,
                     "Invalid gridData type in DiscreteGridData::operate().");
             return false;
@@ -494,8 +544,7 @@ public class DiscreteGridData extends AbstractGridData {
         boolean didIt = false;
         switch (op) {
         case ASSIGN:
-            didIt = getDiscreteSlice().assign((gridData.getDiscreteSlice()),
-                    bits);
+            didIt = getDataObject().assign((gridData.getDataObject()), bits);
             break;
         default:
             statusHandler.handle(Priority.ERROR, "Invalid operator: " + op
@@ -506,6 +555,14 @@ public class DiscreteGridData extends AbstractGridData {
         return didIt;
     }
 
+    /**
+     * Performs the specified op on this grid using a specified discrete value
+     *
+     * @param value
+     * @param op
+     * @param refData
+     * @return true if successful
+     */
     public boolean operate(WxValue value, Op op, ReferenceData refData) {
         boolean result = false;
         switch (value.getParm().getGridInfo().getGridType()) {
@@ -522,6 +579,14 @@ public class DiscreteGridData extends AbstractGridData {
         return result;
     }
 
+    /**
+     * Performs the specified op on this grid using a specified discrete key
+     *
+     * @param value
+     * @param op
+     * @param refData
+     * @return true if successful
+     */
     public boolean operate(DiscreteKey value, Op op, ReferenceData refData) {
         if (!value.isValid()) {
             statusHandler.handle(Priority.PROBLEM,
@@ -533,7 +598,7 @@ public class DiscreteGridData extends AbstractGridData {
         boolean didIt = false;
         switch (op) {
         case ASSIGN:
-            didIt = getDiscreteSlice().assign(value, bits);
+            didIt = getDataObject().assign(value, bits);
             break;
         default:
             statusHandler.handle(Priority.ERROR, "Invalid operator: " + op
@@ -547,22 +612,26 @@ public class DiscreteGridData extends AbstractGridData {
     @Override
     public Grid2DBit doSet(WxValue value, Grid2DBit pointsToSet) {
         GridType gridType = value.getParm().getGridInfo().getGridType();
-        Grid2DByte discreteGrid = getGrid();
+        Grid2DByte discreteGrid = getDiscreteGrid();
         int xDim = discreteGrid.getXdim();
         int yDim = discreteGrid.getYdim();
         if (gridType != GridType.DISCRETE) {
             statusHandler.handle(Priority.ERROR,
                     "Invalid WxValue type in DiscreteGridData::doSet().");
-            return new Grid2DBit(xDim, yDim); // unchanged
+
+            // unchanged
+            return new Grid2DBit(xDim, yDim);
         }
 
         DiscreteKey dk = ((DiscreteWxValue) value).getDiscreteKey();
         if (!dk.isValid()) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid discrete key in doSet()");
-            return new Grid2DBit(xDim, yDim); // unchanged
+
+            // unchanged
+            return new Grid2DBit(xDim, yDim);
         }
-        byte index = lookupKeyValue(dk); // look up key
+        byte index = lookupKeyValue(dk);
 
         // If there are no points to change, return an empty Grid2DBit.
         // Otherwise find the corners of a rectangular area in the grid
@@ -575,12 +644,12 @@ public class DiscreteGridData extends AbstractGridData {
 
         ParmID parmId = getParm().getParmID();
         String siteId = parmId.getDbId().getSiteId();
-        boolean overlapping = DiscreteKey.discreteDefinition(siteId).overlaps(
-                parmId.getCompositeName());
+        boolean overlapping = DiscreteKey.discreteDefinition(siteId)
+                .overlaps(parmId.getCompositeName());
 
         // combine mode application
-        if (CombineMode.COMBINE.equals(getParm().getParmState()
-                .getCombineMode()) && overlapping) {
+        if (CombineMode.COMBINE.equals(
+                getParm().getParmState().getCombineMode()) && overlapping) {
             // convert the WxValue into a DiscreteKey
             // the discrete value from WxValue
 
@@ -604,11 +673,12 @@ public class DiscreteGridData extends AbstractGridData {
                             // value needs to change
                             if (newValues[dataPointIdx] == (byte) -1) {
                                 // new key hasn't been found
-                                DiscreteKey combinedKey = DiscreteKey.combine(
-                                        dk, getKey()[dataPointIdx]);
+                                DiscreteKey combinedKey = DiscreteKey
+                                        .combine(dk, getKeys()[dataPointIdx]);
 
                                 // Store new key index in lookup table
-                                newValues[dataPointIdx] = lookupKeyValue(combinedKey);
+                                newValues[dataPointIdx] = lookupKeyValue(
+                                        combinedKey);
                             }
                             // Update the grid
                             gridA[rowOffset + col] = newValues[dataPointIdx];
@@ -634,12 +704,18 @@ public class DiscreteGridData extends AbstractGridData {
         return pointsToSet;
     }
 
-    public byte lookupKeyValue(DiscreteKey wxkey) {
+    /**
+     * Lookup index of a key. If not present it is added to the list of keys
+     *
+     * @param key
+     * @return the index of the specified key
+     */
+    public byte lookupKeyValue(DiscreteKey key) {
         // first check to see if it already is in the discrete key
         int i = -1;
-        DiscreteKey keys[] = getKey();
+        DiscreteKey keys[] = getKeys();
         for (int j = 0; j < keys.length; j++) {
-            if (keys[j].equals(wxkey)) {
+            if (keys[j].equals(key)) {
                 i = j;
             }
         }
@@ -650,9 +726,9 @@ public class DiscreteGridData extends AbstractGridData {
         // not in discrete key, must allocate a new entry
         DiscreteKey keyArray[] = new DiscreteKey[keys.length + 1];
         System.arraycopy(keys, 0, keyArray, 0, keys.length);
-        keyArray[keyArray.length - 1] = wxkey;
+        keyArray[keyArray.length - 1] = key;
         setKey(keyArray);
-        return (byte) (getKey().length - 1);
+        return (byte) (getKeys().length - 1);
     }
 
     @Override
@@ -661,41 +737,33 @@ public class DiscreteGridData extends AbstractGridData {
         throw new UnsupportedOperationException("Attempt to pencilStretch: ");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.AbstractGridData#doCopy(java.util.
-     * Date, com.raytheon.edex.grid.Grid2DBit, java.awt.Point)
-     */
     @Override
     protected Grid2DBit doCopy(Date time, Grid2DBit pointsToCopy, Point delta) {
-        DiscreteGridSlice thisSlice = getDiscreteSlice();
-        Grid2DByte sliceGrid = thisSlice.getDiscreteGrid();
-        if ((sliceGrid.getXdim() != pointsToCopy.getXdim())
-                || (sliceGrid.getYdim() != pointsToCopy.getYdim())) {
-            throw new IllegalArgumentException("Dimension mismatch in doCopy: "
-                    + sliceGrid.getXdim() + ',' + sliceGrid.getYdim() + ' '
-                    + pointsToCopy.getXdim() + ',' + pointsToCopy.getYdim());
+        Grid2DByte grid = getDiscreteGrid();
+        if ((grid.getXdim() != pointsToCopy.getXdim())
+                || (grid.getYdim() != pointsToCopy.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToCopy.getXdim(),
+                    pointsToCopy.getYdim()));
         }
 
         // set up translation matrix
         byte translate[] = new byte[255];
         Arrays.fill(translate, (byte) -1);
 
-        // get the grid
         Grid2DByte originalGrid;
-        DiscreteKey[] originalKey;
-        try {
-            DiscreteGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            originalGrid = slice.getDiscreteGrid();
-            originalKey = slice.getKeys();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DByte();
-            originalKey = new DiscreteKey[0];
+        DiscreteKey[] originalKeys;
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            DiscreteDataObject dataObject = (DiscreteDataObject) p.getSecond()
+                    .getDataObject();
+            originalGrid = dataObject.getDiscreteGrid();
+            originalKeys = dataObject.getKeys();
+        } else {
+            originalGrid = getDiscreteGrid().copy();
+            originalKeys = getKeys();
         }
 
         Point ll = new Point();
@@ -718,36 +786,29 @@ public class DiscreteGridData extends AbstractGridData {
 
                         // if inside grid limits, copy value to new position
                         // of working grid.
-                        if (sliceGrid.isValid(newx, newy)) {
+                        if (grid.isValid(newx, newy)) {
                             // byte og = originalGrid.get(i, j);
                             int og = 0xFF & originalGrid.get(i, j);
                             byte v = translate[og];
                             if (v == -1) {
-                                v = lookupKeyValue(originalKey[og]);
+                                v = lookupKeyValue(originalKeys[og]);
                                 translate[og] = v;
                             }
-                            sliceGrid.set(newx, newy, v);
+                            grid.set(newx, newy, v);
                         }
                     }
                 }
             }
-            setGrid(sliceGrid);
+            setGrid(grid);
         }
 
         return pointsToCopy.translate(delta);
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.AbstractGridData#doFillIn(java.util
-     * .Date, com.raytheon.edex.grid.Grid2DBit)
-     */
     @Override
     protected Grid2DBit doFillIn(Date time, Grid2DBit pointsToFillIn) {
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getDiscreteGrid();
         if ((grid.getXdim() != pointsToFillIn.getXdim())
                 || (grid.getYdim() != pointsToFillIn.getYdim())) {
             statusHandler.handle(Priority.ERROR,
@@ -820,10 +881,10 @@ public class DiscreteGridData extends AbstractGridData {
                     distance++;
                     coord.x += dirX[direction];
                     coord.y += dirY[direction];
-                } else // We found one
-                {
+                } else {
+                    // We found one
                     if (distance < minDistance) {
-                        Grid2DByte grid = getGrid();
+                        Grid2DByte grid = getDiscreteGrid();
                         value.setValue(grid.get(coord.x, coord.y));
                         minDistance = distance;
                         setIt = true;
@@ -837,71 +898,88 @@ public class DiscreteGridData extends AbstractGridData {
     }
 
     @Override
-    public void setGridSlice(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof DiscreteGridSlice)) {
+    public void setDataObject(IDataObject dataObject) {
+        if (!(dataObject instanceof DiscreteDataObject)) {
             throw new IllegalArgumentException(
-                    "Called DiscreteGridData.setGridSlice with "
-                            + gridSlice.getClass().getSimpleName());
+                    "dataObject must be an instance of DiscreteDataObject, received: "
+                            + dataObject.getClass().getName());
         }
-        this.gridSlice = gridSlice;
+        super.setDataObject(dataObject);
     }
 
-    public void set(Grid2DByte values, List<DiscreteKey> key, Grid2DBit points) {
-        populate();
+    /**
+     * Sets multiple (discrete) values in the grid.
+     *
+     * @param values
+     * @param keys
+     * @param pointsToChange
+     */
+    public void set(Grid2DByte values, List<DiscreteKey> keys,
+            Grid2DBit pointsToChange) {
         checkOkayForEdit();
 
-        gridSet(values, key, points);
-        setChangedPoints(points);
+        gridSet(values, keys, pointsToChange);
+        setChangedPoints(pointsToChange);
     }
 
-    protected void gridSet(Grid2DByte values, List<DiscreteKey> key,
-            Grid2DBit points) {
-        Grid2DByte grid = getGrid();
+    protected void gridSet(Grid2DByte values, List<DiscreteKey> keys,
+            Grid2DBit pointsToChange) {
+        Grid2DByte grid = getDiscreteGrid();
         Point dim = new Point(grid.getXdim(), grid.getYdim());
-        if ((values.getXdim() != dim.x) || (values.getYdim() != dim.y)
-                || (points.getXdim() != dim.x) || (points.getYdim() != dim.y)) {
-            throw new IllegalArgumentException(
-                    "bad values/points dimensions for grid for: "
-                            + this.getParm().getParmID() + " gridDim="
-                            + values.getXdim() + ',' + values.getYdim()
-                            + " pointsDim=" + points.getXdim() + ','
-                            + points.getYdim() + " parmDim=" + dim);
+        if ((values.getXdim() != dim.x) || (values.getYdim() != dim.y)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and the supplied grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dim.x, dim.y, values.getXdim(), values.getYdim()));
+        }
+
+        if ((pointsToChange.getXdim() != dim.x)
+                || (pointsToChange.getYdim() != dim.y)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dim.x, dim.y, pointsToChange.getXdim(),
+                    pointsToChange.getYdim()));
         }
 
         // ensure values doesn't exceed keys, and keys are good
-        for (DiscreteKey dKey : key) {
+        for (DiscreteKey dKey : keys) {
             if (!dKey.isValid()) {
                 throw new IllegalArgumentException(
-                        "Illegal discrete key in gridSet()");
+                        "Invalid discrete key in keys: " + dKey);
             }
         }
+
         // search for grid out of bounds
         int numValues = values.getXdim() * values.getYdim();
         byte[] bp = values.getBuffer().array();
         for (int i = 0; i < numValues; i++) {
-            if ((0xFF & bp[i]) > (key.size() - 1)) {
-                throw new IllegalArgumentException(
-                        "Illegal discrete grid (bad values) in gridSet()");
+            if ((0xFF & bp[i]) >= keys.size()) {
+                throw new IndexOutOfBoundsException(String.format(
+                        "Invalid index in values[%d,%d]. Index: %d, Size: %d",
+                        i % values.getXdim(), i / values.getXdim(),
+                        (0XFF & bp[i]), keys.size()));
             }
         }
 
         ParmID parmId = getParm().getParmID();
         String siteId = parmId.getDbId().getSiteId();
-        boolean overlapping = DiscreteKey.discreteDefinition(siteId).overlaps(
-                parmId.getCompositeName());
+        boolean overlapping = DiscreteKey.discreteDefinition(siteId)
+                .overlaps(parmId.getCompositeName());
 
         // REPLACE mode is easy
-        if ((parm.getParmState().getCombineMode() == ParmState.CombineMode.REPLACE)
+        if ((parm.getParmState()
+                .getCombineMode() == ParmState.CombineMode.REPLACE)
                 || !overlapping) {
             // create remap array
             byte[] remap = new byte[256];
-            for (int i = 0; i < key.size(); i++) {
-                remap[i] = lookupKeyValue(key.get(i)); // look up
+            for (int i = 0; i < keys.size(); i++) {
+                remap[i] = lookupKeyValue(keys.get(i));
             }
             // key
             for (int i = 0; i < dim.x; i++) {
                 for (int j = 0; j < dim.y; j++) {
-                    if (points.get(i, j) == 1) {
+                    if (pointsToChange.get(i, j) == 1) {
                         grid.set(i, j, remap[0xFF & values.get(i, j)]);
                     }
                 }
@@ -911,9 +989,9 @@ public class DiscreteGridData extends AbstractGridData {
         else {
             for (int i = 0; i < dim.x; i++) {
                 for (int j = 0; j < dim.y; j++) {
-                    if (points.get(i, j) == 1) {
+                    if (pointsToChange.get(i, j) == 1) {
                         DiscreteKey combined = DiscreteKey.combine(
-                                key.get(0xFF & values.get(i, j)),
+                                keys.get(0xFF & values.get(i, j)),
                                 doGetDiscreteValue(i, j));
                         grid.set(i, j, lookupKeyValue(combined));
                     }
@@ -925,33 +1003,11 @@ public class DiscreteGridData extends AbstractGridData {
     }
 
     protected DiscreteKey doGetDiscreteValue(int x, int y) {
-        byte gridValue = getGrid().get(x, y);
+        byte gridValue = getDiscreteGrid().get(x, y);
         int gridValueIdx = 0xFF & gridValue;
-        return getKey()[gridValueIdx];
+        return getKeys()[gridValueIdx];
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.AbstractGridData#setGridSliceDataToNull
-     * ()
-     */
-    @Override
-    protected void setGridSliceDataToNull() {
-        // Clone the slice with no data
-        this.gridSlice = new DiscreteGridSlice(this.gridSlice.getValidTime(),
-                this.gridSlice.getGridInfo(), this.gridSlice.getHistory(),
-                null, new DiscreteKey[0]);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.IGridData#isSupportedEditOp(com.raytheon
-     * .viz.gfe.core.griddata.IGridData.EditOp)
-     */
     @Override
     public boolean isSupportedEditOp(EditOp editOp) {
         // Delta and Smooth operations are not supported at the current time.
@@ -970,40 +1026,35 @@ public class DiscreteGridData extends AbstractGridData {
             return false;
 
         default:
-            statusHandler.handle(Priority.PROBLEM, "Unsupported EditOp: "
-                    + editOp.name());
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unsupported EditOp: " + editOp.name());
             return false;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.griddata.IGridData#isPopulated()
-     */
     @Override
-    public synchronized boolean isPopulated() {
-        return ((DiscreteGridSlice) this.gridSlice).isPopulated();
+    public synchronized DiscreteDataObject getDataObject() {
+        return (DiscreteDataObject) super.getDataObject();
     }
 
-    private Grid2DByte getGrid() {
-        return ((DiscreteGridSlice) getGridSlice()).getDiscreteGrid();
+    private Grid2DByte getDiscreteGrid() {
+        return getDataObject().getDiscreteGrid();
     }
 
     private void setGrid(Grid2DByte grid) {
-        ((DiscreteGridSlice) getGridSlice()).setDiscreteGrid(grid);
+        DiscreteDataObject dataObject = getDataObject();
+        dataObject.setDiscreteGrid(grid);
+        setDataObject(dataObject);
     }
 
-    private DiscreteKey[] getKey() {
-        return ((DiscreteGridSlice) getGridSlice()).getKeys();
+    private DiscreteKey[] getKeys() {
+        return getDataObject().getKeys();
     }
 
     private void setKey(DiscreteKey[] key) {
-        ((DiscreteGridSlice) getGridSlice()).setKeys(key);
-    }
-
-    public DiscreteGridSlice getDiscreteSlice() {
-        return (DiscreteGridSlice) getGridSlice();
+        DiscreteDataObject dataObject = getDataObject();
+        dataObject.setKeys(key);
+        setDataObject(dataObject);
     }
 
     @Override
@@ -1011,19 +1062,17 @@ public class DiscreteGridData extends AbstractGridData {
         String emsg = "Grid contains data which exceeds limits for this parm. ";
 
         if (!getGridTime().isValid() || (getParm() == null)
-                || (getGridSlice() == null)) {
+                || (getDataObject() == null)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid grid time, bad parm or data slice");
-            return false; // time, parm, or data slice not valid
-        }
 
-        // if (!dataTypeOkay()) {
-        // return false;
-        // }
+            // time, parm, or data slice not valid
+            return false;
+        }
 
         // check grid size
         Point dim = getParm().getGridInfo().getGridLoc().gridSize();
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getDiscreteGrid();
         Point gridDim = grid.getGridSize();
         if (!gridDim.equals(dim)) {
             statusHandler.handle(Priority.PROBLEM, "Grid dimensions " + gridDim
@@ -1033,15 +1082,15 @@ public class DiscreteGridData extends AbstractGridData {
 
         // check data values
         byte[] data = grid.getBuffer().array();
-        DiscreteKey[] keys = getKey();
+        DiscreteKey[] keys = getKeys();
         // byte keySize = (byte) keys.length;
         int keySize = keys.length;
 
         for (int j = 0; j < data.length; j++) {
             int value = 0xFF & data[j];
             if (value > keySize) {
-                statusHandler.handle(Priority.PROBLEM, emsg + "Data=" + value
-                        + " Min=0 Max=" + keySize);
+                statusHandler.handle(Priority.PROBLEM,
+                        emsg + "Data=" + value + " Min=0 Max=" + keySize);
                 return false;
             }
         }
@@ -1049,12 +1098,36 @@ public class DiscreteGridData extends AbstractGridData {
         // check key validity, then check for discrete key validity
         for (int i = 0; i < keys.length; i++) {
             if (!keys[i].isValid()) {
-                statusHandler.handle(Priority.PROBLEM, "Invalid discrete key: "
-                        + keys[i]);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Invalid discrete key: " + keys[i]);
                 return false;
             }
         }
 
         return true;
+    }
+
+    @Override
+    protected IGridSlice createSlice() {
+        return new DiscreteGridSlice(getGridTime(), getGridInfo(), getHistory(),
+                getDiscreteGrid(), getKeys());
+    }
+
+    @Override
+    protected String doValidateData(IDataObject dataObject) {
+        DiscreteDataObject ddo = (DiscreteDataObject) dataObject;
+
+        String retVal = ddo.checkDims(gridParmInfo.getGridLoc().getNx(),
+                gridParmInfo.getGridLoc().getNy());
+
+        if (retVal == null) {
+            retVal = ddo.checkKey();
+        }
+
+        if (retVal == null) {
+            retVal = ddo.checkKeyAndData();
+        }
+
+        return retVal;
     }
 }

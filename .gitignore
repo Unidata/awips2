@@ -13,4 +13,4 @@ build/logs/
 *.pyc
 *.o
 *.orig
-
+keepLocal

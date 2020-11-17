@@ -5,6 +5,7 @@
 ## Edited by Mike Rega       01-17-2014 added Alaska changes for 14.12.1
 ## Edited by Evan Bookbinder 03-23-2015 Changes for mixed-case!
 ## Edited by Evan Bookbinder 10-23-2015 Changes for 2016 Impact-based warnings
+##           Evan Bookbinder  3-19-2018 DR 19650 TOR Watch Phrasing
 ##                                      SITES WILL NEED TO MERGE OVERRIDES
 ############################################################################
 ### SET LAND REFERENCE DISTANCE UNITS (UNIT is in ALL CAPS)
@@ -75,3 +76,8 @@
 #set($svrHailConsiderableThreshold = 2.75)
 #set($svrWindConsiderableThreshold = 80)
 #set($svrDamageThreat = "SEVERE DAMAGE THREAT...CONSIDERABLE")
+###
+### OPTION FOR WATCH INCLUSION PHRASING
+### 1.) watchPhrase = GENERIC -- yields "A severe thunderstorm/tornado watch remains in effect for the warned area."
+### 2.) watchPhrase = DETAILED  -- yields "A severe thunderstorm/tornado watch remain in effect until XX AM/PM for [portions of state(s)]."
+#set($watchPhrase = "DETAILED")

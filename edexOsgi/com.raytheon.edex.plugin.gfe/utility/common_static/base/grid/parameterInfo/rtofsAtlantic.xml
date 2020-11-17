@@ -179,7 +179,7 @@
     <uiname>Salinity</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -194,7 +194,7 @@
     <uiname>TEMPWTR</uiname>
     <valid_range>180.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -209,7 +209,7 @@
     <uiname>DEVMSL</uiname>
     <valid_range>-10.0</valid_range>
     <valid_range>10.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -222,9 +222,9 @@
     <units>m/s</units>
     <udunits>meter/sec</udunits>
     <uiname>UOGRD</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-20.0</valid_range>
     <valid_range>20.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -237,9 +237,9 @@
     <units>m/s</units>
     <udunits>meter/sec</udunits>
     <uiname>VOGRD</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-20.0</valid_range>
     <valid_range>20.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>

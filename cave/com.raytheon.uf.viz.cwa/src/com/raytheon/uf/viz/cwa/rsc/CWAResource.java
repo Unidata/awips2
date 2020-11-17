@@ -74,23 +74,24 @@ import com.vividsolutions.jts.geom.Polygon;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 4, 2010             jsanchez     Initial creation
- * Jun 10,2011  9744       cjeanbap     Added Magnification, Outline, and Density
- *                                      compabilities.
- * May 11, 2015 4379       nabowle      Display all current CWAs for each frame.
- * Jun 15, 2015 4379       nabowle      Make last frame a live frame.
- * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 04, 2010           jsanchez  Initial creation
+ * Jun 10,2011   9744     cjeanbap  Added Magnification, Outline, and Density
+ *                                  compabilities.
+ * May 11, 2015  4379     nabowle   Display all current CWAs for each frame.
+ * Jun 15, 2015  4379     nabowle   Make last frame a live frame.
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author jsanchez
- * @version 1.0
  */
-public class CWAResource extends
-        AbstractVizResource<CWAResourceData, MapDescriptor> implements
-        ISimulatedTimeChangeListener {
+public class CWAResource
+        extends AbstractVizResource<CWAResourceData, MapDescriptor>
+        implements ISimulatedTimeChangeListener {
 
     private static final String LATS = "latitudes";
 
@@ -139,7 +140,7 @@ public class CWAResource extends
 
         private CWAFrame(DataTime time) {
             this.time = time;
-            strings = new ArrayList<DrawableString>();
+            strings = new ArrayList<>();
         }
 
         @Override
@@ -191,8 +192,8 @@ public class CWAResource extends
             this.pdc = PointDataRequest.requestPointDataAllLevels(
                     (DataTime) null,
                     resourceData.getMetadataMap().get("pluginName")
-                            .getConstraintValue(), getParameters(), null,
-                    constraints);
+                            .getConstraintValue(),
+                    getParameters(), null, constraints);
 
             if (wfs != null) {
                 wfs.dispose();
@@ -237,10 +238,11 @@ public class CWAResource extends
                 if (numOfPoints > 0) {
                     String eventId = pdv.getString(EVENT_ID);
                     DrawableString string = new DrawableString(eventId,
-                            getCapability(ColorableCapability.class).getColor());
+                            getCapability(ColorableCapability.class)
+                                    .getColor());
                     string.font = font;
-                    double[] loc = descriptor.worldToPixel(new double[] {
-                            rightMost.x, rightMost.y });
+                    double[] loc = descriptor.worldToPixel(
+                            new double[] { rightMost.x, rightMost.y });
                     string.setCoordinates(loc[0], loc[1]);
                     strings.add(string);
                 }
@@ -260,7 +262,8 @@ public class CWAResource extends
             PointDataView pdv;
             PointDataView pdv2;
             String eventId;
-            for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
+            for (int uriCounter = 0; uriCounter < pdc
+                    .getAllocatedSz(); uriCounter++) {
                 pdv = pdc.readRandom(uriCounter);
                 eventId = pdv.getString(EVENT_ID);
 
@@ -327,9 +330,8 @@ public class CWAResource extends
 
     protected CWAResource(CWAResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
-        frameMap = new HashMap<DataTime, CWAResource.CWAFrame>();
-        this.dataTimes = new ArrayList<DataTime>();
+        super(resourceData, loadProperties, false);
+        frameMap = new HashMap<>();
     }
 
     /**
@@ -480,8 +482,8 @@ public class CWAResource extends
             // Coordinate[] llCoords = llPolygon.getCoordinates();
             Coordinate[] pixelCoords = new Coordinate[coordinates.length];
             for (int i = 0; i < coordinates.length; i++) {
-                double[] pixelCoord = descriptor.worldToPixel(new double[] {
-                        coordinates[i].x, coordinates[i].y });
+                double[] pixelCoord = descriptor.worldToPixel(
+                        new double[] { coordinates[i].x, coordinates[i].y });
                 pixelCoords[i] = new Coordinate(pixelCoord[0], pixelCoord[1]);
             }
             GeometryFactory factory2 = new GeometryFactory();

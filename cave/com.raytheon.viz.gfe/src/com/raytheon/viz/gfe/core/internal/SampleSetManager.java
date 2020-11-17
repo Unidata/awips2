@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -53,8 +53,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.edittool.GridID;
@@ -62,26 +62,32 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * A manager class for SampleSet, which contain SampleData
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Apr 14, 2008 879         rbell       Initial creation
- * 11Jun2008    #1193       ebabin      Updates for toggling lat/lon for sample set.
- * Apr 9, 2009  1288        rjpeter     Added ISampleSetChangedListener handling.
- * Aug 6, 2013  1561        njensen     Use pm.listFiles() instead of pm.listStaticFiles()
- * Sep 30, 2013 2361        njensen     Use JAXBManager for XML
- * Sep 08, 2104 #3592       randerso    Changed to use new pm listStaticFiles().
- *                                      Reworked inventory to use a map to better handle
- *                                      files at multiple localization levels
- * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
- * Nov 19, 2015 5129        dgilling    Support new IFPClient.
- * Feb 10, 2016 5242        dgilling    Remove calls to deprecated Localization APIs.
- * Jun 14, 2017 6297        bsteffen    Make listeners thread safe.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 14, 2008  879      rbell     Initial creation
+ * Jun 11, 2008  1193     ebabin    Updates for toggling lat/lon for sample set.
+ * Apr 09, 2009  1288     rjpeter   Added ISampleSetChangedListener handling.
+ * Aug 06, 2013  1561     njensen   Use pm.listFiles() instead of
+ *                                  pm.listStaticFiles()
+ * Sep 30, 2013  2361     njensen   Use JAXBManager for XML
+ * Sep 08, 2104  3592     randerso  Changed to use new pm listStaticFiles().
+ *                                  Reworked inventory to use a map to better
+ *                                  handle files at multiple localization levels
+ * Nov 12, 2015  4834     njensen   Changed LocalizationOpFailedException to
+ *                                  LocalizationException
+ * Nov 19, 2015  5129     dgilling  Support new IFPClient.
+ * Feb 10, 2016  5242     dgilling  Remove calls to deprecated Localization
+ *                                  APIs.
+ * Jun 14, 2017  6297     bsteffen  Make listeners thread safe.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author rbell
  */
 public class SampleSetManager
@@ -114,8 +120,10 @@ public class SampleSetManager
 
     /**
      * Default constructor.
-     * 
+     *
      * Gets the initial sample inventory.
+     * 
+     * @param ifpClient
      */
     public SampleSetManager(IFPClient ifpClient) {
         this.loadedSet = new SampleId();
@@ -148,8 +156,7 @@ public class SampleSetManager
         this.sampleSetDir.addFileUpdatedObserver(this);
 
         // load default sample points
-        String[] sampleSets = Activator.getDefault().getPreferenceStore()
-                .getStringArray("DefaultSamples");
+        String[] sampleSets = GFEPreference.getStringArray("DefaultSamples");
         if (sampleSets != null) {
             for (String name : sampleSets) {
                 SampleId sid = inventory.get(name);
@@ -430,7 +437,7 @@ public class SampleSetManager
      * The mergeSet is merged with _locations. The merge mode can be ADD,
      * REMOVE, or REPLACE. The threshold is specified for the REMOVE mode to
      * perform a search.
-     * 
+     *
      * First the _locations list is copied to a temporary variable. If the merge
      * mode is replace, then _locations is set to mergeSet, deletions is set to
      * the temporary variable, and additions is set to mergeSet. If the merge
@@ -439,9 +446,9 @@ public class SampleSetManager
      * all entries within the threshold and remove them from _locations and add
      * it to deletions. Calls sendSampleSetChangedNotification(_locations,
      * deletions, additions).
-     * 
+     *
      * Threshold is ignored except for REMOVE mode.
-     * 
+     *
      * @param mergeSet
      * @param mergeMode
      * @param threshold
@@ -478,7 +485,7 @@ public class SampleSetManager
 
     /**
      * Keeps the _markerLocations up-to-date.
-     * 
+     *
      * Gets the set of points, sends out notification of changes.
      */
     private void getMarkerPoints() {
@@ -550,7 +557,7 @@ public class SampleSetManager
 
     /**
      * Load sample set (for Python use)
-     * 
+     *
      * @param sampleId
      *            id of sample set to load
      * @param loadMode

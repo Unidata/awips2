@@ -4,8 +4,10 @@
 ## BASED OFF TEMPLATE FROM  KEN WATERS/MARK OMALLEY - WFO PSR                             ##
 ## VERSION HISTORY                                                                        ##  
 ##        Ken Waters/Mark OMalley Draft 1-26-17                                           ##
-##        WG TEAM (Tomalak/Birchard/Dangelo) 1-31-2017  Initial Implementation;; DCS20066 ##   
-##        Bookbinder    9-12-2017 Modified to segmented format per directive req.         ##
+##        WG TEAM (Tomalak/Birchard/Dangelo) 1-31-2017  Initial Implementation;  DCS20066 ##   
+##        Bookbinder   9-12-2017 Modified to segmented format per directive req.          ##
+##        Rivera       05-09-2018 DR20701 Dust Storm Warning cannot be sent in WarnGen    ##
+##                                Practice mode                                           ##
 ############################################################################################
 ##
 #parse("config.vm")
@@ -150,7 +152,6 @@ THIS IS A TEST MESSAGE. ##
 * ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. #### Uncomment below pull in mile marker info
-
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 , ${reportB3} ##

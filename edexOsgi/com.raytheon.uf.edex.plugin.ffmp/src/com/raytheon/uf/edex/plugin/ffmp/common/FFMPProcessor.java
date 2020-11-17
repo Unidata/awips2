@@ -218,8 +218,8 @@ public class FFMPProcessor {
         // setup data files, source access, times
         FFMPSourceConfigurationManager.DATA_TYPE type = configureSource();
 
-        if (source.getSourceType().equals(
-                FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
+        if (source.getSourceType()
+                .equals(FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
                         .getSourceType())) {
             processGuidances(type);
         } else if (source.getSourceType()
@@ -254,8 +254,8 @@ public class FFMPProcessor {
 
         if (type == FFMPSourceConfigurationManager.DATA_TYPE.RADAR) {
             try {
-                radarRec = (RadarRecord) config.getSourceData(
-                        source.getSourceName()).get(dataKey);
+                radarRec = (RadarRecord) config
+                        .getSourceData(source.getSourceName()).get(dataKey);
 
                 if (radarRec.getMnemonic().equals("DHR")) {
                     dhrMap = RadarRecordUtil.getDHRValues(radarRec);
@@ -288,13 +288,9 @@ public class FFMPProcessor {
                             source.getDateFormat());
                     int length = source.getDateFormat().length();
 
-                    String dateString = xmrg
-                            .getFile()
-                            .getName()
-                            .substring(
-                                    (xmrg.getFile().getName().length() - 1)
-                                            - length,
-                                    (xmrg.getFile().getName().length() - 1));
+                    String dateString = xmrg.getFile().getName().substring(
+                            (xmrg.getFile().getName().length() - 1) - length,
+                            (xmrg.getFile().getName().length() - 1));
 
                     recdate = formatter.parse(dateString);
                 } else {
@@ -308,8 +304,8 @@ public class FFMPProcessor {
 
         } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.PDO) {
             try {
-                imp = (IMonitorProcessing) config.getSourceData(
-                        source.getSourceName()).get(dataKey);
+                imp = (IMonitorProcessing) config
+                        .getSourceData(source.getSourceName()).get(dataKey);
                 recdate = imp.getDataTime().getRefTime();
             } catch (Exception e) {
                 logAndThrowConfigurationException(type, e);
@@ -317,8 +313,8 @@ public class FFMPProcessor {
 
         } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.GRID) {
             try {
-                gribRec = (GridRecord) config.getSourceData(
-                        source.getSourceName()).get(dataKey);
+                gribRec = (GridRecord) config
+                        .getSourceData(source.getSourceName()).get(dataKey);
                 setGridGeometry(gribRec);
                 gribData = config.getGribData(gribRec);
                 recdate = gribRec.getDataTime().getRefTime();
@@ -381,7 +377,7 @@ public class FFMPProcessor {
                                     if (checkLockStatus()) {
                                         lock();
                                         if (cwaGeometries == null
-                                           || cwaGeometries.isEmpty()) {
+                                                || cwaGeometries.isEmpty()) {
                                             cwaGeometries = template
                                                     .getRawGeometries(dataKey,
                                                             domain.getCwa());
@@ -394,9 +390,8 @@ public class FFMPProcessor {
                                                             cwaGeometries,
                                                             radarRec));
                                         } catch (Exception e) {
-                                            statusHandler
-                                                    .handle(Priority.WARN,
-                                                            "Caught an Exception while generating Source Bin List");
+                                            statusHandler.handle(Priority.WARN,
+                                                    "Caught an Exception while generating Source Bin List");
                                             if (!checkLockStatus()) {
                                                 ClusterLockUtils.unlock(
                                                         sourceBinTaskName,
@@ -526,22 +521,24 @@ public class FFMPProcessor {
 
                     } else {
                         if (ffmpRec != null) {
-                            statusHandler.handle(Priority.DEBUG, "Source: "
-                                    + ffmpRec.getSourceName() + " sitekey: "
-                                    + siteKey + " domain: " + domain.getCwa()
-                                    + " : Data outside of domain");
+                            statusHandler.handle(Priority.DEBUG,
+                                    "Source: " + ffmpRec.getSourceName()
+                                            + " sitekey: " + siteKey
+                                            + " domain: " + domain.getCwa()
+                                            + " : Data outside of domain");
                         }
                     }
                 } catch (Exception e) {
                     throw new Exception(
                             "FFMPProcessor: Failed to process source domain: "
                                     + source.getSourceName() + ": "
-                                    + domain.getCwa(), e);
+                                    + domain.getCwa(),
+                            e);
                 } finally {
                     if (sourceId != null) {
                         if (!checkLockStatus()) {
-                            ClusterLockUtils
-                                    .unlock(sourceBinTaskName, sourceId);
+                            ClusterLockUtils.unlock(sourceBinTaskName,
+                                    sourceId);
                         }
                     }
                 }
@@ -583,7 +580,8 @@ public class FFMPProcessor {
                         // outside my domain?
                         if (map.keySet().size() > 0) {
 
-                            String sourceFamilyName = getSourceBinNaming(source);
+                            String sourceFamilyName = getSourceBinNaming(
+                                    source);
                             this.sourceId = sourceFamilyName + "-"
                                     + domain.getCwa() + "-" + dataKey + "-"
                                     + siteKey;
@@ -643,10 +641,11 @@ public class FFMPProcessor {
                             }
 
                         } else {
-                            statusHandler.handle(Priority.INFO, "Source: "
-                                    + ffmpRec.getSourceName() + " sitekey: "
-                                    + siteKey + " domain: " + domain.getCwa()
-                                    + " : Data outside of domain");
+                            statusHandler.handle(Priority.INFO,
+                                    "Source: " + ffmpRec.getSourceName()
+                                            + " sitekey: " + siteKey
+                                            + " domain: " + domain.getCwa()
+                                            + " : Data outside of domain");
                         }
                     }
 
@@ -681,13 +680,14 @@ public class FFMPProcessor {
 
                     Date backDate = new Date(
                             ffmpRec.getDataTime().getRefTime().getTime()
-                                    - (FFMPGenerator.SOURCE_CACHE_TIME * TimeUtil.MILLIS_PER_HOUR));
+                                    - (FFMPGenerator.SOURCE_CACHE_TIME
+                                            * TimeUtil.MILLIS_PER_HOUR));
 
                     FFMPDataContainer ffgContainer = generator
                             .getFFMPDataContainer(sourceNameString, backDate);
 
-                    if (ffgContainer != null
-                            && ffgContainer.containsKey(source.getSourceName())) {
+                    if (ffgContainer != null && ffgContainer
+                            .containsKey(source.getSourceName())) {
 
                         Date previousDate = ffgContainer.getNewest();
 
@@ -702,21 +702,23 @@ public class FFMPProcessor {
                              * instead of returning I switched the greater than
                              * and less than so it will process
                              */
-                            if (guidFrequency < (FFMPGenerator.SOURCE_CACHE_TIME * TimeUtil.MILLIS_PER_HOUR)
+                            if (guidFrequency < (FFMPGenerator.SOURCE_CACHE_TIME
+                                    * TimeUtil.MILLIS_PER_HOUR)
                                     && guidFrequency >= (TimeUtil.MILLIS_PER_HOUR)) {
 
                                 long newTime = recdate.getTime()
-                                        + (int) (source.getDurationHour() * TimeUtil.MILLIS_PER_HOUR);
+                                        + (int) (source.getDurationHour()
+                                                * TimeUtil.MILLIS_PER_HOUR);
                                 // this is the new date
                                 recdate = new Date(newTime);
                                 ProductRunXML productRunner = generator
                                         .getRunConfig().getProduct(siteKey);
-                                ProductXML product = generator
-                                        .getSourceConfig().getProduct(
+                                ProductXML product = generator.getSourceConfig()
+                                        .getProduct(
                                                 productRunner.getProductName());
                                 SourceXML qpeSource = generator
-                                        .getSourceConfig().getSource(
-                                                product.getQpe());
+                                        .getSourceConfig()
+                                        .getSource(product.getQpe());
                                 // populate previous rec
                                 FFMPInterpolatedGuidanceDelay figd = new FFMPInterpolatedGuidanceDelay(
                                         siteKey, guidFrequency, source,
@@ -793,14 +795,14 @@ public class FFMPProcessor {
                             Coordinate coor = null;
                             try {
                                 coor = rc.asGridCell(imp.getGridGeometry(),
-                                        PixelInCell.CELL_CORNER); 
+                                        PixelInCell.CELL_CORNER);
                             } catch (TransformException e) {
                                 statusHandler.error("VGB PDO transform error!",
                                         e);
                                 continue;
                             } catch (FactoryException e) {
-                                statusHandler
-                                        .error("VGB PDO factory error!", e);
+                                statusHandler.error("VGB PDO factory error!",
+                                        e);
                                 continue;
                             }
                             val = processPDO(coor, 1.0);
@@ -810,14 +812,14 @@ public class FFMPProcessor {
                             Coordinate coor = null;
                             try {
                                 coor = rc.asGridCell(getGridGeometry(),
-                                        PixelInCell.CELL_CORNER); 
+                                        PixelInCell.CELL_CORNER);
                             } catch (TransformException e) {
                                 statusHandler.error(
                                         "VGB Gridded transform error!", e);
                                 continue;
                             } catch (FactoryException e) {
-                                statusHandler.error(
-                                        "VGB Gridded factory error!", e);
+                                statusHandler
+                                        .error("VGB Gridded factory error!", e);
                                 continue;
                             }
                             date = gribRec.getDataTime().getRefTime();
@@ -877,8 +879,8 @@ public class FFMPProcessor {
      */
     private FFMPVirtualGageBasin getVirtualBasin(String lid, Long pfaf,
             String huc) {
-        FFMPVirtualGageBasin basin = (FFMPVirtualGageBasin) getBasinData().get(
-                pfaf);
+        FFMPVirtualGageBasin basin = (FFMPVirtualGageBasin) getBasinData()
+                .get(pfaf);
         if (basin == null) {
             basin = new FFMPVirtualGageBasin(lid, pfaf, false);
             getBasinData().put(pfaf, basin);
@@ -919,7 +921,7 @@ public class FFMPProcessor {
                 Coordinate center = null;
                 try {
                     center = rc.asGridCell(imp.getGridGeometry(),
-                            PixelInCell.CELL_CORNER); 
+                            PixelInCell.CELL_CORNER);
                 } catch (TransformException e) {
                     statusHandler.error("PDO transform error!", e);
                     throw new Exception(e);
@@ -980,8 +982,8 @@ public class FFMPProcessor {
 
         double val = 0.0f;
 
-        if (((int) coor.x >= 0) && (coor.x < imp.getNx())
-                && ((int) coor.y >= 0) && ((int) coor.y < imp.getNy())) {
+        if (((int) coor.x >= 0) && (coor.x < imp.getNx()) && ((int) coor.y >= 0)
+                && ((int) coor.y < imp.getNy())) {
             val = (imp.getDataArray()[(imp.getNx() * (int) coor.y)
                     + (int) coor.x] * source.getConversion(siteKey));
 
@@ -1019,12 +1021,13 @@ public class FFMPProcessor {
 
             if (geo != null) {
                 ArrayList<SourceBinEntry> newPoints = new ArrayList<SourceBinEntry>();
-                ReferencedCoordinate rc = new ReferencedCoordinate(geo
-                        .getCentroid().getCoordinate());
+                ReferencedCoordinate rc = new ReferencedCoordinate(
+                        geo.getCentroid().getCoordinate());
                 Coordinate center = null;
                 try {
-                    center = rc.asGridCell(getHRAPSubGrid().getHRAP()
-                            .getGridGeometry(), PixelInCell.CELL_CORNER); 
+                    center = rc.asGridCell(
+                            getHRAPSubGrid().getHRAP().getGridGeometry(),
+                            PixelInCell.CELL_CORNER);
 
                 } catch (TransformException e) {
                     statusHandler.error("SBL Transform exception: ", e);
@@ -1056,9 +1059,10 @@ public class FFMPProcessor {
                     while (p > 0) {
 
                         try {
-                            nestPoints = processNest(geo, p, getHRAPSubGrid()
-                                    .getNy(), getHRAPSubGrid().getNx(),
-                                    (int) yy, (int) xx, true);
+                            nestPoints = processNest(geo, p,
+                                    getHRAPSubGrid().getNy(),
+                                    getHRAPSubGrid().getNx(), (int) yy,
+                                    (int) xx, true);
 
                             if (nestPoints != null && nestPoints.size() > 0) {
                                 p++;
@@ -1068,10 +1072,11 @@ public class FFMPProcessor {
                             }
                         } catch (Exception e) {
                             p = 0;
-                            statusHandler.handle(Priority.INFO, "Source: "
-                                    + ffmpRec.getSourceName() + " sitekey: "
-                                    + siteKey + " domain: " + cwa
-                                    + " : Data outside of domain");
+                            statusHandler.handle(Priority.INFO,
+                                    "Source: " + ffmpRec.getSourceName()
+                                            + " sitekey: " + siteKey
+                                            + " domain: " + cwa
+                                            + " : Data outside of domain");
                         }
                     }
 
@@ -1108,8 +1113,8 @@ public class FFMPProcessor {
                 && (gridCoor.y >= 0) && (gridCoor.y < xmrgData.length)) {
 
             if (xmrgData[(int) gridCoor.y][(int) gridCoor.x] != -899) {
-                val = ((xmrgData[(int) gridCoor.y][(int) gridCoor.x]) * source
-                        .getConversion(siteKey));
+                val = ((xmrgData[(int) gridCoor.y][(int) gridCoor.x])
+                        * source.getConversion(siteKey));
                 val = val * area;
             }
         }
@@ -1172,13 +1177,12 @@ public class FFMPProcessor {
 
             for (int j = 0; j < dataVals.length; j++) {
                 try {
-                    val += ScanUtils.getZRvalue2(
-                            dataVals[j],// fval,// DR 13083
+                    val += ScanUtils.getZRvalue2(dataVals[j], // fval,// DR
+                                                              // 13083
                             dhrMap.get(DHRValues.ZRMULTCOEFF),
                             dhrMap.get(DHRValues.MAXPRECIPRATEALLOW),
                             dhrMap.get(DHRValues.ZRPOWERCOEFF),
-                            dhrMap.get(DHRValues.BIAS_TO_USE))
-                            * areas[j];
+                            dhrMap.get(DHRValues.BIAS_TO_USE)) * areas[j];
                     area += areas[j];
                 } catch (Exception e) {
                     statusHandler
@@ -1225,8 +1229,8 @@ public class FFMPProcessor {
 
             if (geo != null) {
                 ArrayList<SourceBinEntry> newPoints = new ArrayList<SourceBinEntry>();
-                ReferencedCoordinate rc = new ReferencedCoordinate(geo
-                        .getCentroid().getCoordinate());
+                ReferencedCoordinate rc = new ReferencedCoordinate(
+                        geo.getCentroid().getCoordinate());
                 Coordinate center = null;
                 try {
                     center = rc.asGridCell(getGridGeometry(),
@@ -1236,13 +1240,14 @@ public class FFMPProcessor {
                             "Error transforming pfaf! " + pfaf);
                     throw new Exception(e);
                 } catch (FactoryException e) {
-                    statusHandler.handle(Priority.ERROR, "Error in geometry! "
-                            + pfaf);
+                    statusHandler.handle(Priority.ERROR,
+                            "Error in geometry! " + pfaf);
                     throw new Exception(e);
                 }
 
                 if (((int) center.x >= 0) && ((int) center.x < getNx())
-                        && ((int) center.y >= 0) && ((int) center.y < getNy())) {
+                        && ((int) center.y >= 0)
+                        && ((int) center.y < getNy())) {
                     // add at least the center point
                     SourceBinEntry sbe = new SourceBinEntry();
                     sbe.setCoor(center);
@@ -1286,8 +1291,8 @@ public class FFMPProcessor {
         // Sparse data conditions differ when acting as a GUIDANCE source or
         // QPE/QPF
         if (val == FFMPUtils.MISSING) {
-            if (source.getSourceType().equals(
-                    FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
+            if (source.getSourceType()
+                    .equals(FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
                             .getSourceType())) {
                 return FFMPUtils.MISSING;
             } else {
@@ -1422,8 +1427,9 @@ public class FFMPProcessor {
         try {
             ReferencedCoordinate rc = new ReferencedCoordinate(latLon);
             HRAPSubGrid subGrid = getHRAPSubGrid();
-            Coordinate gridCell2 = rc.asGridCell(subGrid.getHRAP()
-                    .getGridGeometry(), PixelInCell.CELL_CORNER); 
+            Coordinate gridCell2 = rc.asGridCell(
+                    subGrid.getHRAP().getGridGeometry(),
+                    PixelInCell.CELL_CORNER);
             // gridCell is in terms of parent HRAP, need to modify by extent
             // Rectangle extent = subGrid.getExtent();
             // gridCell.x += extent.x;
@@ -1476,15 +1482,18 @@ public class FFMPProcessor {
             generalEnvelope.setCoordinateReferenceSystem(crs);
 
             double maxExtent = radarRec.getGateResolution()
-                    * radarRec.getNumBins()
-                    * Math.cos(Math.toRadians(radarRec.getTrueElevationAngle()));
+                    * radarRec.getNumBins() * Math.cos(
+                            Math.toRadians(radarRec.getTrueElevationAngle()));
 
             generalEnvelope.setRange(0, -maxExtent, maxExtent);
             generalEnvelope.setRange(1, -maxExtent, maxExtent);
 
-            radarGeometry = new GridGeometry2D(new GeneralGridEnvelope(
-                    new int[] { 0, 0 }, new int[] { radarRec.getNumRadials(),
-                            radarRec.getNumBins() }, false), generalEnvelope);
+            radarGeometry = new GridGeometry2D(
+                    new GeneralGridEnvelope(new int[] { 0, 0 },
+                            new int[] { radarRec.getNumRadials(),
+                                    radarRec.getNumBins() },
+                            false),
+                    generalEnvelope);
         }
         return radarGeometry;
     }
@@ -1516,8 +1525,8 @@ public class FFMPProcessor {
                         if ((yy > ny - 1) || (xx > nx - 1) || (yy < 0)
                                 || (xx < 0)) {
                             continue;
-                        } else if (geom.contains(pointGeometries[xx][yy]
-                                .getCentroid())) {
+                        } else if (geom.contains(
+                                pointGeometries[xx][yy].getCentroid())) {
                             SourceBinEntry sbe = new SourceBinEntry();
 
                             if (returnLatLon) {
@@ -1541,8 +1550,8 @@ public class FFMPProcessor {
                             if ((yy > ny - 1) || (xx > nx - 1) || (yy < 0)
                                     || (xx < 0)) {
                                 continue;
-                            } else if (geom.contains(pointGeometries[xx][yy]
-                                    .getCentroid())) {
+                            } else if (geom.contains(
+                                    pointGeometries[xx][yy].getCentroid())) {
                                 SourceBinEntry sbe = new SourceBinEntry();
 
                                 if (returnLatLon) {
@@ -1591,8 +1600,8 @@ public class FFMPProcessor {
                 // complete the square
                 coors[4] = coors[0];
 
-                LinearRing lr = config.getGeometryFactory().createLinearRing(
-                        coors);
+                LinearRing lr = config.getGeometryFactory()
+                        .createLinearRing(coors);
                 Polygon poly = config.getGeometryFactory().createPolygon(lr,
                         null);
 
@@ -1607,7 +1616,8 @@ public class FFMPProcessor {
      * @throws FactoryException
      * @throws TransformException
      */
-    private void setPDOPointCache() throws TransformException, FactoryException {
+    private void setPDOPointCache()
+            throws TransformException, FactoryException {
         // pointCache = new Point[imp.getNx()][imp.getNy()];
         pointGeometries = new Geometry[imp.getNx()][imp.getNy()];
         for (int x = 0; x < imp.getNx(); x++) {
@@ -1637,8 +1647,8 @@ public class FFMPProcessor {
                 // complete the square
                 coors[4] = coors[0];
 
-                LinearRing lr = config.getGeometryFactory().createLinearRing(
-                        coors);
+                LinearRing lr = config.getGeometryFactory()
+                        .createLinearRing(coors);
                 Polygon poly = config.getGeometryFactory().createPolygon(lr,
                         null);
 
@@ -1654,8 +1664,8 @@ public class FFMPProcessor {
      * @throws FactoryException
      * @throws TransformException
      */
-    private void setGridPointCache() throws TransformException,
-            FactoryException {
+    private void setGridPointCache()
+            throws TransformException, FactoryException {
         // pointCache = new Point[getNx()][getNy()];
         pointGeometries = new Geometry[getNx()][getNy()];
         for (int x = 0; x < getNx(); x++) {
@@ -1684,8 +1694,8 @@ public class FFMPProcessor {
                 // complete the square
                 coors[4] = coors[0];
 
-                LinearRing lr = config.getGeometryFactory().createLinearRing(
-                        coors);
+                LinearRing lr = config.getGeometryFactory()
+                        .createLinearRing(coors);
                 Polygon poly = config.getGeometryFactory().createPolygon(lr,
                         null);
 
@@ -1701,7 +1711,8 @@ public class FFMPProcessor {
      * @param basinGeo
      * @return
      */
-    private double getArealPercentage(Geometry dataPointGeo, Geometry basinGeo) {
+    private double getArealPercentage(Geometry dataPointGeo,
+            Geometry basinGeo) {
         double arealPercent = 0.0;
 
         Geometry intersectGeo = basinGeo.intersection(dataPointGeo);
@@ -1744,33 +1755,32 @@ public class FFMPProcessor {
                 for (String dispName : setting.getSettingDisplayNames()) {
 
                     if (dispName.equals(source.getDisplayName())) {
-                        if (source.getSourceType().equals(
-                                SOURCE_TYPE.QPE.getSourceType())) {
+                        if (source.getSourceType()
+                                .equals(SOURCE_TYPE.QPE.getSourceType())) {
                             fftiSource = setting.getQpeSource();
                             isFFTI = true;
-                            fftiAttribute.add(setting.getAttribute()
-                                    .getAttributeName());
-                        } else if (source.getSourceType().equals(
-                                SOURCE_TYPE.QPF.getSourceType())) {
+                            fftiAttribute.add(
+                                    setting.getAttribute().getAttributeName());
+                        } else if (source.getSourceType()
+                                .equals(SOURCE_TYPE.QPF.getSourceType())) {
                             fftiSource = setting.getQpfSource();
                             isFFTI = true;
-                            fftiAttribute.add(setting.getAttribute()
-                                    .getAttributeName());
+                            fftiAttribute.add(
+                                    setting.getAttribute().getAttributeName());
                         } else {
                             fftiSource = setting.getGuidSource();
                             isFFTI = true;
-                            fftiAttribute.add(setting.getAttribute()
-                                    .getAttributeName());
+                            fftiAttribute.add(
+                                    setting.getAttribute().getAttributeName());
                         }
                     }
 
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.QPE.getSourceType())) {
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.QPE.getSourceType())) {
                         String[] settingKey = dispName.split("-");
                         if (settingKey.length == 2) {
-                            if (settingKey[0].equals(siteKey)
-                                    && settingKey[1].equals(source
-                                            .getDisplayName())) {
+                            if (settingKey[0].equals(siteKey) && settingKey[1]
+                                    .equals(source.getDisplayName())) {
                                 fftiSource = setting.getQpeSource();
                                 isFFTI = true;
                                 fftiAttribute.add(setting.getAttribute()
@@ -1779,13 +1789,12 @@ public class FFMPProcessor {
                         }
                     }
 
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.QPF.getSourceType())) {
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.QPF.getSourceType())) {
                         String[] settingKey = dispName.split("-");
                         if (settingKey.length == 2) {
-                            if (settingKey[0].equals(siteKey)
-                                    && settingKey[1].equals(source
-                                            .getDisplayName())) {
+                            if (settingKey[0].equals(siteKey) && settingKey[1]
+                                    .equals(source.getDisplayName())) {
 
                                 fftiSource = setting.getQpfSource();
                                 isFFTI = true;

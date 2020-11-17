@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -71,11 +72,11 @@ import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * Manager for access to archive data information.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May  1, 2013 1966       rferrel     Initial creation
@@ -101,11 +102,11 @@ import com.raytheon.uf.common.util.FileUtil;
  * Aug 18, 2015 3806       njensen     Use SaveableOutputStream to save
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods
- * 
+ * Feb 16, 2018 7090       tgurney     Reload config after saving
+ *
  * </pre>
- * 
+ *
  * @author rferrel
- * @version 1.0
  */
 public class ArchiveConfigManager {
 
@@ -113,10 +114,10 @@ public class ArchiveConfigManager {
             .getHandler(ArchiveConfigManager.class);
 
     /** The only instance or this class. */
-    private final static ArchiveConfigManager instance = new ArchiveConfigManager();
+    private static final ArchiveConfigManager instance = new ArchiveConfigManager();
 
     /** Localize directory for the archive configuration files. */
-    public final String ARCHIVE_DIR = "archiver/purger";
+    public static final String ARCHIVE_DIR = "archiver/purger";
 
     /** Localization manager. */
     protected final IPathManager pathMgr;
@@ -124,10 +125,10 @@ public class ArchiveConfigManager {
     private final Map<String, ILocalizationFile> archiveNameToLocalizationFileMap = new HashMap<>();
 
     /** Mapping of archive configuration data keyed to the name. */
-    private final Map<String, ArchiveConfig> archiveMap = new HashMap<String, ArchiveConfig>();
+    private final Map<String, ArchiveConfig> archiveMap = new HashMap<>();
 
     /** Get the singleton. */
-    public final static ArchiveConfigManager getInstance() {
+    public static final ArchiveConfigManager getInstance() {
         return instance;
     }
 
@@ -145,7 +146,7 @@ public class ArchiveConfigManager {
 
     /**
      * Get list of site's archive data configuration files.
-     * 
+     *
      * @return archiveConfigList
      */
     private ILocalizationFile[] getArchiveConfigFiles() {
@@ -156,7 +157,7 @@ public class ArchiveConfigManager {
 
     /**
      * Get a sorted list of the archive data names.
-     * 
+     *
      * @return names
      */
     public String[] getArchiveDataNamesList() {
@@ -168,7 +169,7 @@ public class ArchiveConfigManager {
 
     /**
      * Get a sorted array of the archive's categories.
-     * 
+     *
      * @param archiveConfigName
      * @return categoryNames
      */
@@ -178,13 +179,13 @@ public class ArchiveConfigManager {
 
     /**
      * Get a sorted array of the archive's categories.
-     * 
+     *
      * @param archiveConfig
      * @return categoryNames
      */
     public String[] getCategoryNames(ArchiveConfig archiveConfig) {
         List<CategoryConfig> categories = archiveConfig.getCategoryList();
-        List<String> nameList = new ArrayList<String>(categories.size());
+        List<String> nameList = new ArrayList<>(categories.size());
         for (CategoryConfig category : archiveConfig.getCategoryList()) {
             String name = category.getName();
             nameList.add(name);
@@ -197,13 +198,13 @@ public class ArchiveConfigManager {
     /**
      * Obtain the collection of Archives setting the Categories' selections
      * based on the default retention selections.
-     * 
+     *
      * @return the Collection of Archives.
      */
     public Collection<ArchiveConfig> getArchives() {
         String fileName = ArchiveConstants.selectFileName(Type.Retention, null);
         SelectConfig selections = loadSelection(fileName);
-        List<String> emptySelection = new ArrayList<String>(0);
+        List<String> emptySelection = new ArrayList<>(0);
 
         // Clear old selections.
         for (ArchiveConfig archive : archiveMap.values()) {
@@ -235,8 +236,8 @@ public class ArchiveConfigManager {
                                         + "] not found. Skipping selections.");
                         continue;
                     }
-                    categoryConfig.setSelectedDisplayNames(categorySelect
-                            .getSelectSet());
+                    categoryConfig.setSelectedDisplayNames(
+                            categorySelect.getSelectSet());
                 }
             }
         }
@@ -247,7 +248,7 @@ public class ArchiveConfigManager {
      * Create an archive in the given archive directory from the Files filtered
      * by the ArchiveElements that are within the start and end time frame
      * parameters.
-     * 
+     *
      * @param archiveDir
      *            Destination directory of the Archive
      * @param displaysSelectedForArchive
@@ -263,15 +264,15 @@ public class ArchiveConfigManager {
     public Collection<File> createArchive(File archiveDir,
             Collection<DisplayData> displaysSelectedForArchive, Calendar start,
             Calendar end) throws IOException, ArchiveException {
-        Collection<File> archivedFiles = new ArrayList<File>();
+        Collection<File> archivedFiles = new ArrayList<>();
         FileUtils.forceMkdir(archiveDir);
         if (archiveDir.exists()) {
             for (DisplayData display : displaysSelectedForArchive) {
                 String archiveDirString = archiveDir.getAbsolutePath();
                 String rootDirString = display.archiveConfig.getRootDir();
 
-                rootDirString = (rootDirString.endsWith(File.separator) ? rootDirString
-                        .substring(0,
+                rootDirString = (rootDirString.endsWith(File.separator)
+                        ? rootDirString.substring(0,
                                 rootDirString.lastIndexOf(File.separatorChar))
                         : rootDirString);
                 for (File srcFile : getDisplayFiles(display, start, end)) {
@@ -283,8 +284,8 @@ public class ArchiveConfigManager {
 
                     if (srcFile.isDirectory()) {
                         FileUtils.copyDirectory(srcFile, newArchiveDir);
-                        archivedFiles.addAll(Arrays.asList(newArchiveDir
-                                .listFiles()));
+                        archivedFiles.addAll(
+                                Arrays.asList(newArchiveDir.listFiles()));
                     } else {
                         FileUtils.copyFileToDirectory(srcFile, newArchiveDir);
                         String filename = FilenameUtils.getName(fileAbsPath);
@@ -325,7 +326,7 @@ public class ArchiveConfigManager {
 
     /**
      * Save the Archive Configuration data to the localized file.
-     * 
+     *
      * @param lFile
      * @param archiveConfig
      */
@@ -340,7 +341,7 @@ public class ArchiveConfigManager {
 
     /**
      * Clear maps and reloads the maps from the configuration information.
-     * 
+     *
      */
     public void reset() {
         archiveMap.clear();
@@ -348,10 +349,11 @@ public class ArchiveConfigManager {
         ILocalizationFile[] files = getArchiveConfigFiles();
         for (ILocalizationFile lFile : files) {
             try {
-                ArchiveConfig archiveConfig = unmarshalArhiveConfigFromXmlFile(lFile);
+                ArchiveConfig archiveConfig = unmarshalArchiveConfigFromXmlFile(
+                        lFile);
                 if ((archiveConfig != null) && archiveConfig.isValid()) {
-                    archiveNameToLocalizationFileMap.put(
-                            archiveConfig.getName(), lFile);
+                    archiveNameToLocalizationFileMap
+                            .put(archiveConfig.getName(), lFile);
                     archiveMap.put(archiveConfig.getName(), archiveConfig);
                 } else {
                     StringBuilder sb = new StringBuilder(
@@ -364,9 +366,9 @@ public class ArchiveConfigManager {
                 }
             } catch (DataBindingException ex) {
                 statusHandler.handle(Priority.ERROR,
-                        "Bad Archive configuration file \""
- + lFile.getPath()
-                                + "\": ", ex);
+                        "Bad Archive configuration file \"" + lFile.getPath()
+                                + "\": ",
+                        ex);
             } catch (IOException | LocalizationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -380,24 +382,27 @@ public class ArchiveConfigManager {
     public void save() {
         LocalizationContext siteContext = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        for (String archiveName : archiveMap.keySet()) {
-            ArchiveConfig archiveConfig = archiveMap.get(archiveName);
+        for (Entry<String, ArchiveConfig> archiveEntry : archiveMap
+                .entrySet()) {
+            ArchiveConfig archiveConfig = archiveEntry.getValue();
             ILocalizationFile lFile = archiveNameToLocalizationFileMap
-                    .get(archiveName);
-            if (lFile.getContext().getLocalizationLevel() != LocalizationLevel.SITE) {
+                    .get(archiveEntry.getKey());
+            if (lFile.getContext()
+                    .getLocalizationLevel() != LocalizationLevel.SITE) {
                 // Modify the site not the base file.
-                ILocalizationFile tlFile = pathMgr.getLocalizationFile(
-                        siteContext, lFile.getPath());
+                ILocalizationFile tlFile = pathMgr
+                        .getLocalizationFile(siteContext, lFile.getPath());
                 lFile = tlFile;
             }
             saveArchiveConfig(lFile, archiveConfig);
         }
+        reset();
     }
 
     /**
      * Get a list of directories/files for the desired display label bounded by
      * the start and end time inclusive.
-     * 
+     *
      * @param displayData
      * @param startCal
      * @param endCal
@@ -434,7 +439,7 @@ public class ArchiveConfigManager {
 
     /**
      * Get all of the files/directories associated with the display label.
-     * 
+     *
      * @param displayData
      * @return files
      */
@@ -445,7 +450,7 @@ public class ArchiveConfigManager {
     /**
      * Get the files/directories associated with the display label with time
      * stamps between inclusive start time and exclusive end time.
-     * 
+     *
      * @param archiveName
      * @param categoryName
      * @param displayLabel
@@ -455,11 +460,12 @@ public class ArchiveConfigManager {
      */
     private List<File> getDisplayFiles(DisplayData displayData, long startTime,
             long endTime) {
-        List<File> fileList = new LinkedList<File>();
+        List<File> fileList = new LinkedList<>();
         ArchiveConfig archiveConfig = displayData.archiveConfig;
 
-        Map<CategoryDataSet, Set<File>> fullMatchDirs = getDirs(new File(
-                archiveConfig.getRootDir()), displayData.getLabelDirMap());
+        Map<CategoryDataSet, Set<File>> fullMatchDirs = getDirs(
+                new File(archiveConfig.getRootDir()),
+                displayData.getLabelDirMap());
 
         for (Map.Entry<CategoryDataSet, Set<File>> entry : fullMatchDirs
                 .entrySet()) {
@@ -479,8 +485,8 @@ public class ArchiveConfigManager {
                     Pattern pattern = dataSet.getPattern(dirPattern);
 
                     for (File dir : dirs) {
-                        String path = dir.getAbsolutePath().substring(
-                                beginIndex);
+                        String path = dir.getAbsolutePath()
+                                .substring(beginIndex);
                         Matcher matcher = pattern.matcher(path);
                         if (matcher.matches()) {
                             Long fileTime = dataSet.getMatchTimeInMilliseconds(
@@ -488,7 +494,8 @@ public class ArchiveConfigManager {
                             if (fileTime == null) {
                                 fileTime = dir.lastModified();
                             }
-                            if ((startTime <= fileTime) && (fileTime < endTime)) {
+                            if ((startTime <= fileTime)
+                                    && (fileTime < endTime)) {
                                 fileList.add(dir);
                             }
                         }
@@ -497,28 +504,30 @@ public class ArchiveConfigManager {
             } else {
                 for (String dirPattern : dataSet.getDirPatterns()) {
                     Pattern pattern = dataSet.getPattern(dirPattern);
-                    final Pattern filePattern = Pattern.compile("^"
-                            + filePatternStr + "$");
+                    final Pattern filePattern = Pattern
+                            .compile("^" + filePatternStr + "$");
                     for (File dir : dirs) {
                         List<File> fList = FileUtil.listDirFiles(dir,
                                 new FileFilter() {
 
                                     @Override
                                     public boolean accept(File pathname) {
-                                        return filePattern.matcher(
-                                                pathname.getName()).matches();
+                                        return filePattern
+                                                .matcher(pathname.getName())
+                                                .matches();
                                     }
                                 }, false);
                         for (File file : fList) {
-                            String path = file.getAbsolutePath().substring(
-                                    beginIndex);
+                            String path = file.getAbsolutePath()
+                                    .substring(beginIndex);
                             Matcher matcher = pattern.matcher(path);
                             if (matcher.matches()) {
                                 Long timestamp = dataSet
-                                        .getMatchTimeInMilliseconds(
-                                                timeIndices, matcher);
-                                long fileTime = timestamp == null ? file
-                                        .lastModified() : timestamp.longValue();
+                                        .getMatchTimeInMilliseconds(timeIndices,
+                                                matcher);
+                                long fileTime = timestamp == null
+                                        ? file.lastModified()
+                                        : timestamp.longValue();
                                 if ((startTime <= fileTime)
                                         && (fileTime < endTime)) {
                                     fileList.add(file);
@@ -537,7 +546,7 @@ public class ArchiveConfigManager {
      * are sub-directories of the archive's root directory. maxDepth is the
      * depth of directories to list, 0 for no listing, 1 for root directory,
      * etc.
-     * 
+     *
      * @param archiveConfig
      * @param categoryConfig
      * @param maxDepth
@@ -546,23 +555,23 @@ public class ArchiveConfigManager {
     private Map<CategoryDataSet, List<File>> getDirs(File rootFile,
             CategoryConfig categoryConfig, int maxDepth) {
         List<CategoryDataSet> dataSets = categoryConfig.getDataSetList();
-        Map<CategoryDataSet, List<File>> rval = new HashMap<CategoryDataSet, List<File>>(
-                dataSets.size(), 1);
+        Map<CategoryDataSet, List<File>> rval = new HashMap<>(dataSets.size(),
+                1);
 
         if (maxDepth > 0) {
             List<File> resultDirs = null;
-            List<File> dirs = new ArrayList<File>();
-            List<File> tmpDirs = new ArrayList<File>();
+            List<File> dirs = new ArrayList<>();
+            List<File> tmpDirs = new ArrayList<>();
             List<File> swpDirs = null;
 
             /*
              * keep an in memory map since some of the categories cause the same
              * directories to be listed over and over
              */
-            Map<File, List<File>> polledDirs = new HashMap<File, List<File>>();
+            Map<File, List<File>> polledDirs = new HashMap<>();
 
             for (CategoryDataSet dataSet : dataSets) {
-                resultDirs = new LinkedList<File>();
+                resultDirs = new LinkedList<>();
 
                 for (String dirPattern : dataSet.getDirPatterns()) {
                     String[] subExpr = dirPattern.split(File.separator);
@@ -573,9 +582,8 @@ public class ArchiveConfigManager {
 
                     for (String regex : subExpr) {
                         Pattern subPattern = Pattern.compile("^" + regex + "$");
-                        IOFileFilter filter = FileFilterUtils
-                                .makeDirectoryOnly(new RegexFileFilter(
-                                        subPattern));
+                        IOFileFilter filter = FileFilterUtils.makeDirectoryOnly(
+                                new RegexFileFilter(subPattern));
 
                         for (File dir : dirs) {
                             List<File> dirList = polledDirs.get(dir);
@@ -583,7 +591,7 @@ public class ArchiveConfigManager {
                                 File[] list = dir.listFiles();
                                 // Missing directory.
                                 if (list == null) {
-                                    dirList = new ArrayList<File>(0);
+                                    dirList = new ArrayList<>(0);
                                 } else {
                                     dirList = Arrays.asList(list);
                                 }
@@ -591,8 +599,8 @@ public class ArchiveConfigManager {
                             }
 
                             if (dirList != null) {
-                                tmpDirs.addAll(FileFilterUtils.filterList(
-                                        filter, dirList));
+                                tmpDirs.addAll(FileFilterUtils
+                                        .filterList(filter, dirList));
                             }
                         }
 
@@ -619,38 +627,39 @@ public class ArchiveConfigManager {
     /**
      * Gets the directories that fully match the given data sets. Starts with
      * the directories that previously matched up to displayLabel generation.
-     * 
+     *
      * @param rootFile
      * @param dataSetMap
      * @return
      */
     private Map<CategoryDataSet, Set<File>> getDirs(File rootFile,
             Map<CategoryDataSet, Set<File>> dataSetMap) {
-        Map<CategoryDataSet, Set<File>> rval = new HashMap<CategoryDataSet, Set<File>>(
-                dataSetMap.size(), 1);
+        Map<CategoryDataSet, Set<File>> rval = new HashMap<>(dataSetMap.size(),
+                1);
 
-        int rootFileDepth = rootFile.getAbsolutePath().split(File.separator).length;
+        int rootFileDepth = rootFile.getAbsolutePath()
+                .split(File.separator).length;
 
-        Set<File> dirs = new HashSet<File>();
-        Set<File> tmpDirs = new HashSet<File>();
+        Set<File> dirs = new HashSet<>();
+        Set<File> tmpDirs = new HashSet<>();
         Set<File> swpDirs = null;
 
         /*
          * keep in memory map since some of the categories cause the same
          * directories to be listed over and over
          */
-        Map<File, List<File>> polledDirs = new HashMap<File, List<File>>();
+        Map<File, List<File>> polledDirs = new HashMap<>();
 
         for (Map.Entry<CategoryDataSet, Set<File>> entry : dataSetMap
                 .entrySet()) {
             CategoryDataSet dataSet = entry.getKey();
-            Set<File> resultDirs = new HashSet<File>();
+            Set<File> resultDirs = new HashSet<>();
 
             Set<File> dirsToScan = entry.getValue();
             for (File dirToScan : dirsToScan) {
                 // determine depth of file that was already matched
-                String[] tokens = dirToScan.getAbsolutePath().split(
-                        File.separator);
+                String[] tokens = dirToScan.getAbsolutePath()
+                        .split(File.separator);
 
                 DIR_PATTERN_LOOP: for (String dirPattern : dataSet
                         .getDirPatterns()) {
@@ -669,8 +678,9 @@ public class ArchiveConfigManager {
                     }
 
                     for (int i = rootFileDepth; i < tokens.length; i++) {
-                        Pattern subPattern = Pattern.compile("^"
-                                + subExpr[subExprIndex++] + "$");
+                        Pattern subPattern = Pattern
+                                .compile("^" + subExpr[subExprIndex] + "$");
+                        subExprIndex++;
                         Matcher m = subPattern.matcher(tokens[i]);
                         if (!m.matches()) {
                             continue DIR_PATTERN_LOOP;
@@ -678,11 +688,11 @@ public class ArchiveConfigManager {
                     }
 
                     while (subExprIndex < subExpr.length) {
-                        Pattern subPattern = Pattern.compile("^"
-                                + subExpr[subExprIndex++] + "$");
-                        IOFileFilter filter = FileFilterUtils
-                                .makeDirectoryOnly(new RegexFileFilter(
-                                        subPattern));
+                        Pattern subPattern = Pattern
+                                .compile("^" + subExpr[subExprIndex] + "$");
+                        subExprIndex++;
+                        IOFileFilter filter = FileFilterUtils.makeDirectoryOnly(
+                                new RegexFileFilter(subPattern));
 
                         for (File dir : dirs) {
                             List<File> dirList = polledDirs.get(dir);
@@ -697,8 +707,8 @@ public class ArchiveConfigManager {
                             }
 
                             if (dirList != null) {
-                                tmpDirs.addAll(FileFilterUtils.filterList(
-                                        filter, dirList));
+                                tmpDirs.addAll(FileFilterUtils
+                                        .filterList(filter, dirList));
                             }
                         }
 
@@ -722,7 +732,7 @@ public class ArchiveConfigManager {
      * Get the Display labels matching the pattern for the archive data's
      * category. Assumes the archive data's root directory is the mount point to
      * start the search.
-     * 
+     *
      * @param archiveName
      * @param categoryName
      * @param setSelect
@@ -734,7 +744,7 @@ public class ArchiveConfigManager {
             String categoryName, boolean setSelect) {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
-        Map<String, List<File>> displayMap = new HashMap<String, List<File>>();
+        Map<String, List<File>> displayMap = new HashMap<>();
 
         ArchiveConfig archiveConfig = archiveMap.get(archiveName);
         String rootDirName = archiveConfig.getRootDir();
@@ -749,13 +759,12 @@ public class ArchiveConfigManager {
 
         File rootFile = new File(rootDirName);
         if (!(rootFile.isDirectory() && rootFile.canRead())) {
-            statusHandler.handle(
-                    Priority.ERROR,
+            statusHandler.handle(Priority.ERROR,
                     "Unable to access archive directory: "
                             + rootFile.getAbsolutePath());
         }
 
-        TreeMap<String, Map<CategoryDataSet, Set<File>>> displays = new TreeMap<String, Map<CategoryDataSet, Set<File>>>();
+        TreeMap<String, Map<CategoryDataSet, Set<File>>> displays = new TreeMap<>();
         Map<CategoryDataSet, List<File>> dirMap = getDirs(rootFile,
                 categoryConfig, maxDepth);
         for (CategoryDataSet dataSet : categoryConfig.getDataSetList()) {
@@ -763,8 +772,7 @@ public class ArchiveConfigManager {
             List<File> dirs = dirMap.get(dataSet);
 
             int beginIndex = rootFile.getAbsolutePath().length() + 1;
-            List<Pattern> patterns = new ArrayList<Pattern>(
-                    dataSetDirPatterns.size());
+            List<Pattern> patterns = new ArrayList<>(dataSetDirPatterns.size());
 
             /*
              * Need to limit patterns by maxDepth so that matching works
@@ -796,8 +804,8 @@ public class ArchiveConfigManager {
                     }
                 }
 
-                Pattern pattern = Pattern.compile("^" + builder.toString()
-                        + "$");
+                Pattern pattern = Pattern
+                        .compile("^" + builder.toString() + "$");
                 patterns.add(pattern);
                 builder.setLength(0);
             }
@@ -822,20 +830,20 @@ public class ArchiveConfigManager {
                         Map<CategoryDataSet, Set<File>> matchingDatasets = displays
                                 .get(displayLabel);
                         if (matchingDatasets == null) {
-                            matchingDatasets = new HashMap<CategoryDataSet, Set<File>>();
+                            matchingDatasets = new HashMap<>();
                             displays.put(displayLabel, matchingDatasets);
                         }
 
                         Set<File> labelDirs = matchingDatasets.get(dataSet);
                         if (labelDirs == null) {
-                            labelDirs = new HashSet<File>();
+                            labelDirs = new HashSet<>();
                             matchingDatasets.put(dataSet, labelDirs);
                         }
 
                         labelDirs.add(dir);
                         List<File> displayDirs = displayMap.get(displayLabel);
                         if (displayDirs == null) {
-                            displayDirs = new LinkedList<File>();
+                            displayDirs = new LinkedList<>();
                             displayMap.put(displayLabel, displayDirs);
                         }
                         displayDirs.add(dir);
@@ -845,12 +853,12 @@ public class ArchiveConfigManager {
             }
         }
 
-        List<DisplayData> displayDataList = new ArrayList<DisplayData>(
-                displays.size());
+        List<DisplayData> displayDataList = new ArrayList<>(displays.size());
 
-        for (String label : displays.keySet()) {
+        for (Entry<String, Map<CategoryDataSet, Set<File>>> display : displays
+                .entrySet()) {
             displayDataList.add(new DisplayData(archiveConfig, categoryConfig,
-                    displays.get(label), label));
+                    display.getValue(), display.getKey()));
         }
 
         timer.stop();
@@ -866,7 +874,7 @@ public class ArchiveConfigManager {
 
     /**
      * Obtain the category with the given name.
-     * 
+     *
      * @param archiveConfig
      * @param categoryName
      * @return categoryConfig
@@ -884,7 +892,7 @@ public class ArchiveConfigManager {
     /**
      * This does the work of saving an instance of ArchiveConfig to a localized
      * file.
-     * 
+     *
      * @param archiveConfig
      * @param lFile
      * @throws IOException
@@ -901,15 +909,15 @@ public class ArchiveConfigManager {
     /**
      * This does the work of taking a localized file and returning a instance of
      * the ArchiveConfig class from the data in the file.
-     * 
+     *
      * @param lFile
      * @return archiveConfig
      * @throws IOException
      * @throws LocalizationException
      */
-    private ArchiveConfig unmarshalArhiveConfigFromXmlFile(
-            ILocalizationFile lFile) throws IOException, LocalizationException,
-            DataBindingException {
+    private ArchiveConfig unmarshalArchiveConfigFromXmlFile(
+            ILocalizationFile lFile)
+            throws IOException, LocalizationException, DataBindingException {
         ArchiveConfig archiveConfig = null;
         try (InputStream stream = lFile.openInputStream()) {
             archiveConfig = JAXB.unmarshal(stream, ArchiveConfig.class);
@@ -919,7 +927,7 @@ public class ArchiveConfigManager {
 
     /**
      * Delete the selection localized site configuration file.
-     * 
+     *
      * @param fileName
      * @throws LocalizationException
      */
@@ -933,7 +941,7 @@ public class ArchiveConfigManager {
 
     /**
      * Load the localized site select configuration file.
-     * 
+     *
      * @param fileName
      * @return selectConfig
      */
@@ -986,13 +994,13 @@ public class ArchiveConfigManager {
     /**
      * Get a list of selection names based on the select configuration files in
      * the type's directory.
-     * 
+     *
      * @param type
      * @return selectNames
      */
     public String[] getSelectionNames(ArchiveConstants.Type type) {
-        ILocalizationFile[] files = pathMgr.listStaticFiles(ARCHIVE_DIR
-                + IPathManager.SEPARATOR + type.selectionDir,
+        ILocalizationFile[] files = pathMgr.listStaticFiles(
+                ARCHIVE_DIR + IPathManager.SEPARATOR + type.selectionDir,
                 new String[] { ArchiveConstants.configFileExt }, false, true);
         String[] names = new String[files.length];
         int extLen = ArchiveConstants.configFileExt.length();
@@ -1011,7 +1019,7 @@ public class ArchiveConfigManager {
 
     /**
      * Save the selections configuration in the desired file.
-     * 
+     *
      * @param selections
      * @param fileName
      * @throws LocalizationException
@@ -1032,7 +1040,7 @@ public class ArchiveConfigManager {
 
     /**
      * load select configuration from the stream.
-     * 
+     *
      * @param stream
      * @return selectConfig
      * @throws IOException
@@ -1044,7 +1052,7 @@ public class ArchiveConfigManager {
 
     /**
      * Save select configuration to the desired stream.
-     * 
+     *
      * @param selections
      * @param stream
      * @throws IOException

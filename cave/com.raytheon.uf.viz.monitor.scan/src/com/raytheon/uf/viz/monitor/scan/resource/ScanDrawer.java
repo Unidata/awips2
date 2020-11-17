@@ -68,10 +68,11 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 22, 2014   3422       mapeters    Updated deprecated drawArc() call.
  * Jul 23, 2014   3429       mapeters    Updated deprecated drawLine() call.
  * Jul 29, 2014   3465       mapeters    Updated deprecated drawString() calls.
- * Aug 14, 2014   3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ * Aug 14, 2014   3523       mapeters    Updated deprecated {@link DrawableString#textStyle}
  *                                       assignments.
+ * Mar  9, 2018  18666       jdynina     Fix DMD circle sizing to match radar DMD
  * </pre>
- * 
+ *
  * @author dhladky
  * @version 1.0
  */
@@ -632,7 +633,7 @@ public class ScanDrawer {
         }
 
         if (value > 0.0) {
-            size = getPixelRelativeLength(centerPoint, value + 1);
+            size = getPixelRelativeLength(centerPoint, value);
         }
 
         return size;
@@ -640,7 +641,7 @@ public class ScanDrawer {
 
     /**
      * Sets the color drawing params
-     * 
+     *
      * @param value
      */
     private void setCellColor(double value) {
@@ -679,7 +680,7 @@ public class ScanDrawer {
         wRightX = center[0] - 2 * side;
         wLeftX = center[0] + 2 * side;
 
-        List<double[]> vertexes = new ArrayList<double[]>();
+        List<double[]> vertexes = new ArrayList<>();
         vertexes.add(new double[] { rightX, bottomY });
         vertexes.add(new double[] { wRightX, center[1] });
         vertexes.add(new double[] { rightX, topY });
@@ -767,8 +768,8 @@ public class ScanDrawer {
     }
 
     /**
-     * Gets the color
-     * 
+     * Get the color and  icon settings to guide drawing of DMD icons
+     *
      * @param value
      * @return
      */
@@ -800,10 +801,11 @@ public class ScanDrawer {
         }
         // use low level diameter as measure for drawing it
         if ((stdr.getLlDiam() > 0.0) && (sizeval > 0.0)) {
-            sizeval = ((stdr.getLlDiam() * 1000.0) * ScanUtils.meterToNM);
-            if (sizeval < 1.0) {
-                sizeval = 1.0;
-            }
+            // Adjust scale to match the scaling in radar DMD display, which is
+            // different by a scale of 1.08.  The sizing was based on scaling
+            // done in AWIPS I to achieve an exact size match. The sizeval is
+            // calculated in nm.
+            sizeval = (stdr.getLlDiam()/1.08 * 1000.0 * ScanUtils.meterToNM);
         }
 
         return sizeval;
@@ -811,7 +813,7 @@ public class ScanDrawer {
 
     /**
      * Determine size of TVS to draw
-     * 
+     *
      * @param stdr
      * @return
      */
@@ -825,7 +827,7 @@ public class ScanDrawer {
      * For some calculations we need the pixel relative size to pass the
      * drawCircle for instance. This is a convenience method for calculating
      * this.
-     * 
+     *
      * @param nauticalMiles
      * @return
      */
@@ -848,7 +850,7 @@ public class ScanDrawer {
 
     /**
      * Gets the endpoint
-     * 
+     *
      * @param nauticalMiles
      * @param dir
      * @return
@@ -866,7 +868,7 @@ public class ScanDrawer {
 
     /**
      * Gets the coordinates for the arrow dog ears
-     * 
+     *
      * @param endPoint
      * @param dir
      * @return
@@ -875,7 +877,7 @@ public class ScanDrawer {
             double dir, double length) {
 
         double[] earAngles = new double[] { 10, -10 };
-        List<double[]> coords = new ArrayList<double[]>(earAngles.length);
+        List<double[]> coords = new ArrayList<>(earAngles.length);
 
         for (double earAngle : earAngles) {
 
@@ -951,15 +953,15 @@ public class ScanDrawer {
      */
     public void drawDMDTrack(DMDTableDataRow dtdr) throws VizException {
 
-        List<DrawableLine> lines = new ArrayList<DrawableLine>();
-        
+        List<DrawableLine> lines = new ArrayList<>();
+
         if ((dtdr.getFcstLat() != null) && (dtdr.getFcstLon() != null)) {
 
             double[] futurePoint = null;
             double[] pastPoint = null;
             int count = Math.min(dtdr.getFcstLon().size(), dtdr.getFcstLat()
                     .size());
-            
+
             for (int i = 0; i < count; i++) {
                 futurePoint = descriptor.worldToPixel(new double[] {
                         dtdr.getFcstLon().get(i), dtdr.getFcstLat().get(i) });
@@ -1014,9 +1016,9 @@ public class ScanDrawer {
     }
 
     public void drawCellTrack(CellTableDataRow ctdr) throws VizException {
-        List<double[]> futurePoints = new ArrayList<double[]>();
-        List<double[]> pastPoints = new ArrayList<double[]>();
-        List<Date> dates = new ArrayList<Date>();
+        List<double[]> futurePoints = new ArrayList<>();
+        List<double[]> pastPoints = new ArrayList<>();
+        List<Date> dates = new ArrayList<>();
 
         int count = 0;
 

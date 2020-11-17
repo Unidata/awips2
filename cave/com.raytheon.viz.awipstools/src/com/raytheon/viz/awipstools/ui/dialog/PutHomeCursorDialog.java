@@ -1,25 +1,28 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.awipstools.ui.dialog;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -58,7 +61,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 /**
  * Creates the Put Cursor Home Dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
@@ -76,7 +79,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  *                                    likelihood that we will get enough
  *                                    information to fill all of the fields on
  *                                    the interface for the query by station id
- *                                    and the query by city, state.                                    
+ *                                    and the query by city, state.
  * Sep 03, 2013  2310     bsteffen    Extend IPointChangedListener instead of
  *                                    IResourceDataChanged.
  * Apr 21, 2014  3041     lvenable    Added dispose check to runAsync call and cleaned up
@@ -85,77 +88,94 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Nov 11, 2014  3401     rferrel     Add Enter key events.
  * Jan 15, 2015  5054     randerso    Remove unnecessary new Shell
  * Jan 16, 2016  DR 11474 A. Rickert  Parsing Lat/Lon with parseDouble for better accuracy
- * 
+ * Jan 05, 2018  6735     tgurney     Rewrite updateStationInfo and db queries
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
-public class PutHomeCursorDialog extends CaveSWTDialog implements
-        IPointChangedListener {
-    private final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PutHomeCursorDialog.class);
+public class PutHomeCursorDialog extends CaveSWTDialog
+        implements IPointChangedListener {
 
-    private final String DIST_QRY_FMT = "SELECT icao, name, state FROM common_obs_spatial "
-            + "WHERE ST_DWithin(the_geom, ST_GeomFromText('%s'), %4.1f) AND"
-            + " catalogtype = %d ORDER BY ST_Distance(the_geom, ST_GeomFromText('%1$s'))";
+    /**
+     * City, METAR station or airport and its distance (in degrees) away from
+     * the home cursor
+     */
+    private static class NearbyFeature {
+        public String city = "";
 
-    private final String ICAO_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM common_obs_spatial "
-            + "WHERE catalogtype = %d and icao = '%s'";
+        public String state = "";
 
-    private final String CITY_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM common_obs_spatial "
-            + "WHERE catalogtype = %d AND name = '%s' AND state = '%s'";
+        public String icao = "";
 
-    private final String CITY_DB_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM mapdata.city "
-            + "WHERE name = '%s' AND st = '%s'";
+        /** Distance away from specified coordinate. In degrees */
+        public double distance = Double.MAX_VALUE;
+    }
 
-    private final String AIRPORT_DB_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM mapdata.airport "
-            + "WHERE city = '%s' AND state = '%s'";
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
-    /** Station radio button. */
+    private static final String NEAREST_CITY_SQL = "select distance, name, state from ("
+            + " select name, state,"
+            + " ST_Distance(the_geom, ST_GeomFromText(:coordinate, 4326)) distance"
+            + " from mapdata.city) a where distance < 20 "
+            + " order by distance asc limit 1";
+
+    private static final String NEAREST_OBSTATION_SQL = "select distance, name, state, icao from ("
+            + " select icao, name, state,"
+            + " ST_Distance(the_geom, ST_GeomFromText(:coordinate)) distance"
+            + " from common_obs_spatial where catalogtype = "
+            + ObStation.CAT_TYPE_ICAO + ") a where distance < 20 "
+            + " order by distance asc limit 1";
+
+    private static final String NEAREST_AIRPORT_SQL = "select distance, city, state from ("
+            + " select city, state,"
+            + " ST_Distance(the_geom, ST_GeomFromText(:coordinate, 4326)) distance"
+            + " from mapdata.airport) a where distance < 20 "
+            + " order by distance asc limit 1";
+
+    private static final String STATION_GEOM_SQL = "select ST_AsBinary(the_geom) "
+            + " from common_obs_spatial " + " where catalogtype = "
+            + ObStation.CAT_TYPE_ICAO + " and icao = :stationId";
+
+    private static final String CITY_STATION_GEOM_SQL = "select ST_AsBinary(the_geom) "
+            + " from common_obs_spatial " + " where catalogtype = "
+            + ObStation.CAT_TYPE_ICAO
+            + " and upper(name) = :city and state = :state";
+
+    private static final String CITY_MAPS_GEOM_SQL = "select ST_AsBinary(the_geom) "
+            + " from mapdata.city "
+            + " where upper(name) = :city and st = :state";
+
+    private static final String AIRPORT_GEOM_SQL = "select ST_AsBinary(the_geom) "
+            + " from mapdata.airport "
+            + " where upper(city) = :city and upper(state) = :state";
+
     private Button stationRadio;
 
-    /** City radio button. */
     private Button cityRadio;
 
-    /** Lat/Lon radio button. */
     private Button latLonRadio;
 
-    /** Station label. */
     private Label stationLabel;
 
-    /** Station text field. */
     private Text stationTextField;
 
-    /** City label. */
     private Label citylabel;
 
-    /** City text field. */
     private Text cityTextField;
 
-    /** State label. */
     private Label stateLabel;
 
-    /** State text field. */
     private Text stateTextField;
 
-    /** Latitude label. */
     private Label latLabel;
 
-    /** Latitude text field */
     private Text latTextField;
 
-    /** Longitude label. */
     private Label lonLabel;
 
-    /** Longitude text field. */
     private Text lonTextField;
-
-    /** Go button. */
-    private Button goBtn;
-
-    /** Close button. */
-    private Button closeBtn;
 
     /** verify listener force entry to upper case. */
     private VerifyListener verifyToUpperCase = new VerifyListener() {
@@ -176,12 +196,6 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         }
     };
 
-    /**
-     * Constructor.
-     * 
-     * @param shell
-     *            Parent shell.
-     */
     public PutHomeCursorDialog(Shell shell) {
         super(shell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
 
@@ -216,8 +230,8 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
         Composite controlsComp = new Composite(locSelectionGroup, SWT.NONE);
         controlsComp.setLayout(new GridLayout(2, false));
-        controlsComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        controlsComp.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         createStationChoice(controlsComp);
         createCityChoice(controlsComp);
@@ -225,10 +239,9 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
         createActionButtons();
 
-        try {
-            updateStationInfo(PointsDataManager.getInstance().getHome());
-        } catch (Exception e) {
-
+        Coordinate home = PointsDataManager.getInstance().getHome();
+        if (home != null) {
+            updateStationInfo(home);
         }
 
         enableDisableControls();
@@ -236,13 +249,13 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
     @Override
     protected void disposed() {
-        PointsDataManager.getInstance().removeHomeChangedListener(
-                PutHomeCursorDialog.this);
+        PointsDataManager.getInstance()
+                .removeHomeChangedListener(PutHomeCursorDialog.this);
     }
 
     /**
      * Creates the selection composite.
-     * 
+     *
      * @param selectionGroup
      *            Group container.
      */
@@ -254,46 +267,37 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         Composite locationComp = new Composite(selectionGroup, SWT.BORDER);
         locationComp.setLayout(new GridLayout(3, true));
 
-        /*
-         * Station radio button selection
-         */
         stationRadio = new Button(locationComp, SWT.RADIO);
         stationRadio.setText("Station");
         stationRadio.setSelection(true);
         stationRadio.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (stationRadio.getSelection() == false) {
+                if (!stationRadio.getSelection()) {
                     return;
                 }
                 enableDisableControls();
             }
         });
 
-        /*
-         * City radio button selection
-         */
         cityRadio = new Button(locationComp, SWT.RADIO);
         cityRadio.setText("City/State");
         cityRadio.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cityRadio.getSelection() == false) {
+                if (!cityRadio.getSelection()) {
                     return;
                 }
                 enableDisableControls();
             }
         });
 
-        /*
-         * Lat/Lon radio button selection
-         */
         latLonRadio = new Button(locationComp, SWT.RADIO);
         latLonRadio.setText("Lat/Lon");
         latLonRadio.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (latLonRadio.getSelection() == false) {
+                if (!latLonRadio.getSelection()) {
                     return;
                 }
                 enableDisableControls();
@@ -303,7 +307,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
     /**
      * Creates station choice controls.
-     * 
+     *
      * @param controlsComp
      *            Composite containing the controls.
      */
@@ -324,7 +328,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
     /**
      * Creates city choice controls.
-     * 
+     *
      * @param controlsComp
      *            Composite containing the controls.
      */
@@ -356,7 +360,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
     /**
      * Creates lat/lon choice controls.
-     * 
+     *
      * @param controlsComp
      *            Composite containing the controls.
      */
@@ -390,7 +394,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
     /**
      * Add a line separator to the given composite.
-     * 
+     *
      * @param parentComp
      *            Parent composite.
      */
@@ -421,9 +425,6 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         lonTextField.setEnabled(latLonRadio.getSelection());
     }
 
-    /**
-     * Updates the station.
-     */
     private void updateStation() {
 
         if (stationRadio.getSelection()) {
@@ -433,7 +434,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
                 Coordinate c = runStationQuery(station);
                 if (c == null) {
                     MessageDialog.openError(shell, "Put Home Cursor Error",
-                            "Could not find that Metar station");
+                            "Could not find that METAR station");
                     stationTextField.setFocus();
                 } else {
                     PointsDataManager.getInstance().setHome(c);
@@ -441,28 +442,28 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
                 }
             } else {
                 MessageDialog.openError(shell, "Put Home Cursor Error",
-                        "The input for the Station is empty.  Please correct.");
+                        "Station cannot be empty.");
                 stationTextField.setFocus();
             }
         } else if (cityRadio.getSelection()) {
             if (cityTextField.getText().isEmpty()) {
                 MessageDialog.openError(shell, "Put Home Cursor Error",
-                        "The input for the City is empty.  Please correct.");
+                        "City cannot be empty.");
                 cityTextField.setFocus();
                 return;
             }
             if (stateTextField.getText().length() != 2) {
                 MessageDialog.openError(shell, "Put Home Cursor Error",
-                        "The input for the State is invalid.  Please correct.");
+                        "State is invalid (must be two letters).");
                 stateTextField.setFocus();
                 return;
             }
             String city = cityTextField.getText().toUpperCase().trim();
             String state = stateTextField.getText().toUpperCase().trim();
-            Coordinate c = runCityQuery(city, state);
+            Coordinate c = lookupCityLatLon(city, state);
             if (c == null) {
                 MessageDialog.openError(shell, "Put Home Cursor Error",
-                        "Could not find that city");
+                        "Could not find that city.");
                 cityTextField.setFocus();
             } else {
                 PointsDataManager.getInstance().setHome(c);
@@ -473,27 +474,35 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
             Coordinate c = new Coordinate();
             try {
                 c.x = Double.parseDouble(lonTextField.getText());
+                if (c.x < -180 || c.x > 180.0) {
+                    MessageDialog.openError(shell, "Put Home Cursor Error",
+                            "Longitude must be a number between -180 and 180.");
+
+                    lonTextField.setFocus();
+                    return;
+                }
             } catch (NumberFormatException nfe) {
-                MessageDialog
-                        .openError(shell, "Put Home Cursor Error",
-                                "The input for the Longitude not a number.  Please correct.");
+                MessageDialog.openError(shell, "Put Home Cursor Error",
+                        "Longitude must be a number between -180 and 180.");
                 lonTextField.setFocus();
                 return;
             }
             try {
                 c.y = Double.parseDouble(latTextField.getText());
-                if ((c.y < -180) || c.y > 180) {
-                    MessageDialog
-                            .openError(shell, "Put Home Cursor Error",
-                                    "Latitude must be between -90 and 90.  Please correct.");
+                /*
+                 * Positioning the home cursor exactly on the pole can cause a
+                 * projection error. So it's not allowed
+                 */
+                if (c.y <= -90.0 || c.y >= 90.0) {
+                    MessageDialog.openError(shell, "Put Home Cursor Error",
+                            "Latitude must be a number greater than -90 and less than 90.");
 
                     latTextField.setFocus();
                     return;
                 }
             } catch (NumberFormatException nfe) {
-                MessageDialog
-                        .openError(shell, "Put Home Cursor Error",
-                                "The input for the Latitude not a number.  Please correct.");
+                MessageDialog.openError(shell, "Put Home Cursor Error",
+                        "Latitude must be a number greater than -90 and less than 90.");
                 latTextField.setFocus();
                 return;
             }
@@ -516,7 +525,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         // override, so can add calculate as default button.
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth;
-        goBtn = new Button(buttonComp, SWT.PUSH);
+        Button goBtn = new Button(buttonComp, SWT.PUSH);
         goBtn.setText("Go");
         goBtn.setLayoutData(gd);
         goBtn.addSelectionListener(new SelectionAdapter() {
@@ -528,7 +537,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
         gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth;
-        closeBtn = new Button(buttonComp, SWT.PUSH);
+        Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
@@ -542,7 +551,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
     /**
      * a generic function that will execute a provided sql query and return the
      * results.
-     * 
+     *
      * @param sql
      *            the sql statement to execute
      * @param database
@@ -550,19 +559,21 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
      * @return the records that were retrieved if successful or NULL if the
      *         query failed
      */
-    private List<Object[]> executeSQLQuery(String sql, String database) {
+    private List<Object[]> executeSQLQuery(String sql, String database,
+            Map<String, Object> paramMap) {
         try {
             return DirectDbQuery.executeQuery(sql, database,
-                    DirectDbQuery.QueryLanguage.SQL);
+                    DirectDbQuery.QueryLanguage.SQL, paramMap);
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to execute SQL query", e);
             return null;
         }
     }
 
     /**
      * takes the result of a query for a geometry and parses out the coordinate.
-     * 
+     *
      * @param data
      * @return
      */
@@ -581,88 +592,124 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
             geo = reader.read(bytes);
             return geo.getCoordinate();
         } catch (ParseException e) {
-            statusHandler.handle(Priority.PROBLEM, "", e);
+            statusHandler.handle(Priority.PROBLEM, "Failed to parse geometry",
+                    e);
             return null;
         }
     }
 
-    /**
-     * Calls a script for retrieving a metar station.
-     * 
-     * @return
-     * @throws ParseException
-     */
+    /** Lookup lat/lon for ICAO station ID */
     private Coordinate runStationQuery(String stationId) {
-        String sql = String.format(ICAO_QRY_FMT, ObStation.CAT_TYPE_ICAO,
-                stationId);
-        return getCoordinate(executeSQLQuery(sql, "metadata"));
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("stationId", stationId);
+        return getCoordinate(
+                executeSQLQuery(STATION_GEOM_SQL, "metadata", paramMap));
     }
 
     /**
      * Calls a query for finding a city, states lat/long
-     * 
+     *
      * @return A coordinate lat/lon of the city, or null if not found.
      */
-    private Coordinate runCityQuery(String city, String state) {
-        // First check the obs database
-        String sql = String.format(CITY_QRY_FMT, ObStation.CAT_TYPE_ICAO, city,
-                state);
-        Coordinate c = getCoordinate(executeSQLQuery(sql, "metadata"));
+    private Coordinate lookupCityLatLon(String city, String state) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("city", city);
+        paramMap.put("state", state);
+        Coordinate c = getCoordinate(
+                executeSQLQuery(CITY_STATION_GEOM_SQL, "metadata", paramMap));
         if (c != null) {
             return c;
         }
-        // now try the city database
-        sql = String.format(CITY_DB_QRY_FMT, city, state);
-        c = getCoordinate(executeSQLQuery(sql, "maps"));
+        c = getCoordinate(
+                executeSQLQuery(CITY_MAPS_GEOM_SQL, "maps", paramMap));
         if (c != null) {
             return c;
         }
-        // now try the airport database
-        sql = String.format(AIRPORT_DB_QRY_FMT, city, state);
-        c = getCoordinate(executeSQLQuery(sql, "maps"));
+        c = getCoordinate(executeSQLQuery(AIRPORT_GEOM_SQL, "maps", paramMap));
         if (c != null) {
             return c;
         }
         return null;
     }
 
+    /** @return two-letter state code, or null if not found */
+    private String lookupStateCode(String stateName) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("stateName", stateName.toUpperCase());
+        List<Object[]> result = executeSQLQuery(
+                "select state from mapdata.states where upper(name) = :stateName",
+                "maps", paramMap);
+        if (result != null && !result.isEmpty()) {
+            return result.get(0)[0].toString();
+        }
+        return null;
+    }
+
+    private NearbyFeature lookupNearestFeature(String sql, String database,
+            Map<String, Object> paramMap) {
+        NearbyFeature rval = null;
+        List<Object[]> result = executeSQLQuery(sql, database, paramMap);
+        if (result != null && !result.isEmpty()) {
+            Object[] row = result.get(0);
+            NearbyFeature nearbyFeature = new NearbyFeature();
+            nearbyFeature.distance = Double.parseDouble(row[0].toString());
+            if (row[1] != null) {
+                nearbyFeature.city = row[1].toString().toUpperCase();
+            }
+            if (row[2] != null) {
+                nearbyFeature.state = row[2].toString().toUpperCase();
+            }
+            if (row.length == 4 && row[3] != null) {
+                nearbyFeature.icao = row[3].toString().toUpperCase();
+            }
+            if (!nearbyFeature.state.isEmpty()
+                    && nearbyFeature.state.length() != 2) {
+                String stateCode = lookupStateCode(nearbyFeature.state);
+                if (stateCode != null) {
+                    nearbyFeature.state = stateCode;
+                }
+            }
+            rval = nearbyFeature;
+        }
+        return rval;
+    }
+
     /**
      * Updates the station identifier, name, and state information on the dialog
      * using the closest station from a given coordinate.
-     * 
+     *
      * @param c
      *            the coordinates associated with the city and state that the
      *            user entered
-     * @return the station id if found; otherwise NULL
      */
     private void updateStationInfo(Coordinate c) {
-        if (c != null) {
-            List<Object[]> data = null;
-
-            WKTWriter wktWriter = new WKTWriter();
-            GeometryFactory factory = new GeometryFactory();
-            String coordAsString = wktWriter.writeFormatted(factory
-                    .createPoint(c));
-            double distance = 0; // distance in degrees
-            final int MAX_DISTANCE = 20;
-            boolean found = false;
-            while (!found && distance < MAX_DISTANCE) {
-                distance += 0.5; // move out at one half degree increments.
-                String sql = String.format(DIST_QRY_FMT, coordAsString,
-                        distance, ObStation.CAT_TYPE_ICAO);
-                data = executeSQLQuery(sql, "metadata");
-                found = (data != null && data.size() >= 1);
-
-            } // while
-            if (found) {
-                String s = (String) data.get(0)[0];
-                stationTextField.setText(s.toUpperCase());
-                s = (String) data.get(0)[1];
-                cityTextField.setText((s != null) ? s.toUpperCase() : "");
-                s = (String) data.get(0)[2];
-                stateTextField.setText((s != null) ? s.toUpperCase() : "");
+        WKTWriter wktWriter = new WKTWriter();
+        GeometryFactory factory = new GeometryFactory();
+        String coordAsString = wktWriter.writeFormatted(factory.createPoint(c));
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("coordinate", coordAsString);
+        List<NearbyFeature> nearbyLocations = new ArrayList<>();
+        String icao = "";
+        NearbyFeature icaoResult = lookupNearestFeature(NEAREST_OBSTATION_SQL,
+                "metadata", paramMap);
+        if (icaoResult != null) {
+            if (icaoResult.icao != null) {
+                icao = icaoResult.icao;
             }
+            nearbyLocations.add(icaoResult);
         }
+        nearbyLocations
+                .add(lookupNearestFeature(NEAREST_CITY_SQL, "maps", paramMap));
+        nearbyLocations.add(
+                lookupNearestFeature(NEAREST_AIRPORT_SQL, "maps", paramMap));
+        NearbyFeature closest = nearbyLocations.stream()
+                .filter(e -> e != null && e.city != null && !e.city.isEmpty())
+                .min((e1, e2) -> Double.compare(e1.distance, e2.distance))
+                .orElseGet(NearbyFeature::new);
+        stationTextField.setText(icao);
+        cityTextField.setText(closest.city);
+        stateTextField.setText(closest.state);
+
     }
 
     @Override

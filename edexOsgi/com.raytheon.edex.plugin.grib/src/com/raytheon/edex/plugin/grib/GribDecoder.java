@@ -45,6 +45,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Oct 07, 2013  2402     bsteffen  Decode GribDecodeMessage instead of files.
  * Sep 14, 2015  4868     rjpeter   Added logging of file being decoded.
  * May 06, 2016  5572     bsteffen  Log errors instead of throwing them
+ * Jun 24, 2019  ----     mjames    Less loggin
  * 
  * </pre>
  * 

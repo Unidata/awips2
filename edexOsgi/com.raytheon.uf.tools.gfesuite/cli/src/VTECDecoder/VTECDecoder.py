@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/awips2/python/bin/python
 
 # This program allows files containing warnings to be added to the practice VTEC table.
 

@@ -1,6 +1,6 @@
 [awips2repo]
 name=AWIPS II Repository
-baseurl=http://www.unidata.ucar.edu/repos/yum/el7-dev/
+baseurl=http://www.unidata.ucar.edu/repos/yum/18.2.1-ade
 enabled=1
 protect=0
 gpgcheck=0

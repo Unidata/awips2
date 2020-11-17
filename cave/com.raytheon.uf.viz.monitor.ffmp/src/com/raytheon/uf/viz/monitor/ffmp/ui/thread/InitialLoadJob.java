@@ -88,7 +88,7 @@ public class InitialLoadJob extends AbstractLoadJob {
         smonitor.subTask("Processing Rate...");
         doRate();
         smonitor.worked(200);
-        
+
         // Guidance
         smonitor.subTask("Processing Guidance...");
         doGuidance(startTime, smonitor.newChild(200));
@@ -182,8 +182,8 @@ public class InitialLoadJob extends AbstractLoadJob {
             IDataRecord rec = dataStore.retrieve(wfo, sourceSiteDataKey,
                     Request.ALL);
             byte[] bytes = ((ByteDataRecord) rec).getByteData();
-            record = SerializationUtil.transformFromThrift(
-                    FFMPAggregateRecord.class, bytes);
+            record = SerializationUtil
+                    .transformFromThrift(FFMPAggregateRecord.class, bytes);
         } catch (Exception e) {
             statusHandler.handle(Priority.DEBUG,
                     "Couldn't read Aggregate Record: " + sourceSiteDataKey, e);

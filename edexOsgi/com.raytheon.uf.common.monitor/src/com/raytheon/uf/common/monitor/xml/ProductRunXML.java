@@ -158,8 +158,8 @@ public class ProductRunXML {
                 SourceXML source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(incSource);
                 if (source != null) {
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.QPF.getSourceType())) {
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.QPF.getSourceType())) {
                         if (!qpfTypes.contains(source.getDisplayName())) {
                             qpfTypes.add(source.getDisplayName());
                         }
@@ -176,8 +176,8 @@ public class ProductRunXML {
                 SourceXML source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(exSource);
                 if (source != null) {
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.QPF.getSourceType())) {
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.QPF.getSourceType())) {
                         if (qpfTypes.contains(source.getDisplayName())) {
                             removes.add(source.getDisplayName());
                         }
@@ -225,8 +225,8 @@ public class ProductRunXML {
                 SourceXML source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(incSource);
                 if (source != null) {
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
                         if (!guidTypes.contains(source.getDisplayName())) {
                             guidTypes.add(source.getDisplayName());
                         }
@@ -243,8 +243,8 @@ public class ProductRunXML {
                 SourceXML source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(exSource);
                 if (source != null) {
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
                         if (guidTypes.contains(source.getDisplayName())) {
                             removes.add(source.getDisplayName());
                         }
@@ -274,7 +274,7 @@ public class ProductRunXML {
                 guidTypes = overrideGuidTypes;
             }
         }
-        
+
         Collections.sort(guidTypes);
 
         return guidTypes;
@@ -299,8 +299,8 @@ public class ProductRunXML {
                 SourceXML source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(incSource);
                 if (source != null) {
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.GUIDANCE.getSourceType())
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.GUIDANCE.getSourceType())
                             && source.getDisplayName().equals(guidType)) {
                         guidSources.add(source);
                     }
@@ -362,8 +362,8 @@ public class ProductRunXML {
                 SourceXML source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(incSource);
                 if (source != null) {
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.QPF.getSourceType())
+                    if (source.getSourceType()
+                            .equals(SOURCE_TYPE.QPF.getSourceType())
                             && source.getDisplayName().equals(qpfType)) {
                         qpfSources.add(source);
                     }

@@ -138,6 +138,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     object data type is CONTINGENCY.
  * 07/07/2017   6344       mapeters    Remove alarm/alert data when overridden by new data
  * 01/10/2018   5049       mduff       ShefParm is now provided to this class.
+ * 01/16/2018   6561       mduff       Added PEDTSEP to log statements.
+ * 01/23/2018   6784       mduff       Changed check for missing value to use a numeric rather than a string.
+ *                                     Refactored shef missing data var name.
+ * 04/18/2018   DCS19644   jwu         Add column 'ts' (Type-Source) in locdatalimits.
  * </pre>
  *
  * @author mduff
@@ -500,8 +504,8 @@ public class PostShef {
 
                 if (ShefConstants.SHEF_SKIPPED.equals(dataValue)) {
                     continue;
-                } else if (ShefConstants.SHEF_MISSING_DEC.equals(dataValue)) {
-                    dataValue = ShefConstants.SHEF_MISSING;
+                } else if (data.isMissing()) {
+                    dataValue = ShefConstants.SHEF_MISSING_STR;
                 }
 
                 // Per A1 code - set the creation date to Date(0) if missing.
@@ -526,7 +530,7 @@ public class PostShef {
                 if (dataLog) {
                     log.info(LOG_SEP);
                     log.info("Posting process started for LID [" + locId
-                            + "] PEDTSEP [" + data.getPeDTsE() + "] value ["
+                            + "] PEDTSEP [" + data.getPeDTsEP() + "] value ["
                             + dataValue + "]");
                 }
 
@@ -697,7 +701,7 @@ public class PostShef {
                     default: {
                         unkmsg.append("Not posting data [").append(dataValue)
                                 .append("] for LID [").append(locId)
-                                .append("]");
+                                .append("] ").append(data.getPeDTsEP());
                         break;
                     }
                     }
@@ -767,7 +771,7 @@ public class PostShef {
                  * raw SHEF value coming in and if so adjust that value in the
                  * shefrec structure
                  */
-                if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
+                if (!data.isMissing()) {
                     adjustRawValue(locId, data);
                 }
 
@@ -829,7 +833,7 @@ public class PostShef {
                 Date validTime = new Date(obsTime.getTime());
 
                 /* Don't perform the check if the value is a missing value */
-                if (!ShefConstants.SHEF_MISSING.equals(dataValue)) {
+                if (!data.isMissing()) {
                     qualityCode = checkQuality(locId, dataQualifier, dataValue,
                             data);
                     valueOk = checkQcCode(QualityControlCode.QC_NOT_FAILED,
@@ -847,7 +851,7 @@ public class PostShef {
                     if (SHEF_ON.equalsIgnoreCase(postLatest)
                             || (ShefConstants.VALID_ONLY
                                     .equalsIgnoreCase(postLatest) && valueOk
-                                    && (data.getStringValue() != ShefConstants.SHEF_MISSING))
+                                    && (data.getStringValue() != ShefConstants.SHEF_MISSING_STR))
                             || (ShefConstants.VALID_OR_MISSING
                                     .equalsIgnoreCase(postLatest) && valueOk)) {
 
@@ -1580,7 +1584,7 @@ public class PostShef {
                         + "' and " + "ts = '" + useTs + "' and "
                         + "validtime >= CURRENT_TIMESTAMP and "
                         + "basistime >= '" + basisTimeAnsi + "' and "
-                        + "value != " + ShefConstants.SHEF_MISSING_INT + " and "
+                        + "value != " + ShefConstants.SHEF_MISSING + " and "
                         + "quality_code >= " + QUESTIONABLE_BAD_THRESHOLD + " "
                         + "ORDER BY basistime DESC ";
 
@@ -1617,9 +1621,10 @@ public class PostShef {
                         .append("' AND ");
 
             }
-            queryForecast.append("value != ").append(ShefConstants.SHEF_MISSING)
+            queryForecast.append("value != ")
+                    .append(ShefConstants.SHEF_MISSING_STR)
                     .append(" AND quality_code >= ");
-            queryForecast.append(ShefConstants.SHEF_MISSING)
+            queryForecast.append(ShefConstants.SHEF_MISSING_STR)
                     .append(" ORDER BY validtime ASC");
 
             if (!queryForecast.toString().equals(previousQueryForecast)) {
@@ -1771,7 +1776,7 @@ public class PostShef {
         boolean[] doKeep = new boolean[fcstCount];
         int[] basisIndex = new int[fcstCount];
         int[] tsFirstChk = new int[ulCount];
-        int MISSING = ShefConstants.SHEF_MISSING_INT;
+        int MISSING = ShefConstants.SHEF_MISSING;
         Date[] startTime = new Date[ulCount];
         Date[] endTime = new Date[ulCount];
         Date[] basisTime = new Date[ulCount];
@@ -2647,7 +2652,7 @@ public class PostShef {
      */
     private long checkQuality(String lid, String dataQualifier,
             String dataValue, ShefData data) {
-        double missing = ShefConstants.SHEF_MISSING_INT;
+        double missing = ShefConstants.SHEF_MISSING;
 
         long qualityCode = ShefConstants.DEFAULT_QC_VALUE;
         String monthdaystart = null;
@@ -2658,7 +2663,7 @@ public class PostShef {
         double dValue = 0;
 
         // if the dataValue = -9999 (missing data)
-        if (dataValue.equals(ShefConstants.SHEF_MISSING)) {
+        if (dataValue.equals(ShefConstants.SHEF_MISSING_STR)) {
             return ShefConstants.QC_MANUAL_FAILED;
         }
 
@@ -2679,16 +2684,61 @@ public class PostShef {
                 String sqlStart = "select monthdaystart, monthdayend, gross_range_min, gross_range_max, reason_range_min, "
                         + "reason_range_max, roc_max, alert_upper_limit, alert_roc_limit, alarm_upper_limit, "
                         + "alarm_roc_limit, alert_lower_limit, alarm_lower_limit, alert_diff_limit, "
-                        + "alarm_diff_limit, pe, dur from ";
+                        + "alarm_diff_limit, pe, dur";
 
+                /*
+                 * Grab all local data limits with matching lid/pe/dur.
+                 */
                 locLimitSql.append(sqlStart);
-                locLimitSql.append("locdatalimits where ");
+                locLimitSql.append(", ts from locdatalimits where ");
                 locLimitSql.append("lid = '").append(lid).append("' and pe = '")
                         .append(data.getPhysicalElement().getCode())
                         .append("' and dur = ").append(data.getDurationValue());
 
                 Object[] oa = dao.executeSQLQuery(locLimitSql.toString());
 
+                if (oa.length > 0) {
+                    /*
+                     * Find the local data limit defined for the given TS. If
+                     * not find, find the one with default TS ("NA").
+                     */
+                    List<Object> locLimitList = new ArrayList<>();
+                    String dataTS;
+                    String limitTS;
+                    for (Object element : oa) {
+                        Object[] oa1 = (Object[]) element;
+                        dataTS = data.getTypeSource().getCode();
+                        limitTS = ShefUtil.getString(oa1[17], "");
+                        if (dataTS != null && dataTS.equals(limitTS)) {
+                            locLimitList.add(element);
+                        }
+                    }
+
+                    /*
+                     * If the local data limit for the given TS cannot be found,
+                     * find the default with TS="NA".
+                     */
+                    if (locLimitList.isEmpty()) {
+                        for (Object element : oa) {
+                            Object[] oa1 = (Object[]) element;
+                            if ("NA".equals(
+                                    ShefUtil.getString(oa1[17], ""))) {
+                                locLimitList.add(element);
+                            }
+                        }
+                    }
+
+                    /*
+                     * Note: if nothing defined for the given TS and "NA", this
+                     * could still be empty. So default data limits are queried
+                     * below.
+                     */
+                    oa = locLimitList.toArray();
+                }
+
+                /*
+                 * No local data limit found, use the default data limit.
+                 */
                 if (oa.length == 0) {
 
                     if (dataRangeMap.containsKey(key)) {
@@ -2697,7 +2747,7 @@ public class PostShef {
 
                     // default range
                     defLimitSql = new StringBuilder(sqlStart);
-                    defLimitSql.append("datalimits where pe = '")
+                    defLimitSql.append(" from datalimits where pe = '")
                             .append(data.getPhysicalElement().getCode())
                             .append("' and dur = ")
                             .append(data.getDurationValue());
@@ -3012,7 +3062,7 @@ public class PostShef {
             }
 
             if (dataValue.isEmpty()) {
-                dataValue = ShefConstants.SHEF_MISSING;
+                dataValue = ShefConstants.SHEF_MISSING_STR;
             }
             short revision = 0;
             if (data.isRevisedRecord()) {

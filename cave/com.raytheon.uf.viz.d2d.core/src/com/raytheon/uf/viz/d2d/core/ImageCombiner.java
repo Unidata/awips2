@@ -33,10 +33,13 @@ import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResource;
 import com.raytheon.uf.viz.core.rsc.groups.BlendedResourceData;
 
 /**
- * Class thats blends image resources
+ * This class monitors the resources being added to a descriptor and when it is
+ * active it will combine any image resources that are loaded into a single
+ * {@link BlendedResource}
  * 
  * <pre>
  * 
@@ -47,6 +50,7 @@ import com.raytheon.uf.viz.core.rsc.groups.BlendedResourceData;
  * Dec 22, 2009  2126     mschenke  Initial creation
  * Sep 13, 2016  3241     bsteffen  Move to D2D core
  * Jun 14, 2017  6297     bsteffen  Make listeners thread safe.
+ * Jan 04, 2018  6753     bsteffen  Add resources to blended group before removing.
  * 
  * </pre>
  * 
@@ -60,8 +64,6 @@ public class ImageCombiner implements AddListener {
 
     private IDescriptor descriptor;
 
-    private AbstractVizResource<?, ?> lastCreatedResource = null;
-
     private static boolean combineImages = false;
 
     private static Set<IImageCombinerListener> listeners = new CopyOnWriteArraySet<>();
@@ -72,106 +74,95 @@ public class ImageCombiner implements AddListener {
 
     @Override
     public void notifyAdd(ResourcePair rp) throws VizException {
-        /*
-         * Check to see if resource is image. If image, check to see if we
-         * already have an image resource loaded. If we do, check to see if that
-         * resource is a blended image resource. If blended, swap out second
-         * resource for new resource. If not blended, create blended resource,
-         * add existing resource, then add newly added resource. If the image
-         * coming in is a blended image, then replace then don't do any
-         * combining at all. This only happens in map editors!
-         */
-        if (combineImages) {
-            AbstractVizResource<?, ?> rsc = rp.getResource();
-            if (rsc != null && rsc != lastCreatedResource
-                    && rsc.hasCapability(ImagingCapability.class)
-                    && !rsc.hasCapability(BlendableCapability.class)) {
-                // We have a single image resource added, check to see if we
-                // have another image resource
-                AbstractVizResource<?, ?> combineWithResource = null;
-                ResourcePair combineWithPair = null;
-                for (ResourcePair pair : descriptor.getResourceList()) {
-                    AbstractVizResource<?, ?> rsc2 = pair.getResource();
-                    if (rsc2 != null && rsc2 != rsc
-                            && (rsc2.hasCapability(ImagingCapability.class)
-                                    || rsc2.hasCapability(
-                                            BlendableCapability.class))) {
-                        combineWithResource = rsc2;
-                        combineWithPair = pair;
-                        break;
-                    }
-                }
-
-                if (combineWithResource != null) {
-                    // There is an resource to combine with, do some combining
-                    if (combineWithResource
-                            .hasCapability(BlendableCapability.class)) {
-                        // Set to null before removing so resource doesn't get
-                        // disposed. Remove just added resource from list
-                        rp.setResource(null);
-                        descriptor.getResourceList().remove(rp);
-                        rp.setResource(rsc);
-
-                        // Replace last resource with this one if size > 1
-                        ResourceList rl = combineWithResource
-                                .getCapability(BlendableCapability.class)
-                                .getResourceList();
-                        if (rl.size() > 1) {
-                            ResourcePair rscPair = rl.get(rl.size() - 1);
-                            rl.remove(rscPair);
-                        }
-
-                        rsc.getCapability(BlendedCapability.class)
-                                .setBlendableResource(combineWithPair);
-                        rl.add(rp);
-                    } else {
-                        // Single image resource we are combining with:
-
-                        // Set resource to null so they don't get disposed
-                        rp.setResource(null);
-                        combineWithPair.setResource(null);
-                        descriptor.getResourceList().remove(rp);
-                        descriptor.getResourceList().remove(combineWithPair);
-
-                        // Reset the resources
-                        combineWithPair.setResource(combineWithResource);
-                        rp.setResource(rsc);
-
-                        // create a blended resource
-                        BlendedResourceData brd = new BlendedResourceData();
-                        brd.getResourceList().add(combineWithPair);
-                        brd.getResourceList().add(rp);
-
-                        // Create the blended resource, set color same as
-                        // existing resource
-                        LoadProperties loadProps = new LoadProperties();
-                        loadProps.getCapabilities().addCapability(
-                                combineWithResource.getCapability(
-                                        ColorableCapability.class));
-                        rsc.getCapabilities()
-                                .addCapability(combineWithResource
-                                        .getCapability(
-                                                ColorableCapability.class)
-                                        .clone());
-
-                        ResourcePair resourcePair = new ResourcePair();
-                        resourcePair.setResourceData(brd);
-                        resourcePair.setLoadProperties(loadProps);
-
-                        // so we don't repeat this code when notifyAdd is called
-                        // again
-                        descriptor.getResourceList().add(resourcePair);
-                        descriptor.getResourceList()
-                                .instantiateResources(descriptor, true);
-                        this.lastCreatedResource = resourcePair.getResource();
-                    }
-                }
-                // No other image resources, add normally
-                // Next image will be combined with this resource
-            }
-            // if blended already or not image, do nothing just add it
+        if (!combineImages) {
+            return;
         }
-        // don't do anything if combineImages is not set
+        /*
+         * The new resource is eligible for combination if it is a non-blended
+         * image.
+         */
+        AbstractVizResource<?, ?> rsc = rp.getResource();
+        if (rsc == null || !rsc.hasCapability(ImagingCapability.class)
+                || rsc.hasCapability(BlendableCapability.class)) {
+            return;
+        }
+
+        /*
+         * Search for another resource to combine with, either another image, or
+         * an existing blended resource.
+         */
+        AbstractVizResource<?, ?> combineWithResource = null;
+        ResourcePair combineWithPair = null;
+        for (ResourcePair pair : descriptor.getResourceList()) {
+            AbstractVizResource<?, ?> rsc2 = pair.getResource();
+            if (rsc2 != null && rsc2 != rsc
+                    && (rsc2.hasCapability(ImagingCapability.class)
+                            || rsc2.hasCapability(BlendableCapability.class))) {
+                combineWithResource = rsc2;
+                combineWithPair = pair;
+                break;
+            }
+        }
+
+        if (combineWithPair == null) {
+            return;
+        }
+
+        if (combineWithResource.hasCapability(BlendableCapability.class)) {
+            /*
+             * Update an existing blended resource, since blended resources
+             * contain only two images if there is already more than one
+             * resource then replace the last resource.
+             */
+            ResourceList rl = combineWithResource
+                    .getCapability(BlendableCapability.class).getResourceList();
+            if (rl.size() > 1) {
+                ResourcePair rscPair = rl.get(rl.size() - 1);
+                rl.remove(rscPair);
+            }
+
+            rsc.getCapability(BlendedCapability.class)
+                    .setBlendableResource(combineWithPair);
+            rl.add(rp);
+        } else {
+            /*
+             * Create a new blended resource combining the two image resources
+             */
+            BlendedResourceData brd = new BlendedResourceData();
+            brd.getResourceList().add(combineWithPair);
+            brd.getResourceList().add(rp);
+
+            /*
+             * Both image resources and the blended resource holding them should
+             * have the same color as the existing image resource.
+             */
+            LoadProperties loadProps = new LoadProperties();
+            loadProps.getCapabilities().addCapability(combineWithResource
+                    .getCapability(ColorableCapability.class).clone());
+            rsc.getCapabilities().addCapability(combineWithResource
+                    .getCapability(ColorableCapability.class).clone());
+
+            ResourcePair resourcePair = new ResourcePair();
+            resourcePair.setResourceData(brd);
+            resourcePair.setLoadProperties(loadProps);
+
+            /*
+             * It is important to fully instantiate the blended resources before
+             * removing the image resources from the descriptor. This prevents
+             * threading issues that can occur if there is a brief period of
+             * time where the image resources cannot be found within the
+             * descriptor.
+             */
+            descriptor.getResourceList().add(resourcePair);
+            descriptor.getResourceList().instantiateResources(descriptor, true);
+
+            descriptor.getResourceList().remove(combineWithPair);
+        }
+        /*
+         * Remove the new resource from the descriptor, it is now part of a
+         * blended resource.
+         */
+        descriptor.getResourceList().remove(rp);
     }
 
     public static void setCombineImages(boolean combine) {
@@ -192,4 +183,5 @@ public class ImageCombiner implements AddListener {
     public static void removeListener(IImageCombinerListener listener) {
         listeners.remove(listener);
     }
+
 }

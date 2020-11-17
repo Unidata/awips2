@@ -16,6 +16,7 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.viz.radar,
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.util,
+ com.raytheon.uf.common.damagepath,
  com.raytheon.uf.common.message,
  org.apache.commons.lang3;bundle-version="3.4.0"
 Export-Package: com.raytheon.uf.viz.damagepath

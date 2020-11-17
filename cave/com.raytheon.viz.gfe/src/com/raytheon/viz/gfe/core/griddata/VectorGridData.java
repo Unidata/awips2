@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,13 +34,13 @@ import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Op;
-import com.raytheon.uf.common.dataplugin.gfe.slice.IContinuousSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
 import com.raytheon.viz.gfe.core.parm.ParmState.VectorMode;
@@ -49,11 +49,11 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Placeholder for VectorGridData
- * 
+ * GridData class dealing with a vector grid.
+ *
  * <pre>
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Jan 29, 2008           chammack  Initial Class Skeleton.
@@ -61,40 +61,59 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 19, 2013  1637     randerso  Added throws declarations to
  *                                  translateDataFrom
  * Aug 02, 2016  5744     mapeters  Remove unused cache code
- * 
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Changes to support IDataObject. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
-public class VectorGridData extends OrderedGridData implements Cloneable {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class VectorGridData extends OrderedGridData {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(VectorGridData.class);
 
-    public VectorGridData(Parm aParm, IGridSlice aSlice) {
-        super(aParm, aSlice);
+    /**
+     * Constructor
+     *
+     * @param aParm
+     * @param aSlice
+     * @param unsaved
+     *            true if data is unsaved and must not be depopulated
+     */
+    public VectorGridData(Parm aParm, IGridSlice aSlice, boolean unsaved) {
+        super(aParm, aSlice, unsaved);
         if (!(aSlice instanceof VectorGridSlice)) {
             throw new IllegalArgumentException(
-                    "VectorGridSlice required for VectorGridData");
+                    "aSlice must be an instance of VectorGridSlice, received: "
+                            + aSlice.getClass().getName());
         }
+    }
+
+    /**
+     * Copy constructor
+     *
+     * @param other
+     */
+    public VectorGridData(VectorGridData other) {
+        super(other);
     }
 
     @Override
     public Grid2DBit doDelta(Date time, float delta, boolean taper,
             Grid2DBit pointsToChange) {
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
-        Grid2DFloat dirGrid = thisSlice.getDirGrid();
+        Grid2DFloat magGrid = getMagGrid();
+        Grid2DFloat dirGrid = getDirGrid();
 
-        if (magGrid.getXdim() != pointsToChange.getXdim()
-                || magGrid.getYdim() != pointsToChange.getYdim()) {
-            throw new IllegalArgumentException(
-                    "Dimension mismatch in doDelta: " + magGrid.getXdim() + ','
-                            + magGrid.getYdim() + ' '
-                            + pointsToChange.getXdim() + ','
-                            + pointsToChange.getYdim());
+        if ((magGrid.getXdim() != pointsToChange.getXdim())
+                || (magGrid.getYdim() != pointsToChange.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    magGrid.getXdim(), magGrid.getYdim(),
+                    pointsToChange.getXdim(), pointsToChange.getYdim()));
         }
 
-        // indicators whehter to change the magnitude or direction
+        // indicators whether to change the magnitude or direction
         // values
         boolean doMag = this.parm.getParmState().getVectorMode()
                 .equals(ParmState.VectorMode.MAGNITUDE)
@@ -167,11 +186,11 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         }
 
         if (doMag) {
-            thisSlice.setMagGrid(magGrid);
+            setMagGrid(magGrid);
         }
 
         if (doDir) {
-            thisSlice.setDirGrid(dirGrid);
+            setDirGrid(dirGrid);
         }
         return pointsToChange;
     }
@@ -179,49 +198,48 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     /**
      * Using the data within and around the grid cells specified, fills in data
      * for the specified grid cells. Returns the points modified.
-     * 
+     *
      * Calls interpSpatialGap in OrderedGridData.
-     * 
+     *
      * @param time
      * @param pointsToFillIn
-     * @return
+     * @return changed points
      */
     @Override
     protected Grid2DBit doFillIn(Date time, Grid2DBit pointsToFillIn) {
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
-        Grid2DFloat dirGrid = thisSlice.getDirGrid();
+        Grid2DFloat magGrid = getMagGrid();
+        Grid2DFloat dirGrid = getDirGrid();
 
-        if (magGrid.getXdim() != pointsToFillIn.getXdim()
-                || magGrid.getYdim() != pointsToFillIn.getYdim()) {
-            throw new IllegalArgumentException(
-                    "Dimension mismatch in doFillIn: " + magGrid.getXdim()
-                            + ',' + magGrid.getYdim() + ' '
-                            + pointsToFillIn.getXdim() + ','
-                            + pointsToFillIn.getYdim());
+        if ((magGrid.getXdim() != pointsToFillIn.getXdim())
+                || (magGrid.getYdim() != pointsToFillIn.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToFillIn have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    magGrid.getXdim(), magGrid.getYdim(),
+                    pointsToFillIn.getXdim(), pointsToFillIn.getYdim()));
         }
 
         boolean editMag = true;
         boolean editDir = true;
         if (this.parm.getParmState().getVectorMode() == VectorMode.DIRECTION) {
             editMag = false;
-        } else if (this.parm.getParmState().getVectorMode() == VectorMode.MAGNITUDE) {
+        } else if (this.parm.getParmState()
+                .getVectorMode() == VectorMode.MAGNITUDE) {
             editDir = false;
         }
 
         // get the grids
         Grid2DFloat mGrid;
         Grid2DFloat dGrid;
-        try {
-            VectorGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            mGrid = slice.getMagGrid();
-            dGrid = slice.getDirGrid();
-        } catch (CloneNotSupportedException e) {
-            mGrid = new Grid2DFloat();
-            dGrid = new Grid2DFloat();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            VectorDataObject dataObject = (VectorDataObject) p.getSecond()
+                    .getDataObject();
+            mGrid = dataObject.getMagGrid();
+            dGrid = dataObject.getDirGrid();
+        } else {
+            mGrid = getMagGrid().copy();
+            dGrid = getDirGrid().copy();
         }
 
         // Interpolate the speed separately
@@ -233,8 +251,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         // Decompose the direction and interpolate the components
         if (editDir) {
             Grid2DFloat uComp, vComp;
-            Grid2DBit allCells = new Grid2DBit(dGrid.getXdim(),
-                    dGrid.getYdim(), true);
+            Grid2DBit allCells = new Grid2DBit(dGrid.getXdim(), dGrid.getYdim(),
+                    true);
 
             Grid2DFloat[] outGrids = dirToUV(allCells, dGrid);
             uComp = outGrids[0];
@@ -252,35 +270,52 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         return pointsToFillIn;
     }
 
+    /**
+     * Get the magnitude value at a specified grid cell
+     *
+     * @param x
+     * @param y
+     * @return the magnitude value
+     */
     public float getMagValue(int x, int y) {
-        populate();
         return getMagGrid().get(x, y);
     }
 
+    /**
+     * Get the direction value at a specified grid cell
+     *
+     * @param x
+     * @param y
+     * @return the direction value
+     */
     public float getDirValue(int x, int y) {
-        populate();
         return getDirGrid().get(x, y);
     }
 
     @Override
     public WxValue getWxValue(int x, int y) {
-        return new VectorWxValue(getMagGrid().get(x, y),
-                getDirGrid().get(x, y), this.parm);
+        return new VectorWxValue(getMagGrid().get(x, y), getDirGrid().get(x, y),
+                this.parm);
     }
 
     @Override
     public void set(Point gridLoc, WxValue wxValue) {
         if (!(wxValue instanceof VectorWxValue)) {
             throw new IllegalArgumentException(
-                    "Expect VectorWxValue for VectorGridData");
+                    "wxValue must be an instance of VectorWxValue, received: "
+                            + wxValue.getClass().getName());
         }
 
         VectorWxValue vWxValue = (VectorWxValue) wxValue;
         this.pointSet(vWxValue.getMag(), vWxValue.getDir(), gridLoc);
     }
 
+    /**
+     * @param mag
+     * @param dir
+     * @param editArea
+     */
     public void set(Grid2DFloat mag, Grid2DFloat dir, Grid2DBit editArea) {
-        populate();
         checkOkayForEdit();
         gridSet(mag, dir, editArea);
         setChangedPoints(editArea);
@@ -298,25 +333,33 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
                         .equals(ParmState.VectorMode.BOTH);
 
         Point dim = this.parm.getGridInfo().getGridLoc().gridSize();
-        if (mag.getXdim() != dim.x || mag.getYdim() != dim.y
-                || dir.getXdim() != dim.x || dir.getYdim() != dim.y
-                || editArea.getXdim() != dim.x || editArea.getYdim() != dim.y) {
-            throw new IllegalArgumentException(
-                    "bad values/points dimensions for grid for: "
-                            + this.parm.getParmID() + " magDim="
-                            + mag.getXdim() + ',' + mag.getYdim() + " dirDim="
-                            + dir.getXdim() + ',' + dir.getYdim()
-                            + " pointsDim=" + editArea.getXdim() + ','
-                            + editArea.getYdim() + " parmDim=" + dim);
+        if ((mag.getXdim() != dim.x) || (mag.getYdim() != dim.y)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied mag grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dim.x, dim.y, mag.getXdim(), mag.getYdim()));
+        }
+
+        if ((dir.getXdim() != dim.x) || (dir.getYdim() != dim.y)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied dir grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dim.x, dim.y, dir.getXdim(), dir.getYdim()));
+        }
+
+        if ((editArea.getXdim() != dim.x) || (editArea.getYdim() != dim.y)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied editArea have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dim.x, dim.y, editArea.getXdim(), editArea.getYdim()));
         }
 
         float minLimit = this.getMinValue();
         float maxLimit = this.getMaxValue();
 
         // get values out of grid and assign them
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
-        Grid2DFloat dirGrid = thisSlice.getDirGrid();
+        Grid2DFloat magGrid = getMagGrid();
+        Grid2DFloat dirGrid = getDirGrid();
         for (int i = 0; i < dim.x; i++) {
             for (int j = 0; j < dim.y; j++) {
                 if (editArea.get(i, j) != 0) {
@@ -348,9 +391,14 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         }
     }
 
+    /**
+     * Set the magnitude value of a specified grid cell
+     *
+     * @param value
+     * @param gridLoc
+     */
     public void pointSet(float value, Point gridLoc) {
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
+        Grid2DFloat magGrid = getMagGrid();
         if (!magGrid.isValid(gridLoc.x, gridLoc.y)) {
             return;
         }
@@ -380,16 +428,14 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     /**
      * Function for setting vector values. Stores the grid value into the grid
      * after doing limit checking.
-     * 
+     *
      * @param mag
      * @param dir
      * @param gridLoc
      * @return
      */
     private boolean pointSet(float mag, float dir, Point gridLoc) {
-        VectorGridSlice thisSlice = getVectorSlice();
-
-        if (!thisSlice.getMagGrid().isValid(gridLoc.x, gridLoc.y)) {
+        if (!getMagGrid().isValid(gridLoc.x, gridLoc.y)) {
             return false;
         }
 
@@ -404,7 +450,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
                         .equals(ParmState.VectorMode.BOTH);
 
         if (doMag) {
-            pointSet(mag, gridLoc); // set the magnitude component
+            // set the magnitude component
+            pointSet(mag, gridLoc);
         }
 
         if (doDir) {
@@ -419,16 +466,17 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
             if (thisDir == 360.0) {
                 thisDir = 0.0f;
             }
-            Grid2DFloat dirGrid = thisSlice.getDirGrid();
+            Grid2DFloat dirGrid = getDirGrid();
             dirGrid.set(gridLoc.x, gridLoc.y, thisDir);
+            setDirGrid(dirGrid);
         }
 
         return true;
     }
 
     @Override
-    public VectorGridData clone() throws CloneNotSupportedException {
-        return new VectorGridData(this.parm, this.gridSlice.clone());
+    public VectorGridData copy() {
+        return new VectorGridData(this);
     }
 
     @Override
@@ -436,7 +484,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
             throws FactoryException {
         if (!(source instanceof VectorGridData)) {
             throw new IllegalArgumentException(
-                    "Expected VectorGridData as source.");
+                    "source must be an instance of VectorGridData, received: "
+                            + source.getClass().getName());
         }
 
         VectorGridData vectorSource = (VectorGridData) source;
@@ -450,20 +499,14 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
             try {
                 uc = sourceUnit.getConverterTo(thisUnit);
             } catch (ConversionException e1) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e1.getLocalizedMessage(), e1);
+                statusHandler.handle(Priority.PROBLEM, e1.getLocalizedMessage(),
+                        e1);
                 return false;
             }
-            try {
-                vectorSource = vectorSource.clone();
-                float[] sourceData = vectorSource.getMagGrid().getBuffer()
-                        .array();
-                for (int i = 0; i < sourceData.length; i++) {
-                    sourceData[i] = (float) uc.convert(sourceData[i]);
-                }
-            } catch (CloneNotSupportedException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+            vectorSource = vectorSource.copy();
+            float[] sourceData = vectorSource.getMagGrid().getBuffer().array();
+            for (int i = 0; i < sourceData.length; i++) {
+                sourceData[i] = (float) uc.convert(sourceData[i]);
             }
         }
 
@@ -474,27 +517,27 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
 
         if (vectorSource.getParm().getGridInfo().getGridLoc()
                 .equals(this.parm.getGridInfo().getGridLoc())
-                && maxLimit >= sourceMaxLimit && minLimit <= sourceMinLimit) {
-            vectorSource.populate();
+                && (maxLimit >= sourceMaxLimit)
+                && (minLimit <= sourceMinLimit)) {
             setMagGrid(vectorSource.getMagGrid());
             setDirGrid(vectorSource.getDirGrid());
         } else {
-            RemapGrid remap = new RemapGrid(vectorSource.getParm()
-                    .getGridInfo().getGridLoc(), this.parm.getGridInfo()
-                    .getGridLoc());
+            RemapGrid remap = new RemapGrid(
+                    vectorSource.getParm().getGridInfo().getGridLoc(),
+                    this.parm.getGridInfo().getGridLoc());
 
             try {
-                Grid2DFloat outMagGrid = new Grid2DFloat(
-                        getMagGrid().getXdim(), getMagGrid().getYdim());
-                Grid2DFloat outDirGrid = new Grid2DFloat(
-                        getDirGrid().getXdim(), getDirGrid().getYdim());
+                Grid2DFloat outMagGrid = new Grid2DFloat(getMagGrid().getXdim(),
+                        getMagGrid().getYdim());
+                Grid2DFloat outDirGrid = new Grid2DFloat(getDirGrid().getXdim(),
+                        getDirGrid().getYdim());
                 remap.remap(vectorSource.getMagGrid(),
                         vectorSource.getDirGrid(), -99999.99f, maxLimit,
                         minLimit, minLimit, outMagGrid, outDirGrid);
                 setMagGrid(outMagGrid);
                 setDirGrid(outDirGrid);
             } catch (Exception e) {
-                e.printStackTrace();
+                statusHandler.error("Error remapping grid", e);
             }
         }
 
@@ -503,33 +546,30 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
 
     @Override
     protected Grid2DBit doSmooth(Date time, Grid2DBit pointsToSmooth) {
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
-        Grid2DFloat dirGrid = thisSlice.getDirGrid();
+        Grid2DFloat magGrid = getMagGrid();
+        Grid2DFloat dirGrid = getDirGrid();
 
-        if (magGrid.getXdim() != pointsToSmooth.getXdim()
-                || magGrid.getYdim() != pointsToSmooth.getYdim()) {
-            throw new IllegalArgumentException(
-                    "Dimension mismatch in doSmooth: " + magGrid.getXdim()
-                            + ',' + magGrid.getYdim() + ' '
-                            + pointsToSmooth.getXdim() + ','
-                            + pointsToSmooth.getYdim());
+        if ((magGrid.getXdim() != pointsToSmooth.getXdim())
+                || (magGrid.getYdim() != pointsToSmooth.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToSmooth have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    magGrid.getXdim(), magGrid.getYdim(),
+                    pointsToSmooth.getXdim(), pointsToSmooth.getYdim()));
         }
 
         // get the grids
-        VectorGridSlice slice;
         Grid2DFloat oMagGrid;
         Grid2DFloat oDirGrid;
-        try {
-            slice = this.getVectorSlice().clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            oMagGrid = slice.getMagGrid();
-            oDirGrid = slice.getDirGrid();
-        } catch (CloneNotSupportedException e) {
-            oMagGrid = new Grid2DFloat();
-            oDirGrid = new Grid2DFloat();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            VectorDataObject dataObject = (VectorDataObject) p.getSecond()
+                    .getDataObject();
+            oMagGrid = dataObject.getMagGrid();
+            oDirGrid = dataObject.getDirGrid();
+        } else {
+            oMagGrid = getMagGrid().copy();
+            oDirGrid = getDirGrid().copy();
         }
 
         // Check the vector editing preferences to see what we can modify
@@ -569,8 +609,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
                         sumMag = 0.0f;
                         sumUComp = 0.0f;
                         sumVComp = 0.0f;
-                        for (newx = i - ss; newx <= i + ss; newx++) {
-                            for (newy = j - ss; newy <= j + ss; newy++) {
+                        for (newx = i - ss; newx <= (i + ss); newx++) {
+                            for (newy = j - ss; newy <= (j + ss); newy++) {
                                 // if inside grid limits, make smoothed value
                                 if (oMagGrid.isValid(newx, newy)) {
                                     numpoints++;
@@ -578,12 +618,10 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
                                         sumMag += oMagGrid.get(newx, newy);
                                     }
                                     if (editDir) {
-                                        sumUComp += Math.sin(Math
-                                                .toRadians(oDirGrid.get(newx,
-                                                        newy)));
-                                        sumVComp += Math.cos(Math
-                                                .toRadians(oDirGrid.get(newx,
-                                                        newy)));
+                                        sumUComp += Math.sin(Math.toRadians(
+                                                oDirGrid.get(newx, newy)));
+                                        sumVComp += Math.cos(Math.toRadians(
+                                                oDirGrid.get(newx, newy)));
                                     }
                                 }
                             }
@@ -594,11 +632,11 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
                                 smoothmag = sumMag / numpoints;
                             }
                             if (editDir) {
-                                if (sumUComp == 0.0 && sumVComp == 0.0) {
+                                if ((sumUComp == 0.0) && (sumVComp == 0.0)) {
                                     smoothdir = 0.0f;
                                 } else {
-                                    smoothdir = (float) Math.toDegrees(Math
-                                            .atan2(sumUComp, sumVComp));
+                                    smoothdir = (float) Math.toDegrees(
+                                            Math.atan2(sumUComp, sumVComp));
                                 }
                             }
                         } else {
@@ -638,14 +676,6 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
                     }
                 }
             }
-
-            if (editMag) {
-                thisSlice.setMagGrid(magGrid);
-            }
-
-            if (editDir) {
-                thisSlice.setDirGrid(dirGrid);
-            }
         }
 
         // return the set of points that were modified
@@ -656,29 +686,36 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     protected Grid2DBit doSet(WxValue value, Grid2DBit pointsToSet) {
         if (!(value instanceof VectorWxValue)) {
             throw new IllegalArgumentException(
-                    "Expected WxValue of type VectorWxValue");
+                    "value must be an instance of VectorWxValue, received: "
+                            + value.getClass().getName());
         }
 
         VectorWxValue vectorValue = (VectorWxValue) value;
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
-        Grid2DFloat dirGrid = thisSlice.getDirGrid();
+        Grid2DFloat magGrid = getMagGrid();
+        Grid2DFloat dirGrid = getDirGrid();
 
-        if (magGrid.getXdim() != pointsToSet.getXdim()
-                || magGrid.getYdim() != pointsToSet.getYdim()) {
-            throw new IllegalArgumentException("Dimension mismatch in doSet: "
-                    + magGrid.getXdim() + ',' + magGrid.getYdim() + ' '
-                    + pointsToSet.getXdim() + ',' + pointsToSet.getYdim());
+        if ((magGrid.getXdim() != pointsToSet.getXdim())
+                || (magGrid.getYdim() != pointsToSet.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToSet have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    magGrid.getXdim(), magGrid.getYdim(), pointsToSet.getXdim(),
+                    pointsToSet.getYdim()));
         }
 
-        boolean doMag = this.parm.getParmState().getVectorMode() == ParmState.VectorMode.MAGNITUDE
-                || this.parm.getParmState().getVectorMode() == ParmState.VectorMode.BOTH;
-        boolean doDir = this.parm.getParmState().getVectorMode() == ParmState.VectorMode.DIRECTION
-                || this.parm.getParmState().getVectorMode() == ParmState.VectorMode.BOTH;
+        boolean doMag = (this.parm.getParmState()
+                .getVectorMode() == ParmState.VectorMode.MAGNITUDE)
+                || (this.parm.getParmState()
+                        .getVectorMode() == ParmState.VectorMode.BOTH);
+        boolean doDir = (this.parm.getParmState()
+                .getVectorMode() == ParmState.VectorMode.DIRECTION)
+                || (this.parm.getParmState()
+                        .getVectorMode() == ParmState.VectorMode.BOTH);
 
         Point ll = new Point(), ur = new Point();
 
-        float mag = vectorValue.getMag(); // get mag from WxValue
+        // get mag from WxValue
+        float mag = vectorValue.getMag();
         float minLimit = this.getMinValue();
         float maxLimit = this.getMaxValue();
         if (mag < minLimit) {
@@ -688,7 +725,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
             mag = maxLimit;
         }
 
-        float dir = vectorValue.getDir(); // get dir from WxValue
+        // get dir from WxValue
+        float dir = vectorValue.getDir();
         while (dir < 0.0) {
             dir += 360.0;
         }
@@ -720,53 +758,57 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     }
 
     @Override
-    protected IGridSlice doGridMin(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof VectorGridSlice)) {
-            throw new IllegalArgumentException("Expected VectorGridSlice");
+    protected IDataObject doGridMin(IDataObject dataObject) {
+        if (!(dataObject instanceof VectorDataObject)) {
+            throw new IllegalArgumentException(
+                    "dataObject must be an instance of VectorDataObject, received: "
+                            + dataObject.getClass().getName());
         }
 
-        return getVectorSlice().min((IContinuousSlice) gridSlice);
+        return getDataObject().min((IContinuousDataObject) dataObject);
     }
 
     @Override
-    protected IGridSlice doGridMax(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof VectorGridSlice)) {
-            throw new IllegalArgumentException("Expected VectorGridSlice");
+    protected IDataObject doGridMax(IDataObject dataObject) {
+        if (!(dataObject instanceof VectorDataObject)) {
+            throw new IllegalArgumentException(
+                    "dataObject must be an instance of VectorDataObject, received: "
+                            + dataObject.getClass().getName());
         }
 
-        return getVectorSlice().max((IContinuousSlice) gridSlice);
+        return getDataObject().max((IContinuousDataObject) dataObject);
     }
 
     @Override
-    protected IGridSlice doGridMultiply(float factor) {
-        return getVectorSlice().operate(Op.MULTIPLY, factor);
+    protected IDataObject doGridMultiply(float factor) {
+        return getDataObject().operate(Op.MULTIPLY, factor);
     }
 
     @Override
-    protected IGridSlice doGridSum(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof VectorGridSlice)) {
-            throw new IllegalArgumentException("Expected VectorGridSlice");
+    protected IDataObject doGridSum(IDataObject dataObject) {
+        if (!(dataObject instanceof VectorDataObject)) {
+            throw new IllegalArgumentException(
+                    "dataObject must be an instance of VectorDataObject, received: "
+                            + dataObject.getClass().getName());
         }
 
-        return getVectorSlice().sum((IContinuousSlice) gridSlice);
+        return getDataObject().sum((IContinuousDataObject) dataObject);
     }
 
     @Override
     protected Grid2DBit doContiguous(Date time, Point location) {
-        Point size = getGridSlice().getGridInfo().getGridLoc().gridSize();
+        Point size = getGridInfo().getGridLoc().gridSize();
         Grid2DBit valid = new Grid2DBit(size.x, size.y, true);
 
         // get the grid
-        VectorGridSlice slice;
         Grid2DFloat originalGrid;
-        try {
-            slice = this.getVectorSlice().clone();
-            if (iscMode()) {
-                valid = getISCGrid(time, slice);
-            }
-            originalGrid = slice.getMagGrid();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DFloat();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            valid = p.getFirst();
+            originalGrid = ((VectorDataObject) p.getSecond().getDataObject())
+                    .getMagGrid();
+        } else {
+            originalGrid = getMagGrid();
         }
 
         Grid2DBit contig = new Grid2DBit(size.x, size.y);
@@ -782,8 +824,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
             for (int i = ll.x; i <= ur.x; i++) {
                 for (int j = ll.y; j <= ur.y; j++) {
                     // if this point is one to check
-                    if (valid.getAsBoolean(i, j)
-                            && Math.abs(originalGrid.get(i, j) - value) <= fuzz) {
+                    if (valid.getAsBoolean(i, j) && (Math
+                            .abs(originalGrid.get(i, j) - value) <= fuzz)) {
                         contig.set(i, j);
                     }
                 }
@@ -797,16 +839,16 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     @Override
     protected Grid2DBit doPencilStretch(Date time, WxValue value,
             Coordinate path[], Grid2DBit editArea) {
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
-        Grid2DFloat dirGrid = thisSlice.getDirGrid();
+        Grid2DFloat magGrid = getMagGrid();
+        Grid2DFloat dirGrid = getDirGrid();
 
-        if (magGrid.getXdim() != editArea.getXdim()
-                || magGrid.getYdim() != editArea.getYdim()) {
-            throw new IllegalArgumentException(
-                    "Dimension mismatch in doPencilStretch: "
-                            + magGrid.getXdim() + ',' + magGrid.getYdim() + ' '
-                            + editArea.getXdim() + ',' + editArea.getYdim());
+        if ((magGrid.getXdim() != editArea.getXdim())
+                || (magGrid.getYdim() != editArea.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied editArea have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    magGrid.getXdim(), magGrid.getYdim(), editArea.getXdim(),
+                    editArea.getYdim()));
         }
 
         // Convert to grid coordinates
@@ -819,8 +861,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         Grid2DBit gridCells = calculatePencilInfluence(gridPointPath, magGrid);
 
         // Make a Grid2DBit and set every point in gridPointPath
-        Grid2DBit pathGrid = new Grid2DBit(this.parm.getGridInfo().getGridLoc()
-                .gridSize().x,
+        Grid2DBit pathGrid = new Grid2DBit(
+                this.parm.getGridInfo().getGridLoc().gridSize().x,
                 this.parm.getGridInfo().getGridLoc().gridSize().y);
 
         // Assign the value to the gridPointPath
@@ -829,25 +871,19 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         }
 
         // save the previous state of the mag, dir grids
-        Grid2DFloat saveMag;
-        try {
-            saveMag = magGrid.clone();
-        } catch (CloneNotSupportedException e) {
-            saveMag = new Grid2DFloat();
-        }
-        Grid2DFloat saveDir;
-        try {
-            saveDir = dirGrid.clone();
-        } catch (CloneNotSupportedException e) {
-            saveDir = new Grid2DFloat();
-        }
+        Grid2DFloat saveMag = magGrid.copy();
+        Grid2DFloat saveDir = dirGrid.copy();
 
         // Now set the value of the pathPoints to value depending on the edit
         // mode
-        boolean doMag = this.parm.getParmState().getVectorMode() == ParmState.VectorMode.MAGNITUDE
-                || this.parm.getParmState().getVectorMode() == ParmState.VectorMode.BOTH;
+        boolean doMag = (this.parm.getParmState()
+                .getVectorMode() == ParmState.VectorMode.MAGNITUDE)
+                || (this.parm.getParmState()
+                        .getVectorMode() == ParmState.VectorMode.BOTH);
 
-        if (doMag) { // Normal pencil operation
+        if (doMag) {
+            // Normal pencil operation
+
             // Now set the value of the pathPoints to value
             doSet(value, pathGrid);
 
@@ -855,22 +891,20 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
             doFillIn(time, gridCells);
 
             smooth(time, gridCells);
-        } else { // modify dir only so use the streamline function
+        } else {
+            // modify dir only so use the streamline function
 
             // Find the pencil tool width in world coords
-            gridCells = this.parm
-                    .getGridInfo()
-                    .getGridLoc()
-                    .gridCellSwath(path,
-                            this.parm.getParmState().getPencilWidth());
+            gridCells = this.parm.getGridInfo().getGridLoc().gridCellSwath(path,
+                    this.parm.getParmState().getPencilWidth());
             doStreamlines(time, path, gridCells);
         }
 
         Grid2DBit changedGrid = gridCells.or(pathGrid);
 
         // restrict the changes to the edit area, if set
-        if (editArea.isAnyBitsSet()) // undo everything outside the edit area
-        {
+        if (editArea.isAnyBitsSet()) {
+            // undo everything outside the edit area
             Grid2DBit undoArea = changedGrid.xor(editArea).and(changedGrid);
             Point ll = new Point(), ur = new Point();
             undoArea.extremaOfSetBits(ll, ur);
@@ -894,32 +928,35 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     /**
      * This function is called to modify just the direction component of the
      * Vector
-     * 
+     *
      * @param time
      * @param path
      * @param gridCells
      */
-    private void doStreamlines(Date time, Coordinate path[], Grid2DBit gridCells) {
+    private void doStreamlines(Date time, Coordinate path[],
+            Grid2DBit gridCells) {
         Point ll = new Point(), ur = new Point();
 
         if (!gridCells.extremaOfSetBits(ll, ur)) {
-            return; // no bits set - nothing to do
+            // no bits set - nothing to do
+            return;
         }
 
         Coordinate worldCoord;
-        float u, v; // direction components
+        // direction components
+        float u, v;
         float dir;
         Grid2DFloat dirGrid = getDirGrid();
 
         // Change the direction for each set grid cell
         for (int i = ll.x; i <= ur.x; i++) {
             for (int j = ll.y; j <= ur.y; j++) {
-                if (gridCells.get(i, j) != 0) // if the grid cell is set
-                {
+                // if the grid cell is set
+                if (gridCells.get(i, j) != 0) {
                     // get the u, v from the closest streamline point
-                    worldCoord = MapUtil.gridCoordinateToLatLon(new Coordinate(
-                            i, j), PixelOrientation.CENTER, this.parm
-                            .getGridInfo().getGridLoc());
+                    worldCoord = MapUtil.gridCoordinateToLatLon(
+                            new Coordinate(i, j), PixelOrientation.CENTER,
+                            this.parm.getGridInfo().getGridLoc());
 
                     float floatArray[] = getClosestUV(path, worldCoord);
                     u = floatArray[0];
@@ -942,11 +979,11 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
      * Searches the specified path for the closest point and then uses that
      * point plus the next one to determine the u and v component of a vector
      * along the path.
-     * 
+     *
      * Run through the points in path and calculate the closest point. Then get
      * the u and v components by calculating the difference between the closest
      * point and the next point on the path. Return u and v.
-     * 
+     *
      * @param path
      * @param worldCoord
      * @return
@@ -957,9 +994,9 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         int minIndex = 0;
 
         // Don't process the first and last two because edge effects
-        for (int i = 2; i < path.length - 2; i++) {
+        for (int i = 2; i < (path.length - 2); i++) {
             dist = (float) worldCoord.distance(path[i]);
-            if (dist < minDist && dist != 0.0) {
+            if ((dist < minDist) && (dist != 0.0)) {
                 minDist = dist;
                 minIndex = i;
             }
@@ -995,14 +1032,15 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         if (lowerLeft.y > 0) {
             lowerLeft.y -= 1;
         }
-        if (upperRight.x < gridCells.getXdim() - 1) {
+        if (upperRight.x < (gridCells.getXdim() - 1)) {
             upperRight.x += 1;
         }
-        if (upperRight.y < gridCells.getYdim() - 1) {
+        if (upperRight.y < (gridCells.getYdim() - 1)) {
             upperRight.y += 1;
         }
 
-        double angle; // used only for efficiency
+        // used only for efficiency
+        double angle;
 
         // Convert all of the points within the expanded bounds
         for (int i = lowerLeft.x; i <= upperRight.x; i++) {
@@ -1018,10 +1056,10 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     /**
      * Converts the supplied u and v component grids into a a grid of direction
      * and returns it through the argument list.
-     * 
+     *
      * Make sure the grids are valid and for each grid cell calculate the
      * direction based on the u and v values at that grid cell.
-     * 
+     *
      * @param gridCells
      * @param uComp
      * @param vComp
@@ -1042,11 +1080,12 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
                 if (gridCells.getAsBoolean(i, j)) {
 
                     // Check for domain error first
-                    if (uComp.get(i, j) == 0.0f && vComp.get(i, j) == 0.0f) {
+                    if ((uComp.get(i, j) == 0.0f)
+                            && (vComp.get(i, j) == 0.0f)) {
                         dirValue = 0.0f;
                     } else {
-                        dirValue = (float) Math.toDegrees(Math.atan2(
-                                uComp.get(i, j), vComp.get(i, j)));
+                        dirValue = (float) Math.toDegrees(
+                                Math.atan2(uComp.get(i, j), vComp.get(i, j)));
                     }
                     // Keep the direction in range
                     while (dirValue < 0.0) {
@@ -1068,7 +1107,7 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
 
     /**
      * Converts the specified u and v component into a directi
-     * 
+     *
      * @param u
      * @param v
      * @return
@@ -1076,7 +1115,7 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     private float uvToDir(float u, float v) {
         float dir = 0;
         // Check for domain error first
-        if (u == 0.0 && v == 0.0) {
+        if ((u == 0.0) && (v == 0.0)) {
             dir = 0.0f;
         } else {
             dir = (float) Math.toDegrees(Math.atan2(u, v));
@@ -1097,30 +1136,30 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
 
     @Override
     protected Grid2DBit doCopy(Date time, Grid2DBit pointsToCopy, Point delta) {
-        VectorGridSlice thisSlice = getVectorSlice();
-        Grid2DFloat magGrid = thisSlice.getMagGrid();
-        Grid2DFloat dirGrid = thisSlice.getDirGrid();
+        Grid2DFloat magGrid = getMagGrid();
+        Grid2DFloat dirGrid = getDirGrid();
 
-        if (magGrid.getXdim() != pointsToCopy.getXdim()
-                || magGrid.getYdim() != pointsToCopy.getYdim()) {
-            throw new IllegalArgumentException("Dimension mismatch in doCopy: "
-                    + magGrid.getXdim() + ',' + magGrid.getYdim() + ' '
-                    + pointsToCopy.getXdim() + ',' + pointsToCopy.getYdim());
+        if ((magGrid.getXdim() != pointsToCopy.getXdim())
+                || (magGrid.getYdim() != pointsToCopy.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToSmooth have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    magGrid.getXdim(), magGrid.getYdim(),
+                    pointsToCopy.getXdim(), pointsToCopy.getYdim()));
         }
 
         // get the grids
         Grid2DFloat originalMagGrid;
         Grid2DFloat originalDirGrid;
-        try {
-            VectorGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            originalMagGrid = slice.getMagGrid();
-            originalDirGrid = slice.getDirGrid();
-        } catch (CloneNotSupportedException e) {
-            originalMagGrid = new Grid2DFloat();
-            originalDirGrid = new Grid2DFloat();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            VectorDataObject dataObject = (VectorDataObject) p.getSecond()
+                    .getDataObject();
+            originalMagGrid = dataObject.getMagGrid();
+            originalDirGrid = dataObject.getDirGrid();
+        } else {
+            originalMagGrid = getMagGrid().copy();
+            originalDirGrid = getDirGrid().copy();
         }
 
         // for each point in the set of selected points, copy original
@@ -1157,57 +1196,51 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     }
 
     @Override
-    public void setGridSlice(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof VectorGridSlice)) {
+    public void setDataObject(IDataObject dataObject) {
+        if (!(dataObject instanceof VectorDataObject)) {
             throw new IllegalArgumentException(
-                    "Called VectorGridData.setGridSlice with "
-                            + gridSlice.getClass().getSimpleName());
+                    "dataObject must be an instance of VectorDataObject, received: "
+                            + dataObject.getClass().getName());
         }
-        this.gridSlice = gridSlice;
+        super.setDataObject(dataObject);
     }
 
     @Override
-    protected void setGridSliceDataToNull() {
-        // Clone the gridSlice with no data
-        this.gridSlice = new VectorGridSlice(this.gridSlice.getValidTime(),
-                this.gridSlice.getGridInfo(), this.gridSlice.getHistory(),
-                null, null);
-    }
-
-    @Override
-    public synchronized boolean isPopulated() {
-        return ((VectorGridSlice) this.gridSlice).isPopulated();
+    public VectorDataObject getDataObject() {
+        return (VectorDataObject) super.getDataObject();
     }
 
     private Grid2DFloat getMagGrid() {
-        return getVectorSlice().getMagGrid();
+        return getDataObject().getMagGrid();
     }
 
     private Grid2DFloat getDirGrid() {
-        return getVectorSlice().getDirGrid();
+        return getDataObject().getDirGrid();
     }
 
     private void setMagGrid(Grid2DFloat grid) {
-        getVectorSlice().setMagGrid(grid);
+        VectorDataObject dataObject = getDataObject();
+        dataObject.setMagGrid(grid);
+        setDataObject(dataObject);
     }
 
     private void setDirGrid(Grid2DFloat grid) {
-        getVectorSlice().setDirGrid(grid);
-    }
-
-    public VectorGridSlice getVectorSlice() {
-        return (VectorGridSlice) getGridSlice();
+        VectorDataObject dataObject = getDataObject();
+        dataObject.setDirGrid(grid);
+        setDataObject(dataObject);
     }
 
     @Override
     protected boolean doValid() {
         String emsg = "Grid contains data which exceeds max/min specs for this parm. ";
 
-        if (!getGridTime().isValid() || getParm() == null
-                || getGridSlice() == null) {
+        if (!getGridTime().isValid() || (getParm() == null)
+                || (getDataObject() == null)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid grid time, bad parm or data slice");
-            return false; // time, parm, or data slice not valid
+
+            // time, parm, or data slice not valid
+            return false;
         }
 
         // check grid size
@@ -1217,9 +1250,9 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         Point magGridDim = magGrid.getGridSize();
         Point dirGridDim = dirGrid.getGridSize();
         if (!magGridDim.equals(dim) || !dirGridDim.equals(dim)) {
-            statusHandler.handle(Priority.PROBLEM, "Grid dimensions m="
-                    + magGridDim + " d=" + dirGridDim
-                    + " do not match Parm dimensions" + dim);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Grid dimensions m=" + magGridDim + " d=" + dirGridDim
+                            + " do not match Parm dimensions" + dim);
             return false;
         }
 
@@ -1230,18 +1263,38 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
         FloatBuffer dirData = dirGrid.getBuffer();
         for (int j = 0; j < magData.capacity(); j++) {
             float mag = magData.get(j);
-            if (mag < minLimit || mag > maxLimit) {
+            if ((mag < minLimit) || (mag > maxLimit)) {
                 statusHandler.handle(Priority.PROBLEM, emsg + "MagData=" + mag
                         + " Min=" + minLimit + " Max=" + maxLimit);
                 return false;
             }
             float dir = dirData.get(j);
-            if (dir < 0f || dir >= 360f) {
-                statusHandler.handle(Priority.PROBLEM, emsg + "DirData=" + dir
-                        + "Min=0 Max=360");
+            if ((dir < 0f) || (dir >= 360f)) {
+                statusHandler.handle(Priority.PROBLEM,
+                        emsg + "DirData=" + dir + "Min=0 Max=360");
                 return false;
             }
         }
         return true;
+    }
+
+    @Override
+    protected IGridSlice createSlice() {
+        return new VectorGridSlice(getGridTime(), getGridInfo(), getHistory(),
+                getMagGrid(), getDirGrid());
+    }
+
+    @Override
+    protected String doValidateData(IDataObject dataObject) {
+        String retVal = super.doValidateData(dataObject);
+
+        if (retVal == null) {
+            Grid2DFloat dGrid = getDirGrid();
+            if (!dGrid.isValid()) {
+                retVal = "Direction grid is invalid";
+            }
+        }
+
+        return retVal;
     }
 }

@@ -178,9 +178,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
         monitor.setWfo(wfo);
         this.field = monitor.getField(sourceName);
 
-        perfLog.log("Loading FFMP: source: " + sourceName + ", site: "
-                + siteKey + ", data: " + dataKey + ", WFO: " + wfo + ", HUC: "
-                + huc);
+        perfLog.log("Loading FFMP: source: " + sourceName + ", site: " + siteKey
+                + ", data: " + dataKey + ", WFO: " + wfo + ", HUC: " + huc);
 
         DataTime[] availableTimes = this.getAvailableTimes();
         // no data available;
@@ -209,8 +208,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                         break;
                     }
 
-                    DomainXML domainXML = monitor.getRunConfig().getDomain(
-                            domain);
+                    DomainXML domainXML = monitor.getRunConfig()
+                            .getDomain(domain);
                     if (domainXML != null) {
                         if (!defaults.contains(domainXML)) {
                             defaults.add(domainXML);
@@ -219,11 +218,11 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 }
                 this.domains = defaults;
 
-                final Date mostRecentTime = availableTimes[availableTimes.length - 1]
-                        .getRefTime();
+                final Date mostRecentTime = availableTimes[availableTimes.length
+                        - 1].getRefTime();
                 final double configTimeFrame = cfgBasinXML.getTimeFrame();
-                final Date timeBack = new Date(
-                        (long) (mostRecentTime.getTime() - (configTimeFrame * TimeUtil.MILLIS_PER_HOUR)));
+                final Date timeBack = new Date((long) (mostRecentTime.getTime()
+                        - (configTimeFrame * TimeUtil.MILLIS_PER_HOUR)));
 
                 final List<String> onlyAllHuc = new ArrayList<String>();
                 onlyAllHuc.add(FFMPRecord.ALL);
@@ -247,8 +246,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                         Job previousJob = null;
                         while (loadedUpTo.after(farthestBack)) {
                             Date startTime = new Date(
-                                    loadedUpTo.getTime()
-                                            - (LOAD_INCREMENT * TimeUtil.MILLIS_PER_HOUR));
+                                    loadedUpTo.getTime() - (LOAD_INCREMENT
+                                            * TimeUtil.MILLIS_PER_HOUR));
                             hourBack += LOAD_INCREMENT;
                             if (startTime.before(farthestBack)) {
                                 startTime = farthestBack;
@@ -267,8 +266,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                                         jobName, FFMPResourceData.this,
                                         startTime, loadedUpTo, onlyAllHuc);
                                 nextJob.setPreloadAvailableUris(true);
-                                previousJob
-                                        .addJobChangeListener(new JobChangeAdapter() {
+                                previousJob.addJobChangeListener(
+                                        new JobChangeAdapter() {
                                             @Override
                                             public void done(
                                                     IJobChangeEvent event) {
@@ -317,25 +316,24 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                  */
 
                 this.domains = monitor.getRunConfig().getDomains();
-                SourceXML source = monitor.getSourceConfig().getSource(
-                        sourceName);
+                SourceXML source = monitor.getSourceConfig()
+                        .getSource(sourceName);
                 Date standAloneTime = null;
 
                 if (source != null) {
                     // Special Loading for guidance sources, as mentioned in the
                     // comment
-                    if (source.getDataType().equals(
-                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    if (source.getDataType()
+                            .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
                         long oldestTime = availableTimes[0].getRefTime()
                                 .getTime();
-                        long expirationTime = source
-                                .getExpirationMinutes(siteKey)
-                                * TimeUtil.MILLIS_PER_MINUTE;
+                        long expirationTime = source.getExpirationMinutes(
+                                siteKey) * TimeUtil.MILLIS_PER_MINUTE;
                         standAloneTime = new Date(oldestTime - expirationTime);
                     } else {
                         // Only load current frames time
-                        standAloneTime = availableTimes[availableTimes.length - 1]
-                                .getRefTime();
+                        standAloneTime = availableTimes[availableTimes.length
+                                - 1].getRefTime();
                     }
 
                     NavigableMap<Date, List<String>> sourceURIs = getMonitor()
@@ -446,8 +444,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
             getMonitor().populateFFMPRecord(siteKey, precord,
                     precord.getSourceName());
         } catch (Exception e) {
-            throw new VizException("Failed to populate ffmp record "
-                    + precord.getDataURI());
+            throw new VizException(
+                    "Failed to populate ffmp record " + precord.getDataURI());
         }
     }
 
@@ -575,8 +573,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
             case GUIDANCE:
                 String guidSrc = FFMPConfig.getInstance().getFFMPConfigData()
                         .getIncludedGuids();
-                for (SourceXML guidance : productRun.getGuidanceSources(
-                        product, guidSrc)) {
+                for (SourceXML guidance : productRun.getGuidanceSources(product,
+                        guidSrc)) {
                     sourceNames.add(guidance.getSourceName());
                 }
                 break;

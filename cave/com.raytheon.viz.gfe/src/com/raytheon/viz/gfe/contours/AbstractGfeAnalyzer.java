@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -35,18 +35,19 @@ import com.raytheon.viz.gfe.contours.util.SearchDir;
  * This is an abstract base class that contains the functionality that is common
  * to the SIRS analysis algorithms. It is based on analysis of the original NWS
  * C++ code.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 13Mar2008    968        MW Fegan    Initial Implementation.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ----------------------------
+ * Mar 13, 2008  968      MW Fegan  Initial Implementation.
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ *
  * </pre>
- * 
+ *
  * @author mfegan
- * @version 1.0
  */
 
 public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
@@ -105,7 +106,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
     protected boolean clampOn;
 
     /* for timing */
-    protected double timeUsed = -1;
+    protected long timeUsed = -1;
 
     /** "how many subgrid pts per main grid point" */
     protected int subGridFactor = -1;
@@ -119,8 +120,8 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
     /**
      * Constructor.
      */
-    public AbstractGfeAnalyzer(Grid2DFloat dataGrid, int xMin, int xMax, int yMin,
-            int yMax, boolean clampOn, float max, float min) {
+    public AbstractGfeAnalyzer(Grid2DFloat dataGrid, int xMin, int xMax,
+            int yMin, int yMax, boolean clampOn, float max, float min) {
         this.oldData = dataGrid;
         this.xMin = xMin;
         this.xMax = xMax;
@@ -129,7 +130,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
         this.clampOn = clampOn;
         this.gridMin = min;
         this.gridMax = max;
-        this.contourLevels = new ArrayList<Float>();
+        this.contourLevels = new ArrayList<>();
 
     }
 
@@ -142,7 +143,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * Applies existing grid values to points not being changed.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * For points outside change area, use the original grid point values.
      * Only recomputes grid values inside the change area.
@@ -158,10 +159,12 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
          */
         for (int i = 0; i < xDim; i++) {
             for (int j = 0; j < yDim; j++) {
-                if (i < xMin || i > xMax || j < yMin || j > yMax) {
+                if ((i < xMin) || (i > xMax) || (j < yMin) || (j > yMax)) {
                     this.finalResultData.set(i, j, this.oldData.get(i, j));
                     this.valueFound.set(i, j, 1);
-                    this.howFound.set(i, j, -1); // means old data value copied
+
+                    // means old data value copied
+                    this.howFound.set(i, j, -1);
                 }
             }
         }
@@ -171,7 +174,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * Determines the number of sub grid points for each main grid point.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
      * Set how many sub grid points there are for each main data grid point.
      * set sgxDim and sgyDim, the dimensions of the subgrid.
@@ -180,14 +183,14 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * typically 2 to 8.
      * 4 seems to work fine; it is not clear if 8 is any better
      * </PRE>
-     * 
+     *
      * @param factor
      *            the number of sub-grid units per grid unit
      */
     protected void setSubGridFactor(int factor) {
         this.subGridFactor = factor;
-        this.sgxDim = (this.xDim - 1) * this.subGridFactor + 1;
-        this.sgyDim = (this.yDim - 1) * this.subGridFactor + 1;
+        this.sgxDim = ((this.xDim - 1) * this.subGridFactor) + 1;
+        this.sgyDim = ((this.yDim - 1) * this.subGridFactor) + 1;
 
         /*
          * Create empty 2D subgrid arrays - use only where contours are defined
@@ -207,15 +210,15 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * Removes data from point lists when a backtrack is required.
      * <P>
      * Legacy documentation:
-     * 
+     *
      * <PRE>
-     * For data added to the SIRS search data from some 
+     * For data added to the SIRS search data from some
      * unchanged contour that is crossed by a new or modified contour, remove data.
      * &lt;BR&gt;
      * Implementation:
      * take off all the grid data at the points listed
      * </PRE>
-     * 
+     *
      * @param iList
      *            list of i values for points
      * @param jList
@@ -229,7 +232,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
         /*
          * could use a smaller number for max if desired, if only want to remove
          * part of the crossed contour near the crossing.
-         * 
+         *
          * remove data for the points, most recent goes out first
          */
         for (int n = last; n >= 0; n--) {
@@ -266,18 +269,18 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * Finds the contour closest to the specified (i,j) point.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Used to support SIRS step 1.
      * Search from given input grid position (i,j) in given direction &quot;dir.&quot;
      * Determine contour value of nearest contour seen, and also distance to it.
      * Return 1 if found a modified contour, otherwise 0.
      * Computed value &quot;distance&quot; not equal to 0 if any contour was found.
-     * 
+     *
      * Implementation:
-     * 
+     *
      * distance units are subgrid cells.
-     * 
+     *
      * some of this code deals with the &quot;leakage problem.&quot;  If a contour lies
      * on a NE-SW or NW-SE diagonal, some searches for it along the other
      * diagonal will pass through without seeing it.  (But the search will
@@ -286,7 +289,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * must be considered and excluded since only the nearest contour will
      * give the best results.
      * </PRE>
-     * 
+     *
      * @param i
      *            horizontal index of the point
      * @param j
@@ -295,25 +298,39 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      *            the direction to search
      * @param cvd
      *            contains the found grid value and computed distance
-     * 
+     *
      * @return true if the search encountered a contour
      */
     protected boolean findNearestContour(int i, int j, SearchDir dir,
             ContourValueDistance cvd) {
-        int sgi = i * this.subGridFactor; // equiv subgrid index to i
-        int sgj = j * this.subGridFactor; // equiv subgrid index to j
-        int n; // loop control
-        int nLimit; // loop control
-        int sgii = sgi; // temp variable
-        int sgjj = sgj; // temp variable
+        // equiv subgrid index to i
+        int sgi = i * this.subGridFactor;
+
+        // equiv subgrid index to j
+        int sgj = j * this.subGridFactor;
+
+        // loop control
+        int n;
+
+        // loop control
+        int nLimit;
+
+        // temp variable
+        int sgii = sgi;
+
+        // temp variable
+        int sgjj = sgj;
 
         cvd.distance = 0.0;
         switch (dir) {
         case N:
             nLimit = this.sgyDim - sgj;
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgjj = sgj + n; // index with an offset to move N into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move N into the grid
+                sgjj = sgj + n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     cvd.value = this.contourValue.get(sgii, sgjj);
                     /* simplify this dist calc since no change in sgi */
@@ -321,49 +338,75 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         case S:
             nLimit = sgj + 1;
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgjj = sgj - n; // index with an offset to move S into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move S into the grid
+                sgjj = sgj - n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     cvd.value = this.contourValue.get(sgii, sgjj);
                     cvd.distance = n;
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         case E:
             nLimit = this.sgxDim - sgi;
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgii = sgi + n; // index with an offset to move E into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move E into the grid
+                sgii = sgi + n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     cvd.value = this.contourValue.get(sgii, sgjj);
                     cvd.distance = n;
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         case W:
             nLimit = sgi + 1;
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgii = sgi - n; // index with an offset to move E into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move E into the grid
+                sgii = sgi - n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     cvd.value = this.contourValue.get(sgii, sgjj);
                     cvd.distance = n;
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         case NE:
             nLimit = Math.min((this.sgyDim - sgj - 1), (this.sgxDim - sgi - 1));
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgii = sgi + n; // index with an offset to move E into the grid
-                sgjj = sgj + n; // index with an offset to move N into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move E into the grid
+                sgii = sgi + n;
+
+                // index with an offset to move N into the grid
+                sgjj = sgj + n;
+
                 /* look to the right */
                 if (this.onContour.get(sgii, sgjj - 1) > 0) {
                     if (logger.isDebugEnabled()) {
@@ -374,7 +417,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                      * this formula as approximation to increase speed;
                      * pythagoras is correct
                      */
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii, sgjj - 1) == 1);
                 }
                 /* look to the left */
@@ -387,7 +430,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                      * this formula as approximation to increase speed;
                      * pythagoras is correct
                      */
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii - 1, sgjj) == 1);
                 }
                 /* look at point */
@@ -397,20 +440,28 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         case SE:
             nLimit = Math.min(sgj, (sgxDim - sgi - 1));
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgii = sgi + n; // index with an offset to move E into the grid
-                sgjj = sgj - n; // index with an offset to move S into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move E into the grid
+                sgii = sgi + n;
+
+                // index with an offset to move S into the grid
+                sgjj = sgj - n;
+
                 /* look to the right */
                 if (this.onContour.get(sgii - 1, sgjj) > 0) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("    diag leak SE r");
                     }
                     cvd.value = this.contourValue.get(sgii - 1, sgjj);
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii - 1, sgjj) == 1);
                 }
                 /* look to the left */
@@ -419,7 +470,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         logger.debug("    diag leak SE l");
                     }
                     cvd.value = this.contourValue.get(sgii, sgjj + 1);
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii, sgjj + 1) == 1);
                 }
                 /* look at point */
@@ -429,20 +480,28 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         case SW:
             nLimit = Math.min(sgj, sgi);
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgii = sgi - n; // index with an offset to move W into the grid
-                sgjj = sgj - n; // index with an offset to move S into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move W into the grid
+                sgii = sgi - n;
+
+                // index with an offset to move S into the grid
+                sgjj = sgj - n;
+
                 /* look to the left */
                 if (this.onContour.get(sgii + 1, sgjj) > 0) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("    diag leak SW l");
                     }
                     cvd.value = this.contourValue.get(sgii + 1, sgjj);
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii + 1, sgjj) == 1);
                 }
                 /* look to the right */
@@ -451,7 +510,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         logger.debug("    diag leak SW r");
                     }
                     cvd.value = this.contourValue.get(sgii, sgjj + 1);
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii, sgjj + 1) == 1);
                 }
                 /* look at point */
@@ -461,20 +520,28 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         case NW:
             nLimit = Math.min(this.sgyDim - sgj - 1, sgi);
-            for (n = 1; n < nLimit; n++) { // n just a loop counter; not an
-                // index
-                sgii = sgi - n; // index with an offset to move W into the grid
-                sgjj = sgj + n; // index with an offset to move N into the grid
+            for (n = 1; n < nLimit; n++) {
+                // n just a loop counter; not an index
+
+                // index with an offset to move W into the grid
+                sgii = sgi - n;
+
+                // index with an offset to move N into the grid
+                sgjj = sgj + n;
+
                 /* look to the right */
                 if (this.onContour.get(sgii + 1, sgjj) > 0) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("    diag leak NW r");
                     }
                     cvd.value = this.contourValue.get(sgii + 1, sgjj);
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii + 1, sgjj) == 1);
                 }
                 /* look to the left */
@@ -483,7 +550,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         logger.debug("    diag leak NW l");
                     }
                     cvd.value = this.contourValue.get(sgii, sgjj - 1);
-                    cvd.distance = n * 1.414 - 0.414;
+                    cvd.distance = (n * 1.414) - 0.414;
                     return (this.contourNew.get(sgii, sgjj - 1) == 1);
                 }
                 /* look at point */
@@ -493,7 +560,10 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     return (this.contourNew.get(sgii, sgjj) == 1);
                 }
             }
-            return false; // failed to see contour in this direction
+
+            // failed to see contour in this direction
+            return false;
+
         default:
             /* Note: if this happens, there is a bad software problem */
             logger.warn(" findNearestContour: Bad direction " + dir);
@@ -505,7 +575,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * Finds the first two contours in the specified direction.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Used to support step 2.
      * Search from given input main grid position (i,j) in given direction &quot;dir.&quot;
@@ -519,7 +589,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * 0 if no contours seen
      * 0 if one contour seen and the grid edge had no set value
      * </PRE>
-     * 
+     *
      * @param i
      *            horizontal index of the point
      * @param j
@@ -532,17 +602,26 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * @param cvd2
      *            contains the found grid value and computed distance of second
      *            point
-     * 
+     *
      * @return indicates number of contour found - see return values in legacy
      *         documentation
      */
     protected int findDistantContours(int i, int j, SearchDir dir,
             ContourValueDistance cvd1, ContourValueDistance cvd2) {
-        int sgi = i * this.subGridFactor; // equiv subgrid index to main i
-        int sgj = j * this.subGridFactor; // equiv subgrid index to main j
-        int nLimit; // loop control
-        int sgii = sgi; // temporary subgrid i index
-        int sgjj = sgj; // temporary subgrid j index
+        // equiv subgrid index to main i
+        int sgi = i * this.subGridFactor;
+
+        // equiv subgrid index to main j
+        int sgj = j * this.subGridFactor;
+
+        // loop control
+        int nLimit;
+
+        // temporary subgrid i index
+        int sgii = sgi;
+
+        // temporary subgrid j index
+        int sgjj = sgj;
 
         int nFound = 0;
         int ii;
@@ -552,7 +631,9 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
         case N:
             nLimit = this.sgyDim - sgj;
             for (int n = 1; n < nLimit; n++) {
-                sgjj = sgj + n; // offset to move N in the grid
+                // offset to move N in the grid
+                sgjj = sgj + n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -563,7 +644,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, return 0 and distance
                      * to edge of grid from (i,j)
@@ -571,7 +652,8 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                     return 0;
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values for second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -582,11 +664,16 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
+
         case S:
             nLimit = sgj + 1;
             for (int n = 1; n < nLimit; n++) {
-                sgjj = sgj - n; // offset to move S in the grid
+                // offset to move S in the grid
+                sgjj = sgj - n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -597,7 +684,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, compute distance to
                      * edge of grid from (i,j)
@@ -605,7 +692,8 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                     return 0;
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values for second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -616,11 +704,15 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
         case E:
             nLimit = this.sgxDim - sgi;
             for (int n = 1; n < nLimit; n++) {
-                sgii = sgi + n; // offset to move E in the grid
+                // offset to move E in the grid
+                sgii = sgi + n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -631,7 +723,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, compute distance to
                      * edge of grid from (i,j)
@@ -639,7 +731,8 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                     return 0;
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values for second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -650,11 +743,15 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
         case W:
             nLimit = sgi + 1;
             for (int n = 1; n < nLimit; n++) {
-                sgii = sgi - n; // offset to move W in the grid
+                // offset to move W in the grid
+                sgii = sgi - n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -665,7 +762,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, compute distance to
                      * edge of grid from (i,j)
@@ -673,7 +770,8 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                     return 0;
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values for second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -684,12 +782,19 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
+
         case NE:
             nLimit = Math.min(this.sgyDim - sgj, this.sgxDim - sgi);
             for (int n = 1; n < nLimit; n++) {
-                sgii = sgi + n; // offset to move E in the grid
-                sgjj = sgj + n; // offset to move N in the grid
+                // offset to move E in the grid
+                sgii = sgi + n;
+
+                // offset to move N in the grid
+                sgjj = sgj + n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -700,15 +805,18 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, compute distance to
                      * edge of grid from (i,j)
                      */
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
-                    return 0; /* sign of no contour found */
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                    /* sign of no contour found */
+                    return 0;
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values of a second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -717,29 +825,41 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd2.value = this.finalResultData.get(ii, jj);
                         return 1;
                     }
-                    return 0; /* can't use grid edge so quit */
-                } else if (this.onContour.get(sgii + 1, sgjj) > 0
-                        && this.onContour.get(sgii, sgjj + 1) > 0
-                        && this.onContour.get(sgii + 1, sgjj) == this.onContour
-                                .get(sgii, sgjj + 1)) {
+
+                    /* can't use grid edge so quit */
+                    return 0;
+
+                } else if ((this.onContour.get(sgii + 1, sgjj) > 0)
+                        && (this.onContour.get(sgii, sgjj + 1) > 0)
+                        && (this.onContour.get(sgii + 1, sgjj) == this.onContour
+                                .get(sgii, sgjj + 1))) {
                     /* catch crossings of contours at right angle to this dir */
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii + 1, sgjj);
-                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         return 2;
                     } else if (nFound == 0) {
                         cvd1.value = this.contourValue.get(sgii + 1, sgjj);
-                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         nFound = 1;
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
+
         case SE:
             nLimit = Math.min(sgj + 1, this.sgxDim - sgi);
             for (int n = 1; n < nLimit; n++) {
-                sgii = sgi + n; // offset to move E in the grid
-                sgjj = sgj - n; // offset to move S in the grid
+                // offset to move E in the grid
+                sgii = sgi + n;
+
+                // offset to move S in the grid
+                sgjj = sgj - n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -750,15 +870,18 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, compute distance to
                      * edge of grid from (i,j)
                      */
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
-                    return 0; /* sign of no contour found */
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                    /* sign of no contour found */
+                    return 0;
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values of a second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -767,29 +890,40 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd2.value = this.finalResultData.get(ii, jj);
                         return 1;
                     }
-                    return 0; /* can't use grid edge so quit */
-                } else if (this.onContour.get(sgii + 1, sgjj) > 0
-                        && this.onContour.get(sgii, sgjj - 1) > 0
-                        && this.onContour.get(sgii + 1, sgjj) == this.onContour
-                                .get(sgii, sgjj - 1)) {
+
+                    /* can't use grid edge so quit */
+                    return 0;
+
+                } else if ((this.onContour.get(sgii + 1, sgjj) > 0)
+                        && (this.onContour.get(sgii, sgjj - 1) > 0)
+                        && (this.onContour.get(sgii + 1, sgjj) == this.onContour
+                                .get(sgii, sgjj - 1))) {
                     /* catch crossings of contours at right angle to this dir */
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii + 1, sgjj);
-                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         return 2;
                     } else if (nFound == 0) {
                         cvd1.value = this.contourValue.get(sgii + 1, sgjj);
-                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         nFound = 1;
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
         case SW:
             nLimit = Math.min(sgj + 1, sgi + 1);
             for (int n = 1; n < nLimit; n++) {
-                sgii = sgi - n; // offset to move W in the grid
-                sgjj = sgj - n; // offset to move S in the grid
+                // offset to move W in the grid
+                sgii = sgi - n;
+
+                // offset to move S in the grid
+                sgjj = sgj - n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -800,15 +934,18 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, compute distance to
                      * edge of grid from (i,j)
                      */
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
-                    return 0; /* sign of no contour found */
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                    /* sign of no contour found */
+                    return 0;
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values of a second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -817,29 +954,40 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd2.value = this.finalResultData.get(ii, jj);
                         return 1;
                     }
-                    return 0; /* can't use grid edge so quit */
-                } else if (this.onContour.get(sgii - 1, sgjj) > 0
-                        && this.onContour.get(sgii, sgjj - 1) > 0
-                        && this.onContour.get(sgii - 1, sgjj) == this.onContour
-                                .get(sgii, sgjj - 1)) {
+
+                    /* can't use grid edge so quit */
+                    return 0;
+
+                } else if ((this.onContour.get(sgii - 1, sgjj) > 0)
+                        && (this.onContour.get(sgii, sgjj - 1) > 0)
+                        && (this.onContour.get(sgii - 1, sgjj) == this.onContour
+                                .get(sgii, sgjj - 1))) {
                     /* catch crossings of contours at right angle to this dir */
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii - 1, sgjj);
-                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         return 2;
                     } else if (nFound == 0) {
                         cvd1.value = this.contourValue.get(sgii - 1, sgjj);
-                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         nFound = 1;
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
         case NW:
             nLimit = Math.min(this.sgyDim - sgj, sgi + 1);
             for (int n = 1; n < nLimit; n++) {
-                sgii = sgi - n; // offset to move W in the grid
-                sgjj = sgj + n; // offset to move N in the grid
+                // offset to move W in the grid
+                sgii = sgi - n;
+
+                // offset to move N in the grid
+                sgjj = sgj + n;
+
                 if (this.onContour.get(sgii, sgjj) > 0) {
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii, sgjj);
@@ -850,15 +998,18 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
                         nFound = 1;
                     }
-                } else if (n == nLimit - 1 && nFound == 0) {
+                } else if ((n == (nLimit - 1)) && (nFound == 0)) {
                     /*
                      * at edge & found no contours at all, compute distance to
                      * edge of grid from (i,j)
                      */
                     cvd1.value = 0.0;
                     cvd1.distance = findDistance(sgi, sgj, sgii, sgjj);
-                    return 0; /* sign of no contour found */
-                } else if (n == nLimit - 1 && nFound == 1) {
+
+                    /* sign of no contour found */
+                    return 0;
+
+                } else if ((n == (nLimit - 1)) && (nFound == 1)) {
                     /* use grid edge values of a second contour, if possible */
                     ii = sgii / this.subGridFactor;
                     jj = sgjj / this.subGridFactor;
@@ -867,24 +1018,31 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
                         cvd2.value = this.finalResultData.get(ii, jj);
                         return 1;
                     }
-                    return 0; /* can't use grid edge so quit */
-                } else if (this.onContour.get(sgii - 1, sgjj) > 0
-                        && this.onContour.get(sgii, sgjj + 1) > 0
-                        && this.onContour.get(sgii - 1, sgjj) == this.onContour
-                                .get(sgii, sgjj + 1)) {
+
+                    /* can't use grid edge so quit */
+                    return 0;
+
+                } else if ((this.onContour.get(sgii - 1, sgjj) > 0)
+                        && (this.onContour.get(sgii, sgjj + 1) > 0)
+                        && (this.onContour.get(sgii - 1, sgjj) == this.onContour
+                                .get(sgii, sgjj + 1))) {
                     /* catch crossings of contours at right angle to this dir */
                     if (nFound == 1) {
                         cvd2.value = this.contourValue.get(sgii - 1, sgjj);
-                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd2.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         return 2;
                     } else if (nFound == 0) {
                         cvd1.value = this.contourValue.get(sgii - 1, sgjj);
-                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj) + 0.707;
+                        cvd1.distance = findDistance(sgi, sgj, sgii, sgjj)
+                                + 0.707;
                         nFound = 1;
                     }
                 }
             }
-            return 0; /* failed to see contours in this direction */
+
+            /* failed to see contours in this direction */
+            return 0;
         default:
             /* Note: if this happens, there is a bad software problem */
             logger.warn(" findDistantContours: Bad direction " + dir);
@@ -896,7 +1054,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * Finds value of closest point in specified direction.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Used to support step 3.
      * Search from given input grid position (i,j) in given direction &quot;dir.&quot;
@@ -906,7 +1064,7 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * DOES NOT check if a contour is crossed.
      * That is a refinement which may be added later.
      * </PRE>
-     * 
+     *
      * @param i
      *            horizontal index of the point
      * @param j
@@ -916,110 +1074,154 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * @param cvd
      *            contains the found grid value and computed distance (only
      *            value is used)
-     * 
+     *
      * @return true if the search was successful
      */
     protected boolean findAdjacentValue(int i, int j, SearchDir dir,
             ContourValueDistance cvd) {
-        int nLimit; // loop control
-        int ii = i; // temporary i index
-        int jj = j; // temporary j index
+        // loop control
+        int nLimit;
+
+        // temporary i index
+        int ii = i;
+
+        // temporary j index
+        int jj = j;
+
         switch (dir) {
         case N:
             nLimit = this.yDim - j;
             for (int n = 1; n < nLimit; n++) {
-                jj = j + n; // offset to move N in the grid
+                // offset to move N in the grid
+                jj = j + n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
             }
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         case S:
             nLimit = j + 1;
             for (int n = 1; n < nLimit; n++) {
-                jj = j - n; // offset to move S in the grid
+                // offset to move S in the grid
+                jj = j - n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
             }
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         case E:
             nLimit = this.xDim - i;
             for (int n = 1; n < nLimit; n++) {
-                ii = i + n; // offset to move E in the grid
+                // offset to move E in the grid
+                ii = i + n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
             }
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         case W:
             nLimit = i + 1;
             for (int n = 1; n < nLimit; n++) {
-                ii = i - n; // offset to move W in the grid
+                // offset to move W in the grid
+                ii = i - n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
             }
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         case NE:
             nLimit = Math.min(this.yDim - j, this.xDim - i);
             for (int n = 1; n < nLimit; n++) {
-                ii = i + n; // offset to move E in the grid
-                jj = j + n; // offset to move N in the grid
+                // offset to move E in the grid
+                ii = i + n;
+
+                // offset to move N in the grid
+                jj = j + n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
             }
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         case SE:
             nLimit = Math.min(j + 1, this.xDim - i);
             for (int n = 1; n < nLimit; n++) {
-                ii = i + n; // offset to move E in the grid
-                jj = j - n; // offset to move S in the grid
+                // offset to move E in the grid
+                ii = i + n;
+
+                // offset to move S in the grid
+                jj = j - n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
             }
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         case SW:
             nLimit = Math.min(j + 1, i + 1);
             for (int n = 1; n < nLimit; n++) {
-                ii = i - n; // offset to move W in the grid
-                jj = j - n; // offset to move S in the grid
+                // offset to move W in the grid
+                ii = i - n;
+
+                // offset to move S in the grid
+                jj = j - n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
             }
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         case NW:
             nLimit = Math.min(this.yDim - j, i + 1);
             for (int n = 1; n < nLimit; n++) {
-                ii = i - n; // offset to move W in the grid
-                jj = j + n; // offset to move N in the grid
+                // offset to move W in the grid
+                ii = i - n;
+
+                // offset to move N in the grid
+                jj = j + n;
+
                 /* if value here already found, use it */
                 int tHow = this.howFound.get(ii, jj);
-                if (tHow > -1 && tHow < 3) {
+                if ((tHow > -1) && (tHow < 3)) {
                     cvd.value = this.finalResultData.get(ii, jj);
                     return true;
                 }
@@ -1027,7 +1229,9 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
             return false;
         default:
             logger.warn(" findAdjacentValue: Bad direction. " + dir);
-            return false; // failed to find a value in this direction
+
+            // failed to find a value in this direction
+            return false;
         }
     }
 
@@ -1035,12 +1239,12 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      * Computes the distance between two grid points. Units are grids.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Find double distance bewteen two int coordinate pairs.
      * Returns distance in double float precision.
      * </PRE>
-     * 
+     *
      * @param x1
      *            horizontal index of first point
      * @param y1
@@ -1049,11 +1253,11 @@ public abstract class AbstractGfeAnalyzer implements IGfeAnalyzer {
      *            horizontal index of second point
      * @param y2
      *            vertical index of second point
-     * 
+     *
      * @return the computed distance
      */
     private double findDistance(int x1, int y1, int x2, int y2) {
-        return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+        return Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
     }
 
 }

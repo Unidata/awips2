@@ -43,12 +43,15 @@ import com.raytheon.uf.common.status.UFStatus;
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#     Engineer    Description
- * ------------ ---------   ----------- --------------------------
+ * ------------ ----------  ----------- --------------------------
  * 03/19/08     387         M. Duff     Initial creation.  
  * 10/16/2008   1548        jelkins     Integrated ParameterCode Types
  * 04/29/2014   3088        mpduff      cleanup.
  * 06/26/2014   3321        mpduff      Added ingestfilter primary key getter.
  * 01/10/2018   5049        mduff       ShefParm is now provided to this class.
+ * 01/16/2018   6561        mduff       Renamed getPeDTsEP and corrected the order of the data.
+ * 01/23/2018   6784        mduff       Refactored shef missing var names.
+ * 
  * 
  * </pre>
  */
@@ -152,7 +155,7 @@ public class ShefData {
             }
         } catch (NumberFormatException nfe) {
             logger.warn("Invalid value: " + stringValue, nfe);
-            value = null;
+            logger.warn("Invalid data: " + stringValue);
         }
     }
 
@@ -756,7 +759,8 @@ public class ShefData {
         if (value != null) {
             receiver.append(String.format("%10.3f", value));
         } else {
-            receiver.append(String.format("%10s", ShefConstants.SHEF_MISSING));
+            receiver.append(
+                    String.format("%10s", ShefConstants.SHEF_MISSING_STR));
         }
         receiver.append(" ");
         // Data Qualifier
@@ -809,12 +813,13 @@ public class ShefData {
      * 
      * @return
      */
-    public String getPeDTsE() {
+    public String getPeDTsEP() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getPhysicalElement().getCode());
+        sb.append(this.getDurationCodeVariable());
         sb.append(this.getTypeSource().getCode());
         sb.append(this.getExtremum().getCode());
-        sb.append(this.getDurationCodeVariable());
+        sb.append(this.getProbability().getCode());
         return sb.toString();
     }
 
@@ -831,6 +836,10 @@ public class ShefData {
         id.setPe(this.getPhysicalElement().getCode());
         id.setTs(this.getTypeSource().getCode());
         return id;
+    }
+
+    public boolean isMissing() {
+        return value == ShefConstants.SHEF_MISSING;
     }
 
     /**

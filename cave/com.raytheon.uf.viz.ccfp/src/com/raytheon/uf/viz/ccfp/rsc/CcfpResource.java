@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.ccfp.rsc;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,34 +63,35 @@ import com.vividsolutions.jts.geom.Point;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 22, 2009 3072       bsteffen     Initial creation
- * Aug 23, 2012  1096     njensen      Fixed memory leaks
- * Dec 20, 2012 DCS 135    tk          Changes for CCFP 2010 and 2012 TIN's
- * Jul 29, 2014 3465       mapeters    Updated deprecated drawStrings() calls.
- * Aug 04, 2014 3489       mapeters    Updated deprecated getStringBounds() calls.
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Sep 22, 2009  3072     bsteffen  Initial creation
+ * Aug 23, 2012  1096     njensen   Fixed memory leaks
+ * Dec 20, 2012  135      tk        Changes for CCFP 2010 and 2012 TIN's
+ * Jul 29, 2014  3465     mapeters  Updated deprecated drawStrings() calls.
+ * Aug 04, 2014  3489     mapeters  Updated deprecated getStringBounds() calls.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class CcfpResource extends
-        AbstractVizResource<CcfpResourceData, MapDescriptor> {
+public class CcfpResource
+        extends AbstractVizResource<CcfpResourceData, MapDescriptor> {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-    .getHandler(CcfpResource.class);
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CcfpResource.class);
 
     private static final String[] coverageValues = { "", "75-100%", "40-74%",
-    "25-39%" };
+            "25-39%" };
 
     private static final String[] confValues = { "", "HIGH", "", "LOW" };
 
     private static final String[] growthValues = { "", "+", "NC", "-" };
 
     private static final String[] topsValues = { "", "400", "390", "340",
-    "290" };
+            "290" };
 
     private static final String[] resourceTypes = { "", "Solid Coverage",
             "Medium Coverage", "Sparse Coverage", "Line" };
@@ -99,18 +99,18 @@ public class CcfpResource extends
     // This class holds cached shapes to avoid recalculating everything all
     // the time
     private class DisplayFrame {
-        Collection<CcfpRecord> records = new ArrayList<CcfpRecord>();
+        public Collection<CcfpRecord> records = new ArrayList<>();
 
-        IWireframeShape dottedPolygons;
+        public IWireframeShape dottedPolygons;
 
-        IWireframeShape solidPolygons;
+        public IWireframeShape solidPolygons;
 
         // Separate from solidPolygon because it needs to be redrawn when zooms
         // occur
-        IWireframeShape zoomDependentShapes;
+        public IWireframeShape zoomDependentShapes;
 
         // When extent != lastExtent we will redo zommDependentShapes
-        IExtent lastExtent;
+        public IExtent lastExtent;
 
         protected void dispose() {
             if (dottedPolygons != null) {
@@ -131,22 +131,22 @@ public class CcfpResource extends
             dispose();
             dottedPolygons = target.createWireframeShape(false, descriptor);
             solidPolygons = target.createWireframeShape(false, descriptor);
-            zoomDependentShapes = target
-                    .createWireframeShape(false, descriptor);
+            zoomDependentShapes = target.createWireframeShape(false,
+                    descriptor);
         }
 
     }
 
     // Place to store records that have not yet been stored
-    private Map<DataTime, Collection<CcfpRecord>> unprocessedRecords = new HashMap<DataTime, Collection<CcfpRecord>>();
+    private Map<DataTime, Collection<CcfpRecord>> unprocessedRecords = new HashMap<>();
 
-    private Map<DataTime, DisplayFrame> frames = new HashMap<DataTime, DisplayFrame>();
+    private Map<DataTime, DisplayFrame> frames = new HashMap<>();
 
     private DataTime displayedDataTime;
 
     protected CcfpResource(CcfpResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(new IResourceDataChanged() {
             @Override
             public void resourceChanged(ChangeType type, Object object) {
@@ -161,7 +161,6 @@ public class CcfpResource extends
                 issueRefresh();
             }
         });
-        this.dataTimes = new ArrayList<DataTime>();
 
     }
 
@@ -177,14 +176,6 @@ public class CcfpResource extends
                 frame.dispose();
             }
         }
-    }
-
-    @Override
-    public DataTime[] getDataTimes() {
-        if (this.dataTimes == null) {
-            return new DataTime[0];
-        }
-        return this.dataTimes.toArray(new DataTime[this.dataTimes.size()]);
     }
 
     @Override
@@ -285,7 +276,7 @@ public class CcfpResource extends
         synchronized (unprocessedRecords) {
             unprocessed = unprocessedRecords.get(this.displayedDataTime);
         }
-        if (unprocessed != null && unprocessed.size() > 0) {
+        if (unprocessed != null && !unprocessed.isEmpty()) {
             updateRecords(target, paintProps);
         }
 
@@ -357,8 +348,8 @@ public class CcfpResource extends
         String[] lines = getFormattedData(record);
 
         // This point should be the center left
-        double[] pt = descriptor.worldToPixel(new double[] {
-                record.getBoxLong(), record.getBoxLat() });
+        double[] pt = descriptor.worldToPixel(
+                new double[] { record.getBoxLong(), record.getBoxLat() });
         // Draw the text
         DrawableString string = new DrawableString(lines, color);
         string.setCoordinates(pt[0], pt[1], pt[2]);
@@ -382,12 +373,12 @@ public class CcfpResource extends
         Integer dir = record.getDirection();
         Integer spd = record.getSpeed();
         double[] scale = getScale(paintProps);
-        Coordinate centerll = findPointForDirection(record.getLocation()
-                .getGeometry(), dir);
+        Coordinate centerll = findPointForDirection(
+                record.getLocation().getGeometry(), dir);
         // Change from north at 0 degrees to x axis at zero degrees
         dir = (dir + 90);
-        double[] center = descriptor.worldToPixel(new double[] { centerll.x,
-                centerll.y });
+        double[] center = descriptor
+                .worldToPixel(new double[] { centerll.x, centerll.y });
         double[] txt = calculateRotation(center, spd + 10, dir, scale, target);
         double[] end = calculateRotation(center, spd, dir, scale, target);
         double[] point1 = calculateRotation(end, spd * 0.2, dir + 225, scale,
@@ -398,8 +389,8 @@ public class CcfpResource extends
         frame.zoomDependentShapes
                 .addLineSegment(new double[][] { center, end });
         // This is the arrow head
-        frame.zoomDependentShapes.addLineSegment(new double[][] { point1, end,
-                point2 });
+        frame.zoomDependentShapes
+                .addLineSegment(new double[][] { point1, end, point2 });
         // Add a label to the arrow
         frame.zoomDependentShapes.addLabel(spd.toString(), txt);
     }
@@ -427,8 +418,8 @@ public class CcfpResource extends
         double height = rect.getHeight() / lines.length + 3;
 
         // This point should be the center left on the box
-        double[] pt = descriptor.worldToPixel(new double[] {
-                record.getBoxLong(), record.getBoxLat() });
+        double[] pt = descriptor.worldToPixel(
+                new double[] { record.getBoxLong(), record.getBoxLat() });
         // Calculate the corners of the text box
         double x1 = pt[0] - 3 * scale[0];
         double x2 = pt[0] + (maxWidth + 3) * scale[0];
@@ -442,8 +433,8 @@ public class CcfpResource extends
         // Calculate the center of the box and the polygon
         Coordinate polyCenterLL = record.getLocation().getGeometry()
                 .getCentroid().getCoordinate();
-        double[] polyCenter = descriptor.worldToPixel(new double[] {
-                polyCenterLL.x, polyCenterLL.y });
+        double[] polyCenter = descriptor
+                .worldToPixel(new double[] { polyCenterLL.x, polyCenterLL.y });
         double[] boxCenter = new double[] { (x1 + x2) / 2, (y1 + y2) / 2 };
         // Determine which edge it is closest too and assign the closest Point
         // accordingly
@@ -476,8 +467,8 @@ public class CcfpResource extends
             Coordinate thisPoint = curPoint;
             for (int j = 0; j < 2; ++j) {
                 // First, test this vertex
-                double[] polyPixel = descriptor.worldToPixel(new double[] {
-                        thisPoint.x, thisPoint.y, thisPoint.z });
+                double[] polyPixel = descriptor.worldToPixel(
+                        new double[] { thisPoint.x, thisPoint.y, thisPoint.z });
                 double diffX = polyPixel[0] - closestBox[0];
                 double diffY = polyPixel[1] - closestBox[1];
                 double diff = diffX * diffX + diffY * diffY;
@@ -493,8 +484,8 @@ public class CcfpResource extends
             lastPoint = curPoint;
         }
         // Finally through the line into our shape
-        frame.zoomDependentShapes.addLineSegment(new double[][] { closestBox,
-                closestPoly });
+        frame.zoomDependentShapes
+                .addLineSegment(new double[][] { closestBox, closestPoly });
     }
 
     /**
@@ -526,8 +517,7 @@ public class CcfpResource extends
         Geometry geom = record.getLocation().getGeometry();
         if (record.getCoverage() == 2) {
             frame.dottedPolygons.addLineSegment(geom.getCoordinates());
-        }
-        else {
+        } else {
             frame.solidPolygons.addLineSegment(geom.getCoordinates());
         }
 
@@ -546,14 +536,13 @@ public class CcfpResource extends
             synchronized (unprocessedRecords) {
                 records = unprocessedRecords.get(dataTime);
                 if (records == null) {
-                    records = new LinkedHashSet<CcfpRecord>();
+                    records = new LinkedHashSet<>();
                     unprocessedRecords.put(dataTime, records);
                     brandNew = true;
                 }
             }
             if (brandNew) {
                 this.dataTimes.add(dataTime);
-                Collections.sort(this.dataTimes);
             }
 
             records.add(obj);
@@ -578,40 +567,40 @@ public class CcfpResource extends
 
         int tops = record.getTops();
         if (tops < topsValues.length) {
-    		lines[0] = "TOPS: " + topsValues[tops];
-    	} else {
-    		lines[0] = "TOPS: ";
-    		statusHandler.handle(Priority.EVENTA,
+            lines[0] = "TOPS: " + topsValues[tops];
+        } else {
+            lines[0] = "TOPS: ";
+            statusHandler.handle(Priority.EVENTA,
                     "Problem interogating CCFP data: tops value out of range");
-    	}
-        
+        }
+
         int gwth = record.getGrowth();
         if (gwth < growthValues.length) {
-    		lines[1] = "GWTH: " + growthValues[gwth];
-    	} else {
-    		 lines[1] = "GWTH: ";
-    		 statusHandler.handle(Priority.EVENTA,
-             "Problem interogating CCFP data: growth value out of range");
-    	}
-        
+            lines[1] = "GWTH: " + growthValues[gwth];
+        } else {
+            lines[1] = "GWTH: ";
+            statusHandler.handle(Priority.EVENTA,
+                    "Problem interogating CCFP data: growth value out of range");
+        }
+
         int conf = record.getConf();
         if (conf < confValues.length) {
-    		lines[2] = "CONF: " + confValues[conf];
-    	} else {
-    		lines[2] = "CONF: ";
-    		statusHandler.handle(Priority.EVENTA,
-            "Problem interogating CCFP data: confidence value out of range");
-    	}
-        
+            lines[2] = "CONF: " + confValues[conf];
+        } else {
+            lines[2] = "CONF: ";
+            statusHandler.handle(Priority.EVENTA,
+                    "Problem interogating CCFP data: confidence value out of range");
+        }
+
         int cvrg = record.getCoverage();
         if (cvrg < coverageValues.length) {
-    		lines[3] = "CVRG: " + coverageValues[cvrg];
-    	} else {
-    		lines[3] = "CVRG: ";
-    		statusHandler.handle(Priority.EVENTA,
-            "Problem interogating CCFP data: coverage value out of range");
-    	}
-        
+            lines[3] = "CVRG: " + coverageValues[cvrg];
+        } else {
+            lines[3] = "CVRG: ";
+            statusHandler.handle(Priority.EVENTA,
+                    "Problem interogating CCFP data: coverage value out of range");
+        }
+
         return lines;
     }
 
@@ -622,7 +611,7 @@ public class CcfpResource extends
      * @return
      */
     private boolean isPaintingArea(CcfpRecord record) {
-        return record.getProducttype().equals("AREA")
+        return "AREA".equals(record.getProducttype())
                 && resourceData.getCoverageFilter() == record.getCoverage()
                 && resourceData.isDisplayArea();
     }
@@ -634,7 +623,7 @@ public class CcfpResource extends
      * @return
      */
     private boolean isPaintingLine(CcfpRecord record) {
-        return record.getProducttype().equals("LINE")
+        return "LINE".equals(record.getProducttype())
                 && resourceData.getCoverageFilter() == 4
                 && resourceData.isDisplayArea();
     }
@@ -646,7 +635,7 @@ public class CcfpResource extends
      * @return
      */
     private boolean isPaintingText(CcfpRecord record) {
-        return record.getProducttype().equals("AREA")
+        return "AREA".equals(record.getProducttype())
                 && resourceData.getCoverageFilter() == record.getCoverage()
                 && resourceData.isDisplayText();
     }
@@ -658,7 +647,7 @@ public class CcfpResource extends
      * @return
      */
     private boolean isPaintingMovement(CcfpRecord record) {
-        return record.getProducttype().equals("AREA")
+        return "AREA".equals(record.getProducttype())
                 && resourceData.getCoverageFilter() == record.getCoverage()
                 && resourceData.isDisplayMovement() && record.getSpeed() != 0;
     }
@@ -704,13 +693,15 @@ public class CcfpResource extends
             Coordinate thisPoint = curPoint;
             for (int j = 0; j < 2; ++j) {
                 // First, test this vertex
-                double angle = Math.atan2(centroid.y - thisPoint.y, thisPoint.x
-                        - centroid.x);
+                double angle = Math.atan2(centroid.y - thisPoint.y,
+                        thisPoint.x - centroid.x);
                 double diff = Math.abs(angle - targetDir);
-                while (diff >= 2 * Math.PI)
+                while (diff >= 2 * Math.PI) {
                     diff -= 2 * Math.PI;
-                if (diff > Math.PI)
+                }
+                if (diff > Math.PI) {
                     diff = 2 * Math.PI - diff;
+                }
 
                 if (diff < bestDiff) {
                     bestDiff = diff;
@@ -757,8 +748,7 @@ public class CcfpResource extends
             for (DataTime time : frames.keySet()) {
                 DisplayFrame frame = frames.get(time);
                 if (frame != null) {
-                    List<CcfpRecord> copyList = new ArrayList<CcfpRecord>(
-                            frame.records);
+                    List<CcfpRecord> copyList = new ArrayList<>(frame.records);
                     synchronized (unprocessedRecords) {
                         unprocessedRecords.put(time, copyList);
                     }

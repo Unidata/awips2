@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,27 +39,28 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Derived from the Interp ABC. Computes coefficients for interpolation of real
  * numbers from spline functions.
- * 
+ *
  * The sequence of baseDataIndices contains the indexes that contain the base
  * data. The sequence of data slices should contain a mix of "NULL-type" and
  * valid data slices. The mathematical algorithms for spline interpolation for a
  * single time-value function are coded here. Assumes that the base data are
  * valid.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 2, 2008		#1161	randerso	Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------
+ * Jun 02, 2008  1161     randerso  Initial creation
+ * Feb 23, 2018  7178     randerso  Code cleanup.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public abstract class ContInterp extends Interp {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Parm.class);
 
     // Tuneable parameter: number of sectors in a circle around each data point,
@@ -81,6 +82,8 @@ public abstract class ContInterp extends Interp {
     }
 
     /**
+     * Constructor
+     *
      * @param dataslices
      * @param baseDataIndices
      * @param parmid
@@ -88,7 +91,8 @@ public abstract class ContInterp extends Interp {
      * @param gridTimes
      */
     public ContInterp(List<IGridSlice> dataslices, int[] baseDataIndices,
-            ParmID parmid, GridParmInfo gridparminfo, List<TimeRange> gridTimes) {
+            ParmID parmid, GridParmInfo gridparminfo,
+            List<TimeRange> gridTimes) {
         super(dataslices, baseDataIndices, parmid, gridparminfo, gridTimes);
     }
 
@@ -99,8 +103,9 @@ public abstract class ContInterp extends Interp {
      * Allocates the memory of proper size for the input baseInfo item. Does not
      * initialize the values. This is called by derived classes when they are
      * constructed.
-     * 
-     * @param baseInfo
+     *
+     * @return a grid of BaseInfo
+     *
      */
     protected Grid2D<BaseInfo> allocateBaseInfoGrid() {
         // get size of our grid
@@ -110,7 +115,7 @@ public abstract class ContInterp extends Interp {
 
         // so far baseInfo exists as zero size, having been constructed by
         // default. Give it the proper size.
-        Grid2D<BaseInfo> baseInfo = new Grid2D<BaseInfo>(size.x, size.y);
+        Grid2D<BaseInfo> baseInfo = new Grid2D<>(size.x, size.y);
 
         // new up arrays of proper length for each point in the baseInfo
         // (numberOfBaseSlices() is defined in Interp class)
@@ -132,8 +137,8 @@ public abstract class ContInterp extends Interp {
      * @param baseInfo
      */
     protected void deallocateBaseInfoGrid(Grid2D<BaseInfo> baseInfo) {
-        for (int i = 0; i < baseInfo.getXDim(); i++) {
-            for (int j = 0; j < baseInfo.getYDim(); j++) {
+        for (int i = 0; i < baseInfo.getXdim(); i++) {
+            for (int j = 0; j < baseInfo.getYdim(); j++) {
                 baseInfo.get(i, j).knownDataValues = null;
                 baseInfo.get(i, j).splineCoeff = null;
             }
@@ -143,16 +148,16 @@ public abstract class ContInterp extends Interp {
     /**
      * Interpolates the grid specified by "index" given the base info grid.
      * Returns the interpolated grid as a two-dimensional array of floats.
-     * 
+     *
      * @param baseInfo
      * @param index
-     * @return
+     * @return the interpolated grid
      */
     protected Grid2DFloat interpolateGrid(final Grid2D<BaseInfo> baseInfo,
             int index) {
         // create an empty output grid
-        Grid2DFloat outGrid = new Grid2DFloat(baseInfo.getXDim(),
-                baseInfo.getYDim());
+        Grid2DFloat outGrid = new Grid2DFloat(baseInfo.getXdim(),
+                baseInfo.getYdim());
 
         // get end times of that data gridSlice; make its interp time (mid point
         // time)
@@ -176,8 +181,8 @@ public abstract class ContInterp extends Interp {
             knownTimes[bdCount] = ritime;
         }
 
-        for (int ix = 0; ix < baseInfo.getXDim(); ix++) {
-            for (int jy = 0; jy < baseInfo.getYDim(); jy++) {
+        for (int ix = 0; ix < baseInfo.getXdim(); ix++) {
+            for (int jy = 0; jy < baseInfo.getYdim(); jy++) {
                 double interpTime;
                 // Load known values from data structures into working
                 // variables.
@@ -186,7 +191,8 @@ public abstract class ContInterp extends Interp {
                 for (int bdCount = 0; bdCount < n; bdCount++) {
                     // load this grid point's value and spline coefficients,
                     // previously stored in the baseInfro structure
-                    knownValues[bdCount] = baseInfo.get(ix, jy).knownDataValues[bdCount];
+                    knownValues[bdCount] = baseInfo.get(ix,
+                            jy).knownDataValues[bdCount];
                     coeffs[bdCount] = baseInfo.get(ix, jy).splineCoeff[bdCount];
                 }
 
@@ -220,19 +226,18 @@ public abstract class ContInterp extends Interp {
                     c1 = (knownTimes[startindex] - interpTime) / timeDiff;
                     c2 = (interpTime - knownTimes[endindex]) / timeDiff;
 
-                    result = c1
-                            * knownValues[endindex]
-                            + c2
-                            * knownValues[startindex]
-                            + ((c1 * c1 * c1 - c1) * coeffs[endindex] + (c2
-                                    * c2 * c2 - c2)
-                                    * coeffs[startindex])
-                            * (timeDiff * timeDiff) / 6.0;
+                    result = c1 * knownValues[endindex]
+                            + c2 * knownValues[startindex]
+                            + ((c1 * c1 * c1 - c1) * coeffs[endindex]
+                                    + (c2 * c2 * c2 - c2) * coeffs[startindex])
+                                    * (timeDiff * timeDiff) / 6.0;
                 }
 
-                outGrid.set(ix, jy, Math.max(Math.min((float) result,
-                        getGridParmInfo().getMaxValue()), getGridParmInfo()
-                        .getMinValue()));
+                outGrid.set(ix, jy,
+                        Math.max(
+                                Math.min((float) result,
+                                        getGridParmInfo().getMaxValue()),
+                                getGridParmInfo().getMinValue()));
             }
         }
 
@@ -242,9 +247,9 @@ public abstract class ContInterp extends Interp {
     /**
      * Routine that calls for calculation of the the spline coefficients for all
      * the spline functions determined for a baseInfo grid.
-     * 
+     *
      * There is one such function for each point in the baseInfo grid.
-     * 
+     *
      * @param baseInfo
      */
     protected void initializeSplineCoeff(Grid2D<BaseInfo> baseInfo) {
@@ -259,8 +264,8 @@ public abstract class ContInterp extends Interp {
         double[] coeffs = new double[n];
         double[] a = new double[n];
 
-        for (int ix = 0; ix < baseInfo.getXDim(); ix++) {
-            for (int jy = 0; jy < baseInfo.getYDim(); jy++) {
+        for (int ix = 0; ix < baseInfo.getXdim(); ix++) {
+            for (int jy = 0; jy < baseInfo.getYdim(); jy++) {
                 // Load the data into working arrays.
                 // loop through each base data gridSlice to get the time,
                 // and to get the grid point value at this grid point
@@ -293,8 +298,9 @@ public abstract class ContInterp extends Interp {
                     coeffs[i] = (diff - 1.0) / b;
                     a[i] = (6.0
                             * ((values[i + 1] - values[i])
-                                    / (times[i + 1] - times[i]) - (values[i] - values[i - 1])
-                                    / (times[i] - times[i - 1]))
+                                    / (times[i + 1] - times[i])
+                                    - (values[i] - values[i - 1])
+                                            / (times[i] - times[i - 1]))
                             / (times[i + 1] - times[i - 1]) - diff * a[i - 1])
                             / b;
                 }
@@ -315,21 +321,21 @@ public abstract class ContInterp extends Interp {
      * presumably these are grouped togehter in a distinct area, neither
      * scattered nor covereing a large part of the grid, but in every case this
      * function will give an answer.
-     * 
+     *
      * center is x,y in " units" of grid index values.
-     * 
+     *
      * 0,0 is returned if no points of this value are found; this may be used as
      * a signal that there are no such points. In no other case can 0,0
      * returned, (except the trivial case of one valid point at 0,0).
-     * 
+     *
      * Used in computing areas of interest used in advection calculations.
-     * 
+     *
      * This is a center of mass of all points in the area. Other possibilities
      * exist, such as center of mass of just the boundary points.
-     * 
+     *
      * @param indicatorGrid
      * @param testValue
-     * @return
+     * @return the center coordinate
      */
     protected Coordinate computeAreaCenter(final Grid2DInteger indicatorGrid,
             final int testValue) {
@@ -337,8 +343,8 @@ public abstract class ContInterp extends Interp {
 
         // check every point on the grid for points of this value,
         // and sum the x and y positions for those points.
-        for (i = 0; i < indicatorGrid.getXDim(); i++) {
-            for (j = 0; j < indicatorGrid.getYDim(); j++) {
+        for (i = 0; i < indicatorGrid.getXdim(); i++) {
+            for (j = 0; j < indicatorGrid.getYdim(); j++) {
                 if (indicatorGrid.get(i, j) == testValue) {
                     sumX += i;
                     sumY += j;
@@ -365,7 +371,7 @@ public abstract class ContInterp extends Interp {
     /**
      * Find angle sector number (numbers 0 to numSectors for 0 to 360 degrees)
      * that this x,y pair lies in.
-     * 
+     *
      * @param x
      * @param y
      * @return
@@ -400,34 +406,34 @@ public abstract class ContInterp extends Interp {
 
     /**
      * Create a new grid of values from two previously known scalar grids
-     * 
+     *
      * Works for input grids with background values of 0.0 which covers
      * (normally) most of the grid. Non-zero areas are assumed to move rather
      * than change value in place.
-     * 
+     *
      * Zeta is fractional distance from first known grid before the interpolated
      * grid to the known grid afterwards. Ranges from 0.0 at first known grid to
      * 1.0 at last known grid. Really only 0.0<zeta<1.0 correct.
-     * 
+     *
      * Input is base or known grids just preceding and following grid to
      * interpolate. "firstGrid", "lastGrid"
-     * 
+     *
      * 1. define "featureStart" and "featureEnd" indicator grids showing where
      * the "moving feature" is in the first and last grids. For this function,
      * the moving feature is where any and all data > zero. For a more powerful
      * interpolation with advection, have the user interactively define the
      * location of the moving feature on the preceding and following grids.
-     * 
+     *
      * 2. Find center of moving featuer in first and last grids
-     * 
+     *
      * 3. Compute components of motion of the moving feature.
-     * 
+     *
      * 4. Determine the working grids. There is a core area with non-zero values
      * found in both known grids, a "fadeArea" grid showing value of points with
      * non-zero values in first grid which translate with the area to points in
      * the last the grid with zero value, and the growArea which is like the
      * fadeArea but for points whose value appears to grow from zero.
-     * 
+     *
      * 5. Derive interpolated grid (floats) from working grids. The core area
      * translates and changes in value. The fadeArea points translate, fade down
      * to zero value, and also there is a shrinking boundary which pulls in,
@@ -438,13 +444,13 @@ public abstract class ContInterp extends Interp {
      * coreArea, fadeArea, and growArea from initial known value to final values
      * are linear. Expansion of growArea boundary and contraction of fadeArea
      * boundary is linear by interpolation fraction.
-     * 
+     *
      * 6. Convert result grid of floats to grid of bytes (key indices)
-     * 
+     *
      * @param firstGrid
      * @param lastGrid
      * @param zeta
-     * @return
+     * @return the resultant grid
      */
     protected Grid2DFloat autoScalarAdvection(final Grid2DFloat firstGrid,
             final Grid2DFloat lastGrid, float zeta) {
@@ -512,15 +518,17 @@ public abstract class ContInterp extends Interp {
         for (i = 0; i < xDim; i++) {
             for (j = 0; j < yDim; j++) {
                 if (featureStart.get(i, j) == 1) {
-                    if (!found) // set value when first found a valid one
-                    {
+                    if (!found) {
+                        // set value when first found a valid one
                         singleValue = firstGrid.get(i, j);
                         oneType = true;
                         found = true;
                     }
                     if (firstGrid.get(i, j) != singleValue) {
                         oneType = false;
-                        break; // have found > 1 type, so can quit looking.
+
+                        // have found > 1 type, so can quit looking.
+                        break;
                     }
                 }
 
@@ -587,13 +595,14 @@ public abstract class ContInterp extends Interp {
                 // make sure translated point is still on grid:
                 if (tx >= 0 && tx < xDim && ty >= 0 && ty < yDim) {
                     // determine distance of this point from center of area;
-                    dist = (float) ((center1.x - i) * (center1.x - i) + (center1.y - j)
-                            * (center1.y - j));
+                    dist = (float) ((center1.x - i) * (center1.x - i)
+                            + (center1.y - j) * (center1.y - j));
 
                     // if this point has value>0 on first grid, and >0 at
                     // the corresponding position in the last grid, it is
                     // part of the moving core. Retain its change in value.
-                    if (firstGrid.get(i, j) > 0.0 && lastGrid.get(tx, ty) > 0.0) {
+                    if (firstGrid.get(i, j) > 0.0
+                            && lastGrid.get(tx, ty) > 0.0) {
                         coreChange.set(i, j,
                                 lastGrid.get(tx, ty) - firstGrid.get(i, j));
                         coreArea.set(i, j, 1);
@@ -684,8 +693,8 @@ public abstract class ContInterp extends Interp {
                 ty = j + (int) ((dy * zeta) + 0.5);
 
                 // determine distance of this point from center of area;
-                dist = (float) ((center1.x - i) * (center1.x - i) + (center1.y - j)
-                        * (center1.y - j));
+                dist = (float) ((center1.x - i) * (center1.x - i)
+                        + (center1.y - j) * (center1.y - j));
 
                 // compute which angle sector this point lies in,
                 // and the distance to furthest out edge of growArea and
@@ -734,8 +743,8 @@ public abstract class ContInterp extends Interp {
                         } else {
                             // translate core,
                             // and change values linearly as you go.
-                            result.set(tx, ty, firstGrid.get(i, j) + zeta
-                                    * coreChange.get(i, j));
+                            result.set(tx, ty, firstGrid.get(i, j)
+                                    + zeta * coreChange.get(i, j));
                         }
                     }
                 }

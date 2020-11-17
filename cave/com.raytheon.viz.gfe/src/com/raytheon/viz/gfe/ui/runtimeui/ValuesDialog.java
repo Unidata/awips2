@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
@@ -40,27 +41,26 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Displays a shell based on a list of widgets.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 03, 2008 1164       jelkins     Initial creation
- * Oct 15, 2008            njensen     Static methods to keep UI
- *                                     thread working
- * Mar 28, 2013 1790       rferrel     Make dialog modal except when the static openDialog is used.
- * Jan 15, 2015 5054       randerso    Remove unnecessary new Shell
- * Jan 29, 2016 5289       tgurney     Add missing close button in trim
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 03, 2008  1164     jelkins   Initial creation
+ * Oct 15, 2008           njensen   Static methods to keep UI thread working
+ * Mar 28, 2013  1790     rferrel   Make dialog modal except when the static
+ *                                  openDialog is used.
+ * Jan 15, 2015  5054     randerso  Remove unnecessary new Shell
+ * Jan 29, 2016  5289     tgurney   Add missing close button in trim
+ * Jan 15, 2018  6684     randerso  Fixed dialog sizing issues. Code cleanup.
+ *
  * </pre>
- * 
+ *
  * @author jelkins
- * @version 1.0
  */
 
 public class ValuesDialog extends CaveJFACEDialog {
-
-    private static ValuesDialog syncedDialog;
 
     private String title;
 
@@ -80,10 +80,10 @@ public class ValuesDialog extends CaveJFACEDialog {
 
     /**
      * Class constructor
-     * 
+     *
      * @param parentShell
      *            the parent shell of this dialog
-     * 
+     *
      * @param title
      *            title to be displayed in the title bar of this dialog
      * @param fieldDefs
@@ -97,32 +97,18 @@ public class ValuesDialog extends CaveJFACEDialog {
         this.fieldDefs = fieldDefs;
         this.dataMgr = dataMgr;
 
-        this.values = new HashMap<Object, Object>();
+        this.values = new HashMap<>();
         this.closeAfterRun = false;
 
         this.setShellStyle(SWT.APPLICATION_MODAL | SWT.TITLE | SWT.RESIZE);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
         newShell.setText(title);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
 
@@ -151,11 +137,6 @@ public class ValuesDialog extends CaveJFACEDialog {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-     */
     @Override
     protected void buttonPressed(int buttonId) {
 
@@ -171,26 +152,28 @@ public class ValuesDialog extends CaveJFACEDialog {
         case OK:
         case RUN_DISMISS:
             doRun();
+            close();
+            break;
+
         case CANCEL:
             close();
             break;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     protected Control createDialogArea(Composite parent) {
+        Composite top = (Composite) super.createDialogArea(parent);
 
-        composite = new DialogAreaComposite(parent, fieldDefs, this.dataMgr);
+        // Create the main layout for the top level composite.
+        GridLayout mainLayout = new GridLayout(1, false);
+        mainLayout.marginHeight = 0;
+        mainLayout.marginWidth = 0;
+        top.setLayout(mainLayout);
 
-        return composite;
+        this.composite = new DialogAreaComposite(top, fieldDefs, this.dataMgr);
 
+        return top;
     }
 
     /**
@@ -202,9 +185,7 @@ public class ValuesDialog extends CaveJFACEDialog {
         // get the values
         for (Widget w : composite.getWidgetList()) {
             if (!(w instanceof LabelWidget)) {
-                Object key = (w.getVariable() != null) ? w.getVariable() : w
-                        .getLabel();
-                values.put(key, w.getValue());
+                values.put(w.getVariable(), w.getValue());
             }
         }
 
@@ -236,7 +217,7 @@ public class ValuesDialog extends CaveJFACEDialog {
      * buttons on this dialog. The callback should be set before calling
      * <code>open</code>.
      * </p>
-     * 
+     *
      * @param callback
      *            the callback to set
      */
@@ -268,7 +249,7 @@ public class ValuesDialog extends CaveJFACEDialog {
      * This function is more of a utlity for the python bridge than for Java.
      * Ideally this functionality will not be needed from within pure Java code.
      * </p>
-     * 
+     *
      * @param closeAfterRun
      *            the closeAfterRun to set
      */
@@ -284,7 +265,7 @@ public class ValuesDialog extends CaveJFACEDialog {
      * (through JEP), it is more difficult to determine the classLoader of a
      * class.
      * </p>
-     * 
+     *
      * @return the classLoader of this class
      */
     public static ClassLoader getClassLoader() {
@@ -293,31 +274,32 @@ public class ValuesDialog extends CaveJFACEDialog {
 
     /**
      * This method used by python to create a blocking, non-modal dialog.
-     * 
+     *
      * @param title
      * @param fieldDefs
      * @param dataMgr
-     * @return
+     * @return the dialog
      */
     public static ValuesDialog openDialog(final String title,
             final List<FieldDefinition> fieldDefs, final DataManager dataMgr) {
+
+        ValuesDialog[] dialog = new ValuesDialog[1];
         VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
                 Shell shell = null;
                 if (PlatformUI.isWorkbenchRunning()) {
-                    shell = PlatformUI.getWorkbench()
-                            .getActiveWorkbenchWindow().getShell();
+                    shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                            .getShell();
                 }
 
-                syncedDialog = new ValuesDialog(shell, title, fieldDefs,
-                        dataMgr);
-                syncedDialog.setShellStyle(
+                dialog[0] = new ValuesDialog(shell, title, fieldDefs, dataMgr);
+                dialog[0].setShellStyle(
                         SWT.CLOSE | SWT.MODELESS | SWT.TITLE | SWT.RESIZE);
-                syncedDialog.open();
+                dialog[0].open();
             }
         });
-        return syncedDialog;
+        return dialog[0];
     }
 }

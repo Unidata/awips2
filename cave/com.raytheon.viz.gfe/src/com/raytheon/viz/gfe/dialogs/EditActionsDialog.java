@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -50,35 +50,38 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Dialog for the smart tools edit action
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 18, 2007            njensen     Initial creation.	
- * 05Aug2008    #1407      ebabin      Dim delta button for wx/discrete types.
- * Oct 25, 2012 #1287      rferrel     Code clean up part of non-blocking dialog.
- * Oct 13, 2012 #1298      rferrel     Changes for non-blocking SetDeltaDialog.
- *                                      Changes for non-blocking SetValueDialog.
- * Jun 05, 2015  4259      njensen     Removed LD_PRELOAD check                                     
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 18, 2007           njensen   Initial creation.
+ * Aug 05, 2008  1407     ebabin    Dim delta button for wx/discrete types.
+ * Oct 25, 2012  1287     rferrel   Code clean up part of non-blocking dialog.
+ * Oct 13, 2012  1298     rferrel   Changes for non-blocking SetDeltaDialog.
+ *                                  Changes for non-blocking SetValueDialog.
+ * Jun 05, 2015  4259     njensen   Removed LD_PRELOAD check
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
-public class EditActionsDialog extends CaveJFACEDialog implements
-        ISmartToolInventoryChanged {
+public class EditActionsDialog extends CaveJFACEDialog
+        implements ISmartToolInventoryChanged {
 
-    private final String XCOORD_SETTING = "EditActionDialog_Xcoord";
+    private static final String XCOORD_SETTING = "EditActionDialog_Xcoord";
 
-    private final String YCOORD_SETTING = "EditActionDialog_Ycoord";
+    private static final String YCOORD_SETTING = "EditActionDialog_Ycoord";
 
-    private final int PICKUP_ID = 2;
+    private static final int PICKUP_ID = 2;
 
-    private final int DELTA_ID = 3;
+    private static final int DELTA_ID = 3;
 
-    private final int HEIGHT = 330;
+    private static final int HEIGHT = 330;
 
     private String title;
 
@@ -106,7 +109,7 @@ public class EditActionsDialog extends CaveJFACEDialog implements
 
     /**
      * Constructor
-     * 
+     *
      * @param parentShell
      */
     public EditActionsDialog(Shell parentShell) {
@@ -131,8 +134,8 @@ public class EditActionsDialog extends CaveJFACEDialog implements
             }
         };
 
-        dataManager.getSpatialDisplayManager().addActivatedParmChangedListener(
-                parmChanged);
+        dataManager.getSpatialDisplayManager()
+                .addActivatedParmChangedListener(parmChanged);
 
         dataManager.getSmartToolInterface().addListener(this);
     }
@@ -146,11 +149,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         return super.close();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-     */
     @Override
     protected void buttonPressed(int buttonId) {
         if (buttonId == DELTA_ID) {
@@ -163,13 +161,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -178,13 +169,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         pickupButton = createButton(parent, PICKUP_ID, "PickUp...", false);
@@ -213,13 +197,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         return contents;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     protected Control createDialogArea(final Composite parent) {
 
@@ -302,8 +279,8 @@ public class EditActionsDialog extends CaveJFACEDialog implements
 
     private void initToolsLabel() {
         toolsLabel = new Label(comp, SWT.NONE);
-        toolsLabel.setLayoutData(new GridData(SWT.CENTER, SWT.NONE, false,
-                false));
+        toolsLabel.setLayoutData(
+                new GridData(SWT.CENTER, SWT.NONE, false, false));
         toolsLabel.setText("Smart Tools");
     }
 
@@ -314,9 +291,13 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         toolsList.addMouseListener(listener);
     }
 
+    /**
+     * @param parm
+     * @return array containing names of applicable smart tools for parm
+     */
     public String[] getSmartTools(Parm parm) {
-        return dataManager.getSmartToolInterface().listTools(
-                screenItem.getSelection() ? parm : null);
+        return dataManager.getSmartToolInterface()
+                .listTools(screenItem.getSelection() ? parm : null);
     }
 
     private void showDeltaDialog() {
@@ -327,31 +308,14 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         SetValueDialog.openDialog();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#getInitialLocation(org.eclipse.swt.graphics
-     * .Point)
-     */
     @Override
     protected Point getInitialLocation(Point initialSize) {
         Point result = super.getInitialLocation(initialSize);
-        if (GFEPreference.contains(XCOORD_SETTING)) {
-            result.x = GFEPreference.getIntPreference(XCOORD_SETTING);
-        }
-        if (GFEPreference.contains(YCOORD_SETTING)) {
-            result.y = GFEPreference.getIntPreference(YCOORD_SETTING);
-        }
+        result.x = GFEPreference.getInt(XCOORD_SETTING, result.x);
+        result.y = GFEPreference.getInt(YCOORD_SETTING, result.y);
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.msgs.ISmartToolInventoryChanged#
-     * smartToolInventoryChanged()
-     */
     @Override
     public void smartToolInventoryChanged() {
         VizApp.runAsync(new Runnable() {

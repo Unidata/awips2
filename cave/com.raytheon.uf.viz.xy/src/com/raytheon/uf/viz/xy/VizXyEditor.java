@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.xy.graph.AbstractXyRenderableDisplay;
 import com.raytheon.uf.viz.xy.map.IInsetMapContainer.InsetMapUtil;
+import com.raytheon.uf.viz.xy.map.IInsetMapDisplayPaneContainer;
 import com.raytheon.viz.ui.editor.EditorInput;
 import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
 import com.raytheon.viz.ui.panes.PaneManager;
@@ -46,15 +47,15 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * Oct 08, 2009            mschenke    Initial creation
  * Mar 02, 2015  4204      njensen     Overrode setPartName()
  * Oct 21, 2015  5023      njensen     Renamed getEditorName() to getDefaultName()
+ * Feb 19, 2018  7060      njensen     Implemented IInsetMapDisplayContainer
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 
 public class VizXyEditor extends VizMultiPaneEditor implements
-        IRenderableDisplayChangedListener {
+        IRenderableDisplayChangedListener, IInsetMapDisplayPaneContainer {
 
     protected String name;
 
@@ -67,13 +68,13 @@ public class VizXyEditor extends VizMultiPaneEditor implements
             throws PartInitException {
         super.validateEditorInput(input);
         if (input.getPaneManager() != null
-                && input.getPaneManager() instanceof XyPaneManager == false) {
+                && !(input.getPaneManager() instanceof XyPaneManager)) {
             throw new PartInitException("Expected pane manager of type: "
                     + XyPaneManager.class);
         }
 
         for (IRenderableDisplay display : input.getRenderableDisplays()) {
-            if (display instanceof AbstractXyRenderableDisplay == false) {
+            if (!(display instanceof AbstractXyRenderableDisplay)) {
                 throw new PartInitException("Expected display of type: "
                         + AbstractXyRenderableDisplay.class + ", got "
                         + display.getClass());
@@ -110,7 +111,7 @@ public class VizXyEditor extends VizMultiPaneEditor implements
             if (newRenderableDisplay instanceof AbstractXyRenderableDisplay) {
                 String title = ((AbstractXyRenderableDisplay) newRenderableDisplay)
                         .getTabTitle();
-                if (title != null && "".equals(title) == false) {
+                if (title != null && !title.isEmpty()) {
                     setTabTitle(title);
                 }
             }
@@ -142,6 +143,16 @@ public class VizXyEditor extends VizMultiPaneEditor implements
     @Override
     public void setPartName(String partName) {
         super.setPartName(partName);
+    }
+
+    @Override
+    public IDisplayPane[] getInsetPanes() {
+        return getPaneManager().getInsetPanes();
+    }
+
+    @Override
+    public IDisplayPane[] getInsetPanes(IDisplayPane pane) {
+        return getPaneManager().getInsetPanes(pane);
     }
 
 }

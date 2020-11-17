@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -50,17 +50,12 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.CommitGridRequest;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.common.time.util.ITimer;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
@@ -72,33 +67,31 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
  * The publish to official dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 	Mar 6, 2008            Eric Babin  Initial Creation
- * Sep 01, 2009      #1370 randerso    Completely reworked
- * Aug 05, 2010 6698       mpduff      Moved Publish work to its own thread.
- * Oct 25, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
- * 02/12/2013        #1597 randerso    Added logging to support GFE Performance metrics
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Mar 06, 2008           Eric Babin  Initial Creation
+ * Sep 01, 2009  1370     randerso    Completely reworked
+ * Aug 05, 2010  6698     mpduff      Moved Publish work to its own thread.
+ * Oct 25, 2012  1287     rferrel     Code cleanup for non-blocking dialog.
+ * Feb 12, 2013  1597     randerso    Added logging to support GFE Performance
+ *                                    metrics
+ * Jan 25, 2018  7153     randerso    Changes to allow new GFE config file to be
+ *                                    selected when perspective is re-opened.
+ * Feb 05, 2018  6887     dgiiling    Move logging about publish to ParmOp.
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
 public class PublishDialog extends CaveJFACEDialog {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PublishDialog.class);
 
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("GFE:");
-
-    private final int MAX_LIST_HEIGHT = 10;
-
-    private final PythonPreferenceStore prefs = Activator.getDefault()
-            .getPreferenceStore();
+    private static final int MAX_LIST_HEIGHT = 10;
 
     private static Boolean IscStateP;
 
@@ -124,9 +117,13 @@ public class PublishDialog extends CaveJFACEDialog {
 
     private org.eclipse.swt.widgets.List tpListbox;
 
+    /**
+     * Constructor for the Publish Dialog
+     *
+     * @param parent
+     * @param dataManager
+     */
     public PublishDialog(Shell parent, DataManager dataManager) {
-        // Constructor for the Publish Dialog
-
         super(parent);
         this.dataManager = dataManager;
         parmMgr = dataManager.getParmManager();
@@ -137,7 +134,7 @@ public class PublishDialog extends CaveJFACEDialog {
         ParmID[] officialParms = parmMgr.getAvailableParms(officialDb);
 
         // eliminate any parms in availableParms that isn't in officialParms
-        ArrayList<ParmID> temp = new ArrayList<ParmID>();
+        ArrayList<ParmID> temp = new ArrayList<>();
         for (ParmID p : availableParms) {
             for (ParmID o : officialParms) {
                 if (p.getParmName().equals(o.getParmName())
@@ -150,26 +147,19 @@ public class PublishDialog extends CaveJFACEDialog {
 
         Collections.sort(temp);
         this.availableParms = temp.toArray(new ParmID[temp.size()]);
-        String initialBundleGrp = prefs
+        String initialBundleGrp = GFEPreference
                 .getString("PublishDialogInitialWEGroup");
         if (initialBundleGrp.isEmpty()) {
             displayedParms = parmMgr.getParmIDs(parmMgr.getDisplayedParms());
         } else {
-            displayedParms = this.dataManager.getWEGroupManager().getParmIDs(
-                    initialBundleGrp, this.availableParms);
+            displayedParms = this.dataManager.getWEGroupManager()
+                    .getParmIDs(initialBundleGrp, this.availableParms);
         }
         selectedParms = parmMgr.getParmIDs(parmMgr.getSelectedParms());
 
-        timePd = prefs.getStringArray("PublishTimes");
+        timePd = GFEPreference.getStringArray("PublishTimes");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -269,7 +259,7 @@ public class PublishDialog extends CaveJFACEDialog {
         // Get the list of Weather Element Groups
         List<String> groupInv = dataManager.getWEGroupManager().getInventory();
 
-        ArrayList<String> filtGroupInv = new ArrayList<String>();
+        ArrayList<String> filtGroupInv = new ArrayList<>();
         for (String group : groupInv) {
             // verify that there are valid entries in it
             if (dataManager.getWEGroupManager().getParmIDs(group,
@@ -299,10 +289,16 @@ public class PublishDialog extends CaveJFACEDialog {
         ISCSendStatusChangedMsg msg = Message
                 .inquireLastMessage(ISCSendStatusChangedMsg.class);
         boolean newState = msg.isEnabled();
-        if (IscStateP != null && (IscStateP.booleanValue() == newState)) {
-            return; // no message needed
+        if ((IscStateP != null) && (IscStateP.booleanValue() == newState)) {
+            // no message needed
+            return;
         }
-        IscStateP = newState; // save new state
+
+        synchronized (PublishDialog.class) {
+            // save new state
+            IscStateP = newState;
+        }
+
         String t;
         if (this.dataManager.sendIscOnPublish()) {
             if (newState) {
@@ -318,10 +314,10 @@ public class PublishDialog extends CaveJFACEDialog {
             // text="Notice: " + t).pack(side=Tkinter.TOP)
             Label notice = new Label(top, SWT.BORDER);
             notice.setText("Notice: " + t);
-            notice.setBackground(notice.getDisplay().getSystemColor(
-                    SWT.COLOR_WHITE));
-            notice.setForeground(notice.getDisplay().getSystemColor(
-                    SWT.COLOR_RED));
+            notice.setBackground(
+                    notice.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+            notice.setForeground(
+                    notice.getDisplay().getSystemColor(SWT.COLOR_RED));
             GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true,
                     false, 2, 1);
             notice.setLayoutData(layoutData);
@@ -331,8 +327,8 @@ public class PublishDialog extends CaveJFACEDialog {
     private void openBundleCB(String bundleName) {
         // Callback to open the selected Bundle
         // Get the list of ParmIDs, mutable db
-        ParmID[] parmIDs = dataManager.getWEGroupManager().getParmIDs(
-                bundleName, availableParms);
+        ParmID[] parmIDs = dataManager.getWEGroupManager()
+                .getParmIDs(bundleName, availableParms);
 
         // reset all entries (weather elements) to off
         weListbox.deselectAll();
@@ -360,7 +356,8 @@ public class PublishDialog extends CaveJFACEDialog {
         String[] elementList = new String[availableParms.length];
         int i = 0;
         for (ParmID parmID : availableParms) {
-            elementList[i++] = parmID.compositeNameUI();
+            elementList[i] = parmID.compositeNameUI();
+            i++;
         }
         weListbox.setItems(elementList);
 
@@ -383,13 +380,13 @@ public class PublishDialog extends CaveJFACEDialog {
         GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         tpGroup.setLayoutData(layoutData);
 
-        tpListbox = new org.eclipse.swt.widgets.List(tpGroup, SWT.SINGLE
-                | SWT.V_SCROLL);
+        tpListbox = new org.eclipse.swt.widgets.List(tpGroup,
+                SWT.SINGLE | SWT.V_SCROLL);
         layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         layoutData.heightHint = tpListbox.getItemHeight() * MAX_LIST_HEIGHT;
         tpListbox.setLayoutData(layoutData);
 
-        ArrayList<String> elementList = new ArrayList<String>();
+        ArrayList<String> elementList = new ArrayList<>();
         elementList.add("All Grids");
         elementList.add("Selected Time");
 
@@ -410,7 +407,7 @@ public class PublishDialog extends CaveJFACEDialog {
 
     private List<ParmID> getParms() {
         // make a list of the parms for which the check button is selected
-        ArrayList<ParmID> parmsIDs = new ArrayList<ParmID>();
+        ArrayList<ParmID> parmsIDs = new ArrayList<>();
         for (int i = 0; i < availableParms.length; i++) {
             if (weListbox.isSelected(i)) {
                 parmsIDs.add(availableParms[i]);
@@ -420,16 +417,13 @@ public class PublishDialog extends CaveJFACEDialog {
     }
 
     private void publishCB() {
-        final ITimer timer = TimeUtil.getTimer();
-        timer.start();
-
         final Cursor origCursor = getShell().getCursor();
         getShell().setCursor(
                 getShell().getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
         // get the selected parms
         List<ParmID> parmsIDs = getParms();
-        final List<CommitGridRequest> requests = new ArrayList<CommitGridRequest>(
+        final List<CommitGridRequest> requests = new ArrayList<>(
                 parmsIDs.size());
 
         // make a CommitGridRequest for each parm
@@ -438,8 +432,8 @@ public class PublishDialog extends CaveJFACEDialog {
             TimeRange tr = getTR(parm);
 
             // add the commit request
-            requests.add(new CommitGridRequest(parm, tr, dataManager
-                    .clientISCSendStatus()));
+            requests.add(new CommitGridRequest(parm, tr,
+                    dataManager.clientISCSendStatus()));
         }
 
         Job publishJob = new Job("Publish Job") {
@@ -447,10 +441,10 @@ public class PublishDialog extends CaveJFACEDialog {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 try {
-                    // publish the data by calling the dataManager
-                    // publish function
-                    statusHandler.handle(Priority.EVENTA, "PUBLISH: "
-                            + requests);
+                    /*
+                     * publish the data by calling the dataManager publish
+                     * function
+                     */
                     parmOp.publish(requests);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
@@ -464,10 +458,6 @@ public class PublishDialog extends CaveJFACEDialog {
                     public void run() {
                         PublishDialog.this.getShell().setCursor(origCursor);
                         PublishDialog.super.okPressed();
-
-                        timer.stop();
-                        perfLog.logDuration("Publish Grids",
-                                timer.getElapsedTime());
                     }
                 });
 
@@ -484,13 +474,14 @@ public class PublishDialog extends CaveJFACEDialog {
         String selTR = tpListbox.getSelection()[0];
 
         TimeRange tr;
-        if (selTR.equals("All Grids")) {
+        if ("All Grids".equals(selTR)) {
             tr = TimeRange.allTimes();
 
-        } else if (selTR.equals("Selected Time")) {
+        } else if ("Selected Time".equals(selTR)) {
             tr = parmOp.getSelectionTimeRange();
 
-        } else { // time range
+        } else {
+            // time range
             tr = dataManager.getSelectTimeRangeManager().getRange(selTR)
                     .toTimeRange();
         }
@@ -504,7 +495,9 @@ public class PublishDialog extends CaveJFACEDialog {
             int idx = Arrays.asList(availableParms).indexOf(parmID);
             weListbox.select(idx);
         }
-        tpListbox.setSelection(1); // Selected Time
+
+        // Selected Time
+        tpListbox.setSelection(1);
     }
 
     private void setAll() {
@@ -517,11 +510,6 @@ public class PublishDialog extends CaveJFACEDialog {
         weListbox.deselectAll();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#okPressed()
-     */
     @Override
     protected void okPressed() {
         this.getShell().setEnabled(false);

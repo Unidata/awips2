@@ -154,21 +154,25 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  *                                   default one.
  * Jul 29, 2016 5656        njensen     Fix NPEs when right-clicking off map
  * Oct 27, 2016  5969     randerso   Add support for locating hydroapps on the correct monitor
+ * Feb 21, 2018 6918      mduff      Changed to call getFormattedGageValue() for inspection.
  * 
  * </pre>
  * 
  * @author M. Duff
  */
 
-public class MultiPointResource extends
-        AbstractVizResource<MultiPointResourceData, IMapDescriptor> implements
-        IContextMenuContributor {
+public class MultiPointResource
+        extends AbstractVizResource<MultiPointResourceData, IMapDescriptor>
+        implements IContextMenuContributor {
+
+    /** Missing value indicator */
+    private static final String M = "M";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MultiPointResource.class);
 
-    private static class HydroImageMakerCallback implements
-            IRenderedImageCallback {
+    private static class HydroImageMakerCallback
+            implements IRenderedImageCallback {
 
         private final String dispClass;
 
@@ -406,8 +410,8 @@ public class MultiPointResource extends
         }
         IImage image = colorMap.get(color);
         if (image == null) {
-            image = target.initializeRaster(new HydroImageMakerCallback(
-                    dispClass, color));
+            image = target.initializeRaster(
+                    new HydroImageMakerCallback(dispClass, color));
             colorMap.put(color, image);
         }
         return image;
@@ -431,18 +435,18 @@ public class MultiPointResource extends
         double[] centerpixels = descriptor
                 .worldToPixel(new double[] { c.x, c.y });
         Coordinate[] coors = new Coordinate[4];
-        coors[0] = new Coordinate((centerpixels[0] + shiftWidth)
-                - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                - getScaleHeight());
-        coors[1] = new Coordinate((centerpixels[0] + shiftWidth)
-                + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                - getScaleHeight());
-        coors[2] = new Coordinate((centerpixels[0] + shiftWidth)
-                + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                + getScaleHeight());
-        coors[3] = new Coordinate((centerpixels[0] + shiftWidth)
-                - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                + getScaleHeight());
+        coors[0] = new Coordinate(
+                (centerpixels[0] + shiftWidth) - getScaleWidth(),
+                (centerpixels[1] + shiftHeight) - getScaleHeight());
+        coors[1] = new Coordinate(
+                (centerpixels[0] + shiftWidth) + getScaleWidth(),
+                (centerpixels[1] + shiftHeight) - getScaleHeight());
+        coors[2] = new Coordinate(
+                (centerpixels[0] + shiftWidth) + getScaleWidth(),
+                (centerpixels[1] + shiftHeight) + getScaleHeight());
+        coors[3] = new Coordinate(
+                (centerpixels[0] + shiftWidth) - getScaleWidth(),
+                (centerpixels[1] + shiftHeight) + getScaleHeight());
         return new PixelExtent(coors);
     }
 
@@ -476,8 +480,9 @@ public class MultiPointResource extends
             String[] valueStrings;
 
             if (pcOptions.getElementType() == 1) {
-                valueStrings = gageTimeStep.getRainValue(
-                        pcOptions.getPrecipPeFilter()).split("\n");
+                valueStrings = gageTimeStep
+                        .getRainValue(pcOptions.getPrecipPeFilter())
+                        .split("\n");
             } else {
                 valueStrings = gageTimeStep.getOtherValue().split("\n");
             }
@@ -488,8 +493,8 @@ public class MultiPointResource extends
 
             if (strSize > 0) {
                 for (int i = 0; i < strSize; i++) {
-                    if (valueStrings[i] != "") {
-                        if (valueStrings[i].equalsIgnoreCase("M")) {
+                    if (!valueStrings[i].isEmpty()) {
+                        if (M.equalsIgnoreCase(valueStrings[i])) {
                             strColor[i] = RGBColors.getRGBColor("White");
                         } else {
                             strColor[i] = getValueLabelColorTimeStep(
@@ -510,21 +515,21 @@ public class MultiPointResource extends
              */
             if (pcOptions.getIcon() == 0) {
                 Coordinate cd = gageTimeStep.getCoordinate();
-                centerpixels = descriptor.worldToPixel(new double[] { cd.x,
-                        cd.y });
+                centerpixels = descriptor
+                        .worldToPixel(new double[] { cd.x, cd.y });
                 Coordinate[] coors = new Coordinate[4];
-                coors[0] = new Coordinate((centerpixels[0] + shiftWidth)
-                        - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                        - getScaleHeight());
-                coors[1] = new Coordinate((centerpixels[0] + shiftWidth)
-                        + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                        - getScaleHeight());
-                coors[2] = new Coordinate((centerpixels[0] + shiftWidth)
-                        + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                        + getScaleHeight());
-                coors[3] = new Coordinate((centerpixels[0] + shiftWidth)
-                        - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                        + getScaleHeight());
+                coors[0] = new Coordinate(
+                        (centerpixels[0] + shiftWidth) - getScaleWidth(),
+                        (centerpixels[1] + shiftHeight) - getScaleHeight());
+                coors[1] = new Coordinate(
+                        (centerpixels[0] + shiftWidth) + getScaleWidth(),
+                        (centerpixels[1] + shiftHeight) - getScaleHeight());
+                coors[2] = new Coordinate(
+                        (centerpixels[0] + shiftWidth) + getScaleWidth(),
+                        (centerpixels[1] + shiftHeight) + getScaleHeight());
+                coors[3] = new Coordinate(
+                        (centerpixels[0] + shiftWidth) - getScaleWidth(),
+                        (centerpixels[1] + shiftHeight) + getScaleHeight());
 
                 PixelExtent pe = new PixelExtent(coors);
                 pe.scale(.07);
@@ -551,23 +556,25 @@ public class MultiPointResource extends
                     (centerpixels[0] + shiftWidth) + getScaleWidth(),
                     centerpixels[1] + shiftHeight + getScaleHeight() / -2);
             // draw the date and time
-            DrawableString string = new DrawableString(sdf1.format(gageTimeStep
-                    .getValidtime().getTime()), LABEL_COLOR);
+            DrawableString string = new DrawableString(
+                    sdf1.format(gageTimeStep.getValidtime().getTime()),
+                    LABEL_COLOR);
             string.font = font;
             string.setCoordinates(dateCoor1.x, dateCoor1.y);
             strings.add(string);
 
-            string = new DrawableString(sdf2.format(gageTimeStep.getValidtime()
-                    .getTime()), LABEL_COLOR);
+            string = new DrawableString(
+                    sdf2.format(gageTimeStep.getValidtime().getTime()),
+                    LABEL_COLOR);
             string.font = font;
             string.setCoordinates(dateCoor2.x, dateCoor2.y);
             strings.add(string);
         }
         // draw the ID
         if (pdcManager.isID()) {
-            Coordinate idCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    - getScaleWidth(), centerpixels[1] + shiftHeight
-                    + getScaleHeight());
+            Coordinate idCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth - getScaleWidth(),
+                    centerpixels[1] + shiftHeight + getScaleHeight());
 
             DrawableString string = new DrawableString(gageTimeStep.getLid(),
                     LABEL_COLOR);
@@ -578,9 +585,9 @@ public class MultiPointResource extends
         }
         if (pdcManager.isName()) {
             // draw the Name
-            Coordinate nameCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    + getScaleWidth(), centerpixels[1] + shiftHeight
-                    + getScaleHeight());
+            Coordinate nameCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth + getScaleWidth(),
+                    centerpixels[1] + shiftHeight + getScaleHeight());
 
             DrawableString string = new DrawableString(gageTimeStep.getName(),
                     LABEL_COLOR);
@@ -597,9 +604,9 @@ public class MultiPointResource extends
                 pe = gageTimeStep.getOtherParam();
             }
 
-            Coordinate peCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    + getScaleWidth(), centerpixels[1] + shiftHeight
-                    - getScaleHeight() / 2);
+            Coordinate peCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth + getScaleWidth(),
+                    centerpixels[1] + shiftHeight - getScaleHeight() / 2);
             DrawableString string = new DrawableString(pe, LABEL_COLOR);
             string.font = font;
             string.setCoordinates(peCoor.x, peCoor.y);
@@ -608,12 +615,12 @@ public class MultiPointResource extends
 
         if (pdcManager.isElevation()) {
             // draw the elevation
-            Coordinate elCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    + getScaleWidth(), centerpixels[1] + shiftHeight
-                    - getScaleHeight() / 2);
+            Coordinate elCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth + getScaleWidth(),
+                    centerpixels[1] + shiftHeight - getScaleHeight() / 2);
 
-            DrawableString string = new DrawableString(df.format(gageTimeStep
-                    .getElevation()), LABEL_COLOR);
+            DrawableString string = new DrawableString(
+                    df.format(gageTimeStep.getElevation()), LABEL_COLOR);
             string.font = font;
             string.setCoordinates(elCoor.x, elCoor.y);
             strings.add(string);
@@ -636,10 +643,12 @@ public class MultiPointResource extends
 
         RGB textColor = RGBColors.getRGBColor("White");
 
-        if ((pcOptions.getTsDataElement() == HydroConstants.TimeStepDataElement.STAGE_POOL_TSDE
-                .getElementType())
-                || (pcOptions.getTsDataElement() == HydroConstants.TimeStepDataElement.FLOW_STORAGE_TSDE
-                        .getElementType())) {
+        if ((pcOptions
+                .getTsDataElement() == HydroConstants.TimeStepDataElement.STAGE_POOL_TSDE
+                        .getElementType())
+                || (pcOptions
+                        .getTsDataElement() == HydroConstants.TimeStepDataElement.FLOW_STORAGE_TSDE
+                                .getElementType())) {
             textColor = getRiverValueColorForTimeStepMode(pLid, pValue);
         } else {
             textColor = determineValueColor(pValue);
@@ -678,8 +687,8 @@ public class MultiPointResource extends
         if (!showValue1) {
             showValue2 = false;
         } else {
-            if (((floodLevel == 1) || (deriveStageFlow == 1))
-                    && (pcOptions.getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
+            if (((floodLevel == 1) || (deriveStageFlow == 1)) && (pcOptions
+                    .getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
                             .getAdHocDataElementType())) {
                 showValue2 = true;
             }
@@ -690,7 +699,7 @@ public class MultiPointResource extends
         if (showValue1) {
             RGB textColor = RGBColors.getRGBColor("White");
             if (gage.getGageValue() == HydroConstants.MISSING_VALUE) {
-                valueLabel = "M";
+                valueLabel = M;
             } else {
                 valueLabel = String.format(formatStr, gage.getGageValue());
             }
@@ -707,8 +716,9 @@ public class MultiPointResource extends
             string.setCoordinates(valueCoor.x, valueCoor.y);
             strings.add(string);
 
-            if (pcOptions.getTimeMode() != PDCConstants.TimeModeType.VALUE_CHANGE
-                    .getTimeMode()) {
+            if (pcOptions
+                    .getTimeMode() != PDCConstants.TimeModeType.VALUE_CHANGE
+                            .getTimeMode()) {
                 if (showValue2) {
                     String valueLabel2 = null;
                     if (gage.getGageValue2() != HydroConstants.MISSING_VALUE) {
@@ -717,11 +727,11 @@ public class MultiPointResource extends
                          * as. Use the format string for value1 except in the
                          * case where value2 represents a derived flow.
                          */
-                        if (gage.getPe().equalsIgnoreCase("HG")
+                        if ("HG".equalsIgnoreCase(gage.getPe())
                                 && (deriveStageFlow == 1)) {
                             valueLabel2 = String.format("%6.0f",
                                     gage.getValue2());
-                        } else if (gage.getPe().equalsIgnoreCase("QR")
+                        } else if ("QR".equalsIgnoreCase(gage.getPe())
                                 && (deriveStageFlow == 1)) {
                             valueLabel2 = String.format("%6.2f",
                                     gage.getValue2());
@@ -730,12 +740,13 @@ public class MultiPointResource extends
                                     gage.getValue2());
                         }
                     } else {
-                        valueLabel2 = "M";
+                        valueLabel2 = M;
                     }
 
-                    valueCoor = new Coordinate((centerpixels[0] + shiftWidth)
-                            - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                            + getScaleHeight() / -0.9);
+                    valueCoor = new Coordinate(
+                            (centerpixels[0] + shiftWidth) - getScaleWidth(),
+                            (centerpixels[1] + shiftHeight)
+                                    + getScaleHeight() / -0.9);
 
                     string = new DrawableString(valueLabel2, textColor);
                     string.font = font;
@@ -754,23 +765,23 @@ public class MultiPointResource extends
                     (centerpixels[0] + shiftWidth) + getScaleWidth(),
                     centerpixels[1] + shiftHeight + getScaleHeight() / -2);
             // draw the date and time
-            DrawableString string = new DrawableString(sdf1.format(gage
-                    .getValidtime().getTime()), LABEL_COLOR);
+            DrawableString string = new DrawableString(
+                    sdf1.format(gage.getValidtime().getTime()), LABEL_COLOR);
             string.font = font;
             string.setCoordinates(dateCoor1.x, dateCoor1.y);
             strings.add(string);
 
-            string = new DrawableString(sdf2.format(gage.getValidtime()
-                    .getTime()), LABEL_COLOR);
+            string = new DrawableString(
+                    sdf2.format(gage.getValidtime().getTime()), LABEL_COLOR);
             string.font = font;
             string.setCoordinates(dateCoor2.x, dateCoor2.y);
             strings.add(string);
         }
         // draw the ID
         if (pdcManager.isID()) {
-            Coordinate idCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    - getScaleWidth(), centerpixels[1] + shiftHeight
-                    + getScaleHeight());
+            Coordinate idCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth - getScaleWidth(),
+                    centerpixels[1] + shiftHeight + getScaleHeight());
 
             DrawableString string = new DrawableString(gage.getLid(),
                     LABEL_COLOR);
@@ -781,9 +792,9 @@ public class MultiPointResource extends
         }
         if (pdcManager.isName()) {
             // draw the Name
-            Coordinate nameCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    + getScaleWidth(), centerpixels[1] + shiftHeight
-                    + getScaleHeight());
+            Coordinate nameCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth + getScaleWidth(),
+                    centerpixels[1] + shiftHeight + getScaleHeight());
 
             DrawableString string = new DrawableString(gage.getName(),
                     LABEL_COLOR);
@@ -794,7 +805,7 @@ public class MultiPointResource extends
 
         if (pdcManager.isPE()) {
             String shefDurCode;
-            if (gage.getPe().equalsIgnoreCase("PC")) {
+            if ("PC".equalsIgnoreCase(gage.getPe())) {
                 /*
                  * PC is always "I", but sometimes the duration might have been
                  * screwed up
@@ -809,9 +820,9 @@ public class MultiPointResource extends
             String pe = gage.getPe() + shefDurCode + gage.getTs()
                     + gage.getExtremum();
 
-            Coordinate peCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    + getScaleWidth(), centerpixels[1] + shiftHeight
-                    - getScaleHeight() / 2);
+            Coordinate peCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth + getScaleWidth(),
+                    centerpixels[1] + shiftHeight - getScaleHeight() / 2);
             DrawableString string = new DrawableString(pe, LABEL_COLOR);
             string.font = font;
             string.setCoordinates(peCoor.x, peCoor.y);
@@ -820,12 +831,12 @@ public class MultiPointResource extends
 
         if (pdcManager.isElevation()) {
             // draw the elevation
-            Coordinate elCoor = new Coordinate(centerpixels[0] + shiftWidth
-                    + getScaleWidth(), centerpixels[1] + shiftHeight
-                    - getScaleHeight() / 2);
+            Coordinate elCoor = new Coordinate(
+                    centerpixels[0] + shiftWidth + getScaleWidth(),
+                    centerpixels[1] + shiftHeight - getScaleHeight() / 2);
 
-            DrawableString string = new DrawableString(df.format(gage
-                    .getElevation()), LABEL_COLOR);
+            DrawableString string = new DrawableString(
+                    df.format(gage.getElevation()), LABEL_COLOR);
             string.font = font;
             string.setCoordinates(elCoor.x, elCoor.y);
             strings.add(string);
@@ -925,7 +936,7 @@ public class MultiPointResource extends
          * the actual color bar is in the HydroColorBarResource.paintInternal
          * method.
          */
-        if ((manager.isDataChanged() == true) || (colorBarResource == null)) {
+        if ((manager.isDataChanged()) || (colorBarResource == null)) {
             createColorMap();
 
             // Get color bar
@@ -1020,25 +1031,26 @@ public class MultiPointResource extends
                     if (pcOptions.getRiverStatus() == 1) {
                         color = gageTS.getValue().getColor();
                     } else {
-                        color = RGBColors.getRGBColor(colorSet.get(0)
-                                .getColorname().getColorName());
+                        color = RGBColors.getRGBColor(
+                                colorSet.get(0).getColorname().getColorName());
                     }
-                    PointImage image = new PointImage(getIcon(target,
-                            gageTS.getValue(), color), pixel[0], pixel[1]);
+                    PointImage image = new PointImage(
+                            getIcon(target, gageTS.getValue(), color), pixel[0],
+                            pixel[1]);
 
                     image.setSiteId(gageTS.getValue().getLid());
                     images.add(image);
                 }
-                strings.addAll(generateDrawableStringsTimeStep(
-                        gageTS.getValue(), shiftWidthValue, shiftHeightValue,
-                        target));
+                strings.addAll(
+                        generateDrawableStringsTimeStep(gageTS.getValue(),
+                                shiftWidthValue, shiftHeightValue, target));
             }
 
         }
 
         if (!images.isEmpty()) {
-            target.getExtension(IPointImageExtension.class).drawPointImages(
-                    paintProps, images);
+            target.getExtension(IPointImageExtension.class)
+                    .drawPointImages(paintProps, images);
         }
         if (!strings.isEmpty()) {
             target.drawStrings(strings);
@@ -1104,11 +1116,11 @@ public class MultiPointResource extends
                     if (pcOptions.getRiverStatus() == 1) {
                         color = gage.getColor();
                     } else {
-                        color = RGBColors.getRGBColor(colorSet.get(0)
-                                .getColorname().getColorName());
+                        color = RGBColors.getRGBColor(
+                                colorSet.get(0).getColorname().getColorName());
                     }
-                    PointImage image = new PointImage(getIcon(target, gage,
-                            color), pixel[0], pixel[1]);
+                    PointImage image = new PointImage(
+                            getIcon(target, gage, color), pixel[0], pixel[1]);
                     image.setSiteId(gage.getLid());
                     images.add(image);
                 }
@@ -1118,8 +1130,8 @@ public class MultiPointResource extends
         }
 
         if (!images.isEmpty()) {
-            target.getExtension(IPointImageExtension.class).drawPointImages(
-                    paintProps, images);
+            target.getExtension(IPointImageExtension.class)
+                    .drawPointImages(paintProps, images);
         }
         if (!strings.isEmpty()) {
             target.drawStrings(strings);
@@ -1131,8 +1143,8 @@ public class MultiPointResource extends
         try {
             Envelope env = new Envelope(coord.asLatLon());
             List<?> elements = strTree.query(env);
-            if (elements.size() > 0) {
-                StringBuffer sb = new StringBuffer();
+            if (!elements.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
                 boolean first = true;
                 Iterator<?> iter = elements.iterator();
                 while (iter.hasNext()) {
@@ -1141,7 +1153,7 @@ public class MultiPointResource extends
                         sb.append("\n");
                     }
                     sb.append("GAGE: " + gage.getName() + " VALUE: "
-                            + gage.getGageValue());
+                            + gage.getFormattedGageValue());
                     first = false;
                 }
                 return sb.toString();
@@ -1162,15 +1174,14 @@ public class MultiPointResource extends
             Coordinate coord = rcoord.asLatLon();
             double minDistance = 9999;
 
-            double[] selectedPoint = descriptor.worldToPixel(new double[] {
-                    coord.x, coord.y });
+            double[] selectedPoint = descriptor
+                    .worldToPixel(new double[] { coord.x, coord.y });
 
-            if ((gageDataList != null) && (gageDataList.size() > 0)) {
+            if ((gageDataList != null) && (!gageDataList.isEmpty())) {
                 for (GageData gd : gageDataList) {
                     if (gd.isUse() && gd.getCoordinate() != null) {
-                        double[] gagePoint = descriptor
-                                .worldToPixel(new double[] {
-                                        gd.getCoordinate().x,
+                        double[] gagePoint = descriptor.worldToPixel(
+                                new double[] { gd.getCoordinate().x,
                                         gd.getCoordinate().y });
                         double xDist = Math
                                 .abs(selectedPoint[0] - gagePoint[0]);
@@ -1244,34 +1255,34 @@ public class MultiPointResource extends
                     threatIndex = ThreatIndex.THREAT_NONE.getThreatIndex();
                 }
             }
-        } else { // current data was missing
+        } else {
+            // current data was missing
             threatIndex = ThreatIndex.THREAT_MISSING_DATA.getThreatIndex();
         }
 
-        if (threatIndex.equalsIgnoreCase(ThreatIndex.THREAT_MISSING_DATA
-                .getThreatIndex())) {
-            color = RGBColors.getRGBColor(colorSet.get(0).getColorname()
-                    .getColorName());
+        if (threatIndex.equalsIgnoreCase(
+                ThreatIndex.THREAT_MISSING_DATA.getThreatIndex())) {
+            color = RGBColors
+                    .getRGBColor(colorSet.get(0).getColorname().getColorName());
+        } else if (threatIndex.equalsIgnoreCase(
+                ThreatIndex.THREAT_MISSING_STAGE.getThreatIndex())) {
+            color = RGBColors
+                    .getRGBColor(colorSet.get(1).getColorname().getColorName());
         } else if (threatIndex
-                .equalsIgnoreCase(ThreatIndex.THREAT_MISSING_STAGE
-                        .getThreatIndex())) {
-            color = RGBColors.getRGBColor(colorSet.get(1).getColorname()
-                    .getColorName());
-        } else if (threatIndex.equalsIgnoreCase(ThreatIndex.THREAT_NONE
-                .getThreatIndex())) {
-            color = RGBColors.getRGBColor(colorSet.get(2).getColorname()
-                    .getColorName());
-        } else if (threatIndex.equalsIgnoreCase(ThreatIndex.THREAT_ACTION
-                .getThreatIndex())) {
-            color = RGBColors.getRGBColor(colorSet.get(3).getColorname()
-                    .getColorName());
-        } else if (threatIndex.equalsIgnoreCase(ThreatIndex.THREAT_FLOOD
-                .getThreatIndex())) {
-            color = RGBColors.getRGBColor(colorSet.get(4).getColorname()
-                    .getColorName());
+                .equalsIgnoreCase(ThreatIndex.THREAT_NONE.getThreatIndex())) {
+            color = RGBColors
+                    .getRGBColor(colorSet.get(2).getColorname().getColorName());
+        } else if (threatIndex
+                .equalsIgnoreCase(ThreatIndex.THREAT_ACTION.getThreatIndex())) {
+            color = RGBColors
+                    .getRGBColor(colorSet.get(3).getColorname().getColorName());
+        } else if (threatIndex
+                .equalsIgnoreCase(ThreatIndex.THREAT_FLOOD.getThreatIndex())) {
+            color = RGBColors
+                    .getRGBColor(colorSet.get(4).getColorname().getColorName());
         } else {
-            color = RGBColors.getRGBColor(colorSet.get(0).getColorname()
-                    .getColorName());
+            color = RGBColors
+                    .getRGBColor(colorSet.get(0).getColorname().getColorName());
         }
 
         return color;
@@ -1294,8 +1305,8 @@ public class MultiPointResource extends
         int durSeconds = durHour * HydroConstants.SECONDS_PER_HOUR;
 
         // List of colors in the colorset
-        colorSet = GetColorValues.get_colorvalues(userId, appName,
-                colorUseName, durSeconds, "E", pColorSetGroup);
+        colorSet = GetColorValues.get_colorvalues(userId, appName, colorUseName,
+                durSeconds, "E", pColorSetGroup);
 
         NamedColorUseSet namedColorUseSet = null;
         List<Double> thresholdValues = new ArrayList<>();
@@ -1346,7 +1357,8 @@ public class MultiPointResource extends
         DataMappingEntry entry = null;
         int index = 0;
         for (i = 0; i < colorArray.getThresholds().length; i++) {
-            index = i; // compensate for the first two values in the list
+            // compensate for the first two values in the list
+            index = i;
             ColorThreshold threshold = colorArray.getThresholds()[i];
             RGB color = RGBColors.getRGBColor(threshold.getColorName());
 
@@ -1370,8 +1382,8 @@ public class MultiPointResource extends
         colorMap.setChanged(true);
 
         ColorMapParameters parameters = new ColorMapParameters();
-        getCapability(ColorMapCapability.class).setColorMapParameters(
-                parameters);
+        getCapability(ColorMapCapability.class)
+                .setColorMapParameters(parameters);
         parameters.setColorMap(colorMap);
         parameters.setDataMapping(dmPref);
 
@@ -1517,7 +1529,7 @@ public class MultiPointResource extends
 
                 Envelope env = new Envelope(coord);
                 List<?> elements = strTree.query(env);
-                if (elements.size() > 0) {
+                if (!elements.isEmpty()) {
                     GageData gageData = getNearestPoint(coord, elements);
                     if ((gageData != null)) {
                         String lid = gageData.getLid();
@@ -1538,18 +1550,19 @@ public class MultiPointResource extends
                             if ((dataType != null)
                                     && (dataType.indexOf('-') < 0)) {
                                 if (fcstType != null) {
-                                    alh.execute(shell, TSL_BUNDLE_LOC, lid, dataType,
-                                            fcstType);
+                                    alh.execute(shell, TSL_BUNDLE_LOC, lid,
+                                            dataType, fcstType);
                                 } else {
-                                    alh.execute(shell, TSL_BUNDLE_LOC, lid, dataType);
+                                    alh.execute(shell, TSL_BUNDLE_LOC, lid,
+                                            dataType);
                                 }
                             } else {
                                 MessageBox mb = new MessageBox(shell,
                                         SWT.ICON_INFORMATION | SWT.OK);
                                 mb.setText("");
-                                String msg = String
-                                        .format("This location's paramCode, %s, is incomplete.\nTimeSeriesLite cannot be launched for it.",
-                                                dataType);
+                                String msg = String.format(
+                                        "This location's paramCode, %s, is incomplete.\nTimeSeriesLite cannot be launched for it.",
+                                        dataType);
                                 mb.setMessage(msg);
                                 mb.open();
                             }
@@ -1630,7 +1643,7 @@ public class MultiPointResource extends
      *         null reference is returned.
      */
     private GageData getNearestPoint(Coordinate coord, List<?> elements) {
-        if (elements == null || elements.size() <= 0) {
+        if (elements == null || elements.isEmpty()) {
             return null;
         }
 
@@ -1680,7 +1693,8 @@ public class MultiPointResource extends
 
         MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
         mb.setText("Error");
-        mb.setMessage("The mouse pointer must be on a gage to use this feature.");
+        mb.setMessage(
+                "The mouse pointer must be on a gage to use this feature.");
         mb.open();
     }
 
@@ -1739,7 +1753,7 @@ public class MultiPointResource extends
 
                     Envelope env = new Envelope(coord);
                     List<?> elements = strTree.query(env);
-                    if (elements.size() > 0) {
+                    if (!elements.isEmpty()) {
                         Iterator<?> iter = elements.iterator();
                         /* Take the first one in the list */
                         if (iter.hasNext()) {

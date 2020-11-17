@@ -34,7 +34,6 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.WARN_TYPE;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData;
 
 /**
- * 
  * CELL table used to display the data.
  * 
  * <pre>
@@ -48,6 +47,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData;
  * Jun 04, 2013 #1984      lvenable    Save images instead of disposing them when setting
  *                                     the table column images.  This is to fix the Windows
  *                                     issue on the images being blank and throwing errors.
+ * Jan 29, 2018 #6665      mduff       Added setTableSelection() to select the row matching the provided ident.
  * </pre>
  * 
  * @author lvenable
@@ -123,14 +123,14 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
             if (colIndex == 0) {
                 tableIndex = rowIndex;
                 if ((tableIndex >= 0) || (tableIndex > table.getItemCount())) {
-                    tableActionCB.centerByStormId(table.getItem(tableIndex)
-                            .getText());
+                    tableActionCB.centerByStormId(
+                            table.getItem(tableIndex).getText());
                     redrawTable();
                 }
             } else {
                 String name = (String) table.getColumn(colIndex).getData();
 
-                if (scanCfg.canViewTrend(scanTable, name) == true) {
+                if (scanCfg.canViewTrend(scanTable, name)) {
                     String ident = tableData.getTableRows().get(rowIndex)
                             .getTableCellData(0).getCellText();
 
@@ -163,8 +163,7 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
         Rectangle rect;
         rect = item.getBounds(scanCfg.getCountyColumnIndex(scanTable));
 
-        if (scanCfg.showTips(scanTable) == false
-                && rect.contains(mouseMovePt) == false) {
+        if (!scanCfg.showTips(scanTable) && !rect.contains(mouseMovePt)) {
             prevMousePt.x = -9999;
             prevMousePt.y = -9999;
             table.setToolTipText(null);
@@ -252,17 +251,17 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
              * checked/set first.
              */
 
-            if (scanCfg.isRadVar(scanTable, colName) == true) {
+            if (scanCfg.isRadVar(scanTable, colName)) {
                 radVarColName = colName;
                 gc.setBackground(scanCfg.getScanColor(ScanColors.RadVar));
             }
 
             // Set the foreground color to the clutter control color if the
             // column is a clutter control.
-            if (scanCfg.isClutterControl(scanTable, colName) == true) {
+            if (scanCfg.isClutterControl(scanTable, colName)) {
                 clutterCoName = colName;
-                gc.setForeground(scanCfg
-                        .getScanColor(ScanColors.ClutterControl));
+                gc.setForeground(
+                        scanCfg.getScanColor(ScanColors.ClutterControl));
             }
 
             // Set the background color to the sort color if that column is
@@ -292,6 +291,24 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
             tCols[i].setImage(img);
 
             columnImgs.add(img);
+        }
+    }
+
+    /**
+     * Select the row with the provided ident value.
+     * 
+     * @param ident
+     *            The ident to select
+     */
+    protected void setTableSelection(String ident) {
+        int idx = 0;
+        for (SCANTableRowData row : tableData.getTableRows()) {
+            if (row.getIdent().equals(ident)) {
+                tableIndex = idx;
+                redrawTable();
+                return;
+            }
+            idx++;
         }
     }
 }

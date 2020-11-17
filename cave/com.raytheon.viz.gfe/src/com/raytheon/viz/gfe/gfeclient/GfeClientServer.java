@@ -65,6 +65,7 @@ import jep.NamingConventionClassEnquirer;
  * ------------- -------- --------- --------------------------------------------
  * Jan 19, 2017  6092     randerso  Initial creation. Adapted from
  *                                  GfeClient.java
+ * Feb 20, 2018  6602     dgilling  Update for new text utilities path.
  *
  * </pre>
  *
@@ -74,7 +75,7 @@ import jep.NamingConventionClassEnquirer;
 public class GfeClientServer extends AbstractAWIPSComponent
         implements INotificationObserver {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeClientServer.class);
 
     private class PythonThread extends Thread {
@@ -121,7 +122,6 @@ public class GfeClientServer extends AbstractAWIPSComponent
                         GfePyIncludeUtil.getUtilitiesIncludePath(includeUser),
                         GfePyIncludeUtil.getIToolIncludePath(),
                         GfePyIncludeUtil.getVtecIncludePath(),
-                        GfePyIncludeUtil.getHeadlineIncludePath(),
                         GfeCavePyIncludeUtil.getAutotestIncludePath(),
                         GfePyIncludeUtil
                                 .getTextUtilitiesIncludePath(includeUser),

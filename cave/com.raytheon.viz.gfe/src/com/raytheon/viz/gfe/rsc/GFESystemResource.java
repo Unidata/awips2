@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,6 +34,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.edittool.AbstractGFEEditTool;
 import com.raytheon.viz.gfe.edittool.EditToolPaintProperties;
 import com.raytheon.viz.gfe.edittool.sample.SampleRenderable;
@@ -43,21 +44,22 @@ import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 /**
  * Resource that provides a variety of services (time matching support) as well
  * as a location to plug in tool specific renderables.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05/19/2008              chammack    Added sample set to persistent renderable
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 19, 2008           chammack  Added sample set to persistent renderable
+ * Jan 24, 2018  7153     randerso  Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
-public class GFESystemResource extends
-        AbstractVizResource<GFEResourceData, MapDescriptor> implements
-        IContextMenuContributor {
+public class GFESystemResource
+        extends AbstractVizResource<GFEResourceData, MapDescriptor>
+        implements IContextMenuContributor {
 
     private class UndoGridEditAction extends AbstractRightClickAction {
 
@@ -68,7 +70,7 @@ public class GFESystemResource extends
 
         @Override
         public void run() {
-            DataManager.getCurrentInstance().getParmOp().undo();
+            DataManagerUIFactory.getCurrentInstance().getParmOp().undo();
         }
 
     }
@@ -83,7 +85,8 @@ public class GFESystemResource extends
         @Override
         public void run() {
             super.run();
-            DataManager.getCurrentInstance().getRefManager().undoRefSet();
+            DataManagerUIFactory.getCurrentInstance().getRefManager()
+                    .undoRefSet();
         }
 
     }
@@ -97,22 +100,17 @@ public class GFESystemResource extends
     private final Set<IRenderable> persistentRenderables;
 
     /**
-     * Construct the system resource with the datamanager
-     * 
+     * Construct the system resource with the DataManager
+     *
      * @param dataManager
      */
     public GFESystemResource(DataManager dataManager) {
         super(new GFEResourceData(), new LoadProperties());
         this.dataManager = dataManager;
-        this.editTools = new HashSet<AbstractGFEEditTool>();
-        this.persistentRenderables = new HashSet<IRenderable>();
+        this.editTools = new HashSet<>();
+        this.persistentRenderables = new HashSet<>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
         for (AbstractGFEEditTool tool : this.editTools) {
@@ -127,22 +125,11 @@ public class GFESystemResource extends
         this.persistentRenderables.clear();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         return "Internal GFE Resource: " + this.dataTime;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
-     * IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         // The following renderables are always ready
@@ -151,9 +138,9 @@ public class GFESystemResource extends
 
     /**
      * Register an edit tool with the system resource
-     * 
+     *
      * This allows it to be discovered for visualizations
-     * 
+     *
      * @param tool
      */
     public void addEditTool(AbstractGFEEditTool tool) {
@@ -162,20 +149,13 @@ public class GFESystemResource extends
 
     /**
      * Remove an edit tool from the system resource
-     * 
+     *
      * @param tool
      */
     public void removeEditTool(AbstractGFEEditTool tool) {
         this.editTools.remove(tool);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -206,38 +186,6 @@ public class GFESystemResource extends
 
     }
 
-    // /*
-    // * (non-Javadoc)
-    // *
-    // * @see
-    // * com.raytheon.viz.core.rsc.capabilities.ITimeSeqResource#getDataTimes()
-    // */
-    // @Override
-    // public DataTime[] getDataTimes() {
-    // IParmManager parmManager = this.dataManager.getParmManager();
-    // List<DataTime> dataTimes = new ArrayList<DataTime>();
-    //
-    // for (Parm p : parmManager.getDisplayedParms()) {
-    // for (IGridData gd : p.getGridInventory()) {
-    // TimeRange tr = gd.getGridTime();
-    // DataTime dt = new DataTime(tr.getStart());
-    // dt.setValidPeriod(tr);
-    // if (!dataTimes.contains(dt)) {
-    // dataTimes.add(dt);
-    // }
-    // }
-    // }
-    //
-    // return dataTimes.toArray(new DataTime[dataTimes.size()]);
-    // }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.cmenu.IRightClickCapableResource#addContextMenuItems
-     * (org.eclipse.jface.action.IMenuManager)
-     */
     @Override
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
         menuManager.add(new UndoGridEditAction());
@@ -253,19 +201,9 @@ public class GFESystemResource extends
         for (AbstractGFEEditTool tool : this.editTools) {
 
             if (tool instanceof IContextMenuContributor) {
-                ((IContextMenuContributor) tool).addContextMenuItems(
-                        menuManager, x, y);
+                ((IContextMenuContributor) tool)
+                        .addContextMenuItems(menuManager, x, y);
             }
         }
-    }
-
-    /**
-     * Return a list of the renderable objects
-     * 
-     * @return
-     */
-    public IRenderable[] getRenderables() {
-        return this.persistentRenderables
-                .toArray(new IRenderable[this.persistentRenderables.size()]);
     }
 }

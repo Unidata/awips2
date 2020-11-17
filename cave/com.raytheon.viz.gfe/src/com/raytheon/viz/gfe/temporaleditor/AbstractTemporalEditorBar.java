@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -58,7 +58,6 @@ import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.ScalarWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.VectorWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
-import com.raytheon.viz.gfe.gridmanager.GridBar;
 import com.raytheon.viz.gfe.gridmanager.MouseHandler;
 import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.sampler.HistSample;
@@ -69,22 +68,27 @@ import com.raytheon.viz.gfe.temporaleditor.mousehandler.TitleBarMouseHandler;
 
 /**
  * Displays the Temporal Editor Data
- * 
+ *
+ * Note: this class has a natural ordering that is inconsistent with equals.
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009  2159      rjpeter     Initial creation.
- * Oct 29, 2014 #3776      randerso    Renamed static variables to match AWIPS standards
- * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 30, 2009  2159     rjpeter   Initial creation.
+ * Oct 29, 2014  3776     randerso  Renamed static variables to match AWIPS
+ *                                  standards
+ * Mar 10, 2016  5479     randerso  Use improved GFEFonts API
+ * Jan 23, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
-public abstract class AbstractTemporalEditorBar implements
-        Comparable<AbstractTemporalEditorBar> {
+public abstract class AbstractTemporalEditorBar
+        implements Comparable<AbstractTemporalEditorBar> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractTemporalEditorBar.class);
 
@@ -109,34 +113,26 @@ public abstract class AbstractTemporalEditorBar implements
     protected static final Color BACKGROUND_COLOR = Display.getDefault()
             .getSystemColor(SWT.COLOR_BLACK);
 
-    public static final int DRAGGABLE_LABEL_HEIGHT = 4;
+    protected static final int DRAGGABLE_LABEL_HEIGHT = 4;
 
     protected static final int MIN_BAR_HEIGHT = 65;
 
     protected static final int DEFAULT_BAR_HEIGHT = 130;
 
-    // +8 accounts for border on the draggable label
-    public static final int CONTROL_MIN_HEIGHT = (DRAGGABLE_LABEL_HEIGHT * 2) + 8;
-
-    public static final int V_MARGIN = 2;
-
     private static final int TITLEBAR_HEIGHT = 20;
 
-    public static final int TITLEBAR_TEXT_HEIGHT_START_OFFSET = 10;
+    private static final int TITLEBAR_MARGIN = 2;
 
-    public static final int TITLEBAR_MARGIN = 2;
-
-    public static final int TITLEBAR_TEXTHEIGHT = 8;
-
+    /**
+     * Width of Scale in pixels
+     */
     public static final int SCALE_WIDTH = 60;
 
-    public static final int WIND_BARB_SIZE = 60;
+    private static final int IMAGE_TOGGLE_BOX_HEIGHT = 5;
 
-    public static final int IMAGE_TOGGLE_BOX_HEIGHT = 5;
+    private static final int IMAGE_TOGGLE_BOX_WIDTH = 10;
 
-    public static final int IMAGE_TOGGLE_BOX_WIDTH = 10;
-
-    public static final int TITLEBAR_PARM_SPACING = 8;
+    private static final int TITLEBAR_PARM_SPACING = 8;
 
     protected static float radPerDeg = 0.0174533f;
 
@@ -172,32 +168,32 @@ public abstract class AbstractTemporalEditorBar implements
     /**
      * Parms in this bar.
      */
-    protected List<Parm> parmList = new ArrayList<Parm>();
+    protected List<Parm> parmList = new ArrayList<>();
 
     /**
      * Time Series for a given parm.
      */
-    protected Map<Parm, TimeSeries> parmToTimeSeries = new HashMap<Parm, TimeSeries>();
+    protected Map<Parm, TimeSeries> parmToTimeSeries = new HashMap<>();
 
     /**
      * Map of parm display attributes
      */
-    protected Map<Parm, TEParmDisplayAttributes> parmDisplayAttributesMap = new HashMap<Parm, TEParmDisplayAttributes>();
+    protected Map<Parm, TEParmDisplayAttributes> parmDisplayAttributesMap = new HashMap<>();
 
     /**
-     * 
+     *
      */
-    protected Map<Parm, Color> parmBaseColorMap = new HashMap<Parm, Color>();
+    protected Map<Parm, Color> parmBaseColorMap = new HashMap<>();
 
     /**
      * Location of the display toggle box for the parm.
      */
-    protected Map<Parm, Rectangle> parmDisplayToggleBoxMap = new HashMap<Parm, Rectangle>();
+    protected Map<Parm, Rectangle> parmDisplayToggleBoxMap = new HashMap<>();
 
     /**
      * Location of the graphic toggle box for the parm.
      */
-    protected Map<Parm, Rectangle> parmGraphicToggleBoxMap = new HashMap<Parm, Rectangle>();
+    protected Map<Parm, Rectangle> parmGraphicToggleBoxMap = new HashMap<>();
 
     protected TemporalEditorUtil teUtil;
 
@@ -211,6 +207,15 @@ public abstract class AbstractTemporalEditorBar implements
 
     protected boolean showSplitBoundaries;
 
+    /**
+     * Factory method to create a Temporal Editor bar for a parm
+     *
+     * @param parent
+     * @param teUtil
+     * @param parm
+     * @param ts
+     * @return the temporal editor bar
+     */
     public static AbstractTemporalEditorBar instanceFor(TemporalEditor parent,
             TemporalEditorUtil teUtil, Parm parm, TimeSeries ts) {
         GridType gridType = parm.getGridInfo().getGridType();
@@ -260,31 +265,33 @@ public abstract class AbstractTemporalEditorBar implements
         bottomLabelMouseHandler.setDragTolerance(1);
         showEditorTimeLines = true;
         if (GFEPreference.contains("EditorTimeLines")) {
-            showEditorTimeLines = GFEPreference
-                    .getBooleanPreference("EditorTimeLines");
+            showEditorTimeLines = GFEPreference.getBoolean("EditorTimeLines");
         }
         showSplitBoundaries = true;
         if (GFEPreference.contains("SplitBoundaryDisplay")) {
             showSplitBoundaries = GFEPreference
-                    .getBooleanPreference("SplitBoundaryDisplay");
+                    .getBoolean("SplitBoundaryDisplay");
         }
     }
 
     /**
-     * 
+     *
      * @param parm
+     * @param ts
      */
     public void addParm(Parm parm, TimeSeries ts) {
         if (!parmList.contains(parm)) {
             parmList.add(parm);
-            Collections.sort(parmList); // resort the parm list
+
+            // re-sort the parm list
+            Collections.sort(parmList);
             parmToTimeSeries.put(parm, ts);
 
             if (container != null) {
                 int height;
                 String property = parm.getParmID().getParmName()
                         + "_temporalDataPaneSize";
-                height = GFEPreference.getIntPreference(property);
+                height = GFEPreference.getInt(property);
                 height = (height == 0) ? DEFAULT_BAR_HEIGHT : height;
                 height = Math.max(MIN_BAR_HEIGHT, height);
                 height = Math.max(height,
@@ -294,15 +301,15 @@ public abstract class AbstractTemporalEditorBar implements
 
             ts.addTimeSeriesChangeListener(timesSeriesListener);
             parmDisplayAttributesMap.put(parm, new TEParmDisplayAttributes());
-            parmBaseColorMap.put(parm, new Color(Display.getCurrent(), parm
-                    .getDisplayAttributes().getBaseColor()));
+            parmBaseColorMap.put(parm, new Color(Display.getCurrent(),
+                    parm.getDisplayAttributes().getBaseColor()));
             parm.getListeners()
                     .addParmInventoryChangedListener(parmChgListener);
         }
     }
 
     /**
-     * 
+     *
      * @param parm
      */
     public void removeParm(Parm parm) {
@@ -315,13 +322,13 @@ public abstract class AbstractTemporalEditorBar implements
             parmDisplayToggleBoxMap.remove(parm);
             parmGraphicToggleBoxMap.remove(parm);
             parmBaseColorMap.remove(parm).dispose();
-            parm.getListeners().removeParmInventoryChangedListener(
-                    parmChgListener);
+            parm.getListeners()
+                    .removeParmInventoryChangedListener(parmChgListener);
         }
     }
 
     /**
-     * 
+     *
      */
     protected void setupComposite() {
         int height = MIN_BAR_HEIGHT;
@@ -330,7 +337,7 @@ public abstract class AbstractTemporalEditorBar implements
         int curParmHeight;
         for (Parm parm : parmList) {
             property = parm.getParmID().getParmName() + "_temporalDataPaneSize";
-            curParmHeight = GFEPreference.getIntPreference(property);
+            curParmHeight = GFEPreference.getInt(property);
             curParmHeight = (curParmHeight == 0) ? DEFAULT_BAR_HEIGHT
                     : curParmHeight;
             height = Math.max(height, curParmHeight);
@@ -354,7 +361,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      */
     protected void setupTopLabel() {
         if ((topLabel != null) && !topLabel.isDisposed()) {
@@ -372,7 +379,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      */
     protected void setupTitleBarCanvas() {
         int height = TITLEBAR_HEIGHT;
@@ -398,17 +405,17 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      */
-    abstract protected void setupScaleCanvas();
+    protected abstract void setupScaleCanvas();
 
     /**
-     * 
+     *
      */
-    abstract protected void setupEditorCanvas();
+    protected abstract void setupEditorCanvas();
 
     /**
-     * 
+     *
      */
     protected void setupBottomLabel() {
         if ((bottomLabel != null) && !bottomLabel.isDisposed()) {
@@ -426,7 +433,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      * @param event
      */
     protected void paintTitleBar(PaintEvent event) {
@@ -456,8 +463,9 @@ public abstract class AbstractTemporalEditorBar implements
                 String title = TemporalEditorUtil.getTitleBarText(parm);
                 Point pt = gc.stringExtent(title);
                 offset += TITLEBAR_PARM_SPACING;
-                Rectangle textBorder = new Rectangle(offset, bounds.y
-                        + TITLEBAR_MARGIN, pt.x + (TITLEBAR_MARGIN * 2),
+                Rectangle textBorder = new Rectangle(offset,
+                        bounds.y + TITLEBAR_MARGIN,
+                        pt.x + (TITLEBAR_MARGIN * 2),
                         fontHeight + TITLEBAR_MARGIN);
 
                 // draw text
@@ -508,7 +516,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      * @param event
      */
     protected void paintScaleCanvas(PaintEvent event) {
@@ -519,13 +527,13 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      * @param event
      */
     protected abstract void paintEditorCanvas(PaintEvent event);
 
     /**
-     * 
+     *
      * @param event
      * @param rect
      * @param backgroundColor
@@ -544,7 +552,7 @@ public abstract class AbstractTemporalEditorBar implements
 
     /**
      * Paints all parm locks
-     * 
+     *
      * @param event
      */
     protected void paintLocks(PaintEvent event) {
@@ -555,7 +563,8 @@ public abstract class AbstractTemporalEditorBar implements
         for (Parm parm : parmList) {
             LockTable lockTable = parm.getLockTable();
 
-            gc.setBackgroundPattern(GridBar.lockedByOther);
+            gc.setBackgroundPattern(
+                    temporalEditor.getGridBarPrefs().getLockedByOther());
             for (TimeRange timeRange : lockTable.lockedByOther()) {
                 if (timeRange.overlaps(range)) {
                     Rectangle rect = teUtil.timeRangeToPixels(timeRange);
@@ -569,9 +578,9 @@ public abstract class AbstractTemporalEditorBar implements
 
     /**
      * Routine to paint a sample label for the visualization
-     * 
+     *
      * Based on TEVisual::paintLabel.
-     * 
+     *
      * @param gc
      * @param txt
      *            The label to paint
@@ -581,6 +590,8 @@ public abstract class AbstractTemporalEditorBar implements
      *            the y position
      * @param yOffset
      *            y offset in pixels
+     * @param vTxtJust
+     *            vertical text justification
      * @param yPixelsMax
      */
     protected void paintLabel(GC gc, String txt, TimeRange tr, int yPos,
@@ -601,8 +612,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
-     * @return
+     * @return the height of the temporal editor bar
      */
     public int getHeight() {
         return container.getBounds().height + topLabel.getBounds().height
@@ -617,10 +627,10 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      */
     public void dispose() {
-        List<Parm> parmsToRemove = new ArrayList<Parm>(parmList);
+        List<Parm> parmsToRemove = new ArrayList<>(parmList);
         for (Parm parmToRemove : parmsToRemove) {
             removeParm(parmToRemove);
         }
@@ -636,7 +646,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      */
     public void redraw() {
         if (!topLabel.isDisposed() && !container.isDisposed()
@@ -650,7 +660,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
+     *
      */
     public void resetLocation() {
         setupTopLabel();
@@ -662,25 +672,20 @@ public abstract class AbstractTemporalEditorBar implements
         container.layout();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
     @Override
     public int compareTo(AbstractTemporalEditorBar o) {
         int compare = 0;
-        if ((this.parmList.size() > 0) && (o.parmList.size() > 0)) {
-            List<Parm> list1 = new ArrayList<Parm>(this.parmList);
-            List<Parm> list2 = new ArrayList<Parm>(o.parmList);
+        if ((!this.parmList.isEmpty()) && (!o.parmList.isEmpty())) {
+            List<Parm> list1 = new ArrayList<>(this.parmList);
+            List<Parm> list2 = new ArrayList<>(o.parmList);
             Collections.sort(list1);
             Collections.sort(list2);
             Parm p1 = list1.get(0);
             Parm p2 = list2.get(0);
             compare = p1.compareTo(p2);
-        } else if (this.parmList.size() > 0) {
+        } else if (!this.parmList.isEmpty()) {
             compare = 1;
-        } else if (o.parmList.size() > 0) {
+        } else if (!o.parmList.isEmpty()) {
             compare = -1;
         }
 
@@ -688,8 +693,7 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
-     * @return
+     * @return true if this temporal editor bar is disposed
      */
     public boolean isDisposed() {
         return topLabel.isDisposed() || container.isDisposed()
@@ -697,27 +701,44 @@ public abstract class AbstractTemporalEditorBar implements
     }
 
     /**
-     * 
      * @param parm
-     * @return
+     * @return the time series for the parm
      */
     public TimeSeries getTimeSeriesForParm(Parm parm) {
         return parmToTimeSeries.get(parm);
     }
 
+    /**
+     * @param parm
+     * @return the display attributes for the parm
+     */
     public TEParmDisplayAttributes getParmDisplayAttributes(Parm parm) {
         return parmDisplayAttributesMap.get(parm);
     }
 
+    /**
+     * Set the display attributes for the parm
+     *
+     * @param parm
+     * @param dispAtt
+     */
     public void setParmDisplayAttributes(Parm parm,
             TEParmDisplayAttributes dispAtt) {
         parmDisplayAttributesMap.put(parm, dispAtt);
     }
 
+    /**
+     * @return the composite containing this temporal editor bar
+     */
     public Composite getContainer() {
         return container;
     }
 
+    /**
+     * toggle display of parm
+     *
+     * @param parm
+     */
     public void toggleParmDisplayed(Parm parm) {
         TEParmDisplayAttributes parmDispAtt = parmDisplayAttributesMap
                 .get(parm);
@@ -725,6 +746,11 @@ public abstract class AbstractTemporalEditorBar implements
         redraw();
     }
 
+    /**
+     * toggle display as graphic for parm
+     *
+     * @param parm
+     */
     public void toggleParmDisplayedAsGraphic(Parm parm) {
         TEParmDisplayAttributes parmDispAtt = parmDisplayAttributesMap
                 .get(parm);
@@ -741,12 +767,22 @@ public abstract class AbstractTemporalEditorBar implements
         redraw();
     }
 
+    /**
+     * @param pt
+     * @return the parm whose title bar contains pt
+     */
     public Parm getClickedTitleBarParm(Point pt) {
         return getClickedTitleBarParm(pt, true, true);
     }
 
-    public Parm getClickedTitleBarParm(Point pt,
-            boolean clickedOnDisplayedRect, boolean clickedOnGraphicRect) {
+    /**
+     * @param pt
+     * @param clickedOnDisplayedRect
+     * @param clickedOnGraphicRect
+     * @return the parm whose title bar contains pt
+     */
+    public Parm getClickedTitleBarParm(Point pt, boolean clickedOnDisplayedRect,
+            boolean clickedOnGraphicRect) {
         int titleBarHeight = titleBarCanvas.getClientArea().height;
         for (Parm parm : parmList) {
             Rectangle parmDispRect = parmDisplayToggleBoxMap.get(parm);
@@ -755,7 +791,8 @@ public abstract class AbstractTemporalEditorBar implements
             if (clickedOnDisplayedRect && clickedOnGraphicRect) {
                 Rectangle rect = new Rectangle(parmDispRect.x, parmDispRect.y,
                         (parmGraphicRect.x - parmDispRect.x)
-                                + parmGraphicRect.width, titleBarHeight);
+                                + parmGraphicRect.width,
+                        titleBarHeight);
                 if (rect.contains(pt)) {
                     return parm;
                 }
@@ -769,6 +806,11 @@ public abstract class AbstractTemporalEditorBar implements
         return null;
     }
 
+    /**
+     * @param date
+     * @param val
+     * @return the closest parm for the date and value
+     */
     public Parm getClosestParm(Date date, float val) {
         Parm closestParm = null;
         TimeRange range = teUtil.dateToHour(date);
@@ -793,14 +835,25 @@ public abstract class AbstractTemporalEditorBar implements
         return closestParm;
     }
 
+    /**
+     * @return the TemporalEditorUtil
+     */
     public TemporalEditorUtil getUtil() {
         return teUtil;
     }
 
+    /**
+     * @return the temporalEditor
+     */
     public TemporalEditor getTemporalEditor() {
         return temporalEditor;
     }
 
+    /**
+     * @param parm
+     * @param date
+     * @return the average value for parm on date
+     */
     public float getAverage(Parm parm, Date date) {
         StatisticsMode mode = temporalEditor.getMode();
         int modMin = temporalEditor.getModeratedMin();
@@ -821,8 +874,8 @@ public abstract class AbstractTemporalEditorBar implements
                         sample.moderatedAverage(modMin, modMax, true), parm);
                 break;
             case STANDARD_DEVIATION:
-                aveValue = WxValue.getValue(
-                        sample.stdDevAvg(stdMin, stdMax, true), parm);
+                aveValue = WxValue
+                        .getValue(sample.stdDevAvg(stdMin, stdMax, true), parm);
                 break;
             case ABSOLUTE:
             default:
@@ -840,15 +893,14 @@ public abstract class AbstractTemporalEditorBar implements
             return ave;
         }
 
-        statusHandler.handle(
-                Priority.PROBLEM,
+        statusHandler.handle(Priority.PROBLEM,
                 "Could not determine average for Parm["
                         + parm.getFormattedString() + "] date[" + date + "]");
         return -Float.MAX_VALUE;
     }
 
-    private class TimeSeriesChangedListener implements
-            ITimeSeriesChangedListener {
+    private class TimeSeriesChangedListener
+            implements ITimeSeriesChangedListener {
         @Override
         public void timeSeriesChanged(TimeSeries ts) {
             editorCanvas.redraw();

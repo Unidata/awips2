@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Jan 23, 2018  7153     randerso  Changes to allow new GFE config file to be 
+#                                  selected when perspective is re-opened.
+#
+##
 
 ##
 # This is an absolute override file, indicating that a higher priority version
@@ -106,10 +114,7 @@ Options = [
 
 
 def setDefaults(w):
-      if GFEPreference.contains("Tk_font"):
-          tk_font = GFEPreference.getPreference("Tk_font")
-      else:
-          tk_font = "-b&h-lucidatypewriter-bold-*-sans-14-*"
+      tk_font = GFEPreference.getString("Tk_font", "-b&h-lucidatypewriter-bold-*-sans-14-*")
 
       fontList = ['*fixedFont', '*font', '*italicFont', '*statusFont',
                   '*urgentFont']

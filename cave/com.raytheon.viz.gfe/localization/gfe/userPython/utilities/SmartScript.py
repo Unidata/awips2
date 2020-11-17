@@ -46,15 +46,15 @@
 #                                  astype(numpy.bool8) so mask can be used with
 #                                  advanced indexing (e.g. grid[mask] = value)
 # Oct 07, 2013  2424     randerso  remove use of pytz
-# Oct 29, 2013  2476     njensen   Improved getting wx/discrete keys in 
+# Oct 29, 2013  2476     njensen   Improved getting wx/discrete keys in
 #                                  _getGridResults
 # Oct 31, 2013  2508     randerso  Change to use DiscreteGridSlice.getKeys()
-# Nov 07, 2013  2476     dgilling  Fix _getGridsResult() for retrieving 
+# Nov 07, 2013  2476     dgilling  Fix _getGridsResult() for retrieving
 #                                  Wx/Discrete in First mode.
 # Dec 23, 2013  16893    ryu       Added unloadWEs() method (created by njensen)
 # Apr 29, 2014  3097     randerso  Fixed getGrids() to return non-scalar grids
 #                                  as tuples in all cases
-# Nov 26, 2014  633      zhao      Corrected a type error in loadParm() 
+# Nov 26, 2014  633      zhao      Corrected a type error in loadParm()
 # Dec 01, 2014  3875     randerso  Added gmTime() and localTime() functions
 #                                  which are exact equivalents to those in the
 #                                  python time module. Added getTimeZoneStr and
@@ -95,7 +95,16 @@
 # Sep 28, 2016    19293  randerso  Added loadCombinationsFile method. Moved
 #                                  CombinationsFileUtil to common.
 # Oct 31, 2016    5979   njensen   Cast to primitives for compatibility
-# Feb 06, 2017    5959   randerso  Removed Java .toString() calls 
+# Feb 06, 2017    5959   randerso  Removed Java .toString() calls
+# Jan 19, 2018    6594   randerso  Updated to reflect Jep 3.6 now returns Python
+#                                  floats as Doubles.
+# Jan 24, 2018    7153   randerso  Changes to allow new GFE config file to be
+#                                  selected when perspective is re-opened.
+# Jan 31, 2018    7178   randerso  Updated for changes to ISCDataAccess.getCompositeGrid()
+# Feb 06, 2018    6887   dgilling  Fix unnecessary extra publish calls in publishElements.
+# Feb 06, 2018    6852   dgilling  Fix TypeError in officeType.
+# Feb 07, 2018    6882   randerso  Changed to use ReferenceData.isEmpty()
+# Oct 23, 2018    6594   randerso  Fixed import of JavaTimeRange
 #
 ########################################################################
 
@@ -103,9 +112,7 @@
 # This is a base file that is not intended to be overridden.
 ##
 
-import types, string, time, sys
-from math import *
-from numpy import *
+import types, string, time
 import os
 import numpy
 import math
@@ -118,16 +125,17 @@ import JUtil
 import NumpyJavaEnforcer
 
 from java.util import ArrayList
-from java.util import Date
-from java.nio import FloatBuffer
 
 from com.raytheon.uf.common.time import SimulatedTime
-from com.raytheon.uf.common.time import TimeRange as javaTimeRange
+from com.raytheon.uf.common.time import TimeRange as JavaTimeRange
+from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DByte
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DFloat
 from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKey
 from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKeyDef
-from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteDefinition
+from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
+CoordinateType = ReferenceData.CoordinateType
+from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherKey
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
@@ -163,13 +171,13 @@ class SmartScript(BaseTool.BaseTool):
         self._handlers = dict()
 
 
-    def empty(self, dtype=float32):
+    def empty(self, dtype=numpy.float32):
         """Return a grid filled with 0"""
-        return zeros(self.getGridShape(), dtype)
-    
-    def newGrid(self, initialValue, dtype=float32):
+        return numpy.zeros(self.getGridShape(), dtype)
+
+    def newGrid(self, initialValue, dtype=numpy.float32):
         """Return a grid filled with initialValue"""
-        return full(self.getGridShape(), initialValue, dtype)
+        return numpy.full(self.getGridShape(), initialValue, dtype)
 
     ##
     ## Call ProcessVariableList to obtain values from the user
@@ -243,8 +251,8 @@ class SmartScript(BaseTool.BaseTool):
         # Returns a list of tuples that are weather elements that are
         # available in the specified dbs.
         # dbs may contain a list of DatabaseIDs or a single DatabaseID
-        # If dbs is None parms from all available databases are returned.   
-        # The tuples are (element, level, model).  
+        # If dbs is None parms from all available databases are returned.
+        # The tuples are (element, level, model).
         # element and level are strings, model is a DatabaseID.
         retList = []
 
@@ -252,18 +260,18 @@ class SmartScript(BaseTool.BaseTool):
             dbs = self.__parmMgr.getAvailableDbs()
         elif type(dbs) is not list: # assume single db
             db = dbs
-            
+
             if isinstance(db, DatabaseID.DatabaseID):
                 db = db.toJavaObj()
             else:
                 # assume java DatabaseID
                 pass
-            
+
             dbs = ArrayList()
             dbs.add(db)
-            
+
         for i in range(dbs.size()):
-            d = dbs.get(i);
+            d = dbs.get(i)
             parms = self.__parmMgr.getAvailableParms(d)
             for pid in parms:
                 dbid = DatabaseID.DatabaseID(pid.getDbId())
@@ -295,8 +303,8 @@ class SmartScript(BaseTool.BaseTool):
             self.__parmMgr.setParmDisplayable(parm, 1)
         else:
             raise TypeError("SmartScript loadParm: " + \
-              "couldn't load " + `model` + ' ' + `element` + ' ' + `level` + \
-              ' ' + str(mostRecent) + " (None is returned from getParm())" )
+              "couldn't load " + repr(model) + ' ' + repr(element) + ' ' + repr(level) + \
+              ' ' + str(mostRecent) + " (None is returned from getParm())")
     ##
     # Get the list of timeranges locked by me in this weather element.
     #
@@ -513,7 +521,7 @@ class SmartScript(BaseTool.BaseTool):
             timeRange = timeRange.toJavaObj()
         elif isinstance(timeRange, list):
             timeRangeList = timeRange
-            timeRangeArray = jep.jarray(len(timeRangeList), javaTimeRange)
+            timeRangeArray = jep.jarray(len(timeRangeList), JavaTimeRange)
             for i in xrange(len(timeRangeList)):
                 tr = timeRangeList[i]
                 if isinstance(tr, TimeRange.TimeRange):
@@ -555,24 +563,24 @@ class SmartScript(BaseTool.BaseTool):
             elif "List" == mode:
                 xlated = []
                 for rgrid in result:
-                    jxlgrid = rgrid.getGridSlice()                    
+                    jxlgrid = rgrid.getGridSlice()
                     xlgrid = jxlgrid.getNDArray()
-                    if type(xlgrid) is ndarray and xlgrid.dtype == numpy.int8:                    
+                    if type(xlgrid) is numpy.ndarray and xlgrid.dtype == numpy.int8:
                         # discrete or weather
                         keys = JUtil.javaObjToPyVal(jxlgrid.getKeyList())
                         xlgrid = (xlgrid, keys)
                     elif type(xlgrid) is not numpy.ndarray and len(xlgrid) == 2:
                         # vector
-                        xlgrid = tuple(xlgrid)                    
+                        xlgrid = tuple(xlgrid)
                     xlated.append(xlgrid)
                 retVal = xlated
             else:
-                result = result[0];
-                slice = result.getGridSlice()
-                retVal = slice.getNDArray()
-                if type(retVal) is ndarray and retVal.dtype == numpy.int8:
+                result = result[0]
+                gridSlice = result.getGridSlice()
+                retVal = gridSlice.getNDArray()
+                if type(retVal) is numpy.ndarray and retVal.dtype == numpy.int8:
                     # discrete or weather
-                    keys = JUtil.javaObjToPyVal(slice.getKeyList())
+                    keys = JUtil.javaObjToPyVal(gridSlice.getKeyList())
                     retVal = (retVal, keys)
                 elif type(retVal) is not numpy.ndarray and len(retVal) == 2:
                     # vector
@@ -635,7 +643,7 @@ class SmartScript(BaseTool.BaseTool):
         #     return = variableElement + self._tGrid * 10.0
         #
         taperGrid = self.__refSetMgr.taperGrid(editArea, taperFactor)
-        taperGrid = taperGrid.getNDArray()        
+        taperGrid = taperGrid.getNDArray()
         return taperGrid
 
     def directionTaperGrid(self, editArea, direction):
@@ -657,7 +665,7 @@ class SmartScript(BaseTool.BaseTool):
         #      return variableElement * self._spaceProgress
         #
         taperGrid = self.__refSetMgr.directionTaperGrid(editArea, direction)
-        taperGrid = taperGrid.getNDArray()        
+        taperGrid = taperGrid.getNDArray()
         return taperGrid
 
 
@@ -693,7 +701,7 @@ class SmartScript(BaseTool.BaseTool):
         #    if wxType == 0: # SCALAR
         #         bits, values = isc
         #    elif wxType == 1: # VECTOR
-        #         bits, mag, dir = isc
+        #         bits, magGrid, dirGrid = isc
 
 
         if onlyISC == 0:
@@ -711,33 +719,47 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.viz.gfe.edittool import GridID
         gid = GridID(parm, gridTime.javaDate())
 
+        p = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch)
+        bits = p.getFirst()
+        gridData = p.getSecond()
+
         wxType = self.__dataMgr.getClient().getPythonClient().getGridParmInfo(parm.getParmID()).getGridType()
         if GridType.SCALAR.equals(wxType):
-            from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
-            slice = ScalarGridSlice()
-            bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray().astype(bool), slice.getScalarGrid().getNDArray())
+            if gridData:
+                grid = gridData.getDataObject().getScalarGrid().getNDArray()
+            else:
+                grid = self.empty(numpy.float32)
+
+            args = (bits.getNDArray().astype(numpy.bool), grid)
+
         elif GridType.VECTOR.equals(wxType):
-            from com.raytheon.uf.common.dataplugin.gfe.slice import VectorGridSlice
-            slice = VectorGridSlice()
-            bits = self.__dataMgr.getIscDataAccess().getVectorCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray().astype(bool), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
+            if gridData:
+                magGrid = gridData.getDataObject().getMagGrid().getNDArray()
+                dirGrid = gridData.getDataObject().getDirGrid().getNDArray()
+            else:
+                magGrid = self.empty(numpy.float32)
+                dirGrid = self.empty(numpy.float32)
+
+            args = (bits.getNDArray().astype(numpy.bool), magGrid, dirGrid)
+
         elif GridType.WEATHER.equals(wxType):
-            from com.raytheon.uf.common.dataplugin.gfe.slice import WeatherGridSlice
-            slice = WeatherGridSlice()
-            bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
             keys = []
-            for k in slice.getKeys():
-                keys.append(str(k))
-            args = (bits.getNDArray().astype(bool), slice.getWeatherGrid().getNDArray(), keys)
+            if gridData:
+                grid = gridData.getDataObject().getWeatherGrid().getNDArray()
+                keys = [str(k) for k in keys]
+            else:
+                grid = self.empty(numpy.int8)
+
+            args = (bits.getNDArray().astype(numpy.bool), grid, keys)
         elif GridType.DISCRETE.equals(wxType):
-            from com.raytheon.uf.common.dataplugin.gfe.slice import DiscreteGridSlice
-            slice = DiscreteGridSlice()
-            bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
             keys = []
-            for k in slice.getKeys():
-                keys.append(str(k))
-            args = (bits.getNDArray().astype(bool), slice.getDiscreteGrid().getNDArray(), keys)
+            if gridData:
+                grid = gridData.getDataObject().getDiscreteGrid().getNDArray()
+                keys = [str(k) for k in keys]
+            else:
+                grid = self.empty(numpy.int8)
+
+            args = (bits.getNDArray().astype(numpy.bool), grid, keys)
         return args
 
     ##
@@ -840,13 +862,13 @@ class SmartScript(BaseTool.BaseTool):
             else:
                 valueCube = valueCube + [valueGrid]
 
-        ghCube = array(ghCube)
+        ghCube = numpy.array(ghCube)
         if len(magCube) > 0:
-            magCube = array(magCube)
-            dirCube = array(dirCube)
+            magCube = numpy.array(magCube)
+            dirCube = numpy.array(dirCube)
             valueCube = (magCube, dirCube)
         else:
-            valueCube = array(valueCube)
+            valueCube = numpy.array(valueCube)
         return (ghCube, valueCube)
 
     # numeric only
@@ -880,10 +902,10 @@ class SmartScript(BaseTool.BaseTool):
         else:
             u = uSum / totCount
             v = vSum / totCount
-            mag, dir = self.UVToMagDir(u, v)
-            mag = int(mag + 0.5)
-            dir = int(dir + 0.5)
-            return (mag, dir)
+            magnitude, direction = self.UVToMagDir(u, v)
+            magnitude = numpy.int(magnitude + 0.5)
+            direction = numpy.int(direction + 0.5)
+            return (magnitude, direction)
 
 
     ###########################
@@ -895,24 +917,24 @@ class SmartScript(BaseTool.BaseTool):
         u = -u
         v = -v
         if type(u) is numpy.ndarray or type(v) is numpy.ndarray:
-            speed = numpy.sqrt(u * u + v * v)
-            dir = numpy.arctan2(u, v) * RAD_TO_DEG
-            dir[numpy.greater_equal(dir, 360)] -= 360
-            dir[numpy.less(dir, 0)] += 360
+            magnitude = numpy.sqrt(u * u + v * v)
+            direction = numpy.arctan2(u, v) * RAD_TO_DEG
+            direction[numpy.greater_equal(direction, 360)] -= 360
+            direction[numpy.less(direction, 0)] += 360
         else:
-            speed = math.sqrt(u * u + v * v)
-            dir = math.atan2(u, v) * RAD_TO_DEG
-            while dir < 0.0:
-                dir = dir + 360.0
-            while dir >= 360.0:
-                dir = dir - 360.0
-        return (speed, dir)
+            magnitude = math.sqrt(u * u + v * v)
+            direction = math.atan2(u, v) * RAD_TO_DEG
+            while direction < 0.0:
+                direction = direction + 360.0
+            while direction >= 360.0:
+                direction = direction - 360.0
+        return (magnitude, direction)
 
-    def MagDirToUV(self, mag, dir):
+    def MagDirToUV(self, magnitude, direction):
         DEG_TO_RAD = numpy.pi / 180.0
         # Note sign change for components so math to meteor. coords works
-        uw = - sin(dir * DEG_TO_RAD) * mag
-        vw = - cos(dir * DEG_TO_RAD) * mag
+        uw = -numpy.sin(direction * DEG_TO_RAD) * magnitude
+        vw = -numpy.cos(direction * DEG_TO_RAD) * magnitude
         return (uw, vw)
 
     def convertMsecToKts(self, value_Msec):
@@ -931,7 +953,7 @@ class SmartScript(BaseTool.BaseTool):
     def convertFtoK(self, t_F):
         # Convert the temperature from Kelvin to Fahrenheit
         # Degrees Kelvin = (Degrees Fahrenheit - 32) * (5 / 9) + 273.15
-        t_K = (t_F - 32.0) * (5.0 / 9.0) + 273.15;
+        t_K = (t_F - 32.0) * (5.0 / 9.0) + 273.15
         return t_K
 
     def FtoK(self, t_F):
@@ -999,9 +1021,9 @@ class SmartScript(BaseTool.BaseTool):
         if category not in self._handlers:
             self._handlers[category] = UFStatus.getHandler("GFE", category, 'GFE')
 
-        self._handlers[category].handle(importance, message);
+        self._handlers[category].handle(importance, message)
 
-   #########################
+    #########################
     ##  Smart Commands
     ##
     ## These commands take some similar arguments:
@@ -1046,7 +1068,7 @@ class SmartScript(BaseTool.BaseTool):
     def callSmartTool(self, toolName, elementName, editArea=None,
                       timeRange=None, varDict=None,
                       editValues=1, calcArea=0, calcGrid=0,
-                      passErrors=[],
+                      passErrors=None,
                       missingDataMode="",
                       modal=1):
         # passErrors:  a list of errors to ignore and pass back to the
@@ -1068,13 +1090,15 @@ class SmartScript(BaseTool.BaseTool):
         #     mixHgt = self.getGrids(model, "MixHgt", "SFC", timeRange)
         #     if mixHgt is None:
         #        self.noData()
+        if passErrors is None:
+            passErrors = []
 
-        if editArea is None or not editArea.getGrid().isAnyBitsSet():
+        if editArea is None or editArea.isEmpty():
             editArea = self.__refSetMgr.fullRefSet()
             emptyEditAreaFlag = True
         else:
             emptyEditAreaFlag = False
-            
+
         javaDict = None
         if varDict is not None:
             javaDict = JUtil.pyValToJavaObj(varDict)
@@ -1105,21 +1129,19 @@ class SmartScript(BaseTool.BaseTool):
                       missingDataMode="Stop",
                       modal=1):
         if editArea is None:
-            from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
             editArea = ReferenceData()
         if timeRange is None:
-            from com.raytheon.uf.common.time import TimeRange as JavaTimeRange
             timeRange = JavaTimeRange()
         else:
             timeRange = timeRange.toJavaObj()
 
-        javaDict=None
+        javaDict = None
         if varDict is not None:
             javaDict = JUtil.pyValToJavaObj(varDict)
 
         from com.raytheon.viz.gfe.procedures import ProcedureUtil
         result, returnedDict = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, javaDict)
-        
+
         if varDict is not None and returnedDict:
             returnedDict = JUtil.javaObjToPyVal(returnedDict)
             varDict.clear()
@@ -1226,7 +1248,7 @@ class SmartScript(BaseTool.BaseTool):
             #look for overrides
             if descriptiveName is None:
                 descriptiveName = element
-            
+
             if timeConstraints is None:
                 if exampleGPI is None:
                     tc = TimeConstraints(0, 60, 60)
@@ -1248,16 +1270,16 @@ class SmartScript(BaseTool.BaseTool):
                     precision = 0
                 else:
                     precision = exampleGPI.getPrecision()
-                    
+
             if maxAllowedValue is None:
                 if exampleGPI is None:
-                    maxAllowedValue = nanmax(numericGrid)
+                    maxAllowedValue = numpy.nanmax(numericGrid)
                 else:
                     maxAllowedValue = exampleGPI.getMaxValue()
-                    
+
             if minAllowedValue is None:
                 if exampleGPI is None:
-                    minAllowedValue = nanmin(numericGrid)
+                    minAllowedValue = numpy.nanmin(numericGrid)
                 else:
                     minAllowedValue = exampleGPI.getMinValue()
 
@@ -1305,9 +1327,9 @@ class SmartScript(BaseTool.BaseTool):
 
             #set a default color table if specified
             if defaultColorTable is not None:
-                from com.raytheon.viz.gfe import Activator
+                from com.raytheon.viz.gfe import GFEPreference
                 prefName = element + "_defaultColorTable"
-                Activator.getDefault().getPreferenceStore().setValue(prefName, defaultColorTable)
+                GFEPreference.setPreference(prefName, defaultColorTable)
 
             #create the parm
             parm = self.__parmMgr.createVirtualParm(pid, gpi, None, 1, 1)
@@ -1320,7 +1342,7 @@ class SmartScript(BaseTool.BaseTool):
         auxJavaGrid = None
         javaOldKeys = None
         if elementType == "DISCRETE" or elementType == "WEATHER":
-            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], int8)
+            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], numpy.int8)
             dimx = ngZero.shape[1]
             dimy = ngZero.shape[0]
             # Use createGrid() to get around Jep problems with 3-arg ctor.
@@ -1338,11 +1360,11 @@ class SmartScript(BaseTool.BaseTool):
                 # FIXME: add oldKey[0] to the ArrayList for tuple types
                 javaOldKeys.add(str(oldKey))
         elif elementType == "SCALAR":
-            numericGrid = NumpyJavaEnforcer.checkdTypes(numericGrid, float32)
+            numericGrid = NumpyJavaEnforcer.checkdTypes(numericGrid, numpy.float32)
             javaGrid = Grid2DFloat.createGrid(numericGrid.shape[1], numericGrid.shape[0], numericGrid)
         elif elementType == "VECTOR":
-            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], float32)
-            ngOne = NumpyJavaEnforcer.checkdTypes(numericGrid[1], float32)
+            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], numpy.float32)
+            ngOne = NumpyJavaEnforcer.checkdTypes(numericGrid[1], numpy.float32)
             javaGrid = Grid2DFloat.createGrid(ngZero.shape[1], ngZero.shape[0], ngZero)
             auxJavaGrid = Grid2DFloat.createGrid(ngOne.shape[1], ngOne.shape[0], ngOne)
         else:
@@ -1386,7 +1408,7 @@ class SmartScript(BaseTool.BaseTool):
         parm = self.getParm(model, element, level)
         from com.raytheon.viz.gfe.core.msgs import HighlightMsg
 
-        trs = jep.jarray(1, javaTimeRange)
+        trs = jep.jarray(1, JavaTimeRange)
         trs[0] = timeRange.toJavaObj()
         HighlightMsg(parm, trs, on, color).send()
 
@@ -1412,7 +1434,7 @@ class SmartScript(BaseTool.BaseTool):
         # set the mode to replace so the tool always behaves the same
 
         if headlineGrid is None: # make new headline grid components
-            headValues = zeros(fcstGrid.shape, int8)
+            headValues = numpy.zeros(fcstGrid.shape, numpy.int8)
             headKeys = [noneKey]
             self.setCombineMode("Replace") # force a replace in GFE
         else:
@@ -1426,21 +1448,21 @@ class SmartScript(BaseTool.BaseTool):
         # make a list of (mask, key) for the new headlines
         newHeadlines = []
         for value, headline in headlineTable:
-            mask = greater_equal(fcstGrid, value)
-            if sometrue(mask):
+            mask = numpy.greater_equal(fcstGrid, value)
+            if numpy.sometrue(mask):
                 newHeadlines.append((mask, headline))
         # make the same list for old headlines
         oldHeadlines = []
         for i in range(len(headKeys)):
-            mask = equal(headValues, i)
-            if sometrue(mask):
+            mask = numpy.equal(headValues, i)
+            if numpy.sometrue(mask):
                 oldHeadlines.append((mask, headKeys[i]))
 
         # make combinations at every intersection
         for newMask, newKey in newHeadlines:
             for oldMask, oldKey in oldHeadlines:
-                overlap = logical_and(newMask, oldMask) # intersection
-                if sometrue(overlap): #  combined key needed
+                overlap = numpy.logical_and(newMask, oldMask) # intersection
+                if numpy.sometrue(overlap): #  combined key needed
                     if oldKey == newKey:
                         continue
                     if oldKey == noneKey:
@@ -1484,7 +1506,7 @@ class SmartScript(BaseTool.BaseTool):
         # as defined in the GFE
         # E.g.
         #   timeRange = self.getTimeRange("Today")
-        tr = self.__dataMgr.getSelectTimeRangeManager().getRange(timeRangeName).toTimeRange();
+        tr = self.__dataMgr.getSelectTimeRangeManager().getRange(timeRangeName).toTimeRange()
         return TimeRange.TimeRange(tr)
 
     def createTimeRange(self, startHour, endHour, mode="LT", dbID=None):
@@ -1573,8 +1595,8 @@ class SmartScript(BaseTool.BaseTool):
             duration = timeRange.duration()
             durHours = duration / 3600
             durMinutes = duration / 3600 / 60
-            durStr = string.replace(durFmt, "%H", `durHours`)
-            durStr = string.replace(durStr, "%M", `durMinutes`)
+            durStr = string.replace(durFmt, "%H", repr(durHours))
+            durStr = string.replace(durStr, "%M", repr(durMinutes))
             display = display + durStr
         if startFmt != "":
             display = display + timeRange.startTime().stringFmt(startFmt)
@@ -1620,7 +1642,7 @@ class SmartScript(BaseTool.BaseTool):
         if date is None:
             date = SimulatedTime.getSystemTime().getTime()
         return AbsTime.AbsTime(date)
-    
+
     def gmtime(self, date=None):
         ''' This takes date (default current Simulated Time) and converts it to AbsTime
 
@@ -1635,12 +1657,12 @@ class SmartScript(BaseTool.BaseTool):
             This should be used instead of time.localtime()
         '''
         return self._localtime(date).timetuple()
-    
+
     def getTimeZoneStr(self):
         ''' Returns local time zone of the current site as a string
         '''
         return self.__gridLoc.getTimeZone()
-    
+
     def getTzInfo(self, tzname=None):
         ''' Returns time zone object compatible with datetime for the desired time zone. 
             Defaults to local site's time zone if tzname not specified.
@@ -1674,14 +1696,11 @@ class SmartScript(BaseTool.BaseTool):
         #    myArea = self.getEditArea("BOU")
         #    self.callSmartTool("MyTool", "T", editArea=myArea, timeRange)
         #
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
         refID = ReferenceID(editAreaName)
         return self.__dataMgr.getRefManager().loadRefSet(refID)
 
     def saveEditArea(self, editAreaName, refData):
         # Saves the AFPS.ReferenceData object with the given name
-
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
         refID = ReferenceID(editAreaName)
         refData = ReferenceData(refData.getGloc(), refID, refData.getGrid())
         self.__dataMgr.getRefManager().saveRefSet(refData)
@@ -1749,8 +1768,6 @@ class SmartScript(BaseTool.BaseTool):
         return self.__dataMgr.getSpatialDisplayManager().getActivatedParm()
 
     def getGridCellSwath(self, editArea, cells):
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
-        CoordinateType = ReferenceData.CoordinateType
         # Returns an AFPS.ReferenceData swath of the given
         # number of cells around the given an edit area.
         # The edit area must not be a query.
@@ -1904,12 +1921,12 @@ class SmartScript(BaseTool.BaseTool):
     ##
     # @param elementNames: ignored
     #
-    # @deprecated: Cacheing is controlled by the system.
+    # @deprecated: Caching is controlled by the system.
     def cacheElements(self, elementNames):
         pass
 
     ##
-    # Cacheing is controlled by the system. Users may still call this method
+    # Caching is controlled by the system. Users may still call this method
     # to delete temporary parms in the parm manager.
     #
     # @param elementNames: ignored
@@ -1917,7 +1934,7 @@ class SmartScript(BaseTool.BaseTool):
         self.__parmMgr.deleteTemporaryParms()
 
     def loadWEGroup(self, groupName):
-        parmArray = self.__parmMgr.getAllAvailableParms();
+        parmArray = self.__parmMgr.getAllAvailableParms()
         parmIDs = self.__dataMgr.getWEGroupManager().getParmIDs(
               groupName, parmArray)
         # Load the group
@@ -1985,7 +2002,7 @@ class SmartScript(BaseTool.BaseTool):
 
             cgr = CommitGridRequest(parm.getParmID(), publishTimeRange.toJavaObj())
             requests.add(cgr)
-            self.__parmOp.publish(requests)
+        self.__parmOp.publish(requests)
 
     def combineMode(self):
         from com.raytheon.viz.gfe.core.parm import ParmState
@@ -2063,6 +2080,12 @@ class SmartScript(BaseTool.BaseTool):
                 for i in jsa:
                     pa.append(str(i))
                 return pa
+            elif prefs.isDoubleArray(itemName):
+                pa = []
+                jsa = prefs.getDoubleArray(itemName)
+                for i in jsa:
+                    pa.append(float(i))
+                return pa
             elif prefs.isFloatArray(itemName):
                 pa = []
                 jsa = prefs.getFloatArray(itemName)
@@ -2081,7 +2104,7 @@ class SmartScript(BaseTool.BaseTool):
             return default
 
     def esat(self, temp):
-        return exp(26.660820 - 0.0091379024 * temp - 6106.3960 / temp)
+        return numpy.exp(26.660820 - 0.0091379024 * temp - 6106.3960 / temp)
 
     ##
     # Get the discrete keys for elementName.
@@ -2127,18 +2150,18 @@ class SmartScript(BaseTool.BaseTool):
         #  # Here we want to treat the query as a literal
         #  PoP = where(self.wxMask(wxTuple, ":L:") maximum(5, PoP), PoP)
         #
-        rv = self.empty(bool)
+        rv = self.empty(numpy.bool)
         if not isreg:
             for i in xrange(len(wx[1])):
                 #if fnmatch.fnmatchcase(wx[1][i], query):
                 if string.find(wx[1][i], query) >= 0:
-                    rv[equal(wx[0], i)] = True
+                    rv[numpy.equal(wx[0], i)] = True
         else:
             r = re.compile(query)
             for i in xrange(len(wx[1])):
                 m = r.search(wx[1][i])
                 if m is not None:
-                    rv[equal(wx[0], i)] = True
+                    rv[numpy.equal(wx[0], i)] = True
         return rv
 
         # Returns a numeric mask i.e. a grid of 0's and 1's
@@ -2218,13 +2241,13 @@ class SmartScript(BaseTool.BaseTool):
         #  Duplicate keys causes a bug when generating hazards grids.
 
         sortedUglyStr = self.sortUglyStr(uglyStr)
-        for str in keys:
-            if sortedUglyStr == self.sortUglyStr(str):
-                return keys.index(str)
-        
+        for wxKey in keys:
+            if sortedUglyStr == self.sortUglyStr(wxKey):
+                return keys.index(wxKey)
+
         if len(keys) >= 256:
             raise IndexError("Attempt to create more than 256 Wx keys")
-        
+
         keys.append(uglyStr)
         return len(keys) - 1
 
@@ -2244,69 +2267,70 @@ class SmartScript(BaseTool.BaseTool):
         if editArea.isQuery():
             editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery())
 
-        return editArea.getGrid().getNDArray().astype(bool)
+        return editArea.getGrid().getNDArray().astype(numpy.bool)
 
     def decodeEditArea(self, mask):
         # Returns a refData object for the given mask
-        from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
         gridLoc = self.getGridLoc()
         nx = int(gridLoc.getNx())
         ny = int(gridLoc.getNy())
-        
+
         # force mask to boolean if it's not
-        mask = NumpyJavaEnforcer.checkdTypes(mask, bool)
-        
-        # convert boolean mask to bytes for Grid2DBit        
-        bytes = mask.astype(int8)
-        grid = Grid2DBit.createBitGrid(nx, ny, bytes)
+        mask = NumpyJavaEnforcer.checkdTypes(mask, numpy.bool)
+
+        # convert boolean mask to bytes for Grid2DBit
+        byteMask = mask.astype(numpy.int8)
+        grid = Grid2DBit.createBitGrid(nx, ny, byteMask)
         return ReferenceData(gridLoc, ReferenceID("test"), grid)
 
 
     def getindicies(self, o, l):
         if o > 0:
-            a = slice(o, l); b = slice(0, l - o)
+            a = slice(o, l)
+            b = slice(0, l - o)
         elif o < 0:
-            a = slice(0, l + o); b = slice(- o, l)
+            a = slice(0, l + o)
+            b = slice(-o, l)
         else:
-            a = slice(0, l); b = slice(0, l)
+            a = slice(0, l)
+            b = slice(0, l)
         return a, b
 
     def offset(self, a, x, y):
         # Gives an offset grid for array, a, by x and y points
         sy1, sy2 = self.getindicies(y, a.shape[0])
-        sx1, sx2 = self.getindicies(x, a.shape[1])        
-        b = zeros_like(a)
+        sx1, sx2 = self.getindicies(x, a.shape[1])
+        b = numpy.zeros_like(a)
         b[sy1, sx1] = a[sy2, sx2]
         return b
 
     def agradient(self, a):
         # Gives offset grids in the "forward" x and "up" y directions
         dx = a - self.offset(a, 1, 0)
-        dy = a - self.offset(a, 0, - 1)
+        dy = a - self.offset(a, 0, -1)
         return dx, dy
 
-    def diff2(self, x, n=1, axis= - 1):
+    def diff2(self, x, n=1, axis=-1):
         """diff2(x,n=1,axis=-1) calculates the first-order, discrete
         center difference approximation to the derivative along the axis
         specified. array edges are padded with adjacent values.
         """
-        a = asarray(x)
+        a = numpy.asarray(x)
         nd = len(a.shape)
         slice1 = [slice(None)] * nd
         slice2 = [slice(None)] * nd
         slice1[axis] = slice(2, None)
-        slice2[axis] = slice(None, - 2)
+        slice2[axis] = slice(None, -2)
         tmp = a[slice1] - a[slice2]
-        rval = zeros_like(a)
+        rval = numpy.zeros_like(a)
         slice3 = [slice(None)] * nd
-        slice3[axis] = slice(1, - 1)
+        slice3[axis] = slice(1, -1)
         rval[slice3] = tmp
         slice4 = [slice(None)] * nd
         slice4[axis] = slice(0, 1)
         rval[slice4] = tmp[slice4]
         slice5 = [slice(None)] * nd
-        slice5[axis] = slice(- 1, None)
+        slice5[axis] = slice(-1, None)
         rval[slice5] = tmp[slice5]
         if n > 1:
             return diff2(rval, n - 1)
@@ -2582,9 +2606,9 @@ class SmartScript(BaseTool.BaseTool):
         return lf
 
 
-    def saveObject(self, name, object, category):
+    def saveObject(self, name, obj, category):
         import cPickle
-        # Save a Python object (e.g. a Numeric grid)
+        # Save a Python obj (e.g. a Numeric grid)
         # in the server under the given name
         #   Example:
         #   self.saveObject("MyGrid", numericGrid, "DiscrepancyValueGrids")
@@ -2595,7 +2619,7 @@ class SmartScript(BaseTool.BaseTool):
         if not os.path.exists(fullpath[:idx]):
             os.makedirs(fullpath[:idx])
         openfile = open(fullpath, 'w')
-        cPickle.dump(object, openfile)
+        cPickle.dump(obj, openfile)
         openfile.close()
         lf.save()
 
@@ -2628,7 +2652,7 @@ class SmartScript(BaseTool.BaseTool):
         #returns the office type for the given site identifier
         #returns None if unknown site id
         a = self.__dataMgr.officeType(siteid)
-        if len(a):
+        if a:
             return a
         else:
             return None
@@ -2642,7 +2666,6 @@ class SmartScript(BaseTool.BaseTool):
         return dbs
 
     def knownOfficeTypes(self):
-        import JUtil
         return JUtil.javaStringListToPylist(self.__dataMgr.knownOfficeTypes())
 
     # Retrieves a text product from the text database
@@ -2651,10 +2674,10 @@ class SmartScript(BaseTool.BaseTool):
 
         opMode = self.gfeOperatingMode() in ("OPERATIONAL", "TEST")
         fullText = TextDBUtil.retrieveProduct(productID, opMode)
-        textList =  fullText.splitlines(True)
+        textList = fullText.splitlines(True)
         return textList
 
-    def callTextFormatter(self, productName, dbId, varDict={}, vtecMode=None):
+    def callTextFormatter(self, productName, dbId, varDict=None, vtecMode=None):
         """
         Execute the requested text product formatter.
 
@@ -2673,10 +2696,12 @@ class SmartScript(BaseTool.BaseTool):
                 TypeError: If varDict is not a dict.
                 RuntimeError: If the formatter fails during execution. 
         """
-        if type(varDict) is not dict:
+        if varDict is None:
+            varDict = {}
+        elif type(varDict) is not dict:
             raise TypeError("Argument varDict must be a dict.")
         varDict = str(varDict)
-        
+
         listener = TextProductFinishWaiter()
         FormatterUtil.callFromSmartScript(productName, dbId, varDict, vtecMode, self.__dataMgr, listener)
         product = listener.waitAndGetProduct()
@@ -2686,7 +2711,7 @@ class SmartScript(BaseTool.BaseTool):
             ". Check formatter logs from Process Monitor for more information."
             raise RuntimeError(msg)
         return product
-    
+
     def saveCombinationsFile(self, name, combinations):
         """
         Save the specified zone combinations to the localization data store.
@@ -2708,10 +2733,10 @@ class SmartScript(BaseTool.BaseTool):
                 iter(item)
         except TypeError:
             raise TypeError("combinations must be a list of list of zone names.")
-        
+
         combo_list = JUtil.pyValToJavaObj([[str(zone) for zone in group] for group in combinations])
         CombinationsFileUtil.generateAutoCombinationsFile(combo_list, str(name))
-    
+
     def loadCombinationsFile(self, name):
         """
         Load the specified zone combinations file form the localization data store.
@@ -2743,9 +2768,40 @@ class SmartScript(BaseTool.BaseTool):
         wanPil = str(wanPil)
         product = str(product)
         wmoType = str(wmoType)
-        
+
         transmitter = TextProductTransmitter(product, wanPil, wmoType)
-        practice = self.gfeOperatingMode()=="PRACTICE"
+        practice = self.gfeOperatingMode() == "PRACTICE"
         status = transmitter.transmitProduct(practice)
         return status
 
+    def sendWFOMessage(self, wfos, message):
+        '''
+        Sends a message to a list of wfos
+        
+        Args:
+            wfos: string or list, set or tuple of strings containing the destination wfo(s)
+            
+            message: string containing the message to be sent
+
+        Returns:
+            string: empty if successful or error message
+        
+        Raises:
+            TypeError: if wfos is not a string, list, tuple or set
+        '''
+
+        if not wfos:
+            # called with empty wfo list, nothing to do
+            return ""
+
+        javaWfos = ArrayList()
+        if type(wfos) in [list, tuple, set]:
+            for wfo in wfos:
+                javaWfos.add(wfo)
+        elif type(wfos) is str:
+            javaWfos.add(wfos)
+        else:
+            raise TypeError("Invalid type received for wfos: " + type(wfos))
+
+        response = self.__dataMgr.getClient().sendWFOMessage(javaWfos, message)
+        return response.message()

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,33 +21,33 @@ package com.raytheon.uf.common.dataplugin.gfe.grid;
 
 import java.awt.Point;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implementation of the Short version of Grid2D.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 08, 2015  #4617     randerso    Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 08, 2015  4617     randerso  Initial creation
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Regenerated equals
+ *                                  and hashCode
+ * Feb 23, 2018  7178     randerso  Fix hashCode and equals to not depend on
+ *                                  Buffer.array(). Code cleanup to better match
+ *                                  Grid2DFloat.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 public class Grid2DShort implements IGrid2D {
     /* error strings */
     private static final String DIM_INVALID = "Grid index out of range: user-specified=(%d, %d), maximum=(%d, %d)";
-
-    private static final String TYPE_INVALID = "The input source grid must be of type Grid2DShort";
-
-    private static final String NO_MATCH_GRIDS = "This grid, the input grid, and the mask grid must have equal dimensions";
 
     /**
      * The data buffer, holding the grid's contents.
@@ -57,47 +57,47 @@ public class Grid2DShort implements IGrid2D {
     /**
      * Width of the grid.
      */
-    private int xDim = 0;
+    private int xdim = 0;
 
     /**
      * Height of the grid.
      */
-    private int yDim = 0;
+    private int ydim = 0;
 
     /**
      * Constructor for creating a two-dimension grid to contain {@code int}s.
-     * {@code xDim} and {@code yDim} specify the size of the grid. The buffer is
+     * {@code xdim} and {@code ydim} specify the size of the grid. The buffer is
      * allocated but not initialized.
-     * 
-     * @param xDim
+     *
+     * @param xdim
      *            width of the grid
-     * @param yDim
+     * @param ydim
      *            height of the grid
      */
-    public Grid2DShort(int xDim, int yDim) {
-        this.xDim = xDim;
-        this.yDim = yDim;
-        this.buffer = ShortBuffer.allocate(xDim * yDim);
+    public Grid2DShort(int xdim, int ydim) {
+        this.xdim = xdim;
+        this.ydim = ydim;
+        this.buffer = ShortBuffer.allocate(xdim * ydim);
     }
 
     /**
      * Constructor for creating a two-dimension grid containing {@code short}s.
-     * {@code xDim} and {@code yDim} specify the size of the grid. The grid is
+     * {@code xdim} and {@code ydim} specify the size of the grid. The grid is
      * initialized using the {@code data} provided. A runtime exception may
      * result if the dimensions are out of synch with the data array.
-     * 
-     * @param xDim
+     *
+     * @param xdim
      *            width of the grid
-     * @param yDim
+     * @param ydim
      *            height of the grid
      * @param data
      *            contains values to initialize the object
      */
-    public Grid2DShort(int xDim, int yDim, short[] data) {
-        this(xDim, yDim);
-        if ((xDim * yDim) != data.length) {
+    public Grid2DShort(int xdim, int ydim, short[] data) {
+        this(xdim, ydim);
+        if ((xdim * ydim) != data.length) {
             throw new IllegalArgumentException(
-                    "Dimensions do not match data length (" + xDim + "," + yDim
+                    "Dimensions do not match data length (" + xdim + "," + ydim
                             + ") " + data.length);
         }
         this.buffer.put(data);
@@ -105,86 +105,85 @@ public class Grid2DShort implements IGrid2D {
 
     /**
      * Constructor for creating a two-dimension grid containing {@code short}s.
-     * {@code xDim} and {@code yDim} specify the size of the grid. The grid is
+     * {@code xdim} and {@code ydim} specify the size of the grid. The grid is
      * initialized using the {@code data} provided. A
      * {@code IllegalArgumentException} is thrown if are out of synch with the
      * data provided.
-     * 
-     * @param xDim
+     *
+     * @param xdim
      *            width of the grid
-     * @param yDim
+     * @param ydim
      *            height of the grid
      * @param data
      *            contains values to initialize the object. <b>NOTE:</b> this
      *            object assumes ownership of this Buffer so the caller should
      *            not modify it after calling this constructor.
      */
-    public Grid2DShort(int xDim, int yDim, ShortBuffer data) {
-        if ((xDim * yDim) != data.limit()) {
+    public Grid2DShort(int xdim, int ydim, ShortBuffer data) {
+        if ((xdim * ydim) != data.limit()) {
             throw new IllegalArgumentException(
-                    "Dimensions do not match data length (" + xDim + "," + yDim
+                    "Dimensions do not match data length (" + xdim + "," + ydim
                             + ") " + data.limit());
         }
-        this.xDim = xDim;
-        this.yDim = yDim;
+        this.xdim = xdim;
+        this.ydim = ydim;
         this.buffer = data;
     }
 
     /**
      * Copy constructor. Creates a two-dimension grid that is a copy of the
      * provided grid.
-     * 
-     * @param data
+     *
+     * @param rhs
      *            the object to copy
      */
-    public Grid2DShort(Grid2DShort data) {
-        this.xDim = data.getXDim();
-        this.yDim = data.getYDim();
-        short temp[] = data.buffer.array();
-        this.buffer = ShortBuffer.allocate(temp.length);
-        this.buffer.put(temp);
+    public Grid2DShort(Grid2DShort rhs) {
+        this(rhs.xdim, rhs.ydim);
+        this.buffer.put(rhs.getBuffer());
     }
 
     /**
      * Returns the grid value at the specified coordinates. Throws a runtime
      * exception if the coordinates are not valid.
-     * 
-     * @param xDim
+     *
+     * @param xdim
      *            horizontal coordinate of the desired grid point
-     * @param yDim
+     * @param ydim
      *            vertical coordinate of the desired grid point
-     * 
+     *
      * @return the value at the desired grid point
      */
-    public short get(int xDim, int yDim) {
-        if (!isValid(xDim, yDim)) {
-            throw new IllegalArgumentException(String.format(DIM_INVALID, xDim,
-                    yDim, this.xDim - 1, this.yDim - 1));
+    public short get(int xdim, int ydim) {
+        if (!isValid(xdim, ydim)) {
+            throw new IllegalArgumentException(String.format(DIM_INVALID, xdim,
+                    ydim, this.xdim - 1, this.ydim - 1));
         }
-        return this.buffer.get((yDim * this.xDim) + xDim);
+        return this.buffer.get((ydim * this.xdim) + xdim);
     }
 
     /**
      * Sets the specified value into the grid at the specified coordinates.
      * Throws a runtime exception if the coordinates are not valid.
-     * 
-     * @param xDim
+     *
+     * @param xdim
      *            horizontal coordinate of the desired grid point
-     * @param yDim
+     * @param ydim
      *            vertical coordinate of the desired grid point
      * @param value
      *            the new grid value
      */
-    public void set(int xDim, int yDim, short value) {
-        if (!isValid(xDim, yDim)) {
-            throw new IllegalArgumentException(String.format(DIM_INVALID, xDim,
-                    yDim, this.xDim - 1, this.yDim - 1));
+    public void set(int xdim, int ydim, short value) {
+        if (!isValid(xdim, ydim)) {
+            throw new IllegalArgumentException(String.format(DIM_INVALID, xdim,
+                    ydim, this.xdim - 1, this.ydim - 1));
         }
-        this.buffer.put((yDim * this.xDim) + xDim, value);
+        this.buffer.put((ydim * this.xdim) + xdim, value);
     }
 
     /**
      * Sets the specified value into the grid at the current insertion point.
+     *
+     * @param value
      */
     public void set(short value) {
         this.buffer.put(value);
@@ -192,15 +191,19 @@ public class Grid2DShort implements IGrid2D {
 
     /**
      * Sets all grid points to the specified value.
+     *
+     * @param value
      */
     public void setAllValues(short value) {
-        Arrays.fill(this.buffer.array(), value);
+        for (int i = 0; i < this.buffer.capacity(); i++) {
+            this.buffer.put(i, value);
+        }
     }
 
     /**
      * Replaces all occurrences of the specified value with the replacement
      * value.
-     * 
+     *
      * @param oldVal
      *            grid value to replace
      * @param newVal
@@ -224,14 +227,14 @@ public class Grid2DShort implements IGrid2D {
 
     /**
      * Sets the specified grid value to zero.
-     * 
+     *
      * @param x
      *            horizontal coordinate grid point to clear
      * @param y
      *            vertical coordinate grid point to clear
      */
     public void clear(int x, int y) {
-        buffer.put((y * xDim) + x, (short) 0);
+        buffer.put((y * xdim) + x, (short) 0);
     }
 
     /**
@@ -239,7 +242,7 @@ public class Grid2DShort implements IGrid2D {
      * specified by {@code delta}.
      * <P>
      * For example:
-     * 
+     *
      * <PRE>
      *   {@literal delta = (i,j) (the translation point),}
      *   {@literal this = the current grid, and}
@@ -248,16 +251,16 @@ public class Grid2DShort implements IGrid2D {
      *   {@literal new.get(a,b) is undefined for a &lt; i, b &lt; j}
      *   {@literal new.get(a,b) is this.get(a-i,b-j)}
      * </PRE>
-     * 
+     *
      * @param delta
      *            represents the desired translation
-     * 
+     *
      * @return the translated grid
      */
     public Grid2DShort translate(Coordinate delta) {
-        Grid2DShort retVal = new Grid2DShort(this.xDim, this.yDim);
-        for (int x = 0; x < this.xDim; x++) {
-            for (int y = 0; y < this.yDim; y++) {
+        Grid2DShort retVal = new Grid2DShort(this.xdim, this.ydim);
+        for (int x = 0; x < this.xdim; x++) {
+            for (int y = 0; y < this.ydim; y++) {
                 int nx = x + (int) delta.x;
                 int ny = y + (int) delta.y;
                 if (retVal.isValid(nx, ny)) {
@@ -271,10 +274,10 @@ public class Grid2DShort implements IGrid2D {
     /**
      * Translates this grid by the specified amount. See
      * {@link #translate(Coordinate)} for details.
-     * 
+     *
      * @param delta
      *            represents the desired translation
-     * 
+     *
      * @return the translated grid
      */
     public Grid2DShort translateMe(Coordinate delta) {
@@ -283,25 +286,30 @@ public class Grid2DShort implements IGrid2D {
         return this;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.grid.IGrid2D#copyWithMask(com.raytheon.edex.grid.IGrid2D
-     * , com.raytheon.edex.grid.Grid2DBit)
-     */
     @Override
     public void copyWithMask(IGrid2D sourceGrid, Grid2DBit maskGrid) {
         if (!(sourceGrid instanceof Grid2DShort)) {
-            throw new IllegalArgumentException(TYPE_INVALID);
+            throw new IllegalArgumentException(
+                    "The input source grid must be of type Grid2DShort, received "
+                            + sourceGrid.getClass().getName());
         }
-        Grid2DShort conv = (Grid2DShort) sourceGrid;
-        if (!isCompatible(conv) || !isCompatible(maskGrid)) {
-            throw new IllegalArgumentException(NO_MATCH_GRIDS);
+
+        if ((this.xdim != sourceGrid.getXdim())
+                || (this.ydim != sourceGrid.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "Mismatched dimensions: this grid[%d,%d], sourceGrid[%d,%d]",
+                    this.xdim, this.ydim, sourceGrid.getXdim(),
+                    sourceGrid.getYdim()));
+        }
+
+        if ((this.xdim != maskGrid.xdim) || (this.ydim != maskGrid.ydim)) {
+            throw new IllegalArgumentException(String.format(
+                    "Mismatched dimensions: this grid[%d,%d], sourceGrid[%d,%d]",
+                    this.xdim, this.ydim, maskGrid.xdim, maskGrid.ydim));
         }
 
         short[] data = this.buffer.array();
-        short[] sourceData = conv.buffer.array();
+        short[] sourceData = ((Grid2DShort) sourceGrid).buffer.array();
         byte[] maskData = maskGrid.buffer.array();
         for (int i = 0; i < data.length; i++) {
             if (maskData[i] != (byte) 0) {
@@ -312,75 +320,49 @@ public class Grid2DShort implements IGrid2D {
 
     /**
      * Determines if the specified grid has the same dimension as this grid.
-     * 
+     *
      * @param rhs
      *            the grid to compare
-     * 
+     *
      * @return true if the dimensions match
      */
     public boolean isCompatible(IGrid2D rhs) {
         if (rhs instanceof Grid2DShort) {
-            return (this.xDim == ((Grid2DShort) rhs).getXDim())
-                    && (this.yDim == ((Grid2DShort) rhs).getYDim());
+            return (this.xdim == ((Grid2DShort) rhs).getXdim())
+                    && (this.ydim == ((Grid2DShort) rhs).getYdim());
         } else if (rhs instanceof Grid2DBit) {
-            return (this.xDim == ((Grid2DBit) rhs).getXdim())
-                    && (this.yDim == ((Grid2DBit) rhs).getYdim());
+            return (this.xdim == ((Grid2DBit) rhs).getXdim())
+                    && (this.ydim == ((Grid2DBit) rhs).getYdim());
         } else {
             return false;
         }
     }
 
+    /**
+     * @return backing data buffer
+     */
     public ShortBuffer getBuffer() {
-        return this.buffer;
+        if (buffer == null) {
+            return null;
+        }
+
+        return (ShortBuffer) buffer.duplicate().rewind();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.grid.IGrid2D#getXDim()
-     */
-    public int getXDim() {
-        return this.xDim;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.grid.IGrid2D#getYDim()
-     */
-    public int getYDim() {
-        return this.yDim;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.grid.IGrid2D#isValid()
-     */
     @Override
     public boolean isValid() {
-        return (this.xDim > 0) && (this.yDim > 0);
+        return (this.xdim > 0) && (this.ydim > 0);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.grid.IGrid2D#isValid(int, int)
-     */
     @Override
     public boolean isValid(int x, int y) {
-        return ((x >= 0) && (y >= 0) && (x < xDim) && (y < yDim));
+        return ((x >= 0) && (y >= 0) && (x < xdim) && (y < ydim));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.grid.IGrid2D#subGrid(int, int, int, int)
-     */
     @Override
     public IGrid2D subGrid(int minX, int minY, int maxX, int maxY) {
-        Grid2DShort retVal = new Grid2DShort((maxX + 1) - minX, (maxY + 1)
-                - minY);
+        Grid2DShort retVal = new Grid2DShort((maxX + 1) - minX,
+                (maxY + 1) - minY);
         for (int y = minY; y < (maxY + 1); y++) {
             for (int x = minX; x < (maxX + 1); x++) {
                 retVal.set(this.get(x, y));
@@ -389,74 +371,78 @@ public class Grid2DShort implements IGrid2D {
         return retVal;
     }
 
-    /**
-     * Tests the specified object for equality to this object. The object is
-     * equal this object if 1) it is the same object, or 2) it is a
-     * {@code Grid2DInteger} object, has the same dimensions as this object, and
-     * contains same grid values (at corresponding points) as this object.
-     * 
-     * @param rhs
-     *            the object to test for equality
-     * 
-     * @return true if the object is equal (as defined) to this object
-     */
     @Override
-    public boolean equals(Object rhs) {
-        if (!(rhs instanceof Grid2DShort)) {
-            return false;
-        }
-        Grid2DShort conv = (Grid2DShort) rhs;
-        if (conv == this) { // short circuit
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((buffer == null) ? 0 : getBuffer().hashCode());
+        result = prime * result + xdim;
+        result = prime * result + ydim;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-
-        if ((this.xDim != conv.xDim) || (this.yDim != conv.yDim)) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Grid2DShort other = (Grid2DShort) obj;
+        if (xdim != other.xdim) {
+            return false;
+        }
+        if (ydim != other.ydim) {
             return false;
         }
 
-        short[] data = this.buffer.array();
-        short[] rhsData = conv.buffer.array();
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] != rhsData[i]) {
+        if (buffer == null) {
+            if (other.buffer != null) {
                 return false;
             }
+        } else if (!getBuffer().equals(other.getBuffer())) {
+            return false;
         }
         return true;
     }
 
     @Override
-    public Grid2DShort clone() {
+    public Grid2DShort copy() {
         return new Grid2DShort(this);
     }
 
     @Override
     public String toString() {
-        StringBuffer retVal = new StringBuffer();
-        retVal.append(xDim).append("X").append(yDim).append("\n[\n");
-        for (int y = 0; y < yDim; y++) {
-            for (int x = 0; x < xDim; x++) {
-                retVal.append(this.get(x, y))
-                        .append((x + 1) == xDim ? "" : ",");
+        StringBuilder sb = new StringBuilder();
+        sb.append(xdim).append("X").append(ydim).append("\n[\n");
+        for (int y = 0; y < ydim; y++) {
+            for (int x = 0; x < xdim; x++) {
+                sb.append(this.get(x, y)).append((x + 1) == xdim ? "" : ",");
             }
-            retVal.append("\n");
+            sb.append("\n");
         }
-        retVal.append("]");
+        sb.append("]");
 
-        return retVal.toString();
+        return sb.toString();
     }
 
     @Override
     public int getXdim() {
-        return xDim;
+        return xdim;
     }
 
     @Override
     public int getYdim() {
-        return yDim;
+        return ydim;
     }
 
     @Override
     public Point getGridSize() {
-        return new Point(xDim, yDim);
+        return new Point(xdim, ydim);
     }
 }

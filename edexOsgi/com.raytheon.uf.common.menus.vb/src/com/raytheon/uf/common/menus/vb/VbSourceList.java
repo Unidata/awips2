@@ -80,6 +80,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Feb 12, 2016  5242     dgilling    Remove calls to deprecated Localization APIs.
  * Dec 06, 2017  6355     nabowle     Update observer to ILocalizationPathObserver.
  *                                    Move to a common plugin.
+ * Jun 24, 2019  ----     mjames@ucar Remove DatasetInfo
  *
  * </pre>
  *

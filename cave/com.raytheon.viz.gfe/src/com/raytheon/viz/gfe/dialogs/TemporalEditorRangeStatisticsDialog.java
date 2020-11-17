@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,17 +39,21 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * The temporal editor range statistics dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer      Description
- * ------------ ---------- ------------- --------------------------
- * Feb 14, 2008            Eric Babin    Initial Creation
- * Jun 04, 2009 #2159      Richard Peter Updated
+ *
+ * Date          Ticket#  Engineer       Description
+ * ------------- -------- -------------- ---------------------------------------
+ * Feb 14, 2008           Eric Babin     Initial Creation
+ * Jun 04, 2009  2159     Richard Peter  Updated
+ * Jan 24, 2018  7153     randerso       Changes to allow new GFE config file to
+ *                                       be selected when perspective is
+ *                                       re-opened.
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
 
 public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
@@ -88,24 +92,28 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
 
     private double stdDevMax;
 
+    /**
+     * Constructor
+     *
+     * @param parent
+     */
     public TemporalEditorRangeStatisticsDialog(Shell parent) {
         super(parent);
         this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
-        origMode = StatisticsMode
-                .valueOf(GFEPreference
-                        .getPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE));
+        origMode = StatisticsMode.valueOf(GFEPreference.getString(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE));
         mode = origMode;
-        origModeratedMin = GFEPreference
-                .getIntPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN);
+        origModeratedMin = GFEPreference.getInt(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN);
         moderatedMin = origModeratedMin;
-        origModeratedMax = GFEPreference
-                .getIntPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX);
+        origModeratedMax = GFEPreference.getInt(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX);
         moderatedMax = origModeratedMax;
-        origStdDevMin = GFEPreference
-                .getDoublePreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN);
+        origStdDevMin = GFEPreference.getDouble(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN);
         stdDevMin = origStdDevMin;
-        origStdDevMax = GFEPreference
-                .getDoublePreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX);
+        origStdDevMax = GFEPreference.getDouble(
+                PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX);
         stdDevMax = origStdDevMax;
     }
 
@@ -131,43 +139,35 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
             GFEPreference.setPreference(
                     PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE,
                     mode.toString());
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN,
-                            moderatedMin);
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX,
-                            moderatedMax);
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN,
-                            stdDevMin);
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX,
-                            stdDevMax);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN,
+                    moderatedMin);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX,
+                    moderatedMax);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN,
+                    stdDevMin);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX,
+                    stdDevMax);
             break;
         case IDialogConstants.CANCEL_ID:
             GFEPreference.setPreference(
                     PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE,
                     origMode.toString());
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN,
-                            origModeratedMin);
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX,
-                            origModeratedMax);
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN,
-                            origStdDevMin);
-            GFEPreference
-                    .setPreference(
-                            PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX,
-                            origStdDevMax);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MIN,
+                    origModeratedMin);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_MODERATED_MAX,
+                    origModeratedMax);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MIN,
+                    origStdDevMin);
+            GFEPreference.setPreference(
+                    PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE_SD_MAX,
+                    origStdDevMax);
             break;
         }
 
@@ -193,6 +193,7 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
         absoluteButton.setLayoutData(data);
         absoluteButton.setSelection(StatisticsMode.ABSOLUTE.equals(mode));
         absoluteButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 mode = StatisticsMode.ABSOLUTE;
                 updateLayout();
@@ -203,6 +204,7 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
         moderatedButton.setText("Moderated");
         moderatedButton.setSelection(StatisticsMode.MODERATED.equals(mode));
         moderatedButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 mode = StatisticsMode.MODERATED;
                 updateLayout();
@@ -215,9 +217,10 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
 
         Button standardDeviation = new Button(top, SWT.RADIO);
         standardDeviation.setText("Standard Deviation");
-        standardDeviation.setSelection(StatisticsMode.STANDARD_DEVIATION
-                .equals(mode));
+        standardDeviation
+                .setSelection(StatisticsMode.STANDARD_DEVIATION.equals(mode));
         standardDeviation.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 mode = StatisticsMode.STANDARD_DEVIATION;
                 updateLayout();
@@ -244,6 +247,7 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
         minLabel.setLayoutData(data);
         minScale = new Scale(comp, SWT.HORIZONTAL);
         minScale.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent arg0) {
                 updateLabels();
             }
@@ -263,6 +267,7 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
         data = new GridData(150, SWT.DEFAULT);
         maxScale.setLayoutData(data);
         maxScale.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent arg0) {
                 updateLabels();
             }
@@ -310,11 +315,13 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
 
     private void updateLabels() {
         switch (mode) {
+        case ABSOLUTE:
+            break;
         case MODERATED:
             moderatedMin = minScale.getSelection();
             moderatedMax = maxScale.getSelection();
-            minLabel.setText(moderatedMin + "");
-            maxLabel.setText(moderatedMax + "");
+            minLabel.setText(Integer.toString(moderatedMin));
+            maxLabel.setText(Integer.toString(moderatedMax));
             break;
         case STANDARD_DEVIATION:
             stdDevMin = (float) (minScale.getSelection() / 10.0);
@@ -325,13 +332,6 @@ public class TemporalEditorRangeStatisticsDialog extends CaveJFACEDialog {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);

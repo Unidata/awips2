@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -49,41 +49,51 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
 
 /**
  * Text Database.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 1, 2008        1538 jkorman     Initial creation
- * 20090327           2151 jkorman     Modified writeProduct to account for possible leading
- *                                     carriage control.
- * Jul 10, 2009 2191       rjpeter     Add additional methods.
- * Aug 18, 2009 2191       rjpeter     Switched to version purging.
- * Feb 15, 2010 4426       MW Fegan    Use default CCC ID when not provided in write.
- * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import 
- *                                      dependency
- * 01Jun2010               cjeanbap    Added operational mode functionality.
- * 09Jul2010    2187       cjeanbap    Added additional operational mode functionality.
- * 02Aug2010    2187       cjeanbap    Added parameter constructor.
- * 09Aug2010    3944       cjeanbap    Add new method, queryAllWatchWarn.
- * 8Nov2010     7294       cjeanbap    Update logic in executeAFOSCommand.
+ *
+ * Date          Ticket#  Engineer     Description
+ * ------------- -------- ------------ -----------------------------------------
+ * Oct 01, 2008  1538     jkorman      Initial creation
+ * 20090327      2151     jkorman      Modified writeProduct to account for
+ *                                     possible leading carriage control.
+ * Jul 10, 2009  2191     rjpeter      Add additional methods.
+ * Aug 18, 2009  2191     rjpeter      Switched to version purging.
+ * Feb 15, 2010  4426     MW Fegan     Use default CCC ID when not provided in
+ *                                     write.
+ * Apr 14, 2010  4734     mhuang       Corrected StdTextProduct import
+ *                                     dependency
+ * Jun 01, 2010           cjeanbap     Added operational mode functionality.
+ * Jul 09, 2010  2187     cjeanbap     Added additional operational mode
+ *                                     functionality.
+ * Aug 02, 2010  2187     cjeanbap     Added parameter constructor.
+ * Aug 09, 2010  3944     cjeanbap     Add new method, queryAllWatchWarn.
+ * Nov 08, 2010  7294     cjeanbap     Update logic in executeAFOSCommand.
  *                                     Removed committed out code.
- * ------------------------------------
- * 18 Apr 2012         479 jkorman     Modified to pad xxxid to 3 characters in queries.
- * 23 May 2012       14952 rferrel     Allow queries with refTime.
- * Feb 18, 2014       2652  skorolev    Corrected writeProduct for WMO header if archive is allowed. Deleted unused code.
- * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
- * May 15, 2014 2536        bclement    moved asciiToHex() hexToAscii() and getProperty() to PropConverter
- * May 20, 2014 2536        bclement    moved from edex.textdb to edex.plugin.text
- * Jul 10, 2014 2914        garmendariz Remove EnvProperties
- * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
- * Feb 05, 2016 5269        skorolev    Removed WatchWarn methods.
- * Feb 12, 2016 4716        rferrel     Modified readAwips to get all hdrTimes when hdrTimes value is "ALL".
- * Aug 28, 2016 5839        rferrel     Added past version.
+ * Apr 18, 2012  479      jkorman      Modified to pad xxxid to 3 characters in
+ *                                     queries.
+ * May 23, 2012  14952    rferrel      Allow queries with refTime.
+ * Feb 18, 2014  2652     skorolev     Corrected writeProduct for WMO header if
+ *                                     archive is allowed. Deleted unused code.
+ * May 14, 2014  2536     bclement     moved WMO Header to common, removed
+ *                                     TimeTools usage
+ * May 15, 2014  2536     bclement     moved asciiToHex() hexToAscii() and
+ *                                     getProperty() to PropConverter
+ * May 20, 2014  2536     bclement     moved from edex.textdb to
+ *                                     edex.plugin.text
+ * Jul 10, 2014  2914     garmendariz  Remove EnvProperties
+ * Dec 09, 2015  5166     kbisanz      Update logging to use SLF4J.
+ * Feb 05, 2016  5269     skorolev     Removed WatchWarn methods.
+ * Feb 12, 2016  4716     rferrel      Modified readAwips to get all hdrTimes
+ *                                     when hdrTimes value is "ALL".
+ * Aug 28, 2016  5839     rferrel      Added past version.
+ * Aug 15, 2018  7197     randerso     Changed executeAWIPSCommand to leave site
+ *                                     null if it comes in that way.
+ *
  * </pre>
- * 
+ *
  * @author jkorman
- * @version 1.0
  */
 
 public class TextDB {
@@ -102,7 +112,7 @@ public class TextDB {
 
     /**
      * Text database.
-     * 
+     *
      * @param operationalMode
      */
     public TextDB(boolean operationalMode) {
@@ -111,7 +121,7 @@ public class TextDB {
 
     /**
      * Purge Standard Text Products.
-     * 
+     *
      * @return total products updated
      */
     public static int purgeStdTextProducts() {
@@ -125,7 +135,7 @@ public class TextDB {
     /**
      * Returns a List of String objects representing headers or full products
      * that matched the passed parameters.
-     * 
+     *
      * @param wmoId
      * @param site
      * @param intlProd
@@ -167,10 +177,10 @@ public class TextDB {
     /**
      * Returns a List of String objects representing headers or full products
      * that matched the passed parameters.
-     * 
+     *
      * TODO: Verify if optimization is needed to act like previous system and
      * not return full product.
-     * 
+     *
      * @param wmoId
      * @param site
      * @param intlProd
@@ -203,7 +213,7 @@ public class TextDB {
         }
 
         if (!StringUtils.isEmpty(hdrTime)) {
-            if (hdrTime.equals("000000")) {
+            if ("000000".equals(hdrTime)) {
                 readAllVersions = true;
                 hdrTime = null;
             }
@@ -227,7 +237,8 @@ public class TextDB {
              */
             Calendar currentTime = Calendar.getInstance(TimeZone
                     .getTimeZone("GMT"));
-            currentTime.add(Calendar.HOUR_OF_DAY, -hours); // subtract the hours
+            // subtract the hours
+            currentTime.add(Calendar.HOUR_OF_DAY, -hours);
             startTimeMillis = currentTime.getTimeInMillis();
         }
 
@@ -239,7 +250,7 @@ public class TextDB {
 
     /**
      * Add Versions
-     * 
+     *
      * @param ccc
      * @param nnn
      * @param xxx
@@ -269,7 +280,7 @@ public class TextDB {
 
     /**
      * Get versions.
-     * 
+     *
      * @param ccc
      * @param nnn
      * @param xxx
@@ -294,7 +305,7 @@ public class TextDB {
 
     /**
      * Deletes the ccc,nnn,xxx entry from the textProductInfo table.
-     * 
+     *
      * @param ccc
      * @param nnn
      * @param xxx
@@ -320,7 +331,7 @@ public class TextDB {
 
     /**
      * --- statematch Add a mapping for state -> (CCC and XXX)
-     * 
+     *
      * @param stateInfo
      * @return success
      */
@@ -341,7 +352,7 @@ public class TextDB {
 
     /**
      * --- statematch Add a mapping for state -> (CCC and XXX)
-     * 
+     *
      * @param stateId
      * @param cccId
      * @param xxxId
@@ -354,7 +365,7 @@ public class TextDB {
 
     /**
      * --- statematch Remove a mapping for state -> (CCC and XXX)
-     * 
+     *
      * @param stateInfo
      * @return success
      */
@@ -373,7 +384,7 @@ public class TextDB {
 
     /**
      * --- statematch Remove a mapping for state -> (CCC and XXX)
-     * 
+     *
      * @param stateId
      * @param xxxId
      * @param cccId
@@ -386,7 +397,7 @@ public class TextDB {
 
     /**
      * --- statematch
-     * 
+     *
      * @param state
      * @return stateList
      */
@@ -405,7 +416,7 @@ public class TextDB {
 
     /**
      * Get the latest time for each product in the stdtextproducts table.
-     * 
+     *
      * @param afosIds
      *            List of product ids to query for.
      * @param operationalMode
@@ -424,7 +435,7 @@ public class TextDB {
 
     /**
      * Get the latest time for each product in the stdtextproducts table.
-     * 
+     *
      * @param afosIds
      *            List of product ids to query for.
      * @return list of the latest time
@@ -448,7 +459,7 @@ public class TextDB {
     /**
      * Get the latest time for one or more products in the stdtextproducts
      * table.
-     * 
+     *
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
@@ -473,7 +484,7 @@ public class TextDB {
     /**
      * Get the latest time for one or more products in the stdtextproducts
      * table.
-     * 
+     *
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
@@ -498,7 +509,7 @@ public class TextDB {
 
     /**
      * Get all times for one product in the stdtextproducts table.
-     * 
+     *
      * @param afosId
      *            Product id to query for.
      * @param operationalMode
@@ -512,7 +523,7 @@ public class TextDB {
 
     /**
      * Get all times for one product in the stdtextproducts table.
-     * 
+     *
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
@@ -535,7 +546,7 @@ public class TextDB {
 
     /**
      * Get all times for one product in the stdtextproducts table.
-     * 
+     *
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
@@ -560,7 +571,7 @@ public class TextDB {
 
     /**
      * Get Same Minute Products
-     * 
+     *
      * @param wmoId
      * @param siteId
      * @param hdrTime
@@ -594,7 +605,7 @@ public class TextDB {
     }
 
     /**
-     * 
+     *
      * @param cccId
      * @param nnnId
      * @param xxxId
@@ -614,7 +625,7 @@ public class TextDB {
     }
 
     /**
-     * 
+     *
      * @param afosId
      * @param wmoId
      * @return
@@ -631,7 +642,7 @@ public class TextDB {
 
     /**
      * Get the local prefix for a WFO localization.
-     * 
+     *
      * @return The local prefix
      */
     public String getLocal() {
@@ -640,7 +651,7 @@ public class TextDB {
 
     /**
      * Reads products from list of AFOS commands from a state/nnn query.
-     * 
+     *
      * @param state
      *            Two character state abbrevation.
      * @param nnn
@@ -666,7 +677,7 @@ public class TextDB {
 
     /**
      * Execute AWIPS command.
-     * 
+     *
      * @param awipsCommand
      * @param site
      * @param operationalMode
@@ -680,7 +691,7 @@ public class TextDB {
 
     /**
      * Execute AWIPS command
-     * 
+     *
      * @param awipsCommand
      * @param site
      * @param operationalMode
@@ -696,9 +707,6 @@ public class TextDB {
                 awipsCommand, site, Boolean.toString(operationalMode),
                 Boolean.toString(refTimeMode), refTime));
         List<StdTextProduct> products = null;
-        if (site == null) {
-            site = SiteMap.getInstance().getSite4LetterId(SiteUtil.getSite());
-        }
         AWIPSParser parser = new AWIPSParser(awipsCommand, site);
         if (parser.isValidCommand()) {
             String cccc = parser.getSite();
@@ -713,7 +721,8 @@ public class TextDB {
                 products = (new StdTextProductDao(operationalMode))
                         .cccnnnxxxSiteByRefTime(null, nnn, xxx, refTime, cccc);
             } else {
-                int versionNo = 0; // default version number; read the latest
+                // default version number; read the latest
+                int versionNo = 0;
                 // version
                 if (parser.isPastVers() || parser.isAllVersions()) {
                     if (parser.isPastVers()) {
@@ -745,7 +754,7 @@ public class TextDB {
 
     /**
      * Execute AFOS Command.
-     * 
+     *
      * @param afosCommand
      * @param locale
      *            contains a local prefix for a WFO localization.
@@ -760,7 +769,7 @@ public class TextDB {
 
     /**
      * Execute AFOS Command.
-     * 
+     *
      * @param afosCommand
      * @param locale
      *            contains a local prefix for a WFO localization.
@@ -794,7 +803,8 @@ public class TextDB {
                 products = (new StdTextProductDao(operationalMode))
                         .cccnnnxxxByRefTime(ccc, nnn, xxx, refTime);
             } else {
-                int versionNo = 0; // default version number; read the latest
+                // default version number; read the latest
+                int versionNo = 0;
                 // version
                 if (parser.isPastVers() || parser.isAllVersions()) {
                     if (parser.isPastVers()) {
@@ -828,7 +838,7 @@ public class TextDB {
      * Writes the text product to the text database standard text product table
      * based upon the operationalMode. This version takes a StdTextProduct
      * object containing the data.
-     * 
+     *
      * @param textProduct
      *            contains the text product to write to the database
      * @return success
@@ -853,12 +863,12 @@ public class TextDB {
         if (logger.isDebugEnabled()) {
             if (success) {
                 logger.debug("StdTextProduct [" + textProduct.getCccid()
-                        + textProduct.getNnnid() + textProduct.getXxxid()
-                        + "] saved");
+                + textProduct.getNnnid() + textProduct.getXxxid()
+                + "] saved");
             } else {
                 logger.debug("StdTextProduct [" + textProduct.getCccid()
-                        + textProduct.getNnnid() + textProduct.getXxxid()
-                        + "] not saved");
+                + textProduct.getNnnid() + textProduct.getXxxid()
+                + "] not saved");
             }
         }
 
@@ -869,7 +879,7 @@ public class TextDB {
      * Writes the text product to the text database standard text product table
      * based upon the operationalMode. This version takes a WMOHeader object, an
      * AFOSProductId object, and the text to insert.
-     * 
+     *
      * @param header
      *            contains the WMO header
      * @param prodId
@@ -936,7 +946,7 @@ public class TextDB {
      * Writes the text product to the text database standard text product table
      * based upon the operationalMode. Provides a wrapper for the case when on
      * WMO header is provided.
-     * 
+     *
      * @param prodId
      *            contains the AFOS PIL
      * @param reportData
@@ -953,7 +963,7 @@ public class TextDB {
      * Writes the text product to the text database standard text product table
      * based upon the operationalMode. This version accepts a WMOReportData
      * object containing the product to insert.
-     * 
+     *
      * @param data
      *            the data to insert
      * @param operationalMode
@@ -971,7 +981,7 @@ public class TextDB {
      * Writes the text product to the text database standard text product table
      * based upon the operationalMode. This version accepts an AFOSProductId
      * object and the body of the product.
-     * 
+     *
      * @param prodId
      *            contains the AFOS PIL
      * @param reportData
@@ -1003,7 +1013,7 @@ public class TextDB {
      * body of the product as strings. If the AFOS PIL is under 7 characters in
      * length, it assumes the PIL has format NNNXXX and prepends the default CCC
      * ID.
-     * 
+     *
      * @param productId
      *            the AFOS PIL
      * @param reportData
@@ -1018,7 +1028,8 @@ public class TextDB {
         // Look for a WMO heading on the first line
         String[] pieces = reportData.split("\r*\n", 2);
         if (pieces.length > 1) {
-            pieces[0] += "\n"; // WMOHeader expects this
+            // WMOHeader expects this
+            pieces[0] += "\n";
         }
         byte[] bytes = pieces[0].getBytes();
         WMOHeader header;
@@ -1056,7 +1067,7 @@ public class TextDB {
 
     /**
      * Get Operational Mode
-     * 
+     *
      * @return TRUE if mode is operational
      */
     public boolean getOperationalMode() {

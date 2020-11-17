@@ -4,14 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TimeZone;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 
@@ -1447,8 +1445,7 @@ public class FFMPMonitor extends ResourceMonitor {
                             - ((Date) data1Dur.get(i)[4]).getTime()) / 1000;
                     Short dur = (Short) data1Dur.get(i)[2];
                     if (dur > 1000) { // Hours
-                        durSecs = ((Short) dur - 1000)
-                                * TimeUtil.SECONDS_PER_HOUR;
+                        durSecs = (dur - 1000) * TimeUtil.SECONDS_PER_HOUR;
                     } else { // Minutes
                         durSecs = ((Short) data1Dur.get(i)[2]) * 60; // ??? was
                                                                      // *1000

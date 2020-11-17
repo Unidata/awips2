@@ -19,8 +19,7 @@
  **/
 package com.raytheon.uf.viz.xy.varheight.rsc;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +37,8 @@ import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
@@ -64,7 +63,6 @@ import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.xy.XYData;
-import com.raytheon.viz.core.graphing.xy.XYImageData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -76,31 +74,34 @@ import com.vividsolutions.jts.geom.Geometry;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Nov 23, 2009            mschenke     Initial creation
- * Feb 10, 2011 8344       bkowal       enabled the magnification capability.
- * Sep 23, 2013 2363       bsteffen     Add more vector configuration options.
- * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
- * Jun 18, 2014 3242       njensen      Replaced deprecated calls
- * Aug 15, 2014 3535       njensen      Bigger inset map point
+ * 
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- ---------------------------------------
+ * Nov 23, 2009           mschenke   Initial creation
+ * Feb 10, 2011  8344     bkowal     enabled the magnification capability.
+ * Sep 23, 2013  2363     bsteffen   Add more vector configuration options.
+ * Dec 19, 2013  16795    dfriedman  Transform pixel coordinate in inspect
+ * Jun 18, 2014  3242     njensen    Replaced deprecated calls
+ * Aug 15, 2014  3535     njensen    Bigger inset map point
+ * Nov 28, 2017  5863     bsteffen   Change dataTimes to a NavigableSet
+ * Feb 06, 2018  6829     njensen    Draw wind barbs in a single, vertical column
+ * Feb 07, 2018  6825     njensen    Implement complex sampling
+ * Feb 19, 2018  6666     bsteffen   Get data from adapter using loadPreparedData
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
-public class VarHeightResource extends
-        AbstractVizResource<VarHeightResourceData, VarHeightDescriptor>
+public class VarHeightResource
+        extends AbstractVizResource<VarHeightResourceData, VarHeightDescriptor>
         implements IInsetMapResource, IGraphableResource<Double, Double>,
         IHodographResource {
 
-    private static final double DEGREE_TO_RADIAN = Math.PI / 180.0;
+    protected static final DecimalFormat FORMATTER = new DecimalFormat("0.#");
 
     protected AbstractVarHeightAdapter<?> adapter;
 
-    protected Map<DataTime, List<XYData>> xydata = new HashMap<DataTime, List<XYData>>();
+    protected Map<DataTime, List<XYData>> xydata = new HashMap<>();
 
     protected GraphPreferences prefs;
 
@@ -115,16 +116,9 @@ public class VarHeightResource extends
     protected VarHeightResource(VarHeightResourceData resourceData,
             LoadProperties loadProperties, AbstractVarHeightAdapter<?> adapter)
             throws VizException {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         this.adapter = adapter;
-        dataTimes = new ArrayList<DataTime>();
-        ICombinedResourceData combinedResourceData = null;
-
-        try {
-            combinedResourceData = getResourceData();
-        } catch (ClassCastException e) {
-            // do nothing
-        }
+        ICombinedResourceData combinedResourceData = getResourceData();
 
         if (combinedResourceData != null) {
             this.secondaryResource = (VarHeightResource) combinedResourceData
@@ -133,8 +127,8 @@ public class VarHeightResource extends
         }
 
         try {
-            prefs = GraphPrefsFactory.buildPreferences(
-                    resourceData.getParameter(), null);
+            prefs = GraphPrefsFactory
+                    .buildPreferences(resourceData.getParameter(), null);
         } catch (StyleException e) {
             throw new VizException(e.getLocalizedMessage(), e);
         }
@@ -202,7 +196,7 @@ public class VarHeightResource extends
         if (prefs.getDisplayUnitLabel() != null) {
             completeName += prefs.getDisplayUnitLabel();
         } else if (getUnits() != null) {
-            completeName += getUnits().toString();
+            completeName += getUnits();
         }
         completeName += ") ";
 
@@ -223,9 +217,6 @@ public class VarHeightResource extends
         }
     }
 
-    /**
-     * 
-     */
     private void combineData(List<XYData> ourData, List<XYData> theirData) {
         for (int i = 0; i < ourData.size(); ++i) {
             XYData ours = ourData.get(i);
@@ -256,7 +247,7 @@ public class VarHeightResource extends
         Double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
 
-        DataTime currentTime = graphProps.getDataTime();
+        currentTime = graphProps.getDataTime();
         if (currentTime == null) {
             return;
         }
@@ -264,9 +255,7 @@ public class VarHeightResource extends
         // get the data
         List<XYData> data = xydata.get(graphProps.getDataTime());
         if (data == null) {
-            data = adapter.loadData(currentTime);
-            adapter.sortData(data);
-            adapter.convertData(data,
+            data = adapter.loadPreparedData(currentTime,
                     prefs == null ? null : prefs.getDisplayUnits());
             if (secondaryResource != null
                     && combineOperation.equals(CombineOperation.DIFFERENCE)) {
@@ -274,12 +263,10 @@ public class VarHeightResource extends
                 if (data2 == null) {
                     data2 = secondaryResource.adapter.loadData(currentTime);
                     secondaryResource.adapter.sortData(data2);
-                    secondaryResource.adapter
-                            .convertData(
-                                    data2,
-                                    secondaryResource.prefs == null ? null
-                                            : secondaryResource.prefs
-                                                    .getDisplayUnits());
+                    secondaryResource.adapter.convertData(data2,
+                            secondaryResource.prefs == null ? null
+                                    : secondaryResource.prefs
+                                            .getDisplayUnits());
                     secondaryResource.xydata.put(currentTime, data2);
                 }
                 combineData(data, data2);
@@ -333,8 +320,8 @@ public class VarHeightResource extends
             double x = ((Number) d.getX()).doubleValue();
 
             double y = ((Number) d.getY()).doubleValue();
-            double[] screenLoc = descriptor.getGraph(this)
-                    .getGridLocation(x, y);
+            double[] screenLoc = descriptor.getGraph(this).getGridLocation(x,
+                    y);
             double screenX = screenLoc[0];
             double screenY = screenLoc[1];
 
@@ -352,8 +339,14 @@ public class VarHeightResource extends
                 }
 
                 if (withinBounds) {
-                    vgr.paintBarb(plotLoc, dd.getWindSpd(), dd.getWindDir()
-                            * DEGREE_TO_RADIAN);
+                    /*
+                     * To match AWIPS 1, wind barbs are supposed to go straight
+                     * up near the left edge and not follow the x-axis. 120
+                     * looks good.
+                     */
+                    plotLoc.x = 120;
+                    vgr.paintBarb(plotLoc, dd.getWindSpd(),
+                            Math.toRadians(dd.getWindDir()));
                     vgr.setColor(color);
                     vgr.setLineWidth(getCapability(OutlineCapability.class)
                             .getOutlineWidth());
@@ -361,38 +354,12 @@ public class VarHeightResource extends
                             .getLineStyle());
                 }
                 continue;
-            } else if (d instanceof XYImageData) {
-                // screenX = domainAxis.valueToCoordinate(1);
-                XYImageData imageData = (XYImageData) d;
-                imageData.setColor(color);
-                imageData.setTarget(target);
-                PaintProperties imagePaintProperties = new PaintProperties(
-                        paintProps);
-                imagePaintProperties.setAlpha(1.0f);
-
-                int[] dims = imageData.getDefaultSize();
-                double adjDims[] = new double[2];
-                adjDims[0] = dims[0] * 0.5 * ratio * magnification;
-                adjDims[1] = dims[1] * 0.5 * ratio * magnification;
-
-                Coordinate ul = new Coordinate(screenX - adjDims[0], screenY
-                        - adjDims[1]);
-                Coordinate ur = new Coordinate(screenX + adjDims[0], screenY
-                        - adjDims[1]);
-                Coordinate lr = new Coordinate(screenX + adjDims[0], screenY
-                        + adjDims[1]);
-                Coordinate ll = new Coordinate(screenX - adjDims[0], screenY
-                        + adjDims[1]);
-                PixelCoverage coverage = new PixelCoverage(ul, ur, lr, ll);
-
-                target.drawRaster(imageData.getImage(), coverage,
-                        imagePaintProperties);
-                continue;
             }
 
             // Connects adjacent data points with a line
             if (previousScreenX != 0.0) {
-                OutlineCapability lineCap = getCapability(OutlineCapability.class);
+                OutlineCapability lineCap = getCapability(
+                        OutlineCapability.class);
                 if (combineOperation != CombineOperation.NONE) {
                     DrawableLine line = new DrawableLine();
                     line.basics.color = color;
@@ -403,10 +370,9 @@ public class VarHeightResource extends
                     target.drawLine(line);
                 }
             }
+
             previousScreenY = screenY;
-
             previousScreenX = screenX;
-
         }
 
         // clear clipping plane first so that barbs that start within the graph
@@ -439,8 +405,8 @@ public class VarHeightResource extends
             throws VizException {
         // paint a point
         Coordinate point = resourceData.getPoint();
-        double[] pixels = insetMapDescriptor.worldToPixel(new double[] {
-                point.x, point.y });
+        double[] pixels = insetMapDescriptor
+                .worldToPixel(new double[] { point.x, point.y });
         target.drawPoint(pixels[0], pixels[1], 0.0,
                 getCapability(ColorableCapability.class).getColor(),
                 PointStyle.STAR, 1.5f);
@@ -450,10 +416,7 @@ public class VarHeightResource extends
         adapter.addRecord(pdo);
         DataTime pdoTime = pdo.getDataTime().clone();
         pdoTime.setLevelValue(null);
-        if (!dataTimes.contains(pdoTime)) {
-            dataTimes.add(pdoTime);
-            Collections.sort(dataTimes);
-        }
+        dataTimes.add(pdoTime);
     }
 
     @Override
@@ -463,13 +426,6 @@ public class VarHeightResource extends
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#setDescriptor(com.raytheon
-     * .uf.viz.core.drawables.IDescriptor)
-     */
     @Override
     public void setDescriptor(VarHeightDescriptor descriptor) {
         adapter.setHeightScale(descriptor.getHeightScale());
@@ -477,22 +433,12 @@ public class VarHeightResource extends
         super.setDescriptor(descriptor);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.map.rsc.IGraphableResource#getGraphKey()
-     */
     @Override
     public Object getGraphKey() {
-        return (prefs != null ? prefs.getDisplayUnitLabel() : adapter
-                .getParameterName());
+        return (prefs != null ? prefs.getDisplayUnitLabel()
+                : adapter.getParameterName());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.map.rsc.IGraphableResource#getXRangeData()
-     */
     @Override
     public IGraphLabel<Double>[] getXRangeData() {
         float minY = descriptor.getHeightScale().getMinVal();
@@ -518,11 +464,6 @@ public class VarHeightResource extends
                 new DoubleLabel(maxValue) };
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.map.rsc.IGraphableResource#getYRangeData()
-     */
     @Override
     public IGraphLabel<Double>[] getYRangeData() {
         HeightScale heightScale = descriptor.getHeightScale();
@@ -531,47 +472,205 @@ public class VarHeightResource extends
         return new DoubleLabel[] { new DoubleLabel(min), new DoubleLabel(max) };
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.map.rsc.IGraphableResource#redraw()
-     */
     @Override
     public void redraw() {
         // TODO Auto-generated method stub
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Coordinate object = coord.getObject();
-        double[] worldCoord = descriptor.pixelToWorld(new double[] { object.x,
-                object.y });
+        double[] worldCoord = descriptor
+                .pixelToWorld(new double[] { object.x, object.y });
         Coordinate c = new Coordinate(worldCoord[0], worldCoord[1]);
+        c = descriptor.getGraphCoordinate(this, c, true);
 
-        c = descriptor.getGraphCoordiante(this, c);
         if (c != null) {
-            return c.x + ", " + c.y;
+            /*
+             * Sampling var height is weird, we don't want the value at the
+             * mouse cursor, we want the x value of the data that is in line
+             * with the cursor.
+             */
+            List<XYData> dataList = xydata.get(currentTime);
+            if (dataList == null || dataList.isEmpty()) {
+                return null;
+            }
+            if (dataList.get(0) instanceof XYWindImageData) {
+                return formatWindSample(c, dataList);
+            }
+
+            XYData[] bounds = getLowerUpperBounds(c.y, dataList);
+            if (bounds == null) {
+                return null;
+            }
+            XYData lowerBound = bounds[0];
+            XYData upperBound = bounds[1];
+
+            double x1 = ((Number) lowerBound.getX()).doubleValue();
+            double x2 = ((Number) upperBound.getX()).doubleValue();
+            double y1 = ((Number) lowerBound.getY()).doubleValue();
+            double y2 = ((Number) upperBound.getY()).doubleValue();
+            double x = linearInterpolation(c.y, x1, x2, y1, y2);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(FORMATTER.format((x)));
+
+            sb.append("(");
+            if (prefs != null && prefs.getDisplayUnits() != null) {
+                sb.append(prefs.getDisplayUnitLabel());
+            } else {
+                sb.append(adapter.getXUnit().toString());
+            }
+            sb.append(")");
+
+            /*
+             * We need to put the height/y on the first visible, non-background
+             * resource we find so height shows up in sampling once and only
+             * once.
+             */
+            if (isFirstResource()) {
+                sb.append("   ");
+                sb.append(formatYHeightSample(c.y));
+            }
+
+            return sb.toString();
         }
         return null;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Gets the XYData that is closest below the y coordinate, and the XYData
+     * that is closest above the y coordinate.
      * 
-     * @see
-     * com.raytheon.uf.viz.xy.varheight.hodo.IHodographResource#paintHodograph
-     * (com.raytheon.uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties,
-     * com.raytheon.uf.viz.xy.varheight.hodo.HodographDescriptor)
+     * @param coordY
+     * @param dataList
+     * @return the lower bound, the upper bound
      */
+    public XYData[] getLowerUpperBounds(double coordY, List<XYData> dataList) {
+        XYData lowerBound = null;
+        XYData upperBound = null;
+        for (int i = 0; i < dataList.size() - 1; i++) {
+            XYData data = dataList.get(i);
+            double y = ((Number) data.getY()).doubleValue();
+            if (coordY > y) {
+                lowerBound = dataList.get(i);
+                upperBound = dataList.get(i + 1);
+            }
+        }
+
+        if (lowerBound == null || upperBound == null) {
+            return null;
+        }
+        return new XYData[] { lowerBound, upperBound };
+    }
+
+    /**
+     * Perform linear interpolation between two points, solving for the x value
+     * at the specified y value.
+     * 
+     * @param y
+     * @param x1
+     * @param x2
+     * @param y1
+     * @param y2
+     * @return the value of x at y
+     */
+    protected double linearInterpolation(double y, double x1, double x2,
+            double y1, double y2) {
+        return x1 + (y - y1) * (x2 - x1) / (y2 - y1);
+    }
+
+    /**
+     * Formats the y height for sampling
+     * 
+     * @param y
+     * @return
+     */
+    protected String formatYHeightSample(double y) {
+        StringBuilder sb = new StringBuilder();
+        String heightUnit = descriptor.getHeightScale().getParameterUnit()
+                .toString();
+        if ("hPa".equals(heightUnit)) {
+            sb.append((int) y);
+            sb.append("mb");
+        } else {
+            // e.g. km above ground level
+            DecimalFormat format = new DecimalFormat("0.00");
+            sb.append(format.format(y));
+            sb.append(heightUnit);
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Formats wind sampling
+     * 
+     * @param c
+     * @param dataList
+     * @return
+     */
+    protected String formatWindSample(Coordinate c, List<XYData> dataList) {
+        XYData[] lowerUpper = getLowerUpperBounds(c.y, dataList);
+        XYWindImageData lowerBound = (XYWindImageData) lowerUpper[0];
+        XYWindImageData upperBound = (XYWindImageData) lowerUpper[1];
+        double lowerDist = Math
+                .abs(c.y - ((Number) lowerBound.getY()).doubleValue());
+        double upperDist = Math
+                .abs(c.y - ((Number) upperBound.getY()).doubleValue());
+        /*
+         * We're not going to interpolate wind, we're going to grab the closest
+         * one. This is an arbitrary decision, I don't know what AWIPS 1 did.
+         */
+        XYWindImageData chosen = null;
+        if (lowerDist < upperDist) {
+            chosen = lowerBound;
+        } else {
+            chosen = upperBound;
+        }
+        StringBuilder sb = new StringBuilder();
+        int windDir = (int) chosen.getWindDir();
+        if (windDir < 0) {
+            windDir += 360;
+        }
+        sb.append(windDir);
+        sb.append("deg ");
+        DecimalFormat format = new DecimalFormat("0.#");
+        sb.append(format.format(chosen.getWindSpd()));
+        sb.append(getUnits());
+
+        // add height if first resource
+        if (isFirstResource()) {
+            sb.append("   ");
+            sb.append(formatYHeightSample(c.y));
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Checks if this is the first visible, non-system, non-background resource.
+     * Used by sampling so the height is shown in the sample text but only on
+     * one resource's sample text.
+     * 
+     * @return
+     */
+    protected boolean isFirstResource() {
+        for (ResourcePair pair : descriptor.getResourceList()) {
+            AbstractVizResource<?, ?> rsc = pair.getResource();
+            if (rsc != null && !rsc.getProperties().isSystemResource()
+                    && rsc.getProperties().isVisible()
+                    && !rsc.getProperties().isMapLayer()) {
+                if (this == rsc) {
+                    return true;
+                }
+                break;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void paintHodograph(IGraphicsTarget target,
             PaintProperties paintProps, HodographDescriptor hodoDescriptor)
@@ -592,8 +691,8 @@ public class VarHeightResource extends
                 XYWindImageData windData = (XYWindImageData) data;
                 double dir = windData.getWindDir();
                 double speed = windData.getWindSpd();
-                double[] screen = hodoDescriptor.polarToPixel(new double[] {
-                        speed, dir });
+                double[] screen = hodoDescriptor
+                        .polarToPixel(new double[] { speed, dir });
                 line.addPoint(screen[0], screen[1]);
             }
         }
@@ -604,6 +703,10 @@ public class VarHeightResource extends
 
             target.drawLine(line);
         }
+    }
+
+    public boolean isWind() {
+        return adapter.isWind();
     }
 
 }

@@ -275,19 +275,19 @@ The file `/awips2/ldm/etc/pqact.conf` defines which grids the LDM will request f
     
     NGRID  ^[LM].R... KWBL ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
            FILE    -edex -log
-           /awips2/data_store/grid/SREF40/noaaport/SREF_CONUS_40km_ensprod_(\1:yyyy)(\1:mm)\1_\2.grib2
+           /awips2/data_store/grid/SREF212/noaaport/SREF_CONUS_40km_ensprod_(\1:yyyy)(\1:mm)\1_\2.grib2
     
 ### SREF CONUS 40 km Bias Corrected Ensemble Derived Products
     
     CONDUIT        ^data/nccf/com/sref/prod/sref\........./../(ensprod_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/(............)(F...)/(.*)/.*! (......)
            FILE    -edex -log
-           /awips2/data_store/grid/SREF40/conduit/SREF_CONUS_40km_\1_\2_\3_\4_\5-(seq).grib2
+           /awips2/data_store/grid/SREF212/conduit/SREF_CONUS_40km_\1_\2_\3_\4_\5-(seq).grib2
     
 ### SREF CONUS 40 km Bias Corrected Ensemble Members
     
     CONDUIT        ^data/nccf/com/sref/prod/sref\.(........)/(..)/(pgrb_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/............(F...)/(.*)/.*! (......)
            FILE    -edex -log
-           /awips2/data_store/grid/SREF40/conduit/SREF_CONUS_40km_\3_\1_\200_\4_\5_\6.grib2
+           /awips2/data_store/grid/SREF212/conduit/SREF_CONUS_40km_\3_\1_\200_\4_\5_\6.grib2
     
 ### SREF Alaska 45 km Ensemble Derived Products
     

@@ -36,7 +36,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 20, 2010            dgilling     Initial creation
  * Mar 12, 2013  #1759     dgilling     Re-factoring to use fields instead
  *                                      of an argument string.
- * 
+ * Aug 08, 2018 DCS 19452  dfriedman    Add additionalRoutingSiteID and
+ *                                      asynchronous fields.
  * </pre>
  * 
  * @author dgilling
@@ -103,6 +104,12 @@ public class ExecuteIscMosaicRequest extends AbstractGfeRequest {
     @DynamicSerializeElement
     private String logFileName;
 
+    @DynamicSerializeElement
+    private String additionalRoutingSiteID;
+
+    @DynamicSerializeElement
+    private boolean asynchronous;
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -148,6 +155,10 @@ public class ExecuteIscMosaicRequest extends AbstractGfeRequest {
         builder.append(gridDelay);
         builder.append(", logFileName=");
         builder.append(logFileName);
+        builder.append(", additionalRoutingSiteID=");
+        builder.append(additionalRoutingSiteID);
+        builder.append(", asynchronous=");
+        builder.append(asynchronous);
         builder.append("]");
         return builder.toString();
     }
@@ -302,6 +313,22 @@ public class ExecuteIscMosaicRequest extends AbstractGfeRequest {
 
     public String getLogFileName() {
         return logFileName;
+    }
+
+    public String getAdditionalRoutingSiteID() {
+        return additionalRoutingSiteID;
+    }
+
+    public void setAdditionalRoutingSiteID(String additionalRoutingSiteID) {
+        this.additionalRoutingSiteID = additionalRoutingSiteID;
+    }
+
+    public boolean isAsynchronous() {
+        return asynchronous;
+    }
+
+    public void setAsynchronous(boolean asynchronous) {
+        this.asynchronous = asynchronous;
     }
 
 }

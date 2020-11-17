@@ -29,10 +29,13 @@
 # Feb 06, 2017  5959     randerso  Removed Java .toString() calls
 # Feb 07, 2017  6092     randerso  Refactored to support calling validateArgs()
 #                                  from gfeClient.py
+# Feb 05, 2018  6762     randerso  Make color bar always display for image parm
+# Feb 20, 2018  6864     randerso  Changed to create output directory if it
+#                                  doesn't exist
 #
 ##
 
-import sys
+from __future__ import print_function
 
 def runIfpImage(args):
     ############################################################################
@@ -41,8 +44,8 @@ def runIfpImage(args):
     # a pure Python environment
     ############################################################################
 
-    import string, LogStream, getopt, os, time
-    import time, TimeRange, AbsTime
+    import string, LogStream, getopt, os, time, errno
+    import TimeRange, AbsTime
     import GFEPainter
     import loadConfig
 
@@ -57,11 +60,7 @@ def runIfpImage(args):
     from com.raytheon.uf.viz.core.localization import LocalizationManager
     from com.raytheon.viz.gfe.core import GFEIntervalTimeMatcher
 
-    from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes
-    VisMode = ParmDisplayAttributes.VisMode
-
     from com.raytheon.viz.gfe.edittool import GridID
-    from com.raytheon.viz.gfe.rsc.colorbar import FitToData
     from com.raytheon.viz.gfe.rsc.colorbar import FitToData
 
     class PngWriter:
@@ -79,7 +78,7 @@ def runIfpImage(args):
 
             # Create GFEPainter first and get DataManager from painter
             self.viz = self.createPainter()
-            self.dm = self.viz.getDataManager();
+            self.dm = self.viz.getDataManager()
 
             LogStream.logEvent("Configuration File: ", conf)
 
@@ -121,7 +120,7 @@ def runIfpImage(args):
             trans = self.getConfig('Png_transBG', 0, int)
             return bgColor, trans
 
-        def getFileName(self, dir, setime):
+        def getFileName(self, directory, setime):
             # calculate output filename, baseTime is AbsTime
             baseTimeFormat = self.getConfig('Png_baseTimeFormat', "%Y%m%d_%H%M")
             prefix = self.getConfig('Png_filenamePrefix', '')
@@ -130,46 +129,44 @@ def runIfpImage(args):
             else:
                 deltaTime = (setime - self.baseTime) / 3600   #in hours
                 timeString = self.baseTime.stringFmt(baseTimeFormat) + \
-                             '_F' + `deltaTime`
-            fname = dir + "/" + prefix + timeString
+                             '_F' + repr(deltaTime)
+            fname = directory + "/" + prefix + timeString
             return fname
 
         def getFileType(self):
             ext = self.getConfig('Png_fileType', 'png')
             return ext
 
-        def writeInfo(self, dir, setime, visualInfo):
+        def writeInfo(self, directory, setime, visualInfo):
             if len(visualInfo) > 0:
-                fname = self.getFileName(dir, setime) + ".info"
+                fname = self.getFileName(directory, setime) + ".info"
                 infoWanted = self.getConfig('Png_infoFiles', 1, int)
                 if infoWanted != 1:
                     return
 
-                # Write out information file
+                # Write out information f
                 fmt = "%Y%m%d_%H%M"
-                file = open(fname, 'w')
-                file.write('ValidTime: ' + setime.stringFmt(fmt) + '\n')
-                file.write('NumOfGrids: ' + `len(visualInfo)` + '\n')
-                for id, start, end, color, image in visualInfo:
-                    if image:
-                        imgString = 'IMAGE'
-                    else:
-                        imgString = 'GRAPHIC'
-                    file.write('Grid: ' + `id` + ' ' + start.stringFmt(fmt)
-                      + ' ' + end.stringFmt(fmt) + ' ' + color + ' '
-                      + imgString + '\n')
-                file.close()
+                with open(fname, 'w') as f:
+                    f.write('ValidTime: ' + setime.stringFmt(fmt) + '\n')
+                    f.write('NumOfGrids: ' + repr(len(visualInfo)) + '\n')
+                    for parmID, start, end, color, image in visualInfo:
+                        if image:
+                            imgString = 'IMAGE'
+                        else:
+                            imgString = 'GRAPHIC'
+                        f.write('Grid: ' + repr(parmID) + ' ' + start.stringFmt(fmt)
+                          + ' ' + end.stringFmt(fmt) + ' ' + color + ' '
+                          + imgString + '\n')
 
         def initSamples(self):
             # Load default sample sets
             samplesets = self.getConfig('DefaultSamples', [])
-            sampleParms = self.getConfig('SampleParms', [])
             if samplesets is not None:
                 self.dm.getSampleSetManager().setShowLatLon(False)
                 # command SampleSet to load each sample set
                 sampleInv = self.dm.getSampleSetManager().getInventoryAsStrings()
-                for id in samplesets:
-                    sid = SampleId(id)
+                for sampleSet in samplesets:
+                    sid = SampleId(sampleSet)
                     for inv in sampleInv:
                         if sid.getName() == inv:
                             self.dm.getSampleSetManager().loadSampleSet(sid, 'ADD')
@@ -209,11 +206,8 @@ def runIfpImage(args):
             # process the bundle
             dbIDs = dm.getParmManager().getAvailableDbs()
             availableParmIDs = []
-            for i in range(dbIDs.size()):
-                dbID = dbIDs.get(i)
-                nextAvailable = dm.getParmManager().getAvailableParms(dbID)
-                for next in nextAvailable:
-                    availableParmIDs.append(next)
+            for dbID in dbIDs:
+                availableParmIDs += dm.getParmManager().getAvailableParms(dbID)
 
             size = len(availableParmIDs)
             jparmIds = jep.jarray(size, ParmID)
@@ -257,11 +251,7 @@ def runIfpImage(args):
 
             return GFEPainter.GFEPainter(width, height, leftExpand, rightExpand, topExpand, bottomExpand, mask, wholeDomain, bgColor)
 
-        def paint(self, dir):
-            #mmgr = self.dm.mapMgr()
-            mv = []
-            mids = []
-            localFlag = self.getConfig('Png_localTime', 0, int)
+        def paint(self, directory):
             snapshotTime = self.getConfig('Png_snapshotTime', 0, int)
             useLegend = self.getConfig('Png_legend', 1, int)
             maps = self.getConfig('MapBackgrounds_default', [])
@@ -282,6 +272,7 @@ def runIfpImage(args):
                         refdata = self.dm.getRefManager().loadRefSet(s)
                         self.dm.getRefManager().setActiveRefSet(refdata)
 
+            # TODO: determine if this should be implemented
             maskBasedOnHistory = self.getConfig('Png_historyMask', 0, int)
 
             viz = self.viz
@@ -328,21 +319,21 @@ def runIfpImage(args):
                     color = self.getConfig(pname + "_Legend_color", None)
                     if color:
                         overrideColors[pname] = color
-                lang = self.getConfig('Png_legendLanguage', '');
+                lang = self.getConfig('Png_legendLanguage', '')
                 viz.setupLegend(localTime, snapshotTime, snapshotFmt, descName, durFmt, startFmt, endFmt, overrideColors, lang)
 
             xOffset = self.getConfig("MapLabelXOffset", None, int)
             yOffset = self.getConfig("MapLabelYOffset", None, int)
-            for map in maps:
-                color = self.getConfig(map + "_graphicColor", None)
-                lineWidth = self.getConfig(map + "_lineWidth", None, int)
-                linePattern = self.getConfig(map + "_linePattern", None)
-                labelAttribute = self.getConfig(map + "_labelAttribute", None)
-                fontOffset = self.getConfig(map + "_fontOffset", None, int)
-                viz.addMapBackground(map, color, lineWidth, linePattern, xOffset,
+            for m in maps:
+                color = self.getConfig(m + "_graphicColor", None)
+                lineWidth = self.getConfig(m + "_lineWidth", None, int)
+                linePattern = self.getConfig(m + "_linePattern", None)
+                labelAttribute = self.getConfig(m + "_labelAttribute", None)
+                fontOffset = self.getConfig(m + "_fontOffset", None, int)
+                viz.addMapBackground(m, color, lineWidth, linePattern, xOffset,
                                      yOffset, labelAttribute, fontOffset)
 
-            graphicParms = []
+            imageParm = None
             fitToDataAlg = None
             for p in prms:
                 pname = p.getParmID().compositeNameUI()
@@ -364,9 +355,10 @@ def runIfpImage(args):
                         fitToDataAlg = None
 
                 if pname == self.ipn:
-                    self.dm.getSpatialDisplayManager().setDisplayMode(p, VisMode.IMAGE)
-                else:
-                    self.dm.getSpatialDisplayManager().setDisplayMode(p, VisMode.GRAPHIC)
+                    imageParm = p
+
+            if imageParm:
+                self.dm.getSpatialDisplayManager().activateParm(imageParm)
 
             self.initSamples()
 
@@ -405,16 +397,11 @@ def runIfpImage(args):
                         visualInfo.append(info)
 
                     viz.paint(frame)
-                    fname = self.getFileName(dir, paintTime) + '.' + fexten
+                    fname = self.getFileName(directory, paintTime) + '.' + fexten
                     viz.outputFiles(fname, showLogo, logoString)
-                    self.writeInfo(dir, paintTime, visualInfo)
+                    self.writeInfo(directory, paintTime, visualInfo)
                 else:
-                    LogStream.logEvent("No grids to generate for ", `paintTime`)
-
-            visuals = None
-            mv = None
-            iv = None
-            lv = None
+                    LogStream.logEvent("No grids to generate for ", repr(paintTime))
 
         # return true if there is grid data that overlaps with time t
         def overlapsWithGrids(self, prms, t):
@@ -456,10 +443,13 @@ def runIfpImage(args):
         if hasattr(settings, "GFESUITE_PRDDIR"):
             outDir = getattr(settings, "GFESUITE_PRDDIR") + '/IMAGE'
 
-    if not os.path.exists(outDir):
-        s = "Missing output directory: " + outDir
-        LogStream.logProblem(s)
-        raise IOError(s)
+    try:
+        os.makedirs(outDir)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            s = "Unable to create output directory: " + outDir
+            LogStream.logProblem(s)
+            raise IOError(s)
 
     if not os.path.isdir(outDir):
         s = "Specified output directory is not a directory: " + outDir
@@ -525,7 +515,7 @@ def validateArgs(args=None, parents=[]):
     return args
 
 def error(msg):
-    print "ERROR: %s\n" % msg
+    print("ERROR: %s\n" % msg)
 
 def main():
     args = validateArgs()

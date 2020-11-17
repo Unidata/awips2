@@ -64,23 +64,26 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * Sep 09, 2014  3356     njensen   Remove CommunicationException
  * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
  * Feb 09, 2016  5283     nabowle   Remove NGM MOS support.
+ * Jan 04, 2018  6861     njensen   Added qc support
+ * Jul 19, 2018  7355     mapeters  Re-add fssobs support
  *
  * </pre>
  *
  * @author brockwoo
- * @version 1.0
  */
 
 public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PointDataCubeAdapter.class);
 
-    public static String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
+    public static final String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
 
-    private static String[] supportedPlugins = { "obs", "modelsounding", 
-    		"bufrssmi", "lsr", "sfcobs", "goessounding", "bufrascat", 
-    		"poessounding", "bufrua", "bufrmosAVN", "bufrmosETA", "bufrmosGFS",
-    		"bufrmosHPC", "bufrmosLAMP", "bufrmosMRF", "profiler" };
+    private static String[] supportedPlugins = { "obs", "madis",
+            "modelsounding", "bufrssmi", "lsr", "sfcobs", "goessounding",
+            "bufrascat", "poessounding", "bufrua", 
+            "bufrmosAVN", "bufrmosETA", "bufrmosGFS", "bufrmosHPC",
+            "bufrmosLAMP", "bufrmosMRF", "qc", "fssobs", "profiler" };
 
     protected AbstractPointDataInventory inventory;
 
@@ -137,19 +140,19 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         for (AbstractRequestableNode node : nodes) {
             pmc.prepareRequests(node, AvailabilityContainer.AGNOSTIC_SET);
         }
-        List<AbstractRequestableData> requests = new ArrayList<AbstractRequestableData>();
+        List<AbstractRequestableData> requests = new ArrayList<>();
 
         for (AbstractRequestableNode node : nodes) {
-            requests.addAll(pmc.getData(node,
-                    AvailabilityContainer.AGNOSTIC_SET));
+            requests.addAll(
+                    pmc.getData(node, AvailabilityContainer.AGNOSTIC_SET));
         }
         PointDataContainer pdc = pmc.getContainer();
         if (pdc == null) {
             return null;
         }
         for (AbstractRequestableData request : requests) {
-            String unit = request.getUnit() == null ? null : request.getUnit()
-                    .toString();
+            String unit = request.getUnit() == null ? null
+                    : request.getUnit().toString();
             Object obj = request.getDataValue(null);
             List<IDataRecord> recs = null;
             if (obj instanceof IDataRecord) {
@@ -165,9 +168,9 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
                 }
                 float[] data = new float[length];
                 Arrays.fill(data, ((Number) obj).floatValue());
-                recs = Arrays.asList((IDataRecord) new FloatDataRecord(request
-                        .getParameter(), null, data, baseRec.getDimension(),
-                        sizes));
+                recs = Arrays.asList((IDataRecord) new FloatDataRecord(
+                        request.getParameter(), null, data,
+                        baseRec.getDimension(), sizes));
             } else if (obj == null) {
                 throw new DataCubeException("Invalid Object of type: null");
             } else {
@@ -176,8 +179,8 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
             }
             int resultCount = 0;
             for (IDataRecord rec : recs) {
-                String resultPosition = (resultCount >= 1) ? "[" + resultCount
-                        + "]" : "";
+                String resultPosition = (resultCount >= 1)
+                        ? "[" + resultCount + "]" : "";
                 rec.setName(rec.getName() + resultPosition);
                 resultCount++;
                 pdc.add(rec, unit);
@@ -231,8 +234,8 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
             PointDataInventory pointInventory = new PointDataInventory(
                     Arrays.asList(supportedPlugins));
             try {
-                pointInventory.initTree(DerivedParameterGenerator
-                        .getDerParLibrary());
+                pointInventory
+                        .initTree(DerivedParameterGenerator.getDerParLibrary());
                 this.inventory = pointInventory;
             } catch (DataCubeException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),

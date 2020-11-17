@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Updated to include fix of error when saving a new source.
  * 08 Apr 2016  5512       bkowal      Minimal updates to fix GUI sizing issues.
  * Oct 06, 2017 6407       bkowal      Cleanup. Updates to support GOES-R SATPRE.
+ * Aug 06, 2018 7433       mduff       Remove message box from duration combobox action handler.
  * </pre>
  * 
  * @author lvenable
@@ -670,12 +671,6 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
                 try {
                     Integer.parseInt(durationCbo.getText());
                 } catch (Throwable t) {
-                    MessageBox mb = new MessageBox(shell,
-                            SWT.ICON_ERROR | SWT.OK);
-                    mb.setText("Error");
-                    mb.setMessage(
-                            "An invalid duration has been entered. The duration must be entered as a number.");
-                    mb.open();
                     good = false;
                 }
                 saveAsOfficeBtn.setEnabled(good);
@@ -2003,7 +1998,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
                     statusHandler.handle(Priority.ERROR,
                             "Error deleting Color Value Data: ", e);
                 }
-            } // end for
+            }
         }
     }
 

@@ -25,15 +25,16 @@ import HoursRefTimePointDataRetrieve
 
 #
 # Retrieves metar data through pointdata interfaces
-#  
-#    
+#
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    08/26/09                      njensen       Initial Creation.
 #    26APR2012       14688         rferrel       Use HoursRefTimePointDataRetrieve.
-#    
+#    Jan 19, 2018    6957          tgurney       Return empty list on NoDataException
+#
 # 
 #
 
@@ -43,25 +44,22 @@ import HoursRefTimePointDataRetrieve
 
 PARAMETERS = ['rawMETAR', 'timeObs']
 
-def retrieve(siteID, size=1):        
+def retrieve(siteID, size=1):
     if type(siteID) is str:
         siteID = [siteID]
-    try :
+    try:
         pdc = HoursRefTimePointDataRetrieve.retrieve('obs', siteID[0], PARAMETERS, keyId='timeObs', maxSize=size)
     except NoDataException.NoDataException:
-        raise NoDataException.NoDataException('No METAR data available for site %s' % siteID[0])
+        return []
     decoder = MetarDecoder.Decoder()
-    metars = []    
+    metars = []
     for key in pdc.keys():
-        pdv = pdc[key]        
+        pdv = pdc[key]
         split = pdv['rawMETAR'].split('\n')
         text = ''
         for n in range(1, len(split)):
             text += split[n] +'\n'
-        b = Avn.Bunch(header=split[0], text=text)                    
+        b = Avn.Bunch(header=split[0], text=text)
         b.dcd = decoder(b.text)
         metars.append(b)
     return metars
-        
-        
-    

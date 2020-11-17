@@ -31,11 +31,11 @@ import org.eclipse.swt.widgets.Display;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * May 15, 2008 2104        grichard    Initial creation.
+ * Jan 03, 2018 6804        tgurney     Add doCancel()
  * 
  * </pre>
  * 
  * @author grichard
- * @version 1.0
  */
 
 public interface IScriptRunnerObserver {
@@ -200,4 +200,7 @@ public interface IScriptRunnerObserver {
      * Returns true if the observer is in 'edit' mode, false otherwise.
      */
     boolean isEditMode();
+
+    /** Request the script to cancel */
+    void doCancel();
 }

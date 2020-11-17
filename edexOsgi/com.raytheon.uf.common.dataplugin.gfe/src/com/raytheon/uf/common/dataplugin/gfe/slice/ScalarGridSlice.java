@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,8 +23,6 @@ import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.List;
-
-import jep.NDArray;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
@@ -36,14 +34,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
 
+import jep.NDArray;
+
 /**
  * ScalarGridSlice contains a grid and it's attribute information.
- * 
- * 
- * 
+ *
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Jan 30, 2008           chammack  Stubbed-out class based on AWIPS I
@@ -56,14 +56,16 @@ import com.raytheon.uf.common.time.TimeRange;
  * Aug 02, 2016  5744     mapeters  Removed dead cache code
  * Aug 08, 2016  5744     randerso  Fix bad clone method exposed by previous
  *                                  change
- * 
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
 @DynamicSerialize
-public class ScalarGridSlice extends AbstractGridSlice implements
-        IContinuousSlice, Cloneable {
+public class ScalarGridSlice extends AbstractGridSlice
+        implements IContinuousSlice {
 
     /**
      * Reference to scalar data.
@@ -81,7 +83,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     /**
      * Constructor for scalar GridSlice taking the data, attributes, valid time,
      * and history.
-     * 
+     *
      * @param grid
      *            the scalar grid
      * @param validTime
@@ -98,13 +100,13 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     /**
      * Constructor for scalar GridSlice taking the data, grid parm info and
      * history
-     * 
+     *
      * @param validTime
      *            the valid time of the slice
      * @param gpi
      *            the grid metadata
      * @param history
-     *            the grid history
+     *            array grid history records
      * @param grid
      *            the scalar grid
      */
@@ -114,50 +116,59 @@ public class ScalarGridSlice extends AbstractGridSlice implements
         this.scalarGrid = grid;
     }
 
+    /**
+     * Constructor for scalar GridSlice taking the data, grid parm info and
+     * history
+     *
+     * @param validTime
+     *            the valid time of the slice
+     * @param gpi
+     *            the grid metadata
+     * @param history
+     *            list of grid history records
+     * @param grid
+     *            the scalar grid
+     */
     public ScalarGridSlice(TimeRange validTime, GridParmInfo gpi,
             List<GridDataHistory> history, Grid2DFloat grid) {
-        this(validTime, gpi, history
-                .toArray(new GridDataHistory[history.size()]), grid);
+        this(validTime, gpi,
+                history.toArray(new GridDataHistory[history.size()]), grid);
     }
 
     /**
      * Copy constructor
-     * 
+     *
      * @param rhs
      *            ScalarGridSlice to copy
      */
     public ScalarGridSlice(ScalarGridSlice rhs) {
         super(rhs);
-        Grid2DFloat grid = null;
-
-        try {
-            grid = rhs.getScalarGrid().clone();
-        } catch (CloneNotSupportedException e) {
-            grid = new Grid2DFloat();
-        }
-
-        this.scalarGrid = grid;
+        this.scalarGrid = rhs.getScalarGrid().copy();
     }
 
     @Override
     public void assign(IGridSlice rhs) {
         if (!(rhs instanceof ScalarGridSlice)) {
             throw new IllegalArgumentException(
-                    "Attempted to assign ScalarGridSlice to non-ScalarGridSlice object");
+                    "rhs must be an instance of ScalarGridSlice, received: "
+                            + rhs.getClass().getName());
         }
 
         super.assign(rhs);
 
-        Grid2DFloat rhsScalarGrid = ((ScalarGridSlice) rhs).getScalarGrid();
+        Grid2DFloat rhsGrid = ((ScalarGridSlice) rhs).getScalarGrid();
 
-        if (rhsScalarGrid != null) {
-            if ((scalarGrid.getXdim() != rhsScalarGrid.getXdim())
-                    || (scalarGrid.getYdim() != rhsScalarGrid.getYdim())) {
-                throw new IllegalArgumentException(
-                        "Supplied grid is not of same dimension");
+        if (rhsGrid != null) {
+            if ((scalarGrid.getXdim() != rhsGrid.getXdim())
+                    || (scalarGrid.getYdim() != rhsGrid.getYdim())) {
+                throw new IllegalArgumentException(String.format(
+                        "This grid and supplied grid have different dimensions.\n"
+                                + "Expected: [%d,%d], received: [%d,%d]",
+                        scalarGrid.getXdim(), scalarGrid.getYdim(),
+                        rhsGrid.getXdim(), rhsGrid.getYdim()));
             }
 
-            scalarGrid.assign(rhsScalarGrid);
+            scalarGrid.assign(rhsGrid);
         } else {
             this.scalarGrid = null;
         }
@@ -165,7 +176,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
     /**
      * Return the scalar grid
-     * 
+     *
      * @return the scalar grid
      */
     public Grid2DFloat getScalarGrid() {
@@ -224,8 +235,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Operator " + op
-                        + " not supported");
+                throw new IllegalArgumentException(
+                        "Operator " + op + " not supported");
             }
             rValB.put(i, newB);
         }
@@ -236,7 +247,9 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     @Override
     public Grid2DBit comparisonOperate(Op op, IContinuousSlice cs) {
         if (!(cs instanceof ScalarGridSlice)) {
-            throw new IllegalArgumentException("Supplied GridSlice not Scalar");
+            throw new IllegalArgumentException(
+                    "cs must be an instance of ScalarGridSlice, received: "
+                            + cs.getClass().getName());
         }
 
         ScalarGridSlice rhs = (ScalarGridSlice) cs;
@@ -244,8 +257,11 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
         if ((scalarGrid.getXdim() != rhsGrid.getXdim())
                 || (scalarGrid.getYdim() != rhsGrid.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This grid and supplied grid have different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    rhsGrid.getXdim(), rhsGrid.getYdim()));
         }
 
         Grid2DBit rVal = new Grid2DBit(scalarGrid.getXdim(),
@@ -297,8 +313,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Operator " + op
-                        + " not supported");
+                throw new IllegalArgumentException(
+                        "Operator " + op + " not supported");
             }
             rValB.put(i, newB);
         }
@@ -310,8 +326,11 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     public void limitValue(float minValue, float maxValue, Grid2DBit editArea) {
         if ((editArea.getXdim() != scalarGrid.getXdim())
                 || (editArea.getYdim() != scalarGrid.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This grid and edit area have different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied editArea have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    editArea.getXdim(), editArea.getYdim()));
         }
 
         Point ll = new Point();
@@ -350,7 +369,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     public IContinuousSlice max(IContinuousSlice gs) {
         if (!(gs instanceof ScalarGridSlice)) {
             throw new IllegalArgumentException(
-                    "Supplied GridSlice is not Scalar");
+                    "gs must be an instance of ScalarGridSlice, received: "
+                            + gs.getClass().getName());
         }
 
         ScalarGridSlice rhs = (ScalarGridSlice) gs;
@@ -358,8 +378,11 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
         if ((scalarGrid.getXdim() != rhsGrid.getXdim())
                 || (scalarGrid.getYdim() != rhsGrid.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This and supplied GridSlice are different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    rhsGrid.getXdim(), rhsGrid.getYdim()));
         }
 
         // copy grid with no caching, caching enabled exterior to this
@@ -382,7 +405,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     public IContinuousSlice min(IContinuousSlice gs) {
         if (!(gs instanceof ScalarGridSlice)) {
             throw new IllegalArgumentException(
-                    "Supplied GridSlice is not Scalar");
+                    "gs must be an instance of ScalarGridSlice, received: "
+                            + gs.getClass().getName());
         }
 
         ScalarGridSlice rhs = (ScalarGridSlice) gs;
@@ -390,8 +414,11 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
         if ((scalarGrid.getXdim() != rhsGrid.getXdim())
                 || (scalarGrid.getYdim() != rhsGrid.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This and supplied GridSlice are different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    rhsGrid.getXdim(), rhsGrid.getYdim()));
         }
 
         // copy grid with no caching
@@ -415,8 +442,11 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     public void operateEquals(Op op, float value, Grid2DBit editArea) {
         if ((scalarGrid.getXdim() != editArea.getXdim())
                 || (scalarGrid.getYdim() != editArea.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This grid and edit area have different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied editArea have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    editArea.getXdim(), editArea.getYdim()));
         }
 
         FloatBuffer b = scalarGrid.getBuffer();
@@ -444,8 +474,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
                     newF = value;
                     break;
                 default:
-                    throw new IllegalArgumentException("Operator " + op
-                            + " not supported");
+                    throw new IllegalArgumentException(
+                            "Operator " + op + " not supported");
                 }
                 b.put(i, newF);
             }
@@ -479,8 +509,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
                 newF = f / value;
                 break;
             default:
-                throw new IllegalArgumentException("Operator " + op
-                        + " not supported");
+                throw new IllegalArgumentException(
+                        "Operator " + op + " not supported");
             }
             b.put(i, newF);
         }
@@ -489,7 +519,9 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     @Override
     public void operateEquals(Op op, IContinuousSlice cs, Grid2DBit editArea) {
         if (!(cs instanceof ScalarGridSlice)) {
-            throw new IllegalArgumentException("Supplied GridSlice not Scalar");
+            throw new IllegalArgumentException(
+                    "cs must be an instance of ScalarGridSlice, received: "
+                            + cs.getClass().getName());
         }
 
         ScalarGridSlice rhs = (ScalarGridSlice) cs;
@@ -497,13 +529,19 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
         if ((scalarGrid.getXdim() != editArea.getXdim())
                 || (scalarGrid.getYdim() != editArea.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This grid and edit area have different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied editArea have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    editArea.getXdim(), editArea.getYdim()));
         }
         if ((scalarGrid.getXdim() != rhsGrid.getXdim())
                 || (scalarGrid.getYdim() != rhsGrid.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This grid and supplied grid have different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    rhsGrid.getXdim(), rhsGrid.getYdim()));
         }
 
         FloatBuffer thisB = scalarGrid.getBuffer();
@@ -534,8 +572,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
                     newF = rhsF;
                     break;
                 default:
-                    throw new IllegalArgumentException("Operator " + op
-                            + " not supported");
+                    throw new IllegalArgumentException(
+                            "Operator " + op + " not supported");
                 }
                 thisB.put(i, newF);
             }
@@ -545,18 +583,16 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     @Override
     public void operateEquals(Op op, IContinuousSlice cs) {
         if (!(cs instanceof ScalarGridSlice)) {
-            throw new IllegalArgumentException("Supplied GridSlice not Scalar");
+            throw new IllegalArgumentException(
+                    "cs must be an instance of ScalarGridSlice, received: "
+                            + cs.getClass().getName());
         }
 
         ScalarGridSlice rhs = (ScalarGridSlice) cs;
 
         if (op == Op.ASSIGN) {
             Grid2DFloat grid = null;
-            try {
-                grid = rhs.getScalarGrid().clone();
-            } catch (CloneNotSupportedException e) {
-                grid = new Grid2DFloat();
-            }
+            grid = rhs.getScalarGrid().copy();
             this.scalarGrid = grid;
             return;
         }
@@ -565,8 +601,11 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
         if ((scalarGrid.getXdim() != rhsGrid.getXdim())
                 || (scalarGrid.getYdim() != rhsGrid.getYdim())) {
-            throw new IllegalArgumentException(
-                    "This grid and supplied grid have different dimensions");
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    scalarGrid.getXdim(), scalarGrid.getYdim(),
+                    rhsGrid.getXdim(), rhsGrid.getYdim()));
         }
 
         FloatBuffer thisB = scalarGrid.getBuffer();
@@ -595,8 +634,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
                 newF = rhsF;
                 break;
             default:
-                throw new IllegalArgumentException("Operator " + op
-                        + " not supported");
+                throw new IllegalArgumentException(
+                        "Operator " + op + " not supported");
             }
             thisB.put(i, newF);
         }
@@ -643,7 +682,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     public IContinuousSlice sum(IContinuousSlice gs) {
         if (!(gs instanceof ScalarGridSlice)) {
             throw new IllegalArgumentException(
-                    "Supplied GridSlice is not Scalar");
+                    "gs must be an instance of ScalarGridSlice, received: "
+                            + gs.getClass().getName());
         }
 
         ScalarGridSlice rVal = new ScalarGridSlice(this);
@@ -655,11 +695,17 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
             return false;
         }
 
-        if (!(obj instanceof ScalarGridSlice)) {
+        if (!super.equals(obj)) {
             return false;
         }
 
@@ -694,28 +740,22 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     /**
      * Checks dimensions of grids with dimensions specified in GridParmInfo to
      * ensure they are the same. Returns the status.
-     * 
+     *
      * @return String if issue, otherwise null if ok.
      */
     protected String checkDims() {
-        int x = 0, y = 0; // grid dimensions
-
         if (scalarGrid == null) {
             return "Grid data not populated";
         }
 
-        x = scalarGrid.getXdim();
-        y = scalarGrid.getYdim();
+        int x = scalarGrid.getXdim();
+        int y = scalarGrid.getYdim();
 
         if ((x != gridParmInfo.getGridLoc().getNx())
                 || (y != gridParmInfo.getGridLoc().getNy())) {
             return "Grid Dimensions and GridParmInfo Dimensions are not identical GridDim: "
-                    + x
-                    + ","
-                    + y
-                    + " GridParmInfoDim: "
-                    + gridParmInfo.getGridLoc().getNx()
-                    + ","
+                    + x + "," + y + " GridParmInfoDim: "
+                    + gridParmInfo.getGridLoc().getNx() + ","
                     + gridParmInfo.getGridLoc().getNy();
         }
 
@@ -725,9 +765,9 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     /**
      * Checks data values of grids with max/min limits in GridParmInfo to ensure
      * that the data is within limits. Returns the status.
-     * 
+     *
      * The status is set to MaxValueExceed or MinValueExceed on failure.
-     * 
+     *
      * @return String if issue, otherwise null if ok.
      */
     protected String checkDataLimits() {
@@ -756,7 +796,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
      * Returns a Grid2DBit that corresponds to the gridcells whose difference
      * between the cell value and the specified value are within the specified
      * fuzz.
-     * 
+     *
      * @param value
      *            to compare to
      * @param fuzz
@@ -784,7 +824,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
      * Returns a Grid2DBit that corresponds to the grid cells whose difference
      * between the cell value and the specified value are within the specified
      * fuzz.
-     * 
+     *
      * @param rhs
      *            to compare to
      * @param fuzz
@@ -814,26 +854,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     }
 
     @Override
-    public ScalarGridSlice clone() throws CloneNotSupportedException {
-        TimeRange aValidTime = this.validTime.clone();
-        GridParmInfo aGpi = this.gridParmInfo.clone();
-        GridDataHistory[] aHistory = new GridDataHistory[this.gridDataHistory
-                .size()];
-        for (int i = 0; i < aHistory.length; i++) {
-            GridDataHistory thisGDH = this.gridDataHistory.get(i);
-            if (thisGDH != null) {
-                aHistory[i] = thisGDH.clone();
-            }
-        }
-
-        Grid2DFloat aGrid = null;
-        if (scalarGrid != null) {
-            aGrid = scalarGrid.clone();
-        }
-
-        ScalarGridSlice rval = new ScalarGridSlice(aValidTime, aGpi, aHistory,
-                aGrid);
-        return rval;
+    public ScalarGridSlice copy() {
+        return new ScalarGridSlice(this);
     }
 
     @Override
@@ -849,6 +871,9 @@ public class ScalarGridSlice extends AbstractGridSlice implements
                 scalarGrid.getXdim());
     }
 
+    /**
+     * @return true if grid is populated
+     */
     public boolean isPopulated() {
         return scalarGrid != null;
     }

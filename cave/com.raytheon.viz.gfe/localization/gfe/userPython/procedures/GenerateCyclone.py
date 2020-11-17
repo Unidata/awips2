@@ -1186,6 +1186,8 @@ class Procedure (SmartScript.SmartScript):
         # Attempt to get the alternate info from a file or the textDB
         altFileName = decoder.getAltInfoFilename()
 
+        altFileName = "/home/eagle6/lefebvre/TPC/" + altFileName
+
         # get additional info if available
         altProduct = self.getTextProductFromDB(altFileName)
 

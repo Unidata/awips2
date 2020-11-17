@@ -68,30 +68,32 @@ import com.vividsolutions.jts.geom.Geometry;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 16, 2009            askripsk    Initial creation
- * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
- * Oct 20, 2014 #3418      dlovely     Fixed an NPE with the Points now showing on the inset map.
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 16, 2009           askripsk  Initial creation
+ * Oct 21, 2009  1711     bsteffen  Updated Baseline and Points to use new
+ *                                  ToolsDataManager
+ * Oct 20, 2014  3418     dlovely   Fixed an NPE with the Points now showing on
+ *                                  the inset map.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author askripsk
- * @version 1.0
  */
-
-public class RadarGraphResource extends
-        AbstractRadarResource<RadarGraphDescriptor> implements
-        IInsetMapResource {
+public class RadarGraphResource
+        extends AbstractRadarResource<RadarGraphDescriptor>
+        implements IInsetMapResource {
 
     public enum GraphPosition {
         UL, LL, LR
     }
 
     // Contains all the graphs for each resource, indexed by the resources time
-    private HashMap<DataTime, Map<GraphPosition, CellTrendGraph>> allDataGraphSets;
+    private Map<DataTime, Map<GraphPosition, CellTrendGraph>> allDataGraphSets;
 
-    private HashMap<GraphPosition, PixelExtent> graphLocations;
+    private Map<GraphPosition, PixelExtent> graphLocations;
 
     private PointStyle style = PointStyle.STAR;
 
@@ -102,8 +104,7 @@ public class RadarGraphResource extends
         getCapabilities().removeCapability(ImagingCapability.class);
         getCapabilities().removeCapability(RangeRingsOverlayCapability.class);
 
-        this.dataTimes = new ArrayList<DataTime>();
-        this.allDataGraphSets = new HashMap<DataTime, Map<GraphPosition, CellTrendGraph>>();
+        this.allDataGraphSets = new HashMap<>();
 
     }
 
@@ -140,8 +141,8 @@ public class RadarGraphResource extends
     private void createGraphLocations(GraphProperties graphProps) {
         // Divide into quadrands
 
-        IExtent extent = new PixelExtent(descriptor.getGridGeometry()
-                .getGridRange());
+        IExtent extent = new PixelExtent(
+                descriptor.getGridGeometry().getGridRange());
 
         double miniWidth = .9 * extent.getWidth() / 2;
 
@@ -151,11 +152,11 @@ public class RadarGraphResource extends
         PixelExtent llGraphExtent = new PixelExtent(extent.getMinX(),
                 extent.getMinX() + miniWidth, extent.getMaxY() / 2,
                 extent.getMaxY());
-        PixelExtent lrGraphExtent = new PixelExtent(extent.getMaxX()
-                - miniWidth, extent.getMaxX(), extent.getMaxY() / 2,
-                extent.getMaxY());
+        PixelExtent lrGraphExtent = new PixelExtent(
+                extent.getMaxX() - miniWidth, extent.getMaxX(),
+                extent.getMaxY() / 2, extent.getMaxY());
 
-        graphLocations = new HashMap<GraphPosition, PixelExtent>();
+        graphLocations = new EnumMap<>(GraphPosition.class);
         graphLocations.put(GraphPosition.UL, ulGraphExtent);
         graphLocations.put(GraphPosition.LL, llGraphExtent);
         graphLocations.put(GraphPosition.LR, lrGraphExtent);
@@ -229,8 +230,7 @@ public class RadarGraphResource extends
         Map<GraphPosition, CellTrendGraph> currentGraphSet = allDataGraphSets
                 .get(displayedDate);
         if (currentGraphSet == null) {
-            currentGraphSet = new EnumMap<GraphPosition, CellTrendGraph>(
-                    GraphPosition.class);
+            currentGraphSet = new EnumMap<>(GraphPosition.class);
             allDataGraphSets.put(displayedDate, currentGraphSet);
         }
         CellTrendGraph graph = currentGraphSet.get(position);
@@ -246,7 +246,7 @@ public class RadarGraphResource extends
      * This converts the radar data packets into data series and attaches the
      * series to the appropriate graph
      */
-    private void populateData(RadarRecord radarRecord) throws VizException {
+    private void populateData(RadarRecord radarRecord) {
         if (radarRecord.getProductCode() == 62) {
             // Storm Structure ==> Cell Trend
             CellTrendGraph graph;
@@ -264,10 +264,9 @@ public class RadarGraphResource extends
                             // Set the times of the scans
                             CellTrendVolumeScanPacket packet = (CellTrendVolumeScanPacket) currPacket;
 
-                            xLabels = new ArrayList<Integer>();
+                            xLabels = new ArrayList<>();
 
-                            for (int time : reorderData(
-                                    packet.getVolumeTimes(),
+                            for (int time : reorderData(packet.getVolumeTimes(),
                                     packet.getLatestVolume())) {
                                 xLabels.add(time);
                             }
@@ -396,16 +395,15 @@ public class RadarGraphResource extends
                         // series
                         int i = 0;
 
-                        int[] volumesData = reorderData(packet
-                                .getCellTrendData(trendCode).getData(), packet
-                                .getLatestScans().get(trendCode));
+                        int[] volumesData = reorderData(
+                                packet.getCellTrendData(trendCode).getData(),
+                                packet.getLatestScans().get(trendCode));
 
                         int dataOffset = xLabels.size() - volumesData.length;
                         for (Integer data : volumesData) {
                             if (data >= 0) {
-                                currData.getData().add(
-                                        new XYData(xLabels.get(i + dataOffset),
-                                                data));
+                                currData.getData().add(new XYData(
+                                        xLabels.get(i + dataOffset), data));
                                 i++;
                             }
                         }
@@ -421,8 +419,8 @@ public class RadarGraphResource extends
     private CellTrendDataPacket getNearestCell(String point,
             Map<RadarDataKey, RadarDataPoint> symbologyData) {
 
-        Coordinate pointCoord = PointsDataManager.getInstance().getCoordinate(
-                point);
+        Coordinate pointCoord = PointsDataManager.getInstance()
+                .getCoordinate(point);
 
         CellTrendDataPacket nearestCell = null;
         CellTrendDataPacket currCell = null;
@@ -461,19 +459,23 @@ public class RadarGraphResource extends
         return nearestCell;
     }
 
-    private int[] reorderData(ArrayList<Integer> unsortedData, int latestVolume) {
+    private int[] reorderData(ArrayList<Integer> unsortedData,
+            int latestVolume) {
         int[] sortedTimes = new int[unsortedData.size()];
 
         // Move the times around so the latest time is to the
         // right
         int sortedIndex = 0;
         int origIndex = latestVolume;
-        for (int i = latestVolume; i < (unsortedData.size() + latestVolume); i++) {
+        for (int i = latestVolume; i < (unsortedData.size()
+                + latestVolume); i++) {
             if (origIndex >= unsortedData.size()) {
                 origIndex = 0;
             }
 
-            sortedTimes[sortedIndex++] = unsortedData.get(origIndex++);
+            sortedTimes[sortedIndex] = unsortedData.get(origIndex);
+            sortedIndex += 1;
+            origIndex += 1;
         }
 
         return sortedTimes;
@@ -508,25 +510,23 @@ public class RadarGraphResource extends
      * @return Coordinate
      */
     private Coordinate getMapCoordinate() {
-        Point pt = PointsDataManager.getInstance().getPoint(
-                getResourcePointID());
+        Point pt = PointsDataManager.getInstance()
+                .getPoint(getResourcePointID());
         return new Coordinate(pt.getLongitude(), pt.getLatitude(), 0.0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public Geometry getInsetMapLocation() {
         return IInsetMapResource.factory.createPoint(getMapCoordinate());
     }
 
-    /** {@inheritDoc} */
     @Override
     public void paintInsetMap(IGraphicsTarget target,
             PaintProperties paintProps, MapDescriptor insetMapDescriptor)
             throws VizException {
         Coordinate latLon = getMapCoordinate();
-        double[] pixels = insetMapDescriptor.worldToPixel(new double[] {
-                latLon.x, latLon.y });
+        double[] pixels = insetMapDescriptor
+                .worldToPixel(new double[] { latLon.x, latLon.y });
         target.drawPoint(pixels[0], pixels[1], 0.0,
                 getCapability(ColorableCapability.class).getColor(), style);
     }

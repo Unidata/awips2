@@ -21,9 +21,24 @@
 ##
 # This is a base file that is not intended to be overridden.
 ##
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#   Engineer       Description
+# ------------- --------- -------------- --------------------------
+#                                        Initial creation
+# 2018-04-18    DCS 19952  dfriedman     Added AWIPS ID query support
+
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/16/2018      6804          tgurney        Remove setEditor calls
+#
+
 
 from com.raytheon.viz.texteditor.scripting.runner import TextWsCommands
-import os
 
 cmds = TextWsCommands()
 #
@@ -35,7 +50,6 @@ until = "until"
 # provides a single method to initialize the 'cmds' object
 # should be called at the start to each command implementation
 def initCmds():
-    cmds.setEditor(editor)
     cmds.setObserver(observer)
 #
 # implements a standard exit strategy for cancel script
@@ -51,13 +65,13 @@ def repeat(count,body=""):
         count = -1
     if count > -1:
         for i in range(count):
-            exec body
+            exec(body)
             cmds.doEvents()
             if cmds.cancelScript():
                 cancel()
     else:
         while True:
-            exec body
+            exec(body)
             cmds.doEvents()
             if cmds.cancelScript():
                 cancel()
@@ -113,31 +127,44 @@ def wait(opt="",time=""):
 # implements the load(pid) command
 def load(pid):
     initCmds()
-    if cmds.cancelScript() :
+    if cmds.cancelScript():
         cancel()
-    try:
-        cmds.loadTextProduct(pid.upper())
-    except:
-        raise
+    cmds.loadTextProduct(pid.upper(), True)
+
+# implements loadawips(pid)
+def loadawips(aid):
+    initCmds()
+    if cmds.cancelScript():
+        cancel()
+    cmds.loadTextProduct(aid.upper(), False)
+
 # implements the readdb(pid,filename) command
 def readdb(pid,filename):
     initCmds()
-    if cmds.cancelScript() :
+    if cmds.cancelScript():
         cancel()
-    try:
-        cmds.saveProductToFile(pid.upper(),filename)
-    except:
-        raise
+    cmds.saveProductToFile(pid.upper(), True, filename)
+
+# implements the readdbawips(aid,filename) command
+def readdbawips(aid,filename):
+    initCmds()
+    if cmds.cancelScript():
+        cancel()
+    cmds.saveProductToFile(aid.upper(), False, filename)
 
 # implements the writedb(pid,filename) command
 def writedb(pid,filename):
     initCmds()
     if cmds.cancelScript() :
         cancel()
-    try:
-        cmds.readProductFromFile(pid.upper(),filename)
-    except:
-        raise
+    cmds.readProductFromFile(pid.upper(), True, filename)
+
+# implements the writedbawips(aid,filename) command
+def writedbawips(pid,filename):
+    initCmds()
+    if cmds.cancelScript() :
+        cancel()
+    cmds.readProductFromFile(pid.upper(), False, filename)
 
 def run(filename):
     initCmds()
@@ -152,7 +179,6 @@ class writer():
     def write(self,text):
         cmds = TextWsCommands()
 #        initCmds()
-        cmds.setEditor(editor)
         cmds.setObserver(observer)
         cmds.writeText(text)
 
@@ -161,7 +187,6 @@ sys.stdout = writer()
 class errwriter():
     def write(self,text):
         cmds = TextWsCommands()
-        cmds.setEditor(editor)
         cmds.setObserver(observer)
         cmds.writeError(text)
 

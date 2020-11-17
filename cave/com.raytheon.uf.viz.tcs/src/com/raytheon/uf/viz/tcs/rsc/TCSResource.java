@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.tcs.rsc;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,9 +76,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  *
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- ---------------------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Oct 22, 2010           jsanchez  Initial creation
  * Jul 29, 2014  3465     mapeters  Updated deprecated drawString() calls.
  * Sep 17, 2014  3632     bclement  fixed index out of bounds
@@ -88,7 +87,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 27, 2016  5285     tgurney   Remove dependency on dataURI
  * Sep 30, 2016  5887     mapeters  Added shapeMap to allow reuse of wireframes
  *                                  across paintInternal() calls
- *
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * 
  * </pre>
  *
  * @author jsanchez
@@ -117,9 +117,8 @@ public class TCSResource
 
     protected TCSResource(TCSResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(this);
-        this.dataTimes = new ArrayList<>();
     }
 
     @Override
@@ -207,7 +206,7 @@ public class TCSResource
 
     private void paintTrackSummary(IGraphicsTarget target,
             PaintProperties paintProps, double scale, PointDataView pdv)
-                    throws VizException {
+            throws VizException {
         int pressure = pdv.getInt(PRESSURE);
         String name = pdv.getString(NAME);
 
@@ -240,7 +239,7 @@ public class TCSResource
             PaintProperties paintProps, double longitude, double latitude,
             int pressure, String name, int windSpeed, boolean isTropical,
             String displayTime, double scale, boolean drawRadiusLabel)
-                    throws VizException {
+            throws VizException {
 
         double[] loc = descriptor
                 .worldToPixel(new double[] { longitude, latitude });
@@ -249,7 +248,7 @@ public class TCSResource
 
         // Plotting a text string "Dissipated" if there is no forecast
         // data available.
-        if (displayTime.equals("Dissipated")) {
+        if ("Dissipated".equals(displayTime)) {
             DrawableString[] strings = new DrawableString[2];
             strings[0] = new DrawableString(DISSIPATED, color);
             strings[0].font = font;
@@ -336,13 +335,16 @@ public class TCSResource
                 for (Radius rad : radiusList) {
                     // Make line styles
                     switch (rad.getKT_FT()) {
-                    case 50: // - - - for 50 KT
+                    case 50:
+                        // - - - for 50 KT
                         lineStyle = LineStyle.DASHED;
                         break;
-                    case 34: // . . . . for 34 KT
+                    case 34:
+                        // . . . . for 34 KT
                         lineStyle = LineStyle.DOTTED;
                         break;
-                    default: // ----- for 64KT and 12FT
+                    default:
+                        // ----- for 64KT and 12FT
                         lineStyle = LineStyle.SOLID;
                     }
                     coordinates = makePolygon8(latLon, rad);
@@ -454,13 +456,13 @@ public class TCSResource
         double minY = extent.getMinY();
 
         maxX = maxX < 0 ? 0 : maxX;
-        maxX = maxX > 19999 ? 19999 : maxX;
+        maxX = maxX > 19_999 ? 19_999 : maxX;
         minX = minX < 0 ? 0 : minX;
-        minX = minX > 19999 ? 19999 : minX;
+        minX = minX > 19_999 ? 19_999 : minX;
         maxY = maxY < 0 ? 0 : maxY;
-        maxY = maxY > 19999 ? 19999 : maxY;
+        maxY = maxY > 19_999 ? 19_999 : maxY;
         minY = minY < 0 ? 0 : minY;
-        minY = minY > 19999 ? 19999 : minY;
+        minY = minY > 19_999 ? 19_999 : minY;
 
         PixelExtent correctedExtent = new PixelExtent(minX, maxX, minY, maxY);
         double x = correctedExtent.getMinX();
@@ -563,10 +565,7 @@ public class TCSResource
 
     protected void addRecord(TropicalCycloneSummary obj) {
         DataTime dataTime = obj.getDataTime();
-        if (!dataTimes.contains(dataTime)) {
-            dataTimes.add(dataTime);
-            Collections.sort(this.dataTimes);
-        }
+        dataTimes.add(dataTime);
         dataTimesToUpdate.add(dataTime);
     }
 

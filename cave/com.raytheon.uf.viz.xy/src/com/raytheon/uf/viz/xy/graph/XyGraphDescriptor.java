@@ -47,16 +47,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 29, 2009           mschenke    Initial creation
  * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
  * Jul 16, 2015  4220     mapeters    Listen for resources being removed from resourceList
+ * Feb 08, 2018  6825     njensen     Changed getGraphCoordinate()
  * 
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class XyGraphDescriptor extends AbstractDescriptor implements
-        RemoveListener {
+public class XyGraphDescriptor extends AbstractDescriptor
+        implements RemoveListener {
 
     public XyGraphDescriptor() {
         this(new PixelExtent(0, 1000, 0, 1000));
@@ -78,7 +78,7 @@ public class XyGraphDescriptor extends AbstractDescriptor implements
     public GraphResource getGraphResource() {
         List<GraphResource> rscs = resourceList
                 .getResourcesByTypeAsType(GraphResource.class);
-        if (rscs.size() > 0) {
+        if (!rscs.isEmpty()) {
             return rscs.get(0);
         }
         return null;
@@ -93,20 +93,26 @@ public class XyGraphDescriptor extends AbstractDescriptor implements
         GraphResource graphResource = getGraphResource();
         if (graphResource != null
                 && rp.getResource() instanceof IGraphableResource<?, ?>) {
-            graphResource.removeFromGraph((IGraphableResource<?, ?>) rp
-                    .getResource());
+            graphResource.removeFromGraph(
+                    (IGraphableResource<?, ?>) rp.getResource());
         }
     }
 
-    public Coordinate getGraphCoordiante(IGraphableResource<?, ?> rsc,
-            Coordinate c) {
-        IGraph graph = getGraphResource().getClosestGraph(c);
-        if (graph != null && getGraph(rsc) == graph) {
-            if (graph.getExtent().contains(new double[] { c.x, c.y })) {
+    public Coordinate getGraphCoordinate(IGraphableResource<?, ?> rsc,
+            Coordinate c, boolean withinExtent) {
+        IGraph graph = getGraph(rsc);
+        if (graph != null) {
+            if (withinExtent) {
+                if (graph.getExtent().contains(new double[] { c.x, c.y })) {
+                    double[] values = graph.getVirtualLocation(c.x, c.y);
+                    return new Coordinate(values[0], values[1]);
+                }
+            } else {
                 double[] values = graph.getVirtualLocation(c.x, c.y);
                 return new Coordinate(values[0], values[1]);
             }
         }
+
         return null;
     }
 

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -61,7 +61,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
@@ -86,47 +86,72 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 /**
  * The edit area and query dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 11, 2008            Eric Babin  Initial Creation
- * Jul 15, 2008            njensen     Hooked into backend/fixes
- * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
- * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteRefDialog.
- * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteEditAreaGroupDialog.
- * Oct 31, 2012 1298       rferrel     Changes for non-blocking MaskDialog.
- *                                      Changes for non-blocking WeatherDialog.
- *                                      Changes for non-blocking DiscreteDialog. 
- * Feb 14, 2013            mnash       Move QueryScript to use new Python concurrency implementation
- * Jan 13, 2015 3955       randerso    Improve handling of Topo parm for Standard Terrain editing
- * Jun 24, 2015 14401      yteng       Check whether activeDisplay is disposed before update
- * Aug 27, 2015 4749       njensen     Reused reference to PythonJobCoordinator instance
- * Dec 14, 2015 4816       dgilling    Support refactored PythonJobCoordinator API.
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Mar 11, 2008           Eric Babin  Initial Creation
+ * Jul 15, 2008           njensen     Hooked into backend/fixes
+ * Oct 24, 2012  1287     rferrel     Code clean up for non-blocking dialog.
+ * Oct 24, 2012  1287     rferrel     Changes for non-blocking
+ *                                    SaveDeleteRefDialog.
+ * Oct 24, 2012  1287     rferrel     Changes for non-blocking
+ *                                    SaveDeleteEditAreaGroupDialog.
+ * Oct 31, 2012  1298     rferrel     Changes for non-blocking MaskDialog.
+ *                                    Changes for non-blocking WeatherDialog.
+ *                                    Changes for non-blocking DiscreteDialog.
+ * Feb 14, 2013           mnash       Move QueryScript to use new Python
+ *                                    concurrency implementation
+ * Jan 13, 2015  3955     randerso    Improve handling of Topo parm for Standard
+ *                                    Terrain editing
+ * Jun 24, 2015  14401    yteng       Check whether activeDisplay is disposed
+ *                                    before update
+ * Aug 27, 2015  4749     njensen     Reused reference to PythonJobCoordinator
+ *                                    instance
+ * Dec 14, 2015  4816     dgilling    Support refactored PythonJobCoordinator
+ *                                    API.
+ * Jan 05, 2018  7178     randerso    Code cleanup
+ * Jan 24, 2018  7153     randerso    Changes to allow new GFE config file to be
+ *                                    selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
 
-public class DefineRefSetDialog extends CaveJFACEDialog implements
-        IReferenceSetChangedListener, IReferenceSetIDChangedListener,
+public class DefineRefSetDialog extends CaveJFACEDialog
+        implements IReferenceSetChangedListener, IReferenceSetIDChangedListener,
         IReferenceSetInvChangedListener, IDisplayedParmListChangedListener,
         IEditAreaGroupInvChangedListener {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefineRefSetDialog.class);
 
-    private final int NUM_ITEMS = 13;
+    private static final int NUM_ITEMS = 13;
 
-    private final int CLEAR_QUERY_ID = IDialogConstants.CLIENT_ID + 1;
+    private static final int CLEAR_QUERY_ID = IDialogConstants.CLIENT_ID + 1;
 
-    private final int RECALL_QUERY_ID = IDialogConstants.CLIENT_ID + 2;
+    private static final int RECALL_QUERY_ID = IDialogConstants.CLIENT_ID + 2;
 
-    private final int UNDO_EDIT_AREA_ID = IDialogConstants.CLIENT_ID + 3;
+    private static final int UNDO_EDIT_AREA_ID = IDialogConstants.CLIENT_ID + 3;
 
-    private final int CONVERT_TO_LOCATION_ID = IDialogConstants.CLIENT_ID + 4;
+    private static final int CONVERT_TO_LOCATION_ID = IDialogConstants.CLIENT_ID
+            + 4;
+
+    private static final String REF_OPS[][] = { { "|", "Union" },
+            { "&&", "Intersect" }, { "(", "" }, { ")", "" } };
+
+    private static final String PARM_OPS[][] = { { "<", "Less than" },
+            { ">", "Greater than" }, { "<=", "Less or equal" },
+            { ">=", "Greater or equal" }, { "==", "Equal to" },
+            { "!=", "Not equal to" },
+            { "mask", "mask(Wx/Dis, query, isreg=0)" } };
+
+    private static final String LABELS[][] = { { "7", "" }, { "8", "" },
+            { "9", "" }, { "4", "" }, { "5", "" }, { "6", "" }, { "1", "" },
+            { "2", "" }, { "3", "" }, { "-", "" }, { "0", "" }, { ".", "" },
+            { "BS", "BackSpace" }, { "", "" }, { "SP", "Space" }, };
 
     private Composite top;
 
@@ -140,33 +165,13 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private Text activeDisplay;
 
-    private Menu menuBar;
-
-    private Menu saveMenu, pickupMenu, wxdisMenu, createMaskMenu;
-
-    private MenuItem saveMenuHeader, pickupMenuHeader, wxdisMenuHeader,
-            createMaskMenuHeader, saveEditArea, deleteEditArea,
-            saveEditAreaGroup, deleteEditAreaGroup;
+    private Menu pickupMenu, wxdisMenu, createMaskMenu;
 
     private Button undoButton;
 
     private Button recallQueryButton;
 
     private Button convertButton;
-
-    private final String refOps[][] = { { "|", "Union" },
-            { "&&", "Intersect" }, { "(", "" }, { ")", "" } };
-
-    private final String parmOps[][] = { { "<", "Less than" },
-            { ">", "Greater than" }, { "<=", "Less or equal" },
-            { ">=", "Greater or equal" }, { "==", "Equal to" },
-            { "!=", "Not equal to" },
-            { "mask", "mask(Wx/Dis, query, isreg=0)" } };
-
-    private final String labels[][] = { { "7", "" }, { "8", "" }, { "9", "" },
-            { "4", "" }, { "5", "" }, { "6", "" }, { "1", "" }, { "2", "" },
-            { "3", "" }, { "-", "" }, { "0", "" }, { ".", "" },
-            { "BS", "BackSpace" }, { "", "" }, { "SP", "Space" }, };
 
     private IReferenceSetManager refSetMgr;
 
@@ -181,10 +186,12 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
      */
     private CaveJFACEDialog menuModalDlg;
 
-    private SaveDeleteEditAreaGroupDialog deleteGroupDlg;
-
-    private SaveDeleteEditAreaGroupDialog saveGroupDlg;
-
+    /**
+     * Constructor
+     *
+     * @param parent
+     * @param dataManager
+     */
     public DefineRefSetDialog(Shell parent, DataManager dataManager) {
         super(parent);
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
@@ -192,20 +199,10 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         this.refSetMgr = this.dataManager.getRefManager();
         this.parmManager = this.dataManager.getParmManager();
 
-        this.initialGroups = Activator.getDefault().getPreferenceStore()
-                .getStringArray("EditAreaGroups");
-        if ((this.initialGroups == null) || (this.initialGroups.length == 0)) {
-            this.initialGroups = new String[] { "Misc" };
-        }
+        this.initialGroups = GFEPreference.getStringArray("EditAreaGroups",
+                new String[] { "Misc" });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -259,8 +256,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             this.queryField
                     .setText(this.refSetMgr.getActiveRefSet().getQuery());
         }
-        this.activeDisplay.setText(getActiveRefDesc(this.refSetMgr
-                .getActiveRefSet()));
+        this.activeDisplay
+                .setText(getActiveRefDesc(this.refSetMgr.getActiveRefSet()));
 
         for (String group : initialGroups) {
             groupList.select(groupList.indexOf(group));
@@ -305,7 +302,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         comp.setLayoutData(layoutData);
 
         layoutData = new GridData();
-        for (int i = 0; i < this.refOps.length; i++) {
+        for (int i = 0; i < REF_OPS.length; i++) {
             layoutData = new GridData(30, 30);
             layoutData.horizontalAlignment = SWT.CENTER;
             final Button b = new Button(comp, SWT.PUSH);
@@ -317,8 +314,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                 }
             });
             b.setLayoutData(layoutData);
-            b.setText(this.refOps[i][0]);
-            b.setToolTipText(this.refOps[i][1]);
+            b.setText(REF_OPS[i][0]);
+            b.setToolTipText(REF_OPS[i][1]);
         }
     }
 
@@ -329,8 +326,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         groupFrame.setLayoutData(layoutData);
         groupFrame.setText("Group Name(s)");
 
-        this.groupList = new ToggleSelectList(groupFrame, SWT.V_SCROLL
-                | SWT.MULTI | SWT.BORDER);
+        this.groupList = new ToggleSelectList(groupFrame,
+                SWT.V_SCROLL | SWT.MULTI | SWT.BORDER);
         this.groupList.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -339,8 +336,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
         });
         Rectangle rect = groupList.computeTrim(0, 0,
-                this.convertWidthInCharsToPixels(24), groupList.getItemHeight()
-                        * NUM_ITEMS);
+                this.convertWidthInCharsToPixels(24),
+                groupList.getItemHeight() * NUM_ITEMS);
         layoutData = new GridData(GridData.FILL_BOTH);
         layoutData.minimumWidth = rect.width;
         layoutData.heightHint = rect.height;
@@ -360,8 +357,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         layoutData.horizontalAlignment = SWT.CENTER;
         groupFrame.setText("Edit Areas");
 
-        this.editAreasList = new List(groupFrame, SWT.V_SCROLL | SWT.SINGLE
-                | SWT.BORDER);
+        this.editAreasList = new List(groupFrame,
+                SWT.V_SCROLL | SWT.SINGLE | SWT.BORDER);
         this.editAreasList.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -388,15 +385,16 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         groupFrame.setLayoutData(layoutData);
         groupFrame.setText("Weather Elements");
 
-        this.weatherElementsList = new List(groupFrame, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
+        this.weatherElementsList = new List(groupFrame,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
 
         refreshParms();
         this.weatherElementsList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (weatherElementsList.getSelectionIndex() != -1) {
-                    addToQueryField(weatherElementsList.getSelection()[0] + " ");
+                    addToQueryField(
+                            weatherElementsList.getSelection()[0] + " ");
                 }
             }
         });
@@ -410,7 +408,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     /**
-     * 
+     *
      */
     private void createParmOpsButtons() {
         Composite comp = new Composite(this.top, SWT.NONE);
@@ -420,7 +418,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         comp.setLayoutData(layoutData);
 
         layoutData = new GridData();
-        for (int i = 0; i < this.parmOps.length; i++) {
+        for (int i = 0; i < PARM_OPS.length; i++) {
             layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
             Button b = new Button(comp, SWT.PUSH);
             b.addSelectionListener(new SelectionAdapter() {
@@ -431,21 +429,21 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                 }
             });
             b.setLayoutData(layoutData);
-            b.setText(this.parmOps[i][0]);
-            b.setToolTipText(this.parmOps[i][1]);
+            b.setText(PARM_OPS[i][0]);
+            b.setToolTipText(PARM_OPS[i][1]);
         }
     }
 
-    public void createNumberButtons() {
+    private void createNumberButtons() {
         Composite comp = new Composite(this.top, SWT.NONE);
         GridData layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT, false,
                 false);
         comp.setLayout(new GridLayout(3, false));
         comp.setLayoutData(layoutData);
 
-        for (int i = 0; i < this.labels.length; i++) {
+        for (int i = 0; i < LABELS.length; i++) {
             layoutData = new GridData(30, 30);
-            if (this.labels[i][0].equalsIgnoreCase("")) {
+            if (LABELS[i][0].isEmpty()) {
                 new Label(comp, SWT.NONE);
             } else {
                 final Button b1 = new Button(comp, SWT.PUSH);
@@ -456,8 +454,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                     }
                 });
 
-                b1.setText(this.labels[i][0]);
-                b1.setToolTipText(this.labels[i][1]);
+                b1.setText(LABELS[i][0]);
+                b1.setToolTipText(LABELS[i][1]);
                 b1.setLayoutData(layoutData);
             }
         }
@@ -465,18 +463,18 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private void createMenus() {
 
-        this.menuBar = new Menu(getShell(), SWT.BAR);
+        Menu menuBar = new Menu(getShell(), SWT.BAR);
 
-        this.saveMenuHeader = new MenuItem(this.menuBar, SWT.CASCADE);
-        this.saveMenuHeader.setText("&Save/Delete");
+        MenuItem saveMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+        saveMenuHeader.setText("&Save/Delete");
 
-        this.saveMenu = new Menu(getShell(), SWT.DROP_DOWN);
-        this.saveMenuHeader.setMenu(this.saveMenu);
+        Menu saveMenu = new Menu(getShell(), SWT.DROP_DOWN);
+        saveMenuHeader.setMenu(saveMenu);
 
-        this.saveEditArea = new MenuItem(this.saveMenu, SWT.DROP_DOWN);
-        this.saveEditArea.setText("Save Edit Area...");
+        MenuItem saveEditArea = new MenuItem(saveMenu, SWT.DROP_DOWN);
+        saveEditArea.setText("Save Edit Area...");
 
-        this.saveEditArea.addSelectionListener(new SelectionAdapter() {
+        saveEditArea.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent arg0) {
@@ -484,9 +482,9 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
         });
 
-        this.deleteEditArea = new MenuItem(this.saveMenu, SWT.DROP_DOWN);
-        this.deleteEditArea.setText("Delete Edit Area...");
-        this.deleteEditArea.addSelectionListener(new SelectionAdapter() {
+        MenuItem deleteEditArea = new MenuItem(saveMenu, SWT.DROP_DOWN);
+        deleteEditArea.setText("Delete Edit Area...");
+        deleteEditArea.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent arg0) {
@@ -494,9 +492,9 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
         });
 
-        this.saveEditAreaGroup = new MenuItem(this.saveMenu, SWT.DROP_DOWN);
-        this.saveEditAreaGroup.setText("Save Edit Area Group...");
-        this.saveEditAreaGroup.addSelectionListener(new SelectionAdapter() {
+        MenuItem saveEditAreaGroup = new MenuItem(saveMenu, SWT.DROP_DOWN);
+        saveEditAreaGroup.setText("Save Edit Area Group...");
+        saveEditAreaGroup.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent arg0) {
@@ -504,20 +502,20 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
         });
 
-        this.deleteEditAreaGroup = new MenuItem(this.saveMenu, SWT.DROP_DOWN);
-        this.deleteEditAreaGroup.setText("Delete Edit Area Group...");
-        this.deleteEditAreaGroup.addSelectionListener(new SelectionAdapter() {
+        MenuItem deleteEditAreaGroup = new MenuItem(saveMenu, SWT.DROP_DOWN);
+        deleteEditAreaGroup.setText("Delete Edit Area Group...");
+        deleteEditAreaGroup.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 deleteGroupCB();
             }
         });
-        this.pickupMenuHeader = new MenuItem(this.menuBar, SWT.CASCADE);
-        this.pickupMenuHeader.setText("&PickupValue");
+        MenuItem pickupMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+        pickupMenuHeader.setText("&PickupValue");
 
         this.pickupMenu = new Menu(getShell(), SWT.DROP_DOWN);
-        this.pickupMenuHeader.setMenu(this.pickupMenu);
+        pickupMenuHeader.setMenu(this.pickupMenu);
         this.pickupMenu.addMenuListener(new MenuAdapter() {
 
             @Override
@@ -526,11 +524,11 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
         });
 
-        this.wxdisMenuHeader = new MenuItem(this.menuBar, SWT.CASCADE);
-        this.wxdisMenuHeader.setText("&Wx/Dis Values");
+        MenuItem wxdisMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+        wxdisMenuHeader.setText("&Wx/Dis Values");
 
         this.wxdisMenu = new Menu(getShell(), SWT.DROP_DOWN);
-        this.wxdisMenuHeader.setMenu(this.wxdisMenu);
+        wxdisMenuHeader.setMenu(this.wxdisMenu);
         this.wxdisMenu.addMenuListener(new MenuAdapter() {
 
             @Override
@@ -539,11 +537,11 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
         });
 
-        this.createMaskMenuHeader = new MenuItem(this.menuBar, SWT.CASCADE);
-        this.createMaskMenuHeader.setText("&Create Mask");
+        MenuItem createMaskMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+        createMaskMenuHeader.setText("&Create Mask");
 
         this.createMaskMenu = new Menu(getShell(), SWT.DROP_DOWN);
-        this.createMaskMenuHeader.setMenu(this.createMaskMenu);
+        createMaskMenuHeader.setMenu(this.createMaskMenu);
         this.createMaskMenu.addMenuListener(new MenuAdapter() {
 
             @Override
@@ -552,21 +550,21 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
         });
 
-        super.getShell().setMenuBar(this.menuBar);
+        super.getShell().setMenuBar(menuBar);
     }
 
-    private void buildWxDisMenu(Menu menu, SelectionAdapter cb, boolean filterWx) {
+    private void buildWxDisMenu(Menu menu, SelectionAdapter cb,
+            boolean filterWx) {
         for (MenuItem item : menu.getItems()) {
             item.dispose();
         }
 
         Parm[] parms = this.parmManager.getDisplayedParms();
 
-        java.util.List<Parm> filteredParms = new ArrayList<Parm>();
+        java.util.List<Parm> filteredParms = new ArrayList<>();
         for (Parm parm : parms) {
             if (!filterWx
-                    || parm.getGridInfo().getGridType()
-                            .equals(GridType.WEATHER)
+                    || parm.getGridInfo().getGridType().equals(GridType.WEATHER)
                     || parm.getGridInfo().getGridType()
                             .equals(GridType.DISCRETE)) {
                 filteredParms.add(parm);
@@ -614,7 +612,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     /**
-     * 
+     *
      */
     protected void maskPost() {
         SelectionAdapter maskAdapter = new SelectionAdapter() {
@@ -628,7 +626,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     /**
-     * 
+     *
      */
     protected void wxPost() {
         SelectionAdapter wxAdapter = new SelectionAdapter() {
@@ -655,9 +653,10 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                             int status = (Integer) returnValue;
                             if (status != IDialogConstants.CANCEL_ID) {
                                 WeatherDialog d = (WeatherDialog) menuModalDlg;
-                                addToQueryField('"' + ((WeatherWxValue) d
-                                        .getWxValue()).getWeatherKey()
-                                        .toString() + '"');
+                                addToQueryField('"'
+                                        + ((WeatherWxValue) d.getWxValue())
+                                                .getWeatherKey().toString()
+                                        + '"');
                             }
                         }
                         menuModalDlg = null;
@@ -682,7 +681,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                                 DiscreteDialog d = (DiscreteDialog) menuModalDlg;
                                 addToQueryField('"' + ((DiscreteWxValue) d
                                         .getDiscreteValue()).getDiscreteKey()
-                                        .toString() + '"');
+                                                .toString()
+                                        + '"');
                             }
                         }
                         menuModalDlg = null;
@@ -696,7 +696,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     /**
-     * 
+     *
      */
     protected void pickPost() {
         SelectionAdapter pickupAdapter = new SelectionAdapter() {
@@ -715,7 +715,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         if (puv instanceof WeatherWxValue) {
             s = ('"' + ((WeatherWxValue) puv).getWeatherKey().toString() + '"');
         } else if (puv instanceof DiscreteWxValue) {
-            s = ('"' + ((DiscreteWxValue) puv).getDiscreteKey().toString() + '"');
+            s = ('"' + ((DiscreteWxValue) puv).getDiscreteKey().toString()
+                    + '"');
         } else if (puv instanceof VectorWxValue) {
             String fmt = "%." + parm.getGridInfo().getPrecision() + "f";
             s = String.format(fmt, ((VectorWxValue) puv).getMag());
@@ -737,8 +738,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
         this.recallQueryButton = createButton(parent, RECALL_QUERY_ID,
                 "Recall Query", false);
-        this.recallQueryButton.setEnabled(this.refSetMgr.getHistoryStack()
-                .size() > 0);
+        this.recallQueryButton
+                .setEnabled(this.refSetMgr.getHistoryStack().size() > 0);
 
         this.undoButton = super.createButton(parent, UNDO_EDIT_AREA_ID,
                 "Undo Edit Area", false);
@@ -794,14 +795,14 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     private void showRecallQueryList() {
         Menu menu = new Menu(getParentShell(), SWT.POP_UP);
         java.util.List<String> historyStack = this.refSetMgr.getHistoryStack();
-        if (historyStack.size() != 0) {
+        if (!historyStack.isEmpty()) {
             for (String query : historyStack) {
                 final MenuItem item = new MenuItem(menu, SWT.PUSH);
                 item.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        DefineRefSetDialog.this.queryField.setText(item
-                                .getText());
+                        DefineRefSetDialog.this.queryField
+                                .setText(item.getText());
                     }
                 });
                 item.setText(query);
@@ -823,7 +824,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     /**
-     * 
+     *
      */
     private void clear() {
         // LogStream.logUse('Clear Query')
@@ -850,7 +851,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     private void submit() {
-        Map<String, Object> argMap = new HashMap<String, Object>(1, 1f);
+        Map<String, Object> argMap = new HashMap<>(1, 1f);
         final String s = this.queryField.getText().trim();
         argMap.put("expression", s);
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
@@ -873,12 +874,13 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                                     RefSetMode.USE_CURRENT);
                             addToHistory(s);
 
-                            if (activeDisplay != null
+                            if ((activeDisplay != null)
                                     || !activeDisplay.isDisposed()) {
                                 activeDisplay.setText(s);
                             }
 
-                            if (queryField != null && !queryField.isDisposed()) {
+                            if ((queryField != null)
+                                    && !queryField.isDisposed()) {
                                 queryField.setText("");
                             }
                         }
@@ -891,16 +893,9 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                 listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener#
-     * referenceSetChanged(com.raytheon.edex.plugin.gfe.reference.ReferenceData,
-     * java.util.ArrayList)
-     */
     @Override
     public void referenceSetChanged(ReferenceData refSet,
-            ArrayList<Envelope> domains) {
+            java.util.List<Envelope> domains) {
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -910,12 +905,6 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener#
-     * referenceSetIDChanged(com.raytheon.edex.plugin.gfe.reference.ReferenceID)
-     */
     @Override
     public void referenceSetIDChanged(ReferenceID refID) {
         VizApp.runAsync(new Runnable() {
@@ -927,13 +916,6 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener#
-     * referenceSetInvChanged(java.util.List, java.util.List, java.util.List,
-     * java.util.List)
-     */
     @Override
     public void referenceSetInvChanged(java.util.List<ReferenceID> inventory,
             java.util.List<ReferenceID> additions,
@@ -949,12 +931,6 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.msgs.IEditAreaGroupInvChangedListener#
-     * editAreaGroupInvChanged()
-     */
     @Override
     public void editAreaGroupInvChanged() {
         VizApp.runAsync(new Runnable() {
@@ -966,14 +942,6 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener#
-     * displayedParmListChanged(com.raytheon.viz.gfe.core.parm.Parm[],
-     * com.raytheon.viz.gfe.core.parm.Parm[],
-     * com.raytheon.viz.gfe.core.parm.Parm[])
-     */
     @Override
     public void displayedParmListChanged(Parm[] parms, Parm[] deletions,
             Parm[] additions) {
@@ -1023,7 +991,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     protected String[] getAreaNames(String[] groupList) {
-        Set<String> areaList = new HashSet<String>();
+        Set<String> areaList = new HashSet<>();
         for (String groupName : groupList) {
             areaList.addAll(refSetMgr.getGroupData(groupName));
         }
@@ -1035,14 +1003,14 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private String[] getParms() {
         Parm[] parms = this.parmManager.getDisplayedParms();
-        ArrayList<String> we = new ArrayList<String>();
+        ArrayList<String> we = new ArrayList<>();
 
         we.add("Topo");
         for (Parm parm : parms) {
             ParmID parmId = parm.getParmID();
             String exprName;
-            if (parm.getParmID().getDbId().getModelName()
-                    .equalsIgnoreCase("Fcst")) {
+            if ("Fcst".equalsIgnoreCase(
+                    parm.getParmID().getDbId().getModelName())) {
                 exprName = parmId.compositeNameUI();
             } else {
                 exprName = parmId.toString().replaceAll(":", "_");
@@ -1152,11 +1120,11 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         String postText = oldText.substring(sel.y);
 
         // special case for BS and SP
-        if (s.equals("BS")) {
+        if ("BS".equals(s)) {
             if (preText.length() > 0) {
                 preText = preText.substring(0, preText.length() - 1);
             }
-        } else if (s.equals("SP")) {
+        } else if ("SP".equals(s)) {
             preText += " ";
         }
         // otherwise just replace selection with new text

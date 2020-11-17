@@ -39,13 +39,13 @@ fi
 # Run Docker AWIPS ADE Image
 #
 imgname=unidata/awips-ade
-imgvers=${AWIPSII_VERSION}
+imgvers=18.2.1
 sudo docker run --entrypoint=/bin/bash --privileged -d -ti -e "container=docker" $dirs $imgname:$imgvers-$os_version
 dockerID=$(sudo docker ps | grep awips-ade | awk '{print $1}' | head -1 )
 sudo docker logs $dockerID
 sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/build_rpms.sh $os_version $rpmname";
-sudo docker stop $dockerID
-sudo docker rm -v $dockerID
+#sudo docker stop $dockerID
+#sudo docker rm -v $dockerID
 
 #
 # Update/Recreate YUM Repository
@@ -57,5 +57,5 @@ if [[ $(whoami) == "mjames" ]]; then # local build
   #
   # Push to web server
   #
-  rsync --archive --delete dist/${os_version}-dev tomcat@www:/web/content/repos/yum/
+  #rsync --archive --delete dist/${os_version}-dev tomcat@www:/web/content/repos/yum/
 fi

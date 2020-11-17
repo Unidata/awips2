@@ -18,14 +18,11 @@ Obsoletes: awips2-gfesuite-server
 Obsoletes: awips2-gfesuite-client
 
 AutoReq: no
-Provides: awips2-gfesuite
-Requires: awips2-python-numpy
-Requires: awips2-java
-Requires: awips2-cave
-Requires: xorg-x11-server-Xvfb
+Provides: awips2-gfesuite, awips2-python-numpy, awips2-java, awips2-cave
+Requires: perl, xorg-x11-server-Xvfb
 
-BuildRequires: awips2-ant
-BuildRequires: awips2-java
+BuildRequires: awips2-ant, awips2-java
+BuildRequires: perl
 
 %description
 AWIPS II gfesuite Installation - Contains The AWIPS II gfesuite Component.

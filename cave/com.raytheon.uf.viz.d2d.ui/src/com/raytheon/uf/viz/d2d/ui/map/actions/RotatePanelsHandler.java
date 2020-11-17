@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource;
+import com.raytheon.uf.viz.xy.VizXyEditor;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.tools.AbstractTool;
@@ -43,24 +44,36 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 30, 2013            mschenke     Initial creation
+ * Jan 30, 2013            mschenke    Initial creation
+ * Feb 19, 2018 7060       njensen     Don't rotate on inset maps
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 public class RotatePanelsHandler extends AbstractTool {
 
+    @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
-        if (container == null || container instanceof IMultiPaneEditor == false) {
+        if (container == null || !(container instanceof IMultiPaneEditor)) {
             return null;
         }
 
         // Get editor and panes
         IMultiPaneEditor editor = (IMultiPaneEditor) container;
         IDisplayPane[] panes = getEditorPanes(editor);
+        if (editor instanceof VizXyEditor) {
+            VizXyEditor xyEditor = (VizXyEditor) editor;
+            IDisplayPane active = xyEditor.getActiveDisplayPane();
+            IDisplayPane[] insets = xyEditor.getInsetPanes();
+            for (IDisplayPane inset : insets) {
+                if (inset == active) {
+                    // it's an inset pane, ignore the rotate command
+                    return null;
+                }
+            }
+        }
 
         // Get direction to rotate
         String dirStr = event.getParameter("direction");
@@ -104,7 +117,7 @@ public class RotatePanelsHandler extends AbstractTool {
      * Rotates to next pane in container. If container has > 1 pane displayed,
      * will rotate to pane passed in, otherwise to next in line
      * 
-     * @param container
+     * @param editor
      * @param pane
      */
     public static void rotateToNextPane(IMultiPaneEditor editor,
@@ -165,8 +178,8 @@ public class RotatePanelsHandler extends AbstractTool {
      * @param container
      * @param pane
      */
-    private static void rotateToPane(IMultiPaneEditor editor,
-            IDisplayPane pane, Integer hideIndex, boolean wrapped) {
+    private static void rotateToPane(IMultiPaneEditor editor, IDisplayPane pane,
+            Integer hideIndex, boolean wrapped) {
         IDisplayPane[] panes = getEditorPanes(editor);
         boolean found = false;
         for (IDisplayPane editorPane : panes) {
@@ -189,9 +202,8 @@ public class RotatePanelsHandler extends AbstractTool {
                 // Search pane for current resource index
                 hideIndex = 0;
                 for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
-                    if (rp.getResource() != null
-                            && rp.getResource().hasCapability(
-                                    BlendableCapability.class)) {
+                    if (rp.getResource() != null && rp.getResource()
+                            .hasCapability(BlendableCapability.class)) {
                         hideIndex = rp.getResource()
                                 .getCapability(BlendableCapability.class)
                                 .getResourceIndex();
@@ -210,9 +222,8 @@ public class RotatePanelsHandler extends AbstractTool {
             // Toggle displayed resource
             for (IDisplayPane p : panes) {
                 for (ResourcePair rp : p.getDescriptor().getResourceList()) {
-                    if (rp.getResource() != null
-                            && rp.getResource().hasCapability(
-                                    BlendableCapability.class)) {
+                    if (rp.getResource() != null && rp.getResource()
+                            .hasCapability(BlendableCapability.class)) {
                         rp.getResource()
                                 .getCapability(BlendableCapability.class)
                                 .toggle(hideIndex);

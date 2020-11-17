@@ -105,6 +105,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul, 20 2015  17584    lshi      The SCAN Cell table quit updating caused by
  *                                  NPE
  * Feb 23, 2017  6106     rjpeter   Fix text cut off issues
+ * Jan 25, 2018  6787     mduff     Fix issues with unwarned.
+ * Feb 19, 2018  7058     mduff     Fix issues with loaded alarms not activating on load.
  * 
  * </pre>
  * 
@@ -131,8 +133,6 @@ public class SCANCellTableDlg extends AbstractTableDlg
     private Button cwaFilterChk;
 
     private Button unwarnedChk;
-
-    private Button vertChk;
 
     private Button tipsChk;
 
@@ -238,18 +238,8 @@ public class SCANCellTableDlg extends AbstractTableDlg
         newUpRankPopUpMenu();
         createRankPopupMenu(rankPopupMenu, rankBtn);
         createTablesPopupMenu();
-
         scanCfg = SCANConfig.getInstance();
-        AbsConfigMgr absCfgMgr = scanCfg.getAbsConfigMgr(scanTable);
-        String[] attributes = absCfgMgr.getAlarmAttributes();
-        for (int i = 0; i < attributes.length; i++) {
-            int val = absCfgMgr.getAbsoluteValue(attributes[i]);
-            mgr.updateScheduledAlarm(site, scanTable, attributes[i],
-                    AlarmType.AbsVal, val);
-            val = absCfgMgr.getRateOfChange(attributes[i]);
-            mgr.updateScheduledAlarm(site, scanTable, attributes[i],
-                    AlarmType.RateOfChange, val);
-        }
+        processAlarmConfig();
     }
 
     /**
@@ -446,7 +436,7 @@ public class SCANCellTableDlg extends AbstractTableDlg
         /*
          * Vertical - tech blocked
          */
-        vertChk = createCheckLabelComposite(controlComp,
+        Button vertChk = createCheckLabelComposite(controlComp,
                 scanCfg.getScanColor(ScanColors.Vert),
                 display.getSystemColor(SWT.COLOR_WHITE), "Vert ", true, null);
 
@@ -767,8 +757,7 @@ public class SCANCellTableDlg extends AbstractTableDlg
      * Display the Attributes dialog.
      */
     private void displayAttributesDialog() {
-        if (attributeDlg == null
-                || attributeDlg.getParent().isDisposed() == true) {
+        if (attributeDlg == null || attributeDlg.getParent().isDisposed()) {
             attributeDlg = new SCANAttributesDlg(shell, scanTable, this);
             attributeDlg.addCloseCallback(new ICloseCallback() {
 
@@ -891,23 +880,24 @@ public class SCANCellTableDlg extends AbstractTableDlg
                     if (returnValue instanceof Boolean) {
                         Boolean okSelected = (Boolean) returnValue;
                         if (okSelected) {
-                            if ((scanCfg.getUnwarnedConfig()
-                                    .getUnwarnedTor() == false)
-                                    && (scanCfg.getUnwarnedConfig()
-                                            .getUnwarnedSvr() == false)) {
+                            if ((!scanCfg.getUnwarnedConfig().getUnwarnedTor())
+                                    && (!scanCfg.getUnwarnedConfig()
+                                            .getUnwarnedSvr())) {
                                 unwarnedChk.setSelection(false);
                             } else {
                                 unwarnedChk.setSelection(true);
                             }
                         } else if ((scanCfg.getUnwarnedConfig()
-                                .getUnwarnedTor() == true)
+                                .getUnwarnedTor())
                                 && (scanCfg.getUnwarnedConfig()
-                                        .getUnwarnedSvr() == true)) {
+                                        .getUnwarnedSvr())) {
                             unwarnedChk.setSelection(true);
                         } else {
-                            // If the checkbox should not change state, reverse
-                            // the effect
-                            // of the toggle behavior inherent to the checkbox.
+                            /*
+                             * If the checkbox should not change state, reverse
+                             * the effect of the toggle behavior inherent to the
+                             * checkbox.
+                             */
                             unwarnedChk.setSelection(!isEnabled);
                         }
                     }
@@ -1008,7 +998,7 @@ public class SCANCellTableDlg extends AbstractTableDlg
             MenuItem[] items = defineActiveMenu.getItems();
 
             for (MenuItem mi : items) {
-                if (mi.getSelection() == true) {
+                if (mi.getSelection()) {
                     selectedTrend = mi.getText();
                 }
             }
@@ -1023,7 +1013,7 @@ public class SCANCellTableDlg extends AbstractTableDlg
         LinkedHashMap<String, String> trendMap = scanCfg
                 .getTrendConfigMgr(scanTable).getTrendSetMap();
 
-        if (trendMap.containsKey(selectedTrend) == false) {
+        if (!trendMap.containsKey(selectedTrend)) {
             selectedTrend = "default";
         }
 
@@ -1077,7 +1067,7 @@ public class SCANCellTableDlg extends AbstractTableDlg
         shell.addShellListener(new ShellAdapter() {
             @Override
             public void shellClosed(ShellEvent e) {
-                if (killDialog == false) {
+                if (!killDialog) {
                     e.doit = false;
                     displayCloseInstructions("SCAN Cell Table dialog");
                 }
@@ -1150,15 +1140,11 @@ public class SCANCellTableDlg extends AbstractTableDlg
 
                 if (getLinkToFrame(scanTable.name())) {
                     currentTime = scan.getDialogTime(scanTable, site);
-                    updateTimeLabel();
-                    updateTable(scan, time, sdg);
                 } else {
-                    if (currentTime == null || !currentTime.equals(time)) {
-                        currentTime = time;
-                        updateTimeLabel();
-                        updateTable(scan, time, sdg);
-                    }
+                    currentTime = time;
                 }
+                updateTimeLabel();
+                updateTable(scan, time, sdg);
 
                 scan.fireMonitorEvent(SCANMesoTableDlg.class.getName());
                 scan.fireMonitorEvent(SCANTvsTableDlg.class.getName());
@@ -1359,9 +1345,24 @@ public class SCANCellTableDlg extends AbstractTableDlg
 
         scanTableComp.newConfigLoaded();
 
+        processAlarmConfig();
+
         Iterator<IMonitor> iter = getMonitorControlListeners().iterator();
         while (iter.hasNext()) {
             ((ScanMonitor) iter.next()).configurationLoaded(scanTable, site);
+        }
+    }
+
+    private void processAlarmConfig() {
+        AbsConfigMgr absCfgMgr = scanCfg.getAbsConfigMgr(scanTable);
+        String[] attributes = absCfgMgr.getAlarmAttributes();
+        for (String attribute : attributes) {
+            int val = absCfgMgr.getAbsoluteValue(attribute);
+            mgr.updateScheduledAlarm(site, scanTable, attribute,
+                    AlarmType.AbsVal, val);
+            val = absCfgMgr.getRateOfChange(attribute);
+            mgr.updateScheduledAlarm(site, scanTable, attribute,
+                    AlarmType.RateOfChange, val);
         }
     }
 

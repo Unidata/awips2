@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -133,7 +133,7 @@
 ##                writable file copy that will be performed prior to running
 ##                the product.  The file is deleted after running the text
 ##                formatter. The tuple consists of:
-##                   fileName: file to be copied from BASE. The name can 
+##                   fileName: file to be copied from BASE. The name can
 ##                    contain <site> which will be replaced by the siteID. No
 ##                    file extension is needed.
 ##                   fileType: directory of source of file, relative to the
@@ -153,7 +153,7 @@
 ##                       "replace": a given string will be replaced by another
 ##                    strings: If add, the string to be added.
 ##                        If replace, a tuple of original and replacement strings or
-##                        a list of tuples for multiple replacements in the same file 
+##                        a list of tuples for multiple replacements in the same file
 ##                    cleanup action: What to do when product is finished. Can be:
 ##                       "delete": Delete the file and revert to baseline version
 ##                       "undo": Undo the add or replace
@@ -307,9 +307,9 @@ class ProcessInfo:
 
 class ITool (ISmartScript.ISmartScript):
     def __init__(self, dbss):
-        ISmartScript.ISmartScript.__init__(self, dbss)        
+        ISmartScript.ISmartScript.__init__(self, dbss)
         self._dataMgr = dbss
-        self._process = None            
+        self._process = None
 
     # Button 1 in ITool Dialog
     def execute(self, varDict):
@@ -343,7 +343,7 @@ class ITool (ISmartScript.ISmartScript):
             scriptName = scriptName.strip()
             if len(scriptName) == 0:
                 continue
-            
+
             if sys.modules.has_key(scriptName):
                 del sys.modules[scriptName]
             exec "import " + scriptName
@@ -361,7 +361,7 @@ class ITool (ISmartScript.ISmartScript):
             if success is None:
                 return
 
-        self.__listener =  AutoTestVTECNotificationListener()
+        self.__listener = AutoTestVTECNotificationListener()
         NotificationManagerJob.addObserver('edex.alerts.vtec', self.__listener)
 
         # Run the test scripts
@@ -374,7 +374,7 @@ class ITool (ISmartScript.ISmartScript):
         NotificationManagerJob.removeObserver('edex.alerts.vtec', self.__listener)
         self._finished()
 
-        
+
         # We will wait for it to finish before incrementing index and running the
         # next script  (see executeMsg below)
 
@@ -399,7 +399,7 @@ class ITool (ISmartScript.ISmartScript):
 
     def _runTestScript(self, index):
         entry = self._testScript[index]
-        
+
         # Set defaults
         database, user, checkMethod, checkStrings = self._setDefaults()
         # Process entry
@@ -428,7 +428,7 @@ class ITool (ISmartScript.ISmartScript):
         else:
             drtStr = ""
             self._drtString = None
-        #print "drtStr", drtStr        
+        #print "drtStr", drtStr
 
 
         self._clearHazardsTable(entry)
@@ -437,7 +437,7 @@ class ITool (ISmartScript.ISmartScript):
         self._createGrids(entry)
         self._makeWritableCopy(entry)
         self._fileChanges(entry)
-        
+
         cmdLineVars = self._getCmdLineVars(entry)
         vtecMode = entry.get("vtecMode", None)
 
@@ -451,15 +451,15 @@ class ITool (ISmartScript.ISmartScript):
             self.output("Running " + name, self._outFile)
         message = "Running " + name
         self.statusBarMsg(message, "R", category="GFE")
-           
+
         # this way goes through java in separate threads, debugging doesn't work with it cause each
-        # thread has its own interpreter....     
+        # thread has its own interpreter....
         # however, running the other way has issue with sampler caches not getting dumped between runs
         waiter = TextProductFinishWaiter()
         FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, 0, waiter, self._dataMgr)
         fcst = waiter.waitAndGetProduct()
         state = waiter.getState()
-            
+
 #         import FormatterRunner
 #         try:
 #             fcst = FormatterRunner.runFormatter(databaseID=database, site="TBW",
@@ -471,14 +471,14 @@ class ITool (ISmartScript.ISmartScript):
 #             LogStream.logProblem("Error generating product: " + LogStream.exc())
 
         # write product to OUTPUT_DIR
-        
+
         fname = name + ".txt"
         path = os.path.join(OUTPUT_DIR, fname)
         with open(path, 'w') as out:
             out.write(fcst)
 
-        self._doExecuteMsg(name, fcst, entry, drtTime, state)        
-                    
+        self._doExecuteMsg(name, fcst, entry, drtTime, state)
+
     def _getCmdLineVars(self, entry):
         cmdLineVars = entry.get("cmdLineVars", None)
         if cmdLineVars is None:
@@ -492,7 +492,7 @@ class ITool (ISmartScript.ISmartScript):
             callMethod = cmdLineVars
             productType = entry["productType"]
             if sys.modules.has_key(productType):
-                del sys.modules[productType]            
+                del sys.modules[productType]
             module = __import__(productType)
             exec "callMethod = module.TextProduct()." + callMethod
             definition = module.TextProduct().Definition
@@ -541,11 +541,11 @@ class ITool (ISmartScript.ISmartScript):
         if self._lastCreateGrids == createGrids:
             return
         self._lastCreateGrids = createGrids
-        
+
         wxKeys = []
         hazKeys = []
         gridsTR = TimeRange.TimeRange(self._gridsStartTime, self._gridsStartTime + 12 * 3600)
-        self._determineMaxMinBeginEnd(entry)    
+        self._determineMaxMinBeginEnd(entry)
         hazardGrid = None
         createdGrids = {}
         for gridEntry in createGrids:
@@ -606,7 +606,7 @@ class ITool (ISmartScript.ISmartScript):
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, grid, timeRange)
             # Save the grid in the createdGridDict
-            createdGrids[key] = grid            
+            createdGrids[key] = grid
             self.saveElements([elementName], model)
             if entry.get("publishGrids", 0):
                 self.publishElements([elementName], timeRange)
@@ -635,15 +635,15 @@ class ITool (ISmartScript.ISmartScript):
         if failed == 0:
             if self._reportingMode not in ["Pretty"]:
                 self.output("All Writable Copies successful", self._outFile)
-                
+
     def _fileChanges(self, entry):
         fileChanges = entry.get("fileChanges", None)
         if not fileChanges:
             return False
 
         from LockingFile import File
-        
-        failed = 0        
+
+        failed = 0
         for fileName, fileType, changeType, strings, cleanUp in fileChanges:
             fileName = fileName.replace("<site>", self.getSiteID())
             # Get the file
@@ -664,8 +664,8 @@ class ITool (ISmartScript.ISmartScript):
             if changeType == "add":
                 text = text + strings
             elif changeType == "replace":
-                # strings may be a tuple (orig, repl) or 
-                # a list of tuples for multiple changes to the same file 
+                # strings may be a tuple (orig, repl) or
+                # a list of tuples for multiple changes to the same file
                 if type(strings) == tuple:
                     strings = [strings]
                 for orig, repl in strings:
@@ -674,7 +674,7 @@ class ITool (ISmartScript.ISmartScript):
 
                     #self.output("FILE CHANGES (chg): " + orig + ' ' + repl, self._outFile) #DEBUG
                     #self.output("FILE CHANGES (mod): " +  text, self._outFile) #DEBUG
-                    
+
                     if strIndex < 0:
                         self.output("File change failed for " + orig,
                           self._outFile)
@@ -690,10 +690,10 @@ class ITool (ISmartScript.ISmartScript):
             except:
                 failed = 1
                 print "FILE CHANGES failed writing to " + str(destLf)
-                raise      
-            #self.output("FILE CHANGES (saved) to " + str(destLf) + "\n" +  text, self._outFile) #DEBUG         
+                raise
+            #self.output("FILE CHANGES (saved) to " + str(destLf) + "\n" +  text, self._outFile) #DEBUG
 
-        if len(fileChanges) and not failed:            
+        if len(fileChanges) and not failed:
             if self._reportingMode not in ["Pretty"]:
                 self.output("All File Changes successful", self._outFile)
         return True
@@ -711,7 +711,7 @@ class ITool (ISmartScript.ISmartScript):
         self._MaxTEnd = self._MaxTBegin + 13
         self._MinTBegin = self._MaxTBegin + 12
         self._MinTEnd = self._MaxTBegin + 12 + 14
-        
+
         self._MinRHBegin = maxBegin - 4 - localHour # MinRH begins at 3 am standard time
         self._MinRHEnd = self._MinRHBegin + 18
         self._MaxRHBegin = self._MinRHBegin + 12
@@ -746,8 +746,8 @@ class ITool (ISmartScript.ISmartScript):
             self.saveElements([elementName], model)
             if entry.get("publishGrids", 0):
                 self.publishElements([elementName], timeRange)
-            
-    # Required if Message is a trigger  
+
+    # Required if Message is a trigger
     def executeMsg(self, msg):
         if self._process is None:
             return
@@ -760,19 +760,19 @@ class ITool (ISmartScript.ISmartScript):
     def _doExecuteMsg(self, name, fcst, entry, drtTime, state):
         if self._reportingMode not in ["Pretty"]:
             self.output("Calling TextProductTest Message Invoked " + `entry`, self._outFile)
-            
+
         checkMethod = entry.get("checkMethod", None)
         checkStrings = entry.get("checkStrings", None)
         notCheckStrings = entry.get("notCheckStrings", None)
         orderStrings = entry.get("orderStrings", None)
         internalStrip = entry.get("internalStrip", 1)
         commentary = entry.get("commentary", None)
-                    
+
         if True:
             # Clean up fileChanges
             self._cleanUpFiles(entry)
             self._cleanUpWritableCopies(entry)
-            
+
             self.output("\n----------------------------------------------", self._outFile)
 
             if self._reportingMode not in ["Pretty"]:
@@ -784,11 +784,11 @@ class ITool (ISmartScript.ISmartScript):
                 self.output(commentary + "\n", self._outFile)
             self._scripts += 1
 
-            if state.equals(ProductStateEnum.Failed): 
+            if state.equals(ProductStateEnum.Failed):
                 self.output("Formatter failed!", self._outFile)
                 success = False
 
-            else:        
+            else:
                 # Look at results
                 # If any of the check fails, the test fails
                 check1 = 1
@@ -802,7 +802,7 @@ class ITool (ISmartScript.ISmartScript):
                             self.output(failMsg, self._outFile)
                         else:
                             self.output("CHECK METHOD PASSED: " + name, self._outFile)
-                            
+
                 # Prepare results for string searches
                 if fcst is not None:
                     fcstStr = fcst.replace("\n", " ")
@@ -811,7 +811,7 @@ class ITool (ISmartScript.ISmartScript):
                         fcstStr = self.internalStrip(fcstStr)
                     fcstStr = fcstStr.replace("... ", "...")
                     fcstStrRaw = fcstStrRaw.replace("... ", "...")
-                    
+
                     if checkStrings is not None:
                         check2 = self._checkStrs(name, fcst, checkStrings,
                           orderStrings, fcstStr, fcstStrRaw, internalStrip)
@@ -827,7 +827,7 @@ class ITool (ISmartScript.ISmartScript):
                                 self.output("'NOT' STRING SEARCHES PASSED ", self._outFile)
 
                 success = check1 and check2 and check3
-                
+
             if success:
                 self._passed += 1
                 logmsg = name + " Passed"
@@ -837,7 +837,7 @@ class ITool (ISmartScript.ISmartScript):
                 logmsg = name + " Failed"
                 self.statusBarMsg(logmsg, "A", category="ISC")
             self.output(logmsg, self._outFile)
-            
+
             if self._failures > self._failLimit:
                 self._cleanUp(entry, drtTime)
                 # Stop processing
@@ -847,8 +847,8 @@ class ITool (ISmartScript.ISmartScript):
                     self.output("\n" + fcst, self._outFile)
             # DecodeVTEC if requested
             # Note for later:  if in practice mode, set active
-            # table to runVTECDecoder("PRACTICE", fcst)            
-            if success and entry.get("decodeVTEC", 0):                
+            # table to runVTECDecoder("PRACTICE", fcst)
+            if success and entry.get("decodeVTEC", 0):
                 self.__runVTECDecoder(fcst, drtTime)
 
 
@@ -861,24 +861,24 @@ class ITool (ISmartScript.ISmartScript):
                         break
                 t2 = time.time();
                 if self._reportingMode in ["Verbose", "Moderate"]:
-                    self.output("Vtec Decoder wait time: " + "%6.2f" % (t2-t1),
+                    self.output("Vtec Decoder wait time: " + "%6.2f" % (t2 - t1),
                       self._outFile)
 
             self._cleanUp(entry, drtTime)
-    
+
     def _cleanUp(self, entry, drtTime):
         if drtTime is not None:
-            import offsetTime           
+            import offsetTime
             offsetTime.reset()
             reload(offsetTime)
-            
+
 #         fileChanges = entry.get("fileChanges", [])
 #         for fileName, fileType, changeType, strings, cleanUp in fileChanges:
 #             fileName = fileName.replace("<site>", self.getSiteID())
 #             reload(sys.modules[fileName])
 #         productType = entry['productType']
 #         if sys.modules.has_key(productType):
-#             del sys.modules[productType]            
+#             del sys.modules[productType]
 
     def _cleanUpWritableCopies(self, entry, user="GFETEST"):
         writables = entry.get("writeableCopies", None)
@@ -896,16 +896,16 @@ class ITool (ISmartScript.ISmartScript):
                 pass
             self.output("Cleanup writable copies: " + fileSrc, self._outFile)
 
-    def _cleanUpFiles(self, entry):        
+    def _cleanUpFiles(self, entry):
         fileChanges = entry.get("fileChanges", [])
         for fileName, fileType, changeType, strings, cleanUp in fileChanges:
             fileName = fileName.replace("<site>", self.getSiteID())
-            textFileID = TextFileUtil.getTextFile(fileName, fileType)            
+            textFileID = TextFileUtil.getTextFile(fileName, fileType)
             if self._leaveFileChanges == "no":
                 if cleanUp in ["delete", "undo"]:
                     # File changes are made as overrides at the GFETEST user level
                     # We just remove these files to restore the previous file
-                    destLf = TextFileUtil.getUserTextFile(textFileID)                  
+                    destLf = TextFileUtil.getUserTextFile(textFileID)
                     TextFileUtil.deleteTextFile(destLf)
 
     def _checkStrs(self, name, fcst, checkStrings, orderStrings, fcstStr,
@@ -916,7 +916,7 @@ class ITool (ISmartScript.ISmartScript):
         # If orderStrings == 1, the strings must occur in order
         # in the fcstStr
         # If checkMode == 0, the strings should NOT be found in the fcstStr
-        # If internalStrip == 2, check both the fcstStr, and fcstStrRaw 
+        # If internalStrip == 2, check both the fcstStr, and fcstStrRaw
         #  versions. If at least one succeeds, the checkString succeeds.
         curIndex = -1
         for cStr in checkStrings:
@@ -1010,7 +1010,7 @@ class ITool (ISmartScript.ISmartScript):
           "\n" + `self._scripts` + " SCRIPTS RUN.\n" + \
           `self._passed` + " TESTS PASSED.\n" + \
           `self._failures` + " TESTS FAILED."
-      
+
         self.output(message, self._outFile)
         self._outFile.close()
 
@@ -1019,32 +1019,32 @@ class ITool (ISmartScript.ISmartScript):
             status = "U"
         else:
             status = "S"
-        self.statusBarMsg(message, status, category="GFE")        
+        self.statusBarMsg(message, status, category="GFE")
 
     def _getElapsedTimeStr(self):
         eTime = (time.time() - self._timer) / 60.0
         return "%4.2f" % eTime + " minutes"
-              
+
     # Optional -- Invoked by Button 2 in ITool Dialog
     def cleanUp(self):
         self.output("Calling MyTool CleanUp method", self._outFile)
         # Can be called at any time to abort the script
         self._testScript = []
         self._outFile.close()
-        
+
     def __runVTECDecoder(self, fcst, drtString=None):
         import tempfile, urlparse
         from com.raytheon.uf.viz.core import VizApp
-        
+
         with tempfile.NamedTemporaryFile(mode='w', prefix="autoTestProd", delete=False) as file:
             file.write(fcst)
-        
+
         url = urlparse.urlparse(VizApp.getHttpServer())
         commandString = "VTECDecoder -f " + file.name + " -d -g -a practice -h " + url.hostname
         if drtString is not None:
             commandString += " -z " + drtString
 
-        expectedPil = fcst.split("\n",2)[1]
+        expectedPil = fcst.split("\n", 2)[1]
         self.__listener.resetListener(expectedPil)
         os.system(commandString)
 
@@ -1060,15 +1060,15 @@ def main():
 
     from java.lang import System
     System.setProperty('user.name', 'GFETEST')
-    
+
     from com.raytheon.uf.viz.core.localization import LocalizationManager
     from com.raytheon.uf.common.localization import LocalizationContext
     LocalizationLevel = LocalizationContext.LocalizationLevel
     LocalizationManager.registerContextName(LocalizationLevel.USER, 'GFETEST');
-    
+
     import loadConfig
     loadConfig.loadPreferences("gfeConfig")
-    
+
     from com.raytheon.viz.gfe.core import DataManager
     dm = DataManager.getInstance(None)
     import IToolInterface
@@ -1080,34 +1080,31 @@ def main():
         if 'textUtilities' in s \
         or 'textProducts' in s \
         or 'combinations' in s:
-            sys.path.remove(s) 
-
-    for s in str(GfePyIncludeUtil.getHeadlineIncludePath()).split(':'):
-        sys.path.append(s)
+            sys.path.remove(s)
 
     for s in str(GfePyIncludeUtil.getTextUtilitiesIncludePath()).split(':'):
         sys.path.append(s)
 
     for s in str(GfePyIncludeUtil.getTextProductsIncludePath()).split(':'):
         sys.path.append(s)
-    
+
     for s in str(GfePyIncludeUtil.getCombinationsIncludePath()).split(':'):
         sys.path.append(s)
-    
+
     # create output directory for products
     try:
         os.makedirs(OUTPUT_DIR)
     except OSError, e:
         if e.errno != errno.EEXIST:
-            self.output("%s: '%s'" % (e.strerror,e.filename))
-    
+            self.output("%s: '%s'" % (e.strerror, e.filename))
+
     scriptDir = GfePyIncludeUtil.getIToolIncludePath()
     runner = IToolInterface.IToolInterface(scriptDir)
-    runner.instantiate('TextProductTest', 'ITool', dbss=dm)    
+    runner.instantiate('TextProductTest', 'ITool', dbss=dm)
     processVariableList = ProcessVariableList.ProcessVariableList('TextProductTest', VariableList)
     varDict = processVariableList.varDict()
     if varDict is None or len(varDict) == 0:
-        return    
+        return
     runner.runITool('TextProductTest', 'ITool', 'execute', varDict=varDict)
 
 

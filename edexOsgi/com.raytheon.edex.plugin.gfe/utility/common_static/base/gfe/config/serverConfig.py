@@ -1,4 +1,22 @@
 ##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 # serverConfig -- base GFE server configuration file
 #
 # NOTE: THIS FILE SHOULD NOT BE USER-MODIFIED.  INSTEAD REFER TO THE
@@ -85,9 +103,11 @@
 #    12/06/2017        DCS20267    psantos        Add NWPS Rip Current Guidance
 #    12/20/2017          20510     ryu            changes to StormTotalSnow parameter
 #    02/23/2018          #20395    wkwock         Added NBM3.1 elements.
+#    03/22/2018        DCS20290    amoore         Added 1-hourly preip to URMA model.
 #    04/03/2018        DR20656     arivera        Missing comma: "Dune Erosion Probability" in optionalParmsDict['marine']
 #    05/09/2018        DR20715     arivera        Missing comma: groups['marineSites'] after 'AVAK'
 #    06/18/2018          16729     ryu            Remove tpHPC element from RFCQPF model and the smart init for the model.
+#    06/19/2018        DCS20689    ryu            Add TPCSurgeProbLoRes and PETSSLoRes models for NHA
 #    09/04/2018          20874     wkwock         Haines and Fosberg are 6 hours accumulative.
 #
 ####################################################################################################
@@ -102,6 +122,8 @@
 # section of the GFE Online Help for more information.
 ##
 
+
+
 #----------------------------------------------------------------------------
 # USEFUL DEFINES
 #----------------------------------------------------------------------------
@@ -114,6 +136,7 @@ import LogStream
 from collections import defaultdict
 BASELINE = getattr(siteConfig, 'BASELINE', 0)
 
+#D scfp=open('/localapps/logs/scdebug.log','w')
 class dbConfig(object):
     """Class to create GFE databases from modelDict"""
     def __init__(self,modelDict):
@@ -986,6 +1009,7 @@ Radar = ("Radar", SCALAR, "dbz", "Radar Reflectivity", 80.0, -20.0, 0, NO)
 
 # RTMA parms
 QPE =     ("QPE", SCALAR, "in", "QPE", maxQpfVal, 0.0, 2, YES)
+QPE01 =     ("QPE01", SCALAR, "in", "QPE01", maxQpfVal, 0.0, 2, YES)
 #if SID in groups['ALASKA_SITES']: - not sure if this needs to be like that
 if SID in groups['OCONUS_SITES']:
     TUnc =     ("TUnc", SCALAR, "F", "Temperature Anl Uncertainty", 20.0, 0.0, 0, NO)
@@ -2357,8 +2381,8 @@ else:
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://localhost:8081/irt",
-    "BNCF" : "http://localhost:8081/irt"
+    "ANCF" : "http://localhost:8080/irt",
+    "BNCF" : "http://localhost:8080/irt"
     }
 
 
@@ -3033,6 +3057,71 @@ modelDict['TPCSurgeProb'] = {
             ],
         }
 
+modelDict['TPCSurgeProbLoRes'] = {
+            'D2DMODELS': 'TPCSurgeProbLoRes',
+            'D2DAccumulativeElements': [
+                'Surge10Pct',
+                'Surge20Pct',
+                'Surge30Pct',
+                'Surge40Pct',
+                'Surge50Pct',
+                'Surge90Pct',
+                'PSurge25Ft',
+                'PSurge24Ft',
+                'PSurge23Ft',
+                'PSurge22Ft',
+                'PSurge21Ft',
+                'PSurge20Ft',
+                'PSurge19Ft',
+                'PSurge18Ft',
+                'PSurge17Ft',
+                'PSurge16Ft',
+                'PSurge15Ft',
+                'PSurge14Ft',
+                'PSurge13Ft',
+                'PSurge12Ft',
+                'PSurge11Ft',
+                'PSurge10Ft',
+                'PSurge9Ft',
+                'PSurge8Ft',
+                'PSurge7Ft',
+                'PSurge6Ft',
+                'PSurge5Ft',
+                'PSurge4Ft',
+                'PSurge3Ft',
+                'PSurge2Ft',
+                'PSurge1Ft',
+                'PSurge0Ft',
+                'Surge10Pctincr',
+                'Surge20Pctincr',
+                'Surge30Pctincr',
+                'Surge40Pctincr',
+                'Surge50Pctincr',
+                'Surge90Pctincr',
+                'PSurge20Ftincr',
+                'PSurge19Ftincr',
+                'PSurge18Ftincr',
+                'PSurge17Ftincr',
+                'PSurge16Ftincr',
+                'PSurge15Ftincr',
+                'PSurge14Ftincr',
+                'PSurge13Ftincr',
+                'PSurge12Ftincr',
+                'PSurge11Ftincr',
+                'PSurge10Ftincr',
+                'PSurge9Ftincr',
+                'PSurge8Ftincr',
+                'PSurge7Ftincr',
+                'PSurge6Ftincr',
+                'PSurge5Ftincr',
+                'PSurge4Ftincr',
+                'PSurge3Ftincr',
+                'PSurge2Ftincr',
+                'PSurge1Ftincr',
+                'PSurge0Ftincr',
+                ]
+            }
+
 modelDict['PETSS'] = {
             'D2DMODELS': 'P-ETSS',
             'D2DAccumulativeElements': [
@@ -3083,6 +3172,56 @@ modelDict['PETSS'] = {
             ],
         }
 
+modelDict['PETSSLoRes'] = {
+            'D2DMODELS': 'P-ETSS-LoRes',
+            'D2DAccumulativeElements': [
+                'Surge10Pct',
+                'Surge20Pct',
+                'Surge30Pct',
+                'Surge40Pct',
+                'Surge50Pct',
+                'Surge90Pct',
+                'Surge10Pctincr',
+                'Surge20Pctincr',
+                'Surge30Pctincr',
+                'Surge40Pctincr',
+                'Surge50Pctincr',
+                'Surge90Pctincr',
+                'PSurge0Ftincr',
+                'PSurge1Ftincr',
+                'PSurge2Ftincr',
+                'PSurge3Ftincr',
+                'PSurge4Ftincr',
+                'PSurge5Ftincr',
+                'PSurge6Ftincr',
+                'PSurge7Ftincr',
+                'PSurge8Ftincr',
+                'PSurge9Ftincr',
+                'PSurge10Ftincr',
+                'PSurge13Ftincr',
+                'PSurge16Ftincr',
+                'PSurge0Ft',
+                'PSurge1Ft',
+                'PSurge2Ft',
+                'PSurge3Ft',
+                'PSurge4Ft',
+                'PSurge5Ft',
+                'PSurge6Ft',
+                'PSurge7Ft',
+                'PSurge8Ft',
+                'PSurge9Ft',
+                'PSurge10Ft',
+                'PSurge13Ft',
+                'PSurge16Ft',
+                'PSurgeMaxincr',
+                'PSurgeMeanincr',
+                'PSurgeMinincr',
+                'PSurgeMax',
+                'PSurgeMean',
+                'PSurgeMin',
+                ]
+            }
+
 modelDict['TPCtcm'] = {
             'DB': ('TPCtcm', 'GRID', '', NO,  NO, 2, 0),
             'Parms': [([HiWind], TC3),
@@ -3098,7 +3237,7 @@ modelDict['URMA25'] = {
                      ([MaxT], MaxTTC),
                      ([MinRH], MinRHTC),
                      ([MinT], MinTTC),
-                     ([PressUnc, Pressure, QPE, RH, Sky, SkyUnc, TUnc, Td, TdUnc,
+                     ([PressUnc, Pressure, QPE01, QPE, RH, Sky, SkyUnc, TUnc, Td, TdUnc,
                         Temp, Vis, VisUnc, WDirUnc, WGustUnc, WSpdUnc, Wind,
                         WindGust], TC1),
                      ],
@@ -3182,7 +3321,7 @@ if SID in groups['ALASKA_SITES']:
     updateModelDict(modelDict,'PETSS','D2DMODELS', 'P-ETSS-AK')
     # Model databases for Alaska
     includeOnly = ['AKwave4', 'AKwave10', 'BaseTerrain', 'CRMTopo', 'ECMWFHiRes', 'ESTOFS', 
-                   'ETSS',  'GFS20',  'GWW', 'HIRESWarw', 'HIRESWnmm', 'NAM12', 
+                   'ETSS',  'GFS20',  'GWW', 'HIRESWarw', 'HIRESWnmm',  'NAM12', 
                    'NamDNG', 'NationalBlend', 'NED', 'NewTerrain', 'RTMA', 'RTOFS-Alaska', 
                    'RTOFS-Arctic', 'RTOFS-Bering', 'RTOFS-GulfAlaska', 'SAT', 'SREF', 'URMA',
                    'nwpsCG1AER', 'nwpsCG1AFG', 'nwpsCG1AJK', 'nwpsCG1ALU', 'nwpsTrkngCG0AER', 

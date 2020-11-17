@@ -19,12 +19,8 @@
  **/
 package com.raytheon.uf.viz.npp.sounding.rsc;
 
-import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
-import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +55,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
+
 /**
  * Sounding available resource. Draws points on map where data is available
  * 
@@ -66,35 +65,29 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 14, 2013            mschenke    Initial creation
- * Aug 27, 2013       2190 mschenke    Fixed so can't click point when not visible
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 14, 2013           mschenke  Initial creation
+ * Aug 27, 2013  2190     mschenke  Fixed so can't click point when not visible
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
 public class NPPSoundingMapResource extends
         AbstractVizResource<NPPSoundingMapResourceData, IMapDescriptor> {
 
     private NPPSoundingMapInputHandler inputManager;
 
-    private Collection<NPPSoundingRecord> allRecords = new HashSet<NPPSoundingRecord>();
+    private Collection<NPPSoundingRecord> allRecords = new HashSet<>();
 
-    private Map<DataTime, Collection<NPPSoundingRecord>> groupedRecords = new HashMap<DataTime, Collection<NPPSoundingRecord>>();
+    private Map<DataTime, Collection<NPPSoundingRecord>> groupedRecords = new HashMap<>();
 
-    /**
-     * @param resourceData
-     * @param loadProperties
-     */
     protected NPPSoundingMapResource(NPPSoundingMapResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         this.inputManager = new NPPSoundingMapInputHandler(this);
-        this.dataTimes = new ArrayList<DataTime>();
         getCapability(EditableCapability.class).setEditable(true);
         resourceData.addChangeListener(new IResourceDataChanged() {
             @Override
@@ -121,10 +114,8 @@ public class NPPSoundingMapResource extends
 
         Map<DataTime, Collection<NPPSoundingRecord>> groupedRecords = resourceData
                 .groupRecordTimes(allRecords);
-        List<DataTime> dataTimes = new ArrayList<DataTime>(
-                groupedRecords.keySet());
-        Collections.sort(dataTimes);
-        this.dataTimes = dataTimes;
+        this.dataTimes.retainAll(groupedRecords.keySet());
+        this.dataTimes.addAll(groupedRecords.keySet());
         this.groupedRecords = groupedRecords;
     }
 
@@ -155,8 +146,7 @@ public class NPPSoundingMapResource extends
             return;
         }
         RGB color = getCapability(ColorableCapability.class).getColor();
-        List<DrawableCircle> circles = new ArrayList<DrawableCircle>(
-                records.size());
+        List<DrawableCircle> circles = new ArrayList<>(records.size());
         for (NPPSoundingRecord record : records) {
             double lat = record.getLatitude();
             double lon = record.getLongitude();
@@ -199,30 +189,27 @@ public class NPPSoundingMapResource extends
         return resourceData.getResourceName() + " Availability";
     }
 
-    /**
-     * @param closestRecord
-     */
     void loadSoundingResource(NPPSoundingRecord record) {
         // Build metadata map for sounding resource
-        HashMap<String, RequestConstraint> metadataMap = new HashMap<String, RequestConstraint>(
+        HashMap<String, RequestConstraint> metadataMap = new HashMap<>(
                 resourceData.getMetadataMap());
         RequestConstraint rc = new RequestConstraint(null,
                 ConstraintType.BETWEEN);
-        rc.setBetweenValueList(new String[] {
-                String.valueOf(record.getLongitude() - 0.01),
-                String.valueOf(record.getLongitude() + 0.01) });
+        rc.setBetweenValueList(
+                new String[] { String.valueOf(record.getLongitude() - 0.01),
+                        String.valueOf(record.getLongitude() + 0.01) });
         metadataMap.put(NPPSoundingRecord.LONGITUDE, rc);
         rc = new RequestConstraint(null, ConstraintType.BETWEEN);
-        rc.setBetweenValueList(new String[] {
-                String.valueOf(record.getLatitude() - 0.01),
-                String.valueOf(record.getLatitude() + 0.01) });
+        rc.setBetweenValueList(
+                new String[] { String.valueOf(record.getLatitude() - 0.01),
+                        String.valueOf(record.getLatitude() + 0.01) });
         metadataMap.put(NPPSoundingRecord.LATITUDE, rc);
 
         // Construct nsharp resource data for loading
         AbstractNPPNSharpResourceData nsResourceData = resourceData
                 .newNsharpResourceData();
-        nsResourceData.setCoordinate(new Coordinate(record.getLongitude(),
-                record.getLatitude()));
+        nsResourceData.setCoordinate(
+                new Coordinate(record.getLongitude(), record.getLatitude()));
         nsResourceData.setMetadataMap(metadataMap);
         ResourcePair pair = new ResourcePair();
         pair.setResourceData(nsResourceData);
@@ -230,8 +217,8 @@ public class NPPSoundingMapResource extends
         NsharpSkewTPaneDisplay display = new NsharpSkewTPaneDisplay();
         display.setDescriptor(new NsharpSkewTPaneDescriptor());
         display.getDescriptor().getResourceList().add(pair);
-        String editorId = DescriptorMap.getEditorId(display.getDescriptor()
-                .getClass().getName());
+        String editorId = DescriptorMap
+                .getEditorId(display.getDescriptor().getClass().getName());
         AbstractEditor editor = UiUtil.createOrOpenEditor(editorId,
                 display.cloneDisplay());
         Bundle b = new Bundle();

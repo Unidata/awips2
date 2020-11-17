@@ -19,9 +19,8 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: awips2-ncep-database
-Requires: awips2-database
-Requires: awips2-postgresql
-Requires: awips2-psql
+Requires: perl
+Requires: awips2-database, awips2-postgresql, awips2-psql
 
 %description
 AWIPS II NCEP Database Installation - This rpm creates the ncep database and tables.

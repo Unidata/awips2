@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -47,8 +47,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.SendISCRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
@@ -59,32 +58,30 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
  * Send Intersite grids dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 08/20/09      1995       lvenable    Initial creation
- * 09/02/09          #1370  randerso    Make the same as PublishDialog
- * 10/26/2012   1287        rferrel    Code cleanup for non-blocking dialog.
- * 09/15/2015   4858        dgilling   Handle exception from ParmOp.sendISC.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 20, 2009  1995     lvenable  Initial creation
+ * Sep 02, 2009  1370     randerso  Make the same as PublishDialog
+ * Oct 26, 2012  1287     rferrel   Code cleanup for non-blocking dialog.
+ * Sep 15, 2015  4858     dgilling  Handle exception from ParmOp.sendISC.
+ * Jan 25, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author bphillip
- * @version 1
  */
 public class SendISCDialog extends CaveJFACEDialog {
 
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(getClass());
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SendISCDialog.class);
 
-    private final int MAX_LIST_HEIGHT = 10;
-
-    private final PythonPreferenceStore prefs = Activator.getDefault()
-            .getPreferenceStore();
+    private static final int MAX_LIST_HEIGHT = 10;
 
     private DataManager dataManager;
 
@@ -108,13 +105,15 @@ public class SendISCDialog extends CaveJFACEDialog {
 
     private List tpListbox;
 
-    private Button autoBtn;
-
     private Button manBtn;
 
+    /**
+     * Constructor for the SendISCDialog
+     *
+     * @param parent
+     * @param dataManager
+     */
     public SendISCDialog(Shell parent, DataManager dataManager) {
-        // Constructor for the SendISCDialog
-
         super(parent);
         this.dataManager = dataManager;
         this.parmMgr = dataManager.getParmManager();
@@ -130,9 +129,9 @@ public class SendISCDialog extends CaveJFACEDialog {
 
         // eliminate any parms in availableParms that aren't in officialParms
         // eliminate any parms in availableParms in the ISC_neverSendParms list
-        java.util.List<String> limitedParms = Arrays.asList(prefs
-                .getStringArray("ISC_neverSendParms"));
-        ArrayList<ParmID> temp = new ArrayList<ParmID>();
+        java.util.List<String> limitedParms = Arrays
+                .asList(GFEPreference.getStringArray("ISC_neverSendParms"));
+        java.util.List<ParmID> temp = new ArrayList<>();
         for (ParmID p : availableParms) {
             for (ParmID o : officialParms) {
                 if (p.getParmName().equals(o.getParmName())
@@ -146,29 +145,22 @@ public class SendISCDialog extends CaveJFACEDialog {
 
         Collections.sort(temp);
         this.availableParms = temp.toArray(new ParmID[temp.size()]);
-        String initialBundleGrp = prefs
+        String initialBundleGrp = GFEPreference
                 .getString("SendISCGridDialogInitialWEGroup");
         if (initialBundleGrp.isEmpty()) {
-            this.displayedParms = this.parmMgr.getParmIDs(this.parmMgr
-                    .getDisplayedParms());
+            this.displayedParms = this.parmMgr
+                    .getParmIDs(this.parmMgr.getDisplayedParms());
         } else {
             this.displayedParms = this.dataManager.getWEGroupManager()
                     .getParmIDs(initialBundleGrp, this.availableParms);
         }
-        this.selectedParms = this.parmMgr.getParmIDs(this.parmMgr
-                .getSelectedParms());
+        this.selectedParms = this.parmMgr
+                .getParmIDs(this.parmMgr.getSelectedParms());
 
         // get list from config for which time periods should be displayed
-        this.timePd = prefs.getStringArray("SendISCTimes");
+        this.timePd = GFEPreference.getStringArray("SendISCTimes");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -283,7 +275,7 @@ public class SendISCDialog extends CaveJFACEDialog {
         java.util.List<String> groupInv = dataManager.getWEGroupManager()
                 .getInventory();
 
-        ArrayList<String> filtGroupInv = new ArrayList<String>();
+        java.util.List<String> filtGroupInv = new ArrayList<>();
         for (String group : groupInv) {
             // verify that there are valid entries in it
             if (dataManager.getWEGroupManager().getParmIDs(group,
@@ -309,8 +301,8 @@ public class SendISCDialog extends CaveJFACEDialog {
     private void openBundleCB(String bundleName) {
         // Callback to open the selected Bundle
         // Get the list of ParmIDs, mutable db
-        ParmID[] parmIDs = this.dataManager.getWEGroupManager().getParmIDs(
-                bundleName, this.availableParms);
+        ParmID[] parmIDs = this.dataManager.getWEGroupManager()
+                .getParmIDs(bundleName, this.availableParms);
 
         // reset all entries (weather elements) to off
         this.weListbox.deselectAll();
@@ -330,7 +322,7 @@ public class SendISCDialog extends CaveJFACEDialog {
         layoutData.horizontalSpan = 2;
         autoManGroup.setLayoutData(layoutData);
 
-        autoBtn = new Button(autoManGroup, SWT.RADIO);
+        Button autoBtn = new Button(autoManGroup, SWT.RADIO);
         autoBtn.setText("Auto: Sends all grids saved but not yet sent");
         autoBtn.setSelection(true);
         autoBtn.addSelectionListener(new SelectionAdapter() {
@@ -362,7 +354,8 @@ public class SendISCDialog extends CaveJFACEDialog {
         String[] elementList = new String[availableParms.length];
         int i = 0;
         for (ParmID parmID : availableParms) {
-            elementList[i++] = parmID.compositeNameUI();
+            elementList[i] = parmID.compositeNameUI();
+            i++;
         }
         weListbox.setItems(elementList);
 
@@ -390,7 +383,7 @@ public class SendISCDialog extends CaveJFACEDialog {
         layoutData.heightHint = tpListbox.getItemHeight() * MAX_LIST_HEIGHT;
         tpListbox.setLayoutData(layoutData);
 
-        ArrayList<String> elementList = new ArrayList<String>();
+        java.util.List<String> elementList = new ArrayList<>();
         elementList.add("All Grids");
         elementList.add("Selected Time");
 
@@ -411,7 +404,7 @@ public class SendISCDialog extends CaveJFACEDialog {
 
     private java.util.List<ParmID> getParms() {
         // make a list of the parms for which the check button is selected
-        ArrayList<ParmID> parmsIDs = new ArrayList<ParmID>();
+        java.util.List<ParmID> parmsIDs = new ArrayList<>();
         for (int i = 0; i < availableParms.length; i++) {
             if (weListbox.isSelected(i)) {
                 parmsIDs.add(availableParms[i]);
@@ -421,7 +414,7 @@ public class SendISCDialog extends CaveJFACEDialog {
     }
 
     private void sendISCCB() {
-        java.util.List<SendISCRequest> requests = new ArrayList<SendISCRequest>();
+        java.util.List<SendISCRequest> requests = new ArrayList<>();
 
         // manual configuration
         if (manBtn.getSelection()) {
@@ -457,13 +450,14 @@ public class SendISCDialog extends CaveJFACEDialog {
         String selTR = tpListbox.getSelection()[0];
 
         TimeRange tr;
-        if (selTR.equals("All Grids")) {
+        if ("All Grids".equals(selTR)) {
             tr = TimeRange.allTimes();
 
-        } else if (selTR.equals("Selected Time")) {
+        } else if ("Selected Time".equals(selTR)) {
             tr = parmOp.getSelectionTimeRange();
 
-        } else { // time range
+        } else {
+            // time range
             tr = dataManager.getSelectTimeRangeManager().getRange(selTR)
                     .toTimeRange();
         }
@@ -477,7 +471,9 @@ public class SendISCDialog extends CaveJFACEDialog {
             int idx = Arrays.asList(availableParms).indexOf(parmID);
             weListbox.select(idx);
         }
-        tpListbox.setSelection(1); // Selected Time
+
+        // Selected Time
+        tpListbox.setSelection(1);
     }
 
     private void setAll() {
@@ -490,11 +486,6 @@ public class SendISCDialog extends CaveJFACEDialog {
         weListbox.deselectAll();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#okPressed()
-     */
     @Override
     protected void okPressed() {
         sendISCCB();

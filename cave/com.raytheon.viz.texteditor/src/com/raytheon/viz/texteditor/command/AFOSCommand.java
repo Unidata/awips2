@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,27 +37,27 @@ import com.raytheon.viz.texteditor.AfosBrowserModel;
 
 /**
  * Pairs a command and its associated type.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 30, 2009 2191       rjpeter     Initial creation
- * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import 
+ * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import
  *                                      dependency
  * 21May2010    2187       cjeanbap    Add operational mode functionality.
  * 02Aug2010    2187       cjeanbap    Update method signature to be consistent.
  * 20Mar2011    8561       jdortiz     Added enterEditor field.
  * May 23, 2012 14952      rferrel     Added refTime.
- * Sep 09, 2014 3580       mapeters    Removed IQueryTransport usage 
+ * Sep 09, 2014 3580       mapeters    Removed IQueryTransport usage
  *                                     (no longer exists).
  * Aug 26, 2016 5839       rferrel     Implemented new ICommand methods
- * 
+ * Oct 23, 2017 6045       tgurney     getFieldValue() check for null
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 public class AFOSCommand implements ICommand {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -135,7 +135,7 @@ public class AFOSCommand implements ICommand {
 
         ArrayList<StdTextProduct> rvalList = null;
 
-        if (response != null && response.size() > 0) {
+        if (response != null && !response.isEmpty()) {
             StdTextProduct rval = response.get(0);
             StringBuilder builder = new StringBuilder(rval.getProduct());
             StdTextProduct curProd = null;
@@ -176,7 +176,7 @@ public class AFOSCommand implements ICommand {
     private static String getFieldValue(String field1, String field2) {
         String rval = field1;
 
-        if (field1.length() > 0) {
+        if (field1 != null && !field1.isEmpty()) {
             if (!field1.equals(field2)) {
                 rval = "";
             }
@@ -185,9 +185,6 @@ public class AFOSCommand implements ICommand {
         return rval;
     }
 
-    /**
-     * 
-     */
     public void launchSelectionDialog() {
         // no op
     }

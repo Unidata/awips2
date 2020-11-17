@@ -25,13 +25,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
-
 import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -70,7 +66,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 
 /**
- * TODO Add Description
+ * Handles the drawing of the Daily QC Stations.
  * 
  * <pre>
  * 
@@ -81,6 +77,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
  * Apr 05, 2016 18350     snaples     Fixed issue with resources not being removed.
  * Feb 28, 2017 10478     bkowal      Utilize {@link MPELegendOverride} to eliminate a few
  *                                    static variables.
+ * Jan 24, 2017  6790     mduff       Don't clear the display when drawing DQC stations.
  * 
  * </pre>
  * 
@@ -94,71 +91,33 @@ public class DrawDQCStations {
     private static final List<NamedColorUseSet> pColorSetGroup = MPEColors
             .build_mpe_colors();
 
-    int contour_flag;
+    private int points_flag;
 
-    Unit<?> displayUnit = NonSI.INCH;
+    private boolean qpf_on = false;
 
-    Unit<?> dataUnit = NonSI.INCH.divide(100);
+    private boolean flf_on = false;
 
-    // TODO extern int plot_view --in DailyQcUtils;
-    int plot_view = 0;
+    private boolean maxmin_on = false;
 
-    int points_flag;
-
-    boolean qpf_on = false;
-
-    boolean flf_on = false;
-
-    boolean maxmin_on = false;
-
-    int isom = DailyQcUtils.isom;
-
-    int pcpn_time_step = 0;
+    private int pcpn_time_step = 0;
 
     public static int map_flag = 0;
 
-    int pcp_flag = 0;
-
-    int pcpn_day = 0;
+    private int pcpn_day = 0;
 
     public static int grids_flag = 0;
 
-    int dflag[] = DailyQcUtils.dflag;
+    private int pcpn_time = 0;
 
-    int pcpn_time = 0;
+    private Pdata pdata[] = DailyQcUtils.pdata;
 
-    Pdata pdata[] = DailyQcUtils.pdata;
+    private Tdata tdata[] = DailyQcUtils.tdata;
 
-    int old_isom = 0;
+    private Zdata zdata[] = DailyQcUtils.zdata;
 
-    Tdata tdata[] = DailyQcUtils.tdata;
+    public static final ColorMap colorMap = new ColorMap();
 
-    Zdata zdata[] = DailyQcUtils.zdata;
-
-    public static ColorMap colorMap = new ColorMap();
-
-    public static DataMappingPreferences dmPref = new DataMappingPreferences();
-
-    public static ColorMapParameters parameters = new ColorMapParameters();
-
-    int NUM_PRECIP_RANGES = 5;
-
-    int NUM_LEGEND_COLORS = 18;
-
-    int NUM_TEMP_RANGES = 3;
-
-    int NUM_FREEZING_RANGES = 1;
-
-    /* Used for containing values which delimit levels in the legend. */
-    double delim[][] = {
-            { 0.0, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
-                    1.2, 1.3, 1.4, 1.5 },
-            { 0.0, 2.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 12.5,
-                    13.0, 13.5, 14.0, 14.5 },
-            { 0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 65, 70, 75,
-                    100 } };
-
-    public static double dqc_precip_delim[][] = {
+    public static final double dqc_precip_delim[][] = {
             { -9999.0, 0.0, 0.01, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1, 1.1,
                     1.2, 1.3, 1.4, 1.5 },
             { -9999.0, 0.0, 0.01, .2, .4, .6, .8, 1., 1.2, 1.4, 1.6, 1.8, 2.0,
@@ -170,12 +129,12 @@ public class DrawDQCStations {
             { -9999.0, 0.0, 0.01, .3, .6, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4,
                     9.6, 10.8, 12.0, 13.2, 14.4, 15.6 } };
 
-    public static double dqc_temp_delim[][] = {
+    public static final double dqc_temp_delim[][] = {
             { -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 },
             { -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70 },
             { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80 } };
 
-    public static double dqc_freezing_delim[][] = {
+    public static final double dqc_freezing_delim[][] = {
             { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } };
 
     /* global variables */
@@ -186,11 +145,7 @@ public class DrawDQCStations {
 
     public static int tscale = 0;
 
-    public static int dmvalue = (int) (1.0 * 100 * 3.28 / .55);
-
     public static String qcmode = "";
-
-    StringBuilder tbuf;
 
     private static IRenderableDisplay display = null;
 
@@ -222,11 +177,11 @@ public class DrawDQCStations {
 
     public static int hed;
 
-    public static String prefix = "pcp";
+    public static final String prefix = "pcp";
 
     private static final String APPLICATION_NAME = "hmapmpe";
 
-    static MPELegendResource legend;
+    private static MPELegendResource legend;
 
     private static MPELegendInputHandler legList;
 
@@ -247,8 +202,8 @@ public class DrawDQCStations {
         if (instance == null) {
             instance = new DrawDQCStations();
         }
+        mpd = MPEDisplayManager.getCurrent();
         display = mpd.getRenderableDisplay();
-        display.clear();
         md = (IMapDescriptor) display.getDescriptor();
 
         List<MPELegendResource> rscs = display.getDescriptor().getResourceList()
@@ -323,23 +278,19 @@ public class DrawDQCStations {
         time_pos = 0;
         display_flag = 0;
         hed = 0;
-        plot_view = DailyQcUtils.plot_view;
-        contour_flag = DailyQcUtils.contour_flag;
+        int plot_view = DailyQcUtils.plot_view;
+        int contour_flag = DailyQcUtils.contour_flag;
         points_flag = DailyQcUtils.points_flag;
         qpf_on = MPEDisplayManager.getCurrent().isQpf();
         flf_on = MPEDisplayManager.getCurrent().isZflag();
         maxmin_on = MPEDisplayManager.getCurrent().isMaxmin();
-        tbuf = new StringBuilder();
-        isom = DailyQcUtils.isom;
         pcpn_time_step = MPEDisplayManager.pcpn_time_step;
         map_flag = DailyQcUtils.map_flag;
-        pcp_flag = DailyQcUtils.pcp_flag;
+        int pcp_flag = DailyQcUtils.pcp_flag;
         pcpn_day = DailyQcUtils.pcpn_day;
         grids_flag = DailyQcUtils.grids_flag;
-        dflag = DailyQcUtils.dflag;
         pcpn_time = DailyQcUtils.pcpn_time;
         pdata = DailyQcUtils.pdata;
-        old_isom = DailyQcUtils.old_isom;
         tdata = DailyQcUtils.tdata;
         zdata = DailyQcUtils.zdata;
 
@@ -357,15 +308,14 @@ public class DrawDQCStations {
          */
 
         if (MPEDisplayManager.pcpn_time_step == 1) {
-            dur = 86400;
+            dur = TimeUtil.SECONDS_PER_DAY;
         } else if (MPEDisplayManager.pcpn_time_step == 0) {
-            dur = 21600;
+            dur = TimeUtil.SECONDS_PER_HOUR * 6;
         }
 
         String user_id = System.getProperty("user.name");
-        String app_name = APPLICATION_NAME;
         List<Colorvalue> pColorSet = GetColorValues.get_colorvalues(user_id,
-                app_name, getCvUse(), dur, "E", pColorSetGroup);
+                APPLICATION_NAME, getCvUse(), dur, "E", pColorSetGroup);
         /*
          * Retrieve the first color.
          */
@@ -417,15 +367,15 @@ public class DrawDQCStations {
                 }
             }
         }
-        ColorLookupParameters parameters = new ColorLookupParameters(app_name,
-                getCvUse(), dur, "E");
+        ColorLookupParameters parameters = new ColorLookupParameters(
+                APPLICATION_NAME, getCvUse(), dur, "E");
 
         qcmode = setDisplay();
 
         for (hed = 0; hed < display_flag + 1; hed++) {
 
             /* precipitation point, gridded, MAP, and contoured data. */
-            if (qpf_on == true) {
+            if (qpf_on) {
 
                 if (map_flag == 1) {
 
@@ -559,7 +509,7 @@ public class DrawDQCStations {
                     mpq = (PointPrecipPlotResource) pair.getResource();
                 }
 
-            } else if (flf_on == true) {
+            } else if (flf_on) {
                 /* Plot freezing level data. */
                 if (map_flag == 1) {
                     time_pos = 100 + pcp_flag;
@@ -658,7 +608,7 @@ public class DrawDQCStations {
                     zpq = (PointFreezePlotResource) pair.getResource();
                     display.getContainer().refresh();
                 }
-            } else if (maxmin_on == true) {
+            } else if (maxmin_on) {
                 if ((map_flag == 1) && (pcpn_time_step == 0)) {
                     time_pos = 150 + pcp_flag;
 
@@ -777,9 +727,9 @@ public class DrawDQCStations {
         Calendar ltime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         StringBuilder mbuf = new StringBuilder();
         int dqcEndingObsTime = DailyQcUtils.getEnding6HourObsTime();
-        tbuf = new StringBuilder();
+        StringBuilder tbuf = new StringBuilder();
 
-        if (qpf_on == true) {
+        if (qpf_on) {
             int ptime_pos = 0;
             if (pcpn_time_step == 0) {
                 ptime_pos = pcpn_time;
@@ -790,7 +740,7 @@ public class DrawDQCStations {
             /* Precipitation period is always 12z-12z. */
             if ((pcpn_time < 2) && (pcpn_time_step == 0)) {
                 ltime.setTime(pdata[pcpn_day].data_time);
-                ltime.add(Calendar.SECOND, -86400);
+                ltime.add(Calendar.SECOND, -TimeUtil.SECONDS_PER_DAY);
             } else {
                 ltime.setTime(pdata[pcpn_day].data_time);
             }
@@ -857,7 +807,7 @@ public class DrawDQCStations {
             } else {
                 tbuf.append(" - No Data");
             }
-        } else if (flf_on == true) {
+        } else if (flf_on) {
             int ptime_pos = 0;
             ptime_pos = pcpn_time;
 
@@ -865,7 +815,7 @@ public class DrawDQCStations {
                 /* Times: 18, 00, 06, 12 */
                 if (pcpn_time < 1) {
                     ltime.setTime(zdata[pcpn_day].data_time);
-                    ltime.add(Calendar.SECOND, -86400);
+                    ltime.add(Calendar.SECOND, -TimeUtil.SECONDS_PER_DAY);
                 } else {
                     ltime.setTime(zdata[pcpn_day].data_time);
                 }
@@ -873,7 +823,7 @@ public class DrawDQCStations {
                 /* Times 12, 18, 00, 06 */
                 if (pcpn_time < 2) {
                     ltime.setTime(zdata[pcpn_day].data_time);
-                    ltime.add(Calendar.SECOND, -86400);
+                    ltime.add(Calendar.SECOND, -TimeUtil.SECONDS_PER_DAY);
                 } else {
                     ltime.setTime(zdata[pcpn_day].data_time);
                 }
@@ -954,7 +904,7 @@ public class DrawDQCStations {
             }
         }
 
-        else if (maxmin_on == true) {
+        else if (maxmin_on) {
 
             int ptime_pos = 0;
             if (pcpn_time_step == 0) {
@@ -968,14 +918,14 @@ public class DrawDQCStations {
             if (dqcEndingObsTime == 12) {
                 if ((pcpn_time < 1) && (pcpn_time_step == 0)) {
                     ltime.setTime(tdata[pcpn_day].data_time);
-                    ltime.add(Calendar.SECOND, -86400);
+                    ltime.add(Calendar.SECOND, -TimeUtil.SECONDS_PER_DAY);
                 } else {
                     ltime.setTime(tdata[pcpn_day].data_time);
                 }
             } else {
                 if ((pcpn_time < 2) && (pcpn_time_step == 0)) {
                     ltime.setTime(tdata[pcpn_day].data_time);
-                    ltime.add(Calendar.SECOND, -86400);
+                    ltime.add(Calendar.SECOND, -TimeUtil.SECONDS_PER_DAY);
                 } else {
                     ltime.setTime(tdata[pcpn_day].data_time);
                 }
@@ -1068,7 +1018,7 @@ public class DrawDQCStations {
 
     private String getCvUse() {
         String use = "";
-        if (qpf_on == true) {
+        if (qpf_on) {
             if (pcpn_time_step == 1) {
                 if (grids_flag == 1) {
                     use = "24hGRID_PRECIP";
@@ -1088,33 +1038,30 @@ public class DrawDQCStations {
                     use = "6hGRID_PRECIP";
                 }
             }
-        } else if (flf_on == true) {
+        } else if (flf_on) {
             if (map_flag == 1) {
                 use = "6hMAREA_FREEZL";
                 /* 6 hours duration for MAZ */
-                dur = 21600;
             } else {
                 use = "6hGRID_FREEZL";
-                dur = 21600;
             }
+            dur = TimeUtil.SECONDS_PER_HOUR * 6;
         } else {
             if (pcpn_time_step == 0) {
                 if (grids_flag == 1) {
                     use = "sixhGRID_TEMP";
-                    dur = 21600;
                 } else if (map_flag == 1) {
                     use = "sixhMAREA_TEMP";
-                    dur = 21600;
                 } else {
                     use = "sixhGRID_TEMP";
-                    dur = 21600;
                 }
+                dur = TimeUtil.SECONDS_PER_HOUR * 6;
             } else if (pcpn_time_step == 1) {
                 use = "maxGRID_TEMP";
-                dur = 86400;
+                dur = TimeUtil.SECONDS_PER_DAY;
             } else if (pcpn_time_step == 2) {
                 use = "minGRID_TEMP";
-                dur = 86400;
+                dur = TimeUtil.SECONDS_PER_DAY;
             }
 
         }

@@ -218,8 +218,8 @@ public abstract class FFMPTable extends Composite {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.heightHint = 350;
 
-        table = new Table(this, SWT.BORDER | SWT.VIRTUAL | SWT.V_SCROLL
-                | SWT.FULL_SELECTION);
+        table = new Table(this,
+                SWT.BORDER | SWT.VIRTUAL | SWT.V_SCROLL | SWT.FULL_SELECTION);
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
 
@@ -246,8 +246,8 @@ public abstract class FFMPTable extends Composite {
                 // white lines
                 // dividing the columns;
                 event.gc.setLineWidth(1);
-                event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1, rect.x
-                        + rect.width - 2, rect.y - 1 + rect.height);
+                event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1,
+                        rect.x + rect.width - 2, rect.y - 1 + rect.height);
 
                 // Draw a top line
                 event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y);
@@ -255,13 +255,13 @@ public abstract class FFMPTable extends Composite {
                 // Draw a bottom line if this is the last row of the table
                 int index = table.indexOf(ti);
                 if (index == table.getItemCount() - 1) {
-                    event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
-                            + rect.width, rect.y + rect.height - 2);
+                    event.gc.drawLine(rect.x, rect.y + rect.height - 2,
+                            rect.x + rect.width, rect.y + rect.height - 2);
                 }
 
                 if ((tableIndex >= 0) && (tableIndex < table.getItemCount())) {
-                    event.gc.setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_BLUE));
+                    event.gc.setForeground(
+                            parent.getDisplay().getSystemColor(SWT.COLOR_BLUE));
                     event.gc.setLineWidth(3);
                     TableItem item = table.getItem(tableIndex);
                     rect = item.getBounds(currentCol);
@@ -333,9 +333,9 @@ public abstract class FFMPTable extends Composite {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
                     TableColumn[] cols = table.getColumns();
-                    for (int j = 0; j < cols.length; j++) {
-                        cols[j].setImage(null);
-                        cols[j].setWidth(defaultColWidth);
+                    for (TableColumn col : cols) {
+                        col.setImage(null);
+                        col.setWidth(defaultColWidth);
                     }
 
                     // reset the tableIndex
@@ -573,9 +573,9 @@ public abstract class FFMPTable extends Composite {
         sortedTableColumn = tc;
 
         TableColumn[] cols = table.getColumns();
-        for (int j = 0; j < cols.length; j++) {
-            cols[j].setImage(null);
-            cols[j].setWidth(defaultColWidth);
+        for (TableColumn col : cols) {
+            col.setImage(null);
+            col.setWidth(defaultColWidth);
         }
 
         /*
@@ -643,8 +643,8 @@ public abstract class FFMPTable extends Composite {
             sortedColName = parts[1];
             guidRankSource = parts[0];
         }
-        ffmpConfig.getFFMPConfigData().setColumnSorted(
-                sortedColName + "," + guidRankSource);
+        ffmpConfig.getFFMPConfigData()
+                .setColumnSorted(sortedColName + "," + guidRankSource);
 
         setColumnImages();
 
@@ -671,9 +671,9 @@ public abstract class FFMPTable extends Composite {
                 .getTableConfigData(siteKey);
         String[] colNameKeys = ffmpTableCfgData.getTableColumnKeys();
 
-        for (int i = 0; i < colNameKeys.length; i++) {
-            String colName = ffmpTableCfgData
-                    .getTableColumnAttr(colNameKeys[i]).getSplitColumnName();
+        for (String colNameKey : colNameKeys) {
+            String colName = ffmpTableCfgData.getTableColumnAttr(colNameKey)
+                    .getSplitColumnName();
 
             String[] nameArray = colName.split("\n");
 
@@ -707,8 +707,8 @@ public abstract class FFMPTable extends Composite {
 
         // Loop over the column name keys
         for (int i = 0; i < colNameKeys.length; i++) {
-            String colName = ffmpTableCfgData
-                    .getTableColumnAttr(colNameKeys[i]).getSplitColumnName();
+            String colName = ffmpTableCfgData.getTableColumnAttr(colNameKeys[i])
+                    .getSplitColumnName();
             tc = table.getColumn(i);
 
             Image img = new Image(this.getDisplay(), imageWidth, imageHeight);

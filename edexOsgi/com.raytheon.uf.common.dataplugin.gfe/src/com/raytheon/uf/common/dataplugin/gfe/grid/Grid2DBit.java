@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 
 /**
  * BEGIN LEGACY DOCUMENTATION
- * 
+ *
  * The two-dimensional bit grid is commonly used to store flags for gridded
  * data. The rows are organized as left-right (west-east) and the columns are
  * organized as down -up (south-north). The size of each dimension is specified
@@ -33,30 +33,30 @@ import java.nio.ByteBuffer;
  * if another grid is assigned to it). The C language does not support
  * two-dimensional arrays nor does it support array bounds checking. This class
  * overcomes these shortcomings.
- * 
+ *
  * The two-dimensional bit grid can be initialized in one step from an array of
  * byte data. Individual elements, specified by x (column number) and y (row)
  * location, may be retrieved and stored.
- * 
+ *
  * An invalid Grid2DBit object represents an empty (i.e., a grid without data or
  * dimensions) grid.
- * 
+ *
  * Bounds checking is performed on all indexing operations. Attempting to access
  * an element outside the bounds results in a call to ExecutionLog which will
  * abort the program.
- * 
+ *
  * Initialization of the grid (through the constructor) is accomplished by
  * passing a pointer to a block of contiguous memory. The memory should be large
  * enough to hold nrows*ncolumns elements and should contain data in row-by-row
  * ordering (column first). This class cannot check for valid initialization
  * data or pointer to memory that is of sufficient size. However, a function
  * dataSize() returns the size of the memory needed in bytes.
- * 
+ *
  * In the event that no pointer is passed to the initialization constructor,
  * then the two-dimension grid is filled with bit values of zero.
- * 
+ *
  * The coordinate system proceeds from the lower-left.
- * 
+ *
  * Additional function includes the ability to obtain the extrema of all of the
  * set bits and getting a grid that contains a contiguous map. Other functions
  * permit translation of the grid and a list of all contiguous areas. --
@@ -64,27 +64,42 @@ import java.nio.ByteBuffer;
  * Two-dimensional bit grids are implemented as a one-dimensional contiguous
  * block of memory. Indexing into the grid is accomplished by determining the
  * bit number in the grid, accessing the byte, and extracting/inserting the bit.
- * 
+ *
  * END LEGACY DOCUMENTATION
- * 
+ *
  * Implementation of the Bit version of Grid2D. We use bytes to hold the bit
  * data.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 29, 2008 879        rbell       Initial Creation.
- * Oct 22, 2008 1624       wdougherty  Speed up translate method
- * Sep 01, 2014 3572       randerso    Added clear(x,y) method
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Jan 29, 2008  879      rbell       Initial Creation.
+ * Oct 22, 2008  1624     wdougherty  Speed up translate method
+ * Sep 01, 2014  3572     randerso    Added clear(x,y) method
+ * Dec 13, 2017  7178     randerso    Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso    Change clone() to copy(). Regenerated
+ *                                    equals and hashCode
+ *
  * </pre>
- * 
+ *
  * @author rbell
- * @version 1.0
  */
-public class Grid2DBit extends Grid2DByte implements Cloneable {
+public class Grid2DBit extends Grid2DByte {
 
+    private static final int makeContiguousArrayXComponent[] = new int[] { 0, 1,
+            0, -1, -1, 1, 1, -1 };
+
+    private static final int makeContiguousArrayYComponent[] = new int[] { 1, 0,
+            -1, 0, 1, 1, -1, -1 };
+
+    /**
+     * @param xDim
+     * @param yDim
+     * @param data
+     * @return the created grid
+     */
     public static Grid2DBit createBitGrid(int xDim, int yDim, byte[] data) {
         return new Grid2DBit(xDim, yDim, data);
     }
@@ -99,7 +114,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     /**
      * Constructor for creating a two-dimension grid containing bits. xDim and
      * yDim specify the size of the grid.
-     * 
+     *
      * @param xDim
      * @param yDim
      */
@@ -107,6 +122,11 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
         super(xDim, yDim);
     }
 
+    /**
+     * @param xDim
+     * @param yDim
+     * @param value
+     */
     public Grid2DBit(int xDim, int yDim, boolean value) {
         super(xDim, yDim, (byte) (value ? 1 : 0));
     }
@@ -115,7 +135,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * Constructor for creating a two-dimension grid containing bits. xDim and
      * yDim specify the size of the grid. data is an array of initialization
      * data.
-     * 
+     *
      * @param xDim
      * @param yDim
      * @param data
@@ -133,7 +153,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * Constructor for creating a two-dimension grid containing bits. xDim and
      * yDim specify the size of the grid. data is a ByteBuffer containing
      * initialization data.
-     * 
+     *
      * @param xDim
      * @param yDim
      * @param data
@@ -151,7 +171,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * Constructor for creating a two-dimension grid containing bits. xDim and
      * yDim specify the size of the grid. data is an array of initialization
      * data.
-     * 
+     *
      * @param xDim
      * @param yDim
      * @param data
@@ -159,7 +179,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      */
     public Grid2DBit(int xDim, int yDim, boolean[] data) {
         super(xDim, yDim);
-        if (data.length != xDim * yDim) {
+        if (data.length != (xDim * yDim)) {
             throw new IllegalArgumentException(
                     "Dimensions do not match data length (" + xDim + "," + yDim
                             + ") " + data.length);
@@ -171,9 +191,9 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Copy constructor
-     * 
+     *
      * @param aGrid2DBit
      *            Grid2DBit to copy
      */
@@ -203,9 +223,9 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Sets a bit to 1.
-     * 
+     *
      * @param xDim
      *            xDim x coordinate of bit to set
      * @param yDim
@@ -215,13 +235,13 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
         if (!isValid(xDim, yDim)) {
             throw new IllegalArgumentException("Dimensions are invalid");
         }
-        buffer.put(yDim * this.xdim + xDim, (byte) 1);
+        buffer.put((yDim * this.xdim) + xDim, (byte) 1);
     }
 
     /**
-     * 
+     *
      * Sets a bit to 0.
-     * 
+     *
      * @param xDim
      *            xDim x coordinate of bit to set
      * @param yDim
@@ -232,13 +252,13 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
         if (!isValid(xDim, yDim)) {
             throw new IllegalArgumentException("Dimensions are invalid");
         }
-        buffer.put(yDim * this.xdim + xDim, (byte) 0);
+        buffer.put((yDim * this.xdim) + xDim, (byte) 0);
     }
 
     /**
-     * 
+     *
      * Sets all bits to the given value.
-     * 
+     *
      * @param aValue
      *            value to set all bits to.
      */
@@ -252,24 +272,25 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Logical 'OR' operator for Grid2DBit.
-     * 
+     *
      * Sizes must be identical for this operation to work. Each byte of the
      * internal data structure is logical "OR"'d to the passed in data
      * structure.
-     * 
+     *
      * @param rhs
      *            Grid2DBit to OR this grid with
      * @return this grid, after the logical OR operation
      */
     public Grid2DBit orEquals(Grid2DBit rhs) {
         if (this == rhs) {
-            return this; // same grid - do nothing
+            // same grid - do nothing
+            return this;
         }
 
         // sizes must be identical
-        if (rhs.xdim != this.xdim || rhs.ydim != this.ydim) {
+        if ((rhs.xdim != this.xdim) || (rhs.ydim != this.ydim)) {
             throw new IllegalArgumentException(
                     "Grids are different dimensions.");
         }
@@ -285,7 +306,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
 
     /**
      * Logical '!' operator for Grid2DBit.
-     * 
+     *
      * Each bit in this Grid2DBit is negated.
      */
     public void negate() {
@@ -296,24 +317,25 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Logical 'AND' operator for Grid2DBit.
-     * 
+     *
      * Sizes must be identical for this operation to work. Each byte of the
      * internal data structure is logical "AND"'d to the passed in data
      * structure.
-     * 
+     *
      * @param rhs
      *            Grid2DBit to AND this grid with
      * @return this grid, after the logical AND operation
      */
     public Grid2DBit andEquals(Grid2DBit rhs) {
         if (this == rhs) {
-            return this; // same grid - do nothing
+            // same grid - do nothing
+            return this;
         }
 
         // sizes must be identical
-        if (rhs.xdim != this.xdim || rhs.ydim != this.ydim) {
+        if ((rhs.xdim != this.xdim) || (rhs.ydim != this.ydim)) {
             throw new IllegalArgumentException(
                     "Grids are different dimensions.");
         }
@@ -328,19 +350,19 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Logical 'XOR' operator for Grid2DBit. -- implementation
      * ---------------------------------------------------------- Sizes must be
      * identical for this operation to work. Each byte of the internal data
      * structure is logical "XOR"'d to the passed in data structure.
-     * 
+     *
      * @param rhs
      *            Grid2DBit to XOR this grid with
      * @return this grid, after the logical XOR operation
      */
     public Grid2DBit xorEquals(Grid2DBit rhs) {
         // sizes must be identical
-        if (rhs.xdim != this.xdim || rhs.ydim != this.ydim) {
+        if ((rhs.xdim != this.xdim) || (rhs.ydim != this.ydim)) {
             throw new IllegalArgumentException(
                     "Grids are different dimensions.");
         }
@@ -357,11 +379,11 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * Logical 'XOR' operator for Grid2DBit. Returns new Grid2DBit that is the
      * XOR from this and the one specified. The original Grid2DBits are not
      * modified.
-     * 
+     *
      * Sizes must be identical for this operation to work. Each byte of the
      * output data structure is set to the logical "XOR"'d of the passed in data
      * structure and this object.
-     * 
+     *
      * @param rhs
      *            given Grid2DBit to XOR with
      * @return the result of the XOR
@@ -376,11 +398,11 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * Logical 'OR' operator for Grid2DBit. Returns new Grid2DBit that is the OR
      * from this and the one specified. The original Grid2DBits are not
      * modified.
-     * 
+     *
      * Sizes must be identical for this operation to work. Each byte of the
      * output data structure is set to the logical "OR"'d of the passed in data
      * structure and this object.
-     * 
+     *
      * @param rhs
      *            given Grid2DBit to OR with
      * @return the result of the OR
@@ -395,11 +417,11 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * Logical 'AND' operator for Grid2DBit. Returns new Grid2DBit that is the
      * AND from this and the one specified. The original Grid2DBits are not
      * modified.
-     * 
+     *
      * Sizes must be identical for this operation to work. Each byte of the
      * output data structure is set to the logical "AND"'d of the passed in data
      * structure and this object.
-     * 
+     *
      * @param rhs
      *            given Grid2DBit to AND with
      * @return the result of the AND
@@ -412,7 +434,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
 
     /**
      * Returns true if any bits are set.
-     * 
+     *
      * @return whether or not any bit is set in the data.
      */
     public boolean isAnyBitsSet() {
@@ -426,7 +448,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
 
     /**
      * Returns the number of bits that are set.
-     * 
+     *
      * @return number of bits set.
      */
     public int numberOfBitsSet() {
@@ -445,10 +467,10 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * adjacent bits that are set plus any adjacent to those. Bits that are next
      * to each other as well as diagonal from each other are considered
      * adjacent.
-     * 
+     *
      * Create a new empty bit array, pass it to the makeContiguousArray
      * function, and return the bitArray.
-     * 
+     *
      * @param aPoint
      *            the point from which the contiguous bit array starts
      * @return a Grid2DBit holding the contiguous bit array
@@ -460,30 +482,28 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Returns a new Grid2DBit whose set bits identify the contiguous
      * 4-direction area as defined by CartCoord2D<int>. A contiguous area is
      * defined as the CartCoord2D<int> plus any adjacent bits that are set plus
      * any adjacent to those. Bits that are next to each other in four
      * directions only are considered adjacent.
-     * 
+     *
      * Create a new empty bit array, pass it to the makeBoundedRegion function,
      * and return the bitArray.
-     * 
+     *
      * @param aPoint
      *            the point to start the bounded region from
      * @return the resulting bounded region
      */
-    public Grid2DBit boundedRegion(Point aPoint)
-
-    {
+    public Grid2DBit boundedRegion(Point aPoint) {
         Grid2DBit rVal = new Grid2DBit(this.xdim, this.ydim);
         makeBoundedRegion(rVal, aPoint.x, aPoint.y);
         return rVal;
     }
 
     /**
-     * 
+     *
      * Figures out the extrema of all of the set bits and returns the
      * coordinates of them through the calling arguments. Returns true if there
      * are any set bits.
@@ -501,7 +521,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * strategies to reduce the number of points examined. Using the flat array
      * works well with FilterGrid2DBit, allows us to calculate y * xDim once per
      * row, and saves the overhead of a function call to get().
-     * 
+     *
      * @param lowerLeft
      *            Point to hold the returned lower left extreme
      * @param upperRight
@@ -521,11 +541,13 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
         // Hunt for the first '1' in the array.
         // It will be on the lowest row, lowestLeft.y.
         // Its column is an upper limit on the value of lowerLeft.x.
-        for (offset = 0; offset < xdim * ydim; offset++) {
+        for (offset = 0; offset < (xdim * ydim); offset++) {
             if (arry[offset] == (byte) 1) {
                 any = true;
                 lowerLeft.y = offset / xdim;
-                lowerLeft.x = offset % xdim; // first approximation
+
+                // first approximation
+                lowerLeft.x = offset % xdim;
                 break;
             }
         }
@@ -534,10 +556,12 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
             // Hunt for the last '1' in the array.
             // It gives us upperRight.y.
             // It gives us the first approximation of upperRight.x
-            for (offset2 = xdim * ydim - 1; offset2 >= offset; offset2--) {
+            for (offset2 = (xdim * ydim) - 1; offset2 >= offset; offset2--) {
                 if (arry[offset2] == (byte) 1) {
                     upperRight.y = offset2 / xdim;
-                    upperRight.x = offset2 % xdim; // first approximation
+
+                    // first approximation
+                    upperRight.x = offset2 % xdim;
                     break;
                 }
             }
@@ -575,7 +599,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * This is a function that sets each bit of the contigArray one bit at a
      * time. Ultimately it sets all of the bits that are set in this object and
      * that are also touching the point x,y.
-     * 
+     *
      * The initial (x,y) point is checked to be sure it is within the bounds of
      * the grid and set to 1. If it is, its coordinates are pushed on a stack.
      * Then we process the stack. We pop a coordinate pair off the stack and
@@ -585,7 +609,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
      * have not visited it before. We set the point in contigArray to 1 and add
      * the point to the stack. When the stack is empty, we know contigArray has
      * all of the points that are 1 with a path to (x,y) that is all 1s.
-     * 
+     *
      * @param contigArray
      *            the Grid2DBit object that will hold the contiguous array
      * @param x
@@ -606,7 +630,9 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
 
         int ssize = xdim * ydim * 2;
         int stack[] = new int[ssize];
-        int index = 0; // points to the current stack "top".
+
+        // points to the current stack "top".
+        int index = 0;
         if (setCheck(x, y)) {
             stack[index] = x;
             stack[index + 1] = y;
@@ -618,8 +644,8 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
             y = stack[index + 1];
             index -= 2;
             for (int i = 0; i < directions; i++) {
-                int xn = x + IGrid2D.makeContiguousArrayXComponent[i];
-                int yn = y + IGrid2D.makeContiguousArrayYComponent[i];
+                int xn = x + makeContiguousArrayXComponent[i];
+                int yn = y + makeContiguousArrayYComponent[i];
                 if (setCheck(xn, yn)) {
                     if (contigArray.get(xn, yn) == (byte) 0) {
                         contigArray.set(xn, yn);
@@ -633,18 +659,18 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * This is a recursive function that sets each bit of the regionArray one
      * bit at a time. Ultimately it sets all of the bits that are set in this
      * object and that are also touching the point x,y in four directions (up,
      * down, left, and right).
-     * 
+     *
      * First check to see if we are out of bounds, if so return. Then check to
      * see if we have set this same point before, if so return. Then check to
      * see if the point in private data is set, if so set the corresponding bit
      * in contigArray. If not, return. Finally loop through all four directions
      * and call this same function recursively for each.
-     * 
+     *
      * @param regionArray
      *            the Grid2DBit to store the bounded region in
      * @param x
@@ -657,10 +683,10 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Utility function which clears all the bits that are contiguous with the
      * specified location.
-     * 
+     *
      * @param array
      *            array to clear the contiguous area of
      * @param x
@@ -685,9 +711,9 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Returns true if a bit has been found, returns location through firstSet.
-     * 
+     *
      * @param startPoint
      *            point to start search from
      * @param firstSet
@@ -759,9 +785,9 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     /**
-     * 
+     *
      * Utility function which checks for valid and returns true if set.
-     * 
+     *
      * @param x
      *            x coordinate of bit to check
      * @param y
@@ -774,115 +800,32 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
             return false;
         }
 
-        if (buffer.get(y * xdim + x) == 1) {
+        if (buffer.get((y * xdim) + x) == 1) {
             return true;
         }
         return false;
     }
 
     /**
-     * 
-     * Returns a sequence of points which each one defines an contiguous bit
-     * array. The locations can be used for contiguousBitArray() to get each
-     * bitarray.
-     * 
-     * Sets up a copy of this object and begins to search for set bits using the
-     * get() command. Each time one is found, contiguousBitArray() is called to
-     * obtain the array of bits that are contiguous to the set point. This array
-     * is exclusively-or'd with the copy of this object which results in those
-     * contiguous bits being cleared. Processing contines on the copy object
-     * until no more bits are found. Each time a bit is found, it is added to
-     * the return list.
-     * 
-     * @return an array containing a point from each contiguous region
+     * @param x
+     * @param y
+     * @return boolean value at [x,y]
      */
-    public Point[] getContiguousBitArrayLocations() {
-        Point locations[] = new Point[100]; // returned array
-        int currentLocations = 0;
-        Grid2DBit remainingArray = new Grid2DBit(this); // make a copy of this
-        // object
-
-        for (int x = 0; x < xdim; x++) {
-            for (int y = 0; y < ydim; y++) {
-                if (remainingArray.get(x, y) != 0) {
-                    if (currentLocations + 1 == locations.length) {
-                        Point temp[] = new Point[locations.length * 2];
-                        System.arraycopy(locations, 0, temp, 0,
-                                locations.length);
-                        locations = temp;
-                    }
-                    clearContiguous(remainingArray, x, y, 8);
-                    locations[currentLocations] = new Point(x, y);
-                    currentLocations++;
-                }
-            }
-        }
-
-        Point rVal[] = new Point[currentLocations];
-        System.arraycopy(locations, 0, rVal, 0, currentLocations);
-
-        return rVal;
-    }
-
-    /**
-     * 
-     * Returns a sequence of points which each one defines a boundedRegion. The
-     * locations can be used for with boundedRegion to get each bitarray.
-     * 
-     * Sets up a copy of this object and begins to search for set bits using the
-     * get() command. Each time one is found, boundedRegion() is called to
-     * obtain the array of bits that are contiguous to the set point. This array
-     * is exclusively-or'd with the copy of this object which results in those
-     * contiguous bits being cleared. Processing contines on the copy object
-     * until no more bits are found. Each time a bit is found, it is added to
-     * the return list.
-     * 
-     * @returnan array containing a point from each bounded region
-     */
-    public Point[] boundedRegionLocations() {
-        Point locations[] = new Point[100]; // returned array
-        int currentLocations = 0;
-        Grid2DBit remainingArray = new Grid2DBit(this); // make a copy of this
-        // object
-
-        // process each point in the copy
-        for (int i = 0; i < xdim; i++) {
-            for (int j = 0; j < ydim; j++) {
-                if (remainingArray.setCheck(i, j)) {
-                    if (currentLocations + 1 == locations.length) {
-                        Point temp[] = new Point[locations.length * 2];
-                        System.arraycopy(locations, 0, temp, 0,
-                                locations.length);
-                        locations = temp;
-                    }
-                    clearContiguous(remainingArray, i, j, 4);
-                    locations[currentLocations] = new Point(i, j);
-                    currentLocations++;
-                }
-            }
-        }
-
-        Point rVal[] = new Point[currentLocations];
-        System.arraycopy(locations, 0, rVal, 0, currentLocations);
-
-        return rVal;
-    }
-
     public boolean getAsBoolean(int x, int y) {
         return (this.get(x, y) != (byte) 0);
     }
 
     @Override
-    public Grid2DBit clone() {
-        Grid2DBit rVal = new Grid2DBit(this);
-        return rVal;
+    public Grid2DBit copy() {
+        return new Grid2DBit(this);
     }
 
     @Override
     public void copyWithMask(IGrid2D sourceGrid, Grid2DBit maskGrid) {
         if (!(sourceGrid instanceof Grid2DBit)) {
             throw new IllegalArgumentException(
-                    "The input source grid must be of type Grid2DBit");
+                    "sourceGrid must be an instance of Grid2DBit, received: "
+                            + sourceGrid.getClass().getName());
         }
 
         super.copyWithMask(sourceGrid, maskGrid);
@@ -904,14 +847,14 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
     }
 
     private boolean isBit(Byte b) {
-        return b == 0 || b == 1;
+        return (b == 0) || (b == 1);
     }
 
     /**
-     * 
+     *
      * Translates the set bytes in this object by the amount specified in
      * deltaCoord and returns a new Grid2DByte.
-     * 
+     *
      * @param deltaCoord
      *            coordinate representing the translation from each byte's
      *            origin
@@ -921,7 +864,8 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
         // make another Grid2DBit
         Grid2DBit rVal = new Grid2DBit(xdim, ydim, false);
 
-        if (Math.abs(deltaCoord.x) < xdim && Math.abs(deltaCoord.y) < ydim) {
+        if ((Math.abs(deltaCoord.x) < xdim)
+                && (Math.abs(deltaCoord.y) < ydim)) {
             // Find iteration limits for X
             int fromXStart;
             int toXStart;
@@ -929,7 +873,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
             if (deltaCoord.x < 0) {
                 fromXStart = -deltaCoord.x;
                 toXStart = 0;
-                cols = xdim + deltaCoord.x; // minus abs(deltaCoord.x)
+                cols = xdim + deltaCoord.x;
             } else {
                 fromXStart = 0;
                 toXStart = deltaCoord.x;
@@ -943,7 +887,7 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
             if (deltaCoord.y < 0) {
                 fromYStart = -deltaCoord.y;
                 toYStart = 0;
-                rows = ydim + deltaCoord.y; // minus abs(deltaCoord.y)
+                rows = ydim + deltaCoord.y;
             } else {
                 fromYStart = 0;
                 toYStart = deltaCoord.y;
@@ -955,8 +899,8 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
             byte[] toA = rVal.getBuffer().array();
 
             // Calculate from/to array offsets of the first point.
-            int fromOffset = fromYStart * xdim + fromXStart;
-            int toOffset = toYStart * xdim + toXStart;
+            int fromOffset = (fromYStart * xdim) + fromXStart;
+            int toOffset = (toYStart * xdim) + toXStart;
 
             // For each row, copy cols bytes of data.
             // Then update offsets for next row.

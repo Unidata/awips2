@@ -64,7 +64,6 @@ Next clone all of the required repositories for AWIPS:
     git clone https://github.com/Unidata/awips2-nws.git
     git clone https://github.com/Unidata/awips2-gsd.git
     git clone https://github.com/Unidata/awips2-drawing.git
-    git clone https://github.com/Unidata/awips2-cimss.git
 
 ---
 

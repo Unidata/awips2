@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,65 +21,42 @@ package com.raytheon.viz.gfe.core.wxvalue;
 
 import java.text.DecimalFormat;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.PreferenceConstants;
 import com.raytheon.viz.gfe.core.parm.Parm;
 
 /**
  * VectorWxValue is a vector implementation of WxValue containing a magnitude
  * and direction.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 01/29/2008              chammack    Initial creation of skeleton.
- * 03/11/2008   879        rbell       Cleanup.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 29, 2008           chammack  Initial creation of skeleton.
+ * Mar 11, 2008  879      rbell     Cleanup.
+ * Jan 25, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 public class VectorWxValue extends ScalarWxValue {
     public static VectorWxValue defaultValue(Parm parm) {
-        float magvalue = parm.getGridInfo().getMinValue();
-        float dirvalue = 0.0f;
-        if (Activator.getDefault() != null
-                && Activator
-                        .getDefault()
-                        .getPreferenceStore()
-                        .contains(
-                                parm.getParmID().compositeNameUI()
-                                        + "_magDefaultValue")) {
-            magvalue = Activator
-                    .getDefault()
-                    .getPreferenceStore()
-                    .getFloat(
-                            parm.getParmID().compositeNameUI()
-                                    + "_magDefaultValue");
-        }
-        if (Activator.getDefault() != null
-                && Activator
-                        .getDefault()
-                        .getPreferenceStore()
-                        .contains(
-                                parm.getParmID().compositeNameUI()
-                                        + "_dirDefaultValue")) {
-            dirvalue = Activator
-                    .getDefault()
-                    .getPreferenceStore()
-                    .getFloat(
-                            parm.getParmID().compositeNameUI()
-                                    + "_dirDefaultValue");
-        }
+        float magvalue = GFEPreference.getFloat(
+                parm.getParmID().compositeNameUI() + "_magDefaultValue",
+                parm.getGridInfo().getMinValue());
+
+        float dirvalue = GFEPreference.getFloat(
+                parm.getParmID().compositeNameUI() + "_dirDefaultValue", 0.0f);
+
         return new VectorWxValue(magvalue, dirvalue, parm);
     }
 
-    private static final String dirToStringDir8[] = { "N", "NE", "E", "SE",
-            "S", "SW", "W", "NW", "N" };
+    private static final String dirToStringDir8[] = { "N", "NE", "E", "SE", "S",
+            "SW", "W", "NW", "N" };
 
     private static final String dirToStringDir16[] = { "N", "NNE", "NE", "ENE",
             "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW",
@@ -91,7 +68,7 @@ public class VectorWxValue extends ScalarWxValue {
 
     /**
      * Construct a vector wx value
-     * 
+     *
      * @param aMag
      * @param aDir
      * @param aParm
@@ -99,24 +76,12 @@ public class VectorWxValue extends ScalarWxValue {
     public VectorWxValue(float aMag, float aDir, final Parm aParm) {
         super(aMag, aParm);
         dir = aDir;
-        format = "";
+        format = GFEPreference
+                .getString(PreferenceConstants.GFE_WIND_FORMAT_STR, "ddff");
 
-        if (Activator.getDefault() != null) {
-            IPreferenceStore prefs = Activator.getDefault()
-                    .getPreferenceStore();
-            String pname = aParm.getParmID().getParmName();
-            String parmSetting = pname
-                    + PreferenceConstants.GFE_WIND_FORMAT_SUFFIX;
-            format = prefs.getString(parmSetting);
-            if ("".equals(format)) {
-                format = prefs
-                        .getString(PreferenceConstants.GFE_WIND_FORMAT_STR);
-            }
-        }
-
-        if ("".equals(format)) {
-            format = "ddff";
-        }
+        String pname = aParm.getParmID().getParmName();
+        String parmSetting = pname + PreferenceConstants.GFE_WIND_FORMAT_SUFFIX;
+        format = GFEPreference.getString(parmSetting, format);
     }
 
     /**
@@ -139,14 +104,14 @@ public class VectorWxValue extends ScalarWxValue {
     public String magToString() {
         String rVal = "";
         // ddff formatting
-        if (this.format.equals("ddff")) {
+        if ("ddff".equals(this.format)) {
             float umag = getMag() + 0.5f;
             if (getMag() < 0.5f) {
                 rVal += "00";
             } else if (umag < 10.0) {
                 rVal += "0" + (int) umag;
             } else {
-                rVal += (int) umag;
+                rVal += Integer.toString((int) umag);
             }
         }
 
@@ -161,15 +126,13 @@ public class VectorWxValue extends ScalarWxValue {
     }
 
     /**
-     * Return direction as a string
-     * 
-     * @return
+     * @return direction as a string
      */
     public String dirToString() {
         String rVal = "";
 
         // ddff formatting
-        if (this.format.equals("ddff")) {
+        if ("ddff".equals(this.format)) {
             // round the direction to the nearest 10 degrees
             int intDir = (int) (getDir() + (10 / 2)) / 10;
             if (getMag() < (float) 0.5) {
@@ -185,7 +148,7 @@ public class VectorWxValue extends ScalarWxValue {
         }
 
         // 8 point formatting
-        else if (this.format.equals("8pt")) {
+        else if ("8pt".equals(this.format)) {
             if (getMag() < (float) 0.5) {
                 rVal += "calm";
             } else {
@@ -205,7 +168,7 @@ public class VectorWxValue extends ScalarWxValue {
         }
 
         // 16 point formatting
-        else if (this.format.equals("16pt")) {
+        else if ("16pt".equals(this.format)) {
             if (getMag() < (float) 0.5) {
                 rVal += "calm";
             } else {
@@ -225,8 +188,8 @@ public class VectorWxValue extends ScalarWxValue {
         }
 
         // d/f formatting (freeform)
-        else if (this.format.equals("d/f")) {
-            rVal += getDir();
+        else if ("d/f".equals(this.format)) {
+            rVal += Float.toString(getDir());
         }
 
         return rVal;
@@ -236,7 +199,7 @@ public class VectorWxValue extends ScalarWxValue {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + Float.floatToIntBits(dir);
+        result = (prime * result) + Float.floatToIntBits(dir);
         return result;
     }
 
@@ -260,14 +223,14 @@ public class VectorWxValue extends ScalarWxValue {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
         String rVal = "";
 
-        if (this.format.equals("ddff")) {
+        if ("ddff".equals(this.format)) {
             if (this.getMag() < 0.5) {
                 rVal += "0000";
             } else {
@@ -275,7 +238,7 @@ public class VectorWxValue extends ScalarWxValue {
             }
         }
 
-        else if (this.format.equals("8pt") || this.format.equals("16pt")) {
+        else if ("8pt".equals(this.format) || "16pt".equals(this.format)) {
             if (getMag() < (float) 0.5) {
                 rVal += "calm";
             } else {
@@ -283,7 +246,7 @@ public class VectorWxValue extends ScalarWxValue {
             }
         }
 
-        else if (this.format.equals("d/f")) {
+        else if ("d/f".equals(this.format)) {
             rVal += dirToString() + '/' + magToString();
         }
 
@@ -293,13 +256,14 @@ public class VectorWxValue extends ScalarWxValue {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.viz.gfe.core.wxvalue.WxValue#isValid()
      */
     @Override
     public boolean isValid() {
-        if (getMag() >= 0 && getMag() <= this.parm.getGridInfo().getMaxValue()
-                && getDir() >= 0 && getDir() <= 360.0) {
+        if ((getMag() >= 0)
+                && (getMag() <= this.parm.getGridInfo().getMaxValue())
+                && (getDir() >= 0) && (getDir() <= 360.0)) {
             return true;
         }
         return false;

@@ -16,6 +16,8 @@
 #  07/29/2016   -         tlefebvre   Changed edit area retrieval and storage to
 #                                     work outside CAVE so edit areas could be shared.
 #  12/20/2017  DCS17686   tlefebvre   Initial baseline version.
+#  05/22/2018  DR20724    tlefebvre   Remove from menus by default since most 
+#                                     sites will not use these tools
 #
 ##
 # ----------------------------------------------------------------------------
@@ -23,7 +25,7 @@
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
 # Possible items are: Populate, Edit, Consistency, Verify, Hazards
-MenuItems = ["Populate"]
+MenuItems = []
 
 import SmartScript
 import Tkinter

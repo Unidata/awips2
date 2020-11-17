@@ -39,6 +39,8 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 7, 2010            bsteffen     Initial creation
+ * Feb 1, 2018  DCS20568  jdynina      Special handling for dual pol
+ *                                     precip bias fields
  * 
  * </pre>
  * 
@@ -59,7 +61,7 @@ public class ProdDepTextContributor implements IRadarTextContributor {
     }
 
     @XmlElement(name = "flag")
-    private List<ProdDepTextContributor.FlagValue> flags = new ArrayList<ProdDepTextContributor.FlagValue>();
+    private List<ProdDepTextContributor.FlagValue> flags = new ArrayList<>();
 
     @XmlAttribute(required = true)
     private String format;
@@ -84,6 +86,24 @@ public class ProdDepTextContributor implements IRadarTextContributor {
             }
         }
         Float value = record.getProductDependentValue(index) * multiplier;
+
+        if ((record.getProductCode() == 169) || (record.getProductCode() ==171)) {
+            if ((index == 6) && (value == 0)) {
+                return "BIAS/#G-R: N/A";
+            }
+
+            if ((index == 7) && (value == 0)) {
+                return "/N/A";
+            }
+        }
+
+        if ((record.getProductCode() == 170) || (record.getProductCode() ==172) ||
+                (record.getProductCode() == 173)) {
+            if ((index == 6) && (value == 0)) {
+                return "BIAS: N/A";
+            }
+        }
+
         if (multiplier == 1) {
             return String.format(format, value.intValue());
         } else {

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -56,32 +56,37 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IWEGroupManager;
 
 /**
  * The WEGroupManager is a class which manages WEGroups.
- * 
- * 
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Jun 05, 2008             chammack    Initial creation
- * Sep 30, 2013  2361       njensen     Use JAXBManager for XML
- * Aug 13, 2015  4749       njensen     Implemented dispose()
- * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
- * Feb 05, 2016  5242       dgilling    Remove calls to deprecated Localization APIs.
- * Aug 07, 2017  6379       njensen     Use ProtectedFileLookup
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 05, 2008           chammack  Initial creation
+ * Sep 30, 2013  2361     njensen   Use JAXBManager for XML
+ * Aug 13, 2015  4749     njensen   Implemented dispose()
+ * Nov 12, 2015  4834     njensen   Changed LocalizationOpFailedException to
+ *                                  LocalizationException
+ * Feb 05, 2016  5242     dgilling  Remove calls to deprecated Localization
+ *                                  APIs.
+ * Aug 07, 2017  6379     njensen   Use ProtectedFileLookup
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
 
-public class WEGroupManager implements IWEGroupManager,
-        ILocalizationFileObserver {
+public class WEGroupManager
+        implements IWEGroupManager, ILocalizationFileObserver {
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WEGroupManager.class);
@@ -102,27 +107,32 @@ public class WEGroupManager implements IWEGroupManager,
 
     private SingleTypeJAXBManager<WEGroup> jaxb;
 
+    /**
+     * Constructor
+     *
+     * @param dataManager
+     */
     public WEGroupManager(final DataManager dataManager) {
         this.dataManager = dataManager;
 
         try {
             this.jaxb = new SingleTypeJAXBManager<>(WEGroup.class);
         } catch (JAXBException e) {
-            statusHandler
-                    .error("Error initializing WEGroup JAXBManager, Weather Element Groups will not work",
-                            e);
+            statusHandler.error(
+                    "Error initializing WEGroup JAXBManager, Weather Element Groups will not work",
+                    e);
         }
 
         loadGroups();
 
         IPathManager pathManager = PathManagerFactory.getPathManager();
-        weGroupDir = pathManager.getLocalizationFile(pathManager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
+        weGroupDir = pathManager.getLocalizationFile(
+                pathManager.getContext(LocalizationType.CAVE_STATIC,
+                        LocalizationLevel.BASE),
                 WEGROUP_DIR);
         weGroupDir.addFileUpdatedObserver(this);
 
-        this.sortOrder = Arrays.asList(Activator.getDefault()
-                .getPreferenceStore().getStringArray("WEList"));
+        this.sortOrder = Arrays.asList(GFEPreference.getStringArray("WEList"));
         if (sortOrder == null) {
             sortOrder = new ArrayList<>();
         }
@@ -154,8 +164,8 @@ public class WEGroupManager implements IWEGroupManager,
         IPathManager pathManager = PathManagerFactory.getPathManager();
         LocalizationContext[] contexts = pathManager
                 .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC);
-        ILocalizationFile[] files = pathManager.listFiles(contexts,
-                WEGROUP_DIR, new String[] { ".xml" }, false, true);
+        ILocalizationFile[] files = pathManager.listFiles(contexts, WEGROUP_DIR,
+                new String[] { ".xml" }, false, true);
 
         inventory = new LinkedHashMap<>();
         for (ILocalizationFile lf : files) {
@@ -179,13 +189,10 @@ public class WEGroupManager implements IWEGroupManager,
         // return the display name given the file name
         String s = fileName.replace(SUFFIX, "");
         if (!FileUtil.isValidFilename(s)) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Weather Element Group name \""
-                                    + s
-                                    + SUFFIX
-                                    + "\" is invalid. Only the following characters may be used: "
-                                    + FileUtil.VALID_FILENAME_CHARS);
+            statusHandler.handle(Priority.ERROR,
+                    "Weather Element Group name \"" + s + SUFFIX
+                            + "\" is invalid. Only the following characters may be used: "
+                            + FileUtil.VALID_FILENAME_CHARS);
             return null;
         }
         return s;
@@ -209,7 +216,7 @@ public class WEGroupManager implements IWEGroupManager,
     @Override
     public ParmID[] getParmIDs(String name, ParmID[] availableParmIDs) {
         ILocalizationFile file = getLocalizationFile(name);
-        if (file == null || !file.exists()) {
+        if ((file == null) || !file.exists()) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error loading weather element group \"" + name
                             + "\". File does not exist");
@@ -283,11 +290,7 @@ public class WEGroupManager implements IWEGroupManager,
 
     @Override
     public String getDefaultGroup() {
-        String defaultGroup = Activator.getDefault().getPreferenceStore()
-                .getString("DefaultGroup");
-        if (defaultGroup == null || defaultGroup.isEmpty()) {
-            defaultGroup = "Public";
-        }
+        String defaultGroup = GFEPreference.getString("DefaultGroup", "Public");
         return defaultGroup;
     }
 
@@ -308,9 +311,8 @@ public class WEGroupManager implements IWEGroupManager,
 
         LocalizationContext context = file.getContext();
         if (context.getLocalizationLevel() != LocalizationLevel.USER) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Unable to delete Weather Element Group, because it is not owned by you.");
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to delete Weather Element Group, because it is not owned by you.");
             return false;
         }
 
@@ -367,7 +369,7 @@ public class WEGroupManager implements IWEGroupManager,
 
     /**
      * Returns the inventory of user context only content
-     * 
+     *
      * @return user inventory
      */
     @Override

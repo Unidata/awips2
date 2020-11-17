@@ -441,7 +441,8 @@ public class ReferenceMgr {
         // Set context names on appropriate localization levels
         for (LocalizationContext ctx : searchContexts) {
             LocalizationLevel level = ctx.getLocalizationLevel();
-            if (((level.equals(LocalizationLevel.SITE)) || (level.equals(LocalizationLevel.CONFIGURED)))) {
+            if (((level.equals(LocalizationLevel.SITE))
+                    || (level.equals(LocalizationLevel.CONFIGURED)))) {
                 ctx.setContextName(siteId);
             }
 

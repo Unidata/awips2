@@ -322,6 +322,7 @@
 #    Sep 17, 2014    16928         zhao           Added a line break "\n" to message 25 (since it appears together with message 49) 
 #    Jul 07, 2015    16973         zhao           Added 'DRSN' as valid value of sig weather
 #    Mar 03, 2016    18664         zhao           Fixed an indentation error in check_vsby_wx()
+#    Jan 15, 2018    7119          tgurney        check_tempo_group() correctly handle invalid vsby in the "FM" Part
 #
 #
 
@@ -329,14 +330,19 @@
 # This is a base file that is not intended to be overridden.
 ##
 
-import exceptions, re, time, types
+from __future__ import print_function
+
+import exceptions, re, time, traceback, types
 import tpg
 import Avn, AvnLib, AvnParser
 ###############################################################################
 # local exceptions
 
-class Error(exceptions.Exception): pass
-class Warning1(exceptions.Exception): pass  # avoiding name clash
+class Error(exceptions.Exception):
+    pass
+
+class Warning1(exceptions.Exception):
+    pass  # avoiding name clash
 
 ###############################################################################
 # dictionary of errors and warnings
@@ -795,7 +801,7 @@ class Decoder(tpg.VerboseParser):
             # highlight only site id
             row = self._first+2
             index = ('%d.%d' % (row, 0), '%d.%d' % (row, 4))
-            return {'index': index, 'fatal': ['TAF decoder bug', str(e)]}
+            return {'index': index, 'fatal': ['TAF decoder bug:\n', traceback.format_exc()]}
 
     def __index(self, pos, token):
         tmp = self.lexer.input[:pos]
@@ -997,7 +1003,7 @@ class Decoder(tpg.VerboseParser):
                     return
             except (IndexError,KeyError):
                 pass
-                
+
             if 'vsby' in self._group:
                 if self._group['vsby']['value'] < 7.0:
                     add_msg(self._group['vsby'], 'error', 46)                
@@ -1015,7 +1021,8 @@ class Decoder(tpg.VerboseParser):
                 # If reduction in visibility is forecasted in TEMPO and there's
                 # no mention of obv or wx...
                 prev = self._taf['group'][-1]['prev']
-                if prev['vsby']['value'] > self._group['vsby']['value'] and \
+                if 'value' in prev['vsby'] and \
+                       prev['vsby']['value'] > self._group['vsby']['value'] and \
                        ('pcp' in prev or 'obv' in prev or 'vcnty' in prev) and \
                        not ('pcp' in self._group or 'obv' in self._group):
                     add_msg(self._group['vsby'], 'error', 48)
@@ -1573,9 +1580,9 @@ class Decoder(tpg.VerboseParser):
         # Splits bulletin into forecasts. Assumes that a forcast is 
         # terminated with '=' or forecasts are separated by a blank 
         # line
-        list = [x.strip() for x in \
+        forecasts = [x.strip() for x in \
             SplitReg.split(text)]
-        return ['%s=\n' % x for x in list if x]
+        return ['%s=\n' % x for x in forecasts if x]
 
 ##############################################################################
 # java interface part ... added to support calling python from java
@@ -1591,7 +1598,6 @@ class Decoder(tpg.VerboseParser):
         
         tmpText = []
         for fcst in map(Avn.curry(_format, bbb), fcsts) :
-            offset = len(tmpText)            
             tmpText.extend(fcst+[''])
             
         text = '\n'.join(tmpText)
@@ -1709,28 +1715,28 @@ def main(report):
     decoder = Decoder()
     decoded = decoder(''.join(taf), bbb, strict=True)
     if 'fatal' in decoded:
-        print 'Fatal error at', decoded['index'], decoded['fatal']
+        print('Fatal error at ' + str(decoded['index']) + ' ' + str(decoded['fatal']))
         return
     for key in decoded:
         if key == 'group':
             for g in decoded['group']:
-                print
+                print()
                 for key2 in g:
-                    print time.ctime(g[key2]['time']['from']), \
-                        time.ctime(g[key2]['time']['to'])
-                    print '\t', key2, g[key2]
+                    print(str(time.ctime(g[key2]['time']['from'])) + ' ' +
+                        str(time.ctime(g[key2]['time']['to'])))
+                    print('\t' + ' ' + str(key2) + ' ' + str(g[key2]))
         elif key == 'bbb':
-            print '%s \'%s\'' % (key, decoded[key])
+            print('%s \'%s\'' % (str(key), str(decoded[key])))
         else:
-            print key, decoded[key]
+            print(str(key) + ' ' + str(decoded[key]))
             
     errlist = errors(decoded)
-    print '====== Errors ======='
+    print('====== Errors =======')
     for k, d in errlist['error']:
-        print k, d['index'], d['error']
-    print '====== Warnings ====='
+        print(str(k) + ' ' + str(d['index']) + ' ' + str(d['error']))
+    print('====== Warnings =====')
     for k, d in errlist['warning']:
-        print k, d['index'], d['warning']
+        print(str(k) + ' ' + str(d['index']) + ' ' + str(d['warning']))
 
 
 ###############################################################################

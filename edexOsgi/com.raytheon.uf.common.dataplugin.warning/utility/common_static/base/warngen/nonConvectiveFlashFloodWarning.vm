@@ -1,26 +1,25 @@
-######################################################
-## DAM BREAK FFW  TEMPLATE                          ##
-## CREATED BY PHIL KURIMSKI - WFO DTX               ##
-## RECENT VERSION HISTORY:
-## VERSION AWIPS II 1.4 - SEP 13 2012   OB12.9.1-12 ## 
-##            to add Flash Flood Emergency Headline ##
-## VERSION AWIPS II 1.5 - FEB 08 2013   OB13.2.1-5  ##
-##            to update CTA statements              ##     
-## VERSION AWIPS II 1.6 - JUN 26 2013   OB13.4.1    ##
-##              to add "U" Unknown servity          ##
-## VERSION AWIPS II 1.7 - SEP 17 2013   OB13.5.2-4  ##
-##   Phil Kurimski - Added FFW Emergency Headline   ##
-##   Gene Petrescu - SEP 20 2013                    ##
-##				added AK modifications              ##
-## VERSION AWIPS II 1.8 - JAN 18 2014   OB14.2.1    ##
-##   Mike Rega - added Alaska GP changes            ##
-##   Mike Dangelo 1/24/2014 tweaks to hycTypes to match 10-922
-##   Phil Kurimski - MAR 24 2015 Mixed Case         ##
-##   Mike Dangelo 10/20/2015 Standard CTAs          ##
-##      Evan Bookbinder -- 12-19-2016 Fixed floodSeverity code   ##
-##                         as well as matched 10-922. Flood      ## 
-##                         severity 1,2,3,U for dam failure ONLY ##
-##                         DR19217                               ## 
+###################################################################
+## DAM BREAK FFW  TEMPLATE                                       ##
+## CREATED BY PHIL KURIMSKI - WFO DTX                            ##
+## RECENT VERSION HISTORY:                                       ##
+## VERSION AWIPS II 1.4 - SEP 13 2012   OB12.9.1-12              ##
+##            to add Flash Flood Emergency Headline              ##
+## VERSION AWIPS II 1.5 - FEB 08 2013   OB13.2.1-5               ##
+##            to update CTA statements                           ##
+## VERSION AWIPS II 1.6 - JUN 26 2013   OB13.4.1                 ##
+##              to add "U" Unknown servity                       ##
+## VERSION AWIPS II 1.7 - SEP 17 2013   OB13.5.2-4               ##
+##   Phil Kurimski - Added FFW Emergency Headline                ##
+##   Gene Petrescu - SEP 20 2013 added AK modifications          ##
+## VERSION AWIPS II 1.8 - JAN 18 2014   OB14.2.1                 ##
+##   Mike Rega - added Alaska GP changes                         ##
+##   Mike Dangelo 1/24/2014 tweaks to hycTypes to match 10-922   ##
+##   Phil Kurimski - MAR 24 2015 Mixed Case                      ##
+##   Mike Dangelo 10/20/2015 Standard CTAs                       ##
+##   Evan Bookbinder 12-19-2016 Fixed floodSeverity code as well ##
+##                         as matched 10-922. Flood sseverity    ##
+##                         1,2,3,U for dam failure ONLY. DR19217 ##
+##  Mike Rega 04/20/2018 DR 20671 3rd bullet EMER mixed case fix ##
 ###################################################################
 ##
 #parse("config.vm")
@@ -237,7 +236,7 @@ THIS IS A TEST MESSAGE. ##
 ## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
 ##########################################################################
 #if(${list.contains(${bullets}, "ffwEmergency")})
-#wrapText("This is a FLASH FLOOD EMERGENCY for ${emergencyText}. SEEK HIGHER GROUND NOW!" 2 2)
+#wrapText("THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyText}. SEEK HIGHER GROUND NOW!" 2 2)
 
 #end
 #set($phenomena = "FLASH FLOOD") 

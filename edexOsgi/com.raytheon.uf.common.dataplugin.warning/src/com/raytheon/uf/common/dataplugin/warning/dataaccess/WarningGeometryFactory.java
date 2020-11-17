@@ -64,6 +64,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Jul 05, 2016  5728     mapeters    Use RequestConstraint to build IN
  *                                    constraints
  * Nov 08, 2016  5985     tgurney     Add constraints to available times query
+ * Feb 19, 2018  7220     mapeters    Improve filtering of available identifier values
  * </pre>
  *
  * @author mapeters
@@ -103,7 +104,7 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
     @Override
     public String[] getAvailableParameters(IDataRequest request) {
         String[] columnsArray = super.getAvailableParameters(request);
-        ArrayList<String> columnsList = new ArrayList<>(columnsArray.length);
+        List<String> columnsList = new ArrayList<>(columnsArray.length);
         columnsList.addAll(Arrays.asList(columnsArray));
         for (String column : NOT_PARAMETERS) {
             columnsList.remove(column);
@@ -228,8 +229,8 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
         if ((dataTimes != null) && (dataTimes.length > 0)) {
             String[] refTimes = new String[dataTimes.length];
             for (int i = 0; i < dataTimes.length; ++i) {
-                refTimes[i] = TimeUtil.formatToSqlTimestamp(dataTimes[i]
-                        .getRefTime());
+                refTimes[i] = TimeUtil
+                        .formatToSqlTimestamp(dataTimes[i].getRefTime());
             }
             RequestConstraint in = new RequestConstraint(refTimes);
             dataTimesConstraint.append(REF_TIME).append(in.toSqlString());
@@ -259,9 +260,14 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
         for (Map.Entry<String, Object> entry : request.getIdentifiers()
                 .entrySet()) {
             String key = entry.getKey();
-            String value = (String) entry.getValue();
-            sqlQuery.append(keyWord).append(key).append(" = '").append(value)
-                    .append("'");
+            Object value = entry.getValue();
+            RequestConstraint rc;
+            if (value instanceof RequestConstraint) {
+                rc = (RequestConstraint) value;
+            } else {
+                rc = new RequestConstraint(value.toString());
+            }
+            sqlQuery.append(keyWord).append(key).append(rc.toSqlString());
             keyWord = " and ";
         }
         sqlQuery.append(";");
@@ -322,6 +328,7 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
     @Override
     protected String assembleGetIdentifierValues(IDataRequest request,
             String identifierKey) {
-        return assembleGetColumnValues(request, request.getDatatype(), identifierKey);
+        return assembleGetColumnValues(request, request.getDatatype(),
+                identifierKey);
     }
 }

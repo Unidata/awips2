@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -43,30 +43,29 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.point.display.PointWindDisplay.DisplayType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
+import com.raytheon.viz.gfe.IConfigurationChangeListener;
 import com.raytheon.viz.gfe.rsc.GFEResource;
 
 /**
  * Parm Display Attributes
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 02/20/2008              chammack    Initial creation.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 20, 2008           chammack  Initial creation.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 public class ParmDisplayAttributes {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParmDisplayAttributes.class);
-
-    private static PythonPreferenceStore prefs = Activator.getDefault()
-            .getPreferenceStore();
 
     public static enum EditorType {
         SPATIAL, TEMPORAL, GRIDMGR
@@ -81,11 +80,6 @@ public class ParmDisplayAttributes {
             this.str = mode;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Enum#toString()
-         */
         @Override
         public String toString() {
             return this.str;
@@ -94,10 +88,15 @@ public class ParmDisplayAttributes {
     }
 
     public static enum VisualizationType {
-        WIND_BARB("WindBarb"), WIND_ARROW("WindArrow"), CONTOUR("Contour"), IMAGE(
-                "Image"), BOUNDED_AREA("BoundedArea"), TE_COLOR_BAR(
-                "TEColorBar"), TIME_BAR("TimeBar"), TE_COLOR_RANGE_BAR(
-                "TEColorRangeBar"), RANGE_BAR("RangeBar");
+        WIND_BARB("WindBarb"),
+        WIND_ARROW("WindArrow"),
+        CONTOUR("Contour"),
+        IMAGE("Image"),
+        BOUNDED_AREA("BoundedArea"),
+        TE_COLOR_BAR("TEColorBar"),
+        TIME_BAR("TimeBar"),
+        TE_COLOR_RANGE_BAR("TEColorRangeBar"),
+        RANGE_BAR("RangeBar");
 
         private String visualizationType;
 
@@ -105,18 +104,25 @@ public class ParmDisplayAttributes {
             this.visualizationType = visualizationType;
         }
 
+        /**
+         * @return the visualizationType
+         */
         public String getVizualizationType() {
             return visualizationType;
         }
 
+        /**
+         * @param string
+         * @return the VisualizationType for the string
+         */
         public static VisualizationType fromString(String string) {
             for (VisualizationType visType : VisualizationType.values()) {
                 if (visType.visualizationType.equals(string)) {
                     return visType;
                 }
             }
-            throw new IllegalArgumentException(string
-                    + " is not a valid VisualizationType.");
+            throw new IllegalArgumentException(
+                    string + " is not a valid VisualizationType.");
         }
     }
 
@@ -124,14 +130,26 @@ public class ParmDisplayAttributes {
 
     protected static int genericNext;
 
+    static {
+        GFEPreference.addConfigurationChangeListener(
+                new IConfigurationChangeListener() {
+
+                    @Override
+                    public void configurationChanged(String config) {
+                        genericColors = null;
+                        genericNext = 0;
+                    }
+                });
+    }
+
     /** The available image visualization types */
-    Set<VisualizationType> _graphicSEVisType, _imageSEVisType;
+    private Set<VisualizationType> graphicSEVisType, imageSEVisType;
 
-    Set<VisualizationType> _graphicTEVisType, _imageTEVisType;
+    private Set<VisualizationType> graphicTEVisType, imageTEVisType;
 
-    Set<VisualizationType> _availGraphicSETypes, _availGraphicTETypes;
+    private Set<VisualizationType> availGraphicSETypes, availGraphicTETypes;
 
-    Set<VisualizationType> _availImageSETypes, _availImageTETypes;
+    private Set<VisualizationType> availImageSETypes, availImageTETypes;
 
     /** The Editor type. */
     protected EditorType editorType = EditorType.SPATIAL;
@@ -176,9 +194,9 @@ public class ParmDisplayAttributes {
 
     /**
      * Instantiates a new parm display attributes.
-     * 
+     *
      * @param displayable
-     *            the displayable
+     * @param parm
      */
     public ParmDisplayAttributes(boolean displayable, Parm parm) {
         this.displayable = displayable;
@@ -187,8 +205,8 @@ public class ParmDisplayAttributes {
         // Get the graphic color information and allocate the color
         // get preferred color from config
         String pn = parm.getParmID().compositeNameUI();
-        String graphicColor = prefs.getString(pn + "_graphicColor");
-        if ("".equals(graphicColor)) {
+        String graphicColor = GFEPreference.getString(pn + "_graphicColor");
+        if (graphicColor.isEmpty()) {
             baseColor = getDefaultColor();
         } else {
             baseColor = RGBColors.getRGBColor(graphicColor);
@@ -196,14 +214,14 @@ public class ParmDisplayAttributes {
 
         initMask();
 
-        _availImageSETypes = EnumSet.noneOf(VisualizationType.class);
-        _availImageTETypes = EnumSet.noneOf(VisualizationType.class);
-        _availGraphicSETypes = EnumSet.noneOf(VisualizationType.class);
-        _availGraphicTETypes = EnumSet.noneOf(VisualizationType.class);
-        _imageSEVisType = EnumSet.noneOf(VisualizationType.class);
-        _imageTEVisType = EnumSet.noneOf(VisualizationType.class);
-        _graphicSEVisType = EnumSet.noneOf(VisualizationType.class);
-        _graphicTEVisType = EnumSet.noneOf(VisualizationType.class);
+        availImageSETypes = EnumSet.noneOf(VisualizationType.class);
+        availImageTETypes = EnumSet.noneOf(VisualizationType.class);
+        availGraphicSETypes = EnumSet.noneOf(VisualizationType.class);
+        availGraphicTETypes = EnumSet.noneOf(VisualizationType.class);
+        imageSEVisType = EnumSet.noneOf(VisualizationType.class);
+        imageTEVisType = EnumSet.noneOf(VisualizationType.class);
+        graphicSEVisType = EnumSet.noneOf(VisualizationType.class);
+        graphicTEVisType = EnumSet.noneOf(VisualizationType.class);
 
         setAvailableVisTypes();
         initVisualTypes();
@@ -216,7 +234,7 @@ public class ParmDisplayAttributes {
      * Uses parmName_contourValues from the config or parmName_contourInterval.
      * If not found, then calculates some defaults based on the min/max limits
      * and the precision. Ordering is contourValues first, then contourInterval.
-     * 
+     *
      * NOTE: in porting this code, I restructured the routine greatly, so it
      * only does one set of contour value calculations.
      */
@@ -228,21 +246,20 @@ public class ParmDisplayAttributes {
 
         String pn = parm.getParmID().getParmName();
         // look for contour values in config file
-        Float[] contourValueObj = prefs.getFloatArray(pn + "_contourValues");
-        // check for contourInterval from config file
-        float interval = prefs.getFloat(pn + "_contourInterval");
+        float[] contourValueObj = GFEPreference
+                .getFloatArray(pn + "_contourValues");
 
-        if ((contourValueObj != null) && (contourValueObj.length > 0)) {
-            baseContourValues = new float[contourValueObj.length];
-            for (int i = 0; i < contourValueObj.length; i++) {
-                baseContourValues[i] = contourValueObj[i].floatValue();
-            }
+        // check for contourInterval from config file
+        float interval = GFEPreference.getFloat(pn + "_contourInterval");
+
+        if (contourValueObj.length > 0) {
+            baseContourValues = contourValueObj;
         } else if (interval > 0.0f) {
             baseContourValues = calcContourValuesFromInterval(interval);
         }
 
         // do automatic calculation
-        if ((baseContourValues == null) || (baseContourValues.length == 0)) {
+        if (baseContourValues == null || baseContourValues.length == 0) {
             // compute the interval
             final float multStep[] = { 1, 2, 5 };
 
@@ -287,7 +304,7 @@ public class ParmDisplayAttributes {
             int iStartValue;
             float startValue;
             startValue = parmMin;
-            iStartValue = (int) ((int) ((parmMin / intv)) * intv);
+            iStartValue = (int) ((int) (parmMin / intv) * intv);
             if (iStartValue != (int) parmMin) {
                 startValue = iStartValue + intv;
             } else {
@@ -295,7 +312,7 @@ public class ParmDisplayAttributes {
             }
 
             // now calculate the values and store them
-            List<Float> contourValList = new ArrayList<Float>();
+            List<Float> contourValList = new ArrayList<>();
             float value = startValue;
             while (value < parmMax) {
                 contourValList.add(new Float(value));
@@ -308,13 +325,14 @@ public class ParmDisplayAttributes {
         }
 
         // now take into account the density
-        contourValues = calcContourValuesFromDensity(baseContourValues, density);
+        contourValues = calcContourValuesFromDensity(baseContourValues,
+                density);
     }
 
     /**
      * Routine takes an input set of contour values along with a contour density
      * value. It returns a set of contour values based on these values.
-     * 
+     *
      * @param baseValues
      * @param contourDensity
      * @return
@@ -323,16 +341,16 @@ public class ParmDisplayAttributes {
             int contourDensity) {
         if (contourDensity == 0) {
             return Arrays.copyOf(baseValues, baseValues.length);
-        } // no modification
+        }
 
         // increased number of contours
-        ArrayList<Float> ret = new ArrayList<Float>();
+        List<Float> ret = new ArrayList<>();
         if (contourDensity > 0) {
-            for (int i = 0; i < (baseValues.length - 1); i++) {
+            for (int i = 0; i < baseValues.length - 1; i++) {
                 float interval = baseValues[i + 1] - baseValues[i];
                 float delta = interval / (contourDensity + 1);
-                for (int j = 0; j < (contourDensity + 1); j++) {
-                    ret.add((baseValues[i] + (delta * j)));
+                for (int j = 0; j < contourDensity + 1; j++) {
+                    ret.add(baseValues[i] + delta * j);
                 }
             }
             ret.add(baseValues[baseValues.length - 1]);
@@ -342,7 +360,7 @@ public class ParmDisplayAttributes {
         else {
             double skip = -contourDensity + 1;
             for (int i = 0; i < baseValues.length; i++) {
-                if ((i % skip) == 0) {
+                if (i % skip == 0) {
                     ret.add(baseValues[i]);
                 }
             }
@@ -371,7 +389,7 @@ public class ParmDisplayAttributes {
      * @param interval
      */
     private float[] calcContourValuesFromInterval(float interval) {
-        ArrayList<Float> temp = new ArrayList<Float>();
+        List<Float> temp = new ArrayList<>();
 
         float min = parm.getGridInfo().getMinValue();
         float max = parm.getGridInfo().getMaxValue();
@@ -400,7 +418,8 @@ public class ParmDisplayAttributes {
         float[] newContourValues = new float[temp.size()];
         i = 0;
         for (Float f : temp) {
-            newContourValues[i++] = f.floatValue();
+            newContourValues[i] = f.floatValue();
+            i++;
         }
 
         return newContourValues;
@@ -408,27 +427,22 @@ public class ParmDisplayAttributes {
 
     private void initGraphicStyles() {
         String pn = parm.getParmID().getParmName();
-        lineWidth = prefs.getInt(pn + "_lineWidth");
-        if (lineWidth == 0) {
-            lineWidth = 1;
+        lineWidth = GFEPreference.getInt(pn + "_lineWidth", 1);
+
+        fontOffset = GFEPreference.getInt(pn + "_fontOffset");
+
+        density = GFEPreference.getInt(pn + "_density");
+
+        try {
+            lineStyle = LineStyle.valueOf(
+                    GFEPreference.getString(pn + "_linePattern", "SOLID"));
+        } catch (IllegalArgumentException e) {
+            statusHandler.error("GFE config file \""
+                    + GFEPreference.getConfigName()
+                    + "\" contains an invalid line style for " + pn + ": "
+                    + GFEPreference.getString(pn + "_linePattern"), e);
         }
 
-        fontOffset = prefs.getInt(pn + "_fontOffset");
-
-        density = prefs.getInt(pn + "_density");
-
-        lineStyle = LineStyle.SOLID;
-        if (prefs.contains(pn + "_linePattern")) {
-            try {
-                lineStyle = LineStyle.valueOf(prefs.getString(pn
-                        + "_linePattern"));
-            } catch (IllegalArgumentException e) {
-                statusHandler.handle(
-                        Priority.PROBLEM,
-                        "Invalid line style specified for " + pn + ": "
-                                + prefs.getString(pn + "_linePattern"));
-            }
-        }
         initLineStyle = lineStyle;
     }
 
@@ -465,19 +479,20 @@ public class ParmDisplayAttributes {
         }
 
         Set<VisualizationType> visTypes = null;
-        if (prefs.contains(pn)) {
-            String[] visStrings = prefs.getStringArray(pn);
-            visTypes = new HashSet<VisualizationType>();
+        String[] visStrings = GFEPreference.getStringArray(pn);
+        if (visStrings.length > 0) {
+            visTypes = new HashSet<>();
             for (int i = 0; i < visStrings.length; i++) {
                 visTypes.add(VisualizationType.fromString(visStrings[i]));
             }
         } else {
-            visTypes = (getDefaultVisualizationTypes(et, vm));
+            visTypes = getDefaultVisualizationTypes(et, vm);
         }
 
         // remove entries that are not allowed, there are two lists, the
         // images and the graphics.
-        Set<VisualizationType> available = new HashSet<VisualizationType>();
+        Set<VisualizationType> available = EnumSet
+                .noneOf(VisualizationType.class);
         available.addAll(getAvailableVisualizationType(et, vm));
         if (vm.equals(VisMode.IMAGE)) {
             available
@@ -492,14 +507,14 @@ public class ParmDisplayAttributes {
     /**
      * Determines the default visualization types to use based on the editor
      * type, visual mode, and parm type. These values are not taken from config.
-     * 
+     *
      * @param et
      * @param vm
      * @return
      */
     private Set<VisualizationType> getDefaultVisualizationTypes(EditorType et,
             VisMode vm) {
-        Set<VisualizationType> types = new HashSet<VisualizationType>();
+        Set<VisualizationType> types = EnumSet.noneOf(VisualizationType.class);
         if (et.equals(EditorType.SPATIAL)) {
             // IMAGE MODE
             if (vm.equals(VisMode.IMAGE)) {
@@ -559,42 +574,42 @@ public class ParmDisplayAttributes {
 
     /**
      * Initialization routine to set the available visualization types.
-     * 
+     *
      * The entries are the ONLY image and ONLY graphic types, thus the actual
      * available ones for image are the image+graphic.
-     * 
+     *
      */
     private void setAvailableVisTypes() {
         // image is allowed on all spatial editor data types
-        _availImageSETypes.add(VisualizationType.IMAGE);
+        availImageSETypes.add(VisualizationType.IMAGE);
 
         // color bar is allowed on all temporal editor data types
-        _availImageTETypes.add(VisualizationType.TE_COLOR_BAR);
+        availImageTETypes.add(VisualizationType.TE_COLOR_BAR);
 
         switch (parm.getGridInfo().getGridType()) {
         case SCALAR:
-            _availImageTETypes.add(VisualizationType.TE_COLOR_RANGE_BAR);
-            _availGraphicSETypes.add(VisualizationType.CONTOUR);
-            _availGraphicTETypes.add(VisualizationType.TIME_BAR);
-            _availGraphicTETypes.add(VisualizationType.RANGE_BAR);
+            availImageTETypes.add(VisualizationType.TE_COLOR_RANGE_BAR);
+            availGraphicSETypes.add(VisualizationType.CONTOUR);
+            availGraphicTETypes.add(VisualizationType.TIME_BAR);
+            availGraphicTETypes.add(VisualizationType.RANGE_BAR);
             break;
 
         case VECTOR:
-            _availImageTETypes.add(VisualizationType.TE_COLOR_RANGE_BAR);
-            _availGraphicSETypes.add(VisualizationType.WIND_BARB);
-            _availGraphicSETypes.add(VisualizationType.WIND_ARROW);
-            _availGraphicTETypes.add(VisualizationType.TIME_BAR);
-            _availGraphicTETypes.add(VisualizationType.RANGE_BAR);
-            _availGraphicTETypes.add(VisualizationType.WIND_BARB);
-            _availGraphicTETypes.add(VisualizationType.WIND_ARROW);
+            availImageTETypes.add(VisualizationType.TE_COLOR_RANGE_BAR);
+            availGraphicSETypes.add(VisualizationType.WIND_BARB);
+            availGraphicSETypes.add(VisualizationType.WIND_ARROW);
+            availGraphicTETypes.add(VisualizationType.TIME_BAR);
+            availGraphicTETypes.add(VisualizationType.RANGE_BAR);
+            availGraphicTETypes.add(VisualizationType.WIND_BARB);
+            availGraphicTETypes.add(VisualizationType.WIND_ARROW);
             break;
 
         case WEATHER:
-            _availGraphicSETypes.add(VisualizationType.BOUNDED_AREA);
+            availGraphicSETypes.add(VisualizationType.BOUNDED_AREA);
             break;
 
         case DISCRETE:
-            _availGraphicSETypes.add(VisualizationType.BOUNDED_AREA);
+            availGraphicSETypes.add(VisualizationType.BOUNDED_AREA);
             break;
 
         default:
@@ -607,16 +622,16 @@ public class ParmDisplayAttributes {
         // Set the parms visual mask if there is a config entry
         String siteID = parm.getParmID().getDbId().getSiteId();
         String pn = parm.getParmID().getParmName();
-        String confVal = prefs.getString(siteID + "_" + pn + "_mask");
+        String confVal = GFEPreference.getString(siteID + "_" + pn + "_mask");
         if (confVal.isEmpty()) {
-            confVal = prefs.getString(siteID + "_mask");
+            confVal = GFEPreference.getString(siteID + "_mask");
         }
 
         if (confVal.isEmpty()) {
-            confVal = prefs.getString(pn + "_mask");
+            confVal = GFEPreference.getString(pn + "_mask");
         }
         if (confVal.isEmpty()) {
-            confVal = prefs.getString("mask");
+            confVal = GFEPreference.getString("mask");
         }
 
         if (confVal.isEmpty()) {
@@ -628,52 +643,9 @@ public class ParmDisplayAttributes {
         }
     }
 
-    private double computeInterval() {
-        double interval = 10;
-
-        // compute the interval
-        double[] multStep = new double[] { 1, 2, 5 };
-
-        // get the parm min and max values
-        double parmMin = parm.getGridInfo().getMinValue();
-        double parmMax = parm.getGridInfo().getMaxValue();
-        double parmExtent = parmMax - parmMin;
-
-        // how many intervals are desired?
-        int noLabels = 60;
-
-        // integer to step up multipliers by factor of 10
-        double decade = 1.0;
-        for (int p = 1; p <= parm.getGridInfo().getPrecision(); p++) {
-            decade *= 0.1;
-        }
-
-        boolean done = false;
-
-        // which of the possible intervals is the closest?
-        int noInterval;
-        while (!done) {
-            for (int i = 0; i < multStep.length; i++) {
-                interval = decade * multStep[i];
-                noInterval = (int) (parmExtent / interval);
-                if (noInterval <= noLabels) {
-                    done = true;
-                    break;
-                }
-            }
-            if (done) {
-                break;
-            } else {
-                decade *= 10.0;
-            }
-        }
-
-        return interval;
-    }
-
     /**
      * Checks if is displayable.
-     * 
+     *
      * @return true, if is displayable
      */
     public boolean isDisplayable() {
@@ -682,7 +654,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Gets a copy of the base contour values.
-     * 
+     *
      * @return the contourValues
      */
     public float[] getBaseContourValues() {
@@ -691,7 +663,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Gets the contour values.
-     * 
+     *
      * @return the contourValues
      */
     public float[] getContourValues() {
@@ -700,7 +672,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Sets the contour values.
-     * 
+     *
      * @param contourValues
      *            the contourValues to set
      */
@@ -731,15 +703,15 @@ public class ParmDisplayAttributes {
 
         if (rp != null) {
             GFEResource rsc = (GFEResource) rp.getResource();
-            rsc.getCapability(OutlineCapability.class).setLineStyle(
-                    this.lineStyle);
+            rsc.getCapability(OutlineCapability.class)
+                    .setLineStyle(this.lineStyle);
             refresh(rsc);
         }
     }
 
     /**
      * Gets the line width.
-     * 
+     *
      * @return the lineWidth
      */
     public int getLineWidth() {
@@ -748,7 +720,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Sets the line width.
-     * 
+     *
      * @param lineWidth
      *            the lineWidth to set
      */
@@ -760,15 +732,15 @@ public class ParmDisplayAttributes {
 
         if (rp != null) {
             GFEResource rsc = (GFEResource) rp.getResource();
-            rsc.getCapability(OutlineCapability.class).setOutlineWidth(
-                    this.lineWidth);
+            rsc.getCapability(OutlineCapability.class)
+                    .setOutlineWidth(this.lineWidth);
             refresh(rsc);
         }
     }
 
     /**
      * Gets the font offset.
-     * 
+     *
      * @return the fontOffset
      */
     public int getFontOffset() {
@@ -777,7 +749,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Sets the font offset.
-     * 
+     *
      * @param fontOffset
      *            the fontOffset to set
      */
@@ -788,7 +760,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Gets the density.
-     * 
+     *
      * @return the density
      */
     public int getDensity() {
@@ -797,7 +769,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Sets the density.
-     * 
+     *
      * @param density
      *            the density to set
      */
@@ -816,7 +788,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Sets the displayable.
-     * 
+     *
      * @param displayable
      *            the displayable to set
      */
@@ -827,7 +799,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Return the base color
-     * 
+     *
      * @return the baseColor
      */
     public RGB getBaseColor() {
@@ -836,7 +808,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Set the base color
-     * 
+     *
      * @param baseColor
      *            the baseColor to set
      */
@@ -855,7 +827,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Return the visualization mode
-     * 
+     *
      * @return the visMode
      */
     public VisMode getVisMode() {
@@ -867,7 +839,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Set the visualization mode
-     * 
+     *
      * @param visMode
      *            the visMode to set
      */
@@ -878,7 +850,7 @@ public class ParmDisplayAttributes {
 
     /**
      * Return the editor type
-     * 
+     *
      * @return the editorType
      */
     public EditorType getEditorType() {
@@ -896,6 +868,13 @@ public class ParmDisplayAttributes {
         this.editorType = editorType;
     }
 
+    /**
+     * @param editorType
+     *            Spatial or Temporal
+     * @param visualMode
+     *            Image or Graphic
+     * @return the visualization type(s)
+     */
     public Set<VisualizationType> getVisualizationType(EditorType editorType,
             VisMode visualMode) {
 
@@ -906,22 +885,22 @@ public class ParmDisplayAttributes {
         Set<VisualizationType> retval = null;
         if (editorType.equals(EditorType.SPATIAL)) {
             if (visualMode.equals(VisMode.IMAGE)) {
-                retval = _imageSEVisType;
+                retval = imageSEVisType;
             } else if (visualMode.equals(VisMode.GRAPHIC)) {
-                retval = _graphicSEVisType;
+                retval = graphicSEVisType;
             }
         } else if (editorType.equals(EditorType.TEMPORAL)) {
             if (visualMode.equals(VisMode.IMAGE)) {
-                retval = _imageTEVisType;
+                retval = imageTEVisType;
             } else if (visualMode.equals(VisMode.GRAPHIC)) {
-                retval = _graphicTEVisType;
+                retval = graphicTEVisType;
             }
         }
 
         if (retval == null) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid editorType in availableVisualizationType()");
-            retval = new HashSet<VisualizationType>();
+            retval = new HashSet<>();
         }
         return Collections.unmodifiableSet(retval);
     }
@@ -929,55 +908,52 @@ public class ParmDisplayAttributes {
     /**
      * Sets the visualization type for the given editor type and visual mode to
      * those types specified.
-     * 
+     *
      * Verifies that the visual types specified are actually part of the
      * available list. Stores the new visual type(s) in private data. Sends out
      * a notification to parmclients that the visualization type has changed.
      * For NONE type visualMode, this is a no op.
-     * 
+     *
      * @param editorType
      * @param visualMode
      * @param visualType
      */
     public void setVisualizationType(EditorType editorType, VisMode visualMode,
             Set<VisualizationType> visualType) {
-        // no op for NONE-type visual mode
-        // if (visualMode.equals(VisMode.NONE)) {
-        // return;
-        // }
-
         // get the available types and validate request
         // image consists of availableImage + availableGraphic
-        Set<VisualizationType> available = new HashSet<VisualizationType>();
+        Set<VisualizationType> available = EnumSet
+                .noneOf(VisualizationType.class);
         available.addAll(getAvailableVisualizationType(editorType, visualMode));
         if (visualMode.equals(VisMode.IMAGE)) {
-            available.addAll(getAvailableVisualizationType(editorType,
-                    VisMode.GRAPHIC));
+            available.addAll(
+                    getAvailableVisualizationType(editorType, VisMode.GRAPHIC));
         }
 
         for (VisualizationType type : visualType) {
             if (!available.contains(type)) {
-                statusHandler.handle(Priority.PROBLEM, parm.getParmID()
-                        .toString()
-                        + " Attempt to setVisualizationType to invalid: "
-                        + type.toString()
-                        + "\nAllowable vis types are: "
-                        + Arrays.toString(available.toArray()));
-                return; // no action performed
+                statusHandler.handle(Priority.PROBLEM,
+                        parm.getParmID().toString()
+                                + " Attempt to setVisualizationType to invalid: "
+                                + type.toString()
+                                + "\nAllowable vis types are: "
+                                + Arrays.toString(available.toArray()));
+                // no action performed
+                return;
             }
         }
 
         if (editorType.equals(EditorType.SPATIAL)) {
             if (visualMode.equals(VisMode.IMAGE)) {
-                _imageSEVisType = visualType;
+                imageSEVisType = visualType;
             } else if (visualMode.equals(VisMode.GRAPHIC)) {
-                _graphicSEVisType = visualType;
+                graphicSEVisType = visualType;
             }
         } else if (editorType.equals(EditorType.TEMPORAL)) {
             if (visualMode.equals(VisMode.IMAGE)) {
-                _imageTEVisType = visualType;
+                imageTEVisType = visualType;
             } else if (visualMode.equals(VisMode.GRAPHIC)) {
-                _graphicTEVisType = visualType;
+                graphicTEVisType = visualType;
             }
         } else {
             // logBug << "Invalid editorType in setVisualizationType()" <<
@@ -1012,10 +988,12 @@ public class ParmDisplayAttributes {
      * type (SPATIAL, TEMPORAL) and visual mode (IMAGE, GRAPHIC, NONE). The
      * image list only contains the image ones, you must also access the graphic
      * ones for a complete list.
-     * 
+     *
      * @param editorType
+     *            Spatial or Temporal
      * @param visualMode
-     * @return
+     *            Image or Graphic
+     * @return the available visualization types
      */
     public Set<VisualizationType> getAvailableVisualizationType(
             EditorType editorType, VisMode visualMode) {
@@ -1027,31 +1005,38 @@ public class ParmDisplayAttributes {
         Set<VisualizationType> retval = null;
         if (editorType.equals(EditorType.SPATIAL)) {
             if (visualMode.equals(VisMode.IMAGE)) {
-                retval = _availImageSETypes;
+                retval = availImageSETypes;
             } else if (visualMode.equals(VisMode.GRAPHIC)) {
-                retval = _availGraphicSETypes;
+                retval = availGraphicSETypes;
             }
         } else if (editorType.equals(EditorType.TEMPORAL)) {
             if (visualMode.equals(VisMode.IMAGE)) {
-                retval = _availImageTETypes;
+                retval = availImageTETypes;
             } else if (visualMode.equals(VisMode.GRAPHIC)) {
-                retval = _availGraphicTETypes;
+                retval = availGraphicTETypes;
             }
         }
 
         if (retval == null) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid editorType in availableVisualizationType()");
-            retval = new HashSet<VisualizationType>();
+            retval = new HashSet<>();
         }
         return Collections.unmodifiableSet(retval);
     }
 
+    /**
+     * @param visMode
+     *            the visMode to set
+     */
     public void setVisMode(String visMode) {
         this.visMode = VisMode.valueOf(visMode);
         refresh();
     }
 
+    /**
+     * @return the display mask
+     */
     public Grid2DBit getDisplayMask() {
         if (displayMaskRefData == null) {
             return null;
@@ -1063,27 +1048,27 @@ public class ParmDisplayAttributes {
      * Sets the display mask for this parm. If the new mask does not match the
      * dimensions of the GridInfo then you will get a logBug and the mask will
      * not be changed.
-     * 
+     *
      * Note that this function clears the display mask saved reference data.
-     * 
-     * @param mask
+     *
+     * @param bits
+     *            the display mask
      */
     public void setDisplayMask(final Grid2DBit bits) {
-        if ((bits.getXdim() != parm.getGridInfo().getGridLoc().gridSize().x)
-                || (bits.getYdim() != parm.getGridInfo().getGridLoc()
-                        .gridSize().y)) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "ParmDspAttr::setMask(): mask dimensions ["
-                            + bits.getXdim() + "," + bits.getYdim()
-                            + "] don't match parm "
+        if (bits.getXdim() != parm.getGridInfo().getGridLoc().gridSize().x
+                || bits.getYdim() != parm.getGridInfo().getGridLoc()
+                        .gridSize().y) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "ParmDspAttr::setMask(): mask dimensions [" + bits.getXdim()
+                            + "," + bits.getYdim() + "] don't match parm "
                             + parm.getGridInfo().getGridLoc().gridSize());
             return;
         }
 
         if (bits.equals(getDisplayMask())) {
+            // no change
             return;
-        } // no change
+        }
 
         displayMaskRefData = new ReferenceData(parm.getGridInfo().getGridLoc(),
                 new ReferenceID("_PDA_"), bits);
@@ -1095,6 +1080,9 @@ public class ParmDisplayAttributes {
         refresh();
     }
 
+    /**
+     * @return the displayMaskRefData
+     */
     public ReferenceData getDisplayMaskRefData() {
         return displayMaskRefData;
     }
@@ -1102,7 +1090,7 @@ public class ParmDisplayAttributes {
     /**
      * Sets the display mask for this parm. If the reference id isn't valid or
      * doesn't exist, then the mask is cleared.
-     * 
+     *
      * @param id
      */
     public void setDisplayMask(final ReferenceID id) {
@@ -1148,15 +1136,17 @@ public class ParmDisplayAttributes {
             }
         }
 
-        statusHandler
-                .handle(Priority.PROBLEM,
-                        "Attempt to setDisplayMask on unknown ReferenceID ["
-                                + id + ']');
+        statusHandler.handle(Priority.PROBLEM,
+                "Attempt to setDisplayMask on unknown ReferenceID [" + id
+                        + ']');
     }
 
+    /**
+     * Clear the display mask
+     */
     public void setEmptyMask() {
-        setDisplayMask(parm.getDataManager().getRefManager().fullRefSet()
-                .getGrid());
+        setDisplayMask(
+                parm.getDataManager().getRefManager().fullRefSet().getGrid());
     }
 
     /**
@@ -1164,21 +1154,22 @@ public class ParmDisplayAttributes {
      * <p>
      * AWIPS 1 kept counts of generic colors in use and always supplied the
      * least used one. We just round-robin them.
-     * 
+     *
      * @return
      */
-    synchronized RGB getDefaultColor() {
+    private synchronized RGB getDefaultColor() {
         if (genericColors == null) {
-            genericColors = prefs.getStringArray("Generic_colors");
+            genericColors = GFEPreference.getStringArray("Generic_colors");
             genericNext = 0;
         }
 
-        String color = genericColors[genericNext++];
+        String color = genericColors[genericNext];
+
+        genericNext++;
         if (genericNext >= genericColors.length) {
             genericNext = 0;
         }
-        RGB result = RGBColors.getRGBColor(color);
 
-        return result;
+        return RGBColors.getRGBColor(color);
     }
 }

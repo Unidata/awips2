@@ -217,14 +217,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
    <plugin
 	 id="gov.noaa.nws.ost.edex.plugin.binlightning"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
    <plugin
          id="com.raytheon.edex.plugin.binlightning"
          download-size="0"
@@ -371,21 +369,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
-   <plugin
-         id="edu.wisc.ssec.cimss.common.dataplugin.convectprob"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.wisc.ssec.cimss.edex.plugin.convectprob"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
--->
 
    <plugin
          id="com.raytheon.uf.edex.plugin.bufrascat"

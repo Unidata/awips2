@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,7 +37,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -48,27 +48,29 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
 
 /**
  * Implements a colorbar for continuous (scalar and vector) elements
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/26/2008              chammack    Initial Creation.
- * 04/13/2009   2092       njensen     Support for custom labels
- * 08/20/2012   #1083      randerso    Fixed user defined labels
- * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
- *                                     parameters, disable colormap interpolation
- *                                     by default.
- * 02/11/2014   #2788      randerso    Fixed infinite loop in computeIntervalAndPrecision 
- *                                     when pmax < pmin
- * 08/14/2014   #3523      mapeters    Updated deprecated {@link DrawableString#textStyle} 
- *                                     assignments.
- * 11/04/2014   #3557      randerso    Fixed NPE when parm is removed from display
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 26, 2008           chammack  Initial Creation.
+ * Apr 13, 2009  2092     njensen   Support for custom labels
+ * Aug 20, 2012  1083     randerso  Fixed user defined labels
+ * Feb 14, 2013  1616     bsteffen  Add option for interpolation of colormap
+ *                                  parameters, disable colormap interpolation
+ *                                  by default.
+ * Feb 11, 2014  2788     randerso  Fixed infinite loop in
+ *                                  computeIntervalAndPrecision when pmax < pmin
+ * Aug 14, 2014  3523     mapeters  Updated deprecated {@link
+ *                                  DrawableString#textStyle} assignments.
+ * Nov 04, 2014  3557     randerso  Fixed NPE when parm is removed from display
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 public class ContinuousColorbar implements IColorBarDisplay {
 
@@ -92,6 +94,11 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
     private transient IUFStatusHandler log;
 
+    /**
+     * @param dataManager
+     * @param parm
+     * @param colorbarResource
+     */
     public ContinuousColorbar(DataManager dataManager, Parm parm,
             GFEColorbarResource colorbarResource) {
         dManager = dataManager;
@@ -101,23 +108,11 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#dispose()
-     */
     @Override
     public void dispose() {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
@@ -129,7 +124,8 @@ public class ContinuousColorbar implements IColorBarDisplay {
         if (rscPair == null) {
             // spatial display manager deactivated since we got the color map?
             log.debug("Cannot obtain resource pair for "
-                    + parm.getParmID().getCompositeName() + ", exiting paint()");
+                    + parm.getParmID().getCompositeName()
+                    + ", exiting paint()");
             return;
         }
 
@@ -155,18 +151,15 @@ public class ContinuousColorbar implements IColorBarDisplay {
         float maxParm = rsc.getCapability(ColorMapCapability.class)
                 .getColorMapParameters().getColorMapMax();
 
-        Float[] labels = Activator
-                .getDefault()
-                .getPreferenceStore()
-                .getFloatArray(
-                        parm.getParmID().getParmName() + "_ColorBarLabels");
+        float[] labels = GFEPreference.getFloatArray(
+                parm.getParmID().getParmName() + "_ColorBarLabels");
 
         double labelLoc = 0.0f;
         double llx = pe.getMinX();
         double xExtent = pe.getWidth();
 
-        double ratio = (paintProps.getView().getExtent().getWidth() / paintProps
-                .getCanvasBounds().width);
+        double ratio = (paintProps.getView().getExtent().getWidth()
+                / paintProps.getCanvasBounds().width);
 
         DrawableString dstring = new DrawableString("", seColorBarTextColor);
         dstring.font = colorbarResource.getColorbarScaleFont();
@@ -193,11 +186,12 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
                 // Check to see if value is same as previous unless float....
                 if ((tmpValue != (int) labelValue) || (precision > 0)) {
-                    String labelText = GFEColorbarResource.formatString(
-                            labelValue, precision);
+                    String labelText = GFEColorbarResource
+                            .formatString(labelValue, precision);
 
                     labelLoc = llx
-                            + (((labelValue - minParm) / (maxParm - minParm)) * xExtent);
+                            + (((labelValue - minParm) / (maxParm - minParm))
+                                    * xExtent);
 
                     if (GFEColorbarResource.isLabelWithin(pe.getMinX(),
                             pe.getMaxX(), labelLoc, 0)) {
@@ -214,15 +208,15 @@ public class ContinuousColorbar implements IColorBarDisplay {
             }
         } else {
             int precision = parm.getGridInfo().getPrecision();
-            float labelValue = 0.0f;
-            for (Float labelValueObj : labels) {
-                labelValue = labelValueObj.floatValue();
+            for (float labelValue : labels) {
                 if (precision == 0) {
                     labelLoc = llx
-                            + (((labelValue - minParm) / (maxParm - minParm)) * xExtent);
+                            + (((labelValue - minParm) / (maxParm - minParm))
+                                    * xExtent);
                 } else {
                     labelLoc = llx
-                            + (((labelValue - minParm) / (maxParm - minParm)) * xExtent);
+                            + (((labelValue - minParm) / (maxParm - minParm))
+                                    * xExtent);
                 }
                 if (GFEColorbarResource.isLabelWithin(pe.getMinX(),
                         pe.getMaxX(), labelLoc, 0)) {
@@ -241,24 +235,27 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
         // Draw the pickup value
         WxValue wxv = parm.getParmState().getPickUpValue();
-        if ((wxv != null)
-                && ((wxv instanceof ScalarWxValue) || (wxv instanceof VectorWxValue))) {
+        if ((wxv != null) && ((wxv instanceof ScalarWxValue)
+                || (wxv instanceof VectorWxValue))) {
             float floatValue = ((ScalarWxValue) wxv).getValue();
             if ((floatValue >= minParm) && (floatValue <= maxParm)) {
-                labelLoc = llx
-                        + (((floatValue - minParm) / (maxParm - minParm)) * xExtent);
+                labelLoc = llx + (((floatValue - minParm) / (maxParm - minParm))
+                        * xExtent);
 
                 String s = wxv.toString();
                 dstring.font = colorbarResource.getPickupValueFont();
                 if (GridType.WEATHER == parm.getGridInfo().getGridType()) {
                     dstring.setText(s, seColorBarFgWxPickupColor);
+                    dstring.addTextStyle(TextStyle.DROP_SHADOW,
+                            seColorBarBgWxPickupColor);
                 } else {
                     dstring.setText(s, seColorBarFgPickupColor);
+                    dstring.addTextStyle(TextStyle.DROP_SHADOW,
+                            seColorBarBgPickupColor);
                 }
-                dstring.addTextStyle(TextStyle.DROP_SHADOW,
-                        seColorBarBgPickupColor);
 
-                double halfWidth = (target.getStringsBounds(dstring).getWidth() * ratio) / 2;
+                double halfWidth = (target.getStringsBounds(dstring).getWidth()
+                        * ratio) / 2;
 
                 if ((labelLoc - halfWidth) < pe.getMinX()) {
                     labelLoc = pe.getMinX() + halfWidth;
@@ -316,7 +313,8 @@ public class ContinuousColorbar implements IColorBarDisplay {
                 cPrecision = precisionBasedOnInterval((float) interval);
 
                 String s = GFEColorbarResource.formatString(pmax, cPrecision);
-                cLabelLength = (int) (target.getStringsBounds(ds, s).getWidth());
+                cLabelLength = (int) (target.getStringsBounds(ds, s)
+                        .getWidth());
                 long noLabels = xExtent / (cLabelLength + 20);
                 noInterval = (long) (parmExtent / interval);
                 if (noInterval > noLabels) {
@@ -399,8 +397,8 @@ public class ContinuousColorbar implements IColorBarDisplay {
     }
 
     /**
-     * @param seColorBarFgPickupColor
-     *            the seColorBarFgPickupColor to set
+     * @param seColorBarBgPickupColor
+     *            the seColorBarBgPickupColor to set
      */
     public void setSeColorBarBgPickupColor(RGB seColorBarBgPickupColor) {
         this.seColorBarBgPickupColor = seColorBarBgPickupColor;
@@ -414,18 +412,11 @@ public class ContinuousColorbar implements IColorBarDisplay {
         this.seColorBarBgWxPickupColor = seColorBarBgWxPickupColor;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#getValueAt(double[],
-     * int)
-     */
     @Override
     public WxValue getValueAt(double[] coord, int mouseButton) {
         PixelExtent lastExtent = colorbarResource.getExtent();
-        float fractionX = (float) ((coord[0] - lastExtent.getMinX()) / (lastExtent
-                .getMaxX() - lastExtent.getMinX()));
+        float fractionX = (float) ((coord[0] - lastExtent.getMinX())
+                / (lastExtent.getMaxX() - lastExtent.getMinX()));
         GFEResource rsc = (GFEResource) dManager.getSpatialDisplayManager()
                 .getResourcePair(parm).getResource();
         float min = rsc.getCapability(ColorMapCapability.class)

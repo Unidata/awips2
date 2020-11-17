@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
  * Sep 03, 2015  4779     njensen    Removed DataScale references
  * Dec 03, 2015  5147     bsteffen   Reset TimeMatcher on clear
  * Nov 08, 2016  5976     bsteffen   Remove unused D2D paint properties
+ * Feb 13, 2018  6664     bsteffen   Reset load mode on clear.
  * 
  * </pre>
  * 
@@ -82,7 +83,7 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
     @XmlAttribute
     protected double magnification = ((Double) VizGlobalsManager
             .getCurrentInstance().getPropery(VizConstants.MAGNIFICATION_ID))
-            .doubleValue();
+                    .doubleValue();
 
     /** The density */
     @XmlAttribute
@@ -115,8 +116,7 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
     @Override
     public void setMagnification(double magnification) {
         this.magnification = magnification;
-        List<ResourcePair> rps = new ArrayList<>(
-                descriptor.getResourceList());
+        List<ResourcePair> rps = new ArrayList<>(descriptor.getResourceList());
         for (int i = 0; i < rps.size(); i++) {
             AbstractVizResource<?, ?> resource = rps.get(i).getResource();
             if (resource != null) {
@@ -134,8 +134,7 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
     @Override
     public void setDensity(double density) {
         this.density = density;
-        List<ResourcePair> rps = new ArrayList<>(
-                descriptor.getResourceList());
+        List<ResourcePair> rps = new ArrayList<>(descriptor.getResourceList());
         for (int i = 0; i < rps.size(); i++) {
             AbstractVizResource<?, ?> resource = rps.get(i).getResource();
             if (resource != null) {
@@ -143,8 +142,8 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
                     rps.addAll(((IResourceGroup) resource).getResourceList());
                 }
                 if (resource.hasCapability(DensityCapability.class)) {
-                    resource.getCapability(DensityCapability.class).setDensity(
-                            density);
+                    resource.getCapability(DensityCapability.class)
+                            .setDensity(density);
                 }
             }
         }
@@ -197,12 +196,13 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
     @Override
     public Map<String, Object> getGlobalsMap() {
         Map<String, Object> globals = super.getGlobalsMap();
-        globals.put(VizConstants.FRAMES_ID, new Integer(getDescriptor()
-                .getNumberOfFrames()));
+        globals.put(VizConstants.FRAMES_ID,
+                new Integer(getDescriptor().getNumberOfFrames()));
         globals.put(VizConstants.DENSITY_ID, new Double(density));
         globals.put(VizConstants.MAGNIFICATION_ID, new Double(magnification));
-        globals.put(VizConstants.LOADMODE_ID, ((D2DTimeMatcher) getDescriptor()
-                .getTimeMatcher()).getLoadMode());
+        globals.put(VizConstants.LOADMODE_ID,
+                ((D2DTimeMatcher) getDescriptor().getTimeMatcher())
+                        .getLoadMode());
         return globals;
     }
 
@@ -223,17 +223,17 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
     @Override
     protected void customizeResourceList(ResourceList resourceList) {
         // Add the d2d colorbar resource
-        resourceList.add(ResourcePair
-                .constructSystemResourcePair(colorBarRscData));
+        resourceList
+                .add(ResourcePair.constructSystemResourcePair(colorBarRscData));
         // Add d2d legend resource
-        resourceList.add(ResourcePair
-                .constructSystemResourcePair(legendRscData));
+        resourceList
+                .add(ResourcePair.constructSystemResourcePair(legendRscData));
         // Add the d2d select pane resource
-        resourceList.add(ResourcePair
-                .constructSystemResourcePair(selectedRscData));
+        resourceList
+                .add(ResourcePair.constructSystemResourcePair(selectedRscData));
         // Add the d2d sample resource
-        resourceList.add(ResourcePair
-                .constructSystemResourcePair(samplingRscData));
+        resourceList
+                .add(ResourcePair.constructSystemResourcePair(samplingRscData));
 
         // Add the image combiner
         resourceList.addPostAddListener(getImageCombinerListener());
@@ -263,7 +263,8 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         AbstractTimeMatcher timeMatcher = descriptor.getTimeMatcher();
         if (timeMatcher instanceof D2DTimeMatcher) {
             D2DTimeMatcher newTimeMatcher = new D2DTimeMatcher();
-            timeMatcher.copyFrom(newTimeMatcher);
+            newTimeMatcher.copyFrom(timeMatcher);
+            newTimeMatcher.resetLoadMode();
             descriptor.setTimeMatcher(newTimeMatcher);
         }
         super.clear();

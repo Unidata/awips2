@@ -99,7 +99,8 @@ public class ColumnAttribData {
      * @param grType
      *            Graph type.
      */
-    public ColumnAttribData(String name, SortDirection sortDir, GraphType grType) {
+    public ColumnAttribData(String name, SortDirection sortDir,
+            GraphType grType) {
         this.name = name.trim();
         this.sortDir = sortDir;
         this.graphType = grType;
@@ -117,7 +118,8 @@ public class ColumnAttribData {
      * @param sortDir
      *            Sort direction.
      */
-    public ColumnAttribData(String name, String colName, SortDirection sortDir) {
+    public ColumnAttribData(String name, String colName,
+            SortDirection sortDir) {
         this.name = name.trim();
         this.columnName = colName;
         this.sortDir = sortDir;

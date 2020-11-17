@@ -127,7 +127,7 @@ Aug 02, 2017 6362    randerso    Initial creation, copied from geospatialConfig_
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
             </mapping>
         -->
     </filter>
@@ -155,7 +155,7 @@ Aug 02, 2017 6362    randerso    Initial creation, copied from geospatialConfig_
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
             </mapping>
         -->
     </filter>
@@ -179,7 +179,7 @@ Aug 02, 2017 6362    randerso    Initial creation, copied from geospatialConfig_
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
             </mapping>
         -->
     </filter>

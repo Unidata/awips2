@@ -23,7 +23,7 @@
         at different localization levels will be combined. 
     -->
 <DerivedParameter abbreviation="GHxSM" name="Filtered-500km Hgt" unit="m">
-    <Method models="SREF40" name="Filter">
+    <Method models="SREF212" name="Filter">
         <Field abbreviation="GHmean" />
         <ConstantField value="250.0" />
         <Field abbreviation="dx" />

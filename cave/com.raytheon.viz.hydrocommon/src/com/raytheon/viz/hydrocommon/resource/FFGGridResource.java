@@ -24,7 +24,6 @@ import java.awt.Rectangle;
 import java.nio.FloatBuffer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +37,8 @@ import javax.measure.unit.Unit;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
@@ -52,7 +49,7 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.xmrg.hrap.HRAP;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.RGBColors;
@@ -74,29 +71,25 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 14, 2009 2256       mpduff      Initial creation.  Moved here
- *                                     for additional functionality.
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 14, 2009  2256     mpduff    Initial creation.  Moved here for additional
+ *                                  functionality.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
-public class FFGGridResource extends
-        AbstractVizResource<FFGGridResourceData, MapDescriptor> {
+public class FFGGridResource
+        extends AbstractVizResource<FFGGridResourceData, MapDescriptor> {
 
     /**
      * Data duration.
      */
     private int duration;
-
-    /**
-     * The Unit Converter
-     */
-    private UnitConverter cvt;
 
     /** The ColorMapParameters */
     private ColorMapParameters parameters;
@@ -120,14 +113,6 @@ public class FFGGridResource extends
     /** The grid geometry */
     private GridGeometry2D gridGeometry;
 
-    /** The image brightness */
-    private float brightness = 1.0f;
-
-    /** The image contrast */
-    private float contrast = 1.0f;
-
-    private boolean isInterpolated;
-
     private GridRecord gr;
 
     private Rectangle rfcExtent;
@@ -136,8 +121,7 @@ public class FFGGridResource extends
      * Constructor
      */
     public FFGGridResource(FFGGridResourceData data, LoadProperties props) {
-        super(data, props);
-        dataTimes = new ArrayList<DataTime>();
+        super(data, props, false);
         String user_id = System.getProperty("user.name");
         this.duration = data.getDuration();
         colorSet = HydroDisplayManager.getInstance().getFFGColorMap(user_id,
@@ -199,15 +183,15 @@ public class FFGGridResource extends
         parameters.setColorMapMin(0);
         parameters.setDataMax(parameters.getColorMap().getSize() - 1);
         parameters.setDataMin(0);
-        cvt = parameters.getDataToImageConverter();
+        UnitConverter cvt = parameters.getDataToImageConverter();
 
         gridGeometry = gr.getLocation().getGridGeometry();
 
         try {
             data = new float[((float[]) gr.getMessageData()).length];
             data = (float[]) gr.getMessageData();
-            HydroDisplayManager.getInstance().setDataDate(
-                    gr.getDataTime().getRefTime());
+            HydroDisplayManager.getInstance()
+                    .setDataDate(gr.getDataTime().getRefTime());
 
             buf = FloatBuffer.allocate(data.length);
             for (float f : data) {
@@ -238,15 +222,10 @@ public class FFGGridResource extends
             project(gridGeometry.getCoordinateReferenceSystem());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.debug("Error loading FFG Data", e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         String noData = "";
@@ -328,13 +307,6 @@ public class FFGGridResource extends
         return (String) values.get("Value");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
@@ -342,14 +314,14 @@ public class FFGGridResource extends
             return null;
         }
 
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new HashMap<>();
 
         try {
             int nx = gr.getLocation().getNx();
-            int ny = gr.getLocation().getNy();
 
-            Coordinate gridCell = coord.asGridCell(HRAP.getInstance()
-                    .getGridGeometry(), PixelInCell.CELL_CORNER);
+            Coordinate gridCell = coord.asGridCell(
+                    HRAP.getInstance().getGridGeometry(),
+                    PixelInCell.CELL_CORNER);
 
             Point p = new Point((int) gridCell.x, (int) gridCell.y);
             values.put("X", Integer.toString(p.x));
@@ -374,24 +346,9 @@ public class FFGGridResource extends
                 }
             }
 
-        } catch (TransformException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-            // StatusConstants.CATEGORY, StatusConstants.SUBCATEGORY,
-            // e.getLocalizedMessage(), e);
-            e.printStackTrace();
-        } catch (FactoryException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-            // StatusConstants.CATEGORY, StatusConstants.SUBCATEGORY,
-            // e.getLocalizedMessage(), e);
-            e.printStackTrace();
         } catch (Exception e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-            // StatusConstants.CATEGORY, StatusConstants.SUBCATEGORY,
-            // e.getLocalizedMessage(), e);
-            e.printStackTrace();
+            statusHandler.handle(Priority.DEBUG,
+                    "Error interrogating FFG grid resource", e);
         }
         return values;
     }

@@ -55,14 +55,16 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.actions.FormatterlauncherAction;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.GFEMapRenderableDisplay;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
+import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.rsc.GFELegendResourceData;
+import com.raytheon.viz.gfe.statusline.ISCSendEnable;
 import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
@@ -103,7 +105,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Apr 21, 2017  6239     randerso  Prevent UI deadlock if an async task calls
  *                                  getPreferenceStore() while the dialog is
  *                                  open.
- * Jul 19, 2017  ----     mjames    Remove ISCSendEnable.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
  *
  * </pre>
  *
@@ -151,10 +154,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
 
         DataManager dm = DataManagerUIFactory.getInstance(perspectiveWindow);
 
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
-
-        String[] maps = prefs.getStringArray("MapBackgrounds_default");
+        String[] maps = GFEPreference.getStringArray("MapBackgrounds_default");
 
         MapManager mapMgr = MapManager
                 .getInstance((IMapDescriptor) pane.getDescriptor());
@@ -225,8 +225,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
 
     @Override
     protected String getTitle(String title) {
-        String config = Activator.getDefault().getPreferenceStore()
-                .getConfigName();
+        String config = GFEPreference.getConfigName();
         String gfeTitle = super.getTitle(title);
         gfeTitle += "(" + config + ")";
         return gfeTitle;
@@ -243,11 +242,17 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
         FormatterlauncherAction.closeDialog();
 
         TaskManager.getInstance().shutdown();
+
+        Message.clearHistory();
+
+        // Force prompt for GFE config file on next open
+        Activator.getDefault().getPreferenceStore().clearConfiguration();
     }
 
     @Override
     protected List<ContributionItem> getStatusLineItems() {
         List<ContributionItem> items = super.getStatusLineItems();
+        items.add(new ISCSendEnable());
         return items;
     }
 
@@ -260,8 +265,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
         String schemeId = activeScheme.getId();
         BindingManager bindingManager = ((BindingService) bindingService)
                 .getBindingManager();
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
 
         try {
             // get currentBindings and remove any GFE ShortCut bindings
@@ -269,7 +272,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
 
             for (int i = 1; i < 201; i++) {
                 String shortCut = "ShortCut" + i;
-                String[] keyDef = prefs.getStringArray(shortCut);
+                String[] keyDef = GFEPreference.getStringArray(shortCut);
                 if ((keyDef != null) && (keyDef.length > 0)) {
                     if (keyDef.length != 4) {
                         statusHandler.handle(Priority.PROBLEM,

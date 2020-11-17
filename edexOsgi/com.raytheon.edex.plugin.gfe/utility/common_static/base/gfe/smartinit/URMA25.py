@@ -53,6 +53,12 @@ class URMA25Forecaster(Forecaster):
         grid[greater(tp6hr_SFC, 1000)] = 0.0
         grid /= 25.4
         return grid.clip(0, 10, grid)  # clip at zero and 10 inches
+    
+    def calcQPE01(self, tp1hr_SFC):
+        grid = tp1hr_SFC.copy()
+        grid[greater(tp1hr_SFC, 1000)] = 0.0
+        grid /= 25.4
+        return grid.clip(0, 10, grid)  # clip at zero and 10 inches
 
     #==========================================================================
     #

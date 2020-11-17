@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -51,7 +51,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener;
@@ -62,28 +62,31 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
 
 /**
  * GFE Grid Manager
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 7, 2009             randerso    Redesigned
- * May 18, 2009 2159       rjpeter     Added temporal editor.
- * Jan 14, 2013 1442       rferrel     Add SimulatedTimeChangeListener.
- * Jan 15, 2014 16072      ryu         Modify syncSelectTR() to skip the original code when 
- *                                     called back from setSelectedTime().
- * Aug 13, 2015  4749      njensen     Implemented dispose()
- * Mar 10, 2016  5479      randerso    Moved widthIncrement into GridManagerUtil
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 07, 2009           randerso  Redesigned
+ * May 18, 2009  2159     rjpeter   Added temporal editor.
+ * Jan 14, 2013  1442     rferrel   Add SimulatedTimeChangeListener.
+ * Jan 15, 2014  16072    ryu       Modify syncSelectTR() to skip the original
+ *                                  code when called back from
+ *                                  setSelectedTime().
+ * Aug 13, 2015  4749     njensen   Implemented dispose()
+ * Mar 10, 2016  5479     randerso  Moved widthIncrement into GridManagerUtil
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
-public class GridManager implements IGridManager,
-        ISpatialEditorTimeChangedListener {
+public class GridManager
+        implements IGridManager, ISpatialEditorTimeChangedListener {
 
     private Date selectedTime = null;
 
@@ -129,7 +132,8 @@ public class GridManager implements IGridManager,
                         }
                         if ((p + timeScroller.getThumb()) > timeScroller
                                 .getMaximum()) {
-                            timeScroller.setMaximum(p + timeScroller.getThumb());
+                            timeScroller
+                                    .setMaximum(p + timeScroller.getThumb());
                         }
                         timeScroller.setSelection(p);
                         clearVisibleTimeRange();
@@ -139,8 +143,8 @@ public class GridManager implements IGridManager,
                             selectionEnd += increment;
                             TimeRange selection = getUtil().pixelsToSelection(
                                     selectionStart, selectionEnd);
-                            dataManager.getParmOp().setSelectionTimeRange(
-                                    selection);
+                            dataManager.getParmOp()
+                                    .setSelectionTimeRange(selection);
                         }
 
                         redraw();
@@ -161,8 +165,8 @@ public class GridManager implements IGridManager,
     /**
      * Job to update the time display
      */
-    private static class UpdateJob extends UIJob implements
-            ISimulatedTimeChangeListener {
+    private static class UpdateJob extends UIJob
+            implements ISimulatedTimeChangeListener {
 
         public UpdateJob() {
             super("GridManagerUpdate");
@@ -170,12 +174,6 @@ public class GridManager implements IGridManager,
             SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @seeorg.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
-         * IProgressMonitor)
-         */
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
             // if any displays are active
@@ -184,20 +182,14 @@ public class GridManager implements IGridManager,
                 for (GridManager gm : activeList) {
                     gm.redraw();
                 }
-                long t = System.currentTimeMillis() % 60000;
-                this.schedule(60000 - t);
+                long t = System.currentTimeMillis()
+                        % TimeUtil.MILLIS_PER_MINUTE;
+                this.schedule(TimeUtil.MILLIS_PER_MINUTE - t);
             }
 
             return Status.OK_STATUS;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.uf.common.time.ISimulatedTimeChangeListener#timechanged
-         * ()
-         */
         @Override
         public void timechanged() {
             wakeUp();
@@ -228,7 +220,7 @@ public class GridManager implements IGridManager,
             }
 
             if (!monitor.isCanceled()) {
-                this.schedule(60000);
+                this.schedule(TimeUtil.MILLIS_PER_MINUTE);
             }
             return Status.OK_STATUS;
         }
@@ -236,7 +228,7 @@ public class GridManager implements IGridManager,
 
     private TemporalEditorDeactiveJob teDeactivateJob = new TemporalEditorDeactiveJob();
 
-    private static ConcurrentSkipListSet<GridManager> activeList = new ConcurrentSkipListSet<GridManager>(
+    private static ConcurrentSkipListSet<GridManager> activeList = new ConcurrentSkipListSet<>(
             new Comparator<GridManager>() {
 
                 @Override
@@ -255,6 +247,8 @@ public class GridManager implements IGridManager,
     private Slider timeScroller;
 
     private TimeScale timeScale;
+
+    private GridBarPreferences gridBarPrefs;
 
     private GridCanvas gridCanvas;
 
@@ -276,6 +270,7 @@ public class GridManager implements IGridManager,
 
     @Override
     public void dispose() {
+        gridBarPrefs.dispose();
         teDeactivateJob.cancel();
         updateJob.cancel();
         scrollJob.cancel();
@@ -386,6 +381,12 @@ public class GridManager implements IGridManager,
         return dataManager;
     }
 
+    /**
+     * Constructor
+     *
+     * @param parent
+     * @param dataManager
+     */
     public GridManager(Composite parent, DataManager dataManager) {
         if (dataManager == null) {
             return;
@@ -393,6 +394,7 @@ public class GridManager implements IGridManager,
 
         this.parent = parent;
         this.dataManager = dataManager;
+        this.gridBarPrefs = new GridBarPreferences();
         this.util = new GridManagerUtil(this);
 
         GridLayout gridLayout = new GridLayout(1, false);
@@ -421,9 +423,10 @@ public class GridManager implements IGridManager,
         gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         timeScroller.setLayoutData(gridData);
         updateTimeRange(getDataManager().getParmManager().getSystemTimeRange());
-        timeScroller
-                .setSelection((int) ((SimulatedTime.getSystemTime().getTime()
-                        .getTime() - TimeUtil.MILLIS_PER_HOUR) / TimeUtil.MILLIS_PER_SECOND));
+        timeScroller.setSelection(
+                (int) ((SimulatedTime.getSystemTime().getTime().getTime()
+                        - TimeUtil.MILLIS_PER_HOUR)
+                        / TimeUtil.MILLIS_PER_SECOND));
         timeScroller.setIncrement(TimeUtil.SECONDS_PER_HOUR);
 
         timeScroller.addSelectionListener(new SelectionAdapter() {
@@ -453,7 +456,6 @@ public class GridManager implements IGridManager,
 
                 });
 
-        // TODO move scrolledComp into GridCanvas
         gridScrolledComp = new ScrolledComposite(parent, SWT.V_SCROLL);
         gridLayout = new GridLayout(1, false);
         gridScrolledComp.setLayout(gridLayout);
@@ -470,22 +472,15 @@ public class GridManager implements IGridManager,
         gridCanvas.layout();
         gridScrolledComp.setExpandHorizontal(true);
         gridScrolledComp.setExpandVertical(true);
-        gridScrolledComp.getVerticalBar().setIncrement(
-                gridCanvas.getGridBarSpacing());
+        gridScrolledComp.getVerticalBar()
+                .setIncrement(gridCanvas.getGridBarSpacing());
 
-        lockSelectionTRtoTimeStep = Activator.getDefault().getPreferenceStore()
+        lockSelectionTRtoTimeStep = GFEPreference
                 .getBoolean("SelectGridsWhenStepping");
         setSelectedTime(SimulatedTime.getSystemTime().getTime());
 
         MouseHandler mouseHandler = new MouseHandler() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragEnd(org.eclipse
-             * .swt.events.MouseEvent)
-             */
             @Override
             public void dragEnd(MouseEvent e) {
                 super.dragEnd(e);
@@ -497,13 +492,6 @@ public class GridManager implements IGridManager,
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragMove(org.eclipse
-             * .swt.events.MouseEvent)
-             */
             @Override
             public void dragMove(MouseEvent e) {
                 super.dragMove(e);
@@ -524,13 +512,6 @@ public class GridManager implements IGridManager,
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragStart(org.eclipse
-             * .swt.events.MouseEvent, org.eclipse.swt.graphics.Point)
-             */
             @Override
             public void dragStart(MouseEvent e) {
                 super.dragStart(e);
@@ -541,13 +522,6 @@ public class GridManager implements IGridManager,
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#mouseClick(org.
-             * eclipse.swt.events.MouseEvent)
-             */
             @Override
             public void mouseClick(MouseEvent e) {
                 if ((e.stateMask == (SWT.BUTTON1 | SWT.SHIFT))
@@ -579,13 +553,22 @@ public class GridManager implements IGridManager,
                 .addSpatialEditorTimeChangedListener(this);
     }
 
+    /**
+     * @return the grid bar preferences
+     */
+    public GridBarPreferences getGridBarPrefs() {
+        return gridBarPrefs;
+    }
+
+    /**
+     * @return the visible time range
+     */
     public TimeRange getVisibleTimeRange() {
         if (this.visibleTimeRange == null) {
-            long duration = getUtil().pixelsToDuration(
-                    timeScale.getClientArea().width);
-            this.visibleTimeRange = new TimeRange(
-                    new Date(
-                            (timeScroller.getSelection() * TimeUtil.MILLIS_PER_SECOND)),
+            long duration = getUtil()
+                    .pixelsToDuration(timeScale.getClientArea().width);
+            this.visibleTimeRange = new TimeRange(new Date(
+                    (timeScroller.getSelection() * TimeUtil.MILLIS_PER_SECOND)),
                     duration);
         }
 
@@ -595,7 +578,7 @@ public class GridManager implements IGridManager,
     /**
      * This function is used to checkVisibility for painting purposes. If the
      * visible range is null due to a recent change it will return true
-     * 
+     *
      * @param tr
      *            to check
      * @return if tr overlaps visible range or visible range needs to be
@@ -608,14 +591,17 @@ public class GridManager implements IGridManager,
         return true;
     }
 
+    /**
+     * @return the visible time range in the temporal editor
+     */
     public TimeRange getTemporalEditorVisibleTimeRange() {
         if ((this.teVisibleTimeRange == null) && (temporalEditor != null)) {
             TimeRange tr = getVisibleTimeRange().clone();
             int horizOffset = temporalEditor.getHorizOffset();
             long millis = getUtil().pixelsToDuration(horizOffset);
             Date start = tr.getStart();
-            Calendar currentTickCal = Calendar.getInstance(TimeZone
-                    .getTimeZone("GMT"));
+            Calendar currentTickCal = Calendar
+                    .getInstance(TimeZone.getTimeZone("GMT"));
             currentTickCal.setTimeInMillis(start.getTime() + millis);
             tr.setStart(currentTickCal.getTime());
             teVisibleTimeRange = tr;
@@ -625,12 +611,12 @@ public class GridManager implements IGridManager,
     }
 
     /**
-     * 
+     *
      */
     protected void adjustScroller() {
         clearVisibleTimeRange();
-        int increment = (int) (getUtil().pixelsToDuration(
-                timeScale.getClientArea().width) / 1000);
+        int increment = (int) (getUtil()
+                .pixelsToDuration(timeScale.getClientArea().width) / 1000);
         timeScroller.setThumb(increment);
         timeScroller.setPageIncrement(increment);
     }
@@ -654,11 +640,6 @@ public class GridManager implements IGridManager,
         clearVisibleTimeRange();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.gridmanager2.IGridManager#redraw()
-     */
     @Override
     public void redraw() {
         if (!parent.isDisposed()) {
@@ -732,10 +713,10 @@ public class GridManager implements IGridManager,
         teScrolledComp.setContent(temporalEditor);
         teScrolledComp.setExpandHorizontal(true);
         teScrolledComp.setExpandVertical(true);
-        teScrolledComp.getVerticalBar().setIncrement(
-                gridCanvas.getGridBarSpacing());
-        teScrolledComp.getVerticalBar().setPageIncrement(
-                gridCanvas.getGridBarSpacing());
+        teScrolledComp.getVerticalBar()
+                .setIncrement(gridCanvas.getGridBarSpacing());
+        teScrolledComp.getVerticalBar()
+                .setPageIncrement(gridCanvas.getGridBarSpacing());
 
         teScrolledComp.addControlListener(new ControlAdapter() {
             @Override
@@ -754,8 +735,8 @@ public class GridManager implements IGridManager,
     public void setSelectedTime(Date selectedTime) {
         // set attribute to check if we are calling back to syncSelectTR()
         this.selectedTime = selectedTime;
-        dataManager.getSpatialDisplayManager().setSpatialEditorTime(
-                selectedTime);
+        dataManager.getSpatialDisplayManager()
+                .setSpatialEditorTime(selectedTime);
         redraw();
     }
 
@@ -771,7 +752,7 @@ public class GridManager implements IGridManager,
          * setSelectedTime() will eventually call back to this method, in which
          * case skip the original code (within the if block immediately below).
          */
-        if (t.equals(selectedTime) == false) {
+        if (!t.equals(selectedTime)) {
             // Use a selection tr of 1 hour duration if no active parm,
             // if active parm and no grid, use the parm's time constraint,
             // if active parm and grid, use the grid time.
@@ -818,22 +799,17 @@ public class GridManager implements IGridManager,
      *            the lockSelectionTRtoTimeStep to set
      */
     @Override
-    public void setLockSelectionTRtoTimeStep(boolean lockSelectionTRtoTimeStep) {
+    public void setLockSelectionTRtoTimeStep(
+            boolean lockSelectionTRtoTimeStep) {
         this.lockSelectionTRtoTimeStep = lockSelectionTRtoTimeStep;
 
-        ICommandService service = (ICommandService) PlatformUI.getWorkbench()
+        ICommandService service = PlatformUI.getWorkbench()
                 .getService(ICommandService.class);
 
         service.refreshElements(
                 "com.raytheon.viz.gfe.actions.SelectGridsWhenStepping", null);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener#
-     * spatialEditorTimeChanged(java.util.Date)
-     */
     @Override
     public void spatialEditorTimeChanged(Date date) {
         syncSelectTR(date);

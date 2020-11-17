@@ -54,7 +54,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request impo
 SCRIPT_DIR = abspath(dirname(argv[0]))
 
 # ---- Setup Logging ----------------------------------------------------------
-from . import logging
+import logging
 from time import strftime, gmtime
 timeStamp = strftime("%Y%m%d", gmtime())
 logFile = '/awips2/edex/logs/configureTextProducts-'+timeStamp+'.log'

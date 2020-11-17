@@ -31,6 +31,7 @@
     <contribute xsi:type="menuItem" menuText="Precip Type fm Models" key="PTyp"
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Storm Tot Precip" key="SPAcc" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="1hr Precip Accum" key="TP1hr" indentText="true" />
     <contribute xsi:type="menuItem" menuText="3hr Precip Accum" key="TP3hr" indentText="true" />
     <contribute xsi:type="menuItem" menuText="6hr Precip Accum" key="TP6hr" indentText="true" />
     <contribute xsi:type="menuItem" menuText="12hr Precip Accum" key="TP12hr" indentText="true" />

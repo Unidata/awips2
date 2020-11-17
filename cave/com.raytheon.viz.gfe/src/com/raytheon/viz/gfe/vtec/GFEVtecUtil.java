@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import com.google.common.collect.ImmutableSet;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
+import com.raytheon.uf.common.activetable.response.RestoreLastEtnResponse;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.vtec.VtecUtil;
  * Oct 16, 2015  17771    dgilling  Removed IGNORE_NATIONAL_ETN.
  * Nov 03, 2016  5934     randerso  Moved VtecObject and VtecUtil to a separate
  *                                  plugin.
+ * Oct 03, 2018  20557    ryu       Add method to restore ETN when transmission fails.
  *
  * </pre>
  *
@@ -233,6 +235,41 @@ public class GFEVtecUtil {
             boolean lockEtn, boolean performISC, boolean reportOnlyConflict,
             Integer etnOverride) throws VizException {
         return VtecUtil.getNextEtn(office, phensig, lockEtn, performISC,
+                reportOnlyConflict, etnOverride);
+    }
+
+    /**
+     * Restores the last used ETN for a specific product and office.
+     *
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See
+     *            {@link GetNextEtnUtil#getNextEtnFromPartners(String,
+     *            ActiveTableMode, String, Calendar, List<IRequestRouter>)} for
+     *            more information.
+     * @param reportOnlyConflict
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurred sending the request to the server.
+     */
+    public static RestoreLastEtnResponse restoreLastEtn(String office, 
+            String phensig, boolean performISC, boolean reportOnlyConflict,
+            Integer etnOverride) throws VizException {
+        return VtecUtil.restoreLastEtn(office, phensig, performISC,
                 reportOnlyConflict, etnOverride);
     }
 

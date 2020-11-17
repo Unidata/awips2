@@ -53,22 +53,22 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Dialog to get user options on history to display.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
  * Oct 16, 2012 1229       rferrel     Make dialog non-blocking.
  * Jan 06, 2015 3879       nabowle     Handle load clicked with nothing selected.
- * 
+ * Feb 12, 2018 6580       tgurney     Do not minimize when CAVE is minimized
+ *
  * </pre>
- * 
+ *
  * @author rferrel
- * @version 1.0
  */
 public class HistoryListDlg extends CaveSWTDialog {
     private final transient IUFStatusHandler statusHandler = UFStatus
@@ -76,24 +76,15 @@ public class HistoryListDlg extends CaveSWTDialog {
 
     private List dataList;
 
-    private final int BOTTOM_BTN_WIDTH = 90;
-
-    private Button originalRdo;
-
-    private Button currentRdo;
-
-    private Button loadBtn;
-
-    private Button alterBundleBtn;
+    private static final int BOTTOM_BTN_WIDTH = 90;
 
     private Button copyOutBtn;
-
-    private Button closeBtn;
 
     private AlterBundleDlg alterDlg;
 
     public HistoryListDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
         setText("History List");
 
         try {
@@ -185,8 +176,8 @@ public class HistoryListDlg extends CaveSWTDialog {
 
                 HistoryList.getInstance()
                         .removeHistoryListener(historyListener);
-                ProcedureComm.getInstance().removeCopyOutStateListener(
-                        changeListener);
+                ProcedureComm.getInstance()
+                        .removeCopyOutStateListener(changeListener);
             }
         });
     }
@@ -200,8 +191,8 @@ public class HistoryListDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 175;
         gd.heightHint = 125;
-        dataList = new List(shell, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL
-                | SWT.H_SCROLL);
+        dataList = new List(shell,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
         dataList.setLayoutData(gd);
         String[] labels = HistoryList.getInstance().getLabels();
         dataList.setItems(labels);
@@ -212,25 +203,25 @@ public class HistoryListDlg extends CaveSWTDialog {
         GridLayout gl = new GridLayout(2, false);
         gl.horizontalSpacing = 10;
         buttonComp.setLayout(gl);
-        buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        buttonComp.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = BOTTOM_BTN_WIDTH;
-        originalRdo = new Button(buttonComp, SWT.RADIO);
+        Button originalRdo = new Button(buttonComp, SWT.RADIO);
         originalRdo.setText("Original");
         originalRdo.setLayoutData(gd);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = BOTTOM_BTN_WIDTH;
-        currentRdo = new Button(buttonComp, SWT.RADIO);
+        Button currentRdo = new Button(buttonComp, SWT.RADIO);
         currentRdo.setText("Current");
         currentRdo.setSelection(true);
         currentRdo.setLayoutData(gd);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = BOTTOM_BTN_WIDTH;
-        loadBtn = new Button(buttonComp, SWT.PUSH);
+        Button loadBtn = new Button(buttonComp, SWT.PUSH);
         loadBtn.setText("Load");
         loadBtn.setLayoutData(gd);
         loadBtn.addSelectionListener(new SelectionAdapter() {
@@ -245,8 +236,8 @@ public class HistoryListDlg extends CaveSWTDialog {
         copyOutBtn = new Button(buttonComp, SWT.PUSH);
         copyOutBtn.setText("Copy Out");
         copyOutBtn.setLayoutData(gd);
-        copyOutBtn.setEnabled(ProcedureComm.getInstance()
-                .getCopyListenerCount() > 0);
+        copyOutBtn.setEnabled(
+                ProcedureComm.getInstance().getCopyListenerCount() > 0);
         final HistoryListDlg thisDlg = this;
         copyOutBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -254,17 +245,17 @@ public class HistoryListDlg extends CaveSWTDialog {
                 int idx = dataList.getSelectionIndex();
                 if (idx > -1) {
                     try {
-                        String label = HistoryList.getInstance().getLabels()[dataList
-                                .getSelectionIndex()];
+                        String label = HistoryList.getInstance()
+                                .getLabels()[dataList.getSelectionIndex()];
                         BundlePair bp = new BundlePair();
-                        bp.xml = HistoryList.getInstance().getBundleAsString(
-                                idx, false);
+                        bp.xml = HistoryList.getInstance()
+                                .getBundleAsString(idx, false);
                         bp.name = label;
                         ProcedureComm.getInstance().copyOut(bp, thisDlg);
                     } catch (VizException e) {
                         ErrorDialog.openError(shell, "Error",
-                                "Error loading bundle", new Status(
-                                        Status.ERROR, UiPlugin.PLUGIN_ID,
+                                "Error loading bundle",
+                                new Status(Status.ERROR, UiPlugin.PLUGIN_ID,
                                         "Error loading Bundle", e));
                     }
                 }
@@ -274,7 +265,7 @@ public class HistoryListDlg extends CaveSWTDialog {
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
-        alterBundleBtn = new Button(buttonComp, SWT.PUSH);
+        Button alterBundleBtn = new Button(buttonComp, SWT.PUSH);
         alterBundleBtn.setText("Alter Bundle...");
         alterBundleBtn.setLayoutData(gd);
         alterBundleBtn.setEnabled(true);
@@ -287,7 +278,7 @@ public class HistoryListDlg extends CaveSWTDialog {
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
-        closeBtn = new Button(buttonComp, SWT.PUSH);
+        Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
@@ -305,8 +296,8 @@ public class HistoryListDlg extends CaveSWTDialog {
 
         try {
             if (mustCreate(alterDlg)) {
-                Bundle b = HistoryList.getInstance().getBundle(
-                        dataList.getSelectionIndex(), false);
+                Bundle b = HistoryList.getInstance()
+                        .getBundle(dataList.getSelectionIndex(), false);
                 alterDlg = new AlterBundleDlg(b, getShell());
                 alterDlg.addCloseCallback(new ICloseCallback() {
 
@@ -333,8 +324,8 @@ public class HistoryListDlg extends CaveSWTDialog {
         String editorName = null;
 
         if (b.getDisplays().length > 0) {
-            editorName = DescriptorMap.getEditorId(b.getDisplays()[0]
-                    .getDescriptor().getClass().getName());
+            editorName = DescriptorMap.getEditorId(
+                    b.getDisplays()[0].getDescriptor().getClass().getName());
         }
 
         AbstractEditor editor = UiUtil.createOrOpenEditor(editorName,
@@ -358,8 +349,8 @@ public class HistoryListDlg extends CaveSWTDialog {
         }
         String editorName = null;
         try {
-            Bundle b = HistoryList.getInstance().getBundle(
-                    dataList.getSelectionIndex(), true);
+            Bundle b = HistoryList.getInstance()
+                    .getBundle(dataList.getSelectionIndex(), true);
 
             if (b != null && b.getDisplays() != null
                     && b.getDisplays().length > 0) {

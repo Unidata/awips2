@@ -37,7 +37,7 @@
 -XX:G1MixedGCLiveThresholdPercent=25
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5
--DvizVersion=18.1.1
+-DcaveVersion=18.2.1
 -DbuildSystem=RHEL/Eclipse
 -XX:SoftRefLRUPolicyMSPerMB=1000
       </vmArgs>

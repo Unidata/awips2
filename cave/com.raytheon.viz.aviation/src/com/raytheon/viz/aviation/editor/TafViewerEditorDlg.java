@@ -271,6 +271,9 @@ import jep.JepException;
  * Jan 13, 2017 5959        njensen     Cleaned up some warnings
  * Mar 22, 2017 6183        tgurney     Move localization files to common_static
  * Aug 09, 2017 6361        tgurney     Set issuance type from "Restore From" file
+ * Dec 19, 2017 6946        tgurney     Check for multiple '=' before running any tool
+ * Feb 21, 2018 6946        tgurney     Catch and ignore errors that appear when
+ *                                      mouse hovering over text area
  *
  * </pre>
  *
@@ -1980,11 +1983,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                             .getItem(toolsCbo.getSelectionIndex());
                     String bbb = editorTafTabComp.getBBB();
 
-                    // DR166478
-                    if ("UseMetarForPrevailing".equals(toolName)) {
-                        if (checkBasicSyntaxError(true)) {
-                            return;
-                        }
+                    if (checkBasicSyntaxError(true)) {
+                        return;
                     }
 
                     // Setup for python request
@@ -2095,7 +2095,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                     } else {
                         st.setToolTipText(null);
                     }
-                } catch (Exception ex) {
+                } catch (IllegalArgumentException ex) {
+                    // No text under cursor
                     st.setToolTipText(null);
                 }
             }
@@ -2596,10 +2597,14 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                 editorTafTabComp.updateTafSent(false);
             }
         } catch (FileNotFoundException e) {
-            setMessageStatusError("File " + filepath + " not found.");
+            String msg = "File " + filepath + " not found.";
+            setMessageStatusError(msg);
+            statusHandler.handle(Priority.PROBLEM, msg, e);
         } catch (IOException e) {
-            setMessageStatusError(
-                    "An IOException occured while opening file " + filepath);
+            String msg = "An IOException occured while opening file "
+                    + filepath;
+            setMessageStatusError(msg);
+            statusHandler.handle(Priority.PROBLEM, msg, e);
         } finally {
             if (errorMsg != null) {
                 setMessageStatusError("File " + filepath + ": " + errorMsg);
@@ -2730,9 +2735,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                         setMessageStatusOK(
                                 "File " + filepath + " opened successfully.");
                     } catch (IOException | LocalizationException e) {
-                        setMessageStatusError(
-                                "An Exception occured while reading file "
-                                        + filepath);
+                        String msg = "An Exception occured while reading file "
+                                + filepath;
+                        statusHandler.handle(Priority.PROBLEM, msg, e);
+                        setMessageStatusError(msg);
                     } finally {
                         if (errorMsg != null) {
                             setMessageStatusError(
@@ -2920,11 +2926,12 @@ public class TafViewerEditorDlg extends CaveSWTDialog
             try {
                 tempPrintText.print();
             } catch (SWTError ex) {
+                String msg = "Unable to determine default printer.";
+                statusHandler.handle(Priority.PROBLEM, msg, ex);
                 MessageBox box = new MessageBox(shell,
                         SWT.ICON_WARNING | SWT.OK);
                 box.setText("Print Error");
-                box.setMessage("Unable to determine default printer.\n"
-                        + ex.toString());
+                box.setMessage(msg + "\n" + ex.toString());
                 box.open();
             } finally {
                 tempPrintText.dispose();
@@ -3018,7 +3025,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                     } else {
                         st.setToolTipText(null);
                     }
-                } catch (Exception ex) {
+                } catch (IllegalArgumentException ex) {
+                    // No text under cursor
                     st.setToolTipText(null);
                 }
             }
@@ -3398,10 +3406,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                 Object com = python.execute("updateTime", "parser", args);
                 resultMap = (Map<String, Object>) com;
             } catch (JepException e) {
-                msgStatComp.setMessageText(
-                        "An error occured while running TafDecoder.py: "
-                                + e.getMessage(),
-                        errorColor.getRGB());
+                String msg = "An error occured while running TafDecoder.py: "
+                        + e.getMessage();
+                msgStatComp.setMessageText(msg, errorColor.getRGB());
+                statusHandler.handle(Priority.PROBLEM, msg, e);
                 return;
             }
 
@@ -3706,7 +3714,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                         } else {
                             st.setToolTipText(null);
                         }
-                    } catch (Exception ex) {
+                    } catch (IllegalArgumentException ex) {
+                        // No text under cursor
                         st.setToolTipText(null);
                     }
                 }
@@ -3923,15 +3932,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog
                     setMessageStatusOK("Checks successful.");
                 }
             }
-        } catch (ConfigurationException e) {
-            setMessageStatusError(
-                    "An Error occured while performing the QC check.");
-        } catch (IOException e) {
-            setMessageStatusError(
-                    "An Error occured while performing the QC check.");
         } catch (Exception e) {
-            setMessageStatusError(
-                    "An Error occured while performing the QC check.");
+            String msg = "An Error occured while performing the QC check.";
+            setMessageStatusError(msg);
+            statusHandler.handle(Priority.PROBLEM, msg, e);
         } finally {
             setWaitCursor(false);
         }
@@ -4415,8 +4419,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog
             }
             showDialog();
         } catch (ConfigurationException | IOException e) {
-            setMessageStatusError(
-                    "Error: Unable to load site configuration data.");
+            String msg = "Error: Unable to load site configuration data.";
+            setMessageStatusError(msg);
+            statusHandler.handle(Priority.PROBLEM, msg, e);
         }
     }
 

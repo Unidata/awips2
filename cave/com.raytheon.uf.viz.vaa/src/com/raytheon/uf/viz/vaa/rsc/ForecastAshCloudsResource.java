@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.vaa.rsc;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,13 +52,14 @@ import com.vividsolutions.jts.geom.Polygon;
  * <pre>
  *
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Nov 28, 2009  3268     jsanchez  Initial creation
  * Sep 23, 2016  5887     mapeters  Added shapeMap to reuse wireframe shapes
  *                                  across paintInternal() calls
- *
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * 
  * </pre>
  *
  * @author jsanchez
@@ -82,8 +82,7 @@ public class ForecastAshCloudsResource extends
     protected ForecastAshCloudsResource(
             ForecastAshCloudsResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
-        this.dataTimes = new ArrayList<>();
+        super(resourceData, loadProperties, false);
     }
 
     @Override
@@ -93,12 +92,12 @@ public class ForecastAshCloudsResource extends
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        String returnValue = "";
+        StringBuilder returnValue = new StringBuilder();
         DataTime displayedDataTime = descriptor.getTimeForResource(this);
         if (displayedDataTime != null) {
             Collection<VAARecord> records = null;
             if (!this.recordsToParse.containsKey(displayedDataTime)) {
-                return returnValue;
+                return returnValue.toString();
             } else {
                 records = this.recordsToParse.get(displayedDataTime);
             }
@@ -135,17 +134,17 @@ public class ForecastAshCloudsResource extends
                                 temp = record.getFcst18Hr() != null
                                         ? record.getFcst18Hr() : "";
                             }
-                            if (!returnValue.isEmpty()) {
-                                returnValue += "\n \n";
+                            if (returnValue.length() > 0) {
+                                returnValue.append("\n \n");
                             }
-                            returnValue += temp;
+                            returnValue.append(temp);
                         }
                     }
                 }
             }
         }
 
-        return returnValue.isEmpty() ? "NO DATA" : returnValue;
+        return returnValue.length() == 0 ? "NO DATA" : returnValue.toString();
     }
 
     /**
@@ -158,7 +157,6 @@ public class ForecastAshCloudsResource extends
         Collection<VAARecord> toParse = recordsToParse.get(dataTime);
         if (toParse == null) {
             dataTimes.add(dataTime);
-            Collections.sort(this.dataTimes);
             toParse = new ArrayList<>();
             recordsToParse.put(dataTime, toParse);
         }

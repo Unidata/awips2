@@ -119,7 +119,7 @@
     <bean id="gatherThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="${ebxml-federation-repl-threads}" />
         <property name="maxPoolSize" value="${ebxml-federation-repl-threads}" />
-        <property name="queueCapacity" value="200" />
+        <property name="queueCapacity" value="${ebxml-federation-queue-size}" />
         <property name="keepAliveSeconds" value="60000" />
     </bean>
 

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,7 +33,7 @@ import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * Utility for getting python directories to include
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -47,14 +47,15 @@ import com.raytheon.uf.common.util.FileUtil;
  * Nov 11, 2014      #4953 randerso    Changed COMMON_GFE to public
  * Jan 23, 2015      #4027 randerso    added configured and site to getCommonGfeIncludePath
  * Mar 12, 2015      #4246 randerso    Changes to support VCModules at base, site, and user levels
- * Jan 29, 2016      #5137 dgilling    Ensure all directory levels exist for 
- *                                     smart tools, procedures, text products, 
+ * Jan 29, 2016      #5137 dgilling    Ensure all directory levels exist for
+ *                                     smart tools, procedures, text products,
  *                                     utilities and text utilities.
  * Jul 13, 2016      #5747 dgilling    Move edex_static to common_static.
  * Aug 08, 2016      #5747 randerso    Moved COMMON_GFE from python/gfe to gfe/python
- * 
+ * Feb 20, 2018      #6602 dgilling    Updated for consolidated text utilities.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  */
 
@@ -87,12 +88,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
     public static final String TEXT_UTILITIES = FileUtil.join(USER_PYTHON,
             "textUtilities");
 
-    public static final String REGULAR = FileUtil.join(TEXT_UTILITIES,
-            "regular");
-
-    public static final String HEADLINE = FileUtil.join(TEXT_UTILITIES,
-            "headline");
-
     public static final String COMBINATIONS = FileUtil
             .join(GFE, "combinations");
 
@@ -113,7 +108,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
      * When it comes to {@code LocalizationLevel}, a higher level means one more
      * specific than the other (e.g., SITE is higher than BASE, USER is higher
      * than SITE).
-     * 
+     *
      * @param includeUser
      *            If {@code true} include level {@code USER} and levels higher
      *            than it. If {@code false}, exclude those levels.
@@ -128,9 +123,9 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
              * A reminder: the natural ordering of LocalizationLevel is such
              * that BASE < SITE < USER. So when we perform
              * USER.compareTo(level), we have 2 scenarios:
-             * 
+             *
              * 1. We automatically take any level less than USER
-             * 
+             *
              * 2. If the includeUser flag is set, we also include any level
              * which is greater than or equal to USER.
              */
@@ -147,7 +142,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
      * Builds a python-style include path for the given localization path in
      * highest to lowest order (i.e., {@code USER} level appears in the path
      * before {@code SITE} level appears before {@code BASE} level).
-     * 
+     *
      * @param locType
      *            The {@code LocalizationType} to use for the include path.
      * @param locPath
@@ -177,7 +172,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
     }
 
     public static LocalizationFile getTextUtilitiesLF(LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, REGULAR);
+        return PATH_MANAGER.getLocalizationFile(ctx, TEXT_UTILITIES);
     }
 
     public static LocalizationFile getTextProductsLF(LocalizationContext ctx) {
@@ -202,10 +197,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static LocalizationFile getIToolLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, ITOOL);
-    }
-
-    public static LocalizationFile getHeadlineLF(LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, HEADLINE);
     }
 
     public static LocalizationFile getCombinationsLF(LocalizationContext ctx) {
@@ -240,7 +231,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
     }
 
     public static String getTextUtilitiesIncludePath(boolean includeUser) {
-        return buildIncludePath(LocalizationType.CAVE_STATIC, REGULAR,
+        return buildIncludePath(LocalizationType.CAVE_STATIC, TEXT_UTILITIES,
                 includeUser);
     }
 
@@ -304,11 +295,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
                 LocalizationLevel.BASE), ITOOL);
     }
 
-    public static String getHeadlineIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE), HEADLINE);
-    }
-
     public static String getCombinationsIncludePath() {
         return getCombinationsIncludePath(true);
     }
@@ -353,6 +339,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
     }
 
     public static String getVCModUtilsIncludePath() {
-        return buildIncludePath(LocalizationType.COMMON_STATIC, VCMOD_UTILS, true);
+        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE), VCMOD_UTILS);
     }
 }

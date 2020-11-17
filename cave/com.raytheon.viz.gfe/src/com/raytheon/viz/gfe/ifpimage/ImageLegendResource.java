@@ -40,7 +40,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.ColorUtil;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
@@ -49,27 +49,27 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
 
 /**
  * Image legend resource used by GFEPainter.py
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 24, 2011            mschenke     Initial creation
- * Jun 25, 2012  15080     ryu          Ron's local time fix
- * Jul 10, 2012  15186     ryu          Set legend font
- * Aug 20, 2012  #1078     dgilling     Fix handling of ImageLegend_color
- *                                      setting.
- * Nov 30, 2012  #1328     mschenke     Made GFE use descriptor for time matching
- *                                      and time storage and manipulation
- * Jan 22, 2013  #1518     randerso     Removed use of Map with Parms as keys,
- *                                      really just needed a list anyway.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 24, 2011           mschenke  Initial creation
+ * Jun 25, 2012  15080    ryu       Ron's local time fix
+ * Jul 10, 2012  15186    ryu       Set legend font
+ * Aug 20, 2012  1078     dgilling  Fix handling of ImageLegend_color setting.
+ * Nov 30, 2012  1328     mschenke  Made GFE use descriptor for time matching
+ *                                  and time storage and manipulation
+ * Jan 22, 2013  1518     randerso  Removed use of Map with Parms as keys,
+ *                                  really just needed a list anyway.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author mschenke
- * @version 1.0
  */
 
 public class ImageLegendResource extends GFELegendResource {
@@ -93,9 +93,9 @@ public class ImageLegendResource extends GFELegendResource {
     private Map<String, RGB> colorOverrides;
 
     /**
+     * Constructor
+     *
      * @param dataManager
-     * @param resourceData
-     * @param loadProps
      */
     public ImageLegendResource(DataManager dataManager) {
         super(dataManager, null, null);
@@ -103,7 +103,8 @@ public class ImageLegendResource extends GFELegendResource {
 
     @Override
     public LegendEntry[] getLegendData(IDescriptor descriptor) {
-        List<Pair<Parm, ResourcePair>> parms = getLegendOrderedParms(descriptor);
+        List<Pair<Parm, ResourcePair>> parms = getLegendOrderedParms(
+                descriptor);
         LegendData[] data = makeLegend(parms);
 
         LegendEntry[] entries = new LegendEntry[data.length];
@@ -120,7 +121,7 @@ public class ImageLegendResource extends GFELegendResource {
         DataTime curTime = currInfo.getCurrentFrame();
 
         // loop through the grids
-        List<LegendData> legendData = new ArrayList<LegendData>();
+        List<LegendData> legendData = new ArrayList<>();
         for (Pair<Parm, ResourcePair> pair : parms) {
             Parm parm = pair.getFirst();
             ResourcePair rp = pair.getSecond();
@@ -133,8 +134,8 @@ public class ImageLegendResource extends GFELegendResource {
             DataTime curRscTime = currInfo.getTimeForResource(rsc);
 
             // color for the text
-            if ((props.isVisible())
-                    && (parm.getDisplayAttributes().getVisMode() == VisMode.IMAGE)) {
+            if ((props.isVisible()) && (parm.getDisplayAttributes()
+                    .getVisMode() == VisMode.IMAGE)) {
                 data.color = imageLegendColor;
             } else if (!props.isVisible()) {
                 data.color = ColorUtil.GREY;
@@ -164,58 +165,58 @@ public class ImageLegendResource extends GFELegendResource {
                 }
             }
 
-            Formatter formatter = new Formatter(locale);
+            try (Formatter formatter = new Formatter(locale)) {
 
-            String tz = "GMT";
-            if (localTime) {
-                tz = dataManager.getParmManager().compositeGridLocation()
-                        .getTimeZone();
+                String tz = "GMT";
+                if (localTime) {
+                    tz = dataManager.getParmManager().compositeGridLocation()
+                            .getTimeZone();
+                }
+
+                if (snapshotTime) {
+                    // display the time of the snapshot
+                    Calendar snap = curTime.getRefTimeAsCalendar();
+                    snap.setTimeZone(TimeZone.getTimeZone(tz));
+                    formatter.format(snapshotFormat.replaceAll("\\%", "%1\\$t"),
+                            snap);
+                } else if (curRscTime != null) {
+                    TimeRange tr = curRscTime.getValidPeriod();
+                    if (durationFormat != null) {
+                        timeString += durationString(tr);
+                    }
+                    if (startFormat != null) {
+                        Calendar start = Calendar.getInstance();
+                        start.setTimeZone(TimeZone.getTimeZone(tz));
+                        start.setTime(tr.getStart());
+                        formatter.format(
+                                startFormat.replaceAll("\\%", "%1\\$t"), start);
+                    }
+                    if (endFormat != null) {
+                        Calendar end = Calendar.getInstance();
+                        end.setTimeZone(TimeZone.getTimeZone(tz));
+                        end.setTime(tr.getEnd());
+                        formatter.format(endFormat.replaceAll("\\%", "%1\\$t"),
+                                end);
+                    }
+
+                }
+
+                timeString += formatter.toString();
+                timeString = timeString.replaceAll("\\[UNITS\\]", units);
             }
 
-            if (snapshotTime) {
-                // display the time of the snapshot
-                Calendar snap = curTime.getRefTimeAsCalendar();
-                snap.setTimeZone(TimeZone.getTimeZone(tz));
-                formatter.format(snapshotFormat.replaceAll("\\%", "%1\\$t"),
-                        snap);
-            } else if (curRscTime != null) {
-                TimeRange tr = curRscTime.getValidPeriod();
-                if (durationFormat != null) {
-                    timeString += durationString(tr);
-                }
-                if (startFormat != null) {
-                    Calendar start = Calendar.getInstance();
-                    start.setTimeZone(TimeZone.getTimeZone(tz));
-                    start.setTime(tr.getStart());
-                    formatter.format(startFormat.replaceAll("\\%", "%1\\$t"),
-                            start);
-                }
-                if (endFormat != null) {
-                    Calendar end = Calendar.getInstance();
-                    end.setTimeZone(TimeZone.getTimeZone(tz));
-                    end.setTime(tr.getEnd());
-                    formatter
-                            .format(endFormat.replaceAll("\\%", "%1\\$t"), end);
-                }
-
-            }
-
-            timeString += formatter.toString();
-            timeString = timeString.replaceAll("\\[UNITS\\]", units);
-
-            if (snapshotTime || curRscTime != null) {
+            if (snapshotTime || (curRscTime != null)) {
                 // now prefix the parameter name
                 String name = null;
 
-                if (descriptiveName.equals("SHORT")) {
+                if ("SHORT".equals(descriptiveName)) {
                     name = rsc.getParm().getParmID().compositeNameUI();
-                } else if (descriptiveName.equals("ALT")) {
+                } else if ("ALT".equals(descriptiveName)) {
                     name = rsc.getParm().getParmID().compositeNameUI();
-                    name = Activator.getDefault().getPreferenceStore()
-                            .getString("Png_" + name + "_AltName");
-                } else if (descriptiveName.equals("LONG")) {
+                    name = GFEPreference.getString("Png_" + name + "_AltName");
+                } else if ("LONG".equals(descriptiveName)) {
                     name = rsc.getParm().getGridInfo().getDescriptiveName();
-                } else if (descriptiveName.equals("OFF")) {
+                } else if ("OFF".equals(descriptiveName)) {
                     name = "";
                 }
                 String legend = name + "  " + timeString;
@@ -346,13 +347,13 @@ public class ImageLegendResource extends GFELegendResource {
 
     /**
      * Specifies the color for a legend entry, overrides the default
-     * 
+     *
      * @param parmName
      * @param colorName
      */
     public void setColorOverride(String parmName, String colorName) {
         if (colorOverrides == null) {
-            colorOverrides = new HashMap<String, RGB>();
+            colorOverrides = new HashMap<>();
         }
 
         RGB rgb = RGBColors.getRGBColor(colorName);

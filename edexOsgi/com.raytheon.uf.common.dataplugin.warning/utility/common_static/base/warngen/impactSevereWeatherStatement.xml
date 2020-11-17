@@ -9,8 +9,8 @@
                                          9-15-2011 - OB11.8.0-8 NEW XML SYNTAX CHANGES
      Mike Dangelo    WFO CTP 9-22-2011 to add in remarks and lines which will allow Zone-based products (Alaska TIM)
      EVAN BOOKBINDER WFO EAX 11-4-2011 removed bulletDefaults that prevented auto selection
-     PHIL KURIMSKI   WFO DTX  2-12-2012 OB12.1.1-1 FOR IMPACT BASED TOR/SVR WARNINGS
-     PHIL KURIMSKI   WFO DTX  2-29-2012 OB12.2.1-4
+     PHIL KURIMSKI   WFO GRB  2-12-2012 OB12.1.1-1 FOR IMPACT BASED TOR/SVR WARNINGS
+     PHIL KURIMSKI   WFO GRB  2-29-2012 OB12.2.1-4
      PHIL KURIMSKI   04-20-2012
      MIKE REGA 5-10-2012 DR 14525 added timeZoneField
                          DR 14691 added feAreaField
@@ -19,12 +19,16 @@
      Phil Kurimski   02-04-2013 OB13.2.1-5 Changed Sig Tor to Considerable
      Phil Kurimski   05-20-2013 Added selection for very weak tornadoes and landspouts
      Phil Kurimski   09-19-2013 added geospatialConfig.xml
-	 Evan Bookbinder 2-18-2014 corrected supercell CTA typo & added DSSEvents & 2014 IBW impacts
+     Evan Bookbinder 2-18-2014 corrected supercell CTA typo & added DSSEvents & 2014 IBW impacts
      Evan Bookbinder 2-27-2014 parseStrings for Tornado Emergency and Default CTAs
      Evan Bookbinder 9-5-2014 fixed parseStrings for law enf CTA
      Evan Bookbinder 10-24-2014 fixed parseString for SqLn embedded TOR
      Evan Bookbinder 6-15-2015 fixed softball and grapefruit hail sizes
      Phil Kurimski   10-20-2015 Added waterspout option to tornado basis
+     Evan Bookbinder 3-19-2018 Remove old watch inclusion logic
+     Phil Kurimski   03-19-2018 corrected parse strings in CTAs so (B) and (E)
+        were not selected at the same time when only one was selected DR 20132
+     Phil kurimski   03-21-2018 Added Torrential Rainfall CTA to TOR section DR 20671
 -->
 <!--
 	Velocity Variables:
@@ -124,10 +128,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="stillhail" bulletText="Hail still a threat - optional"/>
   <bullet bulletName="stillwind" bulletText="Gusty winds still a threat - optional"/>
   <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
-  <!-- AUTO INCLUSION OF WATCHES FIXED IN 13.4.1   
-  <bullet bulletName="svrboxactive" bulletGroup="watchbox" bulletText="SVR TSTM WATCH remains in effect"/>
-  <bullet bulletName="torboxactive" bulletGroup="watchbox" bulletText="TORNADO WATCH remains in effect"/>
-  -->
   <bullet bulletName="reporttolaw" bulletText="Report svr wx to law enforcement agency"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** ADDITIONAL WARNING(S) IN THE SAME COUNTY? ****" bulletType="title"/>
@@ -147,10 +147,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="stillhail" bulletText="Hail still a threat - optional"/>
   <bullet bulletName="stillwind" bulletText="Gusty winds still a threat - optional"/>
   <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
-  <!-- AUTO INCLUSION OF WATCHES FIXED IN 13.4.1   
-  <bullet bulletName="svrboxactive" bulletGroup="watchbox" bulletText="SVR TSTM WATCH remains in effect"/>
-  <bullet bulletName="torboxactive" bulletGroup="watchbox" bulletText="TORNADO WATCH remains in effect"/>
-  -->
   <bullet bulletName="reporttolaw" bulletText="Report svr wx to law enforcement agency"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** ADDITIONAL WARNING(S) IN THE SAME COUNTY? ****" bulletType="title"/>
@@ -172,10 +168,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="stillhail" bulletText="Hail still a threat - optional"/>
   <bullet bulletName="stillwind" bulletText="Gusty winds still a threat - optional"/>
   <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
-  <!-- AUTO INCLUSION OF WATCHES FIXED IN 13.4.1   
-  <bullet bulletName="svrboxactive" bulletGroup="watchbox" bulletText="SVR TSTM WATCH remains in effect"/>
-  <bullet bulletName="torboxactive" bulletGroup="watchbox" bulletText="TORNADO WATCH remains in effect"/>
-  -->  
   <bullet bulletName="reporttolaw" bulletText="Report svr wx to law enforcement agency"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** ADDITIONAL WARNING(S) IN THE SAME COUNTY? ****" bulletType="title"/>
@@ -197,10 +189,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="stillhail" bulletText="Hail still a threat - optional"/>
   <bullet bulletName="stillwind" bulletText="Gusty winds still a threat - optional"/>
   <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
-  <!-- AUTO INCLUSION OF WATCHES FIXED IN 13.4.1   
-  <bullet bulletName="svrboxactive" bulletGroup="watchbox" bulletText="SVR TSTM WATCH remains in effect"/>
-  <bullet bulletName="torboxactive" bulletGroup="watchbox" bulletText="TORNADO WATCH remains in effect"/>
-  -->
   <bullet bulletName="reporttolaw" bulletText="Report svr wx to law enforcement agency"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** ADDITIONAL WARNING(S) IN THE SAME COUNTY? ****" bulletType="title"/>
@@ -254,7 +242,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
   <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>  
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="group2" parseString="4.50IN"/>  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="group2" parseString="4.50IN"/>  
+  <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
   <bullet bulletName="addlTorInfo" bulletText="Select to include additional tornado/damage information..."/>
   <bullet bulletText="" bulletType="title"/>
@@ -278,6 +267,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>
   <bullet bulletName="squallCTA" bulletText="Thunderstorm lines can produce tornadoes" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
   <bullet bulletName="waterCTA" bulletText="Over water - boaters seek shelter" parseString="GET AWAY FROM THE WATER"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS OCCURRING"/>
  </bullets>
 </bulletActionGroup>
 <!-- FOLLOW UP FOR SVR TSTM WARNING (CON) BULLETS -->
@@ -324,15 +314,15 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALL TO ACTIONS (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
   <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
-  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="&quot;PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
   <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
-  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="&quot;-EXTREMELY DANGEROUS SITUATION&quot;,&quot;PRODUCING WIDESPREAD WIND DAMAGE ACROSS&quot;"/>
   <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
   <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
   <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
-  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="&quot;EXTREMELY DANGEROUS SITUATION&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
@@ -416,6 +406,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>
   <bullet bulletName="squallCTA" bulletText="Thunderstorm line tornadoes" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
   <bullet bulletName="waterCTA" bulletText="Over water - boaters seek shelter" parseString="GET AWAY FROM THE WATER"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS OCCURRING"/>
 </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="SV" sig="W">
@@ -461,15 +452,15 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALL TO ACTIONS (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
   <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
-  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="&quot;PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
   <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
-  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="&quot;-EXTREMELY DANGEROUS SITUATION&quot;,&quot;PRODUCING WIDESPREAD WIND DAMAGE ACROSS&quot;"/>
   <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
   <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
   <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
-  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="&quot;EXTREMELY DANGEROUS SITUATION&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>

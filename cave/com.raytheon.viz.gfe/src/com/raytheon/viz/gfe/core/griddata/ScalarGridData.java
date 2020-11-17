@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,23 +34,23 @@ import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Op;
-import com.raytheon.uf.common.dataplugin.gfe.slice.IContinuousSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.ScalarWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Placeholder for ScalarGridData
- * 
+ * GridData class dealing with a scalar grid.
+ *
  * <pre>
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Jan 29, 2008           chammack  Initial Class Skeleton.
@@ -59,26 +59,53 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 19, 2013  1637     randerso  Added throws declarations to
  *                                  translateDataFrom
  * Aug 02, 2016  5744     mapeters  Remove unused cache code
- * 
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Changes to support IDataObject. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
-
-public class ScalarGridData extends OrderedGridData implements Cloneable {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class ScalarGridData extends OrderedGridData {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScalarGridData.class);
 
-    public ScalarGridData(Parm aParm, IGridSlice aSlice) {
-        super(aParm, aSlice);
+    /**
+     * Constructor
+     *
+     * @param aParm
+     * @param aSlice
+     * @param unsaved
+     *            true if data is unsaved and must not be depopulated
+     */
+    public ScalarGridData(Parm aParm, IGridSlice aSlice, boolean unsaved) {
+        super(aParm, aSlice, unsaved);
         if (!(aSlice instanceof ScalarGridSlice)) {
             throw new IllegalArgumentException(
-                    "ScalarGridSlice required for ScalarGridData");
+                    "aSlice must be an instance of ScalarGridSlice, received: "
+                            + aSlice.getClass().getName());
         }
     }
 
+    /**
+     * Copy constructor
+     *
+     * @param other
+     */
+    public ScalarGridData(ScalarGridData other) {
+        super(other);
+    }
+
+    /**
+     * Return bit mask based on grid values, specified value, and comparison
+     * operation.
+     *
+     * @param value
+     * @param op
+     * @return see above
+     */
     public Grid2DBit comparisonOperate(float value, Op op) {
-        Grid2DFloat grid = getGrid();
+        Grid2DFloat grid = getScalarGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         switch (op) {
         case EQ:
@@ -87,35 +114,45 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         case GT_EQ:
         case LT:
         case LT_EQ:
-            bits = getScalarSlice().comparisonOperate(op, value);
+            bits = getDataObject().comparisonOperate(op, value);
             break;
         case ALMOST:
-            bits = getScalarSlice().almost(value,
+            bits = getDataObject().almost(value,
                     this.parm.getParmState().getFuzzValue());
             break;
         case NOT_ALMOST:
-            bits = getScalarSlice().almost(value,
+            bits = getDataObject().almost(value,
                     this.parm.getParmState().getFuzzValue());
             bits.negate();
             break;
         default:
-            throw new IllegalArgumentException("Op not supported: "
-                    + op.toString());
+            throw new IllegalArgumentException(
+                    "Op not supported: " + op.toString());
         }
 
         return bits;
     }
 
+    /**
+     *
+     * Return bit mask based on grid values, current pickup value, and specified
+     * operation.
+     *
+     * @param gridData
+     * @param op
+     * @return see above
+     */
     public Grid2DBit comparisonOperate(final IGridData gridData, Op op) {
         if (!(gridData instanceof ScalarGridData)) {
             throw new IllegalArgumentException(
-                    "IGridData not of type ScalarGridData");
+                    "gridData must be an instance of ScalarGridData, received: "
+                            + gridData.getClass().getName());
         }
 
-        ScalarGridSlice rhsScalarGridSlice = (ScalarGridSlice) gridData
-                .getGridSlice();
+        ScalarDataObject scalarDataObject = (ScalarDataObject) gridData
+                .getDataObject();
 
-        Grid2DFloat grid = getGrid();
+        Grid2DFloat grid = getScalarGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         switch (op) {
         case EQ:
@@ -124,55 +161,94 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         case GT_EQ:
         case LT:
         case LT_EQ:
-            bits = getScalarSlice().comparisonOperate(op, rhsScalarGridSlice);
+            bits = getDataObject().comparisonOperate(op, scalarDataObject);
             break;
         case ALMOST:
-            bits = getScalarSlice().almost(rhsScalarGridSlice,
+            bits = getDataObject().almost(scalarDataObject,
                     this.parm.getParmState().getFuzzValue());
             break;
         case NOT_ALMOST:
-            bits = getScalarSlice().almost(rhsScalarGridSlice,
+            bits = getDataObject().almost(scalarDataObject,
                     this.parm.getParmState().getFuzzValue());
             bits.negate();
             break;
         default:
-            throw new IllegalArgumentException("Op not supported: "
-                    + op.toString());
+            throw new IllegalArgumentException(
+                    "Op not supported: " + op.toString());
         }
 
         return bits;
     }
 
+    /**
+     * Operate on data with given value and operation mode over the supplied
+     * edit area.
+     *
+     * @param value
+     * @param op
+     * @param editArea
+     */
     public void operate(float value, Op op, Grid2DBit editArea) {
-        getScalarSlice().operateEquals(op, value, editArea);
+        getDataObject().operateEquals(op, value, editArea);
     }
 
+    /**
+     * Operate on data with given grid and operation mode over the supplied edit
+     * area.
+     *
+     * @param gridData
+     * @param op
+     * @param editArea
+     */
     public void operate(final IGridData gridData, Op op, Grid2DBit editArea) {
         if (!(gridData instanceof ScalarGridData)) {
             throw new IllegalArgumentException(
-                    "IGridData not of type ScalarGridData");
+                    "gridData must be an instance of ScalarGridData, received: "
+                            + gridData.getClass().getName());
         }
 
-        getScalarSlice().operateEquals(op,
-                (ScalarGridSlice) gridData.getGridSlice(), editArea);
+        getDataObject().operateEquals(op,
+                (ScalarDataObject) gridData.getDataObject(), editArea);
     }
 
+    /**
+     *
+     * Operate on grid with the given value, operation, over the edit area.
+     *
+     * @param value
+     * @param op
+     * @param editArea
+     */
     public void operate(final WxValue value, Op op, Grid2DBit editArea) {
         if (!(value instanceof ScalarWxValue)) {
             throw new IllegalArgumentException(
-                    "WxValue not of type ScalarWxValue");
+                    "value must be an instance of ScalarWxValue, received: "
+                            + value.getClass().getName());
         }
 
         this.operate(((ScalarWxValue) value).getValue(), op, editArea);
     }
 
+    /**
+     * Limit the values in this grid to the given min/max over the edit area.
+     *
+     * @param min
+     * @param max
+     * @param editArea
+     */
     public void limitValue(float min, float max, Grid2DBit editArea) {
-        getScalarSlice().limitValue(min, max, editArea);
+        getDataObject().limitValue(min, max, editArea);
     }
 
+    /**
+     * Get a value from a specified grid cell
+     *
+     * @param x
+     * @param y
+     * @return the grid cell value
+     */
     public float getValue(int x, int y) {
-        populate();
-        return getGrid().get(x, y);
+        return getScalarGrid().get(x, y);
     }
 
     // -- protected
@@ -193,10 +269,14 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         Point ur = new Point();
         float sum;
 
-        Grid2DFloat grid = getGrid();
-        if (grid.getXdim() != pointsToChange.getXdim()
-                || grid.getYdim() != pointsToChange.getYdim()) {
-            throw new IllegalArgumentException("Dimension mismatch in doDelta");
+        Grid2DFloat grid = getScalarGrid();
+        if ((grid.getXdim() != pointsToChange.getXdim())
+                || (grid.getYdim() != pointsToChange.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToChange.getXdim(),
+                    pointsToChange.getYdim()));
         }
 
         // check for points to modify, and get limits in grid or area to work on
@@ -234,17 +314,28 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         return pointsToChange;
     }
 
+    /**
+     * Applies the given delta value to the identified points using a special
+     * taper function that is based on the specified gridCoord. Returns true for
+     * success.
+     *
+     * @param time
+     * @param delta
+     * @param pointsToChange
+     * @param gridCoord
+     * @return true if successful
+     */
     public boolean applyDeltaTaper(Date time, float delta,
             Grid2DBit pointsToChange, Point gridCoord) {
         if (delta == 0.0) {
-            return false; // nothing to change
+            // nothing to change
+            return false;
         }
-        populate();
         checkOkayForEdit();
 
         // Make the change and remember the changes.
-        return setChangedPoints(doDeltaTaper(time, delta, pointsToChange,
-                gridCoord));
+        return setChangedPoints(
+                doDeltaTaper(time, delta, pointsToChange, gridCoord));
     }
 
     protected Grid2DBit doDeltaTaper(final Date time, float delta,
@@ -252,10 +343,14 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         Point ll = new Point(), ur = new Point();
         float sum;
 
-        Grid2DFloat grid = getGrid();
-        if (grid.getXdim() != pointsToChange.getXdim()
-                || grid.getYdim() != pointsToChange.getYdim()) {
-            throw new IllegalArgumentException("Dimension mismatch in doDelta");
+        Grid2DFloat grid = getScalarGrid();
+        if ((grid.getXdim() != pointsToChange.getXdim())
+                || (grid.getYdim() != pointsToChange.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToChange.getXdim(),
+                    pointsToChange.getYdim()));
         }
 
         // check for points to modify, and get limits in grid or area to work on
@@ -273,7 +368,7 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
                     // if this point is one to be modified
                     if (pointsToChange.get(i, j) != 0) {
                         // compute sum of grid value plus adjusted delta
-                        sum = grid.get(i, j) + delta * taperGrid.get(i, j);
+                        sum = grid.get(i, j) + (delta * taperGrid.get(i, j));
 
                         // make sure new value does not exceed limits of AFPS db
                         if (sum < minLimit) {
@@ -295,14 +390,20 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
     public void set(Point gridLoc, WxValue wxValue) {
         if (!(wxValue instanceof ScalarWxValue)) {
             throw new IllegalArgumentException(
-                    "Expect ScalarWxValue for ScalarGridData");
+                    "wxValue must be an instance of ScalarWxValue, received: "
+                            + wxValue.getClass().getName());
         }
 
         this.set(gridLoc, ((ScalarWxValue) wxValue).getValue());
     }
 
+    /**
+     * Set a particular grid cell to a value
+     *
+     * @param gridLoc
+     * @param value
+     */
     public void set(Point gridLoc, float value) {
-        populate();
         checkOkayForEdit();
 
         pointSet(value, gridLoc);
@@ -311,27 +412,33 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
 
     /**
      * Stores the grid into the storage grid after doing checking
-     * 
+     *
      * @param values
      *            the values to set
-     * @param points
+     * @param pointsToChange
      *            the points to set
      */
-    protected void gridSet(final Grid2DFloat values, final Grid2DBit points) {
+    protected void gridSet(final Grid2DFloat values,
+            final Grid2DBit pointsToChange) {
 
-        Grid2DFloat grid = getGrid();
+        Grid2DFloat grid = getScalarGrid();
         int dimX = grid.getXdim();
         int dimY = grid.getYdim();
 
-        if (values.getXdim() != dimX || values.getYdim() != dimY
-                || points.getXdim() != dimX || points.getYdim() != dimY) {
-            throw new IllegalArgumentException(
-                    "bad values/points dimensions for grid for: "
-                            + getParm().getGridInfo().getParmID()
-                            + " valuesDim=" + values.getXdim() + ','
-                            + values.getYdim() + " pointsDim="
-                            + points.getXdim() + ',' + points.getYdim()
-                            + " parmDim=" + dimX + " " + dimY);
+        if ((values.getXdim() != dimX) || (values.getYdim() != dimY)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and values have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dimX, dimY, values.getXdim(), values.getYdim()));
+        }
+
+        if ((pointsToChange.getXdim() != dimX)
+                || (pointsToChange.getYdim() != dimY)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dimX, dimY, pointsToChange.getXdim(),
+                    pointsToChange.getYdim()));
         }
 
         // get values out of grid and assign them
@@ -340,7 +447,7 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
 
         for (int i = 0; i < dimX; i++) {
             for (int j = 0; j < dimY; j++) {
-                if (points.get(i, j) > 0) {
+                if (pointsToChange.get(i, j) > 0) {
                     float v = values.get(i, j);
                     if (v < minLimit) {
                         v = minLimit;
@@ -357,18 +464,17 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
 
     /**
      * Sets multiple (scalar) values in the grid.
-     * 
+     *
      * @param value
      *            the values to set
-     * @param points
+     * @param pointsToChange
      *            the points to set
      */
-    public void set(Grid2DFloat value, Grid2DBit points) {
-        populate();
+    public void set(Grid2DFloat value, Grid2DBit pointsToChange) {
         checkOkayForEdit();
 
-        gridSet(value, points);
-        setChangedPoints(points);
+        gridSet(value, pointsToChange);
+        setChangedPoints(pointsToChange);
     }
 
     @Override
@@ -384,7 +490,7 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
             newValue = this.getMaxValue();
         }
 
-        Grid2DFloat grid = getGrid();
+        Grid2DFloat grid = getScalarGrid();
         grid.set(loc.x, loc.y, newValue);
     }
 
@@ -393,7 +499,8 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
             throws FactoryException, TransformException {
         if (!(source instanceof ScalarGridData)) {
             throw new IllegalArgumentException(
-                    "Expected ScalarGridData as source.");
+                    "source must be an instance of ScalarGridData, received: "
+                            + source.getClass().getName());
         }
 
         ScalarGridData scalarSource = (ScalarGridData) source;
@@ -407,19 +514,14 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
             try {
                 uc = sourceUnit.getConverterTo(thisUnit);
             } catch (ConversionException e1) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e1.getLocalizedMessage(), e1);
+                statusHandler.handle(Priority.PROBLEM, e1.getLocalizedMessage(),
+                        e1);
                 return false;
             }
-            try {
-                scalarSource = scalarSource.clone();
-                FloatBuffer sourceData = scalarSource.getGrid().getBuffer();
-                for (int i = 0; i < sourceData.capacity(); i++) {
-                    sourceData.put(i, (float) uc.convert(sourceData.get(i)));
-                }
-            } catch (CloneNotSupportedException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+            scalarSource = scalarSource.copy();
+            FloatBuffer sourceData = scalarSource.getScalarGrid().getBuffer();
+            for (int i = 0; i < sourceData.capacity(); i++) {
+                sourceData.put(i, (float) uc.convert(sourceData.get(i)));
             }
         }
 
@@ -430,39 +532,40 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
 
         if (scalarSource.getParm().getGridInfo().getGridLoc()
                 .equals(this.parm.getGridInfo().getGridLoc())
-                && maxLimit >= sourceMaxLimit && minLimit <= sourceMinLimit) {
-            setGrid(scalarSource.getGrid());
+                && (maxLimit >= sourceMaxLimit)
+                && (minLimit <= sourceMinLimit)) {
+            setScalarGrid(scalarSource.getScalarGrid());
         } else {
-            RemapGrid remap = new RemapGrid(scalarSource.getParm()
-                    .getGridInfo().getGridLoc(), this.parm.getGridInfo()
-                    .getGridLoc());
-            Grid2DFloat scalarGrid = remap.remap(scalarSource.getGrid(),
+            RemapGrid remap = new RemapGrid(
+                    scalarSource.getParm().getGridInfo().getGridLoc(),
+                    this.parm.getGridInfo().getGridLoc());
+            Grid2DFloat scalarGrid = remap.remap(scalarSource.getScalarGrid(),
                     -99999.99f, maxLimit, minLimit, minLimit);
-            setGrid(scalarGrid);
+            setScalarGrid(scalarGrid);
         }
         return true;
     }
 
     @Override
     protected Grid2DBit doSmooth(Date time, Grid2DBit pointsToSmooth) {
-        // get the grid
-        ScalarGridSlice thisSlice = getScalarSlice();
-        Grid2DFloat grid = thisSlice.getScalarGrid();
+        Grid2DFloat grid = getScalarGrid();
 
-        if (grid.getXdim() != pointsToSmooth.getXdim()
-                || grid.getYdim() != pointsToSmooth.getYdim()) {
-            throw new IllegalArgumentException("Dimension mismatch in doSmooth");
+        if ((grid.getXdim() != pointsToSmooth.getXdim())
+                || (grid.getYdim() != pointsToSmooth.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToSmooth have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToSmooth.getXdim(),
+                    pointsToSmooth.getYdim()));
         }
 
         Grid2DFloat originalGrid;
-        try {
-            ScalarGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            originalGrid = slice.getScalarGrid();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DFloat();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            originalGrid = ((ScalarDataObject) p.getSecond().getDataObject())
+                    .getScalarGrid();
+        } else {
+            originalGrid = getScalarGrid().copy();
         }
 
         Point ll = new Point(), ur = new Point();
@@ -486,8 +589,8 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
                         // but always has at least four values to average.
                         numpoints = 0;
                         sum = 0.0f;
-                        for (newx = i - ss; newx <= i + ss; newx++) {
-                            for (newy = j - ss; newy <= j + ss; newy++) {
+                        for (newx = i - ss; newx <= (i + ss); newx++) {
+                            for (newy = j - ss; newy <= (j + ss); newy++) {
                                 // if inside grid limits, make a smoothed value
                                 if (originalGrid.isValid(newx, newy)) {
                                     numpoints++;
@@ -522,20 +625,25 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
     protected Grid2DBit doSet(WxValue value, Grid2DBit pointsToSet) {
         if (!(value instanceof ScalarWxValue)) {
             throw new IllegalArgumentException(
-                    "Expected WxValue of type ScalarWxValue");
+                    "value must be an instance of ScalarWxValue, received: "
+                            + value.getClass().getName());
         }
 
         ScalarWxValue scalarValue = (ScalarWxValue) value;
-        Grid2DFloat grid = getGrid();
-        if (grid.getXdim() != pointsToSet.getXdim()
-                || grid.getYdim() != pointsToSet.getYdim()) {
-            throw new IllegalArgumentException("Dimension mismatch in doSet: "
-                    + grid.getXdim() + ',' + grid.getYdim() + ' '
-                    + pointsToSet.getXdim() + ',' + pointsToSet.getYdim());
+        Grid2DFloat grid = getScalarGrid();
+        if ((grid.getXdim() != pointsToSet.getXdim())
+                || (grid.getYdim() != pointsToSet.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToSet have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToSet.getXdim(),
+                    pointsToSet.getYdim()));
         }
 
         Point ll = new Point(), ur = new Point();
-        float v = scalarValue.getValue(); // extract the floating-point value
+        // extract the floating-point value
+        float v = scalarValue.getValue();
+
         // from the WxValue
         float minLimit = this.getMinValue();
         float maxLimit = this.getMaxValue();
@@ -560,60 +668,62 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
     }
 
     @Override
-    public ScalarGridData clone() throws CloneNotSupportedException {
-        ScalarGridData sgd = new ScalarGridData(this.parm,
-                this.gridSlice.clone());
-        return sgd;
+    public ScalarGridData copy() {
+        return new ScalarGridData(this);
     }
 
     @Override
-    protected IGridSlice doGridMin(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof ScalarGridSlice)) {
-            throw new IllegalArgumentException("Expected ScalarGridSlice");
+    protected IDataObject doGridMin(IDataObject dataObject) {
+        if (!(dataObject instanceof ScalarDataObject)) {
+            throw new IllegalArgumentException(
+                    "dataObject must be an instance of ScalarDataObject, received: "
+                            + dataObject.getClass().getName());
         }
 
-        return getScalarSlice().min((IContinuousSlice) gridSlice);
+        return getDataObject().min((IContinuousDataObject) dataObject);
     }
 
     @Override
-    protected IGridSlice doGridMax(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof ScalarGridSlice)) {
-            throw new IllegalArgumentException("Expected ScalarGridSlice");
+    protected IDataObject doGridMax(IDataObject dataObject) {
+        if (!(dataObject instanceof ScalarDataObject)) {
+            throw new IllegalArgumentException(
+                    "dataObject must be an instance of ScalarDataObject, received: "
+                            + dataObject.getClass().getName());
         }
 
-        return getScalarSlice().max((IContinuousSlice) gridSlice);
+        return getDataObject().max((IContinuousDataObject) dataObject);
     }
 
     @Override
-    protected IGridSlice doGridMultiply(float factor) {
-        return getScalarSlice().operate(Op.MULTIPLY, factor);
+    protected IDataObject doGridMultiply(float factor) {
+        return getDataObject().operate(Op.MULTIPLY, factor);
     }
 
     @Override
-    protected IGridSlice doGridSum(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof ScalarGridSlice)) {
-            throw new IllegalArgumentException("Expected ScalarGridSlice");
+    protected IDataObject doGridSum(IDataObject dataObject) {
+        if (!(dataObject instanceof ScalarDataObject)) {
+            throw new IllegalArgumentException(
+                    "dataObject must be an instance of ScalarDataObject, received: "
+                            + dataObject.getClass().getName());
         }
 
-        return getScalarSlice().sum((IContinuousSlice) gridSlice);
+        return getDataObject().sum((IContinuousDataObject) dataObject);
     }
 
     @Override
     protected Grid2DBit doContiguous(Date time, Point location) {
-        Point size = getGridSlice().getGridInfo().getGridLoc().gridSize();
+        Point size = getGridInfo().getGridLoc().gridSize();
         Grid2DBit valid = new Grid2DBit(size.x, size.y, true);
 
         // get the grid
-        ScalarGridSlice slice;
         Grid2DFloat originalGrid;
-        try {
-            slice = this.getScalarSlice().clone();
-            if (iscMode()) {
-                valid = getISCGrid(time, slice);
-            }
-            originalGrid = slice.getScalarGrid();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DFloat();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            valid = p.getFirst();
+            originalGrid = ((ScalarDataObject) p.getSecond().getDataObject())
+                    .getScalarGrid();
+        } else {
+            originalGrid = getScalarGrid();
         }
 
         Grid2DBit contig = new Grid2DBit(size.x, size.y);
@@ -629,8 +739,8 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
             for (int i = ll.x; i <= ur.x; i++) {
                 for (int j = ll.y; j <= ur.y; j++) {
                     // if this point is one to check
-                    if (valid.getAsBoolean(i, j)
-                            && Math.abs(originalGrid.get(i, j) - value) <= fuzz) {
+                    if (valid.getAsBoolean(i, j) && (Math
+                            .abs(originalGrid.get(i, j) - value) <= fuzz)) {
                         contig.set(i, j);
                     }
                 }
@@ -644,13 +754,14 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
     @Override
     protected Grid2DBit doPencilStretch(Date time, WxValue value,
             Coordinate path[], Grid2DBit editArea) {
-        Grid2DFloat grid = getGrid();
-        if (grid.getXdim() != editArea.getXdim()
-                || grid.getYdim() != editArea.getYdim()) {
-            throw new IllegalArgumentException(
-                    "Dimension mismatch in doPencilStretch: " + grid.getXdim()
-                            + ',' + grid.getYdim() + ' ' + editArea.getXdim()
-                            + ',' + editArea.getYdim());
+        Grid2DFloat grid = getScalarGrid();
+        if ((grid.getXdim() != editArea.getXdim())
+                || (grid.getYdim() != editArea.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and supplied editArea have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), editArea.getXdim(),
+                    editArea.getYdim()));
         }
 
         // Convert to grid coordinates
@@ -660,12 +771,12 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         gridPointPath = this.parm.getGridInfo().getGridLoc()
                 .connectGridPoints(gridPointPath);
 
-        Grid2DBit gridCells = this
-                .calculatePencilInfluence(gridPointPath, grid);
+        Grid2DBit gridCells = this.calculatePencilInfluence(gridPointPath,
+                grid);
 
         // Make a Grid2DBit and set every point in gridPointPath
-        Grid2DBit pathGrid = new Grid2DBit(this.parm.getGridInfo().getGridLoc()
-                .gridSize().x,
+        Grid2DBit pathGrid = new Grid2DBit(
+                this.parm.getGridInfo().getGridLoc().gridSize().x,
                 this.parm.getGridInfo().getGridLoc().gridSize().y);
 
         // Assign the value to the gridPointPath
@@ -675,28 +786,23 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
 
         // save the original grid values
         Grid2DFloat saveGrid;
-        try {
-            saveGrid = grid.clone();
-        } catch (CloneNotSupportedException e) {
-            saveGrid = new Grid2DFloat();
-        }
+        saveGrid = grid.copy();
 
         // Now set the value of the pathPoints to value
         doSet(value, pathGrid);
 
         // Fill and smooth once in using the pencil influence
         doFillIn(time, gridCells);
-
-        // TODO
         smooth(time, gridCells.or(pathGrid));
 
         Grid2DBit changedGrid = gridCells.or(pathGrid);
 
         // restrict the changes to the edit area, if set
-        if (editArea.isAnyBitsSet()) // undo everything outside the edit area
-        {
+        if (editArea.isAnyBitsSet()) {
+            // undo everything outside the edit area
             Grid2DBit undoArea = changedGrid.xor(editArea).and(changedGrid);
             gridSet(saveGrid, undoArea);
+
             // adjust the area that was really changed
             changedGrid.andEquals(editArea);
         }
@@ -707,68 +813,63 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
     /**
      * Using the data within and around the grid cells specified, fills in data
      * for the specified grid cells. Returns the points modified.
-     * 
+     *
      * Calls interpSpatialGap in OrderedGridData.
-     * 
+     *
      * @param time
      * @param pointsToFillIn
-     * @return
+     * @return mask of changed points
      */
     @Override
     protected Grid2DBit doFillIn(Date time, Grid2DBit pointsToFillIn) {
         // get the grid
-        ScalarGridSlice thisSlice = getScalarSlice();
-        Grid2DFloat thisGrid = thisSlice.getScalarGrid();
+        Grid2DFloat grid = getScalarGrid();
 
-        if (thisGrid.getXdim() != pointsToFillIn.getXdim()
-                || thisGrid.getYdim() != pointsToFillIn.getYdim()) {
-            throw new IllegalArgumentException(
-                    "Dimension mismatch in doFillIn: " + thisGrid.getXdim()
-                            + ',' + thisGrid.getYdim() + ' '
-                            + pointsToFillIn.getXdim() + ','
-                            + pointsToFillIn.getYdim());
+        if ((grid.getXdim() != pointsToFillIn.getXdim())
+                || (grid.getYdim() != pointsToFillIn.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToFillIn have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToFillIn.getXdim(),
+                    pointsToFillIn.getYdim()));
         }
 
         Grid2DFloat workingGrid;
-        try {
-            ScalarGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            workingGrid = slice.getScalarGrid();
-        } catch (CloneNotSupportedException e) {
-            workingGrid = new Grid2DFloat();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            workingGrid = ((ScalarDataObject) p.getSecond().getDataObject())
+                    .getScalarGrid();
+        } else {
+            workingGrid = getScalarGrid().copy();
         }
 
         interpSpatialGap(pointsToFillIn, workingGrid, this.getMinValue(),
-                this.getMaxValue(), thisGrid);
-
+                this.getMaxValue(), grid);
         return pointsToFillIn;
     }
 
     @Override
     protected Grid2DBit doCopy(Date time, Grid2DBit pointsToCopy, Point delta) {
         // get the grid
-        ScalarGridSlice thisSlice = getScalarSlice();
-        Grid2DFloat thisGrid = thisSlice.getScalarGrid();
-        if (thisGrid.getXdim() != pointsToCopy.getXdim()
-                || thisGrid.getYdim() != pointsToCopy.getYdim()) {
-            throw new IllegalArgumentException("Dimension mismatch in doCopy: "
-                    + thisGrid.getXdim() + ',' + thisGrid.getYdim() + ' '
-                    + pointsToCopy.getXdim() + ',' + pointsToCopy.getYdim());
+        Grid2DFloat grid = getScalarGrid();
+        if ((grid.getXdim() != pointsToCopy.getXdim())
+                || (grid.getYdim() != pointsToCopy.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToCopy have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToCopy.getXdim(),
+                    pointsToCopy.getYdim()));
         }
 
         // copy the grid
         Grid2DFloat originalGrid;
-        try {
-            ScalarGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                // Return value being thrown on floor?
-                getISCGrid(time, slice);
-            }
-            originalGrid = slice.getScalarGrid();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DFloat();
+        if (iscMode()) {
+            // Return value being thrown on floor?
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            originalGrid = ((ScalarDataObject) p.getSecond().getDataObject())
+                    .getScalarGrid();
+        } else {
+            originalGrid = grid.copy();
         }
 
         Point ll = new Point(), ur = new Point();
@@ -790,8 +891,8 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
 
                         // if inside grid limits, copy value to new
                         // position of working grid.
-                        if (thisGrid.isValid(newx, newy)) {
-                            thisGrid.set(newx, newy, originalGrid.get(i, j));
+                        if (grid.isValid(newx, newy)) {
+                            grid.set(newx, newy, originalGrid.get(i, j));
                         }
                     }
                 }
@@ -803,51 +904,43 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
     }
 
     @Override
-    public void setGridSlice(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof ScalarGridSlice)) {
+    public void setDataObject(IDataObject dataObject) {
+        if (!(dataObject instanceof ScalarDataObject)) {
             throw new IllegalArgumentException(
-                    "Called ScalarGridData.setGridSlice with "
-                            + gridSlice.getClass().getSimpleName());
+                    "dataObject must be an instance of ScalarDataObject, received: "
+                            + dataObject.getClass().getName());
         }
-        this.gridSlice = gridSlice;
+        super.setDataObject(dataObject);
     }
 
     @Override
-    protected void setGridSliceDataToNull() {
-        // Clone the gridSlice with no data
-        this.gridSlice = new ScalarGridSlice(this.gridSlice.getValidTime(),
-                this.gridSlice.getGridInfo(), this.gridSlice.getHistory(), null);
+    public synchronized ScalarDataObject getDataObject() {
+        return (ScalarDataObject) super.getDataObject();
     }
 
-    @Override
-    public synchronized boolean isPopulated() {
-        return ((ScalarGridSlice) this.gridSlice).isPopulated();
+    private Grid2DFloat getScalarGrid() {
+        return getDataObject().getScalarGrid();
     }
 
-    private Grid2DFloat getGrid() {
-        return ((ScalarGridSlice) getGridSlice()).getScalarGrid();
-    }
-
-    private void setGrid(Grid2DFloat grid) {
-        ((ScalarGridSlice) getGridSlice()).setScalarGrid(grid);
-    }
-
-    public ScalarGridSlice getScalarSlice() {
-        return (ScalarGridSlice) getGridSlice();
+    private void setScalarGrid(Grid2DFloat grid) {
+        ScalarDataObject dataObject = getDataObject();
+        dataObject.setScalarGrid(grid);
+        setDataObject(dataObject);
     }
 
     @Override
     protected boolean doValid() {
-        if (!getGridTime().isValid() || getParm() == null
-                || getGridSlice() == null) {
+        if (!getGridTime().isValid() || (getParm() == null)
+                || (getDataObject() == null)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid grid time, bad parm or data slice");
-            return false; // time, parm, or data slice not valid
+            // time, parm, or data slice not valid
+            return false;
         }
 
         // check grid size
         Point dim = getParm().getGridInfo().getGridLoc().gridSize();
-        Grid2DFloat grid = getGrid();
+        Grid2DFloat grid = getScalarGrid();
         Point gridDim = grid.getGridSize();
         if (!gridDim.equals(dim)) {
             statusHandler.handle(Priority.PROBLEM, "Grid dimensions " + gridDim
@@ -861,7 +954,7 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         FloatBuffer data = grid.getBuffer();
         for (int j = 0; j < data.capacity(); j++) {
             float f = data.get(j);
-            if (f < minLimit || f > maxLimit) {
+            if ((f < minLimit) || (f > maxLimit)) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Grid contains data which "
                                 + "exceeds max/min specifications for "
@@ -872,5 +965,11 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
         }
 
         return true;
+    }
+
+    @Override
+    protected IGridSlice createSlice() {
+        return new ScalarGridSlice(getGridTime(), getGridInfo(), getHistory(),
+                getScalarGrid());
     }
 }

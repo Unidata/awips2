@@ -52,6 +52,8 @@ import org.eclipse.ui.actions.ActionFactory;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.aviation.BackupRestart;
 import com.raytheon.viz.aviation.climatology.ClimateMenuDlg;
@@ -150,6 +152,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 15, 2015 4880        njensen     Removed reference to ForecastModel
  * 10/20/2015   17445       yteng       Reset alert time for audio alert.
  * May 24, 2017 6119        tgurney     Help text formatting
+ * Jan 23, 2018 6692        tgurney     Add prompt arg to closeDisplay()
  *
  * </pre>
  *
@@ -158,39 +161,19 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public class TafMonitorDlg extends CaveSWTDialog
         implements IGridDataRetrieveListener {
 
-    /**
-     * The station list.
-     */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
     private List<String> stationList;
 
-    /**
-     * Scrolled composite height integer constant.
-     */
-    private final int SCROLLED_COMP_HEIGHT_perStn = 52;
-
-    /**
-     * Scrolled composite.
-     */
     private ScrolledComposite scrolledComp;
 
-    /**
-     * TAF composite.
-     */
     private Composite tafComp;
 
-    /**
-     * Blink menu item.
-     */
     private MenuItem blinkMenuItem;
 
-    /**
-     * Composite to hold the TAF site controls.
-     */
     private Composite tafControlsComp;
 
-    /**
-     * Message status composite.
-     */
     private IStatusSettable msgStatComp;
 
     /**
@@ -198,44 +181,18 @@ public class TafMonitorDlg extends CaveSWTDialog
      */
     private ITafSettable tveDlg;
 
-    /**
-     * Weather Plot Dialog.
-     */
     private WeatherPlotDialog avnPlotDlg;
 
-    /**
-     * Resource editor dialog.
-     */
     private ResourceEditorDlg resDlg;
 
-    /**
-     *
-     */
     private BackupDialog backupDialog;
 
-    /**
-     * Alert configuration dialog.
-     */
     private AlertDialog alertDialog;
 
-    /**
-     * Resource configuration manager.
-     */
     private ResourceConfigMgr configMgr;
 
-    /**
-     * The persistence hour.
-     */
     private int persistHour = 1;
 
-    /**
-     * Queue button.
-     */
-    private Button queueBtn;
-
-    /**
-     * TAF monitor configuration.
-     */
     private TafMonitorCfg tafMonCfg;
 
     private List<TafSiteComp> siteRows = new ArrayList<>();
@@ -272,14 +229,6 @@ public class TafMonitorDlg extends CaveSWTDialog
 
     private HelpUsageDlg usageDlg;
 
-    /**
-     * Constructor.
-     *
-     * @param parent
-     *            Parent shell.
-     * @param stationList
-     *            The station list.
-     */
     public TafMonitorDlg(Shell parent, List<String> stationList,
             List<String> productDispalyList) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
@@ -289,7 +238,9 @@ public class TafMonitorDlg extends CaveSWTDialog
 
         this.stationList = stationList;
         this.productDisplayList = productDispalyList;
-        currentDlg = this;
+        synchronized (TafMonitorDlg.class) {
+            currentDlg = this;
+        }
     }
 
     @Override
@@ -321,7 +272,7 @@ public class TafMonitorDlg extends CaveSWTDialog
         shell.addShellListener(new ShellAdapter() {
             @Override
             public void shellClosed(ShellEvent event) {
-                if (closeDisplay() == false) {
+                if (!closeDisplay()) {
                     event.doit = false;
                 }
             }
@@ -398,16 +349,10 @@ public class TafMonitorDlg extends CaveSWTDialog
         job = null;
     }
 
-    /**
-     * Initialize data.
-     */
     private void initializeData() {
         createTafMonitorCfg();
     }
 
-    /**
-     * Initialize the components on the display.
-     */
     private void initializeComponents() {
 
         configMgr = ResourceConfigMgr.getInstance();
@@ -415,13 +360,7 @@ public class TafMonitorDlg extends CaveSWTDialog
         boolean transientDialog = configMgr
                 .getDataAsBoolean(ResourceTag.TransientDialogs);
 
-        /*
-         * Check the transient dialog setting. If the transient dialog is true
-         * then the parent dialog cannot be display on top of this dialog. If
-         * the transient is false the parent dialog can be displayed on top of
-         * this dialog.
-         */
-        if (transientDialog == true) {
+        if (transientDialog) {
             // Parent dialog cannot be displayed on top of this dialog
             tveDlg = new TafViewerEditorDlg(shell, stationList, CAVE.NONE);
         } else {
@@ -454,23 +393,13 @@ public class TafMonitorDlg extends CaveSWTDialog
         shell.setMenuBar(menuBar);
     }
 
-    /**
-     * Create the file menus on the display.
-     */
     private void createFileMenus(Menu menuBar) {
-        // -------------------------------------
-        // Create all the items in the file menu
-        // -------------------------------------
         MenuItem fileMenuItem = new MenuItem(menuBar, SWT.CASCADE);
         fileMenuItem.setText("File");
 
-        // Create the File menu item with a File "dropdown" menu
         Menu fileMenu = new Menu(menuBar);
         fileMenuItem.setMenu(fileMenu);
 
-        // --------------------------------------------------
-        // Create Check Now menu item
-        // --------------------------------------------------
         MenuItem checkNowMenuItem = new MenuItem(fileMenu, SWT.NONE);
         checkNowMenuItem.setText("Check Now");
         checkNowMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -480,12 +409,8 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         });
 
-        // Add a menu separator.
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
-        // --------------------------------------------------
-        // Create Restart menu item
-        // --------------------------------------------------
         MenuItem restartMenuItem = new MenuItem(fileMenu, SWT.NONE);
         restartMenuItem.setText("Restart");
         restartMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -496,12 +421,8 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         });
 
-        // Add a menu separator.
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
-        // --------------------------------------------------
-        // Create Quit menu item
-        // --------------------------------------------------
         MenuItem quitMenuItem = new MenuItem(fileMenu, SWT.NONE);
         quitMenuItem.setText("Quit");
         quitMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -516,19 +437,12 @@ public class TafMonitorDlg extends CaveSWTDialog
      * Create the options menus on the display.
      */
     private void createOptionsMenus(Menu menuBar) {
-        // ----------------------------------------
-        // Create all the items in the options menu
-        // ----------------------------------------
         MenuItem optionsMenuItem = new MenuItem(menuBar, SWT.CASCADE);
         optionsMenuItem.setText("Options");
 
-        // Create the Options menu item with a Options "dropdown" menu
         Menu optionsMenu = new Menu(menuBar);
         optionsMenuItem.setMenu(optionsMenu);
 
-        // --------------------------------------------------
-        // Create Setup menu item
-        // --------------------------------------------------
         MenuItem setupMenuItem = new MenuItem(optionsMenu, SWT.NONE);
         setupMenuItem.setText("Setup...");
         setupMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -543,28 +457,20 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         });
 
-        // --------------------------------------------------
-        // Create Alert menu item
-        // --------------------------------------------------
         MenuItem alertMenuItem = new MenuItem(optionsMenu, SWT.NONE);
         alertMenuItem.setText("Alert...");
         alertMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                // Do we need to create a new dialog?
                 if (mustCreate(alertDialog)) {
                     alertDialog = new AlertDialog(shell);
                     alertDialog.open();
                 } else {
-                    // No, so use the existing dialog.
                     alertDialog.bringToTop();
                 }
             }
         });
 
-        // --------------------------------------------------
-        // Create Blink menu item
-        // --------------------------------------------------
         blinkMenuItem = new MenuItem(optionsMenu, SWT.CHECK);
         blinkMenuItem.setText("Blink");
         blinkMenuItem
@@ -586,19 +492,12 @@ public class TafMonitorDlg extends CaveSWTDialog
      * Create the help menus on the display.
      */
     private void createHelpMenus(Menu menuBar) {
-        // ----------------------------------------
-        // Create all the items in the help menu
-        // ----------------------------------------
         MenuItem helpMenuItem = new MenuItem(menuBar, SWT.CASCADE);
         helpMenuItem.setText("Help");
 
-        // Create the Help menu item with a Help "dropdown" menu
         Menu helpMenu = new Menu(menuBar);
         helpMenuItem.setMenu(helpMenu);
 
-        // --------------------------------------------------
-        // Create About menu item
-        // --------------------------------------------------
         MenuItem aboutMenuItem = new MenuItem(helpMenu, SWT.NONE);
         aboutMenuItem.setText("About...");
         aboutMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -610,9 +509,6 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         });
 
-        // --------------------------------------------------
-        // Create Usage menu item
-        // --------------------------------------------------
         MenuItem usageMenuItem = new MenuItem(helpMenu, SWT.NONE);
         usageMenuItem.setText("Usage...");
         usageMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -716,7 +612,7 @@ public class TafMonitorDlg extends CaveSWTDialog
         });
     }
 
-    synchronized public void checkNow() {
+    public synchronized void checkNow() {
         // Only allow one check to be scheduled.
         if (job.getState() == Job.NONE) {
             job.setSystem(true);
@@ -729,7 +625,6 @@ public class TafMonitorDlg extends CaveSWTDialog
      */
     private void createButtonsComposite() {
 
-        // Create the buttons composite widget
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite buttonsComposite = new Composite(shell, SWT.BORDER);
         GridLayout layoutTC = new GridLayout(5, true);
@@ -737,7 +632,6 @@ public class TafMonitorDlg extends CaveSWTDialog
         buttonsComposite.setLayoutData(gd);
         configMgr.setDefaultColors(buttonsComposite);
 
-        // Create the "TAF Editor" button
         Button tafEditorBtn = new Button(buttonsComposite, SWT.PUSH);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.minimumWidth = 100;
@@ -750,7 +644,6 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         });
 
-        // Create the "Climate" button
         Button climBtn = new Button(buttonsComposite, SWT.PUSH);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         climBtn.setText("Climate");
@@ -774,7 +667,6 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         });
 
-        // Create the "Plot" button
         Button plotBtn = new Button(buttonsComposite, SWT.PUSH);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.minimumWidth = 100;
@@ -800,7 +692,6 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         });
 
-        // Create the "Backup" button
         Button backupBtn = new Button(buttonsComposite, SWT.PUSH);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.minimumWidth = 100;
@@ -812,14 +703,12 @@ public class TafMonitorDlg extends CaveSWTDialog
                     backupDialog = new BackupDialog(shell, productDisplayList);
                     backupDialog.open();
                 } else {
-                    // No, so use the existing dialog.
                     backupDialog.bringToTop();
                 }
             }
         });
 
-        // Create the "Queue" button
-        queueBtn = new Button(buttonsComposite, SWT.FLAT);
+        Button queueBtn = new Button(buttonsComposite, SWT.FLAT);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.minimumWidth = 100;
         configMgr.setDefaultFontAndColors(queueBtn, "Queue", gd);
@@ -837,9 +726,6 @@ public class TafMonitorDlg extends CaveSWTDialog
         });
     }
 
-    /**
-     * Create the scrolled composite on the display.
-     */
     private void createScrolledComposite() {
         scrolledComp = new ScrolledComposite(shell,
                 SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
@@ -847,8 +733,6 @@ public class TafMonitorDlg extends CaveSWTDialog
         gl.verticalSpacing = 1;
         scrolledComp.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        // gd.heightHint = SCROLLED_COMP_HEIGHT_perStn * stationList.size(); //
-        // DR 15606
         scrolledComp.setLayoutData(gd);
         configMgr.setDefaultColors(scrolledComp);
 
@@ -892,9 +776,6 @@ public class TafMonitorDlg extends CaveSWTDialog
         scrolledComp.layout();
     }
 
-    /**
-     * Create the scrolled composite labels on the display.
-     */
     private void createScrolledCompositeLabels() {
 
         GridData gd;
@@ -945,11 +826,10 @@ public class TafMonitorDlg extends CaveSWTDialog
             }
         }
 
-        // Check if the AMD buttons needed to be displayed.
         boolean showAmdButtons = configMgr
                 .getResourceAsBoolean(ResourceTag.AmdButtons);
 
-        if (showAmdButtons == true) {
+        if (showAmdButtons) {
             gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
             Label editorLbl = new Label(tafControlsComp, SWT.CENTER);
             editorLbl.setText("Editor Shortcuts");
@@ -961,9 +841,6 @@ public class TafMonitorDlg extends CaveSWTDialog
         }
     }
 
-    /**
-     * Create the bottom message controls on the display.
-     */
     private void createBottomMessageControls() {
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
         msgStatComp = new MessageStatusComp(shell, StatusMessageType.TafMonitor,
@@ -971,12 +848,14 @@ public class TafMonitorDlg extends CaveSWTDialog
                 configMgr.getMsgBarBackground());
     }
 
-    /**
-     * Close the display.
-     */
     public boolean closeDisplay() {
+        return closeDisplay(true);
+    }
 
-        if (configMgr.getResourceAsBoolean(ResourceTag.ConfirmClose) == true) {
+    public boolean closeDisplay(boolean prompt) {
+
+        if (prompt
+                && configMgr.getResourceAsBoolean(ResourceTag.ConfirmClose)) {
             MessageBox confirmCloseMB = new MessageBox(shell,
                     SWT.ICON_QUESTION | SWT.YES | SWT.NO);
             confirmCloseMB.setText("Confirm Close");
@@ -1012,7 +891,6 @@ public class TafMonitorDlg extends CaveSWTDialog
             for (String stationOfInterest : stationList) {
                 if (stationOfInterest != null) {
 
-                    // Add a separator between the controls
                     addHorizontalSeparator(tafControlsComp);
 
                     TafSiteComp tsc = new TafSiteComp(tafControlsComp,
@@ -1022,7 +900,7 @@ public class TafMonitorDlg extends CaveSWTDialog
                 }
             }
 
-            if (siteRows.size() > 0 && siteRows.get(0).doGridMonitor()) {
+            if (!siteRows.isEmpty() && siteRows.get(0).doGridMonitor()) {
                 // Only add listener when displaying grid data.
                 SiteGridManager.addRetrieveDataListener(this);
             }
@@ -1040,9 +918,6 @@ public class TafMonitorDlg extends CaveSWTDialog
         configMgr.setDefaultColors(sepLbl);
     }
 
-    /**
-     * Read in the TAF monitor configuration from XML.
-     */
     private void createTafMonitorCfg() {
         String fs = IPathManager.SEPARATOR;
         try {
@@ -1051,7 +926,7 @@ public class TafMonitorDlg extends CaveSWTDialog
                     + fs + "TafMonitorCfg.xml");
             tafMonCfg = JAXB.unmarshal(path, TafMonitorCfg.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Failed to load TafMonitorCfg.xml", e);
         }
     }
 
@@ -1062,13 +937,15 @@ public class TafMonitorDlg extends CaveSWTDialog
 
     public static Map<String, String[]> getCurrentAlertMap(String siteID) {
         Map<String, String[]> alertMap = null;
-        if (currentDlg != null) {
-            if (currentDlg.getDisplay().isDisposed()) {
-                currentDlg = null;
-            } else {
-                for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
-                    if (siteRow.getStationName().equals(siteID)) {
-                        alertMap = siteRow.getAlertMap();
+        synchronized (TafMonitorDlg.class) {
+            if (currentDlg != null) {
+                if (currentDlg.getDisplay().isDisposed()) {
+                    currentDlg = null;
+                } else {
+                    for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
+                        if (siteRow.getStationName().equals(siteID)) {
+                            alertMap = siteRow.getAlertMap();
+                        }
                     }
                 }
             }
@@ -1097,13 +974,15 @@ public class TafMonitorDlg extends CaveSWTDialog
 
     public static Map<String, String> getCurrentAlertTimeMap(String siteID) {
         Map<String, String> alertTimeMap = null;
-        if (currentDlg != null) {
-            if (currentDlg.getDisplay().isDisposed()) {
-                currentDlg = null;
-            } else {
-                for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
-                    if (siteRow.getStationName().equals(siteID)) {
-                        alertTimeMap = siteRow.getAlertTimeMap();
+        synchronized (TafMonitorDlg.class) {
+            if (currentDlg != null) {
+                if (currentDlg.getDisplay().isDisposed()) {
+                    currentDlg = null;
+                } else {
+                    for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
+                        if (siteRow.getStationName().equals(siteID)) {
+                            alertTimeMap = siteRow.getAlertTimeMap();
+                        }
                     }
                 }
             }
@@ -1114,13 +993,15 @@ public class TafMonitorDlg extends CaveSWTDialog
     // 20120711
     public static Map<String, String[]> getCurrentTempoMap(String siteID) {
         Map<String, String[]> tempoMap = null;
-        if (currentDlg != null) {
-            if (currentDlg.getDisplay().isDisposed()) {
-                currentDlg = null;
-            } else {
-                for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
-                    if (siteRow.getStationName().equals(siteID)) {
-                        tempoMap = siteRow.getTempoMap();
+        synchronized (TafMonitorDlg.class) {
+            if (currentDlg != null) {
+                if (currentDlg.getDisplay().isDisposed()) {
+                    currentDlg = null;
+                } else {
+                    for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
+                        if (siteRow.getStationName().equals(siteID)) {
+                            tempoMap = siteRow.getTempoMap();
+                        }
                     }
                 }
             }

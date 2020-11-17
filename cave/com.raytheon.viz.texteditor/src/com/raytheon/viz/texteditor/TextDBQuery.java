@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * Sep 09, 2014 3580       mapeters    Removed IQueryTransport usage (no longer exists), 
  *                                     moved from uf.common.dataplugin.text.dbsrv.
+ * Apr 18, 2018 DCS 19952  dfriedman   Added AWIPS ID query support.
  * 
  * </pre>
  * 
@@ -71,6 +72,8 @@ public class TextDBQuery {
     private String queryTimeFormat = null;
 
     private String queryAfosCmd = null;
+
+    private String queryAwipsCmd = null;
 
     private String queryWmoId = null;
 
@@ -250,6 +253,15 @@ public class TextDBQuery {
         this.queryAfosCmd = queryAfosCmd;
     }
 
+    public String getQueryAwipsCmd() {
+        return queryAwipsCmd;
+    }
+
+    public void setQueryAwipsCmd(String queryAwipsCmd) {
+        this.queryAwipsCmd = queryAwipsCmd;
+    }
+
+
     /**
      * @return the queryWmoId
      */
@@ -407,6 +419,9 @@ public class TextDBQuery {
         }
         if (queryAfosCmd != null) {
             properties.add(new Property("AFOSCMD", queryAfosCmd));
+        }
+        if (queryAwipsCmd != null) {
+            properties.add(new Property("AWIPSCMD", queryAwipsCmd));
         }
         if (queryWmoId != null) {
             properties.add(new Property("WMOID", queryWmoId));

@@ -22,6 +22,8 @@ package com.raytheon.viz.hydrocommon.datamanager;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.Predicate;
+
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -40,16 +42,19 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
  * May 1,  2014 17096      xwei        Updated the filter list SQL statement
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Feb 17, 2016 14607      amoore      Add WFO Filter
+ * Jan 03, 2018  6806      mduff       Optimized to reduce db queries and cache data.
+ * Apr 18, 2018 DCS19644   jwu         Add "NA" row in shefts for default location data limits.
  * </pre>
  * 
  * @author askripsky
- * @version 1.0
  */
 
 public class DataIngestFilterDataManager {
     private static DataIngestFilterDataManager manager = new DataIngestFilterDataManager();
 
     private List<DataIngestFilterData> ingestFilterData = null;
+
+    private List<DataIngestFilterData> displayFilterData = new ArrayList<>();
 
     /**
      * Private constructor.
@@ -73,19 +78,20 @@ public class DataIngestFilterDataManager {
      * @throws VizException
      */
     public List<String> getShefDur() throws VizException {
-        List<String> rval = new ArrayList<String>();
+        List<String> rval = new ArrayList<>();
 
         String durQuery = "SELECT name, dur FROM shefdur ORDER BY dur";
 
-        QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
-                durQuery);
+        QueryResult data = HydroDBDataManager.getInstance()
+                .runMappedQuery(durQuery);
 
         if (data != null) {
             for (QueryResultRow currNet : data.getRows()) {
-                String name = (String) currNet.getColumn(data.getColumnNames()
-                        .get("name"));
-                int dur = ((Number) currNet.getColumn(data.getColumnNames()
-                        .get("dur"))).intValue();
+                String name = (String) currNet
+                        .getColumn(data.getColumnNames().get("name"));
+                int dur = ((Number) currNet
+                        .getColumn(data.getColumnNames().get("dur")))
+                                .intValue();
                 rval.add(String.format("%s (%s)", name, dur));
             }
         }
@@ -100,19 +106,20 @@ public class DataIngestFilterDataManager {
      * @throws VizException
      */
     public List<String> getShefTs() throws VizException {
-        List<String> rval = new ArrayList<String>();
+        List<String> rval = new ArrayList<>();
 
-        String tsQuery = "SELECT name, ts FROM shefts ORDER BY ts";
+        String tsQuery = "SELECT name, ts FROM shefts WHERE ts != '"
+                + HydroConstants.DEFAULT_TS + "' ORDER BY ts";
 
-        QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
-                tsQuery);
+        QueryResult data = HydroDBDataManager.getInstance()
+                .runMappedQuery(tsQuery);
 
         if (data != null) {
             for (QueryResultRow currTs : data.getRows()) {
-                String name = (String) currTs.getColumn(data.getColumnNames()
-                        .get("name"));
-                String ts = (String) currTs.getColumn(data.getColumnNames()
-                        .get("ts"));
+                String name = (String) currTs
+                        .getColumn(data.getColumnNames().get("name"));
+                String ts = (String) currTs
+                        .getColumn(data.getColumnNames().get("ts"));
                 rval.add(String.format("%s (%s)", name, ts));
             }
         }
@@ -127,19 +134,19 @@ public class DataIngestFilterDataManager {
      * @throws VizException
      */
     public List<String> getShefExtremum() throws VizException {
-        List<String> rval = new ArrayList<String>();
+        List<String> rval = new ArrayList<>();
 
         String extQuery = "SELECT name, extremum FROM shefex ORDER BY extremum";
 
-        QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
-                extQuery);
+        QueryResult data = HydroDBDataManager.getInstance()
+                .runMappedQuery(extQuery);
 
         if (data != null) {
             for (QueryResultRow currExt : data.getRows()) {
-                String name = (String) currExt.getColumn(data.getColumnNames()
-                        .get("name"));
-                String extremum = (String) currExt.getColumn(data
-                        .getColumnNames().get("extremum"));
+                String name = (String) currExt
+                        .getColumn(data.getColumnNames().get("name"));
+                String extremum = (String) currExt
+                        .getColumn(data.getColumnNames().get("extremum"));
                 rval.add(String.format("%s (%s)", name, extremum));
             }
         }
@@ -154,17 +161,17 @@ public class DataIngestFilterDataManager {
      * @throws VizException
      */
     public List<String> getWFOs() throws VizException {
-        List<String> rval = new ArrayList<String>();
+        List<String> rval = new ArrayList<>();
 
         String extQuery = "SELECT wfo FROM wfo ORDER BY wfo";
 
-        QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
-                extQuery);
+        QueryResult data = HydroDBDataManager.getInstance()
+                .runMappedQuery(extQuery);
 
         if (data != null) {
             for (QueryResultRow currExt : data.getRows()) {
-                String wfo = (String) currExt.getColumn(data.getColumnNames()
-                        .get("wfo"));
+                String wfo = (String) currExt
+                        .getColumn(data.getColumnNames().get("wfo"));
                 rval.add(wfo);
             }
         }
@@ -254,100 +261,83 @@ public class DataIngestFilterDataManager {
             boolean filterByTS, String selectedTS, boolean forceLoad)
             throws VizException {
         if ((ingestFilterData == null) || forceLoad) {
-            DataIngestFilterData seedData = new DataIngestFilterData();
+            ingestFilterData = HydroDBDataManager.getInstance()
+                    .getData(new DataIngestFilterData());
+        }
 
-            StringBuffer whereClause = new StringBuffer();
+        displayFilterData.clear();
+
+        if (!filterByLocation && !filterByWFO && !filterByTS && !filterByPE
+                && !filterBySwitches) {
+            displayFilterData.addAll(ingestFilterData);
+        } else {
+            // Filter the data if requested
+            String switchFilterString = null;
+
+            if (filterBySwitches) {
+                StringBuilder buffer = new StringBuilder(
+                        filterByIngest ? "T" : "F");
+                buffer.append(" ").append(filterByOFS ? "T" : "F");
+                buffer.append(" ").append(filterByMPE ? "T" : "F");
+                switchFilterString = buffer.toString();
+            }
+
+            // List of predicates to check based on user selections
+            List<Predicate> predicateList = new ArrayList<>();
+
+            LocationPredicate locPredicate = new LocationPredicate(
+                    selectedLocation);
+            PhysicalElementPredicate pePredicate = new PhysicalElementPredicate(
+                    selectedPE);
+            SwitchPredicate switchPredicate = new SwitchPredicate(
+                    switchFilterString);
+            TypeSourcePredicate tsPredicate = new TypeSourcePredicate(
+                    selectedTS);
+            WfoPredicate wfoPredicate = new WfoPredicate(selectedWFOs);
             if (filterByLocation) {
-                whereClause.append("ingestfilter.lid='" + selectedLocation
-                        + "'");
+                predicateList.add(locPredicate);
             } else {
-                // not filtering by location, so allow filtering by WFO if
-                // enabled
+                /*
+                 * not filtering by location, so allow filtering by WFO if
+                 * enabled
+                 */
                 if (filterByWFO && !selectedWFOs.isEmpty()) {
-                    // DCS14607, multiple list form patterns were incompatible
-                    // with apostrophe logic later on, so switching to string of
-                    // ORs)
-                    whereClause.append("(");
-
-                    for (String wfo : selectedWFOs) {
-                        whereClause.append("wfo='").append(wfo).append("' OR ");
-                    }
-
-                    // Remove the extra _OR_
-                    whereClause.setLength(whereClause.length() - 4);
-
-                    whereClause.append(")");
+                    predicateList.add(wfoPredicate);
                 }
             }
 
-            if (filterByPE && (selectedPE.size() > 0)) {
-                if (!whereClause.toString().equals("")) {
-                    whereClause.append(" AND ");
-                }
-
-                whereClause.append("(");
-
-                for (String currPE : selectedPE) {
-                    // DCS14607, multiple list form patterns were incompatible
-                    // with apostrophe logic later on, so switched to string of
-                    // ORs)
-                    whereClause.append("pe='").append(currPE).append("' OR ");
-                }
-
-                // Remove the extra _OR_
-                whereClause.setLength(whereClause.length() - 4);
-
-                whereClause.append(")");
+            if (filterByPE && (!selectedPE.isEmpty())) {
+                predicateList.add(pePredicate);
             }
 
             if (filterBySwitches) {
-                if (!whereClause.toString().equals("")) {
-                    whereClause.append(" AND ");
-                }
-
-                whereClause.append("ingest='");
-                whereClause.append(filterByIngest ? "T" : "F");
-                whereClause.append("' AND ofs_input='");
-                whereClause.append(filterByOFS ? "T" : "F");
-                whereClause.append("' AND stg2_input='");
-                whereClause.append(filterByMPE ? "T" : "F");
-                whereClause.append("'");
+                predicateList.add(switchPredicate);
             }
 
             if (filterByTS) {
-                if (!whereClause.toString().equals("")) {
-                    whereClause.append(" AND ");
+                predicateList.add(tsPredicate);
+            }
+
+            for (DataIngestFilterData data : ingestFilterData) {
+                /*
+                 * This is an "and" filter. If all that are being checked pass
+                 * then the record should be displayed.
+                 */
+                boolean passesFilter = true;
+                for (Predicate p : predicateList) {
+                    if (!p.evaluate(data)) {
+                        passesFilter = false;
+                        break;
+                    }
                 }
 
-                whereClause.append("ts='" + selectedTS + "'");
+                if (passesFilter) {
+                    displayFilterData.add(data);
+                }
             }
-
-            if (!whereClause.toString().equals("")) {
-                seedData.setWhereClause(" WHERE " + whereClause.toString());
-            }
-
-            ingestFilterData = HydroDBDataManager.getInstance().getData(
-                    seedData);
         }
+        return displayFilterData;
 
-        return ingestFilterData;
-    }
-
-    /**
-     * Returns the display string for the whole db record.
-     * 
-     * @param currData
-     *            The record to display.
-     * @return The display string for the data.
-     */
-    public String getIngestFilterString(DataIngestFilterData currData) {
-        String dataFormat = "%-9S %-4S %-4S %-6S %-7S %-6S %-7S %-5S %-5S %-5S";
-
-        return String.format(dataFormat, currData.getLid(), currData.getWfo(),
-                currData.getPe(), getDisplayString(currData.getDuration()),
-                currData.getTypeSource(), currData.getExtremum(),
-                getDisplayString(currData.getTsRank()), currData.getIngest(),
-                currData.getOfsInput(), currData.getStg2Input());
     }
 
     /**
@@ -360,23 +350,8 @@ public class DataIngestFilterDataManager {
      */
     public String getDisplayString(Double val) {
         String temp = (Double.compare(val,
-                Double.valueOf(HydroConstants.MISSING_VALUE)) != 0) ? Double
-                .toString(val) : "";
-
-        return temp;
-    }
-
-    /**
-     * Returns the string corresponding to the DB value. Takes the MISSING_VALUE
-     * into account.
-     * 
-     * @param val
-     *            The int to get a display string for.
-     * @return The corresponding string or "" if the value is MISSING_VALUE
-     */
-    public String getDisplayString(int val) {
-        String temp = (val != HydroConstants.MISSING_VALUE) ? Integer
-                .toString(val) : "";
+                Double.valueOf(HydroConstants.MISSING_VALUE)) != 0)
+                        ? Double.toString(val) : "";
 
         return temp;
     }
@@ -388,7 +363,7 @@ public class DataIngestFilterDataManager {
      *            The currently selected index.
      */
     public DataIngestFilterData getSelectedFilterData(int selectedIndex) {
-        return ingestFilterData.get(selectedIndex);
+        return displayFilterData.get(selectedIndex);
     }
 
     /**
@@ -404,12 +379,91 @@ public class DataIngestFilterDataManager {
      */
     public void setSwitches(boolean masterIngest, boolean ofsIngest,
             boolean mpeIngest) throws VizException {
-        for (DataIngestFilterData currData : ingestFilterData) {
+        for (DataIngestFilterData currData : displayFilterData) {
             currData.setIngest((masterIngest) ? "T" : "F");
             currData.setOfsInput((ofsIngest) ? "T" : "F");
             currData.setStg2Input((mpeIngest) ? "T" : "F");
 
             HydroDBDataManager.getInstance().putData(currData);
+        }
+    }
+
+    protected static class LocationPredicate implements Predicate {
+        private String lid;
+
+        public LocationPredicate(String lid) {
+            this.lid = lid;
+        }
+
+        @Override
+        public boolean evaluate(Object object) {
+            DataIngestFilterData data = (DataIngestFilterData) object;
+
+            return data.getLid().equals(this.lid);
+        }
+
+    }
+
+    protected static class WfoPredicate implements Predicate {
+        private List<String> wfos;
+
+        public WfoPredicate(List<String> wfos) {
+            this.wfos = wfos;
+        }
+
+        @Override
+        public boolean evaluate(Object object) {
+            DataIngestFilterData data = (DataIngestFilterData) object;
+
+            return wfos.contains(data.getWfo());
+        }
+    }
+
+    protected static class TypeSourcePredicate implements Predicate {
+        private String ts;
+
+        public TypeSourcePredicate(String ts) {
+            this.ts = ts;
+        }
+
+        @Override
+        public boolean evaluate(Object object) {
+            DataIngestFilterData data = (DataIngestFilterData) object;
+
+            return data.getTypeSource().equalsIgnoreCase(this.ts);
+        }
+    }
+
+    protected static class PhysicalElementPredicate implements Predicate {
+        private List<String> pes;
+
+        public PhysicalElementPredicate(List<String> pes) {
+            this.pes = pes;
+        }
+
+        @Override
+        public boolean evaluate(Object object) {
+            DataIngestFilterData data = (DataIngestFilterData) object;
+
+            return pes.contains(data.getPe());
+        }
+    }
+
+    protected static class SwitchPredicate implements Predicate {
+        private String switchFilterString;
+
+        public SwitchPredicate(String switchFilterString) {
+
+            this.switchFilterString = switchFilterString;
+        }
+
+        @Override
+        public boolean evaluate(Object object) {
+            DataIngestFilterData data = (DataIngestFilterData) object;
+            String checkStr = data.getIngest() + " " + data.getOfsInput() + " "
+                    + data.getStg2Input();
+
+            return checkStr.equalsIgnoreCase(switchFilterString);
         }
     }
 }

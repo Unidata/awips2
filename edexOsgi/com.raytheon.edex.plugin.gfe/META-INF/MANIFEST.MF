@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gfe EDEX Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.gfe
-Bundle-Version: 1.17.0.qualifier
+Bundle-Version: 1.18.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174",
@@ -33,7 +33,9 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174"
  com.raytheon.uf.common.inventory;bundle-version="1.14.0",
  org.slf4j;bundle-version="1.7.21",
  org.apache.commons.collections;bundle-version="3.2.2",
- com.raytheon.uf.common.protectedfiles
+ com.raytheon.uf.common.protectedfiles,
+ com.raytheon.uf.edex.maintenance,
+ com.fasterxml.jackson
 Export-Package: com.raytheon.edex.plugin.gfe,
  com.raytheon.edex.plugin.gfe.config,
  com.raytheon.edex.plugin.gfe.db.dao,

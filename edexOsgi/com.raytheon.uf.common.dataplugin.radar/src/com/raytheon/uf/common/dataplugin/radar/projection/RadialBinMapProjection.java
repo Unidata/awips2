@@ -47,18 +47,18 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- -----------------------------------------
- * Jun 06, 2012           bsteffen    Initial creation
- * Feb 08, 2012  2672     bsteffen    Fix projection of points between the last
- *                                    and first radial.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 06, 2012           bsteffen  Initial creation
+ * Feb 08, 2012  2672     bsteffen  Fix projection of points between the last
+ *                                  and first radial.
+ * Jan 24, 2018  6907     bsteffen  Fix inaccuracies when comparing floats and
+ *                                  doubles.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 public class RadialBinMapProjection extends AzimuthRangeMapProjection {
 
     private static final long serialVersionUID = 6392115431894559801L;
@@ -121,8 +121,8 @@ public class RadialBinMapProjection extends AzimuthRangeMapProjection {
         double az = tmp.getX();
         double ran = tmp.getY();
         double bin = ran / flatBinLength;
-        float firstAngle = normalAngleData[0];
-        float lastAngle = normalAngleData[normalAngleData.length - 1];
+        double firstAngle = normalAngleData[0];
+        double lastAngle = normalAngleData[normalAngleData.length - 1];
         // normalize the range for az
         while (az < firstAngle) {
             az += 360;
@@ -132,24 +132,26 @@ public class RadialBinMapProjection extends AzimuthRangeMapProjection {
         }
         if (az >= lastAngle) {
             // special case of az is not between two normalizedAngles
-            double radial = normalAngleData.length - 1 + (az - lastAngle)
-                    / (firstAngle + 360 - lastAngle);
+            double radial = normalAngleData.length - 1
+                    + (az - lastAngle) / (firstAngle + 360 - lastAngle);
             dest.setLocation(radial, bin);
         } else {
             // start off with a guess for the index
-            int index = (int) ((az - firstAngle) * (normalAngleData.length - 1) / (lastAngle - firstAngle));
+            int index = (int) ((az - firstAngle) * (normalAngleData.length - 1)
+                    / (lastAngle - firstAngle));
             // increase index if we guessed to low
-            float nextAngle = normalAngleData[index];
+            double nextAngle = normalAngleData[index];
             while (nextAngle <= az) {
                 index += 1;
                 nextAngle = normalAngleData[index];
             }
             index -= 1;
             // decrease index if we guessed to high.
-            float prevAngle = normalAngleData[index];
+            double prevAngle = normalAngleData[index];
             while (prevAngle > az) {
                 nextAngle = prevAngle;
-                prevAngle = normalAngleData[--index];
+                index -= 1;
+                prevAngle = normalAngleData[index];
             }
             // interpolate a result.
             double radial = index + (az - prevAngle) / (nextAngle - prevAngle);
@@ -171,18 +173,23 @@ public class RadialBinMapProjection extends AzimuthRangeMapProjection {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         RadialBinMapProjection other = (RadialBinMapProjection) obj;
         if (Double.doubleToLongBits(flatBinLength) != Double
-                .doubleToLongBits(other.flatBinLength))
+                .doubleToLongBits(other.flatBinLength)) {
             return false;
-        if (!Arrays.equals(normalAngleData, other.normalAngleData))
+        }
+        if (!Arrays.equals(normalAngleData, other.normalAngleData)) {
             return false;
+        }
         return true;
     }
 
@@ -190,24 +197,24 @@ public class RadialBinMapProjection extends AzimuthRangeMapProjection {
 
         private static final long serialVersionUID = 4990986103949071193L;
 
-        static final ParameterDescriptor<float[]> ANGLE_DATA = DefaultParameterDescriptor
+        public static final ParameterDescriptor<float[]> ANGLE_DATA = DefaultParameterDescriptor
                 .create("angle_data", "The angle in degrees of each radial",
                         float[].class, null, true);
 
-        static final ParameterDescriptor<Double> TILT_ANGLE = DefaultParameterDescriptor
-                .create("tilt_angle",
-                        "The angle in degrees above ground level",
+        public static final ParameterDescriptor<Double> TILT_ANGLE = DefaultParameterDescriptor
+                .create("tilt_angle", "The angle in degrees above ground level",
                         Double.class, null, true);
 
-        static final ParameterDescriptor<Double> BIN_LENGTH = DefaultParameterDescriptor
+        public static final ParameterDescriptor<Double> BIN_LENGTH = DefaultParameterDescriptor
                 .create("bin_length", "The length of bins in meters",
                         Double.class, null, true);
 
-        static final ParameterDescriptorGroup PARAMETERS = new DefaultParameterDescriptorGroup(
-                "Radial_Bin", new ParameterDescriptor[] { SEMI_MAJOR,
-                        SEMI_MINOR, CENTRAL_MERIDIAN, LATITUDE_OF_ORIGIN,
-                        ANGLE_DATA, TILT_ANGLE, BIN_LENGTH, SCALE_FACTOR,
-                        FALSE_EASTING, FALSE_NORTHING });
+        public static final ParameterDescriptorGroup PARAMETERS = new DefaultParameterDescriptorGroup(
+                "Radial_Bin",
+                new ParameterDescriptor[] { SEMI_MAJOR, SEMI_MINOR,
+                        CENTRAL_MERIDIAN, LATITUDE_OF_ORIGIN, ANGLE_DATA,
+                        TILT_ANGLE, BIN_LENGTH, SCALE_FACTOR, FALSE_EASTING,
+                        FALSE_NORTHING });
 
         public Provider() {
             super(PARAMETERS);

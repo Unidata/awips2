@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -48,8 +48,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.ColorUtil;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.actions.TopoHandler;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
@@ -70,27 +69,33 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 /**
  * Provides utilities to populate and depopulate the map with GFE resources from
  * ParmManager
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/10/2008              chammack    Initial Creation.
- * 07/03/2008  #1160       randerso    Added makeVisible method
- * 10/06/2008   1433       chammack    Removed log listener
- * 12/02/2008   1450       randerso    Moved getEditors method into UiUtil for general use
- * 04/09/2009   1288       rjpeter     Add sample set listener,ensure remove called for listeners
- * 08/20/2009   2310       njensen     Separated most logic out into AbstractSpatialDisplayManager
- * 04/02/2014   2961       randerso    Added a listener to redo time matching when ISC mode changes
- * 
- * 04/02/2014   2969       randerso    Fix state of Topography menu item
- * Aug 13, 2015 4749       njensen     dispose() removes frameChangedListeners
- * Jan 05, 2015 5193       bsteffen    Do not add additional map area under colorbar.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 10, 2008           chammack  Initial Creation.
+ * Jul 03, 2008  1160     randerso  Added makeVisible method
+ * Oct 06, 2008  1433     chammack  Removed log listener
+ * Dec 02, 2008  1450     randerso  Moved getEditors method into UiUtil for
+ *                                  general use
+ * Apr 09, 2009  1288     rjpeter   Add sample set listener,ensure remove called
+ *                                  for listeners
+ * Aug 20, 2009  2310     njensen   Separated most logic out into
+ *                                  AbstractSpatialDisplayManager
+ * Apr 02, 2014  2961     randerso  Added a listener to redo time matching when
+ *                                  ISC mode changes
+ * Apr 02, 2014  2969     randerso  Fix state of Topography menu item
+ * Aug 13, 2015  4749     njensen   dispose() removes frameChangedListeners
+ * Jan 05, 2015  5193     bsteffen  Do not add additional map area under
+ *                                  colorbar.
+ * Jan 25, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
@@ -99,47 +104,36 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
 
     private boolean isRegistered;
 
-    public final static String GFE_STATUS_GROUP = "GFE_STATUS_GROUP";
-
     private static final String WXD_SETTING = "WxDiscrete_Description";
 
     /**
      * Editors managed by this display manager, use
      * {@link #populate(AbstractEditor)} to add editor
      */
-    private List<AbstractEditor> managedEditors = new ArrayList<AbstractEditor>();
+    private List<AbstractEditor> managedEditors = new ArrayList<>();
 
-    public GFESpatialDisplayManager(DataManager mgr) {
-        super(mgr);
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
-        boolean wxd_val = true;
-        if (prefs.contains(WXD_SETTING)) {
-            if (prefs.isBoolean(WXD_SETTING)) {
-                wxd_val = prefs.getBoolean(WXD_SETTING);
-            } else if (prefs.isInt(WXD_SETTING)) {
-                wxd_val = prefs.getInt(WXD_SETTING) != 0;
-            } else {
-                try {
-                    wxd_val = "true".equalsIgnoreCase(prefs
-                            .getString(WXD_SETTING));
-                } catch (ClassCastException e) {
-                    ; // ignore; use default
-                }
-            }
-        }
+    /**
+     * Constructor
+     *
+     * @param dataMgr
+     */
+    public GFESpatialDisplayManager(DataManager dataMgr) {
+        super(dataMgr);
 
         Message.registerInterest(this, ShowISCGridsMsg.class);
 
+        boolean wxd_val = GFEPreference.getBoolean(WXD_SETTING, true);
         setShowDescription(wxd_val);
     }
 
     @Override
     protected IDescriptor[] getDescriptors() {
-        List<IDescriptor> descriptors = new ArrayList<IDescriptor>();
-        for (AbstractEditor editor : managedEditors) {
-            for (IDisplayPane pane : editor.getDisplayPanes()) {
-                descriptors.add(pane.getDescriptor());
+        List<IDescriptor> descriptors = new ArrayList<>();
+        if (managedEditors != null) {
+            for (AbstractEditor editor : managedEditors) {
+                for (IDisplayPane pane : editor.getDisplayPanes()) {
+                    descriptors.add(pane.getDescriptor());
+                }
             }
         }
         return descriptors.toArray(new IDescriptor[descriptors.size()]);
@@ -147,14 +141,14 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
 
     /**
      * Populate an editor with its corresponding ParmManager
-     * 
+     *
      * @param editor
      *            the editor to populate
      * @throws VizException
      */
     public void populate(AbstractEditor editor) throws VizException {
         synchronized (this) {
-            if (isRegistered == false) {
+            if (!isRegistered) {
                 // First time called, register listeners
                 this.dataManager.getParmManager()
                         .addDisplayedParmListChangedListener(this);
@@ -179,30 +173,20 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
                 GridLocation gloc = parmManager.compositeGridLocation();
                 GridGeometry2D gridGeometry = MapUtil.getGridGeometry(gloc);
                 Envelope envelope = gridGeometry.getEnvelope();
-                PythonPreferenceStore prefs = Activator.getDefault()
-                        .getPreferenceStore();
 
-                double expandLeft = 10;
-                if (prefs.contains("OfficeDomain_expandLeft")) {
-                    expandLeft = prefs.getDouble("OfficeDomain_expandLeft");
-                }
-                double expandRight = 0.1;
-                if (prefs.contains("OfficeDomain_expandRight")) {
-                    expandRight = prefs.getDouble("OfficeDomain_expandRight");
-                }
-                double expandTop = 0.1;
-                if (prefs.contains("OfficeDomain_expandTop")) {
-                    expandTop = prefs.getDouble("OfficeDomain_expandTop");
-                }
-                double expandBottom = 0.1;
-                if (prefs.contains("OfficeDomain_expandBottom")) {
-                    expandBottom = prefs.getDouble("OfficeDomain_expandBottom");
-                }
+                double expandLeft = GFEPreference
+                        .getDouble("OfficeDomain_expandLeft", 10);
+                double expandRight = GFEPreference
+                        .getDouble("OfficeDomain_expandRight", 10);
+                double expandTop = GFEPreference
+                        .getDouble("OfficeDomain_expandTop", 10);
+                double expandBottom = GFEPreference
+                        .getDouble("OfficeDomain_expandBottom", 10);
 
-                double dxLeft = ((envelope.getSpan(0) * expandLeft) / 100.0);
-                double dxRight = ((envelope.getSpan(0) * expandRight) / 100.0);
-                double dyTop = ((envelope.getSpan(1) * expandTop) / 100.0);
-                double dyBottom = ((envelope.getSpan(1) * expandBottom) / 100.0);
+                double dxLeft = envelope.getSpan(0) * expandLeft / 100.0;
+                double dxRight = envelope.getSpan(0) * expandRight / 100.0;
+                double dyTop = envelope.getSpan(1) * expandTop / 100.0;
+                double dyBottom = envelope.getSpan(1) * expandBottom / 100.0;
 
                 GeneralEnvelope newEnvelope = new GeneralEnvelope(
                         envelope.getCoordinateReferenceSystem());
@@ -258,7 +242,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
 
     /**
      * Create a resource from a parm, and add it to the map
-     * 
+     *
      * @param descriptor
      *            the descriptor to use
      * @param p
@@ -303,7 +287,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
 
     /**
      * Delete a resource from the map that displays a specific parm
-     * 
+     *
      * @param descriptor
      *            the descriptor
      * @param p
@@ -325,7 +309,6 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
      * Depopulate the editor's GFE resources
      */
     @Override
-    @SuppressWarnings("unchecked")
     public void dispose() {
         synchronized (this) {
             if (isRegistered) {
@@ -342,23 +325,10 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#refresh()
-     */
-    private void refresh() {
-        for (IDescriptor desc : getDescriptors()) {
-            if (desc.getRenderableDisplay() != null) {
-                desc.getRenderableDisplay().refresh();
-            }
-        }
-    }
-
     @Override
     public void displayedParmListChanged(Parm[] parms, Parm[] deletions,
             Parm[] additions) {
-        Set<Parm> toDelete = new HashSet<Parm>(Arrays.asList(deletions));
+        Set<Parm> toDelete = new HashSet<>(Arrays.asList(deletions));
         for (IDescriptor desc : getDescriptors()) {
             ResourceList list = desc.getResourceList();
             List<GFEResource> rscs = list
@@ -374,8 +344,8 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
             }
         }
         if (PlatformUI.isWorkbenchRunning()) {
-            ICommandService service = (ICommandService) PlatformUI
-                    .getWorkbench().getService(ICommandService.class);
+            ICommandService service = PlatformUI.getWorkbench()
+                    .getService(ICommandService.class);
             service.refreshElements(TopoHandler.commandId, null);
         }
     }
@@ -385,13 +355,6 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
         refresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
-     * com.raytheon.viz.gfe.core.msgs.Message)
-     */
     @Override
     public void receiveMessage(Message message) {
         if (message instanceof ShowISCGridsMsg) {
@@ -407,26 +370,17 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IDescriptor.IFrameChangedListener#
-     * frameChanged(com.raytheon.uf.viz.core.drawables.IDescriptor,
-     * com.raytheon.uf.common.time.DataTime,
-     * com.raytheon.uf.common.time.DataTime)
-     */
     @Override
     public void frameChanged(IDescriptor descriptor, DataTime oldTime,
             DataTime newTime) {
-        if ((newTime != null) && (oldTime != null) && (seTime != null)
+        if (newTime != null && oldTime != null && seTime != null
                 && oldTime.getRefTime().equals(seTime)) {
             // time was set to seTime, frame changed, set seTime to null
             setSpatialEditorTime(null);
         }
         for (ISpatialEditorTimeChangedListener subListener : spatialEditorTimeChangedListeners) {
-            subListener.spatialEditorTimeChanged(newTime != null ? newTime
-                    .getRefTime() : null);
+            subListener.spatialEditorTimeChanged(
+                    newTime != null ? newTime.getRefTime() : null);
         }
     }
 

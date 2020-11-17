@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,41 +45,41 @@ import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.ui.RadarDisplayManager;
 
 /**
- * 
+ *
  * A specialized frame coordinator which introduces specialized behavior when
  * the time match basis is a radar resource and that radar is in
  * SAILS(Supplemental Adaptive Intra-Volume Low-Level Scan) mode. Many of the
  * operations are the same as a normal {@link FrameCoordinator} except the
  * following:
- * 
+ *
  * <ul>
  * <li>When the last frame is displayed it will go to the frame with the highest
  * elevation number that is part of the last volume scan. The opposite is true
  * when going to the first frame.
- * 
+ *
  * <li>When traversing the vertical dimension all frames in the same volume scan
  * will be considered even if the reftimes are different. When choosing between
  * multiple frames with the same volume scan and elevation angle the frame that
  * was most recently viewed will be used.
- * 
+ *
  * </ul>
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 13, 2015  4461     bsteffen    Initial creation
  * Sep 30, 2015  4902     bsteffen    Better determination of best frame.
- * 
+ * Feb 06, 2018  7168     tgurney     Check for and ignore non-radar data
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
-public class SailsFrameCoordinator extends FrameCoordinator implements
-        IFrameChangedListener, RemoveListener {
+public class SailsFrameCoordinator extends FrameCoordinator
+        implements IFrameChangedListener, RemoveListener {
 
     private final RadarFrameCache cache;
 
@@ -135,7 +135,7 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
                 }
             }
         }
-        return super.getLastVerticalIndex(frames, dataIndex, validator);
+        return super.getFirstVerticalIndex(frames, dataIndex, validator);
     }
 
     @Override
@@ -145,6 +145,10 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
             if (op == FrameChangeOperation.NEXT) {
                 List<RadarDataTime> volumeScan = getVolumeScan(frames,
                         dataIndex);
+                if (volumeScan.isEmpty()) {
+                    return super.getNextVerticalIndex(frames, dataIndex, op,
+                            validator);
+                }
                 Collections.sort(volumeScan, ELEVATION_ANGLE_COMPARATOR);
                 int startIdx = volumeScan.indexOf(frames[dataIndex]);
                 double currentLevel = volumeScan.get(startIdx).getLevelValue();
@@ -164,6 +168,10 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
             } else if (op == FrameChangeOperation.PREVIOUS) {
                 List<RadarDataTime> volumeScan = getVolumeScan(frames,
                         dataIndex);
+                if (volumeScan.isEmpty()) {
+                    return super.getNextVerticalIndex(frames, dataIndex, op,
+                            validator);
+                }
                 Collections.sort(volumeScan, ELEVATION_ANGLE_COMPARATOR);
                 int startIdx = volumeScan.indexOf(frames[dataIndex]);
                 double currentLevel = volumeScan.get(startIdx).getLevelValue();
@@ -223,7 +231,7 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
      * Given an example time, find the best time in the frames that has the same
      * volume scan number and primary elevation angle. This attempts to maintain
      * the same time as the previously displayed time.
-     * 
+     *
      * @param frames
      *            the frames that can be displayed
      * @param previousIndex
@@ -300,7 +308,7 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
             /*
              * This is the case when the next elevation has more times then the
              * previous elevation.
-             * 
+             *
              * Load the most recently viewed frame or if there are none then the
              * latest.
              */
@@ -322,8 +330,8 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
     @Override
     public void notifyRemove(ResourcePair rp) throws VizException {
         List<AbstractVizResource<?, ?>> radarResources = descriptor
-                .getResourceList().getResourcesByType(
-                        AbstractRadarResource.class);
+                .getResourceList()
+                .getResourcesByType(AbstractRadarResource.class);
         if (radarResources.isEmpty()) {
             cache.clear();
         }

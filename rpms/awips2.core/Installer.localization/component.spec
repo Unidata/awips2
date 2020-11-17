@@ -107,7 +107,8 @@ do
    cp -R $UTIL/siteconfig/* $SITE_DIR/
    grep -rl 'XXX' $SITE_DIR | xargs sed -i 's/XXX/'$site'/g'
 done
-
+ls -la $BUILD_DIR/utility/cave_static
+find $BUILD_DIR/utility/cave_static
 # COMMON
 cp -R $UTIL/common_static/* $COMMON_DIR/
 
@@ -124,6 +125,11 @@ fi
 
 # Copy the localization files
 cp -rv %{_baseline_workspace}/localization/utility/* \
+   ${RPM_BUILD_ROOT}/awips2/edex/data/utility
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp -rv %{_baseline_workspace}/rpms/awips2.core/Installer.localization/utility/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility
 if [ $? -ne 0 ]; then
    exit 1

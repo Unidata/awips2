@@ -37,6 +37,15 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/python"
       return 0
    fi
+#Tiff added
+   if [ "${1}" = "awips2-hdf5" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/hdf5"
+      return 0
+   fi
+   if [ "${1}" = "awips2-netcdf" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/netcdf"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-h5py" ]; then
       export RPM_SPECIFICATION="${installer_dir}/h5py"
       return 0

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -58,45 +58,67 @@ import com.vividsolutions.jts.geom.Polygonal;
 /**
  * A ReferenceData (a.k.a. Reference Set) contains a description of an area on
  * the earth's surface (series of polygons in lat/lon), and/or a query.
- * 
+ *
  * implementation
- * 
+ *
  * You can have a query and polygons defined in a single reference set. In this
  * case, the polygons represent an evaluation of the query for a particular time
  * and set of data.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 01/31/2008              randerso    Initial creation
- * 10/01/2013   2361       njensen     Added static JAXBManager
- * 02/19/2015   4125       rjpeter     Updated to return a new pooled JAXBManager on request.
- * 01/08/2018   19900      ryu         Fix CAVE crash when starting GFE for non-activated site.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 31, 2008           randerso  Initial creation
+ * Oct 01, 2013  2361     njensen   Added static JAXBManager
+ * Feb 19, 2015  4125     rjpeter   Updated to return a new pooled JAXBManager
+ *                                  on request.
+ * Jan 08, 2018  19900    ryu       Fix CAVE crash when starting GFE for non-activated site.
+ * Feb 07, 2018  6882     randerso  Added isEmpty() method. Code Cleanup.
  *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ReferenceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ReferenceData.class);
 
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 
     private static Reference<SingleTypeJAXBManager<ReferenceData>> jaxbRef = null;
 
+    /**
+     * enum defining the valid types for ReferenceData objects
+     */
     public enum RefType {
-        NONE, QUERY, POLYGON, QUERY_POLYGON
+        /** Empty, non-query */
+        NONE,
+
+        /** query based without polygons */
+        QUERY,
+
+        /** polygon based */
+        POLYGON,
+
+        /** query based with polygons */
+        QUERY_POLYGON
     };
 
+    /**
+     * enum defining the valid coordinate types for polygons in ReferenceData
+     */
     public enum CoordinateType {
-        LATLON, GRID
+        /** Latitude/Longitude (i.e. world) coordinates */
+        LATLON,
+
+        /** Grid indices */
+        GRID
     };
 
     private ReferenceID _id;
@@ -116,11 +138,9 @@ public class ReferenceData {
     private CoordinateType coordType;
 
     /**
-     * Returns the JAXBManager that handles ReferenceData.
-     * 
-     * @return
+     * @return the JAXBManager that handles ReferenceData.
      */
-    public static SingleTypeJAXBManager<ReferenceData> getJAXBManager() {
+    public static synchronized SingleTypeJAXBManager<ReferenceData> getJAXBManager() {
         // not worried about concurrency, two can be created without issue
         SingleTypeJAXBManager<ReferenceData> rval = null;
 
@@ -148,7 +168,7 @@ public class ReferenceData {
 
     /**
      * Constructor for ReferenceData with polygons.
-     * 
+     *
      * @param gloc
      * @param id
      * @param polygons
@@ -161,7 +181,7 @@ public class ReferenceData {
 
     /**
      * Constructor for ReferenceData taking a query string.
-     * 
+     *
      * @param gloc
      * @param id
      * @param query
@@ -174,7 +194,7 @@ public class ReferenceData {
     /**
      * Constructor for ReferenceData taking a query string and a set of
      * polygons.
-     * 
+     *
      * @param gloc
      * @param id
      * @param query
@@ -195,12 +215,19 @@ public class ReferenceData {
                 this.polygons = (MultiPolygon) ((MultiPolygon) polygons)
                         .clone();
             } else if (polygons instanceof Polygon) {
-                this.polygons = geometryFactory
-                        .createMultiPolygon(new Polygon[] { (Polygon) polygons });
+                this.polygons = geometryFactory.createMultiPolygon(
+                        new Polygon[] { (Polygon) polygons });
             }
         }
     }
 
+    /**
+     * Constructor for ReferenceData taking a grid.
+     *
+     * @param gloc
+     * @param id
+     * @param grid
+     */
     public ReferenceData(final GridLocation gloc, final ReferenceID id,
             final Grid2DBit grid) {
         this._id = id;
@@ -209,6 +236,14 @@ public class ReferenceData {
         this.coordType = CoordinateType.GRID;
     }
 
+    /**
+     * Constructor for ReferenceData taking a query and a grid.
+     *
+     * @param gloc
+     * @param id
+     * @param query
+     * @param grid
+     */
     public ReferenceData(final GridLocation gloc, final ReferenceID id,
             final String query, final Grid2DBit grid) {
         this._id = id;
@@ -218,6 +253,11 @@ public class ReferenceData {
         this.coordType = CoordinateType.GRID;
     }
 
+    /**
+     * Copy Constructor
+     *
+     * @param rhs
+     */
     public ReferenceData(final ReferenceData rhs) {
         this._id = rhs._id;
         this.query = rhs.query;
@@ -228,18 +268,26 @@ public class ReferenceData {
         this.coordType = rhs.coordType;
     }
 
+    /**
+     * @return the ReferenceID for this ReferenceData
+     */
     public ReferenceID getId() {
         return _id;
     }
 
+    /**
+     * Set the ReferenceID for this ReferenceData
+     *
+     * @param id
+     */
     public void setId(final ReferenceID id) {
         this._id = id;
     }
 
     /**
-     * Returns the polygons associated with this ReferenceData.
-     * 
-     * @return
+     * @param coordType
+     * @return the polygons associated with this ReferenceData in the desired
+     *         coordinate type
      */
     public MultiPolygon getPolygons(CoordinateType coordType) {
         if ((grid != null) && (polygons == null)) {
@@ -249,29 +297,34 @@ public class ReferenceData {
         return polygons;
     }
 
+    /**
+     * @return the query for this ReferenceData
+     */
     public String getQuery() {
         return query;
     }
 
+    /**
+     * Set the query for this ReferenceData
+     *
+     * @param s
+     *            the query to be set
+     */
     public void setQuery(String s) {
         query = s;
     }
 
     /**
-     * Returns a sequence of float domains that define the set of points of the
-     * ReferenceData object.
-     * 
-     * implementation
-     * 
-     * Collect the polygon domains.
-     * 
-     * @return
+     * @param coordType
+     * @return a list of domains (bounding boxes or envelopes) for each polygon
+     *         in this ReferenceData in the desired coordinate type
      */
     public List<Envelope> getDomains(CoordinateType coordType) {
-        List<Envelope> domains = new ArrayList<Envelope>();
+        List<Envelope> domains = new ArrayList<>();
 
         if (polygons == null) {
-            getPolygons(coordType); // makes polygons, so we can getDomains()
+            // makes polygons, so we can getDomains()
+            getPolygons(coordType);
         }
 
         for (int i = 0; i < polygons.getNumGeometries(); i++) {
@@ -281,9 +334,9 @@ public class ReferenceData {
     }
 
     /**
-     * Returns the overall domain of all polygons.
-     * 
-     * @return
+     * @param coordType
+     * @return the overall domain (bounding box or envelope) of all polygons in
+     *         the desired coordinate type
      */
     public Envelope overallDomain(CoordinateType coordType) {
         if (polygons == null) {
@@ -297,7 +350,7 @@ public class ReferenceData {
 
     /**
      * Convert to desired coordinate type
-     * 
+     *
      * @param coordType
      */
     private void convertTo(CoordinateType coordType) {
@@ -310,17 +363,17 @@ public class ReferenceData {
             convertToLatLon();
             break;
         default:
-            throw new IllegalArgumentException("Unrecognized coordinate type: "
-                    + coordType);
+            throw new IllegalArgumentException(
+                    "Unrecognized coordinate type: " + coordType);
         }
     }
 
     /**
      * Returns a new ReferenceData object based on the current object, but in
      * grid coordinates.
-     * 
+     *
      * implementation
-     * 
+     *
      * For each region in this ReferenceData object, convert the points to grid
      * coords and make a new region. Return a ReferenceData object constructed
      * from these newly converted polygons and the current Reference ID.
@@ -348,9 +401,9 @@ public class ReferenceData {
     /**
      * Returns a new ReferenceData object based on the current object, but in
      * lat/lon coordinates.
-     * 
+     *
      * implementation
-     * 
+     *
      * For each region in this ReferenceData object, convert the points to
      * lat/lon coords and make a new region. Return a ReferenceData object
      * constructed from these newly converted polygons and the current Reference
@@ -374,9 +427,7 @@ public class ReferenceData {
     }
 
     /**
-     * Returns the Reference Data type.
-     * 
-     * @return
+     * @return the type of this ReferenceData
      */
     public RefType refType() {
         if ((query != null) && (query.length() > 0) && (polygons != null)) {
@@ -391,27 +442,39 @@ public class ReferenceData {
     }
 
     /**
-     * Returns the true if Reference Data contains a query.
-     * 
-     * @return
+     * @return true if ReferenceData contains a query.
      */
     public boolean isQuery() {
         return (query != null) && (query.length() > 0);
     }
 
-    // no implementation found in C++ source
-    // public boolean protect() {
-    //
-    // }
+    /**
+     *
+     * @return true if ReferenceData is not a query and grid has not bits set
+     */
+    public boolean isEmpty() {
+        return !this.isQuery() && !this.getGrid().isAnyBitsSet();
+    }
 
+    /**
+     * @return the current coordinate type for this ReferenceData
+     */
     public CoordinateType getCoordinateType() {
         return coordType;
     }
 
+    /**
+     * @return the GridLocation for this ReferenceData
+     */
     public GridLocation getGloc() {
         return gloc;
     }
 
+    /**
+     * Set the GridLocation for this ReferenceData
+     *
+     * @param gloc
+     */
     public void setGloc(final GridLocation gloc) {
         if (gloc != this.gloc) {
             if (coordType == CoordinateType.GRID) {
@@ -423,13 +486,16 @@ public class ReferenceData {
         }
     }
 
+    /**
+     * @return the mask grid for this ReferenceData
+     */
     public Grid2DBit getGrid() {
         if (grid == null) {
             try {
                 calcGrid();
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, "getGrid() failed for "
-                        + this.getId().getName(), e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "getGrid() failed for " + this.getId().getName(), e);
 
                 // return an empty grid
        	        grid = new Grid2DBit(gloc.getNx(), gloc.getNy());
@@ -438,18 +504,32 @@ public class ReferenceData {
         return grid;
     }
 
+    /**
+     * Set this ReferenceData to the supplied grid
+     *
+     * @param grid
+     */
     public void setGrid(final Grid2DBit grid) {
         this.grid = grid;
         this.polygons = null;
         this.coordType = CoordinateType.GRID;
     }
 
+    /**
+     * Set this ReferenceData to the supplied polygons
+     *
+     * @param polygons
+     * @param coordType
+     */
     public void setPolygons(MultiPolygon polygons, CoordinateType coordType) {
         this.grid = null;
         this.polygons = polygons;
         this.coordType = coordType;
     }
 
+    /**
+     * Invert the selected area of this ReferenceData
+     */
     public void invert() {
         if (grid == null) {
             calcGrid();
@@ -459,19 +539,27 @@ public class ReferenceData {
         query = null;
     }
 
+    /**
+     * Remove all polygons containing point from this ReferenceData
+     *
+     * @param point
+     * @param coordType
+     */
     public void removeIfContains(final Point point, CoordinateType coordType) {
-        List<Polygon> result = new ArrayList<Polygon>();
-        getPolygons(coordType); // force polygons to be recalculated if
-        // necessary
+        // force polygons to be recalculated if necessary
+        getPolygons(coordType);
+
+        List<Polygon> result = new ArrayList<>();
         for (int i = 0; i < polygons.getNumGeometries(); i++) {
             Polygon poly = (Polygon) polygons.getGeometryN(i);
             if (!poly.contains(point)) {
                 result.add(poly);
             }
         }
+
         if (result.size() != polygons.getNumGeometries()) {
-            polygons = geometryFactory.createMultiPolygon(result
-                    .toArray(new Polygon[result.size()]));
+            polygons = geometryFactory.createMultiPolygon(
+                    result.toArray(new Polygon[result.size()]));
             grid = null;
         }
     }
@@ -496,12 +584,12 @@ public class ReferenceData {
     /**
      * Returns a Grid2DBit that represents the grid points defined by the
      * specified ReferenceData object.
-     * 
+     *
      * implementation
-     * 
+     *
      * Loop through each region. Get make a Grid2DBit for each one and apply it
      * to the final grid based on the include flag. Return the result.
-     * 
+     *
      * @param refData
      * @return
      */
@@ -514,7 +602,7 @@ public class ReferenceData {
 
     /**
      * Returns a sequence of polygons based on the Grid2DBit.
-     * 
+     *
      * @param grid
      * @return
      */
@@ -522,7 +610,7 @@ public class ReferenceData {
         int rows = grid.getYdim();
         int cols = grid.getXdim();
 
-        ArrayList<Polygon> polygons = new ArrayList<Polygon>();
+        List<Polygon> polygons = new ArrayList<>();
 
         for (int row = 0; row < rows; row++) {
             int startcol = 0;
@@ -551,8 +639,10 @@ public class ReferenceData {
                 }
             }
         }
-        Geometry g = geometryFactory.createMultiPolygon(
-                polygons.toArray(new Polygon[polygons.size()])).buffer(0.0);
+        Geometry g = geometryFactory
+                .createMultiPolygon(
+                        polygons.toArray(new Polygon[polygons.size()]))
+                .buffer(0.0);
 
         MultiPolygon p = null;
         if (g instanceof MultiPolygon) {
@@ -564,154 +654,39 @@ public class ReferenceData {
         return p;
     }
 
-    // private static void condInsertSeg(int i, int j, List<Coordinate> segs,
-    // final Grid2DBit grid, final Coordinate p1, final Coordinate p2) {
-    // if ((!grid.isValid(i, j) || (!grid.getAsBoolean(i, j)))) {
-    // segs.add(p1);
-    // segs.add(p2);
-    // }
-    // }
-
-    /**
-     * Returns a List<Coordinate> that contains all of the segments that lie
-     * between each cell that is on and an adjacent cell that is off or on the
-     * border. This function is used exclusively by covertToReferenceData.
-     * 
-     * implementation
-     * 
-     * For each gridCell, if the cell is on look in four directions for a cell
-     * that is off or the border. If we find one, append the appropriate segment
-     * to the array. Return the array.
-     * 
-     * @param grid
-     * @return
-     */
-    // private List<Coordinate> getGridSegments(final Grid2DBit grid) {
-    // List<Coordinate> segs;
-    // Coordinate origin = _gloc.gridLocation().origin()
-    // - (_gloc.gridCellSize() / 2.0);
-    // Coordinate extent = _gloc.gridLocation().extent()
-    // + _gloc.gridCellSize();
-    // Coordinate gridSize = _gloc.gridSize();
-    // Coordinate scaling = new Coordinate(extent.x / gridSize.x, extent.y
-    // / gridSize.y);
-    // Coordinate ll, ur;
-    // for (int i = 0; i < grid.getXDim(); i++) {
-    // ll.x = origin.x + ((float) i * scaling.x);
-    // ur.x = origin.x + (((float) i + 1) * scaling.x);
-    // for (int j = 0; j < grid.getYDim(); j++) {
-    // if (grid.isSet(i, j)) // this cell is set
-    // {
-    // // calculate the bounds for this grid cell
-    // ll.y = origin.y + ((float) j * scaling.y);
-    // ur.y = origin.y + (((float) j + 1) * scaling.y);
-    // // make the domain of this cell
-    // Envelope d = new Envelope(ll, ur);
-    // Coordinate dll = new Coordinate(d.getMinX(), d.getMinY());
-    // Coordinate dul = new Coordinate(d.getMinX(), d.getMaxY());
-    // Coordinate dlr = new Coordinate(d.getMaxX(), d.getMinY());
-    // Coordinate dur = new Coordinate(d.getMaxX(), d.getMaxY());
-    //
-    // condInsertSeg(i - 1, j, segs, grid, dll, dul);
-    // condInsertSeg(i, j + 1, segs, grid, dul, dur);
-    // condInsertSeg(i + 1, j, segs, grid, dur, dlr);
-    // condInsertSeg(i, j - 1, segs, grid, dlr, dll);
-    // }
-    // }
-    // }
-    //
-    // return segs;
-    // }
-    // private boolean includePolygon(final Grid2DBit grid,
-    // final List<Coordinate> points) {
-    // // Make a polygon from the specified points
-    // Polygon polygon = new Polygon(points);
-    // Coordinate worldCoord;
-    // java.awt.Point coord;
-    // boolean inGrid = false;
-    // boolean pointSet = false;
-    //
-    // // make a fudge factor in world coordinates so roundoff issues go away
-    // Coordinate delta = _gloc.gridCellSize() / 10;
-    // // Find any point inside this polygon
-    // for (Coordinate point: points)
-    // {
-    // // get the center of the gridPoint where this point lies
-    // coord = _gloc.gridCoordinate(point + delta, inGrid);
-    //
-    // worldCoord = _gloc.worldCoordinate(coord) + delta;
-    // if (inGrid && polygon.inside(worldCoord))
-    // {
-    // // look in four directions for a point outside polygon
-    // pointSet = grid.isSet((int)coord.x, (int)coord.y);
-    // for (int i = coord.x - 1; i <= coord.x + 1; i++)
-    // for (int j = coord.y - 1; j <= coord.y + 1; j++)
-    // {
-    // // check for bounds first
-    // if (i < 0 || i >= _gloc.gridSize().x
-    // || j < 0 || j >= _gloc.gridSize().y)
-    // continue;
-    // // see if this point is set differently
-    // if (!grid.get(i, j) == pointSet)
-    // {
-    // worldCoord = _gloc.worldCoordinate(
-    // new Coordinate(i, j)) + delta;
-    // if (!polygon.contains(worldCoord))
-    // return pointSet;
-    // }
-    // } // for loops
-    // }
-    // } // for p
-    //
-    // // We didn't find the value of the polygon, so return the value of
-    // // any point inside.
-    // for (int p = 0; p < points.size(); p++)
-    // {
-    // // get the center of the gridPoint where this point lies
-    // coord = _gloc.gridCoordinate(points.get(p) + delta, inGrid);
-    // // Find the world coordinate of this center
-    // worldCoord = _gloc.worldCoordinate(coord) + delta;
-    // if (inGrid && polygon.contains(worldCoord)) // the point is inside
-    // return grid.isSet(coord.x, coord.y);// return the value at this
-    // // point
-    // }
-    //
-    // // If we got this far the algorithm failed, so log a bug.
-    // logBug << "Polygon Include/Exclude could not be determined.";
-    //
-    // return false;
-    // }
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder();
         s.append("Id: " + _id);
 
         RefType type = refType();
         s.append(" Type: " + type);
 
         if ((type == RefType.POLYGON) || (type == RefType.QUERY_POLYGON)) {
-            // s.append(" Polygons: " + polygons);
             s.append(" CoordType: " + coordType);
         }
         if ((type == RefType.QUERY) || (type == RefType.QUERY_POLYGON)) {
             s.append(" Query: " + query);
         }
 
-        // s.append(" Grid: " + grid);
-
         return s.toString();
     }
 
+    /**
+     * @param rhs
+     * @return a new ReferenceData that is the union of this and rhs
+     */
     public ReferenceData or(final ReferenceData rhs) {
         return new ReferenceData(this.gloc, new ReferenceID("temporary"),
                 getGrid().or(rhs.getGrid()));
     }
 
+    /**
+     * Set this ReferenceData to the union of this and rhs
+     *
+     * @param rhs
+     * @return this ReferenceData
+     */
     public ReferenceData orEquals(final ReferenceData rhs) {
         getGrid();
         polygons = null;
@@ -719,11 +694,21 @@ public class ReferenceData {
         return this;
     }
 
+    /**
+     * @param rhs
+     * @return a new ReferenceData that is this minus rhs
+     */
     public ReferenceData minus(final ReferenceData rhs) {
-        return new ReferenceData(gloc, new ReferenceID("temporary"), getGrid()
-                .xor(getGrid().and(rhs.getGrid())));
+        return new ReferenceData(gloc, new ReferenceID("temporary"),
+                getGrid().xor(getGrid().and(rhs.getGrid())));
     }
 
+    /**
+     * Subtract rhs from this ReferenceData and return this
+     *
+     * @param rhs
+     * @return this ReferenceData
+     */
     public ReferenceData minusEquals(final ReferenceData rhs) {
         getGrid();
         polygons = null;
@@ -731,11 +716,22 @@ public class ReferenceData {
         return this;
     }
 
+    /**
+     * @param rhs
+     * @return a new ReferenceData that contains the intersection of this and
+     *         rhs
+     */
     public ReferenceData and(final ReferenceData rhs) {
-        return new ReferenceData(gloc, new ReferenceID("temporary"), getGrid()
-                .and(rhs.getGrid()));
+        return new ReferenceData(gloc, new ReferenceID("temporary"),
+                getGrid().and(rhs.getGrid()));
     }
 
+    /**
+     * Set this ReferenceData to the intersection of this and rhs
+     *
+     * @param rhs
+     * @return this ReferenceData
+     */
     public ReferenceData andEquals(final ReferenceData rhs) {
         getGrid();
         polygons = null;

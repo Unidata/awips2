@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,25 +24,20 @@ import java.awt.Point;
 
 /**
  * Grid Slice Interface
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 29, 2008 879        rbell       Initial Creation.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jan 29, 2008  879      rbell     Initial Creation.
+ * Jan 04, 2018  7178     randerso  Change clone() to copy().
+ *
  * </pre>
- * 
+ *
  * @author rbell
- * @version 1.0
  */
 public interface IGrid2D {
-
-    public static final int makeContiguousArrayXComponent[] = new int[] { 0, 1,
-            0, -1, -1, 1, 1, -1 };
-
-    public static final int makeContiguousArrayYComponent[] = new int[] { 1, 0,
-            -1, 0, 1, 1, -1, -1 };
 
     /**
      * @return whether or not the grid is valid
@@ -59,9 +54,9 @@ public interface IGrid2D {
     public boolean isValid(int x, int y);
 
     /**
-     * 
+     *
      * Returns the Grid2DBit specified by the supplied sub dimensions.
-     * 
+     *
      * @param minX
      *            x coordinate of upper left corner of subgrid
      * @param minY
@@ -75,18 +70,17 @@ public interface IGrid2D {
     public IGrid2D subGrid(int minX, int minY, int maxX, int maxY);
 
     /**
-     * 
+     *
      * Clone override function.
-     * 
+     *
      * @return an IGrid2D object that is equal to this IGrid2D object
-     * @throws CloneNotSupportedException
      */
-    public IGrid2D clone() throws CloneNotSupportedException;
+    public IGrid2D copy();
 
     /**
      * Copies the input grid onto this grid, but only for coordinates that are 1
      * in the maskGrid.
-     * 
+     *
      * @param sourceGrid
      *            grid to copy data from
      * @param maskGrid
@@ -96,9 +90,10 @@ public interface IGrid2D {
 
     /**
      * toString method
-     * 
+     *
      * @return string value
      */
+    @Override
     public String toString();
 
     /**

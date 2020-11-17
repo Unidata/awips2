@@ -30,31 +30,31 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 14, 2014            mpduff     Initial creation
+ * Jul 14, 2014            mpduff      Initial creation.
+ * Jan 23, 2018   6784     mduff       Refactored shef missing var names.
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
 public class ShefRangeData {
 
-    private double grossRangeMin = ShefConstants.SHEF_MISSING_INT;
+    private double grossRangeMin = ShefConstants.SHEF_MISSING;
 
-    private double grossRangeMax = ShefConstants.SHEF_MISSING_INT;
+    private double grossRangeMax = ShefConstants.SHEF_MISSING;
 
-    private double reasonRangeMin = ShefConstants.SHEF_MISSING_INT;
+    private double reasonRangeMin = ShefConstants.SHEF_MISSING;
 
-    private double reasonRangeMax = ShefConstants.SHEF_MISSING_INT;
+    private double reasonRangeMax = ShefConstants.SHEF_MISSING;
 
-    private double alertUpperLimit = ShefConstants.SHEF_MISSING_INT;
+    private double alertUpperLimit = ShefConstants.SHEF_MISSING;
 
-    private double alarmUpperLimit = ShefConstants.SHEF_MISSING_INT;
+    private double alarmUpperLimit = ShefConstants.SHEF_MISSING;
 
-    private double alertLowerLimit = ShefConstants.SHEF_MISSING_INT;
+    private double alertLowerLimit = ShefConstants.SHEF_MISSING;
 
-    private double alarmLowerLimit = ShefConstants.SHEF_MISSING_INT;
+    private double alarmLowerLimit = ShefConstants.SHEF_MISSING;
 
     /**
      * @return the grossRangeMin

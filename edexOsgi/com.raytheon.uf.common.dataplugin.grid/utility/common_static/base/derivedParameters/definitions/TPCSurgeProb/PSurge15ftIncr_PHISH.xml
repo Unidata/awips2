@@ -25,7 +25,7 @@
 <DerivedParameter abbreviation="PSurge15ftIncr_PHISH"
     name="PHISH probability &gt; 15 feet - incremental [agl]" unit="%">
     <!-- This parameter provides a custom legend and parameter name for the incremental surge that is coming from PHISH -->
-    <Method models="TPCSurgeProb P-ETSS P-ETSS-LoRes" name="Alias" levels="0FHAG">
+    <Method models="TPCSurgeProb TPCSurgeProbLoRes P-ETSS P-ETSS-LoRes" name="Alias" levels="0FHAG">
         <Field abbreviation="PSurge15ft6hr" />
     </Method>
 </DerivedParameter>

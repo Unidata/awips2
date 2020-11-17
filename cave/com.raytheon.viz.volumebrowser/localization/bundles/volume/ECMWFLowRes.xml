@@ -18,144 +18,143 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties"
-						displayType="CONTOUR" />
-					<properties isVisible="true" />
-					<resourceData xsi:type="gridResourceData">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="GH" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="500.0" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties"
-						displayType="CONTOUR" />
-					<properties isVisible="true" />
-					<resourceData xsi:type="gridResourceData">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="AV" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="500" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties"
-						displayType="CONTOUR" />
-					<properties isVisible="false" />
-					<resourceData xsi:type="gridResourceData">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="msl-P" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties"
-						displayType="CONTOUR" />
-					<properties isVisible="false" />
-					<resourceData xsi:type="gridResourceData">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="dZ" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="500" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="1000" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties xsi:type="gridLoadProperties"
-						displayType="CONTOUR" />
-					<properties isVisible="false" />
-					<resourceData xsi:type="gridResourceData">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="GH" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="ECMF-NorthernHemisphere"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="grid" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.masterLevel.name">
-								<constraint constraintValue="MB" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="700.0" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="-999999" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<numberOfFrames>${frameCount}</numberOfFrames>
-			</descriptor>
-		</displays>
-	</displayList>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" />
+                    <properties isVisible="true" />
+                    <resourceData xsi:type="gridResourceData">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="GH" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="ECMF-NorthernHemisphere"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintValue="MB" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintValue="500.0" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" />
+                    <properties isVisible="true" />
+                    <resourceData xsi:type="gridResourceData">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="AV" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="ECMF-NorthernHemisphere"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintValue="MB" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintValue="500" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" />
+                    <properties isVisible="false" />
+                    <resourceData xsi:type="gridResourceData">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="msl-P" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="ECMF-NorthernHemisphere"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" />
+                    <properties isVisible="false" />
+                    <resourceData xsi:type="gridResourceData">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="dZ" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="ECMF-NorthernHemisphere"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintValue="500" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintValue="MB" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintValue="1000" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" />
+                    <properties isVisible="false" />
+                    <resourceData xsi:type="gridResourceData">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="GH" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="ECMF-NorthernHemisphere"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintValue="MB" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintValue="700.0" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <numberOfFrames>${frameCount}</numberOfFrames>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

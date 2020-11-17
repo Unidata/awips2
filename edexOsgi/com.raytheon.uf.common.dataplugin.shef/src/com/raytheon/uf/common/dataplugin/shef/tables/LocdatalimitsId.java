@@ -40,9 +40,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011      10672     jkorman Move refactor to new project
- * Oct 07, 2013       2361     njensen Removed XML annotations
- * May 23, 2016       5590     bkowal  Cleanup.
+ * Aug 19, 2011 10672      jkorman     Move refactor to new project
+ * Oct 07, 2013 2361       njensen     Removed XML annotations
+ * May 23, 2016 5590       bkowal      Cleanup.
+ * Apr 18, 2018 DCS19644   jwu         Add column 'ts' (Type-Source).
  * 
  * </pre>
  * 
@@ -65,16 +66,20 @@ public class LocdatalimitsId extends PersistableDataObject<LocdatalimitsId>
     private short dur;
 
     @DynamicSerializeElement
+    private String ts;
+
+    @DynamicSerializeElement
     private String monthdaystart;
 
     public LocdatalimitsId() {
     }
 
-    public LocdatalimitsId(String lid, String pe, short dur,
+    public LocdatalimitsId(String lid, String pe, String ts, short dur,
             String monthdaystart) {
         this.lid = lid;
         this.pe = pe;
         this.dur = dur;
+        this.ts = ts;
         this.monthdaystart = monthdaystart;
     }
 
@@ -105,6 +110,15 @@ public class LocdatalimitsId extends PersistableDataObject<LocdatalimitsId>
         this.dur = dur;
     }
 
+    @Column(name = "ts", nullable = false, length = 2)
+    public String getTs() {
+        return this.ts;
+    }
+
+    public void setTs(String ts) {
+        this.ts = ts;
+    }
+
     @Column(name = "monthdaystart", nullable = false, length = 5)
     public String getMonthdaystart() {
         return this.monthdaystart;
@@ -130,6 +144,9 @@ public class LocdatalimitsId extends PersistableDataObject<LocdatalimitsId>
                         && castOther.getPe() != null && this.getPe().equals(
                         castOther.getPe())))
                 && (this.getDur() == castOther.getDur())
+                && ((this.getTs() == castOther.getTs())
+                        || (this.getTs() != null && castOther.getTs() != null
+                                && this.getTs().equals(castOther.getTs())))
                 && ((this.getMonthdaystart() == castOther.getMonthdaystart()) || (this
                         .getMonthdaystart() != null
                         && castOther.getMonthdaystart() != null && this
@@ -144,6 +161,7 @@ public class LocdatalimitsId extends PersistableDataObject<LocdatalimitsId>
                 + (getLid() == null ? 0 : this.getLid().hashCode());
         result = 37 * result + (getPe() == null ? 0 : this.getPe().hashCode());
         result = 37 * result + this.getDur();
+        result = 37 * result + (getTs() == null ? 0 : this.getTs().hashCode());
         result = 37
                 * result
                 + (getMonthdaystart() == null ? 0 : this.getMonthdaystart()

@@ -85,6 +85,7 @@ import com.raytheon.viz.radar.util.StationUtils;
  * Apr 01, 2014  17220    dfriedman  Handle uninitialized grid inventory
  * Sep 09, 2014  3356     njensen    Remove CommunicationException
  * Aug 15, 2017  6332     bsteffen   Move to viz.grid.radar plugin
+ * Jan 24, 2018  6907     bsteffen   Increase grid resolution.
  * 
  * </pre>
  * 
@@ -111,12 +112,12 @@ public class RadarAdapter {
     /**
      * Number of x/y grid points in radar grid.
      */
-    private static final int GRID_SIZE = 100;
+    private static final int GRID_SIZE = 400;
 
     /**
      * Spacing of grid points in meters.
      */
-    private static final int GRID_SPACING = 6000;
+    private static final int GRID_SPACING = 2000;
 
     private static final RadarAdapter instance;
 

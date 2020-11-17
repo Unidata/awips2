@@ -19,8 +19,6 @@
  ******************************************************************************************/
 package com.raytheon.viz.awipstools.common.stormtrack;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 
 import org.eclipse.jface.action.IMenuManager;
@@ -54,32 +52,33 @@ import com.raytheon.viz.ui.input.EditableManager;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer       Description
- * ------------- -------- -------------- --------------------------------------
- * Aug 16, 2010  2492     bkowal         Completed a TODO so that the available
- *                                       datatimes would be re-calculated when 
- *                                       in time match mode and when the user
- *                                       increased the number of frames.
- * Oct 27, 2010  6964     bkowal         The OutlineCapability is now used to
- *                                       retrieve the requested line style so
- *                                       that it can be stored in the 
- *                                       StormTrackState.
- * Feb 12, 2013  1600     jsanchez       Changed the visibility of the method
- *                                       adjustAngle
- * Mar 05, 2013  1600     jsanchez       Returned the visibility of the method
- *                                       adjustAngle to protected.
- * Mar 15, 2013  15693    mgamazaychikov Added magnification to display state.
- * Jun 10, 2014  3263     bsteffen       Synchronize dataTimes
- * Jul 30, 2015  17761    D. Friedman    Fix time matching.
- * Nov 03, 2016  5941     bsteffen       Fix recycling
+ * 
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * Aug 16, 2010  2492     bkowal     Completed a TODO so that the available
+ *                                   datatimes would be re-calculated when in
+ *                                   time match mode and when the user increased
+ *                                   the number of frames.
+ * Oct 27, 2010  6964     bkowal     The OutlineCapability is now used to
+ *                                   retrieve the requested line style so that
+ *                                   it can be stored in the StormTrackState.
+ * Feb 12, 2013  1600     jsanchez   Changed the visibility of the method
+ *                                   adjustAngle
+ * Mar 05, 2013  1600     jsanchez   Returned the visibility of the method
+ *                                   adjustAngle to protected.
+ * Mar 15, 2013  15693    mgamazayc  Added magnification to display state.
+ * Jun 10, 2014  3263     bsteffen   Synchronize dataTimes
+ * Jul 30, 2015  17761    dfriedman  Fix time matching.
+ * Nov 03, 2016  5941     bsteffen   Fix recycling
+ * Nov 28, 2017  5863     bsteffen   Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author mschenke
  */
-public abstract class AbstractStormTrackResource extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IResourceDataChanged, IContextMenuContributor {
+public abstract class AbstractStormTrackResource
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IResourceDataChanged, IContextMenuContributor {
 
     private StormTrackDisplay display;
 
@@ -105,10 +104,9 @@ public abstract class AbstractStormTrackResource extends
     public AbstractStormTrackResource(
             GenericToolsResourceData<? extends AbstractStormTrackResource> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         setDescriptor(descriptor);
         resourceData.addChangeListener(this);
-        dataTimes = Collections.synchronizedList(new ArrayList<DataTime>());
 
         displayState = new StormTrackState();
         trackUtil = new StormTrackUtil();
@@ -136,7 +134,8 @@ public abstract class AbstractStormTrackResource extends
                  * We only want to calculate more data times if the user has
                  * selected more frames than there have been in the past.
                  */
-                if (this.descriptor.getNumberOfFrames() > this.maximumFrameCount) {
+                if (this.descriptor
+                        .getNumberOfFrames() > this.maximumFrameCount) {
                     int variance = this.descriptor.getNumberOfFrames()
                             - this.maximumFrameCount;
 
@@ -147,7 +146,7 @@ public abstract class AbstractStormTrackResource extends
                         dataTimes.add(basisTime);
                     }
 
-                    DataTime earliestTime = this.dataTimes.get(0);
+                    DataTime earliestTime = this.dataTimes.first();
                     this.fillDataTimeArray(earliestTime, variance);
                 }
             } else {
@@ -160,30 +159,22 @@ public abstract class AbstractStormTrackResource extends
                     }
                 }
 
-                if (dataTimes.size() == 0) {
-                    /*
-                     * Case where this tool is time match basis or no data
-                     * loaded
-                     */
-                    if (dataTimes.size() > 0) {
-                        basisTime = dataTimes.get(dataTimes.size() - 1);
-                    } else {
-                        basisTime = new DataTime(
-                                SimulatedTime
-                                .getSystemTime().getTime());
-                    }
+                if (dataTimes.isEmpty()) {
+
+                    basisTime = new DataTime(
+                            SimulatedTime.getSystemTime().getTime());
 
                     dataTimes.add(basisTime);
                     this.fillDataTimeArray(basisTime,
                             this.descriptor.getNumberOfFrames() - 1);
                 }
             }
-            Collections.sort(dataTimes);
             return dataTimes.toArray(new DataTime[dataTimes.size()]);
         }
     }
 
-    private void fillDataTimeArray(DataTime startDataTime, int numberOfDataTimes) {
+    private void fillDataTimeArray(DataTime startDataTime,
+            int numberOfDataTimes) {
         int fifteenMin = 15 * 60 * 1000;
         long time = startDataTime.getRefTime().getTime();
         DataTime currentDataTime = null;

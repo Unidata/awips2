@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,7 +34,6 @@ import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.ScalarWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
@@ -43,19 +42,21 @@ import com.raytheon.viz.gfe.rsc.GFEFonts;
 
 /**
  * Visual for Scalar set value dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 22, 2009 #1318      randerso    Initial creation
- * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 22, 2009  1318     randerso  Initial creation
+ * Mar 10, 2016  5479     randerso  Use improved GFEFonts API
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class SetValueScalarVisual {
@@ -74,9 +75,15 @@ public class SetValueScalarVisual {
 
     private float zoomFactor;
 
-    public SetValueScalarVisual(Canvas aCanvas, Parm aParm) {
-        this.canvas = aCanvas;
-        this.parm = aParm;
+    /**
+     * Constructor
+     *
+     * @param canvas
+     * @param parm
+     */
+    public SetValueScalarVisual(Canvas canvas, Parm parm) {
+        this.canvas = canvas;
+        this.parm = parm;
         scaleVisual = new ScaleVisual(210, 0.05f);
         scaleVisual.setParms(Arrays.asList(parm));
         scaleVisual.setCanvas(canvas);
@@ -90,38 +97,19 @@ public class SetValueScalarVisual {
                 "SetValuePickUp_font", SWT.BOLD, 3);
 
         zoomedIn = false;
-        if (GFEPreference.contains(parm.getParmID().compositeNameUI()
-                + "_SetValue_zoom")) {
-            zoomFactor = 1.0f / GFEPreference.getIntPreference(parm.getParmID()
-                    .compositeNameUI() + "_SetValue_zoom");
-        } else if (GFEPreference.contains("SetValue_zoom")) {
-            zoomFactor = 1.0f / GFEPreference.getIntPreference("SetValue_zoom");
-        } else {
-            zoomFactor = 0.25f;
-        }
+        int zoom = GFEPreference.getInt("SetValue_zoom", 4);
+        zoom = GFEPreference.getInt(
+                parm.getParmID().compositeNameUI() + "_SetValue_zoom", zoom);
+        zoomFactor = 1.0f / zoom;
 
         canvas.addMouseListener(new MouseHandler() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragMove(org.eclipse
-             * .swt.events.MouseEvent)
-             */
             @Override
             public void dragMove(MouseEvent e) {
                 super.dragMove(e);
                 handleMouseDragEvent(e);
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#mouseClick(org.
-             * eclipse.swt.events.MouseEvent)
-             */
             @Override
             public void mouseClick(MouseEvent e) {
                 super.mouseClick(e);
@@ -131,6 +119,12 @@ public class SetValueScalarVisual {
         });
     }
 
+    /**
+     * Render this visual
+     *
+     * @param e
+     *            the paint event
+     */
     public void render(PaintEvent e) {
         GC gc = e.gc;
 
@@ -139,19 +133,19 @@ public class SetValueScalarVisual {
             return;
         }
 
-        canvas.setBackground(canvas.getDisplay()
-                .getSystemColor(SWT.COLOR_BLACK));
+        canvas.setBackground(
+                canvas.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
         // get the color table values, make a copy, then prepend notInTableEntry
-        ColorMapParameters colorMapParameters = DataManager
-                .getCurrentInstance().getSpatialDisplayManager()
-                .getResourcePair(parm).getResource()
+        ColorMapParameters colorMapParameters = parm.getDataManager()
+                .getSpatialDisplayManager().getResourcePair(parm).getResource()
                 .getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
 
         if (colorMapParameters == null) {
+            // cannot render without a color table.
             return;
-        } // cannot render without a color table.
+        }
 
         // paint the color bar
         paintColorBar(e, colorMapParameters);
@@ -183,18 +177,25 @@ public class SetValueScalarVisual {
 
     }
 
+    /**
+     * paint the color bar
+     *
+     * @param e
+     *            the paint event
+     * @param colorMapParameters
+     */
     public void paintColorBar(PaintEvent e,
             ColorMapParameters colorMapParameters) {
         GC gc = e.gc;
-        Point minColor = scaleVisual.getPointForValue(colorMapParameters
-                .getColorMapMin());
-        Point maxColor = scaleVisual.getPointForValue(colorMapParameters
-                .getColorMapMax());
+        Point minColor = scaleVisual
+                .getPointForValue(colorMapParameters.getColorMapMin());
+        Point maxColor = scaleVisual
+                .getPointForValue(colorMapParameters.getColorMapMax());
 
-        Point minParm = scaleVisual.getPointForValue(parm.getGridInfo()
-                .getMinValue());
-        Point maxParm = scaleVisual.getPointForValue(parm.getGridInfo()
-                .getMaxValue());
+        Point minParm = scaleVisual
+                .getPointForValue(parm.getGridInfo().getMinValue());
+        Point maxParm = scaleVisual
+                .getPointForValue(parm.getGridInfo().getMaxValue());
 
         double height = (double) (maxColor.y - minColor.y)
                 / colorMapParameters.getColorMap().getSize();
@@ -269,10 +270,8 @@ public class SetValueScalarVisual {
         setPickupValue(e);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#finalize()
+    /**
+     * Dispose resources used by this object
      */
     public void dispose() {
         if ((pickupFont != null) && !pickupFont.isDisposed()) {

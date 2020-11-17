@@ -45,7 +45,7 @@ import com.raytheon.uf.edex.registry.federation.ReplicationEvent;
  * May 13, 2016  5638     tjensen   Removed getReplicationEvents
  * Aug 05, 2016  5810     tjensen   Refactor replication
  * Sep 01, 2016  5810     tjensen   Improve replication memory usage
- * 
+ * Nov 20, 2018  7634     rjpeter   Added order to GET_EVENTS
  * </pre>
  * 
  * @author bphillip
@@ -60,7 +60,7 @@ public class ReplicationEventDao extends
 
     private static final String DELETE_EVENTS = "DELETE from ReplicationEvent event where event.id in :eventIds";
 
-    private static final String GET_EVENTS = "SELECT event from ReplicationEvent event where event.id in (:eventIds)";
+    private static final String GET_EVENTS = "SELECT event from ReplicationEvent event where event.id in (:eventIds) order by event.id";
 
     @Override
     protected Class<ReplicationEvent> getEntityClass() {

@@ -29,6 +29,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -66,6 +67,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jul 24, 2014 3423       randerso    Added setLoading() to indicate waiting on product
  *                                     retrieval. Removed prods from constructor.
  * Nov  9, 2016 5996       tgurney     Add minimize and maximize buttons
+ * Feb 21, 2018 6681       tgurney     Stop wrapping text and use fixed size for dialog
+ * Dec  5, 2018 6681       tgurney     Change text area size to 80x15 characters
  *
  * </pre>
  *
@@ -93,18 +96,10 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
 
     private Button accumButton;
 
-    private Button printWindow;
-
-    private Button printBuffer;
-
     private static String actualText = "";
 
-    java.util.List<StdTextProduct> prods = null;
+    private java.util.List<StdTextProduct> prods = null;
 
-    /**
-     * @param parentShell
-     * @param accum_state
-     */
     protected AlarmDisplayWindow(Shell parentShell,
             ACCUMULATE_STATE accum_state) {
         super(parentShell, SWT.MAX | SWT.MIN | SWT.DIALOG_TRIM | SWT.RESIZE,
@@ -124,7 +119,6 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     @Override
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
-        shell.setMinimumSize(300, 100);
 
         FontData fd = shell.getDisplay().getSystemFont().getFontData()[0];
         // TODO not have hard coded font name
@@ -150,17 +144,31 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     private void initializeComponents() {
         createMenus();
         createTextArea();
+        populateText();
+        switch (accum_state) {
+        case TRUE:
+            setAccumulate(true);
+            break;
+        case FALSE:
+            setAccumulate(false);
+            break;
+        }
+        accum_state = ACCUMULATE_STATE.UNCHANGE;
     }
 
     private void createTextArea() {
         GridData textData = new GridData(SWT.FILL, SWT.FILL, true, true, 4, 4);
-        text = new StyledText(shellComp, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
-                | SWT.WRAP | SWT.BORDER);
+        text = new StyledText(shellComp,
+                SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         text.setEditable(false);
-        textData.heightHint = 300;
-        text.setLayoutData(textData);
-        text.setSize(text.getSize().x, 300);
         text.setFont(font);
+        GC gc = new GC(text);
+        int width = gc.getFontMetrics().getAverageCharWidth() * 80;
+        int height = gc.getFontMetrics().getHeight() * 15;
+        gc.dispose();
+        textData.widthHint = width;
+        textData.heightHint = height;
+        text.setLayoutData(textData);
     }
 
     private void createMenus() {
@@ -168,10 +176,10 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
         GridLayout gl = new GridLayout(4, false);
         buttonMenuComp.setLayout(gl);
         // Create three push buttons and a checkbox
-        printWindow = new Button(buttonMenuComp, SWT.PUSH);
+        Button printWindow = new Button(buttonMenuComp, SWT.PUSH);
         printWindow.setText("Print Window");
 
-        printBuffer = new Button(buttonMenuComp, SWT.PUSH);
+        Button printBuffer = new Button(buttonMenuComp, SWT.PUSH);
         printBuffer.setText("Print Entire Buffer");
 
         final Button clearButton = new Button(buttonMenuComp, SWT.PUSH);
@@ -211,7 +219,9 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 text.setText("");
-                actualText = text.getText();
+                synchronized (AlarmDisplayWindow.class) {
+                    actualText = text.getText();
+                }
             }
         });
 
@@ -259,7 +269,9 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     }
 
     public void setLoading() {
-        actualText = text.getText();
+        synchronized (AlarmDisplayWindow.class) {
+            actualText = text.getText();
+        }
         text.setText("Loading...");
     }
 
@@ -273,7 +285,9 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
         } else {
             text.setText(msg);
         }
-        actualText = text.getText();
+        synchronized (AlarmDisplayWindow.class) {
+            actualText = text.getText();
+        }
     }
 
     /**
@@ -295,25 +309,5 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
                         .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
             }
         }
-    }
-
-    @Override
-    protected void preOpened() {
-        super.preOpened();
-        populateText();
-        switch (accum_state) {
-        case TRUE:
-            setAccumulate(true);
-            break;
-        case FALSE:
-            setAccumulate(false);
-            break;
-        }
-        accum_state = ACCUMULATE_STATE.UNCHANGE;
-    }
-
-    @Override
-    protected void opened() {
-        shell.setSize(600, 300);
     }
 }

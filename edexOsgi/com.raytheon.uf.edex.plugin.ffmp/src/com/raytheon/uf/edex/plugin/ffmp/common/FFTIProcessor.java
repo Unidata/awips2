@@ -121,8 +121,8 @@ public class FFTIProcessor {
 
             if (source != null) {
 
-                if (source.getSourceType().equals(
-                        FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
+                if (source.getSourceType()
+                        .equals(FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
                                 .getSourceType())) {
 
                     sourceString = source.getDisplayName();
@@ -132,7 +132,8 @@ public class FFTIProcessor {
                             .keySet()) {
                         if (fftiName.startsWith(sourceString)) {
                             // System.out
-                            // .println("Resetting FFTI source for processing!!!!! "
+                            // .println("Resetting FFTI source for
+                            // processing!!!!! "
                             // + fftiName);
                             ffmpgen.getFFTIData(fftiName).setReset(true);
                         }
@@ -158,7 +159,8 @@ public class FFTIProcessor {
                                 if (name[1].equals(source.getDisplayName())
                                         && name[2].equals(iDataKey)) {
                                     // System.out
-                                    // .println("Resetting FFTI source for processing!!!!! "
+                                    // .println("Resetting FFTI source for
+                                    // processing!!!!! "
                                     // + fftiName);
                                     ffmpgen.getFFTIData(fftiName)
                                             .setReset(true);
@@ -196,14 +198,14 @@ public class FFTIProcessor {
 
             boolean contains = false;
 
-            if (source.getSourceType().equals(
-                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            if (source.getSourceType()
+                    .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
                 contains = sourceContainer.containsKey(source.getSourceName());
                 // System.out.println("Processing FFG source!!!!!"
                 // + source.getSourceName());
             } else {
-                contains = sourceContainer.containsKey(rec.getDataTime()
-                        .getRefTime());
+                contains = sourceContainer
+                        .containsKey(rec.getDataTime().getRefTime());
             }
 
             if (!contains) {
@@ -211,9 +213,8 @@ public class FFTIProcessor {
 
                     rec = populateRecord(rec, template);
                     FFMPBasinData newData = rec.getBasinData();
-                    sourceContainer.addFFMPEntry(
-                            rec.getDataTime().getRefTime(), source, newData,
-                            siteKey);
+                    sourceContainer.addFFMPEntry(rec.getDataTime().getRefTime(),
+                            source, newData, siteKey);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
                             "Source: " + source.getDisplayName() + "  domain: "
@@ -269,8 +270,7 @@ public class FFTIProcessor {
             Object[] results = dao.executeSQLQuery(query.toString());
 
             if (results.length > 0) {
-                for (int i = 0; i < results.length; i++) {
-                    Object result = results[i];
+                for (Object result : results) {
                     if (result != null) {
                         /*
                          * System.out.println("Adding URI to FFTI list: " +
@@ -307,7 +307,8 @@ public class FFTIProcessor {
                     .getSource(rec.getSourceName());
 
             // check for gage(VGB) types, if so process as a VGB
-            if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
+            if (source.getSourceType()
+                    .equals(SOURCE_TYPE.GAGE.getSourceType())) {
                 rec.retrieveVirtualMapFromDataStore(template);
             } else {
                 rec.retrieveMapFromDataStore(template);
@@ -318,7 +319,8 @@ public class FFTIProcessor {
             statusHandler.handle(Priority.ERROR,
                     "Source: " + rec.getSourceName() + " sitekey: "
                             + " domain: " + rec.getWfo()
-                            + " : failed to populate records in FFMP/FFTI", e);
+                            + " : failed to populate records in FFMP/FFTI",
+                    e);
 
         }
 

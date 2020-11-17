@@ -65,6 +65,7 @@ import com.raytheon.viz.grid.GridExtensionManager;
  * Aug 15, 2017  6332     bsteffen  Move radar specific logic to extension
  * Aug 23, 2017  6125     bsteffen  Split common updating code to GridInventoryUpdater.
  * Nov 30, 2018  7673     bsteffen  Prevent full queue from blocking.
+ * Jun 24, 2019  ----     mjames    Remove umlaut in "schrodingers"
  * 
  * </pre>
  * 

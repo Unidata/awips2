@@ -58,9 +58,7 @@
     <bean id="textDBStaticDataListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.TextDBStaticDataSubscriber">
         <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
     </bean>
-    <bean id="siteMapListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.SiteMapNationalDatasetSubscriber">
-        <constructor-arg value="jms-generic:topic:siteMapFilesChanged"/>
-    </bean>
+    <bean id="siteMapListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.SiteMapNationalDatasetSubscriber" />
     <bean factory-bean="ndmProc" factory-method="registerListener">
         <constructor-arg value="bit_table.dat" />
         <constructor-arg ref="textDBStaticDataListener" />
@@ -101,10 +99,6 @@
         <route id="textDBStaticSetDirty">
             <from uri="jms-generic:topic:textDBFilesChanged"/>
             <bean ref="textDBStaticDataListener" method="setDirty"/>
-        </route>
-        <route id="siteMapSetDirty">
-            <from uri="jms-generic:topic:siteMapFilesChanged"/>
-            <bean ref="siteMapListener" method="setDirty"/>
         </route>
     </camelContext>
 </beans>

@@ -121,6 +121,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     if there is no storm motion.
  * 03-18-2016  ASM #18751 D. Friedman Followup for #18421: Do not set StormTrackState.oneStormAngle
  *                                     when motion is zero.
+ * Dec 14, 2017  6847     tgurney    Remove circle around dot when not editable
  * 
  * </pre>
  * 
@@ -486,7 +487,7 @@ public class StormTrackDisplay implements IRenderable {
             if (currCoord != null) {
                 // paint point
                 if (editable) {
-                    paintPoint(target, currCoord, color, circleSize);
+                    paintPoint(target, currCoord, color, circleSize, editable);
                 } else {
                     p1 = descriptor.worldToPixel(new double[] {
                             currCoord.x, currCoord.y });
@@ -531,24 +532,16 @@ public class StormTrackDisplay implements IRenderable {
         }
 
         RGB pointColor = state.mouseDownGeom != null ? LIGHT_GRAY : state.color;
-        paintPoint(target, point, pointColor, circleSize);
+        paintPoint(target, point, pointColor, circleSize, state.isEditable());
         if (state.mouseDownGeom != null) {
             paintPoint(target, state.mouseDownGeom.getCoordinate(),
-                    state.color, circleSize);
+                    state.color, circleSize, state.isEditable());
             pointColor = LIGHT_GRAY;
         }
     }
-
-    /**
-     * 
-     * @param target
-     * @param point
-     * @param color
-     * @param circleSize
-     * @throws VizException
-     */
     private void paintPoint(IGraphicsTarget target, Coordinate point,
-            RGB color, double circleSize) throws VizException {
+            RGB color, double circleSize, boolean withCircleAround)
+            throws VizException {
         if (point == null) {
             return;
         }
@@ -559,13 +552,13 @@ public class StormTrackDisplay implements IRenderable {
         if (p1 == null) {
             return;
         }
-
         DrawableCircle circle = new DrawableCircle();
         circle.basics.color = color;
         circle.setCoordinates(p1[0], p1[1]);
-        circle.radius = 2 * circleSize;
-        target.drawCircle(circle);
-
+        if (withCircleAround) {
+            circle.radius = 2 * circleSize;
+            target.drawCircle(circle);
+        }
         circle.filled = true;
         circle.radius = circleSize;
         target.drawCircle(circle);
@@ -703,7 +696,8 @@ public class StormTrackDisplay implements IRenderable {
         }
 
         if (state.geomChanged) {
-            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms")
+            if (StormTrackState.trackType != null
+                    && "lineOfStorms".equals(StormTrackState.trackType)
                     && state.justSwitchedToLOS) {
                 GeodeticCalculator gc = new GeodeticCalculator();
                 Coordinate[] coords = state.dragMeGeom.getCoordinates();
@@ -731,7 +725,8 @@ public class StormTrackDisplay implements IRenderable {
                     state.lineWidth, state.lineStyle);
             paintLabels(target, paintProps);
         }
-        if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms") 
+        if (StormTrackState.trackType != null
+                && "lineOfStorms".equals(StormTrackState.trackType)
                 && state.justSwitchedToLOS) {
             state.angle = StormTrackState.oneStormAngle;
         }
@@ -812,7 +807,9 @@ public class StormTrackDisplay implements IRenderable {
                     currentState.pointMoved = false;
                     currentState.originalTrack = false;
                     moved = true;
-                    if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms") &&
+                    if (StormTrackState.trackType != null
+                            && "lineOfStorms".equals(StormTrackState.trackType)
+                            &&
                             currentState.justSwitchedToLOS) {
                         currentState.justSwitchedToLOS = false;
                     }
@@ -908,9 +905,9 @@ public class StormTrackDisplay implements IRenderable {
         dc.setStartingGeographicPoint(startCoord.coord.x, startCoord.coord.y);
 
         for (int i = timePoints.length - 1; i >= 0; --i) {
-            if (i == startCoordIndex || i == endCoordIndex)
+            if (i == startCoordIndex || i == endCoordIndex) {
                 continue;
-
+            }
             DataTime coordTime = state.timePoints[i].time;
             double distance = speed
                     * trackUtil
@@ -1064,9 +1061,9 @@ public class StormTrackDisplay implements IRenderable {
 
         if (state.timePoints == null || isUpdatedDataTimes(paintProps)) {
             for (int i = timePoints.length - 1; i >= 0; --i) {
-                if (i == anchorIndex)
+                if (i == anchorIndex) {
                     continue;
-
+                }
                 DataTime coordTime = dataTimes[i];
                 double distance = speed
                         * trackUtil
@@ -1228,7 +1225,7 @@ public class StormTrackDisplay implements IRenderable {
         double angle = state.angle;
         if(!state.justSwitchedToOS) {
             if (StormTrackState.trackType != null
-                    && StormTrackState.trackType.equals("oneStorm")
+                    && "oneStorm".equals(StormTrackState.trackType)
                     && state.speed > 0) {
                 StormTrackState.oneStormAngle = angle;
             }

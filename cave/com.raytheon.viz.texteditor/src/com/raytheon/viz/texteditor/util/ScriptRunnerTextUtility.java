@@ -160,4 +160,10 @@ public class ScriptRunnerTextUtility implements IScriptRunnerObserver {
 
     }
 
+	@Override
+	public void doCancel() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

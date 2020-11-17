@@ -15,7 +15,7 @@ Packager: %{_build_site}
 provides: awips2-edex
 provides: awips2-base-component
 provides: awips2-base
-Requires: net-tools
+Requires: net-tools, libpng12
 Requires: awips2-java, awips2-python, awips2-psql, awips2-yajsw, awips2-qpid-java-broker
 Obsoletes: awips2-edex-grib < 16.1.6
 Obsoletes: awips2-edex-configuration

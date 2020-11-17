@@ -19,9 +19,10 @@
  **/
 package com.raytheon.uf.viz.d2d.ui.time.dialogs;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -57,13 +58,12 @@ import com.raytheon.uf.viz.d2d.ui.time.formatter.TimeFormatter;
  * Jul 27, 2009  2698     bgonzale  Cleanup/comments
  * Aug 20, 2014  3506     mapeters  Corrected misspelling.
  * Apr 01, 2016  5531     bsteffen  Handle time options setting globally.
+ * Feb 08, 2018  7156     bsteffen  Sort and filter times.
  * 
  * </pre>
  * 
  * @author bgonzale
- * @version 1.0
  */
-
 public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
 
     private TimeFormatter timeFormatter;
@@ -76,7 +76,7 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
      * Time resolutions in seconds calculated from the intrinsic period for the
      * given resource's available times.
      */
-    AbstractList<Long> resolutions;
+    private java.util.List<Long> resolutions;
 
     private int frameCount;
 
@@ -86,10 +86,6 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
 
     private DataTime[] displayedTimes;
 
-    /**
-     * @param parentShell
-     * @throws VizException
-     */
     public ForecastAndResolutionDialog(Shell parentShell) {
         super(parentShell);
         setText("Select Forecast Time And Time Resolution");
@@ -111,7 +107,7 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
         }
 
         this.config = d2dProps.getTimeConfig();
-        this.resolutions = new ArrayList<Long>();
+        this.resolutions = new ArrayList<>();
         this.useResolutionDialog = TimeOptionsAction.isTimeOptionsSelected();
     }
 
@@ -148,25 +144,20 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
         gd.widthHint = 125;
         forecastList = new List(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         forecastList.setLayoutData(gd);
-        java.util.List<DataTime> displayTimes = new ArrayList<DataTime>();
+        java.util.List<DataTime> displayTimes = new ArrayList<>();
         if (cachedResourceTimes != null && cachedResourceTimes.length > 0) {
-            java.util.List<String> times = new ArrayList<String>();
-            for (DataTime dt : this.cachedResourceTimes) {
-                if (dt.getUtilityFlags().contains(FLAG.FCST_USED)) {
-                    String time = this.timeFormatter
-                            .getDayHourForecastHRString(dt);
-                    if (times.contains(time) == false) {
-                        forecastList.add(time);
-                        times.add(time);
-                        displayTimes.add(dt);
-                    }
-                }
+            for (DataTime dt : filterUniqueForecasts(
+                    this.cachedResourceTimes)) {
+                String time = this.timeFormatter.getDayHourForecastHRString(dt);
+                forecastList.add(time);
+                displayTimes.add(dt);
             }
         }
         if (forecastList.getItemCount() > 0) {
             forecastList.select(0);
         } else {
-            DataTime dataTime = cachedResourceTimes[cachedResourceTimes.length - 1];
+            DataTime dataTime = cachedResourceTimes[cachedResourceTimes.length
+                    - 1];
             forecastList
                     .add(timeFormatter.getDayTimeForecastHRString(dataTime));
             displayTimes.add(dataTime);
@@ -205,8 +196,8 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.heightHint = 350;
         gd.widthHint = 125;
-        tResolutionList = new List(parent, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
+        tResolutionList = new List(parent,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         tResolutionList.setLayoutData(gd);
         if (cachedResourceTimes != null && cachedResourceTimes.length > 0) {
             Long forecast = getSelectedForecast();
@@ -223,8 +214,8 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
             }
             for (; resIter.hasNext();) {
                 Long resHours = resIter.next();
-                tResolutionList.add(timeFormatter.getFormattedTimePeriodString(
-                        resHours, frameCount));
+                tResolutionList.add(timeFormatter
+                        .getFormattedTimePeriodString(resHours, frameCount));
             }
         }
         tResolutionList.select(0);
@@ -263,12 +254,39 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
                 }
             }
         }
-        return 0; // no forecast selected
+        // no forecast selected
+        return 0;
     }
 
     private Long getSelectedMillisecondsResolution() {
         int selectedIndex = tResolutionList.getSelectionIndex();
         return resolutions.get(selectedIndex) * 1000;
+    }
+
+    /**
+     * Filter and sort the times so that there is one DataTime with each
+     * forecast time, in order of forecast time. If more than one time is in the
+     * array with the same forecast time then the later time will be used.
+     * 
+     * @param times
+     *            - array of times to filter
+     * @return A sorted collection of times with unique forecast times.
+     */
+    private static Collection<DataTime> filterUniqueForecasts(
+            DataTime[] times) {
+        TreeMap<Integer, DataTime> timesByForecast = new TreeMap<>();
+        for (DataTime time : times) {
+            if (time.getUtilityFlags().contains(FLAG.FCST_USED)) {
+                int fcst = time.getFcstTime();
+                DataTime existing = timesByForecast.get(fcst);
+                if (existing == null
+                        || existing.getMatchValid() < time.getMatchValid()) {
+                    timesByForecast.put(fcst, time);
+                }
+            }
+        }
+
+        return timesByForecast.values();
     }
 
 }

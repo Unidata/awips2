@@ -74,6 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 06, 2016  5400     bsteffen  Remove activator, code cleanup
  * May 25, 2016  5601     bsteffen  Support unitless data again.
  * Aug 24, 2016  DR18326  jburks    display blank frame if channel is missing
+ * Apr 03, 2018  DCS20503 jgerth    Additional information from inspection
  * 
  * </pre>
  * 
@@ -236,7 +237,12 @@ public class TrueColorResourceGroup
                         ImagingCapability imaging = resource
                                 .getCapability(ImagingCapability.class);
                         if (imaging.getProvider() == null) {
-                            error = "does not have image provider set on the ImagingCapability";
+                            if (resource instanceof ImageProvider) {
+                                resource.getCapability(ImagingCapability.class)
+                                    .setProvider((ImageProvider) resource);
+                            } else {
+                                error = "does not have image provider set on the ImagingCapability";
+                            }
                         }
                     } else {
                         error = "does not have the ImagingCapability";
@@ -407,7 +413,14 @@ public class TrueColorResourceGroup
             DisplayedChannelResource dcr = displayedResources.get(c);
             if (dcr != null) {
                 String ri = dcr.resource.inspect(coord);
-                label += c.name() + ": " + ri;
+                String displayName = dcr.getDisplayName();
+                double gamma = this.getGamma(c);
+                String gammaText = Double.toString(gamma);
+                if (displayName == null || displayName.isEmpty()) {
+                    label += c.name() + ": " + ri;
+                } else {
+                    label += c.name() + " (" + displayName.trim() + "): " + ri;
+                }
                 if (dcr.resource.hasCapability(ColorMapCapability.class)
                         && ri.replaceAll("[^\\d]", "").length() > 0) {
                     ColorMapParameters cmp = dcr.resource
@@ -433,7 +446,14 @@ public class TrueColorResourceGroup
                             percent = 0.0;
                         else if (percent > 100)
                             percent = 100.0;
-                        label += " (" + Math.round(percent) + "%)\n";
+                        label += " (" + Math.round(percent) + "%)";
+                        if (gamma != 1.0) {
+                            double gperc = Math.pow(percent / 100.0, gamma)
+                                    * 100.0;
+                            label += "; Gamma=" + gammaText + " ("
+                                    + Math.round(gperc) + "%)";
+                        }
+                        label += "\n";
                     } catch (Exception e) {
                         label += "\n";
                     }

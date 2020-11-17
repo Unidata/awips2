@@ -1,27 +1,27 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.gfe.visual;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -32,7 +32,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.VectorWxValue;
 import com.raytheon.viz.gfe.gridmanager.MouseHandler;
@@ -40,19 +40,21 @@ import com.raytheon.viz.gfe.rsc.GFEFonts;
 
 /**
  * Visual for Vector set value dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 22, 2009 #1318      randerso    Initial creation
- * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 22, 2009  1318     randerso  Initial creation
+ * Mar 10, 2016  5479     randerso  Use improved GFEFonts API
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class SetValueVectorVisual {
@@ -65,19 +67,18 @@ public class SetValueVectorVisual {
 
     private Font pickupFont;
 
+    /**
+     * Constructor
+     *
+     * @param canvas
+     * @param parm
+     */
     public SetValueVectorVisual(Canvas canvas, Parm parm) {
         this.canvas = canvas;
         this.parm = parm;
 
         this.canvas.addMouseListener(new MouseHandler() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragMove(org.eclipse
-             * .swt.events.MouseEvent)
-             */
             @Override
             public void dragMove(MouseEvent e) {
                 super.dragMove(e);
@@ -92,9 +93,8 @@ public class SetValueVectorVisual {
                 "SetValuePickUp_font", SWT.BOLD, 3);
 
         // get the logFactor
-        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-        logFactor = prefs.getDouble(parm.getParmID().compositeNameUI()
-                + "_arrowScaling");
+        logFactor = GFEPreference.getDouble(
+                parm.getParmID().compositeNameUI() + "_arrowScaling");
         if (logFactor < 0.0) {
             logFactor = 0.0;
         }
@@ -160,11 +160,17 @@ public class SetValueVectorVisual {
         parm.getParmState().setPickUpValue(pickupValue);
     }
 
+    /**
+     * Render this visual
+     *
+     * @param e
+     *            the paint event
+     */
     public void render(PaintEvent e) {
         VectorWxValue pickupValue = (VectorWxValue) parm.getParmState()
                 .getPickUpValue();
-        canvas.setBackground(canvas.getDisplay()
-                .getSystemColor(SWT.COLOR_BLACK));
+        canvas.setBackground(
+                canvas.getDisplay().getSystemColor(SWT.COLOR_BLACK));
         float mag = pickupValue.getMag();
         float dir = pickupValue.getDir();
         float magMax = parm.getGridInfo().getMaxValue();
@@ -203,11 +209,13 @@ public class SetValueVectorVisual {
 
     }
 
-    private void drawArrow(GC gc, float mag, float dir, int size, Point location) {
+    private void drawArrow(GC gc, float mag, float dir, int size,
+            Point location) {
         double tipAngle = 150.0;
         double tipLength = size / 5.0;
 
-        double arrowDir = dir + 180; // arrows point down wind
+        // arrows point down wind
+        double arrowDir = dir + 180;
         double dirSin = Math.sin(Math.toRadians(arrowDir));
         double dirCos = Math.cos(Math.toRadians(arrowDir));
         double tip1Sin = Math.sin(Math.toRadians(arrowDir + tipAngle));
@@ -215,7 +223,7 @@ public class SetValueVectorVisual {
         double tip2Sin = Math.sin(Math.toRadians(arrowDir - tipAngle));
         double tip2Cos = Math.cos(Math.toRadians(arrowDir - tipAngle));
 
-        ArrayList<Point> segments = new ArrayList<Point>();
+        List<Point> segments = new ArrayList<>();
 
         // Some handy vectors.
         Point v1 = new Point((int) ((dirSin * size) + 0.5),
@@ -248,17 +256,25 @@ public class SetValueVectorVisual {
         paintLines(gc, segments);
     }
 
-    private void drawBarb(GC gc, float mag, float dir, int size, Point location) {
-        double fletchAngle = 60.0; // in degrees from the barb shaft
+    private void drawBarb(GC gc, float mag, float dir, int size,
+            Point location) {
+        // in degrees from the barb shaft
+        double fletchAngle = 60.0;
 
         // round mag to nearest 5 knots
         float speed = mag + 2.5f;
 
         // calculate some stuff based on the barbSize
         // these can be fiddled with to modify the appearance of the barb
-        double staffSize = size / 2.0; // base length of the staff
-        double fletchSize = staffSize / 2.0; // length of each fletch
-        double fletchDelta = size * 0.1; // distance between fletches
+
+        // base length of the staff
+        double staffSize = size / 2.0;
+
+        // length of each fletch
+        double fletchSize = staffSize / 2.0;
+
+        // distance between fletches
+        double fletchDelta = size * 0.1;
 
         double dirSin = Math.sin(Math.toRadians(dir));
         double dirCos = Math.cos(Math.toRadians(dir));
@@ -297,7 +313,7 @@ public class SetValueVectorVisual {
         }
 
         // Now start calculating all of the segments that make up the wind barb
-        ArrayList<Point> segments = new ArrayList<Point>();
+        List<Point> segments = new ArrayList<>();
 
         // calculate the little rectangle
         // genLittleRectangle(segments, location);
@@ -321,9 +337,10 @@ public class SetValueVectorVisual {
 
         // calculate the staffSize length based on the number of units
         segments.add(location);
-        Point p = new Point(
-                (int) (0.5 + (dirSin * (staffSize + (fletchDelta * ((flagDeltaCount + fletchDeltaCount) - 1))))),
-                -(int) ((-0.5 + (dirCos * (staffSize + (fletchDelta * ((flagDeltaCount + fletchDeltaCount) - 1)))))));
+        Point p = new Point((int) (0.5 + (dirSin * (staffSize
+                + (fletchDelta * ((flagDeltaCount + fletchDeltaCount) - 1))))),
+                -(int) ((-0.5 + (dirCos * (staffSize + (fletchDelta
+                        * ((flagDeltaCount + fletchDeltaCount) - 1)))))));
         p.x += location.x;
         p.y += location.y;
         segments.add(p);
@@ -350,8 +367,7 @@ public class SetValueVectorVisual {
         int i;
         int elementCount = 0;
         for (i = 0; i < fletchCount; i++) {
-            Point v1 = new Point(
-                    (int) (xStaff + (elementCount * xSpace) + 0.5),
+            Point v1 = new Point((int) (xStaff + (elementCount * xSpace) + 0.5),
                     (int) ((-yStaff - (elementCount * ySpace)) + 0.5));
             Point v2 = new Point((int) (xFletch + 0.5), -(int) (yFletch + 0.5));
 
@@ -368,8 +384,7 @@ public class SetValueVectorVisual {
 
         // and finally the flags
         for (i = 0; i < flagCount; i++) {
-            Point v1 = new Point(
-                    (int) (xStaff + (elementCount * xSpace) + 0.5),
+            Point v1 = new Point((int) (xStaff + (elementCount * xSpace) + 0.5),
                     (int) ((-yStaff - (elementCount * ySpace)) + 0.5));
 
             v1.x += location.x;
@@ -390,7 +405,9 @@ public class SetValueVectorVisual {
 
             v3.x += location.x;
             v3.y += location.y;
-            segments.add(v2); // previous point
+
+            // previous point
+            segments.add(v2);
             segments.add(v3);
         }
 
@@ -398,7 +415,7 @@ public class SetValueVectorVisual {
         paintLines(gc, segments);
     }
 
-    private void paintLines(GC gc, ArrayList<Point> segments) {
+    private void paintLines(GC gc, List<Point> segments) {
         for (int i = 0; i < segments.size(); i += 2) {
             Point p1 = segments.get(i);
             Point p2 = segments.get(i + 1);
@@ -408,7 +425,7 @@ public class SetValueVectorVisual {
 
     /**
      * pickupFont contains system resources which must be freed.
-     * 
+     *
      * @see java.lang.Object#finalize()
      */
     public void dispose() {

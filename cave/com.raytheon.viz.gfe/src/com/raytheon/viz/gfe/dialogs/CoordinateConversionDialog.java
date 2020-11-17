@@ -1,32 +1,40 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.gfe.dialogs;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -36,6 +44,7 @@ import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -45,25 +54,27 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Coordinate Conversion Dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 13, 2014  #3069     randerso    Added to help debug GeoTools 10.5 issues.
- *                                     May partially address Dimensions DR 15463.
- *                                     plugin.xml menu entry comnmented out so can't be activated
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 13, 2014  3069     randerso  Added to help debug GeoTools 10.5 issues.
+ *                                  May partially address Dimensions DR 15463.
+ *                                  plugin.xml menu entry comnmented out so
+ *                                  can't be activated
+ * Feb 05, 2018  6493     randerso  Implemented GFE coordinate conversion
+ *                                  capability
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class CoordinateConversionDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CoordinateConversionDialog.class);
 
     private DataManager dataMgr;
@@ -86,40 +97,42 @@ public class CoordinateConversionDialog extends CaveJFACEDialog {
 
     private Text gfeYText;
 
+    private List<ProjectionData> projections;
+
     /**
+     * @param <T>
      * @param parentShell
      * @param dataMgr
      */
-    public CoordinateConversionDialog(Shell parentShell, DataManager dataMgr) {
+    public <T> CoordinateConversionDialog(Shell parentShell,
+            DataManager dataMgr) {
         super(parentShell);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.dataMgr = dataMgr;
 
         gloc = this.dataMgr.getParmManager().compositeGridLocation();
         awipsProj = gloc.getProjection();
 
-        df = new DecimalFormat("###0.####;-###0.####");
+        ServerResponse<List<ProjectionData>> sr = this.dataMgr.getClient()
+                .getProjections();
+
+        if (sr.isOkay()) {
+            projections = sr.getPayload();
+            Collections.sort(projections,
+                    Comparator.comparing(ProjectionData::getProjectionID));
+        } else {
+            projections = Collections.singletonList(awipsProj);
+        }
+
+        df = new DecimalFormat("####0.#####;-####0.#####");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
         newShell.setText("Coordinate Conversion");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createDialogArea(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createDialogArea(Composite parent) {
         Composite comp = (Composite) super.createDialogArea(parent);
@@ -134,7 +147,8 @@ public class CoordinateConversionDialog extends CaveJFACEDialog {
                     Object source = e.getSource();
                     if ((source == lonText) || (source == latText)) {
                         updateLonLat();
-                    } else if ((source == awipsXText) || (source == awipsYText)) {
+                    } else if ((source == awipsXText)
+                            || (source == awipsYText)) {
                         updateAwips();
                     } else if ((source == gfeXText) || (source == gfeYText)) {
                         updateGfe();
@@ -151,7 +165,9 @@ public class CoordinateConversionDialog extends CaveJFACEDialog {
                     text = text.substring(0, selection.x) + e.character
                             + text.substring(selection.y);
                     try {
-                        Double.parseDouble(text);
+                        // parsing only to validate syntax
+                        @SuppressWarnings("unused")
+                        double d = Double.parseDouble(text);
                     } catch (NumberFormatException e1) {
                         e.doit = false;
                         getShell().getDisplay().beep();
@@ -166,19 +182,44 @@ public class CoordinateConversionDialog extends CaveJFACEDialog {
         label.setText("Lon/Lat");
 
         lonText = new Text(comp, SWT.RIGHT | SWT.SINGLE | SWT.BORDER);
+        GC gc = new GC(lonText);
+        int width = gc.textExtent("-00000.00000").x;
+        gc.dispose();
         layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        layoutData.widthHint = width;
         lonText.setLayoutData(layoutData);
         lonText.addKeyListener(keyListener);
 
         latText = new Text(comp, SWT.RIGHT | SWT.SINGLE | SWT.BORDER);
         layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        layoutData.widthHint = width;
         latText.setLayoutData(layoutData);
         latText.addKeyListener(keyListener);
 
-        label = new Label(comp, SWT.RIGHT);
+        Combo projCombo = new Combo(comp, SWT.DROP_DOWN | SWT.READ_ONLY);
         layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        label.setLayoutData(layoutData);
-        label.setText(gloc.getProjection().getProjectionID());
+        projCombo.setLayoutData(layoutData);
+        for (ProjectionData proj : projections) {
+            projCombo.add(proj.getProjectionID());
+            projCombo.setData(proj.getProjectionID(), proj);
+        }
+        projCombo.setText(awipsProj.getProjectionID());
+        projCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String id = projCombo.getText();
+                awipsProj = (ProjectionData) projCombo.getData(id);
+                boolean enabled = awipsProj.getProjectionID()
+                        .equals(gloc.getProjection().getProjectionID());
+                gfeXText.setEnabled(enabled);
+                gfeYText.setEnabled(enabled);
+                if (!enabled) {
+                    gfeXText.setText("");
+                    gfeYText.setText("");
+                }
+                updateLonLat();
+            }
+        });
 
         awipsXText = new Text(comp, SWT.RIGHT | SWT.SINGLE | SWT.BORDER);
         layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -211,6 +252,11 @@ public class CoordinateConversionDialog extends CaveJFACEDialog {
         updateGfe();
 
         return comp;
+    }
+
+    @Override
+    protected void createButtonsForButtonBar(Composite parent) {
+        createButton(parent, IDialogConstants.CANCEL_ID, "Close", false);
     }
 
     private double getDoubleValue(Text text) {

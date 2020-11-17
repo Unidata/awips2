@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
  *                                  to still get correct VB sources after 
  *                                  splitting them into multiple files.
  * Aug 03, 2015  3861     bsteffen  Remove nsharp dependency.
+ * Jun 24, 2019  ----     mjames    Remove DatasetInfo
  * 
  * </pre>
  * 

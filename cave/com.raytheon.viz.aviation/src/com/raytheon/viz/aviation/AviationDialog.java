@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,6 +22,9 @@ package com.raytheon.viz.aviation;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,11 +69,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The Aviation Dialog class that displays the start up menu for AvnFPS.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/21/2008    817         grichard    Initial creation.
@@ -100,32 +103,22 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 06 May 2014  3091        rferrel     Use OUP authorization to bring up send dialog.
  * 15 Sep 2015  4880        njensen     Removed ForecastModel reference
  * 26 Jan 2016  5054        randerso    Change top level dialog to be parented to the display
- * 
+ * 24 Jan 2018  6692        tgurney     Do not prompt to close dialog when restarting
+ * 07 Nov 2018  6692        tgurney     Preserve the order of stations as written in config
+ *
  * </pre>
- * 
+ *
  */
 public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AviationDialog.class);
 
-    /**
-     * Font list to dispose of.
-     */
-    java.util.List<Font> fontList;
+    private java.util.List<Font> fontList;
 
-    /**
-     * Dialog image.
-     */
     private Image avnImage;
 
-    /**
-     * Dialog image.
-     */
     private Image eclipseImage;
 
-    /**
-     * The station map.
-     */
     private Map<String, java.util.List<String>> stationMap;
 
     /**
@@ -133,39 +126,19 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     private java.util.List<String> productDisplayList;
 
-    /**
-     * The Taf Monitor Dialog
-     */
     private TafMonitorDlg tafMonitorDlg;
 
-    /**
-     * Climate menu dialog.
-     */
     private ClimateMenuDlg climateMenuDlg;
-
-    /**
-     * Label to display forecaster.
-     */
-    private Label forecasterLabel;
 
     /**
      * Number of dialogs currently open,
      */
     private final AtomicInteger dlgCount = new AtomicInteger(0);
 
-    /**
-     * 
-     * @return forecaster
-     */
     public static String getForecaster() {
         return LocalizationManager.getInstance().getCurrentUser();
     }
 
-    /**
-     * Create a non-blocking dialog.
-     * 
-     * @param display
-     */
     public AviationDialog(Display display) {
         super(display, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
                 | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
@@ -202,7 +175,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
 
-        fontList = new ArrayList<Font>();
+        fontList = new ArrayList<>();
 
         String path = loadGifPath("avn");
         if (path != null) {
@@ -227,18 +200,14 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         });
     }
 
-    /**
-     * Set class variables based on information in the Taf Site Configuration
-     * File.
-     */
     private void loadTafSiteConfig() {
         try {
             ITafSiteConfig config = TafSiteConfigFactory.getInstance();
             stationMap = config.getAllProducts();
             if (productDisplayList == null) {
-                productDisplayList = new ArrayList<String>();
+                productDisplayList = new ArrayList<>();
             }
-            if ((productDisplayList.size() == 0)
+            if (productDisplayList.isEmpty()
                     && (config.getDefaultProduct() != null)) {
                 productDisplayList.add(config.getDefaultProduct());
             }
@@ -248,9 +217,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         }
     }
 
-    /**
-     * Initialize the components on the display.
-     */
     private void initializeComponents() {
         createLabel();
         createForecasterLabel();
@@ -276,35 +242,25 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         job.schedule();
     }
 
-    /**
-     * Create the label on the display.
-     */
     private void createLabel() {
         createAvnFPSLabel();
     }
 
-    /**
-     * Create the Composite that will contain the parts of the dialog.
-     */
     private void createComposite() {
-        // Create the bottom composite widget
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite bottomComposite = new Composite(shell, SWT.NONE);
         GridLayout layoutBC = new GridLayout(2, false);
         bottomComposite.setLayout(layoutBC);
         bottomComposite.setLayoutData(gd);
 
-        // Create the left composite widget
         Composite leftComposite = new Composite(bottomComposite, SWT.NONE);
         GridLayout layoutLC = new GridLayout(1, false);
         leftComposite.setLayout(layoutLC);
 
-        // Create the right composite widget
         Composite rightComposite = new Composite(bottomComposite, SWT.NONE);
         GridLayout layoutRC = new GridLayout(1, false);
         rightComposite.setLayout(layoutRC);
 
-        // Create the "eclipse" label
         Label eclipseLabel = new Label(leftComposite, SWT.CENTER);
         if (eclipseImage != null) {
             eclipseLabel.setImage(eclipseImage);
@@ -312,12 +268,11 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             Font font = new Font(getDisplay(), "sans-serif", 9, SWT.NORMAL);
             fontList.add(font);
             eclipseLabel.setText("No Image\nfound");
-            eclipseLabel.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+            eclipseLabel.setBackground(getDisplay()
+                    .getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
             eclipseLabel.setFont(font);
         }
 
-        // Create the "TAFs" button
         Button tafsBtn = new Button(rightComposite, SWT.PUSH);
         String tafsBtnTitle = "TAFs";
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -342,7 +297,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             }
         });
 
-        // Create the "Climate" button
         Button climBtn = new Button(rightComposite, SWT.PUSH);
         String climBtnTitle = "Climate";
         data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -356,14 +310,13 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                 if ((climateMenuDlg == null)
                         || (climateMenuDlg.getShell() == null)
                         || climateMenuDlg.isDisposed()) {
-                    // Create an array of message types
+
                     StatusMessageType[] msgTypes = new StatusMessageType[4];
                     msgTypes[0] = StatusMessageType.Metar;
                     msgTypes[1] = StatusMessageType.WindRose;
                     msgTypes[2] = StatusMessageType.CigVis;
                     msgTypes[3] = StatusMessageType.CigVisTrend;
 
-                    // Create the climate menu dialog.
                     dlgCount.incrementAndGet();
                     climateMenuDlg = new ClimateMenuDlg(shell, msgTypes, null);
                     climateMenuDlg.addCloseCallback(new ICloseCallback() {
@@ -383,7 +336,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             }
         });
 
-        // Create the "Cancel" button
         Button cancelBtn = new Button(rightComposite, SWT.PUSH);
         String cancelBtnTitle = "Cancel";
         data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -400,7 +352,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
 
     /**
      * Get fully qualified path name for image
-     * 
+     *
      * @param imageName
      *            - base image name
      * @return path - fully qualified name or null if file does not exist
@@ -408,18 +360,17 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private String loadGifPath(String imageName) {
         IPathManager pm = PathManagerFactory.getPathManager();
         String path = null;
-        File file = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE), "aviation" + File.separatorChar
-                + "avnwatch" + File.separatorChar + imageName + ".gif");
+        File file = pm.getFile(
+                pm.getContext(LocalizationType.CAVE_STATIC,
+                        LocalizationLevel.BASE),
+                "aviation" + File.separatorChar + "avnwatch"
+                        + File.separatorChar + imageName + ".gif");
         if (file.canRead()) {
             path = file.getAbsolutePath();
         }
         return path;
     }
 
-    /**
-     * Create the AvnFPS label.
-     */
     private void createAvnFPSLabel() {
         GridData gd = new GridData(275, 250);
         Label avnLabel = new Label(shell, SWT.CENTER);
@@ -429,40 +380,30 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             Font font = new Font(getDisplay(), "sans-serif", 14, SWT.NORMAL);
             fontList.add(font);
             avnLabel.setText("No Image found");
-            avnLabel.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+            avnLabel.setBackground(getDisplay()
+                    .getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
             avnLabel.setFont(font);
         }
         avnLabel.setLayoutData(gd);
     }
 
-    /**
-     * Create the forecaster label.
-     */
     private void createForecasterLabel() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        forecasterLabel = new Label(shell, SWT.CENTER);
+        Label forecasterLabel = new Label(shell, SWT.CENTER);
         forecasterLabel.setText(getForecaster());
         forecasterLabel.setLayoutData(gd);
     }
 
-    /**
-     * Close the display.
-     */
     public void closeDisplay() {
         shell.dispose();
     }
 
-    /**
-     * Overridden method to restart the Taf Monitor.
-     */
     @Override
     public void restartTafMonitor() {
         // This prevents tafMonitorDlg from closing this shell when closing the
         // TaMonitorDlg prior to the restart.
         dlgCount.incrementAndGet();
-        if (tafMonitorDlg.closeDisplay() == false) {
-            // adjust the count.
+        if (!tafMonitorDlg.closeDisplay(false)) {
             dlgCount.decrementAndGet();
             return;
         }
@@ -482,7 +423,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         this.productDisplayList = productDisplayList;
         boolean emptyStationList = true;
         for (String product : productDisplayList) {
-            if (stationMap.get(product).size() > 0) {
+            if (!stationMap.get(product).isEmpty()) {
                 emptyStationList = false;
                 break;
             }
@@ -492,8 +433,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             // This prevents tafMonitorDlg from closing this shell when closing
             // the TaMonitorDlg prior to the restart.
             dlgCount.incrementAndGet();
-            if (tafMonitorDlg.closeDisplay() == false) {
-                // adjust the count.
+            if (!tafMonitorDlg.closeDisplay(false)) {
                 dlgCount.decrementAndGet();
                 return;
             }
@@ -506,25 +446,25 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
 
     /**
      * Display the TAF monitor dialog.
-     * 
+     *
      */
     private void displayTafMonitorDialog() {
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
-        if (configMgr.isResourceLoaded() == false) {
+        if (!configMgr.isResourceLoaded()) {
             configMgr.reloadResourceData();
         }
 
-        java.util.List<String> stationList = new ArrayList<String>();
+        LinkedHashSet<String> stations = new LinkedHashSet<>();
         for (String product : productDisplayList) {
             for (String site : stationMap.get(product)) {
-                stationList.add(site);
+                stations.add(site);
             }
         }
 
-        if (stationList.size() == 0) {
+        if (stations.isEmpty()) {
             if (productDisplayList.isEmpty()) {
-                statusHandler
-                        .handle(Priority.PROBLEM, "No stations configured");
+                statusHandler.handle(Priority.PROBLEM,
+                        "No stations configured");
             }
             for (String product : productDisplayList) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -533,6 +473,8 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         } else {
             if ((tafMonitorDlg == null) || (tafMonitorDlg.getShell() == null)
                     || tafMonitorDlg.isDisposed()) {
+                List<String> stationList = Arrays
+                        .asList(stations.toArray(new String[0]));
                 tafMonitorDlg = new TafMonitorDlg(shell, stationList,
                         productDisplayList);
                 tafMonitorDlg.addCloseCallback(new ICloseCallback() {

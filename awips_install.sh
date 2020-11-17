@@ -94,6 +94,7 @@ function server_prep {
   check_limits
   check_netcdf
   check_edex
+  check_epel
 }
 
 function cave_prep {

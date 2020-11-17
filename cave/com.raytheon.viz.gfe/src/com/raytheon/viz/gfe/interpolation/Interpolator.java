@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -63,7 +63,7 @@ import com.raytheon.viz.gfe.Activator;
  *  time ranges, in order, one for each grid gridSlice. This data structure
  *  is required since NONE type gridslices now cannot carry their own
  *  time range like they used to.
- * 
+ *
  *  3. Once the request has been submitted, use code like this to
  *  create the new interpolated grid slices:
  *     GridSlice newslice;
@@ -71,14 +71,14 @@ import com.raytheon.viz.gfe.Activator;
  *     {
  *        // the next newslice has been made if returns true;
  *     }
- * 
+ *
  *  I.interpolate(newslice) will return false and quit the while loop
  *  when all grids have been made. You don't have to keep count how many.
- * 
+ *
  *  That's all.
- * 
+ *
  *  -------------------------------------------------------------------------
- * 
+ *
  *  Formal description.
  *  An Interpolator object
  *  - receives requests to interpolate a seq of grid slices  
@@ -95,31 +95,42 @@ import com.raytheon.viz.gfe.Activator;
  *    the dataType, and instantiates it (with function createInterpClass)
  *  - calls interp-&gt;interpolate(index) in that interp object
  *  - handles interpolation statistics: can reset to zero, or output them.
- * 
+ *
  *  -- implementation ---------------------------------------------------------
  *  &quot;Base&quot; grids are grids with real values,
  *  known before interpolation, and used to control interpolation.
  *  They also have a valid time range.
  * </pre>
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 30, 2008		#1161	randerso	Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------
+ * May 30, 2008  1161     randerso  Initial creation
+ * Jan 03, 2018  7178     randerso  Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class Interpolator {
+    /**
+     * Interpolation algroithms
+     */
     public static enum Algorithm {
-        LINEAR_NOADVECT("Linear/NoAdvection"), //
-        CUBIC_NOADVECT("Cubic/NoAdvection"), //
-        LINEAR_ADVECT("Linear/Advection"), //
-        CUBIC_ADVECT("Cubic/Advection"); //
+        /** Linear, no advection */
+        LINEAR_NOADVECT("Linear/NoAdvection"),
+
+        /** Cubic, no advection */
+        CUBIC_NOADVECT("Cubic/NoAdvection"),
+
+        /** Linear, with advection */
+        LINEAR_ADVECT("Linear/Advection"),
+
+        /** Cubic, with advection */
+        CUBIC_ADVECT("Cubic/Advection");
 
         private String displayString;
 
@@ -129,7 +140,7 @@ public class Interpolator {
 
         /**
          * Get the human readable string to be displayed in dialogs, etc.
-         * 
+         *
          * @return display string
          */
         public String getDisplayString() {
@@ -148,37 +159,53 @@ public class Interpolator {
 
     // a structure of statistics kept per parm name
     private class InterpStats {
-        long gridSliceSentTotal; // count of ds in each request
+        /** count of ds in each request */
+        public long gridSliceSentTotal;
 
-        long gridSliceSentMax; // max ds in a request
+        /** max ds in a request */
+        public long gridSliceSentMax;
 
-        long gridSliceSentMin; // min ds in a request
+        /** min ds in a request */
+        public long gridSliceSentMin;
 
-        long gridSliceInterpTotal; // count of ds to be interp
+        /** count of ds to be interp */
+        public long gridSliceInterpTotal;
 
-        long gridSliceInterpMax; // max interp ds in a request
+        /** max interp ds in a request */
+        public long gridSliceInterpMax;
 
-        long gridSliceInterpMin; // min interp ds in a request
+        /** min interp ds in a request */
+        public long gridSliceInterpMin;
 
-        long numberOfRequests; // count of number of requests
+        /** count of number of requests */
+        public long numberOfRequests;
 
-        long numberOfGoodRequests; // count of good requests
+        /** count of good requests */
+        public long numberOfGoodRequests;
 
-        long numberOfBadRequests; // count of bad requests
+        /** count of bad requests */
+        public long numberOfBadRequests;
 
-        double interpReqTimeTotal; // time for all interpolation requests
+        /** time for all interpolation requests */
+        public double interpReqTimeTotal;
 
-        double interpReqTimeMax; // max time for an interpolation request
+        /** max time for an interpolation request */
+        public double interpReqTimeMax;
 
-        double interpReqTimeMin; // min time for an interpolation request
+        /** min time for an interpolation request */
+        public double interpReqTimeMin;
 
-        double gridSliceIntTimeTotal; // time for all data gridSlice interpol
+        /** time for all data gridSlice interpol */
+        public double gridSliceIntTimeTotal;
 
-        double gridSliceIntTimeMax; // max time for 1 ds interpolation
+        /** max time for 1 ds interpolation */
+        public double gridSliceIntTimeMax;
 
-        double gridSliceIntTimeMin; // min time for 1 ds interpolation
+        /** min time for 1 ds interpolation */
+        public double gridSliceIntTimeMin;
 
-        long gridSliceCount; // totalcounts for ds interpolated
+        /** totalcounts for ds interpolated */
+        public long gridSliceCount;
 
         public InterpStats() {
             gridSliceSentTotal = 0;
@@ -205,17 +232,18 @@ public class Interpolator {
         }
     };
 
-    private Map<String, InterpStats> statistics; // statistics per parm
+    // statistics per parm
+    private Map<String, InterpStats> statistics;
 
     /**
      * Constructor for interpolator class
-     * 
+     *
      * sets the pointer to the _interp object (not yet made) to NULL
      */
     public Interpolator() {
         _interp = null;
-        statistics = new HashMap<String, InterpStats>();
-        _interpQueue = new ArrayList<InterpRequest>();
+        statistics = new HashMap<>();
+        _interpQueue = new ArrayList<>();
     }
 
     @Override
@@ -226,11 +254,11 @@ public class Interpolator {
 
     /**
      * "destructor" for Interpolator class
-     * 
+     *
      * Delete _interp the associated interpolation object.
-     * 
+     *
      * Delete each request in the queue.
-     * 
+     *
      * Delete stuff in statistics.
      */
     public void dispose() {
@@ -251,27 +279,28 @@ public class Interpolator {
      * and some of type "NONE" to be interpolated. Should be exactly parallel to
      * array of times "interptimes" which lists the times of all grids both base
      * and "NONE."
-     * 
+     *
      * Note this code may make more than one "request" from one call here.
-     * 
+     *
      * Returns true if the data set is valid and interpolation can proceed.
      * Returns false if the data set is invalid and interpolation cannot
-     * proceed. -- implementation
-     * ----------------------------------------------------- For purposes of
-     * interpolation the time to use for base or known grids is the beginning or
-     * start time of the associated time range since that is when the
-     * model-based grids are actually valid in the present GFE design.
-     * 
+     * proceed.
+     *
+     * -- implementation -----------------------------------------------------
+     * For purposes of interpolation the time to use for base or known grids is
+     * the beginning or start time of the associated time range since that is
+     * when the model-based grids are actually valid in the present GFE design.
+     *
      * @param parmID
      * @param gridParmInfo
      * @param interpTimes
      * @param dataSlices
      * @param algorithm
-     * @return
+     * @return true if successful
      */
     public boolean requestInterpolation(final ParmID parmID,
-            final GridParmInfo gridParmInfo, final TimeRange[] interpTimes,
-            IGridSlice[] dataSlices, Algorithm algorithm) {
+            final GridParmInfo gridParmInfo, final List<TimeRange> interpTimes,
+            List<IGridSlice> dataSlices, Algorithm algorithm) {
         int i, j;
         boolean okay = true;
 
@@ -311,16 +340,14 @@ public class Interpolator {
         // logDebug << " Incoming interp request for " << std::endl;
         // logDebug << " parm name " << parmid.parmName() << std::endl;
         // logDebug << " total number data slices " <<
-        // dataslices.length() << std::endl;
+        // dataSlices.size()() << std::endl;
 
-        if (dataSlices.length < 1) {
-            Activator
-                    .getDefault()
-                    .getLog()
+        if (dataSlices.isEmpty()) {
+            Activator.getDefault().getLog()
                     .log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
                             "No data slices to interpolate in request.\n"
-                                    + " dataslices.length() = "
-                                    + dataSlices.length));
+                                    + " dataSlices.size()() = "
+                                    + dataSlices.size()));
             return false;
         }
 
@@ -329,27 +356,27 @@ public class Interpolator {
         // contiguous empty GridSlices, bracketed between "numbEndPts" of
         // base (filled) data grids; one base data grid at least at each end.
         i = 0;
-        while (i < dataSlices.length) {
+        while (i < dataSlices.size()) {
             // if this gridSlice is an "empty data gridSlice", need to
             // interpolate here
-            if (dataSlices[i] == null) {
+            if (dataSlices.get(i) == null) {
                 // Have found the first empty data gridSlice in this bunch.
                 // Create a new working array of gridslices.
-                LinkedList<IGridSlice> interpSlices = new LinkedList<IGridSlice>();
+                LinkedList<IGridSlice> interpSlices = new LinkedList<>();
                 // and create a parallel array of time ranges for each
                 // grid, since "NONE" type grids can't carry their
                 // own time range.
-                LinkedList<TimeRange> gridTimes = new LinkedList<TimeRange>();
+                LinkedList<TimeRange> gridTimes = new LinkedList<>();
                 // Search backwards starting at previous index (i-1)
-                // and find the "numbEndPts" preceeding base or filled
+                // and find the "numbEndPts" preceding base or filled
                 // gridslices (ignoring empties mixed in)
                 // and prepend them to the array of grids for the request.
                 int count = 0;
-                for (j = i - 1; j >= 0 && count < numbEndPts; j--) {
-                    if (dataSlices[j] != null) {
-                        interpSlices.addFirst(dataSlices[j]); // prepend to
-                        // list
-                        gridTimes.addFirst(interpTimes[j]);
+                for (j = i - 1; (j >= 0) && (count < numbEndPts); j--) {
+                    if (dataSlices.get(j) != null) {
+                        // prepend to list
+                        interpSlices.addFirst(dataSlices.get(j));
+                        gridTimes.addFirst(interpTimes.get(j));
                         count++;
                         // logDebug << "Use base data at index " << j <<
                         // std::endl;
@@ -357,15 +384,15 @@ public class Interpolator {
                 }
                 // now add in all empty data slices from this i to next base
                 // grid
-                for (; i < dataSlices.length; i++) {
-                    if (dataSlices[i] == null) {
-                        interpSlices.add(dataSlices[i]);
-                        gridTimes.add(interpTimes[i]);
+                for (; i < dataSlices.size(); i++) {
+                    if (dataSlices.get(i) == null) {
+                        interpSlices.add(dataSlices.get(i));
+                        gridTimes.add(interpTimes.get(i));
                         // logDebug << "Interpolate at index " << i <<
                         // std::endl;
                     } else {
-                        break; // have hit the next base grid so go on to next
-                        // step
+                        // have hit the next base grid so go on to next step
+                        break;
                     }
                 }
 
@@ -376,10 +403,11 @@ public class Interpolator {
                 // first non-NONE-type or base data gridSlice after the set of
                 // empties)
                 count = 0;
-                for (j = i; j < dataSlices.length && count < numbEndPts; j++) {
-                    if (dataSlices[j] != null) {
-                        interpSlices.add(dataSlices[j]);
-                        gridTimes.add(interpTimes[j]);
+                for (j = i; (j < dataSlices.size())
+                        && (count < numbEndPts); j++) {
+                    if (dataSlices.get(j) != null) {
+                        interpSlices.add(dataSlices.get(j));
+                        gridTimes.add(interpTimes.get(j));
                         count++;
                         // logDebug << "Use base data at index " << j <<
                         // std::endl;
@@ -400,7 +428,8 @@ public class Interpolator {
                 InterpRequest request = new InterpRequest(parmID, gridParmInfo,
                         interpSlices, gridTimes, advection);
 
-                updateRequestStatCounts(request); // update statistics
+                // update statistics
+                updateRequestStatCounts(request);
 
                 // Check if this interp request overlaps a previous request
                 // to interpoalate the same parm.
@@ -410,18 +439,18 @@ public class Interpolator {
                 TimeRange requestDSSpan = request.interpolateSliceSpan();
 
                 for (InterpRequest req : _interpQueue) {
-                    if (parmID == req.getParmID()
-                            && requestDSSpan.overlaps(req
-                                    .interpolateSliceSpan())) {
-                        Activator
-                                .getDefault()
-                                .getLog()
+                    if ((parmID == req.getParmID()) && requestDSSpan
+                            .overlaps(req.interpolateSliceSpan())) {
+                        Activator.getDefault().getLog()
                                 .log(new Status(IStatus.ERROR,
                                         Activator.PLUGIN_ID,
                                         "Outstanding interpolation request for "
                                                 + parmID + " " + requestDSSpan
                                                 + ". Request denied."));
-                        request = null; // free the data structure
+
+                        // free the data structure
+                        request = null;
+
                         okay = thisOkay = false;
                         break;
                     }
@@ -432,15 +461,16 @@ public class Interpolator {
                     _interpQueue.add(request);
                     // logDebug<<" length of interpQueue is "<<
                     // _interpQueue.length()<<std::endl;
+
                     // logDebug << " submit request to interpolate with " <<
                     // interpSlices.length() << " grids, from " <<
                     // gridTimes[0].startTime() << " to " <<
                     // gridTimes[interpSlices.length()-1].endTime() <<
                     // std::endl;
                 }
-            } else // data gridSlice is not empty; try next one by increasing
-                   // index
-            {
+            } else {
+                // data gridSlice is not empty; try next one by increasing index
+
                 // logDebug << " gridslice at " << i << " is not
                 // empty"<<std::endl;
                 i++;
@@ -455,25 +485,26 @@ public class Interpolator {
      * true if a data gridSlice was made by interpolation, or Returns false if
      * there were no data slices to process. And Returns, via the argument list,
      * a reference to the new GridSlice made by interpolation.
-     * 
+     *
      * Assumes that the requests on the queue are valid.
-     * 
-     * 
+     *
+     *
      * The data gridSlice to be interpolated is managed by the Interpolator, and
      * other child classes of Interp class.
-     * 
+     *
      * Has a tricky stop where this function calls itself after a request is
      * complete, to handle the next request. And so on until finally we reach
-     * bootm and leave the function.
-     * 
-     * @return
+     * bottom and leave the function.
+     *
+     * @return the interpolated grid slice or null if nothing left to
+     *         interpolate
      */
     public IGridSlice interpolate() {
         // If there is nothing left in the interpolation queue, return null.
         // This is the final and proper return when all done with all requests.
         // (also would exit here if there was nothing in the request
-        // when first called, but that is not the amin intent.)
-        if (_interpQueue.size() == 0) {
+        // when first called, but that is not the main intent.)
+        if (_interpQueue.isEmpty()) {
             return null;
         }
 
@@ -484,11 +515,18 @@ public class Interpolator {
 
         // if all done with this request
         if (nextIndex == -1) {
-            updateRequestStatTimes(request); // update the statistics
-            request = null; // free the memory for the request
-            _interpQueue.remove(0); // remove the top entry from the queue
+            // update the statistics
+            updateRequestStatTimes(request);
+
+            // free the memory for the request
+            request = null;
+
+            // remove the top entry from the queue
+            _interpQueue.remove(0);
             _interp.dispose();
-            _interp = null; // delete the interpolation routines object
+
+            // delete the interpolation routines object
+            _interp = null;
 
             // call itself to see if there is ANOTHER request in the
             // interpQueue.
@@ -513,7 +551,8 @@ public class Interpolator {
         // stop the timer
         this.gridSliceTime = System.currentTimeMillis() - t0;
 
-        updateInterpStatTimes(request); // update statistics
+        // update statistics
+        updateInterpStatTimes(request);
 
         return gridMade;
     }
@@ -522,7 +561,7 @@ public class Interpolator {
      * Utility routine to create an Interp class derived object "_interp" based
      * on the data type in the interpolation request. Assumes that the
      * interpolation request is valid.
-     * 
+     *
      * @param request
      */
     private void createInterpClass(InterpRequest request) {
@@ -578,7 +617,7 @@ public class Interpolator {
      * Removes all values in the statistics object. Then goes through the
      * outstanding interpolation requests and adds them back into the statistics
      * object.
-     * 
+     *
      */
     public void resetStatistics() {
         this.statistics.clear();
@@ -591,37 +630,41 @@ public class Interpolator {
     /**
      * <pre>
      * Outputs the statistics in the following form:
-     * 
+     *
      * 0000000111111111122222222223333333333444444444455555555556666666666777777777
      * --------------------- Interpolation Request Statistics ----------------------
      * --ParameterName--  ---Data Slices Sent---   --Data Slices Interpolated--
      *                     Total   Max  Min  Ave       Total   Max  Min  Ave
      *                    1234567 1234 1234 123.4     1234567 1234 1234 123.4
-     *                   
+     *
      * --ParameterName--  --Number of Requests--   ----Time Requests on Queue----
      *                     Total     Good    Bad    Total       Max     Min      Ave
      *                   1234567  1234567   12345   99999.999 9999.999 9999.999 9999.999
-     *                 
+     *
      * --ParameterName--    Individual Data Slice Interpolation
      *                    TotalTime   MaxTime  MinTime  TotalCount
      *                    99999.999  9999.999 9999.999  123456789
      * </pre>
-     * 
+     *
      * @return string containing statistics
      */
     public String outputStatistics() {
         double average;
-        String emptyPName = "                    "; // 20 spaces
+
+        // 20 spaces
+        String emptyPName = "                    ";
 
         StringBuilder s = new StringBuilder();
-        s.append("-------------------- Interpolation Request Statistics --------------------\n");
+        s.append(
+                "-------------------- Interpolation Request Statistics --------------------\n");
 
-        s.append("--ParameterName--   ---Data Slices Sent---   --Data Slices Interpolated--\n");
+        s.append(
+                "--ParameterName--   ---Data Slices Sent---   --Data Slices Interpolated--\n");
 
-        s.append(emptyPName).append(
-                " Total   Max  Min  Ave       Total   Max  Min  Ave\n");
+        s.append(emptyPName)
+                .append(" Total   Max  Min  Ave       Total   Max  Min  Ave\n");
 
-        List<String> keys = new ArrayList<String>(statistics.keySet());
+        List<String> keys = new ArrayList<>(statistics.keySet());
         Collections.sort(keys);
 
         for (String key : keys) {
@@ -682,7 +725,8 @@ public class Interpolator {
 
         // output the individual data gridSlice interpolation timing statistics
 
-        s.append("\n--ParameterName--  --Individual Data Grid Interpolation-- \n");
+        s.append(
+                "\n--ParameterName--  --Individual Data Grid Interpolation-- \n");
 
         s.append(emptyPName).append(
                 "TotalTime  MaxTime  MinTime   AveTime    Num. Interpd\n");
@@ -703,7 +747,8 @@ public class Interpolator {
             s.append(String.format(" %10d\n", stats.gridSliceCount));
         }
 
-        s.append("----------------------------------------------------------\n");
+        s.append(
+                "----------------------------------------------------------\n");
 
         return s.toString();
     }
@@ -712,13 +757,13 @@ public class Interpolator {
      * Updates the statistics pertaining to request interpolation. This includes
      * the number of data slices sent, the number of data slices interpolated,
      * and the number of requests (total, good, and bad).
-     * 
-     * 
+     *
+     *
      * It may be necessary to create a statistics structure if there isn't
      * already one for this parameter. Then it is added to the dictionary. The
      * interpRequest structure is used to determine the parameter name. The
      * statistics for that parameter name is obtained and updated.
-     * 
+     *
      * @param interpRequest
      */
     private void updateRequestStatCounts(InterpRequest interpRequest) {
@@ -769,10 +814,10 @@ public class Interpolator {
     /**
      * Updates the timing statistics pertaining to request interpolation. This
      * is the time the request was queued.
-     * 
+     *
      * Due to updateRequestStatCounts(), there should always be a statistics
      * entry when this routine is called.
-     * 
+     *
      * @param interpRequest
      */
     private void updateRequestStatTimes(InterpRequest interpRequest) {
@@ -799,19 +844,17 @@ public class Interpolator {
 
     /**
      * Updates the timing statistics about how long to interpolate.
-     * 
+     *
      * Due to updateRequestStatCounts(), there should always be a statistics
      * entry when this routine is called.
-     * 
+     *
      * @param interpRequest
      */
     private void updateInterpStatTimes(InterpRequest interpRequest) {
         InterpStats stats = statistics.get(interpRequest.getParameterName());
 
         if (stats == null) {
-            Activator
-                    .getDefault()
-                    .getLog()
+            Activator.getDefault().getLog()
                     .log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
                             "No entry in statistics for parameter"));
             return;

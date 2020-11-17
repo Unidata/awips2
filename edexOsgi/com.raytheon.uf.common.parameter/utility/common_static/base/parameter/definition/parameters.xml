@@ -40,7 +40,7 @@
     <parameter>
         <name>Absolute Vorticity</name>
         <abbreviation>AV</abbreviation>
-        <unit>/s</unit>
+        <unit>1/s</unit>
     </parameter>
     <parameter>
         <name>Categorical Rain</name>
@@ -636,5 +636,612 @@
         <name>Snow Level</name>
         <abbreviation>SNOWLVL</abbreviation>
         <unit>m</unit>
+    </parameter>
+    
+    <!-- Parameters added for #7381 -->
+    <parameter>
+        <name>Downward Short-Wave Radiation Flux</name>
+        <abbreviation>DSWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Upward Short-Wave Radiation Flux</name>
+        <abbreviation>USWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>UV-B Downward Solar Flux</name>
+        <abbreviation>DUVB</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear sky UV-B Downward Solar Flux</name>
+        <abbreviation>CDUVB</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Downward Solar Flux</name>
+        <abbreviation>CSDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Upward Solar Flux</name>
+        <abbreviation>CSUSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Solar Radiative Heating Rate</name>
+        <abbreviation>SWHR</abbreviation>
+        <unit>K/s</unit>
+    </parameter>
+    <parameter>
+        <name>Visible Beam Downward Solar Flux</name>
+        <abbreviation>VBDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Near IR Beam Downward Solar Flux</name>
+        <abbreviation>NBDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Near IR Diffuse Downward Solar Flux</name>
+        <abbreviation>NDDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Downward Long-Wave Rad. Flux</name>
+        <abbreviation>DLWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Upward Long-Wave Rad. Flux</name>
+        <abbreviation>ULWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Long-Wave Radiative Heating Rate</name>
+        <abbreviation>LWHR</abbreviation>
+        <unit>K/s</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Upward Long Wave Flux</name>
+        <abbreviation>CSULF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Downward Long Wave Flux</name>
+        <abbreviation>CSDLF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Maximum Relative Humidity</name>
+        <abbreviation>MAXRH</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Maximum specific humidity at 2m</name>
+        <abbreviation>QMAX</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Minimum Relative Humidity</name>
+        <abbreviation>MINRH</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Minimum specific humidity at 2m</name>
+        <abbreviation>QMIN</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Rime Factor</name>
+        <abbreviation>RIME</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Frozen Rain</name>
+        <abbreviation>FROZR</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Snow</name>
+        <abbreviation>TSNOW</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Sublimation (evaporation from snow)</name>
+        <abbreviation>SBSNO</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Ice Water Mixing Ratio</name>
+        <abbreviation>ICMR</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Rain Mixing Ratio</name>
+        <abbreviation>RWMR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Snow Mixing Ratio</name>
+        <abbreviation>SNMR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Horizontal Moisture Convergence</name>
+        <abbreviation>MCONV</abbreviation>
+        <unit>kg/kg*s^m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>Snow Melt</name>
+        <abbreviation>SNOM</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Snowfall Rate Water Equivalent</name>
+        <abbreviation>TSRWE</abbreviation>
+        <unit>kg/m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>Stream Function</name>
+        <abbreviation>STRM</abbreviation>
+        <unit>m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>Momentum Flux, U-Component</name>
+        <abbreviation>UFLX</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Momentum Flux, V-Component</name>
+        <abbreviation>VFLX</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Drag Coefficient</name>
+        <abbreviation>CD</abbreviation>
+        <unit>Numeric</unit>
+    </parameter>
+    <parameter>
+        <name>Frictional Velocity</name>
+        <abbreviation>FRICV</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>U Component of Hourly Maximum Wind Speed</name>
+        <abbreviation>MAXUW</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>V Component of Hourly Maximum Wind Speed</name>
+        <abbreviation>MAXVW</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Ventilation Rate</name>
+        <abbreviation>VRATE</abbreviation>
+        <unit>m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>ICAO Standard Atmosphere Reference Height</name>
+        <abbreviation>ICAHT</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Zonal Flux of Gravity Wave Stress</name>
+        <abbreviation>U-GWD</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Meridional Flux of Gravity Wave Stress</name>
+        <abbreviation>V-GWD</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Planetary Boundary Layer Height</name>
+        <abbreviation>HPBL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Cloud Ice</name>
+        <abbreviation>CICE</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Ceiling</name>
+        <abbreviation>CEIL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column-Integrated Cloud Water</name>
+        <abbreviation>TCOLW</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column-Integrated Cloud Ice</name>
+        <abbreviation>TCOLI</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column-Integrated Condensate</name>
+        <abbreviation>TCICON</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Condensate</name>
+        <abbreviation>TCOND</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Cloud Work Function</name>
+        <abbreviation>CWORK</abbreviation>
+        <unit>J/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Cloud Efficiency</name>
+        <abbreviation>CUEFI</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Updraft Helicity</name>
+        <abbreviation>UPHL</abbreviation>
+        <unit>m^2/s^2</unit>
+    </parameter>
+    <parameter>
+        <name>Lightning</name>
+        <abbreviation>LTNG</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Total Ozone</name>
+        <abbreviation>TOZNE</abbreviation>
+        <unit>DU</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Mixing Ratio</name>
+        <abbreviation>O3MR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Concentration</name>
+        <abbreviation>OZCON</abbreviation>
+        <unit>ppb</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Daily Max from 1-hour Average</name>
+        <abbreviation>OZMAX1</abbreviation>
+        <unit>ppbV</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Daily Max from 8-hour Average</name>
+        <abbreviation>OZMAX8</abbreviation>
+        <unit>ppbV</unit>
+    </parameter>
+    <parameter>
+        <name>Echo Top</name>
+        <abbreviation>RETOP</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Land Cover (0=sea, 1=land)</name>
+        <abbreviation>LAND</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Surface Roughness</name>
+        <abbreviation>SFCR</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Soil Moisture Content</name>
+        <abbreviation>SOILM</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Vegetation</name>
+        <abbreviation>VEG</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Ground Heat Flux</name>
+        <abbreviation>GFLUX</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Blackadar's Mixing Length Scale</name>
+        <abbreviation>BMIXL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Canopy Conductance</name>
+        <abbreviation>CCOND</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Minimal Stomatal Resistance</name>
+        <abbreviation>RSMIN</abbreviation>
+        <unit>s/m</unit>
+    </parameter>
+    <parameter>
+        <name>Wilting Point</name>
+        <abbreviation>WILT</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Solar parameter in canopy conductance</name>
+        <abbreviation>RCS</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Humidity parameter in canopy conductance</name>
+        <abbreviation>RCQ</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Soil moisture parameter in canopy conductance</name>
+        <abbreviation>RCSOL</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Land-sea coverage (nearest neighbor) [land=1,sea=0]</name>
+        <abbreviation>LANDN</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Liquid soil moisture content (non-frozen)</name>
+        <abbreviation>LSOIL</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Soil Type</name>
+        <abbreviation>SOTYP</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Number of Soil Layers in Root Zone</name>
+        <abbreviation>RLYRS</abbreviation>
+        <unit>Numeric</unit>
+    </parameter>
+    <parameter>
+        <name>Transpiration Stress-onset (soil moisture)</name>
+        <abbreviation>SMREF</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Direct Evaporation Cease (soil moisture)</name>
+        <abbreviation>SMDRY</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Soil Porosity</name>
+        <abbreviation>POROS</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Field Capacity</name>
+        <abbreviation>FLDCP</abbreviation>
+        <unit>Fraction</unit>
+    </parameter>
+    <parameter>
+        <name>Surface Slope Type</name>
+        <abbreviation>SLTYP</abbreviation>
+        <unit>Index</unit>
+    </parameter>
+    <parameter>
+        <name>Direct Evaporation from Bare Soil</name>
+        <abbreviation>EVBS</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Baseflow-Groundwater Runoff</name>
+        <abbreviation>BGRUN</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Storm Surface Runoff</name>
+        <abbreviation>SSRUN</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Water Runoff</name>
+        <abbreviation>WATR</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Transpiration</name>
+        <abbreviation>TRANS</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Percent of Frozen Precipitation</name>
+        <abbreviation>CPOFP</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Salinity</name>
+        <abbreviation>SALTY</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Planetary Boundary Layer Regime</name>
+        <abbreviation>PBLREG</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Snow-Free Albedo</name>
+        <abbreviation>SNFALB</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Icing severity</name>
+        <abbreviation>ICSEV</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Latitude (-90 to 90)</name>
+        <abbreviation>NLAT</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>East Longitude (0 to 360)</name>
+        <abbreviation>ELON</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Extra Tropical Storm Surge</name>
+        <abbreviation>ETSRG</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Extra Tropical Storm Surge Combined Surge and Tide</name>
+        <abbreviation>ETCWL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Ocean Surface Elevation Relative to Geoid</name>
+        <abbreviation>ELEV</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Maximum Snow Albedo</name>
+        <abbreviation>MXSALB</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 11, Channel 3</name>
+        <abbreviation>SBT113</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 11, Channel 4</name>
+        <abbreviation>SBT114</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 12, Channel 3</name>
+        <abbreviation>SBT123</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 12, Channel 4</name>
+        <abbreviation>SBT124</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Volumetric Soil Moisture Content</name>
+        <abbreviation>SOILW</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Sunshine Duration</name>
+        <abbreviation>SUNSD</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>Albedo</name>
+        <abbreviation>ALBDO</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Vertically Integrated Liquid (VIL)</name>
+        <abbreviation>VILIQ</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Vertical u-component shear</name>
+        <abbreviation>VUCSH</abbreviation>
+        <unit>1/s</unit>
+    </parameter>
+    <parameter>
+        <name>Vertical v-component shear</name>
+        <abbreviation>VVCSH</abbreviation>
+        <unit>1/s</unit>
+    </parameter>
+    <parameter>
+        <name>Haines Index</name>
+        <abbreviation>HI</abbreviation>
+        <unit>Numeric</unit>
+    </parameter>
+    <parameter>
+        <name>Vegetation Type</name>
+        <abbreviation>VGTYP</abbreviation>
+        <unit>Integer (0-13)</unit>
+    </parameter>
+    <parameter>
+        <name>Canopy water evaporation</name>
+        <abbreviation>EVCW</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Aerodynamic conductance</name>
+        <abbreviation>ACOND</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Rain</name>
+        <abbreviation>TCOLR</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Snow</name>
+        <abbreviation>TCOLS</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Graupel</name>
+        <abbreviation>TCOLG</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Melting Ice</name>
+        <abbreviation>TCOLM</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Supercooled Liquid Water</name>
+        <abbreviation>TCLSW</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Brightness Temperature</name>
+        <abbreviation>BRTMP</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Turbulence Potential Forecast Index</name>
+        <abbreviation>TPFI</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Vertical Shear Speed</name>
+        <abbreviation>VSS</abbreviation>
+        <unit>1/s</unit>
+    </parameter>
+    <parameter>
+        <name>Cloud Mixing Ratio</name>
+        <abbreviation>CLWMR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Plant Canopy Surface Water</name>
+        <abbreviation>CNWAT</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Best (4 layer) Lifted Index</name>
+        <abbreviation>BLI</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Ice Cover</name>
+        <abbreviation>ICEC</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Derived Radar Composite</name>
+        <abbreviation>ICEC</abbreviation>
+        <unit>Proportion</unit>
     </parameter>
 </parameterList>

@@ -184,4 +184,11 @@
     <field key="Wave8" displayTypes="ARROW" />
     <field key="Wave9" displayTypes="ARROW" />
     <field key="Wave10" displayTypes="ARROW" />
+    <field key="RR" volumePlaneType="TILT" />
+    <field key="RRV" volumePlaneType="TILT" />
+    <field key="BASSW" volumePlaneType="TILT" />
+    <field key="ZDR" volumePlaneType="TILT" />
+    <field key="KDP" volumePlaneType="TILT" />    
+    <field key="COCO" volumePlaneType="TILT" />
+    <field key="HC" volumePlaneType="TILT" />
 </fieldDisplayTypesFile>

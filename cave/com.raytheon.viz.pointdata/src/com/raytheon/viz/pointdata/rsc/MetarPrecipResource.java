@@ -109,17 +109,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 07, 2013  2070     bsteffen  Add geospatial constraints to metar precip
  *                                  requests.
  * Mar 11, 2014  2718     randerso  Changes for GeoTools 10.5
- * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
  * Nov 13, 2015  4903     bsteffen  Extract progressive disclosure
  * Jun 23, 2016           mjames    Colored plot.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class MetarPrecipResource extends
-        AbstractVizResource<MetarPrecipResourceData, IMapDescriptor> {
+public class MetarPrecipResource
+		extends AbstractVizResource<MetarPrecipResourceData, IMapDescriptor> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MetarPrecipResource.class);
 
@@ -152,8 +152,8 @@ public class MetarPrecipResource extends
         public final DrawableString string;
 
         public RenderablePrecipData(PrecipData data, DrawableString string) {
-            super(data.getTimeObs(), data.getStationName(),
-                    data.getPrecipAmt(), data.getLatLon().x, data.getLatLon().y);
+            super(data.getTimeObs(), data.getStationName(), data.getPrecipAmt(),
+                       data.getLatLon().x, data.getLatLon().y);
             this.string = string;
         }
 
@@ -185,9 +185,9 @@ public class MetarPrecipResource extends
 
     };
 
-    private LinkedBlockingQueue<PluginDataObject> updates = new LinkedBlockingQueue<PluginDataObject>();
+    private LinkedBlockingQueue<PluginDataObject> updates = new LinkedBlockingQueue<>();
 
-    private LinkedBlockingQueue<DataTime> removes = new LinkedBlockingQueue<DataTime>();
+    private LinkedBlockingQueue<DataTime> removes = new LinkedBlockingQueue<>();
 
     private boolean reproject = false;
 
@@ -197,7 +197,7 @@ public class MetarPrecipResource extends
 
     protected MetarPrecipResource(MetarPrecipResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
 
     }
 
@@ -232,8 +232,8 @@ public class MetarPrecipResource extends
         double threshold = (PLOT_PIXEL_SIZE * magnification) / density;
         threshold = (threshold * extent.getWidth())
                 / paintProps.getCanvasBounds().width;
-        Collection<RenderablePrecipData> precips = disclosure.runDisclosure(
-                extent, threshold);
+        Collection<RenderablePrecipData> precips = disclosure
+                        .runDisclosure(extent, threshold);
         if (precips.isEmpty()) {
             return;
         }
@@ -245,7 +245,7 @@ public class MetarPrecipResource extends
             font.setMagnification(magnification.floatValue());
         }
 
-        List<DrawableString> strings = new ArrayList<DrawableString>();
+        List<DrawableString> strings = new ArrayList<>();
 
         for (RenderablePrecipData data : precips) {
             // This is easier then changing it when the capability changes.
@@ -270,7 +270,6 @@ public class MetarPrecipResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        dataTimes = new ArrayList<DataTime>();
         dataProcessJob.schedule();
         ColorMapParameters params = new ColorMapParameters();
 
@@ -372,17 +371,15 @@ public class MetarPrecipResource extends
         Coordinate pixel = null;
         try {
             pixel = coord.asPixel(descriptor.getGridGeometry());
-        } catch (TransformException e) {
-            throw new VizException(e);
-        } catch (FactoryException e) {
+        } catch (FactoryException | TransformException e) {
             throw new VizException(e);
         }
 
         Double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
 
-        List<RenderablePrecipData> precips = getPrecipData(descriptor
-                .getTimeForResource(this));
+        List<RenderablePrecipData> precips = getPrecipData(
+                descriptor.getTimeForResource(this));
 
         if ((precips == null) || precips.isEmpty()) {
             return null;
@@ -420,8 +417,8 @@ public class MetarPrecipResource extends
             reproject = false;
             // reproject all stations to the new crs and throw out any off the
             // screen
-            GridEnvelope2D envelope = GridGeometry2D.wrap(
-                    descriptor.getGridGeometry()).getGridRange2D();
+            GridEnvelope2D envelope = GridGeometry2D
+                    .wrap(descriptor.getGridGeometry()).getGridRange2D();
             synchronized (data) {
                 for (GenericProgressiveDisclosure<RenderablePrecipData> disclosure : data
                         .values()) {
@@ -430,8 +427,8 @@ public class MetarPrecipResource extends
                     while (it.hasNext()) {
                         RenderablePrecipData precip = it.next();
                         Coordinate latLon = precip.getLatLon();
-                        double[] px = descriptor.worldToPixel(new double[] {
-                                latLon.x, latLon.y });
+                        double[] px = descriptor.worldToPixel(
+                                new double[] { latLon.x, latLon.y });
                         if (envelope.contains(px[0], px[1])) {
                             precip.string.setCoordinates(px[0], px[1], px[2]);
                         } else {
@@ -464,25 +461,24 @@ public class MetarPrecipResource extends
         }
         HashMap<String, RequestConstraint> rcMap = resourceData
                 .getMetadataMap();
-        rcMap = new HashMap<String, RequestConstraint>(rcMap);
+        rcMap = new HashMap<>(rcMap);
         RequestConstraint rc = new RequestConstraint(null, ConstraintType.IN);
         long earliestTime = Long.MAX_VALUE;
-        Set<String> newStations = new HashSet<String>();
+        Set<String> newStations = new HashSet<>();
         // Get the envelope and math transform to ensure we only bother
         // processing updates on screen.
         MathTransform toDescriptor = null;
         try {
             toDescriptor = MapUtil.getTransformFromLatLon(descriptor.getCRS());
         } catch (FactoryException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Error processing updates for MetarPrecip, Ignoring all updates.",
-                            e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error processing updates for MetarPrecip, Ignoring all updates.",
+                    e);
             updates.clear();
             return;
         }
-        Envelope2D envelope = new Envelope2D(descriptor.getGridGeometry()
-                .getEnvelope());
+        Envelope2D envelope = new Envelope2D(
+                descriptor.getGridGeometry().getEnvelope());
         while (!updates.isEmpty()) {
             PluginDataObject pdo = updates.poll();
             try {
@@ -501,10 +497,9 @@ public class MetarPrecipResource extends
                     }
                 }
             } catch (Exception e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Error processing updates for MetarPrecip, Ignoring an update.",
-                                e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error processing updates for MetarPrecip, Ignoring an update.",
+                        e);
             }
         }
         if (newStations.isEmpty()) {
@@ -542,19 +537,19 @@ public class MetarPrecipResource extends
         MetarPrecipDataContainer container = new MetarPrecipDataContainer(
                 resourceData.getDuration(), resourceData.getMetadataMap(),
                 descriptor.getGridGeometry().getEnvelope());
-        Set<DataTime> reprojectedFrames = new HashSet<DataTime>();
-        Set<DataTime> baseOnly = new HashSet<DataTime>();
+        Set<DataTime> reprojectedFrames = new HashSet<>();
+        Set<DataTime> baseOnly = new HashSet<>();
         boolean modified = true;
         while (modified) {
             // don't want to miss a reproject if retrieval takes awhile.
             if (processReproject()) {
                 // We must create a new container and re request all the data
                 // for the new area.
-                reprojectedFrames = new HashSet<DataTime>(data.keySet());
+                reprojectedFrames = new HashSet<>(data.keySet());
                 container = new MetarPrecipDataContainer(
                         resourceData.getDuration(),
-                        resourceData.getMetadataMap(), descriptor
-                                .getGridGeometry().getEnvelope());
+                        resourceData.getMetadataMap(), 
+                        descriptor.getGridGeometry().getEnvelope());
             }
             if (monitor.isCanceled()) {
                 return;
@@ -563,8 +558,8 @@ public class MetarPrecipResource extends
             // If the current frame changes while we are processing we will
             // begin requesting data for the new frame
             FramesInfo frameInfo = descriptor.getFramesInfo();
-            DataTime[] times = frameInfo.getTimeMap().get(
-                    MetarPrecipResource.this);
+            DataTime[] times = frameInfo.getTimeMap()
+            		.get(MetarPrecipResource.this);
             if (times == null) {
                 return;
             }
@@ -609,16 +604,16 @@ public class MetarPrecipResource extends
 
     private void addData(DataTime time, List<PrecipData> precips) {
         if (precips.isEmpty()) {
-            if (!dataTimes.contains(time)) {
-                GenericProgressiveDisclosure<RenderablePrecipData> disclosure = new GenericProgressiveDisclosure<RenderablePrecipData>();
+            if (dataTimes.add(time)) {
+                GenericProgressiveDisclosure<RenderablePrecipData> disclosure = new GenericProgressiveDisclosure<>();
                 synchronized (data) {
                     data.put(time, disclosure);
                 }
-                dataTimes.add(time);
             }
         }
+        
         if (data.containsKey(time)) {
-            precips = new ArrayList<PrecipData>(precips);
+            precips = new ArrayList<>(precips);
             precips.addAll(getPrecipData(time));
         }
         Collections.sort(precips, new Comparator<PrecipData>() {
@@ -630,12 +625,12 @@ public class MetarPrecipResource extends
 
         });
 
-        GenericProgressiveDisclosure<RenderablePrecipData> newPrecips = new GenericProgressiveDisclosure<RenderablePrecipData>();
+        GenericProgressiveDisclosure<RenderablePrecipData> newPrecips = new GenericProgressiveDisclosure<>();
 
         //RGB color = getCapability(ColorableCapability.class).getColor();
 
-        GridEnvelope2D envelope = GridGeometry2D.wrap(
-                descriptor.getGridGeometry()).getGridRange2D();
+        GridEnvelope2D envelope = GridGeometry2D
+        		.wrap(descriptor.getGridGeometry()).getGridRange2D();
 
         for (int i = 0; i < precips.size(); i++) {
             PrecipData precip = precips.get(i);
@@ -650,8 +645,8 @@ public class MetarPrecipResource extends
                 }
                 Float amount = precips.get(i).getPrecipAmt().floatValue();
                 RGB rgbval = getColorByValue(amount);
-                DrawableString string = new DrawableString(formatPrecip(precips
-                        .get(i).getPrecipAmt()), rgbval);
+                DrawableString string = new DrawableString(
+                		formatPrecip(precips.get(i).getPrecipAmt()), rgbval);
                 string.setCoordinates(px[0], px[1], px[2]);
                 string.verticalAlignment = VerticalAlignment.MIDDLE;
                 string.horizontalAlignment = HorizontalAlignment.CENTER;
@@ -661,9 +656,7 @@ public class MetarPrecipResource extends
         }
         synchronized (data) {
             data.put(time, newPrecips);
-            if (!dataTimes.contains(time)) {
-                dataTimes.add(time);
-            }
+            dataTimes.add(time);
         }
         issueRefresh();
     }

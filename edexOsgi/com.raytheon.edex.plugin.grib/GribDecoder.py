@@ -51,6 +51,7 @@
 # Jun 29, 2017  6323     randerso    Changes for P-ETSS model
 # Jul 17, 2017  DR19976  MPorricelli Add labeling of Probability Matched Mean fields#
 # Nov 29, 2017  6536     bsteffen    Handle redundant statistical specifiers better.
+# Jan 30, 2018  7172     bsteffen    Recalculate more precise dx for some worldwide grids.
 # Feb 07, 2018  7213     nabowle     Only allow P-ETSS to create Statistical parameters.
 # Mar 19, 2018  20395    wkwock      Added PDS template 15
 #
@@ -91,8 +92,8 @@ from com.raytheon.uf.common.util import GridUtil
 
 from com.raytheon.edex.util.grib import GribParamTranslator
 
-from com.raytheon.uf.common.parameter import Parameter;
-from com.raytheon.uf.common.parameter.mapping import ParameterMapper;
+from com.raytheon.uf.common.parameter import Parameter
+from com.raytheon.uf.common.parameter.mapping import ParameterMapper
 
 # default fill value for now...someday NaN would be better
 F32_GRID_FILL_VALUE = numpy.float32(GridUtil.GRID_FILL_VALUE)
@@ -224,7 +225,6 @@ class GribDecoder():
         # Special case for thinned grids.
         # Map the thinned grid on to a square lat/lon grid
         if 'thinned' in gribDict:
-            thinnedGrid = gribDict['thinned']
             optValues = gribDict['list_opt']
             optList = numpy.zeros(len(optValues), numpy.int32)
             for i in range(0, len(optValues)):
@@ -468,7 +468,7 @@ class GribDecoder():
                 else:
                     self.log.info("No parameter information for center[" + str(centerID) + "], subcenter[" +
                                           str(subcenterID) + "], tableName[" + tableName +
-                                          "], parameter value[" + str(pdsTemplate[1]) + "]");
+                                          "], parameter value[" + str(pdsTemplate[1]) + "]")
                     gribDict['parameterName'] = MISSING
                     parameterAbbreviation = MISSING
                     gribDict['parameterUnit'] = MISSING
@@ -476,8 +476,8 @@ class GribDecoder():
             processType = int(pdsTemplate[2])
             gribDict['processType'] = str(GribTableLookup.getInstance().getTableValue(centerID, subcenterID, PROCESS_TYPE_TABLE, processType))
 
-            levelName = None;
-            levelUnit = None;
+            levelName = None
+            levelUnit = None
             
             #In case the 1st level is 'SFC' and the 2nd level is 'FHAG', use FHAG as the level number
             levelNumber = int(pdsTemplate[9])
@@ -487,12 +487,12 @@ class GribDecoder():
             gribLevel = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, LEVELS_TABLE, levelNumber)
 
             if gribLevel is not None:
-               levelName = gribLevel.getAbbreviation();
+               levelName = gribLevel.getAbbreviation()
                levelUnit = gribLevel.getUnit()
             else:
                self.log.info("No level information for center[" + str(centerID) + "], subcenter[" +
                                      str(subcenterID) + "], tableName[" + LEVELS_TABLE + "], level value[" +
-                                     str(pdsTemplate[9]) + "]");
+                                     str(pdsTemplate[9]) + "]")
 
             if levelName is None or len(levelName) == 0:
                 levelName = LevelFactory.UNKNOWN_LEVEL
@@ -539,15 +539,15 @@ class GribDecoder():
                 perturbationNumber = int(pdsTemplate[16])
                 gribDict['numForecasts'] = Integer(int(pdsTemplate[17]))
                 if(typeEnsemble == 0):
-                     gribDict['ensembleId'] = "ctlh" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "ctlh" + str(perturbationNumber)
                 elif(typeEnsemble == 1):
-                     gribDict['ensembleId'] = "ctll" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "ctll" + str(perturbationNumber)
                 elif(typeEnsemble == 2):
-                     gribDict['ensembleId'] = "n" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "n" + str(perturbationNumber)
                 elif(typeEnsemble == 3):
-                     gribDict['ensembleId'] = "p" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "p" + str(perturbationNumber)
                 else:
-                    gribDict['ensembleId'] = str(typeEnsemble) + "." + str(perturbationNumber);
+                    gribDict['ensembleId'] = str(typeEnsemble) + "." + str(perturbationNumber)
 
                 if pdsTemplateNumber == 11:
                     gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 18)
@@ -698,7 +698,7 @@ class GribDecoder():
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation + "erranl"
 
-            parameterAbbreviation = ParameterMapper.getInstance().lookupBaseName(parameterAbbreviation, "grib");
+            parameterAbbreviation = ParameterMapper.getInstance().lookupBaseName(parameterAbbreviation, "grib")
             # Constructing the GribModel object
             gribDict['parameterAbbreviation'] = parameterAbbreviation
 
@@ -772,7 +772,7 @@ class GribDecoder():
             gribDict['parameterUnit'] = "Unknown"
 
         if 'level' not in gribDict:
-            gribDict['level'] = LevelFactory.getInstance().getLevel(LevelFactory.UNKNOWN_LEVEL, float(0));
+            gribDict['level'] = LevelFactory.getInstance().getLevel(LevelFactory.UNKNOWN_LEVEL, float(0))
 
     ##
     # Decodes the values from the gds section. Decoded values are added to the gribDict
@@ -822,6 +822,32 @@ class GribDecoder():
                 dx = abs(lo1 - lo2) / nx
             if dy >= 65.535:
                 dy = abs(la1 - la2) / ny
+                
+            # Fix rounding errors that can create grids wider than 360° because
+            # grids larger than the world are problematic for a variety of
+            # algorithms. This occurs because dx is only encoded to 6 decimal
+            # places and so it may be rounded from what it should be. For
+            # example a worldwide grid with ⅔° degree spacing would be encoded
+            # with nx=540 and dx=0.666667°, resulting in a total width of
+            # 360.00018°. This code will change dx to 0.666666666648° which is
+            # closer to the real spacing of ⅔° and also makes the total width
+            # just under 360°.
+            #
+            # This test finds the next smallest dx that could have been encoded
+            # by subtracting 0.000001 from dx. If the current value of dx
+            # causes the grid to be wider than 360° but the next smallest dx
+            # would have caused the grid to be narrower than 360° then assume
+            # that the grid is supposed to be exactly 360° and dx was rounded.
+            # In this case calculate a more accurate dx by dividing
+            # 359.99999999° by nx. A value just under 360° is used so that any
+            # floating point inaccuracies will error on the side of a smaller
+            # total width. At 8 decimal places the real world difference of this
+            # reduction is about 1mm. 6 decimal places is about 10cm, so this
+            # correction should change dx by less than 10cm which should not be
+            # noticeable on any real display.
+            if nx*dx > 360 and nx*(dx-0.000001) < 360:
+                dx = 359.99999999/nx
+                
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT2)
             coverage.setNx(Integer(nx))
             coverage.setNy(Integer(ny))
@@ -1209,7 +1235,7 @@ class GribDecoder():
         day = int(section[start + 2])
         hour = int(section[start + 3])
         minute = int(section[start + 4])
-        second = int(section[start + 5]);
+        second = int(section[start + 5])
         return GregorianCalendar(year, month, day, hour, minute, second)
 
     ##

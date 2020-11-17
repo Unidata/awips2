@@ -29,10 +29,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IWorkbenchWindow;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
@@ -116,6 +112,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  * Nov 18, 2015  5129     dgilling  Support new IFPClient.
  * Mar 16, 2017  6092     randerso  Dispose spatialDisplayManager when disposed
  * Apr 21, 2017  6239     randerso  Code cleanup
+ * Jan 04, 2018  7178     randerso  Removed ParmEvictor
  * Jan 08, 2018  19900    ryu       Fix CAVE crash when starting GFE for non-activated site.
  *
  * </pre>
@@ -125,7 +122,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 public class DataManager implements ISimulatedTimeChangeListener {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataManager.class);
 
     /**
@@ -134,14 +131,6 @@ public class DataManager implements ISimulatedTimeChangeListener {
     @Deprecated
     public static DataManager getCurrentInstance() {
         return DataManagerUIFactory.getCurrentInstance();
-    }
-
-    /**
-     * Use {@link DataManagerUIFactory#findInstance(IWorkbenchWindow)}
-     */
-    @Deprecated
-    public static DataManager findInstance(IWorkbenchWindow window) {
-        return DataManagerUIFactory.findInstance(window);
     }
 
     /**
@@ -186,14 +175,6 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     private EditActionProcessor editActionProcessor;
 
-    /** interval that the parm evictor runs-- every 15 seconds */
-    private static final int PARM_EVICTOR_SCHEDULE = 15;
-
-    /**
-     * Threshold of how long a parm can be unused before evicted -- 30 seconds
-     */
-    private static final int PARM_EVICTOR_THRESHOLD = 30;
-
     private String siteId;
 
     private String officeType;
@@ -225,8 +206,6 @@ public class DataManager implements ISimulatedTimeChangeListener {
     private final AtomicBoolean proceduresInitialized;
 
     private final AtomicBoolean textProductsInitialized;
-
-    private final ParmEvictor parmEvictorJob;
 
     /**
      * ISCDataAccess
@@ -329,8 +308,6 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
         this.autoSaveJob = new AutoSaveJob(this);
 
-        this.parmEvictorJob = new ParmEvictor();
-
         if (CAVEMode.getMode() == CAVEMode.OPERATIONAL) {
             SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
         }
@@ -391,8 +368,6 @@ public class DataManager implements ISimulatedTimeChangeListener {
         Thread killPoolsThread = new Thread(killJobPools, "shutdown-gfe-pools");
         killPoolsThread.setDaemon(false);
         killPoolsThread.start();
-
-        parmEvictorJob.cancel();
 
         if (CAVEMode.getMode() == CAVEMode.OPERATIONAL) {
             SimulatedTime.getSystemTime()
@@ -545,40 +520,6 @@ public class DataManager implements ISimulatedTimeChangeListener {
      */
     public CAVEMode getOpMode() {
         return CAVEMode.getMode();
-    }
-
-    /**
-     * ParmEvictor runs periodically to evict parms that have not been recently
-     * used from memory
-     *
-     * @author chammack
-     * @version 1.0
-     */
-    private class ParmEvictor extends Job {
-
-        public ParmEvictor() {
-            super("Parm Evictor Job");
-            this.setSystem(true);
-            this.schedule(1000L * PARM_EVICTOR_SCHEDULE);
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            try {
-                getParmManager().deallocateUnusedGrids(PARM_EVICTOR_THRESHOLD);
-            } catch (Throwable e) {
-                // Make sure we catch ANYTHING so this job doesn't get
-                // killed
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error occured while evicting grids", e);
-            }
-
-            if (!monitor.isCanceled()) {
-                this.schedule(1000L * PARM_EVICTOR_SCHEDULE);
-            }
-
-            return Status.OK_STATUS;
-        }
     }
 
     /**

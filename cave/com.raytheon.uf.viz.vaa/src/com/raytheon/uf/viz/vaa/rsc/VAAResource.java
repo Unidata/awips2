@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.vaa.rsc;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +67,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * <pre>
  *
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Nov 23, 2009  3268     jsanchez  Initial creation
@@ -78,7 +77,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Sep 23, 2016  5887     mapeters  Added shapeMap to reuse wireframe shapes
  *                                  across paint() calls
  * Sep 27, 2016  5887     tgurney   Don't draw volcanoes outside clipping pane
- *
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * 
  * </pre>
  *
  * @author jsanchez
@@ -115,8 +115,7 @@ public class VAAResource
 
     protected VAAResource(VAAResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
-        this.dataTimes = new ArrayList<>();
+        super(resourceData, loadProperties, false);
     }
 
     @Override
@@ -126,7 +125,7 @@ public class VAAResource
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        String returnValue = "";
+        StringBuilder returnValue = new StringBuilder();
 
         if (this.displayedDataTime != null) {
             Collection<VAARecord> records = null;
@@ -172,8 +171,10 @@ public class VAAResource
                         }
 
                         if (pixelPoly.contains(point)) {
-                            returnValue = record.getAnal00Hr() != null
-                                    ? record.getAnal00Hr() : "";
+                            returnValue.setLength(0);
+                            if (record.getAnal00Hr() != null) {
+                                returnValue.append(record.getAnal00Hr());
+                            }
                         }
                     }
                 }
@@ -183,14 +184,14 @@ public class VAAResource
                     continue;
                 } else {
                     if (returnValue.length() > 0) {
-                        returnValue += "\n \n";
+                        returnValue.append("\n \n");
                     }
-                    returnValue += record.getMessage();
+                    returnValue.append(record.getMessage());
                 }
             }
         }
 
-        return returnValue.length() > 0 ? returnValue : "NO DATA";
+        return returnValue.length() > 0 ? returnValue.toString() : "NO DATA";
     }
 
     /**
@@ -203,7 +204,6 @@ public class VAAResource
         Collection<VAARecord> toParse = recordsToParse.get(dataTime);
         if (toParse == null) {
             dataTimes.add(dataTime);
-            Collections.sort(this.dataTimes);
             toParse = new ArrayList<>();
             recordsToParse.put(dataTime, toParse);
         }
@@ -241,7 +241,7 @@ public class VAAResource
 
         Collection<VAARecord> toParse = recordsToParse.get(curDataTime);
 
-        if (toParse != null && toParse.size() > 0) {
+        if (toParse != null && !toParse.isEmpty()) {
             for (VAARecord record : toParse) {
                 paint(target, paintProps, record);
             }
@@ -265,13 +265,13 @@ public class VAAResource
         double minY = extent.getMinY();
 
         maxX = maxX < 0 ? 0 : maxX;
-        maxX = maxX > 19999 ? 19999 : maxX;
+        maxX = maxX > 19_999 ? 19_999 : maxX;
         minX = minX < 0 ? 0 : minX;
-        minX = minX > 19999 ? 19999 : minX;
+        minX = minX > 19_999 ? 19_999 : minX;
         maxY = maxY < 0 ? 0 : maxY;
-        maxY = maxY > 19999 ? 19999 : maxY;
+        maxY = maxY > 19_999 ? 19_999 : maxY;
         minY = minY < 0 ? 0 : minY;
-        minY = minY > 19999 ? 19999 : minY;
+        minY = minY > 19_999 ? 19_999 : minY;
 
         PixelExtent correctedExtent = new PixelExtent(minX, maxX, minY, maxY);
         if (correctedExtent.contains(loc)
@@ -410,7 +410,7 @@ public class VAAResource
      * @return volcano name
      */
     private String getVolcanoName(String stationId) {
-        String returnValue = "";
+        StringBuilder returnValue = new StringBuilder();
         String parts[] = stationId.split(" ");
         for (String str : parts) {
             if (str.length() > 0 && str.charAt(0) >= 'A'
@@ -418,10 +418,10 @@ public class VAAResource
                 if (str.length() > 0) {
                     str += " ";
                 }
-                returnValue += str;
+                returnValue.append(str);
             }
         }
-        return returnValue;
+        return returnValue.toString();
     }
 
     @Override

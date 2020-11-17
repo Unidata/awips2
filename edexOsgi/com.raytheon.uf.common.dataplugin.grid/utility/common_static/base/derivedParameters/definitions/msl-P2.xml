@@ -43,10 +43,4 @@
     <Method name="Alias" models="NAM40" levels="Surface">
         <Field abbreviation="PMSL" level="Surface" />
     </Method>
-    <Method name="Alias" models="NAM20" levels="Surface">
-        <Field abbreviation="PMSL" level="MSL" />
-    </Method>
-    <Method name="Alias" models="NAM20" levels="Surface">
-        <Field abbreviation="PMSL" level="Surface" />
-    </Method>
 </DerivedParameter>

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,35 +28,29 @@ import java.util.Map;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.message.WsId;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
  * Notification that grid history has been changed.<br>
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05/22/12     #589       randerso    Initial Creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ----------------------------
+ * May 22, 2012  589      randerso  Initial Creation
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy().
+ *
  * </pre>
- * 
+ *
  * @author bphillip
- * @version 1.0
  */
 
 @DynamicSerialize
-public class GridHistoryUpdateNotification extends GfeNotification implements
-        ISerializableObject {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GridHistoryUpdateNotification.class);
+public class GridHistoryUpdateNotification extends GfeNotification {
 
     /** The parmId of the updated grid */
 
@@ -83,7 +77,7 @@ public class GridHistoryUpdateNotification extends GfeNotification implements
 
     /**
      * Creates a new GridUpdateNotification
-     * 
+     *
      * @param parmId
      *            The parmID of the updated grid
      * @param timeRanges
@@ -92,24 +86,19 @@ public class GridHistoryUpdateNotification extends GfeNotification implements
      *            The workstation ID of who changed the grid
      */
     public GridHistoryUpdateNotification(ParmID parmId,
-            Map<TimeRange, List<GridDataHistory>> histories,
-            WsId workstationID, String siteID) {
+            Map<TimeRange, List<GridDataHistory>> histories, WsId workstationID,
+            String siteID) {
         this.parmId = parmId;
         this.workstationID = workstationID;
         this.siteID = siteID;
         if (histories != null) {
-            this.histories = new HashMap<TimeRange, List<GridDataHistory>>();
+            this.histories = new HashMap<>();
             for (TimeRange tr : histories.keySet()) {
                 List<GridDataHistory> histList = histories.get(tr);
-                List<GridDataHistory> newHist = new ArrayList<GridDataHistory>(
+                List<GridDataHistory> newHist = new ArrayList<>(
                         histList.size());
                 for (GridDataHistory hist : histList) {
-                    try {
-                        newHist.add(hist.clone());
-                    } catch (CloneNotSupportedException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    }
+                    newHist.add(hist.copy());
                 }
                 this.histories.put(tr, newHist);
             }

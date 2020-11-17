@@ -19,6 +19,7 @@
 #                                      48 hour window
 # Mar 30, 2017             swhite      Precvnts from running if hazard grids are not merged or are not locked
 # Nov 16, 2017             RA/PS       Fixed problem with ProposedSSnc TR not properly reflected on Final Hazards grid.
+# Aug 24, 2018  20727      ryu         Change hazard conflict message per Shannon.
 #
 ########################################################################
 
@@ -142,7 +143,8 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         # Check each site for any conflicts and return the list of conflicting sites
         if self.checkForAnyConflicts(cwaMask):
-            self.statusBarMsg("Hazard ETN conflicts between " + siteID + " and ProposedSS from NHC ISC database.", "U")
+            self.statusBarMsg("Hazard conflicts between Hazard grid and ProposedSS from NHC.\n"\
+                              "Check Wind ETN or for CF Hazards.", "U")
             return
 
         # First remove all SS hazards from the Hazard grid

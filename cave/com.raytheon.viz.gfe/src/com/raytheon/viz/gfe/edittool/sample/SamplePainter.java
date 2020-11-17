@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -36,6 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -46,8 +47,7 @@ import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.edittool.EditToolPaintProperties;
@@ -58,28 +58,33 @@ import com.vividsolutions.jts.geom.Coordinate;
  * The SamplePainter is a utility class use to paint samples on the spatial
  * editor. The class has a paint() routine to draw the samples, given the
  * gridIDs, and an indication of the image Grid id.
- * 
+ *
  * This class also can plot a lat/longitude value
- * 
- * 
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 04/08/2008              chammack    Initial Port from AWIPS I (minus ISC support)
- * 07/23/2012     #936     dgilling    Reinstate config-handling code to
- *                                     calcGridLabels().
- * 11/05/2012     #14566   jzeng       Paint the sample points with the order of grids 
- * 							           in calcGridLabels ()
- * 07/24/2014     #3429    mapeters    Updated deprecated drawLine() calls.
- * 08/14/2014     #3523    mapeters    Updated deprecated {@link DrawableString#textStyle} 
- *                                     assignments.
- * 01/13/2015     #3955    randerso    Fix NullPointerException when updateTime is not set
- * 10/16/2015     #4971    bsteffen    No longer need to reverse grids.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 08, 2008           chammack  Initial Port from AWIPS I (minus ISC
+ *                                  support)
+ * Jul 23, 2012  936      dgilling  Reinstate config-handling code to
+ *                                  calcGridLabels().
+ * Nov 05, 2012  14566    jzeng     Paint the sample points with the order of
+ *                                  grids in calcGridLabels ()
+ * Jul 24, 2014  3429     mapeters  Updated deprecated drawLine() calls.
+ * Aug 14, 2014  3523     mapeters  Updated deprecated {@link
+ *                                  DrawableString#textStyle} assignments.
+ * Jan 13, 2015  3955     randerso  Fix NullPointerException when updateTime is
+ *                                  not set
+ * Oct 16, 2015  4971     bsteffen  No longer need to reverse grids.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 public class SamplePainter {
@@ -105,7 +110,9 @@ public class SamplePainter {
      */
     protected boolean showOfficial;
 
-    /** Flag to denote if the update time should be displayed on the ISC markers */
+    /**
+     * Flag to denote if the update time should be displayed on the ISC markers
+     */
     protected boolean showUpdateTime;
 
     /** Flag to denote if data values should be displayed */
@@ -128,7 +135,7 @@ public class SamplePainter {
 
     /**
      * Creates a new SamplePainter
-     * 
+     *
      * @param paintNoGrids
      *            Paint <NoData> grids flag
      * @param showLatLon
@@ -158,33 +165,24 @@ public class SamplePainter {
         this.showUpdateTime = showUpdateTime;
         this.font = font;
 
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
+        this.showShadows = GFEPreference.getBoolean("ShowSampleShadows", true);
 
-        this.showShadows = true;
-        if (prefs.contains("ShowSampleShadows")) {
-            showShadows = prefs.getBoolean("ShowSampleShadows");
-        }
-        String shadowColor = "#000000";
-        if (prefs.contains("SampleShadow_color")) {
-            shadowColor = prefs.getString("SampleShadow_color");
-        }
+        String shadowColor = GFEPreference.getString("SampleShadow_color",
+                "#000000");
         this.shadowColor = RGBColors.getRGBColor(shadowColor);
 
-        String llPlusColor = "#ffffff";
-        if (prefs.contains("SampleLLPlus_color")) {
-            llPlusColor = prefs.getString("SampleLLPlus_color");
-        }
+        String llPlusColor = GFEPreference.getString("SampleLLPlus_color",
+                "white");
         this.llPlusColor = RGBColors.getRGBColor(llPlusColor);
 
-        this.xOffset = prefs.getInt("SampleLabelXOffset");
-        this.yOffset = prefs.getInt("SampleLabelYOffset");
+        this.xOffset = GFEPreference.getInt("SampleLabelXOffset");
+        this.yOffset = GFEPreference.getInt("SampleLabelYOffset");
 
     }
 
     /**
      * Paints a sample point
-     * 
+     *
      * @param target
      *            The GLTarget
      * @param pos
@@ -196,15 +194,15 @@ public class SamplePainter {
      * @param paintProps
      *            The paint properties
      */
-    public void paint(IGraphicsTarget target, Coordinate pos,
-            List<GridID> grid, GridID imageGrid, PaintProperties paintProps) {
+    public void paint(IGraphicsTarget target, Coordinate pos, List<GridID> grid,
+            GridID imageGrid, PaintProperties paintProps) {
 
         EditToolPaintProperties eprops = (EditToolPaintProperties) paintProps;
         double ratio = paintProps.getView().getExtent().getWidth()
                 / paintProps.getCanvasBounds().width;
 
-        double[] screenloc = eprops.getDescriptor().worldToPixel(
-                new double[] { pos.x, pos.y });
+        double[] screenloc = eprops.getDescriptor()
+                .worldToPixel(new double[] { pos.x, pos.y });
 
         try {
             if (showDataValues) {
@@ -218,8 +216,8 @@ public class SamplePainter {
                 lines[0].basics.color = llPlusColor;
                 lines[0].width = 2.0f;
                 lines[1] = new DrawableLine();
-                lines[1].setCoordinates(screenloc[0], screenloc[1]
-                        - tickMarkExtent);
+                lines[1].setCoordinates(screenloc[0],
+                        screenloc[1] - tickMarkExtent);
                 lines[1].addPoint(screenloc[0], screenloc[1] + tickMarkExtent);
                 lines[1].basics.color = llPlusColor;
                 lines[1].width = 2.0f;
@@ -228,8 +226,8 @@ public class SamplePainter {
 
             }
 
-            List<String> labels = new ArrayList<String>();
-            List<RGB> colors = new ArrayList<RGB>();
+            List<String> labels = new ArrayList<>();
+            List<RGB> colors = new ArrayList<>();
 
             calcGridLabels(pos, grid, imageGrid, labels, colors);
             if (showLatLon) {
@@ -256,7 +254,7 @@ public class SamplePainter {
 
     /**
      * Calculates the sample labels and colors for the grid elements
-     * 
+     *
      * @param worldLoc
      *            The world location of the coordinate
      * @param grids
@@ -269,7 +267,8 @@ public class SamplePainter {
      *            The color list
      */
     private void calcGridLabels(Coordinate worldLoc, final List<GridID> Grids,
-            final GridID imageGrid, List<String> sampleLabels, List<RGB> colors) {
+            final GridID imageGrid, List<String> sampleLabels,
+            List<RGB> colors) {
 
         if (Grids.isEmpty()) {
             return;
@@ -277,17 +276,16 @@ public class SamplePainter {
 
         List<GridID> grids = Grids;
 
-
         // if list is not defined, then all samples will be painted for
         // all parms
-        List<String> limitSamples = Arrays.asList(Activator.getDefault()
-                .getPreferenceStore().getStringArray("SampleParms"));
+        List<String> limitSamples = Arrays
+                .asList(GFEPreference.getStringArray("SampleParms"));
 
         // assumes all grids shared same grid location.
         boolean inGrid = false;
         Coordinate gridCoordinate = MapUtil.latLonToGridCoordinate(worldLoc,
-                PixelOrientation.UPPER_LEFT, grids.get(0).getParm()
-                        .getGridInfo().getGridLoc());
+                PixelOrientation.UPPER_LEFT,
+                grids.get(0).getParm().getGridInfo().getGridLoc());
         int maxX = MapUtil
                 .getGridGeometry(
                         grids.get(0).getParm().getGridInfo().getGridLoc())
@@ -317,14 +315,13 @@ public class SamplePainter {
 
             if (grid.equals(imageGrid)) {
                 RGB color = new RGB(255, 255, 255);
-                String colorName = Activator.getDefault().getPreferenceStore()
-                        .getString("ImageLegend_color");
+                String colorName = GFEPreference.getString("ImageLegend_color");
                 if (!colorName.isEmpty()) {
                     color = RGBColors.getRGBColor(colorName);
                 }
                 labelColor = color;
             }
-            String parmColorName = Activator.getDefault().getPreferenceStore()
+            String parmColorName = GFEPreference
                     .getString(pName + "_Sample_color");
             if (!parmColorName.isEmpty()) {
                 labelColor = RGBColors.getRGBColor(parmColorName);
@@ -359,7 +356,7 @@ public class SamplePainter {
 
     /**
      * Calculates the lat/lon label
-     * 
+     *
      * @param worldLoc
      *            The location of the sample
      * @param sampleLabels
@@ -367,8 +364,8 @@ public class SamplePainter {
      * @param colors
      *            The color list
      */
-    private void calcLatLonLabel(Coordinate worldLoc,
-            List<String> sampleLabels, List<RGB> colors) {
+    private void calcLatLonLabel(Coordinate worldLoc, List<String> sampleLabels,
+            List<RGB> colors) {
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
         df.setMinimumFractionDigits(2);
@@ -380,7 +377,7 @@ public class SamplePainter {
 
     /**
      * Calculates the appropriate sample label in ISC mode
-     * 
+     *
      * @param gid
      *            The gid of the grid
      * @param gridCoord
@@ -396,10 +393,10 @@ public class SamplePainter {
 
         // forecast grid?
         DatabaseID dbid = gid.getParm().getParmID().getDbId();
-        boolean fcstGrid = (dbid.equals(dm.getParmManager()
-                .getMutableDatabase()));
-        boolean nonFcstISCGrid = (!fcstGrid && !gid.getParm().getParmState()
-                .isIscParm());
+        boolean fcstGrid = (dbid
+                .equals(dm.getParmManager().getMutableDatabase()));
+        boolean nonFcstISCGrid = (!fcstGrid
+                && !gid.getParm().getParmState().isIscParm());
 
         // normal display - fcst grid inside CWA, other non-isc grids
         if (nonFcstISCGrid || (dm.getSiteID().equals(site) && fcstGrid)) {
@@ -416,11 +413,13 @@ public class SamplePainter {
             // isc grid, or fcst grid outside cwa
             GridID iscGid = dm.getIscDataAccess().getISCGridID(gid, true);
             if (iscGid == null) {
-                return NO_DATA_LABEL; // no corresponding parm
+                // no corresponding parm
+                return NO_DATA_LABEL;
             }
             IGridData grid = iscGid.grid();
             if (grid == null) {
-                return NO_DATA_LABEL; // no corresponding grid
+                // no corresponding grid
+                return NO_DATA_LABEL;
             }
 
             if (!grid.getHistorySites().contains(site)) {
@@ -478,7 +477,7 @@ public class SamplePainter {
 
     /**
      * Formats the ISC update time
-     * 
+     *
      * @param updateTime
      *            The update time to format
      * @return The formatted time
@@ -489,23 +488,24 @@ public class SamplePainter {
             return "";
         }
 
-        long ago = (SimulatedTime.getSystemTime().getTime().getTime() - updateTime
-                .getTime()) / 1000;
+        long ago = (SimulatedTime.getSystemTime().getTime().getTime()
+                - updateTime.getTime()) / TimeUtil.MILLIS_PER_SECOND;
 
         if (ago < 0) {
             return "0";
         }
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
-        if (ago < 3600) {
-            buffer.append(ago / 60).append("m");
-        } else if (ago < (3600 * 6)) {
-            long hrs = ago / 3600;
-            long min = (ago % 3600) / 60;
+        if (ago < TimeUtil.SECONDS_PER_HOUR) {
+            buffer.append(ago / TimeUtil.SECONDS_PER_MINUTE).append("m");
+        } else if (ago < (TimeUtil.SECONDS_PER_HOUR * 6)) {
+            long hrs = ago / TimeUtil.SECONDS_PER_HOUR;
+            long min = (ago % TimeUtil.SECONDS_PER_HOUR)
+                    / TimeUtil.SECONDS_PER_MINUTE;
 
             buffer.append(hrs).append("h").append(min).append("m");
-        } else if (ago < 86400) {
-            buffer.append(ago / 3600).append("h");
+        } else if (ago < TimeUtil.SECONDS_PER_DAY) {
+            buffer.append(ago / TimeUtil.SECONDS_PER_HOUR).append("h");
         } else {
             buffer.append(">1d");
         }
@@ -514,7 +514,7 @@ public class SamplePainter {
 
     /**
      * Formats an ISC udpate time range
-     * 
+     *
      * @param earlyTime
      *            The begin time
      * @param lateTime

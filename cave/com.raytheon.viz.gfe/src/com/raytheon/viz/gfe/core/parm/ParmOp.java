@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -57,14 +57,13 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
-import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -76,35 +75,41 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * A ParmOp provides global functions to affect all parms.
- * 
- * 
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 04/04/2008   1066       Dan Fitch   Initial Creation 
- * 11/11/2008   1666       njensen     Added procedure cmds
- * 06/24/2009   1876       njensen     Publish updates inventory
- * 02/23/2012   1876       dgilling    Implement missing clearUndoParmList
- *                                     function.
- * 02/13/2013   #1597      randerso    Added logging to support GFE Performance metrics
- * 02/15/2013   #1638      mschenke    Moved Util.getUnixTime into TimeUtil
- * 10/15/2013   #2445      randerso    Removed expansion of publish time to span of 
- *                                     overlapping grids since this is now done on 
- *                                     the server side
- * 08/20/2014   #1664      randerso    Fixed invalid thread access
- * 09/15/2015   #4858      dgilling    Disable publish and ISC send when DRT
- *                                     mode is enabled.
- * 11/18/2015   #5129      dgilling    Support new IFPClient.
- * 
+ *
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * Apr 04, 2008  1066     Dan Fitch  Initial Creation
+ * Nov 11, 2008  1666     njensen    Added procedure cmds
+ * Jun 24, 2009  1876     njensen    Publish updates inventory
+ * Feb 23, 2012  1876     dgilling   Implement missing clearUndoParmList
+ *                                   function.
+ * Feb 13, 2013  1597     randerso   Added logging to support GFE Performance
+ *                                   metrics
+ * Feb 15, 2013  1638     mschenke   Moved Util.getUnixTime into TimeUtil
+ * Oct 15, 2013  2445     randerso   Removed expansion of publish time to span
+ *                                   of overlapping grids since this is now done
+ *                                   on the server side
+ * Aug 20, 2014  1664     randerso   Fixed invalid thread access
+ * Sep 15, 2015  4858     dgilling   Disable publish and ISC send when DRT mode
+ *                                   is enabled.
+ * Nov 18, 2015  5129     dgilling   Support new IFPClient.
+ * Dec 14, 2017  7178     randerso   Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso   Change clone() to copy(). Code cleanup
+ * Jan 24, 2018  7153     randerso   Changes to allow new GFE config file to be
+ *                                   selected when perspective is re-opened.
+ * Feb 05, 2018  6887     dgilling   Add logging to publish.
+ *
  * </pre>
- * 
+ *
  * @author dfitch
- * @version 1.0
  */
 
 public class ParmOp {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParmOp.class);
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
@@ -122,17 +127,17 @@ public class ParmOp {
 
     /**
      * Constructor
-     * 
+     *
      * @param dataManager
      */
     public ParmOp(DataManager dataManager) {
-        this.undoParmList = new HashSet<Parm>();
+        this.undoParmList = new HashSet<>();
         this.dataManager = dataManager;
     }
 
     /**
      * Removes a parm from the list that can be undone.
-     * 
+     *
      * @param p
      *            <code>Parm</code> to remove from the undo list.
      */
@@ -143,7 +148,7 @@ public class ParmOp {
     /**
      * Resets the undo parm list. This is normally commanded by the edit tools
      * prior to an edit operation.
-     * 
+     *
      */
     public void clearUndoParmList() {
         this.undoParmList.clear();
@@ -154,7 +159,7 @@ public class ParmOp {
      * undo list.
      */
     public void undo() {
-        Iterator<Parm> parmIterator = new ArrayList<Parm>(this.undoParmList)
+        Iterator<Parm> parmIterator = new ArrayList<>(this.undoParmList)
                 .iterator();
         while (parmIterator.hasNext()) {
             Parm p = parmIterator.next();
@@ -165,14 +170,14 @@ public class ParmOp {
 
     /**
      * Called when the user changes the selected VectorMode.
-     * 
+     *
      * @param mode
      *            the vector edit mode
      */
     public void setVectorMode(ParmState.VectorMode mode) {
-        Iterator<Parm> parmIterator = new ArrayList<Parm>(
+        Iterator<Parm> parmIterator = new ArrayList<>(
                 Arrays.asList(this.dataManager.getParmManager().getAllParms()))
-                .iterator();
+                        .iterator();
         while (parmIterator.hasNext()) {
             Parm p = parmIterator.next();
             p.getParmState().setVectorMode(mode);
@@ -183,7 +188,7 @@ public class ParmOp {
     /**
      * Adds the parm to the list that can be undone. This is normally commanded
      * by the edit tools prior to an edit operation.
-     * 
+     *
      * @param p
      *            the parm
      */
@@ -193,7 +198,7 @@ public class ParmOp {
 
     /**
      * Copies the specified grid into the copy/paste buffer.
-     * 
+     *
      * @param parm
      *            the destination parm
      * @param date
@@ -204,7 +209,8 @@ public class ParmOp {
 
         IGridData sourceGrid = parm.overlappingGrid(date);
         if (sourceGrid == null) {
-            return false; // no grid at this spot
+            // no grid at this spot
+            return false;
         }
 
         // deallocate any existing copied grid
@@ -212,12 +218,7 @@ public class ParmOp {
             copiedGrid = null;
         }
 
-        // make a new copy and store it.
-        try {
-            copiedGrid = sourceGrid.clone();
-        } catch (CloneNotSupportedException e) {
-            copiedGrid = null;
-        }
+        copiedGrid = sourceGrid.copy();
         copiedGrid.resetSavePublishHistory();
 
         return true;
@@ -226,7 +227,7 @@ public class ParmOp {
     /**
      * Pastes the grid in the paste buffer to the specified parm/tr identified
      * by the GridID.
-     * 
+     *
      * @param parm
      *            the destination parm
      * @param date
@@ -254,12 +255,10 @@ public class ParmOp {
 
         // we know it is okay, now we need to prepare the destination grid
         IGridData newGrid;
-        try {
-            newGrid = copiedGrid.clone();
-        } catch (CloneNotSupportedException e1) {
-            newGrid = null;
-        }
-        newGrid.changeValidTime(tr, false); // IGNORE RATE CHG, keep same data
+        newGrid = copiedGrid.copy();
+
+        // IGNORE RATE CHG, keep same data
+        newGrid.changeValidTime(tr, false);
 
         newGrid.updateHistoryToModified(this.dataManager.getWsId());
 
@@ -279,7 +278,7 @@ public class ParmOp {
     /**
      * Checks if it is ok to paste the grid in the paste buffer into the
      * location identified by the GridID. Return true if it is okay to paste.
-     * 
+     *
      * @param parm
      *            The location the grid will be pasted into.
      * @param date
@@ -289,23 +288,21 @@ public class ParmOp {
      */
     public boolean okToPasteGrid(Parm parm, Date date) {
         // verify we have a valid source grid
-        if ((copiedGrid == null) || (parm == null)) {
+        if (copiedGrid == null || parm == null) {
             return false;
         }
+
         GridParmInfo sourceGPI = copiedGrid.getParm().getGridInfo();
         GridParmInfo destGPI = parm.getGridInfo();
 
-        // System.out.println("Unit statement? "
-        // + (!sourceGPI.getUnitObject().isCompatible(
-        // destGPI.getUnitObject()) && !sourceGPI.getUnitObject()
-        // .equals(destGPI.getUnitObject())));
-
         // verify compatible parms (types and units).
         if (!sourceGPI.getGridType().equals(destGPI.getGridType())
-                || (!(sourceGPI.getUnitObject().isCompatible(
-                        destGPI.getUnitObject()) && sourceGPI.getUnitObject()
-                        .equals(destGPI.getUnitObject())))) {
-            return false;// not compatible
+                || !(sourceGPI.getUnitObject()
+                        .isCompatible(destGPI.getUnitObject())
+                        && sourceGPI.getUnitObject()
+                                .equals(destGPI.getUnitObject()))) {
+            // not compatible
+            return false;
         }
 
         // special check for DISCRETE, ok if discreteKeys match, and overlap
@@ -347,7 +344,7 @@ public class ParmOp {
 
     /**
      * Create a grid from scratch
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @param repeatInterval
@@ -374,7 +371,7 @@ public class ParmOp {
 
     /**
      * Create the selected grid from scratch
-     * 
+     *
      * @param mode
      * @param repeatInterval
      * @param duration
@@ -387,7 +384,7 @@ public class ParmOp {
 
         for (Parm parm : allParms) {
             if (parm.isMutable()) {
-                if ((repeatInterval == 0) || (duration == 0)) {
+                if (repeatInterval == 0 || duration == 0) {
                     TimeConstraints tc = parm.getGridInfo()
                             .getTimeConstraints();
                     parm.createFromScratchSelectedTR(mode,
@@ -405,11 +402,11 @@ public class ParmOp {
      * This function is called when the interpolate command is selected. The
      * type of interpolation is passed to this routine as well as the async/sync
      * mode. This operation cannot be undone.
-     * 
+     *
      * For each displayed parm that is selected and mutable call
      * interpolateSelectedTR. Sets the undo parm list to NULL. Does not affect
      * temporary parms.
-     * 
+     *
      * @param interpMode
      * @param interpState
      * @param interval
@@ -436,7 +433,7 @@ public class ParmOp {
 
     /**
      * Break locks
-     * 
+     *
      * @param parmId
      * @param times
      * @return if the lock was broken
@@ -450,7 +447,7 @@ public class ParmOp {
 
         // parm not in existence
         else {
-            List<LockRequest> lreq = new ArrayList<LockRequest>();
+            List<LockRequest> lreq = new ArrayList<>();
             for (TimeRange tr : times) {
                 lreq.add(new LockRequest(parmId, tr, LockMode.BREAK_LOCK));
             }
@@ -458,9 +455,9 @@ public class ParmOp {
             ServerResponse<List<LockTable>> sr = dataManager.getClient()
                     .requestLockChange(lreq);
             if (!sr.isOkay()) {
-                statusHandler.error(String.format(
-                        "Couldn't break locks for ParmID %s: %s", parmId,
-                        sr.message()));
+                statusHandler.error(
+                        String.format("Couldn't break locks for ParmID %s: %s",
+                                parmId, sr.message()));
             }
             return sr.isOkay();
         }
@@ -468,9 +465,8 @@ public class ParmOp {
 
     /**
      * Get the lock table for mutable db
-     * 
+     *
      * @return the lock table
-     * @throws GFEServerException
      */
     public List<LockTable> mutableDbLockTable() {
         DatabaseID mutableDb = dataManager.getParmManager()
@@ -483,9 +479,9 @@ public class ParmOp {
         ServerResponse<List<LockTable>> sr = dataManager.getClient()
                 .getLockTable(ltr);
         if (!sr.isOkay()) {
-            statusHandler.error(String.format(
-                    "Couldn't get lockTable for database %s: %s", mutableDb,
-                    sr.message()));
+            statusHandler.error(
+                    String.format("Couldn't get lockTable for database %s: %s",
+                            mutableDb, sr.message()));
             return Collections.emptyList();
         }
 
@@ -494,9 +490,9 @@ public class ParmOp {
 
     /**
      * Publish
-     * 
+     *
      * @param req
-     * @throws SimulatedTimeProhibitedOperationException
+     * @throws SimulatedTimeProhibitedOpException
      */
     public void publish(List<CommitGridRequest> req)
             throws SimulatedTimeProhibitedOpException {
@@ -505,72 +501,82 @@ public class ParmOp {
                     .constructProhibitedOpException("Publish GFE grids");
         }
 
-        CAVEMode mode = CAVEMode.getMode();
-        if (mode.equals(CAVEMode.PRACTICE) || mode.equals(CAVEMode.TEST)) {
-            statusHandler.handle(Priority.EVENTA, "PUBLISH Simulated. ");
-            return;
-        }
-
-        if (req.isEmpty()) {
-            statusHandler
-                    .handle(Priority.EVENTA, "PUBLISH: Nothing to publish");
-            return;
-        }
-
-        // expanding the publish requests to cover the span of the overlapping
-        // grids is done on the server side now
-
-        // put requests in a queue to be worked of by the publish threads
-        final ConcurrentLinkedQueue<CommitGridRequest> requests = new ConcurrentLinkedQueue<CommitGridRequest>(
-                req);
-
-        final ConcurrentLinkedQueue<ServerResponse<?>> okSrs = new ConcurrentLinkedQueue<ServerResponse<?>>();
-        final AtomicBoolean allOk = new AtomicBoolean(true);
-        final IFPClient client = dataManager.getClient();
-
-        // spawn separate jobs
-        final CountDownLatch latch = new CountDownLatch(MAX_CONCURRENT_JOBS);
-        for (int i = 0; i < MAX_CONCURRENT_JOBS; i++) {
-            new Job("Publishing Parms") {
-                @Override
-                protected IStatus run(IProgressMonitor monitor) {
-                    try {
-                        CommitGridRequest req = null;
-                        while ((req = requests.poll()) != null) {
-                            ServerResponse<?> sr = client.commitGrid(req);
-                            if (sr.isOkay()) {
-                                okSrs.add(sr);
-                            } else {
-                                allOk.set(false);
-                                statusHandler
-                                        .error(String
-                                                .format("PUBLISH problem: Unable to publish grid: %s",
-                                                        sr.message()));
-                            }
-                        }
-                    } finally {
-                        latch.countDown();
-                    }
-
-                    return Status.OK_STATUS;
-                }
-            }.schedule();
-        }
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            statusHandler.handle(Priority.EVENTA, "PUBLISH: " + req);
 
-        if (allOk.get()) {
-            statusHandler.handle(Priority.EVENTA,
-                    "PUBLISH: Publish operation completed " + okSrs);
-        } else {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "PUBLISH: Publish operation completed with errors.  See previous message for errors.  Successful grids: "
-                                    + okSrs);
+            CAVEMode mode = CAVEMode.getMode();
+            if (mode.equals(CAVEMode.PRACTICE) || mode.equals(CAVEMode.TEST)) {
+                statusHandler.handle(Priority.EVENTA, "PUBLISH Simulated. ");
+                return;
+            }
+
+            if (req.isEmpty()) {
+                statusHandler.handle(Priority.EVENTA,
+                        "PUBLISH: Nothing to publish");
+                return;
+            }
+
+            // expanding the publish requests to cover the span of the
+            // overlapping
+            // grids is done on the server side now
+
+            // put requests in a queue to be worked of by the publish threads
+            final ConcurrentLinkedQueue<CommitGridRequest> requests = new ConcurrentLinkedQueue<>(
+                    req);
+
+            final ConcurrentLinkedQueue<ServerResponse<?>> okSrs = new ConcurrentLinkedQueue<>();
+            final AtomicBoolean allOk = new AtomicBoolean(true);
+            final IFPClient client = dataManager.getClient();
+
+            // spawn separate jobs
+            final CountDownLatch latch = new CountDownLatch(
+                    MAX_CONCURRENT_JOBS);
+            for (int i = 0; i < MAX_CONCURRENT_JOBS; i++) {
+                new Job("Publishing Parms") {
+                    @Override
+                    protected IStatus run(IProgressMonitor monitor) {
+                        try {
+                            CommitGridRequest req = null;
+                            while ((req = requests.poll()) != null) {
+                                ServerResponse<?> sr = client.commitGrid(req);
+                                if (sr.isOkay()) {
+                                    okSrs.add(sr);
+                                } else {
+                                    allOk.set(false);
+                                    statusHandler.error(String.format(
+                                            "PUBLISH problem: Unable to publish grid: %s",
+                                            sr.message()));
+                                }
+                            }
+                        } finally {
+                            latch.countDown();
+                        }
+
+                        return Status.OK_STATUS;
+                    }
+                }.schedule();
+            }
+
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (allOk.get()) {
+                statusHandler.handle(Priority.EVENTA,
+                        "PUBLISH: Publish operation completed " + okSrs);
+            } else {
+                statusHandler.handle(Priority.PROBLEM,
+                        "PUBLISH: Publish operation completed with errors.  See previous message for errors.  Successful grids: "
+                                + okSrs);
+            }
+        } finally {
+            timer.stop();
+            perfLog.logDuration("Publish Grids", timer.getElapsedTime());
         }
     }
 
@@ -597,7 +603,7 @@ public class ParmOp {
 
     /**
      * Sets the selected time range on all of the parms.
-     * 
+     *
      * @param timeRange
      */
     public void setSelectionTimeRange(TimeRange timeRange) {
@@ -606,13 +612,13 @@ public class ParmOp {
         for (Parm parm : allParms) {
             parm.getParmState().updateSelectedTimeRange(timeRange);
         }
-        dataManager.getSpatialDisplayManager().setGlobalTimeRange(
-                selectionTimeRange);
+        dataManager.getSpatialDisplayManager()
+                .setGlobalTimeRange(selectionTimeRange);
     }
 
     /**
      * Sets the combine mode for all parms.
-     * 
+     *
      * @param editMode
      */
     public void setCombineMode(ParmState.CombineMode editMode) {
@@ -624,8 +630,8 @@ public class ParmOp {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                ICommandService service = (ICommandService) PlatformUI
-                        .getWorkbench().getService(ICommandService.class);
+                ICommandService service = PlatformUI.getWorkbench()
+                        .getService(ICommandService.class);
 
                 service.refreshElements(
                         "com.raytheon.viz.gfe.actions.setCombineMode", null);
@@ -637,7 +643,7 @@ public class ParmOp {
 
     /**
      * Get selection time range
-     * 
+     *
      * @return the selection time range
      */
     public TimeRange getSelectionTimeRange() {
@@ -646,7 +652,7 @@ public class ParmOp {
 
     /**
      * Copy all the parms from another database into the mutable database
-     * 
+     *
      * @param model
      *            the model to copy from
      */
@@ -655,7 +661,7 @@ public class ParmOp {
         Parm[] allParms = this.dataManager.getParmManager().getAllParms();
 
         // Get the parms that are mutable.
-        final ConcurrentLinkedQueue<Parm> mutableParms = new ConcurrentLinkedQueue<Parm>();
+        final ConcurrentLinkedQueue<Parm> mutableParms = new ConcurrentLinkedQueue<>();
         for (Parm parm : allParms) {
             if (parm.isMutable()) {
                 mutableParms.add(parm);
@@ -677,9 +683,9 @@ public class ParmOp {
                         Parm parm = null;
                         while ((parm = mutableParms.poll()) != null) {
                             // attempt a lookup, or create one if necessary
-                            ParmID sourceId = new ParmID(parm.getParmID()
-                                    .getParmName(), model, parm.getParmID()
-                                    .getParmLevel());
+                            ParmID sourceId = new ParmID(
+                                    parm.getParmID().getParmName(), model,
+                                    parm.getParmID().getParmLevel());
                             Parm source = parmMgr.getParm(sourceId);
 
                             if (source == null) {
@@ -714,15 +720,15 @@ public class ParmOp {
             parm.getParmState().setSelected(true);
             UndoBuffer[] undoBuf = parm.getUndoBuffer();
             if (undoBuf.length > 0) {
-                parm.getParmState().updateSelectedTimeRange(
-                        undoBuf[0].getUndoTimeRange());
+                parm.getParmState()
+                        .updateSelectedTimeRange(undoBuf[0].getUndoTimeRange());
             }
         }
     }
 
     /**
      * Copy selected grids from a specified database to the mutable database
-     * 
+     *
      * @param model
      *            the model to copy from
      */
@@ -731,7 +737,7 @@ public class ParmOp {
         Parm[] allParms = this.dataManager.getParmManager().getAllParms();
 
         // Get the parms that are mutable.
-        final ConcurrentLinkedQueue<Parm> parms = new ConcurrentLinkedQueue<Parm>();
+        final ConcurrentLinkedQueue<Parm> parms = new ConcurrentLinkedQueue<>();
 
         for (Parm parm : allParms) {
             if (parm.isMutable() && parm.getParmState().isSelected()) {
@@ -756,22 +762,22 @@ public class ParmOp {
                         Parm parm = null;
                         while ((parm = parms.poll()) != null) {
                             // attempt a lookup, or create one if necessary
-                            ParmID sourceId = new ParmID(parm.getParmID()
-                                    .getParmName(), model, parm.getParmID()
-                                    .getParmLevel());
+                            ParmID sourceId = new ParmID(
+                                    parm.getParmID().getParmName(), model,
+                                    parm.getParmID().getParmLevel());
                             Parm source = parmMgr.getParm(sourceId);
 
                             boolean created = false;
                             if (source == null) {
-                                source = parmMgr
-                                        .addParm(sourceId, false, false);
+                                source = parmMgr.addParm(sourceId, false,
+                                        false);
                                 created = true;
                             }
 
                             if (source != null) {
                                 parm.copySelectedTRFrom(source);
                             }
-                            if (created && (source != null)) {
+                            if (created && source != null) {
                                 parmMgr.deleteParm(source);
                             }
                         }
@@ -794,7 +800,7 @@ public class ParmOp {
     /**
      * Copies the parm identified by parmNameAndLevel and id into the mutable
      * database over the given time range.
-     * 
+     *
      * @param parmNameAndLevel
      * @param id
      * @param tr
@@ -808,7 +814,7 @@ public class ParmOp {
     /**
      * Copies the parm identified by srcParmName and id into the mutable
      * database and parm specified by dstParmName over the given time range.
-     * 
+     *
      * @param srcParmNameAndLevel
      * @param dstParmNameAndLevel
      * @param id
@@ -824,15 +830,7 @@ public class ParmOp {
                     + dstParmNameAndLevel;
             throw new GFEOperationFailedException(msg);
         }
-        // boolean addedToCache = false;
         IParmManager parmMgr = dataManager.getParmManager();
-        // if
-        // (parmMgr.getcachedParmList().find(p.getParmID().getCompositeName())
-        // == -1)
-        // {
-        // addedToCache = true;
-        // _parmMgr->addCachedParmList(p->parmID().compositeName());
-        // }
 
         // determine the source parm and create it if necessary
         String[] composite = ParmID.parmNameAndLevel(srcParmNameAndLevel);
@@ -845,21 +843,19 @@ public class ParmOp {
         }
         if (source != null) {
             clearUndoParmList();
-            p.copyTRFrom(source, tr); // perform the copy
+
+            // perform the copy
+            p.copyTRFrom(source, tr);
         }
-        if (created && (source != null)) {
+        if (created && source != null) {
             parmMgr.deleteParm(source);
         }
-        // if (addedToCache)
-        // {
-        // parmMgr.removeCachedParmList(p.getParmID().getCompositeName());
-        // }
     }
 
     /**
      * Deletes grids from the mutable database's parm identified by
      * parmNameAndLevel over the given time range.
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @throws GFEOperationFailedException
@@ -880,7 +876,7 @@ public class ParmOp {
     /**
      * Zeros out grids from the mutable database's parm identified by
      * parmNameAndLevel over the given time range.
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @throws GFEException
@@ -902,7 +898,7 @@ public class ParmOp {
      * Performs an interpolation for the mutable databases's parmNameAndLevel
      * over the specified time range. The interpolation mode, interpolation
      * state, and interpolation interval control the type of interpolation.
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @param interpMode
@@ -932,10 +928,10 @@ public class ParmOp {
      * secondsToShift must be a multiple of the split boundary repeat interval.
      * If copyOnly is true, then a copy is made of the data before shifting. If
      * copyOnly is false, then the original data is moved.
-     * 
+     *
      * Call timeShiftSelectedTR for each displayed and mutable parm that is
      * selected. Does not affect temporary parms.
-     * 
+     *
      * @param secondsToShift
      * @param copyOnly
      */
@@ -954,7 +950,7 @@ public class ParmOp {
      * parmNameAndLevel over the source time range. Shifts "secondsToShift". If
      * copyOnly is true, then this is a copy command, else it is a move
      * operation.
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @param copyOnly
@@ -978,7 +974,7 @@ public class ParmOp {
     /**
      * Split grids from the mutable database's parm identified by
      * parmNameAndLevel over the given time range.
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @throws GFEOperationFailedException
@@ -999,7 +995,7 @@ public class ParmOp {
     /**
      * Fragments grids from the mutable database's parm identified by
      * parmNameAndLevel over the given time range.
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @throws GFEOperationFailedException
@@ -1020,7 +1016,7 @@ public class ParmOp {
     /**
      * This function is called whenever the user selects the fragment command
      * from the menu. Call fragmentSelectedTR for every parm that is selected.
-     * 
+     *
      */
     public void fragmentSelected() {
         clearUndoParmList();
@@ -1035,7 +1031,7 @@ public class ParmOp {
     /**
      * This function is called whenever the user selects the split command from
      * the edit menu. Call splitSelectedTR for every parm that is selected.
-     * 
+     *
      */
     public void splitSelected() {
         clearUndoParmList();
@@ -1051,7 +1047,7 @@ public class ParmOp {
      * Deletes grids from the mutable database's parm identified by
      * parmNameAndLevel over the given time range. The value assigned is
      * specified as a WxValue.
-     * 
+     *
      * @param parmNameAndLevel
      * @param tr
      * @param wxValue
@@ -1072,9 +1068,9 @@ public class ParmOp {
 
     /**
      * This function is called to send grids.
-     * 
+     *
      * @param req
-     * @throws SimulatedTimeProhibitedOperationException
+     * @throws SimulatedTimeProhibitedOpException
      */
     public void sendISC(List<SendISCRequest> req)
             throws SimulatedTimeProhibitedOpException {
@@ -1089,38 +1085,40 @@ public class ParmOp {
             return;
         }
 
-        List<SendISCRequest> requests = new ArrayList<SendISCRequest>();
+        List<SendISCRequest> requests = new ArrayList<>();
 
         // check for auto - mode, single req with NULL values.
-        if ((req.size() == 1) && (req.get(0).getTimeRange() == null)
-                && (req.get(0).getParmId() == null)) {
+        if (req.size() == 1 && req.get(0).getTimeRange() == null
+                && req.get(0).getParmId() == null) {
             requests = req;
         }
 
         // manual mode -- lots of checking required
         else {
-            PythonPreferenceStore store = Activator.getDefault()
-                    .getPreferenceStore();
             // determine time limits for skipping, round to the hour
-            long current = (TimeUtil.getUnixTime(SimulatedTime.getSystemTime()
-                    .getTime()) / 3600) * 3600;
+            long current = TimeUtil
+                    .getUnixTime(SimulatedTime.getSystemTime().getTime())
+                    / TimeUtil.SECONDS_PER_HOUR * TimeUtil.SECONDS_PER_HOUR;
             TimeRange limitTime = TimeRange.allTimes();
 
-            int pastHours = 0;
-            if (store.getInt("ISC_sendLimitBeforeCurrentTime") != 0) {
-                limitTime = new TimeRange(current - (pastHours * 3600),
+            int pastHours = GFEPreference
+                    .getInt("ISC_sendLimitBeforeCurrentTime");
+            if (pastHours != 0) {
+                limitTime = new TimeRange(
+                        current - pastHours * TimeUtil.SECONDS_PER_HOUR,
                         limitTime.getEnd().getTime());
             }
 
-            int futureHours = 7 * 24;
-            if (store.getInt("ISC_sendLimitAfterCurrentTime") != 0) {
+            int futureHours = GFEPreference
+                    .getInt("ISC_sendLimitAfterCurrentTime");
+            if (futureHours != 0) {
                 limitTime = new TimeRange(limitTime.getStart().getTime(),
-                        current + (futureHours * 3600));
+                        current + futureHours * TimeUtil.SECONDS_PER_HOUR);
             }
 
             // determine parms to skip
-            List<String> skipParms = Arrays.asList(store
-                    .getStringArray("ISC_neverSendParms"));
+            List<String> skipParms = Arrays
+                    .asList(GFEPreference.getStringArray("ISC_neverSendParms"));
 
             // filter out some of the requests that are not desired
             for (SendISCRequest r : req) {
@@ -1139,8 +1137,8 @@ public class ParmOp {
                  * now adjust for server's grid inventory and expand tr to
                  * include the entire grid
                  */
-                List<TimeRange> inv = dataManager.serverParmInventory(r
-                        .getParmId());
+                List<TimeRange> inv = dataManager
+                        .serverParmInventory(r.getParmId());
                 for (TimeRange invTR : inv) {
                     if (invTR.overlaps(tr)) {
                         tr = tr.combineWith(invTR);
@@ -1163,7 +1161,7 @@ public class ParmOp {
 
     /**
      * Sets the smooth size
-     * 
+     *
      * @param smoothSize
      */
     public void setSmoothSize(int smoothSize) {
@@ -1176,7 +1174,7 @@ public class ParmOp {
 
     /**
      * Saves all parameters
-     * 
+     *
      * @param undisplayed
      *            true to include undisplayed parms
      * @param displayed

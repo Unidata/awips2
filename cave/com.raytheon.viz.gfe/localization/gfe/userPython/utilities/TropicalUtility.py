@@ -24,7 +24,9 @@
 # Sep 19, 2016 19293      randerso    Initial baseline check in
 # Feb 21, 2017 29544      randerso    Fix possible RuntimeError caused by
 #                                     discarding from set while looping over it
-#
+# Aug 10, 2018 20727      ryu         Check in change from Tom LeFebvre
+# Aug 24, 2018 20727      ryu         Remove 4 SR WFOs and add 4 ER WFOs
+# Aug 27, 2018 20727      ryu         Add 3 new ER WFOs.
 ################################################################################
 
 ##
@@ -74,8 +76,8 @@ class TropicalUtility(GridManipulation.GridManipulation):
                            "TBW", "TAE", "MOB", "LIX", "LCH", "HGX", "CRP",
                            "BRO"]
         self._windWfos = ["ALY", "MRX", "FFC", "OHX", "HUN", "BMX", "MEG",
-                          "JAN", "LZK", "SHV", "TSA", "FWD", "OUN", "SJT",
-                          "EWX", "MAF"]
+                          "JAN", "LZK", "SHV", "CAE", "FWD", "RAH", "GSP",
+                          "EWX", "RNK", "BGM", "BTV", "CTP"]
 
         #  Toggle for debugging output
         self._debug = False                 #  True = On / False = Off
@@ -190,7 +192,7 @@ class TropicalUtility(GridManipulation.GridManipulation):
 
         # Make the list of tropical hazards
         tropicalHazList = ["TR.W", "TR.A", "HU.W", "HU.A", "SS.A", "SS.W"]
-
+        localHazList = ["CF"]
         hazGrid, hazKeys = hazard
         propGrid, propKeys = proposed
 
@@ -247,6 +249,9 @@ class TropicalUtility(GridManipulation.GridManipulation):
                 hazETN = self.getETN(hazKey)
                 hazPhen = self.keyPhen(hazKey)
                 hazSig = self.keySig(hazKey)
+                
+                if propPhen == "SS" and hazPhen in localHazList:
+                    return True
 
                 # reconstruct the phen and sig
                 hazPhenSig = hazPhen + "." + hazSig
@@ -433,10 +438,20 @@ class TropicalUtility(GridManipulation.GridManipulation):
                 final_message += "MergeProposedSS procedure now, and finish "
                 final_message += "preparing the grids for the WFO TCV."
 
-            msg = "Test message to WFO {}: '{}'".format(wfo, final_message)
-            LogStream.logDebug(msg)
+            #  If we are in test mode, just display the command which
+            #  would be executed
+            if testMode:
+                msg = "Test message to WFO {}: '{}'".format(wfo, final_message)
+                LogStream.logDebug(msg)
 
-            result = ""          #  Simulate a successful transfer
+                result = ""          #  Simulate a successful transfer
+
+            #  Otherwise, actually send this message
+            else:
+                msg = "Live message to WFO {}: '{}'".format(wfo, final_message)
+                LogStream.logDebug(msg)
+
+                result = self.sendWFOMessage(wfo, final_message)
 
             #  Keep track of which offices successfully got the message
             results.append(SendMessageResult(result == "", wfo, result))
@@ -726,9 +741,21 @@ class TropicalUtility(GridManipulation.GridManipulation):
         if testMode is None:
             testMode = self._testMode
 
+#         #  Get the status of each WFO's communications
+#         wfoStatus = self.getWfoStatus()
+
         #  See which WFOs we need to notify
         (bothWfos, windWfos, surgeWfos) = self.getWfosAttention(field, 
                                                                 anyChanges)
+
+        #  Send a message to each office
+#         message = "%s grids containing tropical, wind and storm surge hazards"%\
+#                   (field)
+#         self.sendMessageToWfos(bothWfos, message, self._testMode)
+
+#         message = "%s grids containing tropical, wind hazards" % (field)
+#         self.sendMessageToWfos(windWfos, message, self._testMode)
+
         message = "%s grids containing tropical, storm surge hazards" % (field)
         self.sendMessageToWfos(surgeWfos, message, testMode)
 

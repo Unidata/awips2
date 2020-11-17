@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.service.jdbc.connections.spi.ConnectionProvider;
@@ -79,7 +80,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05/02/2008   387        M. Duff     Initial Creation.	
+ * 05/02/2008   387        M. Duff     Initial Creation.
  * 22Jul2008    1277       MW Fegan    Corrected connection logic in execFunction(). 
  * 10/16/2008   1548       jelkins     Integrated ParameterCode Types
  * 12/17/2008   1722       J. Sanchez  Updated postPeData to handle Forecast type.
@@ -90,7 +91,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 05/29/2009   2410       J. Sanchez  Posted data for unknstnvalue.
  * 02/24/2012   14535      W. Kwock    Correct the duration value.
  * 11/29/2012   15530      lbousaidi   corrected posting and production time for
- * 									   latestobsvalue table.
+ *                                     latestobsvalue table.
  * 09/19/2013   16515      w. Kwock    Fix the excessive digits in rawpp,lake,height...tables
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     More performance fixes.
@@ -99,6 +100,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * Dec 18, 2017 6554       bkowal      Added checkForAndHandleDuplicate to avoid running SQL procedures that are guaranteed
  *                                     to fail because the configuration does not allow record updates.
+ * Jan 23, 2018 6784       mduff       Refactored shef missing var names.
  * </pre>
  * 
  * @author mduff
@@ -127,7 +129,7 @@ public class PostTables {
 
     private final ConnectionProvider cp;
 
-    private final Map<String, CallableStatement> statementMap = new HashMap<String, CallableStatement>();
+    private final Map<String, CallableStatement> statementMap = new HashMap<>();
 
     static {
         gagePPSetup();
@@ -206,7 +208,7 @@ public class PostTables {
         id.setExtremum(shefData.getExtremum().getCode());
         id.setObstime(shefData.getObservationTimeObj());
         if (dataValue.isEmpty()) {
-            dataValue = ShefConstants.SHEF_MISSING;
+            dataValue = ShefConstants.SHEF_MISSING_STR;
         }
         id.setValue(Double.parseDouble(dataValue));
         id.setRevision((record.isRevisedRecord() ? (short) 1 : (short) 0));
@@ -264,8 +266,8 @@ public class PostTables {
             basisTime = new Date(postTime.getTime());
         }
 
-        if (dataValue.equals("")) {
-            dataValue = ShefConstants.SHEF_MISSING;
+        if (dataValue.isEmpty()) {
+            dataValue = ShefConstants.SHEF_MISSING_STR;
         }
 
         /*
@@ -279,10 +281,10 @@ public class PostTables {
         int leftValue = 0;
         double rightValue = 0;
 
-        if (dataValue.equals(ShefConstants.SHEF_MISSING + ".")) {
+        if (shefData.isMissing()) {
             // Set both values to missing.
-            leftValue = ShefConstants.SHEF_MISSING_INT;
-            rightValue = ShefConstants.SHEF_MISSING_INT;
+            leftValue = ShefConstants.SHEF_MISSING;
+            rightValue = ShefConstants.SHEF_MISSING;
         } else {
             /*
              * split the incoming value into its two parts. always assume the
@@ -353,7 +355,7 @@ public class PostTables {
                     + ShefConstants.POSTGRES_DATE_FORMAT.format(basisTime)
                     + "' and ref_value = " + refValue;
 
-            Object[] result = dao.executeSQLQuery(sql.toString());
+            Object[] result = dao.executeSQLQuery(sql);
 
             if (result.length <= 0) {
                 dao.persist(pairedValue);
@@ -390,7 +392,7 @@ public class PostTables {
             }
         } catch (Exception e) {
             log.error(record.getTraceId() + " - Error posting paired data");
-            log.error("Query = [" + sql.toString() + "]", e);
+            log.error("Query = [" + sql + "]", e);
             stats.incrementErrorMessages();
         }
     }
@@ -485,7 +487,7 @@ public class PostTables {
                                             || (shefData
                                                     .getDuration() == Duration._1_HOUR)))) {
                         if (dataValue.isEmpty()) {
-                            dataValue = ShefConstants.SHEF_MISSING;
+                            dataValue = ShefConstants.SHEF_MISSING_STR;
                         }
 
                         if (PrecipUtils.checkPrecipWindow(shefData.getObsTime(),
@@ -818,11 +820,11 @@ public class PostTables {
                 if (doOverwrite > 0) {
                     switch (doOverwrite) {
                     case ShefConstants.UPDATE_ACTION:
-                        dao.executeSQLUpdate(update.toString());
+                        dao.executeSQLUpdate(update);
                         break;
                     case ShefConstants.IF_DIFFERENT_UPDATE_ACTION:
                         if (tableValue != dataValue) {
-                            dao.executeSQLUpdate(update.toString());
+                            dao.executeSQLUpdate(update);
                         }
                         break;
                     }
@@ -1000,7 +1002,7 @@ public class PostTables {
         CallableStatement cs = null;
         int status = -1;
         if (dataValue.isEmpty()) {
-            dataValue = ShefConstants.SHEF_MISSING;
+            dataValue = ShefConstants.SHEF_MISSING_STR;
         }
         try {
             conn = getConnection();
@@ -1070,7 +1072,7 @@ public class PostTables {
         CallableStatement cs = null;
         int status = -1;
         if (dataValue.isEmpty()) {
-            dataValue = ShefConstants.SHEF_MISSING;
+            dataValue = ShefConstants.SHEF_MISSING_STR;
         }
         try {
             conn = getConnection();
@@ -1142,7 +1144,7 @@ public class PostTables {
         java.sql.Timestamp timeStamp = null;
         int status = -1;
         if (dataValue.isEmpty()) {
-            dataValue = ShefConstants.SHEF_MISSING;
+            dataValue = ShefConstants.SHEF_MISSING_STR;
         }
 
         int doOverwrite = determineUpdateAction(duplicateOption,
@@ -1214,7 +1216,7 @@ public class PostTables {
         return status;
     }
 
-    private static int gagePPSetup() {
+    private static synchronized int gagePPSetup() {
         gagePPOptions = new GagePPOptions();
 
         String token = AppsDefaults.getInstance().getToken(SHEF_DUP_TOKEN);
@@ -1373,12 +1375,12 @@ public class PostTables {
      * Close the connections and statements
      */
     public void close() {
-        for (String functionName : statementMap.keySet()) {
-            CallableStatement cs = statementMap.get(functionName);
+        for (Entry<String, CallableStatement> entry : statementMap.entrySet()) {
+            CallableStatement cs = entry.getValue();
             try {
                 cs.close();
             } catch (SQLException e) {
-                log.error("Error closing statement for " + functionName, e);
+                log.error("Error closing statement for " + entry.getValue(), e);
             }
         }
 
@@ -1395,13 +1397,14 @@ public class PostTables {
      * 
      */
     public void executeBatchUpdates() {
-        for (String key : statementMap.keySet()) {
-            CallableStatement cs = statementMap.get(key);
+        for (Entry<String, CallableStatement> entry : statementMap.entrySet()) {
+            CallableStatement cs = entry.getValue();
             try {
                 cs.executeBatch();
                 getConnection().commit();
             } catch (SQLException e) {
-                log.error("An error occured executing batch update for " + key);
+                log.error("An error occured executing batch update for "
+                        + entry.getKey(), e);
             }
         }
     }
@@ -1457,7 +1460,7 @@ public class PostTables {
                                 + " with identifier: " + id.toString() + ".");
             }
             if ((alwaysUpdateIfMissing
-                    && compareValue.startsWith(ShefConstants.SHEF_MISSING))
+                    && compareValue.startsWith(ShefConstants.SHEF_MISSING_STR))
                     || (doOverwrite == ShefConstants.IF_DIFFERENT_UPDATE_ACTION
                             && !compareValue.equals(dataValue))) {
                 return false;

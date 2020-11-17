@@ -19,10 +19,12 @@
 #                                     domains will stay separated.
 #  12/02/2016   -         tlefebvre   Final clean-up
 #  12/20/2017  DCS17686   tlefebvre   Initial baseline version.
+#  05/22/2018  DR20724    tlefebvre   Remove from menus by default since most 
+#                                     sites will not use these tools
 #
 ##
 # ----------------------------------------------------------------------------
-MenuItems = ["Edit"]
+MenuItems = []
 import LogStream, time
 
 VariableList = []

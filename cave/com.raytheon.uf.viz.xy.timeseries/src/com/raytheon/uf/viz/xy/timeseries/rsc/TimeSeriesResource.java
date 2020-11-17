@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -102,6 +103,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 15, 2014 3535       njensen     Bigger inset map point
  * Nov 19, 2014 5056       jing        added getAdapter method, and
  *                                     changed getName to add level
+ * Feb 08, 2018 6825       njensen     Enable sampling of all graphs regardless
+ *                                     of cursor position
  * 
  * </pre>
  * 
@@ -136,7 +139,7 @@ public class TimeSeriesResource extends
 
     protected CombineOperation combineOperation;
 
-    protected Set<DataTime> dataTimes = new TreeSet<DataTime>();
+    protected Set<DataTime> dataTimes = new TreeSet<>();
 
     private Job dataRequestJob = new Job("Requesting Time Series Data") {
 
@@ -152,7 +155,7 @@ public class TimeSeriesResource extends
                 }
                 sortData();
 
-                dataTimes = new TreeSet<DataTime>();
+                dataTimes = new TreeSet<>();
                 for (XYData d : data.getData()) {
                     dataTimes.add((DataTime) d.getX());
                 }
@@ -272,12 +275,6 @@ public class TimeSeriesResource extends
         this.data = null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
-     * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -300,7 +297,7 @@ public class TimeSeriesResource extends
             graph = descriptor.getGraph(this);
         }
         // Wait for graph to initialize before plotting to it, TODO: do better
-        if (graph.isReady() == false) {
+        if (!graph.isReady()) {
             return;
         }
 
@@ -469,11 +466,6 @@ public class TimeSeriesResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         NumberFormat nf = NumberFormat.getInstance();
@@ -512,7 +504,8 @@ public class TimeSeriesResource extends
         // }
 
         sb.append(String.format(" %s %s %s", adapter.getParameterName(),
-                "TSer", units != null && units.equals("") == false ? "("
+                "TSer",
+                units != null && !units.isEmpty() ? "("
                         + units + ")" : ""));
 
         if (adapter.getEnsembleId() != null) {
@@ -588,7 +581,8 @@ public class TimeSeriesResource extends
         DataTimeLabel[] labels = new DataTimeLabel[dataTimes.size()];
         int i = 0;
         for (DataTime time : dataTimes) {
-            labels[i++] = new DataTimeLabel(time);
+            labels[i] = new DataTimeLabel(time);
+            i++;
         }
         return labels;
     }
@@ -605,19 +599,40 @@ public class TimeSeriesResource extends
         String inspect = null;
         double[] worldCoord = descriptor.pixelToWorld(new double[] {
                 coord.getObject().x, coord.getObject().y });
-        Coordinate c = descriptor.getGraphCoordiante(this, new Coordinate(
-                worldCoord[0], worldCoord[1]));
+        /*
+         * passing false here makes all graphs sample at the same time as the
+         * extent is then ignored
+         */
+        Coordinate c = descriptor.getGraphCoordinate(this, new Coordinate(
+                worldCoord[0], worldCoord[1]), false);
         if (c != null && data != null) {
             double[] vals = data.inspectXY(c);
             NumberFormat nf = NumberFormat.getInstance();
             nf.setMaximumFractionDigits(2);
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cal.setTimeInMillis((long) c.x);
-            timeSampleFormat.setCalendar(cal);
             inspect = nf.format(vals[1])
-                    + ((units != null && units.equals("") == false) ? "("
-                            + units + ")   " : "   ")
-                    + timeSampleFormat.format(cal.getTime());
+                    + ((units != null && !units.isEmpty()) ? "("
+                            + units + ")   " : "   ");
+
+            /*
+             * We need to put the time on the first non-background resource we
+             * find so time shows up in sampling once and only once.
+             */
+            for (ResourcePair pair : descriptor.getResourceList()) {
+                AbstractVizResource<?, ?> rsc = pair.getResource();
+                if (rsc != null && !rsc.getProperties().isSystemResource()
+                        && rsc.getProperties().isVisible()
+                        && !rsc.getProperties().isMapLayer()) {
+                    if (this == rsc) {
+                        Calendar cal = Calendar
+                                .getInstance(TimeZone.getTimeZone("GMT"));
+                        cal.setTimeInMillis((long) c.x);
+                        timeSampleFormat.setCalendar(cal);
+                        inspect += timeSampleFormat.format(cal.getTime());
+                    }
+                    break;
+                }
+            }
+
         }
         return inspect;
     }
@@ -659,12 +674,12 @@ public class TimeSeriesResource extends
             name += resourceData.getSource() + "  ";
         }
         SingleLevel level = adapter.getLevel();
-        if (level.getTypeString().equals("SURFACE") == false) {
+        if (!"SURFACE".equals(level.getTypeString())) {
             name += (int) level.getValue() + level.getTypeString() + "  ";
         }
 
         name += adapter.getParameterName();
-        if (units != null && "".equals(units) == false) {
+        if (units != null && !units.isEmpty()) {
             name += "(" + units + ")";
         }
 

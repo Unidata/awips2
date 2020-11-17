@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,6 +34,7 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.serialization.jaxb.PooledJaxbMarshallerStrategy;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -41,20 +42,20 @@ import com.raytheon.uf.common.util.ReflectionUtil;
 
 /**
  * A JAXB Manager for transforming EBXML objects to/from XML.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2013  ----      njensen     Initial release.
  * Nov 24, 2013  2584      dhladky     versioning
  * Jul 15, 2014  3373      bclement    pooling jaxb manager
+ * Nov 09, 2017  6511      tgurney     Do not validate on unmarshal
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class EbxmlJaxbManager {
@@ -66,15 +67,16 @@ public class EbxmlJaxbManager {
     private JAXBManager jaxb;
 
     private Set<Class<?>> jaxables;
-    
-    private Map<String, Class<?>> convertables = new HashMap<String, Class<?>>(1);
-    
-    private Map<String, String> versions = new HashMap<String, String>(1);
-    
+
+    private Map<String, Class<?>> convertables = new HashMap<>(1);
+
+    private Map<String, String> versions = new HashMap<>(1);
+
     private static EbxmlJaxbManager instance;
 
     /**
      * Get the desired version of the EbxmlJaxbManager
+     *
      * @param version
      * @return
      */
@@ -84,7 +86,7 @@ public class EbxmlJaxbManager {
         }
         return instance;
     }
-        
+
     public String findJaxables(String packageName) {
 
         statusHandler.info(" Scanning package ... " + packageName);
@@ -97,8 +99,8 @@ public class EbxmlJaxbManager {
         // calls to getTypesAnnotatedWith(class, false) will not slow it down
 
         Reflections reflecs = cb.build();
-        Set<Class<?>> set = reflecs.getTypesAnnotatedWith(
-                XmlAccessorType.class, false);
+        Set<Class<?>> set = reflecs.getTypesAnnotatedWith(XmlAccessorType.class,
+                false);
         synchronized (jaxables) {
             // add them to set for auditing purposes initially
             set.addAll(reflecs.getTypesAnnotatedWith(XmlRegistry.class, false));
@@ -119,40 +121,46 @@ public class EbxmlJaxbManager {
 
     public synchronized JAXBManager getJaxbManager() throws JAXBException {
         if (jaxb == null) {
-            jaxb = new JAXBManager(true, jaxables.toArray(new Class[0]));
+            jaxb = new JAXBManager(new PooledJaxbMarshallerStrategy(false),
+                    jaxables.toArray(new Class[0]));
         }
         return jaxb;
     }
 
     private EbxmlJaxbManager() {
-        jaxables = new HashSet<Class<?>>();
+        jaxables = new HashSet<>();
 
         // add the default jaxables
-        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.lcm.v4.ObjectFactory.class);
-        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.query.v4.ObjectFactory.class);
-        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class);
+        jaxables.add(
+                oasis.names.tc.ebxml.regrep.xsd.lcm.v4.ObjectFactory.class);
+        jaxables.add(
+                oasis.names.tc.ebxml.regrep.xsd.query.v4.ObjectFactory.class);
+        jaxables.add(
+                oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class);
         jaxables.add(oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectFactory.class);
-        jaxables.add(oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory.class);
+        jaxables.add(
+                oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory.class);
 
         statusHandler.info("Initialization Complete.");
     }
-       
+
     /**
      * Gets the set of classes for this encoder.
+     *
      * @return
      */
     public Set<Class<?>> getJaxables() {
         return jaxables;
     }
-    
+
     /**
      * Gets the class from the convertables
-     * 
+     *
      * @param className
      * @return
      */
     public Class<?> getClass(String className) {
-        
+
         Class<?> clazz = convertables.get(className);
 
         if (clazz == null) {
@@ -176,17 +184,18 @@ public class EbxmlJaxbManager {
                 } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
                             "Can not reflect a version of this class. class: "
-                                    + className, e);
+                                    + className,
+                            e);
                 }
             }
         }
 
         return clazz;
     }
-    
+
     /**
      * Set the class to the cache
-     * 
+     *
      * @param className
      * @param clazz
      */
@@ -195,10 +204,10 @@ public class EbxmlJaxbManager {
             convertables.put(className, clazz);
         }
     }
-    
+
     /**
      * Set the version to the cache
-     * 
+     *
      * @param className
      * @param clazz
      */
@@ -207,10 +216,10 @@ public class EbxmlJaxbManager {
             versions.put(className, version);
         }
     }
-    
+
     /**
      * Get the version of the class
-     * 
+     *
      * @param className
      * @return version
      */

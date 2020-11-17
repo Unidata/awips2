@@ -71,14 +71,16 @@ import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
  *                                  data access
  * May 15, 2015  4079     bsteffen  Use publicly accessible display unit.
  * Aug 30, 2016  3240     bsteffen  Implement Interrogatable
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * Feb 15, 2018  6902     njensen   Replace usage of deprecated interrogation key
  * 
  * </pre>
  * 
  * @author bsteffen
  */
-public class DifferenceGridResource extends
-        AbstractGridResource<DifferenceGridResourceData> implements
-        IResourceGroup {
+public class DifferenceGridResource
+        extends AbstractGridResource<DifferenceGridResourceData>
+        implements IResourceGroup {
 
     // Defines a constant size for the difference grid
     private static final GridEnvelope GRID_ENVELOPE = new GeneralGridEnvelope(
@@ -94,7 +96,6 @@ public class DifferenceGridResource extends
         super(resourceData, loadProperties);
         this.one = one;
         this.two = two;
-        this.dataTimes = TIME_AGNOSTIC;
     }
 
     @Override
@@ -120,18 +121,21 @@ public class DifferenceGridResource extends
     @Override
     public InterrogateMap interrogate(ReferencedCoordinate coordinate,
             DataTime time, InterrogationKey<?>... keys) {
-        if(!(time instanceof CombinedDataTime)){
+        if (!(time instanceof CombinedDataTime)) {
             return super.interrogate(coordinate, time, keys);
         }
         CombinedDataTime cTime = (CombinedDataTime) time;
-        InterrogateMap oneMap = one.interrogate(coordinate, cTime.getPrimaryDataTime(), keys);
-        InterrogateMap twoMap = two.interrogate(coordinate, cTime.getAdditionalDataTime(), keys);
-        if (oneMap == null || oneMap.isEmpty() || twoMap == null || twoMap.isEmpty()) {
+        InterrogateMap oneMap = one.interrogate(coordinate,
+                cTime.getPrimaryDataTime(), keys);
+        InterrogateMap twoMap = two.interrogate(coordinate,
+                cTime.getAdditionalDataTime(), keys);
+        if (oneMap == null || oneMap.isEmpty() || twoMap == null
+                || twoMap.isEmpty()) {
             return super.interrogate(coordinate, time, keys);
         }
         InterrogateMap myMap = new InterrogateMap();
-        for(InterrogationKey<?> key : keys){
-            if(Interrogator.VALUE.equals(key)){
+        for (InterrogationKey<?> key : keys) {
+            if (Interrogator.VALUE.equals(key)) {
                 /*
                  * Get the values from the internal resources and difference
                  * them. If coordinate is not perfectly on grid points then this
@@ -163,11 +167,11 @@ public class DifferenceGridResource extends
                     myMap.put(UNIT_STRING_INTERROGATE_KEY,
                             "(" + oneUnit + "-" + twoUnit + ")");
                 }
-            } else if (DIRECTION_INTERROGATE_KEY.equals(key)) {
-                Number oneDir = oneMap.get(DIRECTION_INTERROGATE_KEY);
-                Number twoDir = twoMap.get(DIRECTION_INTERROGATE_KEY);
+            } else if (DIRECTION_FROM_INTERROGATE_KEY.equals(key)) {
+                Number oneDir = oneMap.get(DIRECTION_FROM_INTERROGATE_KEY);
+                Number twoDir = twoMap.get(DIRECTION_FROM_INTERROGATE_KEY);
                 if (oneDir != null && twoDir != null) {
-                    myMap.put(DIRECTION_INTERROGATE_KEY,
+                    myMap.put(DIRECTION_FROM_INTERROGATE_KEY,
                             oneDir.doubleValue() - twoDir.doubleValue());
                 } else {
                     myMap.putAll(super.interrogate(coordinate, time, key));
@@ -177,7 +181,7 @@ public class DifferenceGridResource extends
             }
         }
         return myMap;
-        
+
     }
 
     @Override
@@ -200,7 +204,7 @@ public class DifferenceGridResource extends
                 || twoDataList.isEmpty()) {
             return null;
         }
-        List<GeneralGridData> newDataList = new ArrayList<GeneralGridData>();
+        List<GeneralGridData> newDataList = new ArrayList<>();
         for (GeneralGridData oneData : oneDataList) {
             for (GeneralGridData twoData : twoDataList) {
                 GeneralGridData newData = difference(oneData, twoData);
@@ -236,19 +240,17 @@ public class DifferenceGridResource extends
         }
         GridGeometry2D newGeom = oneData.getGridGeometry();
         if (!newGeom.equals(twoData.getGridGeometry())) {
-            ReferencedEnvelope oneEnv = new ReferencedEnvelope(oneData
-                    .getGridGeometry().getEnvelope());
-            ReferencedEnvelope twoEnv = new ReferencedEnvelope(twoData
-                    .getGridGeometry().getEnvelope());
-            if (!oneEnv.getCoordinateReferenceSystem().equals(
-                    twoEnv.getCoordinateReferenceSystem())) {
+            ReferencedEnvelope oneEnv = new ReferencedEnvelope(
+                    oneData.getGridGeometry().getEnvelope());
+            ReferencedEnvelope twoEnv = new ReferencedEnvelope(
+                    twoData.getGridGeometry().getEnvelope());
+            if (!oneEnv.getCoordinateReferenceSystem()
+                    .equals(twoEnv.getCoordinateReferenceSystem())) {
                 // If they aren't the same crs just go to screen space.
                 try {
                     oneEnv = oneEnv.transform(descriptor.getCRS(), true);
                     twoEnv = twoEnv.transform(descriptor.getCRS(), true);
-                } catch (TransformException e) {
-                    throw new RuntimeException(e);
-                } catch (FactoryException e) {
+                } catch (FactoryException | TransformException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -277,9 +279,7 @@ public class DifferenceGridResource extends
                 newData = GeneralGridData.createScalarData(newGeom, data,
                         newUnit);
             }
-        } catch (FactoryException e) {
-            throw new VizException(e);
-        } catch (TransformException e) {
+        } catch (TransformException | FactoryException e) {
             throw new VizException(e);
         }
         return newData;

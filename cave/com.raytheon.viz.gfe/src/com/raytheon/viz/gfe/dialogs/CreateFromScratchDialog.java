@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,23 +45,25 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * The create from scratch dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 26, 2008            Eric Babin  Initial Creation
- * Oct 24, 2012 1287       rferrel     Changes for non-blocking dialog.
- * Nov 30, 2015 5133       kbisanz     In durationScaleChanged(), ensure
- *                                     intervalScale is valid before
- *                                     accessing it.
- * Jul 28, 2016 5554       dgilling    Display error message if no parms or valid TRs 
- *                                     are selected, code cleanup.
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Feb 26, 2008           Eric Babin  Initial Creation
+ * Oct 24, 2012  1287     rferrel     Changes for non-blocking dialog.
+ * Nov 30, 2015  5133     kbisanz     In durationScaleChanged(), ensure
+ *                                    intervalScale is valid before accessing
+ *                                    it.
+ * Jul 28, 2016  5554     dgilling    Display error message if no parms or valid
+ *                                    TRs are selected, code cleanup.
+ * Jan 24, 2018  7153     randerso    Changes to allow new GFE config file to be
+ *                                    selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
 
 public class CreateFromScratchDialog extends CaveJFACEDialog {
@@ -70,8 +72,6 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
             .getHandler(getClass());
 
     private final DataManager dataMgr;
-
-    private Button defaultButton;
 
     private Button pickupButton;
 
@@ -93,6 +93,12 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
 
     private int createInterval;
 
+    /**
+     * Constructor
+     *
+     * @param parent
+     * @param dataMgr
+     */
     public CreateFromScratchDialog(Shell parent, DataManager dataMgr) {
         super(parent);
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
@@ -115,14 +121,15 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
 
         if (!displayDuration && !displayInterval) {
             Label label = new Label(parent, SWT.CENTER);
-            label.setText("No parms  are selected or no valid time range is selected.");
+            label.setText(
+                    "No parms  are selected or no valid time range is selected.");
             GridData data = new GridData(SWT.CENTER, SWT.CENTER, true, true);
             data.horizontalSpan = 2;
             label.setLayoutData(data);
             return;
         }
 
-        defaultButton = new Button(parent, SWT.RADIO);
+        Button defaultButton = new Button(parent, SWT.RADIO);
         defaultButton.setText("Default Value");
         GridData data = new GridData(SWT.LEFT, SWT.TOP, true, false);
         data.horizontalSpan = 2;
@@ -148,8 +155,8 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
             intervalScale.setIncrement(quantum);
             intervalScale.setPageIncrement(quantum);
             intervalScale.setSelection(this.createInterval);
-            intervalScale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                    true, false));
+            intervalScale.setLayoutData(
+                    new GridData(SWT.FILL, SWT.CENTER, true, false));
             intervalScale.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent arg0) {
@@ -180,8 +187,8 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
             durationScale.setMinimum(quantum);
             durationScale.setMaximum(TimeUtil.HOURS_PER_DAY);
             durationScale.setSelection(this.createDuration);
-            durationScale.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                    true, false));
+            durationScale.setLayoutData(
+                    new GridData(SWT.FILL, SWT.CENTER, true, false));
             durationScale.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent arg0) {
@@ -212,8 +219,8 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
     }
 
     private void durationScaleChanged() {
-        if (displayInterval
-                && durationScale.getSelection() >= intervalScale.getSelection()) {
+        if (displayInterval && (durationScale.getSelection() >= intervalScale
+                .getSelection())) {
             durationScale.setSelection(intervalScale.getSelection());
         }
         durationLabel.setText(Integer.toString(durationScale.getSelection()));
@@ -250,8 +257,9 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
         int compositeDuration = 0;
 
         for (Parm parm : parms) {
-            if (parm.getGridInfo().getTimeConstraints().getRepeatInterval() != parm
-                    .getGridInfo().getTimeConstraints().getDuration()) {
+            if (parm.getGridInfo().getTimeConstraints()
+                    .getRepeatInterval() != parm.getGridInfo()
+                            .getTimeConstraints().getDuration()) {
                 displayDuration = false;
             }
             int repeatInterval = parm.getGridInfo().getTimeConstraints()
@@ -279,8 +287,8 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
          * ignores them and uses 24 hours. It's better to not show the slider at
          * all in this case.
          */
-        if (minRepeatInterval >= TimeUtil.HOURS_PER_DAY
-                * TimeUtil.SECONDS_PER_HOUR) {
+        if (minRepeatInterval >= (TimeUtil.HOURS_PER_DAY
+                * TimeUtil.SECONDS_PER_HOUR)) {
             displayInterval = false;
         }
 
@@ -289,9 +297,9 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
         this.createInterval = compositeRepeat / TimeUtil.SECONDS_PER_HOUR;
 
         int configInterval = GFEPreference
-                .getIntPreference("CreateScratchDefaultInterval");
+                .getInt("CreateScratchDefaultInterval");
         int configDuration = GFEPreference
-                .getIntPreference("CreateScratchDefaultDuration");
+                .getInt("CreateScratchDefaultDuration");
 
         // Sanity check config values.
         configInterval = Math.max(0, configInterval);

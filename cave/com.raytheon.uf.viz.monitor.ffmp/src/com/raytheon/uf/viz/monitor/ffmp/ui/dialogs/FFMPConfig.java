@@ -112,8 +112,8 @@ public class FFMPConfig {
     private final Color belowLowerColor = new Color(Display.getDefault(), 215,
             215, 215);
 
-    private final Color defaultColor = new Color(Display.getDefault(), 167,
-            167, 167);
+    private final Color defaultColor = new Color(Display.getDefault(), 167, 167,
+            167);
 
     private final Color forcedFFGColor = new Color(Display.getDefault(), 255,
             165, 0);
@@ -206,8 +206,9 @@ public class FFMPConfig {
 
             createThresholdManager();
         } catch (Exception e) {
-            statusHandler.error("Error reading FFMP Basin config "
-                    + xmlFileName.getPath(), e);
+            statusHandler.error(
+                    "Error reading FFMP Basin config " + xmlFileName.getPath(),
+                    e);
         }
     }
 
@@ -372,8 +373,8 @@ public class FFMPConfig {
 
         attrData = new AttributesDlgData();
 
-        for (int i = 0; i < columns.length; i++) {
-            String column = columns[i];
+        for (String column2 : columns) {
+            String column = column2;
             String displayName = null;
 
             for (FFMPTableColumnXML tcXML : columnData) {
@@ -384,14 +385,14 @@ public class FFMPConfig {
                 }
                 if (column.equalsIgnoreCase(tcXML.getColumnName())) {
                     boolean includedInTable = false;
-                    if (column.equalsIgnoreCase(COLUMN_NAME.GUID
-                            .getColumnName())
-                            || column.equalsIgnoreCase(COLUMN_NAME.RATIO
-                                    .getColumnName())
-                            || column.equalsIgnoreCase(COLUMN_NAME.DIFF
-                                    .getColumnName())) {
-                        if (ffmpCfgBasin.getIncludedGuids().contains(
-                                displayName)) {
+                    if (column
+                            .equalsIgnoreCase(COLUMN_NAME.GUID.getColumnName())
+                            || column.equalsIgnoreCase(
+                                    COLUMN_NAME.RATIO.getColumnName())
+                            || column.equalsIgnoreCase(
+                                    COLUMN_NAME.DIFF.getColumnName())) {
+                        if (ffmpCfgBasin.getIncludedGuids()
+                                .contains(displayName)) {
                             includedInTable = true;
                             attrData.setGuidColumnIncluded(displayName,
                                     includedInTable);
@@ -427,32 +428,32 @@ public class FFMPConfig {
                 .getTableColumnData();
 
         for (FFMPTableColumnXML tcXML : columnData) {
-            if (tcXML.getColumnName().equalsIgnoreCase(
-                    COLUMN_NAME.RATE.getColumnName())) {
+            if (tcXML.getColumnName()
+                    .equalsIgnoreCase(COLUMN_NAME.RATE.getColumnName())) {
                 tcXML.setDisplayedInTable(attrData
                         .isColumnVisible(COLUMN_NAME.RATE.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(
-                    COLUMN_NAME.NAME.getColumnName())) {
+            } else if (tcXML.getColumnName()
+                    .equalsIgnoreCase(COLUMN_NAME.NAME.getColumnName())) {
                 tcXML.setDisplayedInTable(attrData
                         .isColumnVisible(COLUMN_NAME.NAME.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(
-                    COLUMN_NAME.QPE.getColumnName())) {
+            } else if (tcXML.getColumnName()
+                    .equalsIgnoreCase(COLUMN_NAME.QPE.getColumnName())) {
                 tcXML.setDisplayedInTable(attrData
                         .isColumnVisible(COLUMN_NAME.QPE.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(
-                    COLUMN_NAME.QPF.getColumnName())) {
+            } else if (tcXML.getColumnName()
+                    .equalsIgnoreCase(COLUMN_NAME.QPF.getColumnName())) {
                 tcXML.setDisplayedInTable(attrData
                         .isColumnVisible(COLUMN_NAME.QPF.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(
-                    COLUMN_NAME.GUID.getColumnName())) {
+            } else if (tcXML.getColumnName()
+                    .equalsIgnoreCase(COLUMN_NAME.GUID.getColumnName())) {
                 tcXML.setDisplayedInTable(attrData
                         .isColumnVisible(COLUMN_NAME.GUID.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(
-                    COLUMN_NAME.RATIO.getColumnName())) {
+            } else if (tcXML.getColumnName()
+                    .equalsIgnoreCase(COLUMN_NAME.RATIO.getColumnName())) {
                 tcXML.setDisplayedInTable(attrData
                         .isColumnVisible(COLUMN_NAME.RATIO.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(
-                    COLUMN_NAME.DIFF.getColumnName())) {
+            } else if (tcXML.getColumnName()
+                    .equalsIgnoreCase(COLUMN_NAME.DIFF.getColumnName())) {
                 tcXML.setDisplayedInTable(attrData
                         .isColumnVisible(COLUMN_NAME.DIFF.getColumnName()));
             }

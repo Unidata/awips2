@@ -6,10 +6,11 @@
 ##             Evan Bookbinder 9-18-2013 Implemented config.vm
 ##             Mike Dangelo/Phil Kurimski 03/23-26/2015 MixEd CAse
 ##             Mike Dangelo 10/20/15 standard CTAs
+##             Phil Kurimski 3/22/18 EMERGENCY typo DR 20671
 ######################################################################
 ## This template can be used for any pre-defined polygon that a site 
 ## needs to issue a FFW for outside of a dam break.
-#################################### SET SOME VARIABLES ###################################
+########################### SET SOME VARIABLES ###########################
 #parse("config.vm")
 #set($hycType = "")
 #set($burnDrainage = "")
@@ -43,11 +44,11 @@
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 ${productId}${siteId}
 ${ugcline}
-#################################### VTEC LINE ###################################
+#################################### VTEC LINE #################################
 /${productClass}.${action}.${vtecOffice}.FF.W.${etn}.${starttime}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 
-#################################### MND HEADER ###################################
+#################################### MND HEADER ################################
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
 TEST...Flash Flood Warning...TEST
@@ -216,7 +217,7 @@ THIS IS A TEST MESSAGE. ##
 ## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
 ##########################################################################
 #if(${list.contains(${bullets}, "ffwEmergency")} )
-#wrapText("THIS IS A FLASH FLOOD EMERGENCEY FOR ${emergencyHeadline}. SEEK HIGHER GROUND NOW!" 2 2)
+#wrapText("THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}. SEEK HIGHER GROUND NOW!" 2 2)
 #end
 
 
@@ -260,7 +261,7 @@ Flood waters are moving down !**NAME OF CHANNEL**! from !**LOCATION**! to !**LOC
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
 
-#################################### END OF ADDITIONAL STUFF ###################################
+########################### END OF ADDITIONAL STUFF ###########################
 ######################################
 ####### CALL TO ACTIONS ##############
 ######################################

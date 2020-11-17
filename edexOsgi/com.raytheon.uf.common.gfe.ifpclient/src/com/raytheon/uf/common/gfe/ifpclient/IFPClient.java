@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,6 +30,7 @@ import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.request.ClearPracticeVTECTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
+import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
@@ -57,6 +58,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.GetKnownSitesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetLockTablesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetOfficialDbNameRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetParmListRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.GetProjectionsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetSingletonDbIdsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetSiteTimeZoneInfoRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetTopoDataRequest;
@@ -68,6 +70,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.IscRequestQueryRequest.IscQ
 import com.raytheon.uf.common.dataplugin.gfe.request.LockChangeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.SaveGfeGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.SendIscGridRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.SendWFOMessageRequest;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
@@ -111,23 +114,27 @@ import com.raytheon.uf.common.time.TimeRange;
  * matches the behavior of IFPClient prior to 16.2.2. Call
  * {@code getPythonClient} to retrieve a PyFPClient instance or construct one
  * manually.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 13, 2015  #5129     dgilling    Initial creation
- * Feb 05, 2016  #5242     dgilling    Replace calls to deprecated Localization APIs.
- * Feb 24, 2016  #5129     dgilling    Change how PyFPClient is constructed.
- * Apr 28, 2016  #5618     randerso    Fix getGridData to handle "chunked" response.
- * Jun 30, 2016  #5723     dgilling    Add safety check to saveReferenceData.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Nov 13, 2015  5129     dgilling  Initial creation
+ * Feb 05, 2016  5242     dgilling  Replace calls to deprecated Localization
+ *                                  APIs.
+ * Feb 24, 2016  5129     dgilling  Change how PyFPClient is constructed.
+ * Apr 28, 2016  5618     randerso  Fix getGridData to handle "chunked"
+ *                                  response.
+ * Jun 30, 2016  5723     dgilling  Add safety check to saveReferenceData.
+ * Feb 05, 2018  6493     randerso  Added getProjections() to support
+ *                                  implementation of GFE coordinate conversion
+ *                                  capability
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
 public class IFPClient {
@@ -138,8 +145,8 @@ public class IFPClient {
     private static final String EDIT_AREAS_DIR = "gfe" + IPathManager.SEPARATOR
             + "editAreas";
 
-    private static final String SAMPLE_SETS_DIR = "gfe"
-            + IPathManager.SEPARATOR + "sampleSets";
+    private static final String SAMPLE_SETS_DIR = "gfe" + IPathManager.SEPARATOR
+            + "sampleSets";
 
     private final WsId myWsId;
 
@@ -151,7 +158,7 @@ public class IFPClient {
 
     /**
      * Constructor.
-     * 
+     *
      * @param wsId
      *            {@code WsId} instance to associate with this client.
      * @param siteId
@@ -190,7 +197,7 @@ public class IFPClient {
     /**
      * Command to commit grids to the official database. This function accepts
      * only a single {@code CommitGridRequest}.
-     * 
+     *
      * @param request
      *            The commit request.
      * @return Status of the request as a {@code ServerResponse}.
@@ -202,7 +209,7 @@ public class IFPClient {
     /**
      * Command to commit grids to the official database. This function accepts
      * multiple {@code CommitGridRequest}s.
-     * 
+     *
      * @param requests
      *            The commit requests.
      * @return Status of the request as a {@code ServerResponse}.
@@ -216,7 +223,7 @@ public class IFPClient {
 
     /**
      * Command to send ISC grids.
-     * 
+     *
      * @param requests
      *            The ISC send requests.
      * @return Status of the request as a {@code ServerResponse}.
@@ -230,7 +237,7 @@ public class IFPClient {
 
     /**
      * Gets the database inventory.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the inventory.
      */
@@ -242,7 +249,7 @@ public class IFPClient {
 
     /**
      * Requests the creation of a new database.
-     * 
+     *
      * @param id
      *            The {@code DatabaseID} of the database to create.
      * @return Status of the request as a {@code ServerResponse}.
@@ -255,7 +262,7 @@ public class IFPClient {
 
     /**
      * Returns the parameter list for the given database.
-     * 
+     *
      * @param id
      *            {@code DatabaseID} for the database to get parm list for.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -267,7 +274,7 @@ public class IFPClient {
 
     /**
      * Returns the parameter list for the given databases.
-     * 
+     *
      * @param ids
      *            Databases to retrieve parm lists for, identified by
      *            {@code DatabaseID}.
@@ -283,7 +290,7 @@ public class IFPClient {
 
     /**
      * Returns the grid inventory for the given parameter.
-     * 
+     *
      * @param parmID
      *            Parm to request inventory for, identified by {@code ParmID}.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -291,8 +298,8 @@ public class IFPClient {
      *         {@code TimeRange}s.
      */
     public ServerResponse<List<TimeRange>> getGridInventory(ParmID parmID) {
-        ServerResponse<Map<ParmID, List<TimeRange>>> sr = getGridInventory(Arrays
-                .asList(parmID));
+        ServerResponse<Map<ParmID, List<TimeRange>>> sr = getGridInventory(
+                Arrays.asList(parmID));
         List<TimeRange> trs = Collections.emptyList();
         Map<ParmID, List<TimeRange>> inv = sr.getPayload();
         if ((sr.isOkay()) && (inv.containsKey(parmID))) {
@@ -307,7 +314,7 @@ public class IFPClient {
 
     /**
      * Returns the grid inventory for the given parameters.
-     * 
+     *
      * @param parmIDs
      *            Parms to request inventory for, identified by {@code ParmID}.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -319,20 +326,21 @@ public class IFPClient {
         GetGridInventoryRequest request = new GetGridInventoryRequest();
         request.setParmIds(parmIDs);
 
-        return (ServerResponse<Map<ParmID, List<TimeRange>>>) makeRequest(request);
+        return (ServerResponse<Map<ParmID, List<TimeRange>>>) makeRequest(
+                request);
     }
 
     /**
      * Returns the grid parameter information for the specified parm.
-     * 
+     *
      * @param parmID
      *            Parm to retrieve info for identified by {@code ParmID}.
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains {@code GridParmInfo} for the requested parm.
      */
     public ServerResponse<GridParmInfo> getGridParmInfo(ParmID parmID) {
-        ServerResponse<List<GridParmInfo>> sr = getGridParmInfo(Arrays
-                .asList(parmID));
+        ServerResponse<List<GridParmInfo>> sr = getGridParmInfo(
+                Arrays.asList(parmID));
         List<GridParmInfo> gpi = sr.getPayload();
         GridParmInfo info = null;
         if ((sr.isOkay()) && (!gpi.isEmpty())) {
@@ -347,7 +355,7 @@ public class IFPClient {
 
     /**
      * Returns the grid parameter information for the specified list of parms.
-     * 
+     *
      * @param parmIDs
      *            List of parms to retrieve info for identified by
      *            {@code ParmID}.
@@ -365,7 +373,7 @@ public class IFPClient {
     /**
      * Returns the grid history information for the specified parm and grid
      * time.
-     * 
+     *
      * @param parmID
      *            {@code ParmID} of the parm to retrieve grid history for.
      * @param trs
@@ -392,7 +400,7 @@ public class IFPClient {
     /**
      * Returns the grid history information for the parm at the specified time
      * ranges.
-     * 
+     *
      * @param parmID
      *            {@code ParmID} of the parm to retrieve grid history for.
      * @param trs
@@ -406,13 +414,14 @@ public class IFPClient {
         request.setParmID(parmID);
         request.setTimeRanges(trs);
 
-        return (ServerResponse<Map<TimeRange, List<GridDataHistory>>>) makeRequest(request);
+        return (ServerResponse<Map<TimeRange, List<GridDataHistory>>>) makeRequest(
+                request);
     }
 
     /**
      * Saves grid data identified by the save grid request. This function is for
      * a single grid request.
-     * 
+     *
      * @param saveGridRequest
      *            The save request.
      * @param iscSendStatus
@@ -426,15 +435,15 @@ public class IFPClient {
 
     /**
      * Saves grid data identified by the sequence of save grid requests.
-     * 
+     *
      * @param saveGridRequest
      *            The save requests.
      * @param iscSendStatus
      *            Whether or not ISC send is enabled for this client session.
      * @return Status of the request as a {@code ServerResponse}.
      */
-    public ServerResponse<?> saveGridData(
-            List<SaveGridRequest> saveGridRequest, boolean iscSendStatus) {
+    public ServerResponse<?> saveGridData(List<SaveGridRequest> saveGridRequest,
+            boolean iscSendStatus) {
         SaveGfeGridRequest request = new SaveGfeGridRequest(iscSendStatus,
                 saveGridRequest);
 
@@ -443,7 +452,7 @@ public class IFPClient {
 
     /**
      * Retrieves grid data identified by the get grid request.
-     * 
+     *
      * @param getRequest
      *            The get grid request.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -458,10 +467,11 @@ public class IFPClient {
 
         ParmID parmId = getRequest.getParmId();
         List<TimeRange> gridTimes = getRequest.getTimes();
-        List<IGridSlice> slices = new ArrayList<IGridSlice>(gridTimes.size());
+        List<IGridSlice> slices = new ArrayList<>(gridTimes.size());
         while (slices.size() < gridTimes.size()) {
             @SuppressWarnings("unchecked")
-            ServerResponse<List<IGridSlice>> resp = (ServerResponse<List<IGridSlice>>) makeRequest(request);
+            ServerResponse<List<IGridSlice>> resp = (ServerResponse<List<IGridSlice>>) makeRequest(
+                    request);
             if (resp.isOkay()) {
                 slices.addAll(resp.getPayload());
 
@@ -478,8 +488,8 @@ public class IFPClient {
                 // if not all slices returned
                 if (slices.size() < gridTimes.size()) {
                     // request remaining times.
-                    getRequest.setTimes(gridTimes.subList(slices.size(),
-                            gridTimes.size()));
+                    getRequest.setTimes(
+                            gridTimes.subList(slices.size(), gridTimes.size()));
                 }
             } else {
                 sr.addMessages(resp);
@@ -494,20 +504,21 @@ public class IFPClient {
     /**
      * Retrieves the lock table based on the lock table request. Note that more
      * than one lock table may be returned.
-     * 
+     *
      * @param request
      *            the lock table request
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the requested lock table (more than one lock table may
      *         be returned).
      */
-    public ServerResponse<List<LockTable>> getLockTable(LockTableRequest request) {
+    public ServerResponse<List<LockTable>> getLockTable(
+            LockTableRequest request) {
         return getLockTable(Arrays.asList(request));
     }
 
     /**
      * Retrieves the lock table based on the lock table requests.
-     * 
+     *
      * @param requests
      *            the lock table requests
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -523,7 +534,7 @@ public class IFPClient {
 
     /**
      * Requests a lock change.
-     * 
+     *
      * @param lockRequest
      *            The lock request.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -536,7 +547,7 @@ public class IFPClient {
 
     /**
      * Requests lock changes.
-     * 
+     *
      * @param lockRequests
      *            The lock requests.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -552,7 +563,7 @@ public class IFPClient {
 
     /**
      * Returns the database id for the official database.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the requested database id.
      */
@@ -565,7 +576,7 @@ public class IFPClient {
     /**
      * Returns the database ids that correspond to the singleton-type of
      * database, i.e., the ones without model time stamps.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the requested database ids.
      */
@@ -577,7 +588,7 @@ public class IFPClient {
 
     /**
      * Returns the topography data set for the given {@code GridLocation}.
-     * 
+     *
      * @param loc
      *            {@code GridLocation} to request topography data for.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -591,7 +602,7 @@ public class IFPClient {
 
     /**
      * Gets the sample set inventory.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the inventory in {@code SampleId} form.
      */
@@ -604,10 +615,10 @@ public class IFPClient {
                 LocalizationType.COMMON_STATIC, SAMPLE_SETS_DIR,
                 new String[] { ".xml" }, false, true);
         for (LocalizationFile lf : files) {
-            String name = LocalizationUtil.extractName(lf.getPath()).replace(
-                    ".xml", "");
-            inv.add(new SampleId(name, false, lf.getContext()
-                    .getLocalizationLevel()));
+            String name = LocalizationUtil.extractName(lf.getPath())
+                    .replace(".xml", "");
+            inv.add(new SampleId(name, false,
+                    lf.getContext().getLocalizationLevel()));
         }
 
         sr.setPayload(inv);
@@ -617,7 +628,7 @@ public class IFPClient {
     /**
      * Gets the reference set inventory. The inventory is returned through
      * {@code ReferenceID}.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the inventory.
      */
@@ -633,8 +644,8 @@ public class IFPClient {
             for (LocalizationFile lf : contents) {
                 String area = LocalizationUtil.extractName(lf.getPath())
                         .replace(".xml", "");
-                refIDs.add(new ReferenceID(area, false, lf.getContext()
-                        .getLocalizationLevel()));
+                refIDs.add(new ReferenceID(area, false,
+                        lf.getContext().getLocalizationLevel()));
             }
         }
 
@@ -644,7 +655,7 @@ public class IFPClient {
 
     /**
      * Saves sample set data identified by the sequence of {@code SampleData}.
-     * 
+     *
      * @param sampleData
      *            Sample set data to save. Files will be written to USER
      *            localization level.
@@ -657,17 +668,17 @@ public class IFPClient {
         LocalizationContext ctx = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.USER);
         for (SampleData sample : sampleData) {
-            ILocalizationFile lf = pm.getLocalizationFile(ctx, SAMPLE_SETS_DIR
-                    + IPathManager.SEPARATOR + sample.getSampleId().getName()
-                    + ".xml");
+            ILocalizationFile lf = pm.getLocalizationFile(ctx,
+                    SAMPLE_SETS_DIR + IPathManager.SEPARATOR
+                            + sample.getSampleId().getName() + ".xml");
             try (SaveableOutputStream out = lf.openOutputStream()) {
                 SampleData.getJAXBManager().marshalToStream(sample, out);
                 out.save();
             } catch (Exception e) {
-                String message = String
-                        .format("Unable to write output file [%s] for sample data [%s]: %s",
-                                lf.toString(), sample.getSampleId().getName(),
-                                e.getLocalizedMessage());
+                String message = String.format(
+                        "Unable to write output file [%s] for sample data [%s]: %s",
+                        lf.toString(), sample.getSampleId().getName(),
+                        e.getLocalizedMessage());
                 sr.addMessage(message);
                 break;
             }
@@ -679,13 +690,14 @@ public class IFPClient {
     /**
      * Saves reference data identified by the sequence of {@code ReferenceData}
      * s.
-     * 
+     *
      * @param referenceData
      *            Reference data to save. Files will be written to USER
      *            localization level.
      * @return Status of the request as a {@code ServerResponse}.
      */
-    public ServerResponse<?> saveReferenceData(List<ReferenceData> referenceData) {
+    public ServerResponse<?> saveReferenceData(
+            List<ReferenceData> referenceData) {
         ServerResponse<?> sr = new ServerResponse<>();
 
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -702,17 +714,17 @@ public class IFPClient {
                 refData.setPolygons(null, CoordinateType.LATLON);
             }
 
-            ILocalizationFile lf = pm.getLocalizationFile(ctx, EDIT_AREAS_DIR
-                    + IPathManager.SEPARATOR + refData.getId().getName()
-                    + ".xml");
+            ILocalizationFile lf = pm.getLocalizationFile(ctx,
+                    EDIT_AREAS_DIR + IPathManager.SEPARATOR
+                            + refData.getId().getName() + ".xml");
             try (SaveableOutputStream out = lf.openOutputStream()) {
                 ReferenceData.getJAXBManager().marshalToStream(refData, out);
                 out.save();
             } catch (Exception e) {
-                String message = String
-                        .format("Unable to write output file [%s] for reference data [%s]: %s",
-                                lf.toString(), refData.getId().getName(),
-                                e.getLocalizedMessage());
+                String message = String.format(
+                        "Unable to write output file [%s] for reference data [%s]: %s",
+                        lf.toString(), refData.getId().getName(),
+                        e.getLocalizedMessage());
                 sr.addMessage(message);
                 break;
             }
@@ -723,7 +735,7 @@ public class IFPClient {
 
     /**
      * Deletes sample data identified by the sequence of {@code SampleID}.
-     * 
+     *
      * @param ids
      *            The sample sets to delete, identified by {@code SampleID}.
      * @return Status of the request as a {@code ServerResponse}.
@@ -751,7 +763,7 @@ public class IFPClient {
 
     /**
      * Deletes reference data identified by the sequence of {@code ReferenceID}.
-     * 
+     *
      * @param ids
      *            The sample sets to delete, identified by {@code ReferenceID}.
      * @return Status of the request as a {@code ServerResponse}.
@@ -779,7 +791,7 @@ public class IFPClient {
 
     /**
      * Retrieves sample data identified by a sample id.
-     * 
+     *
      * @param id
      *            The {@code SampleId} for the sample set to retrieve.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -802,7 +814,7 @@ public class IFPClient {
 
     /**
      * Retrieves sample data identified by the sequence of sample ids.
-     * 
+     *
      * @param ids
      *            {@code SampleId}s to retrieve sample set data for.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -834,8 +846,8 @@ public class IFPClient {
                     break;
                 }
             } else {
-                String message = String.format(
-                        "Unable to find sample data [%s].", id);
+                String message = String
+                        .format("Unable to find sample data [%s].", id);
                 sr.addMessage(message);
                 data = Collections.emptyList();
                 break;
@@ -848,7 +860,7 @@ public class IFPClient {
 
     /**
      * Retrieves reference data identified by a reference id.
-     * 
+     *
      * @param id
      *            The {@code ReferenceID} for the reference set to retrieve.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -857,8 +869,8 @@ public class IFPClient {
     public ServerResponse<ReferenceData> getReferenceData(ReferenceID id) {
         ReferenceData data = null;
 
-        ServerResponse<List<ReferenceData>> sr = getReferenceData(Arrays
-                .asList(id));
+        ServerResponse<List<ReferenceData>> sr = getReferenceData(
+                Arrays.asList(id));
         List<ReferenceData> seq = sr.getPayload();
         if ((sr.isOkay()) && (seq.size() == 1)) {
             data = seq.get(0);
@@ -872,7 +884,7 @@ public class IFPClient {
 
     /**
      * Retrieves reference data identified by the sequence of reference ids.
-     * 
+     *
      * @param id
      *            {@code ReferenceID}s to retrieve reference data for.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -893,21 +905,21 @@ public class IFPClient {
                 try (InputStream in = lf.openInputStream()) {
                     ReferenceData refData = ReferenceData.getJAXBManager()
                             .unmarshalFromInputStream(in);
-                    refData.setId(new ReferenceID(id.getName(), false, lf
-                            .getContext().getLocalizationLevel()));
+                    refData.setId(new ReferenceID(id.getName(), false,
+                            lf.getContext().getLocalizationLevel()));
                     refData.setGloc(gridLocation);
                     data.add(refData);
                 } catch (Exception e) {
-                    String message = String
-                            .format("Unable to read reference data [%s] from file [%s].",
-                                    id, lf.toString());
+                    String message = String.format(
+                            "Unable to read reference data [%s] from file [%s].",
+                            id, lf.toString());
                     sr.addMessage(message);
                     data = Collections.emptyList();
                     break;
                 }
             } else {
-                String message = String.format(
-                        "Unable to find reference data [%s].", id);
+                String message = String
+                        .format("Unable to find reference data [%s].", id);
                 sr.addMessage(message);
                 data = Collections.emptyList();
                 break;
@@ -920,7 +932,7 @@ public class IFPClient {
 
     /**
      * Gets the WxDefinition.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the {@code WxDefinition}.
      */
@@ -932,7 +944,7 @@ public class IFPClient {
 
     /**
      * Gets the DiscreteDefinition.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the {@code DiscreteDefinition}.
      */
@@ -944,7 +956,7 @@ public class IFPClient {
 
     /**
      * Gets the site identifier associated with the server.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the site identifier.
      */
@@ -956,7 +968,7 @@ public class IFPClient {
 
     /**
      * Retrieves site time zone associated with the given site.
-     * 
+     *
      * @param site
      *            Site to get time zone for, identified by 3-character site
      *            identifier.
@@ -964,8 +976,8 @@ public class IFPClient {
      *         contains the site's time zone.
      */
     public ServerResponse<String> getSiteTimeZone(String site) {
-        ServerResponse<Map<String, String>> sr = getSiteTimeZone(Arrays
-                .asList(site));
+        ServerResponse<Map<String, String>> sr = getSiteTimeZone(
+                Arrays.asList(site));
         Map<String, String> tzMap = sr.getPayload();
 
         String timeZone;
@@ -983,15 +995,17 @@ public class IFPClient {
 
     /**
      * Retrieves site time zone associated with the list of sites.
-     * 
+     *
      * @param ids
      *            Sites to get time zone for, identified by 3-character site
      *            identifier.
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the requested sites and time zones.
      */
-    public ServerResponse<Map<String, String>> getSiteTimeZone(List<String> ids) {
-        GetSiteTimeZoneInfoRequest request = new GetSiteTimeZoneInfoRequest(ids);
+    public ServerResponse<Map<String, String>> getSiteTimeZone(
+            List<String> ids) {
+        GetSiteTimeZoneInfoRequest request = new GetSiteTimeZoneInfoRequest(
+                ids);
 
         return (ServerResponse<Map<String, String>>) makeRequest(request);
     }
@@ -999,7 +1013,7 @@ public class IFPClient {
     /**
      * Retrieves the list of known sites that the server is configured for by
      * site ID.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the list of known site identifiers.
      */
@@ -1011,7 +1025,7 @@ public class IFPClient {
 
     /**
      * Retrieves the list of known sites that the server is configured for.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the a {@code Map} of site IDs to office types.
      */
@@ -1024,7 +1038,7 @@ public class IFPClient {
     /**
      * Retrieves the database grid location that is common to all weather
      * elements.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the site's {@code GridLocation}.
      */
@@ -1035,8 +1049,21 @@ public class IFPClient {
     }
 
     /**
+     * Get all projections defined in IFPServer
+     *
+     * @return list of projections
+     */
+    public ServerResponse<List<ProjectionData>> getProjections() {
+        GetProjectionsRequest request = new GetProjectionsRequest();
+        @SuppressWarnings("unchecked")
+        ServerResponse<List<ProjectionData>> response = (ServerResponse<List<ProjectionData>>) makeRequest(
+                request);
+        return response;
+    }
+
+    /**
      * Returns the current list of clients that the server is connected to.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the list of connected clients.
      */
@@ -1048,7 +1075,7 @@ public class IFPClient {
 
     /**
      * Gets the VTEC Active Table based on the table name.
-     * 
+     *
      * @param tableName
      *            The active table to retrieve.
      * @return Status of the request as a {@code ServerResponse}. Payload
@@ -1057,8 +1084,8 @@ public class IFPClient {
     public ServerResponse<List<ActiveTableRecord>> getVTECActiveTable(
             ActiveTableMode tableName) {
         GetActiveTableRequest request = new GetActiveTableRequest();
-        request.setRequestedSiteId(SiteMap.getInstance().getSite4LetterId(
-                siteId));
+        request.setRequestedSiteId(
+                SiteMap.getInstance().getSite4LetterId(siteId));
         request.setMode(tableName);
 
         return (ServerResponse<List<ActiveTableRecord>>) makeRequest(request);
@@ -1067,7 +1094,7 @@ public class IFPClient {
     /**
      * Clears the specified VTEC table. Note that only the PRACTICE active table
      * can be successfully cleared.
-     * 
+     *
      * @param tableName
      *            The active table to clear.
      * @return Status of the request as a {@code ServerResponse}.
@@ -1077,8 +1104,9 @@ public class IFPClient {
 
         if (ActiveTableMode.PRACTICE == tableName) {
             try {
-                makeRequestInternal(new ClearPracticeVTECTableRequest(SiteMap
-                        .getInstance().getSite4LetterId(siteId), myWsId));
+                makeRequestInternal(new ClearPracticeVTECTableRequest(
+                        SiteMap.getInstance().getSite4LetterId(siteId),
+                        myWsId));
             } catch (Exception e) {
                 statusHandler.error(
                         "Server error processing clear VTEC table request.", e);
@@ -1098,7 +1126,7 @@ public class IFPClient {
      * the servers (mhsid, server, port, protocol, welist, and other
      * information). Returns a list of weather elements that normally are
      * requested.
-     * 
+     *
      * @return Status of the request as a {@code ServerResponse}. Payload
      *         contains the requested ISC information.
      */
@@ -1112,7 +1140,7 @@ public class IFPClient {
      * Makes an ISC data request based on the information in the XML. The XML
      * contains the servers (mhsid, server, port, protocol, welist, and other
      * information) from which to request the information.
-     * 
+     *
      * @param xmlRequest
      *            XML for the request
      * @return Status of the request as a {@code ServerResponse}.
@@ -1127,7 +1155,7 @@ public class IFPClient {
     /**
      * Returns the current ISC send status for the sendISCOnSave and the
      * sendISCOnPublish and request ISC states for the IFP Server.
-     * 
+     *
      * @return The configuration values for requestISC, sendISCOnSave and
      *         sendISCOnPublish on the IFP server.
      */
@@ -1137,6 +1165,11 @@ public class IFPClient {
         return (ServerResponse<IscSendStatus>) makeRequest(request);
     }
 
+    public ServerResponse<?> sendWFOMessage(List<String> wfos, String message) {
+        SendWFOMessageRequest request = new SendWFOMessageRequest(wfos,
+                message);
+        return makeRequest(request);
+    }
 
     /**
      * To get a "legacy-style" (prior to A2 release 16.2.2) IFPClient
@@ -1144,7 +1177,7 @@ public class IFPClient {
      * legacy-style IFPClient will return the inner payload and throw Exceptions
      * if there are error messages in the ServerResponse returned from the
      * request server.
-     * 
+     *
      * @return a {@code PyFPClient} instance.
      */
     public PyFPClient getPythonClient() {
@@ -1157,22 +1190,24 @@ public class IFPClient {
 
         ServerResponse<Object> ssr = new ServerResponse<>();
         try {
-            ServerResponse<?> sr = (ServerResponse<?>) makeRequestInternal(request);
+            ServerResponse<?> sr = (ServerResponse<?>) makeRequestInternal(
+                    request);
             ssr.addMessages(sr);
             ssr.setPayload(sr.getPayload());
         } catch (Exception e) {
-            statusHandler.error(String.format(
-                    "Server error processing %s request.", request.getClass()
-                            .getName()), e);
+            statusHandler
+                    .error(String.format("Server error processing %s request.",
+                            request.getClass().getName()), e);
             ssr.addMessage(String.format(
-                    "Server error processing %s request: %s", request
-                            .getClass().getName(), e.getLocalizedMessage()));
+                    "Server error processing %s request: %s",
+                    request.getClass().getName(), e.getLocalizedMessage()));
         }
 
         return ssr;
     }
 
-    private Object makeRequestInternal(IServerRequest request) throws Exception {
+    private Object makeRequestInternal(IServerRequest request)
+            throws Exception {
         return RequestRouter.route(request);
     }
 }

@@ -41,15 +41,13 @@ ToolType = "numeric"
 WeatherElementEdited = "StormTotalQPF"
 HideTool = 0
 
-## Set up Class
 import SmartScript, ProcessVariableList
-## For available commands, see SmartScript
 
 class Tool (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
 
-    def preProcessGrid(self, varDict):
+    def preProcessGrid(self):
         #makeVariable List for the dialog, get all of the office types used
         #by the ISC database for QPF. This dialog only appears if there are
         #multiple QPF*** weather elements in the ISC database.
@@ -77,26 +75,20 @@ class Tool (SmartScript.SmartScript):
         processVarList = ProcessVariableList.ProcessVariableList(
           "StormTotalQPF_ISC", VList, self.varReturn)
         status = processVarList.status()
-        if status != "Ok":
+        if status != "OK":
             self.cancel()
         self._officeType = self.varReturn.get("ISC Office Type:", 
           self.myOfficeType())
                         
 
-    # Required Method: Execute
-    #  Called once for each grid
-    # Fill in the arguments you want to use -- WeatherElement1, WeatherElement2...
-
-    def execute(self, GridTimeRange, StormTotalQPF, QPF):
-        "Put your tool description here"
-
+    def execute(self, GridTimeRange):
         #get the QPF name for the desired office type
         if self._officeType == self.myOfficeType():
             sourceWE = "QPF"
         else:
             sourceWE = "QPF" + self._officeType
 
-        StormTotalQPF=self.getGrids("ISC", sourceWE, "SFC",GridTimeRange,"Sum")
+        StormTotalQPF = self.getGrids("ISC", sourceWE, "SFC", GridTimeRange, "Sum")
 
         # Return the new value
         return StormTotalQPF

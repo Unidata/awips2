@@ -30,7 +30,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 
 /**
  * 
@@ -41,12 +40,12 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 1, 2009            bsteffen     Initial creation
+ * Oct 01, 2009            bsteffen    Initial creation
+ * Feb 22, 2018  6629      njensen     Removed special color handling
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class AdvisoryResourceData extends AbstractRequestableResourceData {
@@ -58,9 +57,6 @@ public class AdvisoryResourceData extends AbstractRequestableResourceData {
     private String name;
 
     @XmlAttribute
-    private String colorString;
-
-    @XmlAttribute
     private boolean enableNonstandardInspect = false;
 
     @Override
@@ -68,10 +64,6 @@ public class AdvisoryResourceData extends AbstractRequestableResourceData {
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
         AdvisoryResource nr = new AdvisoryResource(this, loadProperties);
-        if (colorString != null) {
-            nr.getCapability(ColorableCapability.class).setColorAsString(
-                    colorString);
-        }
         for (PluginDataObject o : objects) {
             nr.addRecord(o);
         }
@@ -102,20 +94,10 @@ public class AdvisoryResourceData extends AbstractRequestableResourceData {
         return name;
     }
 
-    public void setColorString(String colorString) {
-        this.colorString = colorString;
-    }
-
-    public String getColorString() {
-        return colorString;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
-                + ((colorString == null) ? 0 : colorString.hashCode());
         result = prime * result
                 + ((dataAdapter == null) ? 0 : dataAdapter.hashCode());
         result = prime * result + (enableNonstandardInspect ? 1231 : 1237);
@@ -125,30 +107,33 @@ public class AdvisoryResourceData extends AbstractRequestableResourceData {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AdvisoryResourceData other = (AdvisoryResourceData) obj;
-        if (colorString == null) {
-            if (other.colorString != null)
-                return false;
-        } else if (!colorString.equals(other.colorString))
-            return false;
         if (dataAdapter == null) {
-            if (other.dataAdapter != null)
+            if (other.dataAdapter != null) {
                 return false;
-        } else if (!dataAdapter.equals(other.dataAdapter))
+            }
+        } else if (!dataAdapter.equals(other.dataAdapter)) {
             return false;
-        if (enableNonstandardInspect != other.enableNonstandardInspect)
+        }
+        if (enableNonstandardInspect != other.enableNonstandardInspect) {
             return false;
+        }
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         return true;
     }
 

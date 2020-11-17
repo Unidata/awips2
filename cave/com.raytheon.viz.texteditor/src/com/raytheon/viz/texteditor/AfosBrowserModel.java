@@ -64,6 +64,8 @@ import com.raytheon.viz.texteditor.util.AFOS_ORIGIN;
  * 02/17/2016   5391        randerso    Added displayHelp
  * 02/12/2016   4716        rferrel     Refactor to extend {@link AbstractBrowserModel}.
  * 11/02/2016   5692        rferrel     Refactor ccc help to {@link AbstractBrowserModel}.
+ * 01/04/2017   7185        tgurney     Remove unused localSite field (exists
+ *                                      already in superclass)
  * </pre>
  * 
  * @author grichard
@@ -114,8 +116,6 @@ public final class AfosBrowserModel extends AbstractBrowserModel {
 
     private Map<String, Map<String, SortedSet<String>>> masterPil;
 
-    private String localSite;
-
     /**
      * Private constructor: Use getInstance().
      */
@@ -125,7 +125,6 @@ public final class AfosBrowserModel extends AbstractBrowserModel {
         this.originMap = new HashMap<>();
         this.categoryClass = new HashMap<>();
         this.masterPil = new HashMap<>();
-        this.localSite = null;
         setup();
         cleanup();
     }
@@ -186,6 +185,7 @@ public final class AfosBrowserModel extends AbstractBrowserModel {
             parseAfosMasterPil(
                     pathManager.getLocalizationFile(lc, AFOS_MASTER_PIL));
         }
+        addRadarToMasterPil();
     }
 
     /**
@@ -247,7 +247,7 @@ public final class AfosBrowserModel extends AbstractBrowserModel {
         if ((fileToParse != null) && fileToParse.exists()) {
             try (InputStream in = fileToParse.openInputStream();
                     BufferedReader br = new BufferedReader(
-                            new InputStreamReader(in));) {
+                            new InputStreamReader(in))) {
                 String line = null;
 
                 while ((line = br.readLine()) != null) {
@@ -292,7 +292,7 @@ public final class AfosBrowserModel extends AbstractBrowserModel {
                     .getCCCFromXXXCode(localSite);
             try (InputStream in = fileToParse.openInputStream();
                     BufferedReader br = new BufferedReader(
-                            new InputStreamReader(in));) {
+                            new InputStreamReader(in))) {
                 String line = null;
 
                 while ((line = br.readLine()) != null) {

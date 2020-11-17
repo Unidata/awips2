@@ -26,10 +26,10 @@ import java.util.Map;
 
 import javax.measure.unit.Unit;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -56,11 +56,11 @@ import com.raytheon.viz.core.graphing.xy.XYWindImageData;
  * May 13, 2013  1869     bsteffen    Modified D2D height Graphs to work
  *                                    without dataURI column.
  * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
+ * Feb 06, 2018  6829     njensen     Check for wind
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 
 public class PointDataVarHeightAdapter extends
@@ -70,52 +70,26 @@ public class PointDataVarHeightAdapter extends
 
     protected Unit<?> yUnit = Unit.ONE;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.varheight.adapter.AbstractVarHeightAdapter#getParamterName
-     * ()
-     */
     @Override
     public String getParameterName() {
         return resourceData.getParameter();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.varheight.adapter.AbstractVarHeightAdapter#getXUnits()
-     */
     @Override
     public Unit<?> getXUnit() {
         return xUnit;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.varheight.adapter.AbstractVarHeightAdapter#getYUnits()
-     */
     @Override
     public Unit<?> getYUnit() {
         return yUnit;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.varheight.adapter.AbstractVarHeightAdapter#loadData(
-     * com.raytheon.uf.common.time.DataTime)
-     */
     @Override
     public List<XYData> loadData(DataTime currentTime) throws VizException {
         double min = Math.min(heightScale.getMinVal(), heightScale.getMaxVal());
         double max = Math.max(heightScale.getMinVal(), heightScale.getMaxVal());
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+        Map<String, RequestConstraint> constraints = new HashMap<>(
                 resourceData.getMetadataMap());
         if (resourceData.getBinOffset() != null) {
             TimeRange range = resourceData.getBinOffset().getTimeRange(
@@ -148,7 +122,7 @@ public class PointDataVarHeightAdapter extends
         xUnit = pdc.getDescription(parameter).getUnitObject();
         yUnit = pdc.getDescription(heightScale.getParameter()).getUnitObject();
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
-            List<XYData> list = new ArrayList<XYData>();
+            List<XYData> list = new ArrayList<>();
             PointDataView pdv = pdc.readRandom(uriCounter);
             Number[] x = pdv.getNumberAllLevels(parameter);
             Number[] y = pdv.getNumberAllLevels(heightScale.getParameter());
@@ -157,6 +131,10 @@ public class PointDataVarHeightAdapter extends
             Number[] windV = null;
             if (pdc.getParameters().contains(parameter + "[1]")) {
                 windV = pdv.getNumberAllLevels(parameter + "[1]");
+            }
+
+            if (windV != null) {
+                wind = true;
             }
 
             // look for valid data points
@@ -183,6 +161,6 @@ public class PointDataVarHeightAdapter extends
                 return list;
             }
         }
-        return new ArrayList<XYData>();
+        return new ArrayList<>();
     }
 }

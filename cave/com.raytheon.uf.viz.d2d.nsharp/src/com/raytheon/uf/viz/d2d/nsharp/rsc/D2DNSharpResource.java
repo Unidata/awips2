@@ -19,14 +19,8 @@
  **/
 package com.raytheon.uf.viz.d2d.nsharp.rsc;
 
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
-import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
-import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +45,11 @@ import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPartListener;
 
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
+
 /**
  * 
  * Minimal wrapper around ncep resource to handle updates and frame counts and
@@ -60,30 +59,32 @@ import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPartListener;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Apr 14, 2011           bsteffen    Initial creation
- * Nov 12, 2014  3810     bsteffen    Synchronize access to dataTimes and pdos.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ------------------------------------------
+ * Apr 14, 2011           bsteffen  Initial creation
+ * Nov 12, 2014  3810     bsteffen  Synchronize access to dataTimes and pdos.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class D2DNSharpResource extends
-        AbstractVizResource<D2DNSharpResourceData, AbstractDescriptor> {
+public class D2DNSharpResource
+        extends AbstractVizResource<D2DNSharpResourceData, AbstractDescriptor> {
 
-    /* This object should be synchronized whenever accessing dataTimes or pdos. */
+    /*
+     * This object should be synchronized whenever accessing dataTimes or pdos.
+     */
     private final Object timeLock = new Object();
 
     /* A map of all the plugin data objects for times we have data. */
-    private Map<DataTime, D2DNSharpDataObject> pdos = new HashMap<DataTime, D2DNSharpDataObject>();
+    private Map<DataTime, D2DNSharpDataObject> pdos = new HashMap<>();
 
-    private List<String> soundingsToRemove = new ArrayList<String>();
+    private List<String> soundingsToRemove = new ArrayList<>();
 
-    private BlockingQueue<D2DNSharpDataObject> dataRequestQueue = new LinkedBlockingQueue<D2DNSharpDataObject>();
+    private BlockingQueue<D2DNSharpDataObject> dataRequestQueue = new LinkedBlockingQueue<>();
 
-    private BlockingQueue<D2DNSharpDataObject> dataResponseQueue = new LinkedBlockingQueue<D2DNSharpDataObject>();
+    private BlockingQueue<D2DNSharpDataObject> dataResponseQueue = new LinkedBlockingQueue<>();
 
     private Job dataRequestJob = new Job("Requesting NSharp Data") {
 
@@ -108,18 +109,13 @@ public class D2DNSharpResource extends
 
     public D2DNSharpResource(D2DNSharpResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
-        synchronized (timeLock) {
-            this.dataTimes = new ArrayList<DataTime>();
-        }
+        super(resourceData, loadProperties, false);
+
     }
 
     protected void addDataObject(D2DNSharpDataObject pdo) {
         synchronized (timeLock) {
-            if (!this.dataTimes.contains(pdo.getDataTime())) {
-                this.dataTimes.add(pdo.getDataTime());
-                Collections.sort(this.dataTimes);
-            }
+            this.dataTimes.add(pdo.getDataTime());
             pdos.put(pdo.getDataTime(), pdo);
         }
         dataRequestQueue.offer(pdo);
@@ -137,13 +133,13 @@ public class D2DNSharpResource extends
          */
         if (!soundingsToRemove.isEmpty()) {
             List<String> soundingsToRemove = this.soundingsToRemove;
-            this.soundingsToRemove = new ArrayList<String>();
+            this.soundingsToRemove = new ArrayList<>();
             handler.deleteRsc(soundingsToRemove);
             issueRefresh();
         }
         if (!dataResponseQueue.isEmpty()) {
             NsharpStationInfo stnInfo = null;
-            Map<String, List<NcSoundingLayer>> myDataMap = new HashMap<String, List<NcSoundingLayer>>();
+            Map<String, List<NcSoundingLayer>> myDataMap = new HashMap<>();
             D2DNSharpDataObject pdo = dataResponseQueue.poll();
             while (pdo != null) {
                 if (isDataObjectCurrent(pdo) && pdo.getLayers() != null) {
@@ -161,9 +157,8 @@ public class D2DNSharpResource extends
     }
 
     private NsharpResourceHandler getHandler() {
-        List<NsharpAbstractPaneResource> paneRscs = descriptor
-                .getResourceList().getResourcesByTypeAsType(
-                        NsharpAbstractPaneResource.class);
+        List<NsharpAbstractPaneResource> paneRscs = descriptor.getResourceList()
+                .getResourcesByTypeAsType(NsharpAbstractPaneResource.class);
         for (NsharpAbstractPaneResource paneRsc : paneRscs) {
             NsharpResourceHandler handler = paneRsc.getRscHandler();
             if (handler != null) {
@@ -182,8 +177,8 @@ public class D2DNSharpResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         getHandler().setSoundingType(resourceData.getSoundingType());
-        //partListener = new D2DNSharpPartListener(this);
-        //partListener.enable();
+        partListener = new D2DNSharpPartListener(this);
+        partListener.enable();
     }
 
     @Override
@@ -214,7 +209,7 @@ public class D2DNSharpResource extends
 
     @Override
     protected void disposeInternal() {
-        List<DataTime> dataTimes = new ArrayList<DataTime>(this.dataTimes);
+        List<DataTime> dataTimes = new ArrayList<>(this.dataTimes);
         for (DataTime time : dataTimes) {
             this.remove(time);
         }
@@ -225,11 +220,11 @@ public class D2DNSharpResource extends
     }
 
     public Collection<String> getTimeLineElements() {
-        List<String> elements = new ArrayList<String>();
+        List<String> elements = new ArrayList<>();
         synchronized (timeLock) {
             for (DataTime time : dataTimes) {
-                elements.add(pdos.get(time).getStationInfo()
-                        .getStnDisplayInfo());
+                elements.add(
+                        pdos.get(time).getStationInfo().getStnDisplayInfo());
             }
         }
         return elements;

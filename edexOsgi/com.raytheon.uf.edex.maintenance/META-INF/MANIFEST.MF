@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Maintenance
 Bundle-SymbolicName: com.raytheon.uf.edex.maintenance
-Bundle-Version: 1.16.0.qualifier
+Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.uf.common.dataplugin,
@@ -13,4 +13,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.common.localization
+Export-Package: com.raytheon.uf.edex.maintenance
 

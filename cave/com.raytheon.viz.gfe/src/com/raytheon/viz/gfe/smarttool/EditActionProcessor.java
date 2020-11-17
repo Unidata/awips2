@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,7 +37,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.HighlightMsg;
@@ -51,27 +51,30 @@ import com.raytheon.viz.gfe.dialogs.TimeRangeWarningDialog;
 /**
  * Partially ported from Awips 1. Somewhat modified/changed to make work with
  * A2.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 3, 2010            njensen     Initial creation
- * Nov 7, 2012  1298       rferrel     Keep EmptyEditAreaWarningDialog blocking.
- *                                     Keep TimeRangeWarningdialog blocking.
- * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
- * Mar 14, 2014 15813      ryu         Fixed default time range used.
- * Jul 23, 2015 4263       dgilling    Support SmartToolMetadataManager.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 03, 2010           njensen   Initial creation
+ * Nov 07, 2012  1298     rferrel   Keep EmptyEditAreaWarningDialog blocking.
+ *                                  Keep TimeRangeWarningdialog blocking.
+ * Jan 08, 2013  1486     dgilling  Support changes to BaseGfePyController.
+ * Mar 14, 2014  15813    ryu       Fixed default time range used.
+ * Jul 23, 2015  4263     dgilling  Support SmartToolMetadataManager.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ * Feb 07, 2018  6882     randerso  Changed to use ReferenceData.isEmpty()
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class EditActionProcessor {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(EditActionProcessor.class);
 
     private DataManager dataMgr;
@@ -80,10 +83,14 @@ public class EditActionProcessor {
 
     private int returnCode;
 
+    /**
+     * Constructor
+     *
+     * @param dm
+     */
     public EditActionProcessor(DataManager dm) {
         this.dataMgr = dm;
-        previewColor = Activator.getDefault().getPreferenceStore()
-                .getString("TimeBlockPreview_color");
+        previewColor = GFEPreference.getString("TimeBlockPreview_color");
     }
 
     private void busyCursor() {
@@ -94,8 +101,8 @@ public class EditActionProcessor {
                     IWorkbenchWindow window = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow();
                     Shell shell = window.getShell();
-                    shell.setCursor(shell.getDisplay().getSystemCursor(
-                            SWT.CURSOR_WAIT));
+                    shell.setCursor(shell.getDisplay()
+                            .getSystemCursor(SWT.CURSOR_WAIT));
                 }
             });
         }
@@ -108,9 +115,8 @@ public class EditActionProcessor {
                 public void run() {
                     IWorkbenchWindow window = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow();
-                    window.getShell().setCursor(
-                            window.getShell().getDisplay()
-                                    .getSystemCursor(SWT.CURSOR_ARROW));
+                    window.getShell().setCursor(window.getShell().getDisplay()
+                            .getSystemCursor(SWT.CURSOR_ARROW));
                 }
 
             });
@@ -122,7 +128,7 @@ public class EditActionProcessor {
             TimeRange useTimeRange) {
         // Get preview information for a tool or procedure
         // Check for ability to execute itemName
-        if (itemName == null || itemName.equals("")) {
+        if ((itemName == null) || itemName.isEmpty()) {
             return null;
         }
 
@@ -130,18 +136,18 @@ public class EditActionProcessor {
         Parm parm = null;
         String element = null;
         Parm effectiveParm = null;
-        if (itemKind.equals("Tool")) {
-            element = dataMgr.getSmartToolInterface().getWeatherElementEdited(
-                    itemName);
+        if ("Tool".equals(itemKind)) {
+            element = dataMgr.getSmartToolInterface()
+                    .getWeatherElementEdited(itemName);
             if (element == null) {
-                processError("ExecuteOrClassError", "Tool Not Found: "
-                        + itemName, null);
+                processError("ExecuteOrClassError",
+                        "Tool Not Found: " + itemName, null);
                 return null;
             }
-            if (!element.equals("variableElement") && !element.equals("None")) {
+            if (!"variableElement".equals(element) && !"None".equals(element)) {
                 Parm activeParm = dataMgr.getSpatialDisplayManager()
                         .getActivatedParm();
-                if (activeParm == null
+                if ((activeParm == null)
                         || !element.equals(activeParm.expressionName())) {
                     String msg = itemName + " modifies " + element + ".  ";
                     msg += "Make this the Editable Weather Element to run the tool.";
@@ -152,14 +158,14 @@ public class EditActionProcessor {
 
             effectiveParm = dataMgr.getParmManager().getParmInExpr(element,
                     true);
-            if (effectiveParm != null || element.equals("None")) {
+            if ((effectiveParm != null) || "None".equals(element)) {
                 parm = effectiveParm;
             } else {
                 String message = "No Weather Element Set To Edit. ";
                 processError("ExecuteOrClassError", message, null);
                 return null;
             }
-        } else if (itemKind.equals("Procedure")) {
+        } else if ("Procedure".equals(itemKind)) {
             effectiveParm = null;
             element = "";
         } else {
@@ -168,22 +174,22 @@ public class EditActionProcessor {
             return null;
         }
 
-        final List<String> warnings = new ArrayList<String>();
+        final List<String> warnings = new ArrayList<>();
         // Determine the edit area that would be affected
         boolean emptyEditAreaFlag = false;
         ReferenceData refset = null;
-        if (useEditArea != null && useEditArea.getGrid().isAnyBitsSet()) {
+        if ((useEditArea != null) && !useEditArea.isEmpty()) {
             refset = useEditArea;
         } else {
             refset = determineEditArea(warnings);
-            if (refset == null || !refset.getGrid().isAnyBitsSet()) {
+            if ((refset == null) || refset.isEmpty()) {
                 emptyEditAreaFlag = true;
             }
         }
 
         // Determine the time range that would be affected
         TimeRange timeRange = null;
-        if (useTimeRange != null && useTimeRange.isValid()) {
+        if ((useTimeRange != null) && useTimeRange.isValid()) {
             timeRange = useTimeRange;
         } else {
             timeRange = determineTimeRange(effectiveParm, warnings);
@@ -195,7 +201,7 @@ public class EditActionProcessor {
         // Save the preview information
         // Check for variableElement and substitute the editable
         // element's expression name
-        if (element.equals("variableElement")) {
+        if ("variableElement".equals(element)) {
             Parm active = dataMgr.getSpatialDisplayManager().getActivatedParm();
             if (active != null) {
                 element = active.expressionName();
@@ -216,15 +222,16 @@ public class EditActionProcessor {
             // Since we have just the single Parm instance in this code, the
             // null check would cause the function to return null and smart
             // tools that edit no weather elements would fail to run.
-            if ((previewInfo.getParm() == null && !element.equals("None"))
-                    || previewInfo.getEditAction().getTimeRange() == null) {
+            if (((previewInfo.getParm() == null) && !"None".equals(element))
+                    || (previewInfo.getEditAction().getTimeRange() == null)) {
                 return null;
             }
             Parm p = previewInfo.getParm();
             if (p != null) {
                 HighlightMsg msg = new HighlightMsg(p,
-                        new TimeRange[] { previewInfo.getEditAction()
-                                .getTimeRange() }, true, previewColor);
+                        new TimeRange[] {
+                                previewInfo.getEditAction().getTimeRange() },
+                        true, previewColor);
                 msg.send();
             }
         }
@@ -234,10 +241,11 @@ public class EditActionProcessor {
 
     private void erasePreview(PreviewInfo previewInfo) {
         normalCursor();
-        if (previewInfo != null && previewInfo.getParm() != null) {
+        if ((previewInfo != null) && (previewInfo.getParm() != null)) {
             HighlightMsg msg = new HighlightMsg(previewInfo.getParm(),
-                    new TimeRange[] { previewInfo.getEditAction()
-                            .getTimeRange() }, false, previewColor);
+                    new TimeRange[] {
+                            previewInfo.getEditAction().getTimeRange() },
+                    false, previewColor);
             msg.send();
         }
     }
@@ -248,7 +256,7 @@ public class EditActionProcessor {
         // If pre-defined in Edit Area in varDict, load it
         // Otherwise, use active ref set
         ReferenceData refset = dataMgr.getRefManager().getActiveRefSet();
-        if (refset == null || !refset.getGrid().isAnyBitsSet()) {
+        if ((refset == null) || refset.isEmpty()) {
             warnings.add("EmptyEditArea");
         }
 
@@ -265,7 +273,7 @@ public class EditActionProcessor {
         // Abstime i.e. start time of current grid
         // Try to use selectionTimeRange
         TimeRange timeRange = dataMgr.getParmOp().getSelectionTimeRange();
-        if (timeRange != null && timeRange.isValid()) {
+        if ((timeRange != null) && timeRange.isValid()) {
             // Check to make sure it intersects SETime so results will
             // be visible
             Date seTime = dataMgr.getSpatialDisplayManager()
@@ -295,7 +303,7 @@ public class EditActionProcessor {
 
         // If only one grid will be affected,
         // do not put out time range warning
-        if (timeRange != null && parm != null) {
+        if ((timeRange != null) && (parm != null)) {
             IGridData[] grids = parm.getGridInventory(timeRange);
             // Return a warning flag if time range could
             // span multiple grids
@@ -316,10 +324,10 @@ public class EditActionProcessor {
         // the caller for reporting
         // Return the error and its info
 
-        if (passErrors == null
-                || (passErrors != null && !passErrors.contains(errorType))) {
+        if ((passErrors == null)
+                || ((passErrors != null) && !passErrors.contains(errorType))) {
             boolean tb = false;
-            if (errorType.equals("StandardError")) {
+            if ("StandardError".equals(errorType)) {
                 tb = true;
             }
             handleError(errorInfo, tb);
@@ -331,8 +339,19 @@ public class EditActionProcessor {
         statusHandler.handle(Priority.PROBLEM, errorMsg);
     }
 
+    /**
+     * Prepare to execute smart tool
+     *
+     * @param itemKind
+     * @param itemName
+     * @param refData
+     * @param timeRange
+     * @param highlightGrids
+     * @return the preview info
+     */
     public PreviewInfo prepareExecute(String itemKind, String itemName,
-            ReferenceData refData, TimeRange timeRange, boolean highlightGrids) {
+            ReferenceData refData, TimeRange timeRange,
+            boolean highlightGrids) {
         // Prepare to execute item
         // Return previewInfo and modes
         ReferenceData useEditArea = null;
@@ -372,8 +391,8 @@ public class EditActionProcessor {
 
         // Use Full Area if proceeded with Empty Edit Area Warning
         if (previewInfo.getWarnings().contains("EmptyEditArea")) {
-            previewInfo.getEditAction().setRefSet(
-                    dataMgr.getRefManager().fullRefSet());
+            previewInfo.getEditAction()
+                    .setRefSet(dataMgr.getRefManager().fullRefSet());
         }
 
         // Get modes
@@ -383,7 +402,7 @@ public class EditActionProcessor {
 
     private List<String> editWarnings(List<String> warnings, String actionType,
             final String name) {
-        final List<String> checkedList = new ArrayList<String>();
+        final List<String> checkedList = new ArrayList<>();
         if (warnings.contains("ALL")) {
             checkedList.add("TimeRange");
             checkedList.add("EmptyTimeRange");
@@ -394,15 +413,15 @@ public class EditActionProcessor {
             checkedList.addAll(warnings);
         }
 
-        if (actionType.equals("Procedure")
-                && (checkedList.contains("EmptyTimeRange") || checkedList
-                        .contains("EmptyEditArea"))) {
+        if ("Procedure".equals(actionType)
+                && (checkedList.contains("EmptyTimeRange")
+                        || checkedList.contains("EmptyEditArea"))) {
             VizApp.runSync(new Runnable() {
 
                 @Override
                 public void run() {
-                    Collection<String> argList = dataMgr
-                            .getProcedureInterface().getMethodArguments(name);
+                    Collection<String> argList = dataMgr.getProcedureInterface()
+                            .getMethodArguments(name);
                     if (!argList.contains("timeRange")
                             && checkedList.contains("EmptyTimeRange")) {
                         checkedList.remove("EmptyTimeRange");
@@ -419,8 +438,14 @@ public class EditActionProcessor {
         return checkedList;
     }
 
+    /**
+     * Wrap up execute
+     *
+     * @param previewInfo
+     * @param highlightGrids
+     */
     public void wrapUpExecute(PreviewInfo previewInfo, boolean highlightGrids) {
-        if (highlightGrids && previewInfo != null) {
+        if (highlightGrids && (previewInfo != null)) {
             erasePreview(previewInfo);
         }
         normalCursor();
@@ -437,9 +462,10 @@ public class EditActionProcessor {
         // Warn the user given a warning set up by Preview
         // and ask whether or not to proceed.
 
-        if (warning.equals("TimeRange")) {
-            boolean ask = Message.inquireLastMessage(
-                    ShowTimeRangeWarningMsg.class).isEnabled();
+        if ("TimeRange".equals(warning)) {
+            boolean ask = Message
+                    .inquireLastMessage(ShowTimeRangeWarningMsg.class)
+                    .isEnabled();
             if (ask) {
                 VizApp.runSync(new Runnable() {
                     @Override
@@ -456,9 +482,10 @@ public class EditActionProcessor {
             } else {
                 return true;
             }
-        } else if (warning.equals("EmptyEditArea")) {
-            boolean ask = Message.inquireLastMessage(
-                    ShowEmptyEditAreaWarningMsg.class).isEnabled();
+        } else if ("EmptyEditArea".equals(warning)) {
+            boolean ask = Message
+                    .inquireLastMessage(ShowEmptyEditAreaWarningMsg.class)
+                    .isEnabled();
             if (ask) {
                 VizApp.runSync(new Runnable() {
                     @Override
@@ -475,11 +502,11 @@ public class EditActionProcessor {
             } else {
                 return true;
             }
-        } else if (warning.equals("EmptyTimeRange")) {
+        } else if ("EmptyTimeRange".equals(warning)) {
             String message = "Empty Time Range -- Please Select Time Range in Grid Manager.";
             processError("ExecuteOrClassError", message, null);
             return false;
-        } else if (warning.equals("SETimeSync")) {
+        } else if ("SETimeSync".equals(warning)) {
             String message = "Time Range does not intersect Spatial Editor time. "
                     + "Please set Time so results will be visible. ";
             processError("ExecuteOrClassError", message, null);

@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -98,6 +97,7 @@ import com.raytheon.uf.common.util.Pair;
  * Jun 12, 2017  6298     mapeters  Update references to refactored ReferenceMgr
  * Jul 31, 2017  6342     randerso  Get ReferenceMgr from IFPServer. Code
  *                                  cleanup
+ * Jan 15, 2018  6867     dgilling  Throw exception if GPI cannot be retrieved.
  *
  * </pre>
  *
@@ -139,9 +139,15 @@ public class IFPWE {
         this.ifpServer = ifpServer;
         this.gridParmMgr = ifpServer.getGridParmMgr();
         this.lockMgr = ifpServer.getLockMgr();
+        this.wsId = new WsId(null, userName, "EDEX");
 
-        gpi = this.gridParmMgr.getGridParmInfo(parmId).getPayload();
-        wsId = new WsId(null, userName, "EDEX");
+        ServerResponse<GridParmInfo> sr = this.gridParmMgr
+                .getGridParmInfo(this.parmId);
+        if (sr.isOkay()) {
+            this.gpi = sr.getPayload();
+        } else {
+            throw new IllegalArgumentException(sr.message());
+        }
     }
 
     /**
@@ -279,7 +285,7 @@ public class IFPWE {
      *             If an error occurs while trying to obtain a lock on the
      *             destination database.
      */
-    public void put(LinkedHashMap<TimeRange, List<IGridSlice>> inventory)
+    public void put(Map<TimeRange, List<IGridSlice>> inventory)
             throws GfeException {
 
         for (Entry<TimeRange, List<IGridSlice>> entry : inventory.entrySet()) {

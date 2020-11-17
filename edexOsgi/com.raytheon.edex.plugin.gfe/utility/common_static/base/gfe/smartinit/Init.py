@@ -829,7 +829,7 @@ class Forecaster(GridUtilities):
             if wenameLevel not in JUtil.javaStringListToPylist(self.newdb().getKeys()):
                 msg = wenameLevel + " not in " + \
                       self.newdb().getModelIdentifier() + " " + "SKIPPING"
-                LogStream.logEvent(msg)
+                LogStream.logProblem(msg)
                 continue
             rval = filter(lambda x,y=wenameLevel : x[0] != y, rval)
             rval.append((wenameLevel, mthd, fargs))

@@ -107,8 +107,9 @@ VERCONFIG["QPF"]    =(0,0,0,(0.05,0.10,0.25,0.50,1.00),0.05,1.0,"BV_Change2","QP
 #
 SAVE_MODELS=["GFS40","GFS40BC","ADJMAV","ADJMAVBC","ADJMEX","ADJMEXBC",
             "ADJMEH","ADJMEN","ADJMEL",
+            "MOSGuide","MOSGuideBC",
             "NAM12","NAM12BC","ADJMET","ADJMETBC",
-            "ADJDGX","ADJDGXBC",
+            "DGEX","DGEXBC","ADJDGX","ADJDGXBC",
             "ADJFWC","ADJFWCBC",
             "ADJKAF","ADJKAFBC",
             "SREF","SREFBC",
@@ -214,7 +215,9 @@ START_OFFSET_HOURS={"MaxT":12,
 #  then for a 15Z run of the SREF model - we will add -3 hours to that,
 #  getting 12Z - and check for other 12Z models when finding common cases.
 #     
-BASE_OFFSET={"ADJDGX":6,
+BASE_OFFSET={"DGEX":6,
+             "DGEXBC":6,
+             "ADJDGX":6,
              "ADJDGXBC":6,
              "SREF":-3,
              "SREFBC":-3,

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,32 +37,37 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * WeatherKey is a class that encapsulates several weather sub keys. This class
  * is used to contain, encode, and decode the text strings to/from weather sub
  * keys.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 10, 2011      #8156 randerso    Re-ported from AWIPS 1
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 10, 2011  8156     randerso  Re-ported from AWIPS 1
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Added descriptionSubKeys instance method.
+ *                                  Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 @DynamicSerialize
 public class WeatherKey implements Comparable<WeatherKey> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherKey.class);
 
+    /**
+     * Character used as delimiter between subkeys
+     */
     public static final char SUBKEY_SEPARATOR = '^';
 
-    private static final ArrayList<WeatherSubKey> INVALID = new ArrayList<WeatherSubKey>(
+    private static final List<WeatherSubKey> INVALID = new ArrayList<>(
             Arrays.asList(new WeatherSubKey()));
 
-    private static ArrayList<WeatherSubKey> invalidSubKey() {
+    private static List<WeatherSubKey> invalidSubKey() {
         return INVALID;
     }
 
@@ -77,7 +82,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
     /**
      * Constructor for WeatherKey class. Initializes the weather key to no
      * entries.
-     * 
+     *
      */
     public WeatherKey() {
         this.subKeys = invalidSubKey();
@@ -85,7 +90,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
 
     /**
      * Constructor for WeatherKey class taking a weather text string.
-     * 
+     *
      * @param siteId
      * @param wxString
      */
@@ -101,7 +106,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
     public WeatherKey(WeatherKey key) {
         this.siteId = key.siteId;
         this.origStr = key.origStr;
-        this.subKeys = new ArrayList<WeatherSubKey>(key.getSubKeys().size());
+        this.subKeys = new ArrayList<>(key.getSubKeys().size());
         for (WeatherSubKey subKey : key.getSubKeys()) {
             this.subKeys.add(new WeatherSubKey(subKey));
         }
@@ -109,7 +114,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
 
     /**
      * Constructor for WeatherKey class taking an subKeys of weather sub keys.
-     * 
+     *
      * @param siteId
      * @param subKeys
      */
@@ -121,7 +126,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
     /**
      * Constructor for WeatherKey taking a coded int. This performs the opposite
      * function as KeyAsInts().
-     * 
+     *
      * @param siteId
      * @param codedkey
      */
@@ -132,7 +137,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
     /**
      * Constructor for WeatherKey taking a series of coded ints. This performs
      * the opposite function as KeyAsInts().
-     * 
+     *
      * @param siteId
      * @param codedkeys
      */
@@ -140,7 +145,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
         this.siteId = siteId;
 
         // look at each unsigned long int
-        this.subKeys = new ArrayList<WeatherSubKey>();
+        this.subKeys = new ArrayList<>();
         for (int codedkey : codedkeys) {
             this.subKeys.add(new WeatherSubKey(siteId, codedkey));
         }
@@ -153,23 +158,23 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * coverage, composite weather types, and composite weather types with
      * intensity, visibility, and appended attributes. Uses the pretty versions
      * of all fields.
-     * 
+     *
      * @return the composite types
      */
     public List<WxComposite> getCompositeTypes() {
         // Start with a clean slate
         String coverage;
         String prettyCoverage;
-        String types;
-        String typesWithInten;
+        StringBuilder types = new StringBuilder();
+        StringBuilder typesWithInten = new StringBuilder();
         String visibility;
-        String attributes;
+        List<String> attributes = new ArrayList<>();
 
-        List<WxComposite> comps = new ArrayList<WxComposite>();
+        List<WxComposite> comps = new ArrayList<>();
 
         // Find all of the coverages. Place them in a temporary SeqOf while
         // filling types and typesWithInten.
-        List<String> foundCov = new ArrayList<String>();
+        List<String> foundCov = new ArrayList<>();
         List<WeatherSubKey> keys = getSubKeys();
 
         for (WeatherSubKey keyI : keys) {
@@ -177,35 +182,34 @@ public class WeatherKey implements Comparable<WeatherKey> {
                 foundCov.add(keyI.getCoverage());
                 coverage = keyI.getCoverage();
                 prettyCoverage = keyI.prettyCoverage();
-                types = "";
-                typesWithInten = "";
-                attributes = "";
+                types.setLength(0);
+                typesWithInten.setLength(0);
+                attributes.clear();
                 visibility = "";
 
                 // Look at all keys that have this coverage
                 for (WeatherSubKey keyJ : keys) {
                     if (coverage.equals(keyJ.getCoverage())) {
-                        types = types + keyJ.getType();
-                        if (keyJ.getIntensity().charAt(0) != '<'
-                                && keyJ.getIntensity().charAt(0) != '(') {
-                            typesWithInten = typesWithInten + keyJ.getType()
-                                    + keyJ.getIntensity();
+                        types.append(keyJ.getType());
+                        if ((keyJ.getIntensity().charAt(0) != '<')
+                                && (keyJ.getIntensity().charAt(0) != '(')) {
+                            typesWithInten.append(keyJ.getType())
+                                    .append(keyJ.getIntensity());
                         } else {
-                            typesWithInten = typesWithInten + keyJ.getType();
-                        }
-                        for (String attribute : keyJ.getAttributes()) {
-                            attributes = attributes + attribute + ',';
+                            typesWithInten.append(keyJ.getType());
                         }
 
+                        attributes.add(String.join(",", keyJ.getAttributes()));
+
                         // Keep the smallest visibility
-                        if (keyJ.getVisibility().charAt(0) != '<'
-                                && keyJ.getVisibility().charAt(0) != '(') {
+                        if ((keyJ.getVisibility().charAt(0) != '<')
+                                && (keyJ.getVisibility().charAt(0) != '(')) {
                             // If this is the first visibility
-                            if (visibility.length() > 0
-                                    && keyJ.wxDef().visibilityIndex(
-                                            keyJ.getVisibility()) < keyJ
-                                            .wxDef()
-                                            .visibilityIndex(visibility)) {
+                            if ((visibility.length() > 0)
+                                    && (keyJ.wxDef().visibilityIndex(
+                                            keyJ.getVisibility()) < keyJ.wxDef()
+                                                    .visibilityIndex(
+                                                            visibility))) {
                                 visibility = keyJ.getVisibility();
                             } else if (visibility.length() == 0) {
                                 visibility = keyJ.getVisibility();
@@ -213,15 +217,11 @@ public class WeatherKey implements Comparable<WeatherKey> {
                         }
                     }
                 }
-                // Remove the last comma
-                if (attributes.length() > 0) {
-                    attributes = attributes.substring(0,
-                            attributes.length() - 1);
-                }
 
                 // Make the WxComposite
-                WxComposite wc = new WxComposite(prettyCoverage, types,
-                        typesWithInten, visibility, attributes);
+                WxComposite wc = new WxComposite(prettyCoverage,
+                        types.toString(), typesWithInten.toString(), visibility,
+                        String.join(",", attributes));
                 comps.add(wc);
             }
         }
@@ -231,19 +231,20 @@ public class WeatherKey implements Comparable<WeatherKey> {
 
     /**
      * Parses the string to initialize this weather key.
-     * 
+     *
      * @param key
      */
     public void parseString(String key) {
         // empty the current subKeys
-        subKeys = new ArrayList<WeatherSubKey>();
+        subKeys = new ArrayList<>();
 
         // separate the string into sub keys and store them in the subKeys
         if (key.length() != 0) {
-            int startPos = 0; // beginning of subkey
+            // beginning of subkey
+            int startPos = 0;
             for (int pos = 0; pos < key.length(); pos++) {
-                if (pos + 1 == key.length()
-                        || key.charAt(pos + 1) == SUBKEY_SEPARATOR) {
+                if (((pos + 1) == key.length())
+                        || (key.charAt(pos + 1) == SUBKEY_SEPARATOR)) {
                     if (startPos != pos) {
                         WeatherSubKey subkey = new WeatherSubKey(this.siteId,
                                 key.substring(startPos, pos + 1));
@@ -252,8 +253,12 @@ public class WeatherKey implements Comparable<WeatherKey> {
                         // if (subkey.isValid())
                         subKeys.add(subkey);
                     }
-                    startPos = pos + 2; // set to next character after separator
-                    pos++; // skip over processing the separator
+
+                    // set to next character after separator
+                    startPos = pos + 2;
+
+                    // skip over processing the separator
+                    pos++;
                 }
             }
         }
@@ -267,7 +272,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < subKeys.size(); i++) {
             result.append(subKeys.get(i).subTypeAsString());
-            if (i != subKeys.size() - 1) {
+            if (i != (subKeys.size() - 1)) {
                 result.append(SUBKEY_SEPARATOR);
             }
         }
@@ -307,7 +312,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
             if (comp.attributes().length() > 0) {
                 result.append(' ').append(comp.attributes());
             }
-            if (i != comps.size() - 1) {
+            if (i != (comps.size() - 1)) {
                 result.append(' ');
             }
             i++;
@@ -341,23 +346,23 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * subgroups (e.g., SCT RW- and SCT RW would be replaced with SCT RW), 6)
      * eliminates all subkeys with the none value except for one if that is the
      * only one left.
-     * 
+     *
      * -- implementation
-     * 
+     *
      * The ordering values are defined in WeatherSubKey. The ordering values are
      * based on the desired ordering. The individual values are added up to make
      * a composite ordering.
-     * 
+     *
      * ASSUMES THAT THE NO WX CASE HAS ORDERING 0.
-     * 
+     *
      * Clears the invalid string if this is valid.
      */
     private void normalize() {
         int i, j;
         // make sure that all subkeys are valid
         if (!isValid()) {
-            setInvalid(); // setting WeatherKey to have one invalid
-                          // WeatherSubKey
+            // setting WeatherKey to have one invalid WeatherSubKey
+            setInvalid();
             return;
         }
 
@@ -395,15 +400,18 @@ public class WeatherKey implements Comparable<WeatherKey> {
         int visMask = ~ordering.visibilityMask;
         int attrMask = ~ordering.attributesMask;
 
-        for (i = 0; i < subKeys.size(); i++) // base value for comparisons
-        {
+        for (i = 0; i < subKeys.size(); i++) {
             boolean removed = false;
-            WeatherSubKey base = subKeys.get(i); // for efficiency
-            j = i + 1; // start index for compares
+
+            // base value for comparisons
+            WeatherSubKey base = subKeys.get(i);
+
+            // start index for compares
+            j = i + 1;
 
             // eliminate exact duplicates
             while (j < subKeys.size()) {
-                if (base != subKeys.get(j)) {
+                if (!base.equals(subKeys.get(j))) {
                     break;
                 } else {
                     subKeys.remove(j);
@@ -414,7 +422,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
             if (!removed) {
                 j = i + 1;
                 while (j < subKeys.size()) {
-                    if ((base.order() & intenMask) != (subKeys.get(j).order() & intenMask)) {
+                    if ((base.order() & intenMask) != (subKeys.get(j).order()
+                            & intenMask)) {
                         break;
                     } else {
                         subKeys.remove(j);
@@ -430,8 +439,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
             if (!removed) {
                 j = i + 1;
                 while (j < subKeys.size()) {
-                    if ((base.order() & coverageMask) != (subKeys.get(j)
-                            .order() & coverageMask)) {
+                    if ((base.order() & coverageMask) != (subKeys.get(j).order()
+                            & coverageMask)) {
                         j++;
                     } else {
                         subKeys.remove(j);
@@ -446,7 +455,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
             if (!removed) {
                 j = i + 1;
                 while (j < subKeys.size()) {
-                    if ((base.order() & visMask) != (subKeys.get(j).order() & visMask)) {
+                    if ((base.order() & visMask) != (subKeys.get(j).order()
+                            & visMask)) {
                         j++;
                     } else {
                         subKeys.remove(i);
@@ -461,8 +471,9 @@ public class WeatherKey implements Comparable<WeatherKey> {
             if (!removed) {
                 j = i + 1;
                 while (j < subKeys.size()) {
-                    if ((base.order() & visMask & intenMask) != (subKeys.get(j)
-                            .order() & visMask & intenMask)) {
+                    if ((base.order() & visMask
+                            & intenMask) != (subKeys.get(j).order() & visMask
+                                    & intenMask)) {
                         j++;
                     } else {
                         subKeys.remove(j);
@@ -480,7 +491,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
 
                 while (j < subKeys.size()) {
                     // List<String> existingAttrs;
-                    if ((base.order() & attrMask) != (subKeys.get(j).order() & attrMask)) {
+                    if ((base.order() & attrMask) != (subKeys.get(j).order()
+                            & attrMask)) {
                         j++;
                     } else {
                         List<String> attrs = base.getAttributes();
@@ -503,7 +515,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
         // appends a none key
         // WON'T WORK IF WXDEFINITION NOT SET IN WEATHER SUB KEY
         // NEED TO KNOW THE NO WX CASE.
-        if (subKeys.size() == 0) {
+        if (subKeys.isEmpty()) {
             int coded = 0;
             subKeys.add(new WeatherSubKey(this.siteId, coded));
         }
@@ -511,7 +523,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
 
     /**
      * Sets a WeatherKey as Invalid.
-     * 
+     *
      */
     public void setInvalid() {
         // reset the subKeys of WeatherSubKey to length 0
@@ -565,13 +577,13 @@ public class WeatherKey implements Comparable<WeatherKey> {
      *            the subKeys to set
      */
     public void setSubKeys(List<WeatherSubKey> subKeys) {
-        this.subKeys = new ArrayList<WeatherSubKey>(subKeys.size());
+        this.subKeys = new ArrayList<>(subKeys.size());
         for (WeatherSubKey subKey : subKeys) {
             if (!this.siteId.equals(subKey.getSiteId())) {
-                throw new IllegalArgumentException("WeatherSubKey siteId ("
-                        + subKey.getSiteId()
-                        + ") must match WeatherKey siteId (" + this.siteId
-                        + ")");
+                throw new IllegalArgumentException(
+                        "WeatherSubKey siteId (" + subKey.getSiteId()
+                                + ") must match WeatherKey siteId ("
+                                + this.siteId + ")");
             }
             this.subKeys.add(new WeatherSubKey(subKey));
         }
@@ -580,9 +592,9 @@ public class WeatherKey implements Comparable<WeatherKey> {
 
     /**
      * Outputs the WeatherKey as a formatted string using toString().
-     * 
+     *
      * If this object is invalid, then it should also output "<Invalid>".
-     * 
+     *
      * @param o
      *            the stream
      * @return the stream
@@ -602,14 +614,16 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * indicates a wildcard. If a string is surrounded by brackets, then there
      * are multiple entries in that string. For example, [RW,SW] indicates two
      * types, RW and SW. A comma separates the interior string.
-     * 
+     *
      * Example: [Sct,Iso] [RW,SW] * DmgWnd Coverage of Sct or Iso. Type of RW or
      * SW. Any visibility. Optional attribute of DmgWnd.
-     * 
+     *
+     * @param siteId
+     *
      * @param string
      * @return the valid sub keys
      */
-    static public List<WeatherSubKey> descriptionSubKeys(String siteId,
+    public static List<WeatherSubKey> descriptionSubKeys(String siteId,
             String string) {
         // extract the token strings for the 5 categories
         String[] tokens = string.split(" ");
@@ -624,8 +638,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
         }
 
         for (int i = 0; i < tokens.length; i++) {
-            statusHandler.handle(Priority.DEBUG, "Descriptive Token " + i
-                    + " [" + tokens[i] + ']');
+            statusHandler.handle(Priority.DEBUG,
+                    "Descriptive Token " + i + " [" + tokens[i] + ']');
         }
 
         // now extract the token strings for the subcategories. These
@@ -652,7 +666,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
         // multiple with combinations of all attributes. Since visibilities
         // are not type-dependent,
         // there is no need to modify or filter its list.
-        List<WeatherSubKey> keys = new ArrayList<WeatherSubKey>();
+        List<WeatherSubKey> keys = new ArrayList<>();
         for (int t = 0; t < type.size(); t++) {
             statusHandler.handle(Priority.DEBUG,
                     "Processing type = " + type.get(t));
@@ -664,44 +678,45 @@ public class WeatherKey implements Comparable<WeatherKey> {
                     type.get(t));
 
             // need to find all possible combinations of the attributes for type
-            List<String> typeAttributes = new ArrayList<String>();
+            List<String> typeAttributes = new ArrayList<>();
             for (int a = 0; a < attr.size(); a++) {
                 if (aattr.contains(attr.get(a))) {
                     typeAttributes.add(attr.get(a));
                 }
             }
-            statusHandler.handle(Priority.DEBUG, "Filtered attributes: "
-                    + typeAttributes);
+            statusHandler.handle(Priority.DEBUG,
+                    "Filtered attributes: " + typeAttributes);
 
             // these are the combos
-            List<List<String>> attributeCombos = new ArrayList<List<String>>();
-            attributeCombos.add(new ArrayList<String>()); // include no
-                                                          // attributes
+            List<List<String>> attributeCombos = new ArrayList<>();
+
+            // include no attributes
+            attributeCombos.add(new ArrayList<String>());
             int numPossibleCombos = (int) Math.pow(2.0, aattr.size());
-            statusHandler.handle(Priority.DEBUG, "NumPossibleCombos: "
-                    + numPossibleCombos);
+            statusHandler.handle(Priority.DEBUG,
+                    "NumPossibleCombos: " + numPossibleCombos);
             for (int a = 0; a < numPossibleCombos; a++) {
-                List<String> combo = new ArrayList<String>();
+                List<String> combo = new ArrayList<>();
                 for (int b = 0; b < aattr.size(); b++) {
                     if (((a >> b) & 1) != 0) {
                         combo.add(aattr.get(b));
                     }
                 }
 
-                List<String> temp = new ArrayList<String>(typeAttributes);
+                List<String> temp = new ArrayList<>(typeAttributes);
                 temp.retainAll(combo);
-                if (temp.size() > 0) {
+                if (!temp.isEmpty()) {
                     attributeCombos.add(combo);
                 }
             }
-            statusHandler.handle(Priority.DEBUG, "Number actual combinations: "
-                    + attributeCombos.size());
+            statusHandler.handle(Priority.DEBUG,
+                    "Number actual combinations: " + attributeCombos.size());
             statusHandler.handle(Priority.DEBUG,
                     "Filtered attribute combinations: " + attributeCombos);
 
             for (int c = 0; c < cov.size(); c++) {
-                statusHandler.handle(Priority.DEBUG, "Processing Coverage = "
-                        + cov.get(c));
+                statusHandler.handle(Priority.DEBUG,
+                        "Processing Coverage = " + cov.get(c));
                 if (!acov.contains(cov.get(c))) {
                     // illegal coverage for this type
                     continue;
@@ -715,8 +730,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
                     }
                     for (int v = 0; v < vis.size(); v++) {
                         for (int a = 0; a < attributeCombos.size(); a++) {
-                            keys.add(new WeatherSubKey(siteId, cov.get(c), type
-                                    .get(t), inten.get(i), vis.get(v),
+                            keys.add(new WeatherSubKey(siteId, cov.get(c),
+                                    type.get(t), inten.get(i), vis.get(v),
                                     attributeCombos.get(a)));
                         }
                         statusHandler.handle(Priority.DEBUG,
@@ -735,15 +750,15 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * Decodes the weather type description for descriptionSubKeys(). Parses the
      * type string, which may be "*" for all types, abc for a single type, or
      * "[abc,def,ghi]" for multiple types. Validates each entry.
-     * 
+     *
      * @param string
      * @return list of types from string
      */
     private static List<String> decodeTypeDescription(String siteId,
             String string) {
         List<String> type;
-        type = new ArrayList<String>();
-        if (string.equals("*")) {
+        type = new ArrayList<>();
+        if ("*".equals(string)) {
             type = WeatherSubKey.availableWxTypes(siteId);
         } else if (string.contains("[")) {
 
@@ -782,19 +797,20 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * Decodes the weather visibility description for descriptionSubKeys().
      * Parses the vis string, which may be "*" for all vis, abc for a single
      * vis, or "[abc,def,ghi]" for multiple vis. Validates each entry.
-     * 
+     *
      * @param string
      * @return list of visibilities from string
      */
     private static List<String> decodeVisDescription(String siteId,
             String string) {
-        List<String> vis = new ArrayList<String>();
+        List<String> vis = new ArrayList<>();
         int pos = 0, lastPos = 0;
-        if (string.equals("*")) {
+        if ("*".equals(string)) {
             vis = WeatherSubKey.availableVisibilities(siteId);
         } else if (string.contains("[")) {
-            lastPos = 1; // start at the first position (past the '[')
-            while ((pos = string.indexOf(",", lastPos)) != -1) {
+            // start at the first position (past the '[')
+            lastPos = 1;
+            while ((pos = string.indexOf(',', lastPos)) != -1) {
                 String t = string.substring(lastPos, pos);
                 if (WeatherSubKey.availableVisibilities(siteId).contains(t)) {
                     vis.add(t);
@@ -812,8 +828,10 @@ public class WeatherKey implements Comparable<WeatherKey> {
                 statusHandler.handle(Priority.PROBLEM, "Illegal WxVis ["
                         + string + "] in " + " descriptionSubKeys");
             }
-        } else if (WeatherSubKey.availableVisibilities(siteId).contains(string)) {
-            vis.add(string); // only a single vis if no []
+        } else if (WeatherSubKey.availableVisibilities(siteId)
+                .contains(string)) {
+            // only a single vis if no []
+            vis.add(string);
         } else {
             statusHandler.handle(Priority.PROBLEM, "Illegal WxVis [" + string
                     + "] in " + " descriptionSubKeys");
@@ -827,7 +845,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * single type, or "[abc,def,ghi]" for multiple types. Validates each entry.
      * The types is the listing of selected weather types which are used in the
      * validation.
-     * 
+     *
      * @param string
      * @param types
      * @return list of intensities for the selected types
@@ -836,13 +854,13 @@ public class WeatherKey implements Comparable<WeatherKey> {
             String string, List<String> types) {
         boolean found;
         int i, j;
-        List<String> inten = new ArrayList<String>();
+        List<String> inten = new ArrayList<>();
         int pos = 0, lastPos = 0;
-        if (string.equals("*")) {
+        if ("*".equals(string)) {
             // include only those intensities valid for types, eliminate dups
             for (i = 0; i < types.size(); i++) {
-                List<String> aInten = WeatherSubKey.availableIntensities(
-                        siteId, types.get(i));
+                List<String> aInten = WeatherSubKey.availableIntensities(siteId,
+                        types.get(i));
                 for (j = 0; j < aInten.size(); j++) {
                     if (!inten.contains(aInten.get(j))) {
                         inten.add(aInten.get(j));
@@ -850,13 +868,13 @@ public class WeatherKey implements Comparable<WeatherKey> {
                 }
             }
         } else if (string.contains("[")) {
-            lastPos = 1; // start at the first position (past the '[')
-            while ((pos = string.indexOf(",", lastPos)) != -1) {
+            // start at the first position (past the '[')
+            lastPos = 1;
+            while ((pos = string.indexOf(',', lastPos)) != -1) {
                 found = false;
                 String t = string.substring(lastPos, pos);
                 for (i = 0; i < types.size(); i++) {
-                    if (WeatherSubKey
-                            .availableIntensities(siteId, types.get(i))
+                    if (WeatherSubKey.availableIntensities(siteId, types.get(i))
                             .contains(t)) {
                         inten.add(t);
                         found = true;
@@ -884,8 +902,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
                 statusHandler.handle(Priority.PROBLEM, "Illegal WxInten ["
                         + string + "] in " + " descriptionSubKeys");
             }
-        } else // single entry
-        {
+        } else {
+            // single entry
             found = false;
             for (i = 0; i < types.size(); i++) {
                 if (WeatherSubKey.availableIntensities(siteId, types.get(i))
@@ -909,7 +927,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * type, or "[abc,def,ghi]" for multiple types. Validates each entry. The
      * types is the listing of selected weather types which are used in the
      * validation.
-     * 
+     *
      * @param string
      * @param types
      * @return the list of coverages for the selected types
@@ -918,9 +936,9 @@ public class WeatherKey implements Comparable<WeatherKey> {
             String string, List<String> types) {
         boolean found;
         int i, j;
-        List<String> cov = new ArrayList<String>();
+        List<String> cov = new ArrayList<>();
         int pos = 0, lastPos = 0;
-        if (string.equals("*")) {
+        if ("*".equals(string)) {
             // include only those coverages valid for types, eliminate dups
             for (i = 0; i < types.size(); i++) {
                 List<String> aCov = WeatherSubKey.availableCoverages(siteId,
@@ -932,8 +950,9 @@ public class WeatherKey implements Comparable<WeatherKey> {
                 }
             }
         } else if (string.contains("[")) {
-            lastPos = 1; // start at the first position (past the '[')
-            while ((pos = string.indexOf(",", lastPos)) != -1) {
+            // start at the first position (past the '[')
+            lastPos = 1;
+            while ((pos = string.indexOf(',', lastPos)) != -1) {
                 found = false;
                 String t = string.substring(lastPos, pos);
                 for (i = 0; i < types.size(); i++) {
@@ -965,8 +984,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
                 statusHandler.handle(Priority.PROBLEM, "Illegal WxCov ["
                         + string + "] in " + " descriptionSubKeys");
             }
-        } else // single entry
-        {
+        } else {
+            // single entry
             found = false;
             for (i = 0; i < types.size(); i++) {
                 if (WeatherSubKey.availableCoverages(siteId, types.get(i))
@@ -992,7 +1011,7 @@ public class WeatherKey implements Comparable<WeatherKey> {
      * validation. Note that attributes are handled differently. If * is
      * selected, that means that no selection has been made and the attribute
      * list is empty.
-     * 
+     *
      * @param string
      * @param types
      * @return the list of attributes for the selected types
@@ -1001,13 +1020,16 @@ public class WeatherKey implements Comparable<WeatherKey> {
             String string, List<String> types) {
         boolean found;
         int i;
-        List<String> attr = new ArrayList<String>();
-        if (string.equals("*")) {
-            return attr; // * in this case means no selections at all
+        List<String> attr = new ArrayList<>();
+        if ("*".equals(string)) {
+            // * in this case means no selections at all
+            return attr;
+
         } else if (string.contains("[")) {
-            int lastPos = 1; // start at the first position (past the '[')
+            // start at the first position (past the '[')
+            int lastPos = 1;
             int pos;
-            while ((pos = string.indexOf(",", lastPos)) != -1) {
+            while ((pos = string.indexOf(',', lastPos)) != -1) {
                 found = false;
                 String t = string.substring(lastPos, pos);
                 for (i = 0; i < types.size(); i++) {
@@ -1039,8 +1061,8 @@ public class WeatherKey implements Comparable<WeatherKey> {
                 statusHandler.handle(Priority.PROBLEM, "Illegal WxAttr ["
                         + string + "] in " + " descriptionSubKeys");
             }
-        } else // single entry
-        {
+        } else {
+            // single entry
             found = false;
             for (i = 0; i < types.size(); i++) {
                 if (WeatherSubKey.availableAttributes(siteId, types.get(i))
@@ -1058,24 +1080,15 @@ public class WeatherKey implements Comparable<WeatherKey> {
         return attr;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((subKeys == null) ? 0 : subKeys.hashCode());
+        result = (prime * result)
+                + ((subKeys == null) ? 0 : subKeys.hashCode());
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -1100,25 +1113,20 @@ public class WeatherKey implements Comparable<WeatherKey> {
 
     /**
      * Adds all subkeys from the supplied WeatherKey to this WeatherKey
-     * 
+     *
      * @param rhs
      */
     public void addAll(WeatherKey rhs) {
         if (!this.siteId.equals(rhs.siteId)) {
-            throw new IllegalArgumentException("WeatherKey siteId ("
-                    + rhs.siteId + ") must match this siteId (" + this.siteId
-                    + ")");
+            throw new IllegalArgumentException(
+                    "WeatherKey siteId (" + rhs.siteId
+                            + ") must match this siteId (" + this.siteId + ")");
         }
 
         subKeys.addAll(rhs.subKeys);
         normalize();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
     @Override
     public int compareTo(WeatherKey rhs) {
         if (this.equals(rhs)) {
@@ -1144,13 +1152,31 @@ public class WeatherKey implements Comparable<WeatherKey> {
             }
         }
         if (subKeys.size() < rhs.subKeys.size()) {
-            return true; // the rhs is longer, therefore this is less than
+            // the rhs is longer, therefore this is less than
+            return true;
         } else {
-            return false; // this is longer, therefore this is >=
+            // this is longer, therefore this is >=
+            return false;
         }
     }
 
+    /**
+     * Get WeatherSubKey at index
+     *
+     * @param index
+     * @return the WeatherSubKey
+     */
     public WeatherSubKey get(int index) {
         return subKeys.get(index);
+    }
+
+    /**
+     * See {@link #descriptionSubKeys(String, String)} for full details
+     *
+     * @param string
+     * @return the valid sub keys
+     */
+    public List<WeatherSubKey> descriptionSubKeys(String string) {
+        return descriptionSubKeys(siteId, string);
     }
 }

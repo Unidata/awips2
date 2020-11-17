@@ -1,3 +1,5 @@
+#!/awips2/python/bin/python2
+
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -18,26 +20,20 @@
 # further licensing information.
 ##
 
+from __future__ import print_function
 
-import logging, sys, os
-import numpy
+import base64
+import getpass
+import json
+import logging
+import urllib2
+import urlparse
 
-from dynamicserialize.dstypes.com.raytheon.uf.common.auth.resp import SuccessfulExecution
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetActiveSitesRequest
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.server.message import ServerResponse
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization import LocalizationContext
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization import LocalizationLevel
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization import LocalizationType
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization.msgs import DeleteUtilityCommand
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization.msgs import ListUtilityCommand
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization.msgs import UtilityRequestMessage
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization.msgs import PrivilegedUtilityRequestMessage
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamGetRequest
-from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamPutRequest
-from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-
+from awips.localization.LocalizationFileManager import LocalizationFileVersionConflictException
 from awips import ThriftClient
 from awips import UsageArgumentParser
+
+from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 
 
 #
@@ -49,6 +45,10 @@ from awips import UsageArgumentParser
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/17/10                      dgilling       Initial Creation.
+#    02/12/18         #7215        dgilling       Re-factor based on localization
+#                                                 REST service.
+#    02/19/18         #6602        dgilling       Update for new text utility 
+#                                                 location.
 #    
 # 
 #
@@ -64,101 +64,34 @@ Dest = None
 CopyOnly = False
 Action = " move "
 
-BUFFER_SIZE = 512 * 1024
-LOCALIZATION_DICT = {"GFECONFIG": ("CAVE_STATIC", "gfe/userPython/gfeConfig"),
-                     "EditArea": ("COMMON_STATIC", "gfe/editAreas"),
-                     "EditAreaGroup": ("COMMON_STATIC", "gfe/editAreaGroups"),
-                     "SampleSet": ("COMMON_STATIC", "gfe/sampleSets"),
-                     "ColorTable": ("COMMON_STATIC", "colormaps/GFE"),
-                     "BUNDLE": ("COMMON_STATIC", "gfe/weGroups"),
-                     "SELECTTR": ("COMMON_STATIC", "gfe/text/selecttr"),
-                     "Tool": ("CAVE_STATIC", "gfe/userPython/smartTools"),
-                     "Procedure": ("CAVE_STATIC", "gfe/userPython/procedures"),
-                     "TextProduct": ("CAVE_STATIC", "gfe/userPython/textProducts"),
-                     "TextUtility": ("CAVE_STATIC", "gfe/userPython/textUtilities/regular"),
-                     "Utility": ("CAVE_STATIC", "gfe/userPython/utilities"),
-                     "COMBODATA": ("CAVE_STATIC", "gfe/comboData"),
-                     "COMBINATIONS": ("CAVE_STATIC", "gfe/combinations")}
-LOCALIZATION_LEVELS = ["BASE", "CONFIGURED", "SITE", "USER"]
+LOCALIZATION_DICT = {"GFECONFIG": ("cave_static", "gfe/userPython/gfeConfig/"),
+                     "EditArea": ("common_static", "gfe/editAreas/"),
+                     "EditAreaGroup": ("common_static", "gfe/editAreaGroups/"),
+                     "SampleSet": ("common_static", "gfe/sampleSets/"),
+                     "ColorTable": ("common_static", "colormaps/GFE/"),
+                     "BUNDLE": ("common_static", "gfe/weGroups/"),
+                     "SELECTTR": ("common_static", "gfe/text/selecttr/"),
+                     "Tool": ("cave_static", "gfe/userPython/smartTools/"),
+                     "Procedure": ("cave_static", "gfe/userPython/procedures/"),
+                     "TextProduct": ("cave_static", "gfe/userPython/textProducts/"),
+                     "TextUtility": ("cave_static", "gfe/userPython/textUtilities/"),
+                     "Utility": ("cave_static", "gfe/userPython/utilities/"),
+                     "COMBODATA": ("cave_static", "gfe/comboData/"),
+                     "COMBINATIONS": ("cave_static", "gfe/combinations/")}
 
 
-class textInventoryRecord:
-    def __init__(self, filePath, localCtx=None, protected=False):
-        self.filePath = filePath
-        if localCtx is None:
-            self.localCtx = LocalizationContext()
-            self.localCtx.setLocalizationType("UNKNOWN")
-            self.localCtx.setLocalizationLevel("UNKNOWN")
-        else:
-            self.localCtx = localCtx
-        self.protected = protected
-    
-    def __str__(self):
-        return str(self.localCtx) + self.filePath
+logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 
+                    datefmt="%H:%M:%S", 
+                    # level=logging.DEBUG)
+                    level=logging.INFO)
+logger = logging.getLogger("moveGFEData")
 
 
-## Logging methods ##
-def __initLogger():
-    logger = logging.getLogger("moveGFEData.py")
-    logger.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s:  %(message)s", "%H:%M:%S")
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    
-def logEvent(msg):
-    logging.getLogger("moveGFEData.py").info(msg)
-
-def logProblem(msg):
-    logging.getLogger("moveGFEData.py").error(msg)
-    
-def logException(msg):
-    logging.getLogger("moveGFEData.py").exception(msg)    
-
-def logVerbose(msg):
-    logging.getLogger("moveGFEData.py").debug(msg)
-
-
-def main():
-    __initLogger()
-    options = validateArgs()
-    
-    global SourceUser
-    SourceUser = options.sourceUser
-    global DestUser
-    DestUser = options.destUser
-    if options.srcSiteID is not None:
-        global SourceSite
-        SourceSite = options.srcSiteID
-    if options.destSiteID is not None:
-        global DestSite
-        DestSite = options.destSiteID
-    global CopyOnly
-    CopyOnly = options.copyOnly
-    
-    category = getOperationCategory(SourceUser, DestUser)
-    
-    if category > 0:
-        textCategories = [None, ("Color Table", "ColorTable"), 
-                          ("Edit Area", "EditArea"), ("Sample Set", "SampleSet"), 
-                          ("Weather Element Groups", "BUNDLE"), 
-                          ("Edit Area Groups", "EditAreaGroup"),
-                          ("GFE Configuration Files", "GFECONFIG"),
-                          ("Selection Time Ranges", "SELECTTR"),  
-                          ("Smart Tools", "Tool"), 
-                          ("Procedures", "Procedure"), ("Utilities", "Utility"), 
-                          ("Text Utilities", "TextUtility"), 
-                          ("Text Formatters", "TextProduct"), 
-                          ("Zone Combiner Saved Combos and Colors", "COMBODATA"), 
-                          ("Zone Combiner Combination Files", "COMBINATIONS")]
-        textShuffle(textCategories[category][0], textCategories[category][1])
-    
-    sys.exit(0)
-    
 
 def validateArgs():
-    parser = UsageArgumentParser.UsageArgumentParser(conflict_handler="resolve")
+    """Collects program options from the command line. On error, returns the usage information."""
+
+    parser = UsageArgumentParser.UsageArgumentParser(conflict_handler="resolve", prog="moveGFEData")
     parser.add_argument("-h", action="store", dest="srcHost",
                       help="upon which the ifpServer is running", 
                       required=True, metavar="hostname")
@@ -186,129 +119,112 @@ def validateArgs():
                       help="destination site ID",
                       metavar="destSiteID")
     options = parser.parse_args()
-    
-    logEvent("MoveGFEData from [" + options.sourceUser + "] to [" + options.destUser + "]")
-    
-    if ((options.sourceUser == "BASE" and not options.copyOnly) or \
-        (options.destUser == "BASE")):
+
+    logger.info("MoveGFEData from [%s] to [%s]", options.sourceUser, options.destUser)
+
+    if (options.sourceUser == "BASE" and not options.copyOnly) or \
+        (options.destUser == "BASE"):
         parser.error("Operations not permitted with user \'BASE\'")
-        
-    if ((options.sourceUser == "CONFIGURED" and not options.copyOnly) or \
-        (options.destUser == "CONFIGURED")):
+
+    if (options.sourceUser == "CONFIGURED" and not options.copyOnly) or \
+        (options.destUser == "CONFIGURED"):
         parser.error("Operations not permitted with user \'CONFIGURED\'")
-        
-    if options.sourceUser == "SITE" and not options.copyOnly:
-        parser.error("Must specify the copy only flag with source user \'SITE\'")
-        
-    if (options.destHost is None):
+    
+    if options.destHost is None:
         options.destHost = options.srcHost
     
-    if (options.destPort is None):
+    if options.destPort is None:
         options.destPort = options.srcPort
     
-    if (options.srcHost != options.destHost) or (options.srcPort != options.destPort):
-        logEvent("Multiple servers: Source: " + options.srcHost + ":" +str(options.srcPort) + " Dest: " + options.destHost + ":" +str(options.destPort))
-        
-    if options.copyOnly:
-        global Action
-        Action = " copy "
+    if options.srcHost != options.destHost or options.srcPort != options.destPort:
+        logging.info("Multiple servers: Source: %s:%d Dest: %s:%d", options.srcHost, options.srcPort, options.destHost, options.destPort)
     
-    # test connectivity
-    global Source
-    Source = ThriftClient.ThriftClient(options.srcHost, options.srcPort, "/services")
-    global Dest
-    Dest = ThriftClient.ThriftClient(options.destHost, options.destPort, "/services")
-    request = createSitesRequest()
-    try:
-        sr1 = Source.sendRequest(request)
-        sr2 = Dest.sendRequest(request)
-    except:
-        parser.error("Unable to connect to ifpServer")
-    if not sr1.isOkay() or not sr2.isOkay():
-        parser.error("Unable to connect to ifpServer")
-    
-    activeSites = sr1.getPayload()
-    if options.srcSiteID is None:
-        if len(activeSites) == 1:
-            options.srcSiteID = activeSites.pop()
-        else:
-            parser.error("Could not determine active site ID of ifpServer. Please provide -w flag.")
-    
-    if options.destSiteID is None:
-        options.destSiteID = options.srcSiteID
-    
-    if ((options.sourceUser == "SITE" and options.srcSiteID is None) or \
-         (options.destUser == "SITE" and options.destSiteID is None)):
-        parser.error("A site ID must be provided with user \'SITE\'")
-    
-    if (options.destHost == options.srcHost and \
+    if options.destHost == options.srcHost and \
         options.destPort == options.srcPort and \
         options.destUser == options.sourceUser and \
-        options.sourceUser != "SITE"):
+        options.sourceUser != "SITE":
         parser.error("Source user must be different from destination user with same server/host")
-        
-    if (options.destHost == options.srcHost and \
+
+    srcClient = ThriftClient.ThriftClient(options.srcHost, options.srcPort, "/services")
+    request = GetActiveSitesRequest()
+    try:
+        response = srcClient.sendRequest(request)
+    except:
+        parser.error("Unable to connect to ifpServer " + options.srcHost + ":" + str(options.srcPort))
+    else:
+        srcActiveSites = response
+    
+    destClient = ThriftClient.ThriftClient(options.destHost, options.destPort, "/services")
+    try:
+        response = destClient.sendRequest(request)
+    except:
+        parser.error("Unable to connect to ifpServer " + options.destHost + ":" + str(options.destPort))
+    else:
+        destActiveSites = response
+    
+    if not options.srcSiteID and options.sourceUser in ['CONFIGURED', 'SITE']:
+        if len(srcActiveSites) == 1:
+            options.srcSiteID = srcActiveSites.pop()
+        else:
+            parser.error("Could not determine active site ID of ifpServer. Please provide -w flag.")
+
+    if not options.destSiteID and options.sourceUser in ['CONFIGURED', 'SITE']:
+        if len(destActiveSites) == 1:
+            options.destSiteID = destActiveSites.pop()
+        else:
+            parser.error("Could not determine active site ID of ifpServer. Please provide -x flag.")
+
+    if (options.sourceUser == "SITE" and not options.srcSiteID) or \
+         (options.destUser == "SITE" and not options.destSiteID):
+        parser.error("A site ID must be provided with user \'SITE\'")
+
+    if options.destHost == options.srcHost and \
         options.destPort == options.srcPort and \
         options.destUser == options.sourceUser and \
         options.sourceUser == "SITE" and \
-        options.srcSiteID == options.destSiteID):
+        options.srcSiteID == options.destSiteID:
         parser.error("Source siteID must be different from destination siteID with same server/host")
-    
+
+    options.srcUrlFormat = urlparse.urlunparse(["http", 
+                                                options.srcHost + ":" + str(options.srcPort), 
+                                                "/services/localization/{locType}/{locLevel}/{locPath}",
+                                                "", "", ""])
+    options.destUrlFormat = urlparse.urlunparse(["http", 
+                                                options.destHost + ":" + str(options.destPort), 
+                                                "/services/localization/{locType}/{locLevel}/{locPath}",
+                                                "", "", ""])
+
     return options
-    
-def createSitesRequest():    
-    obj = GetActiveSitesRequest()
-    wsId = WsId(progName="moveGfeData")
-    obj.setWorkstationID(wsId)
-    obj.setSiteID("")
-    return obj
 
-def getOperationCategory(SourceUser, DestUser):
-    banner = "******************* MoveGFEData ****************** \n" + \
-             "SourceUser: " + SourceUser + "\n" + \
-             "DestinationUser: " + DestUser + "\n" + \
-             "\n" + \
-             "Enter type of data.  Choose one of the options: \n" + \
-             "0 - exit \n" + \
-             "1 - Color Tables \n" + \
-             "2 - Edit Areas (Reference Areas) \n" + \
-             "3 - Sample Sets \n" + \
-             "4 - Weather Element Groups \n" + \
-             "5 - Edit Area Groups \n" + \
-             "6 - GFE/ifpIMAGE Configurations \n" + \
-             "7 - Selection Time Ranges \n" + \
-             "8 - Smart Tools \n" + \
-             "9 - Procedures \n" + \
-             "10 - Utilities \n" + \
-             "11 - Text Utilities \n" + \
-             "12 - Text Formatters \n" + \
-             "13 - Zone Combiner Saved Combos and Colors \n" + \
-             "14 - Zone Combiner Combination Files"
-    print banner
-    category = int(raw_input())
-    if category > 14:
-        category = 0
-    return category
+def textShuffle(title, category):
+    """Moves single categories of TEXT data.
 
-def textShuffle(title, category):    
-    print "\n" + "***** " + title + " *****"
-    
+        Args:
+            title: type of file being moved
+            category: short name for type of file being moved
+    """
+    print("\n")
+    print("*****", title, "*****")
+
     while True:
-        inventory = getTextInventory(category)
-        if inventory is None:
-            return
-        if len(inventory) < 1:
-            print "No files available to" + Action
+        try:
+            inventory = getTextInventory(category)
+        except:
+            logger.exception("Error getting inventory.")
             return
         
-        print "Current Inventory for User: ", SourceUser
-        print "0.  Exit"
-        print "-1. ALL Entries"
+        if not inventory:
+            print("No files available to", Action, "\n")
+            return
+        
+        print("Current Inventory for User:", SourceUser)
+        print("0.  Exit")
+        print("-1. ALL Entries")
         sortedInv = sorted(inventory.keys())
         for i, key in enumerate(sortedInv):
-            print str(i + 1) + ".  " + key
-        print "Enter number to" + Action + "from " + SourceUser + " to " + DestUser
-        
+            print(str(i + 1) + ".  " + key)
+
+        print("Enter number to" + Action + "from " + SourceUser + " to " + DestUser)
         answer = int(raw_input())
         if (answer == 0):
             return
@@ -320,176 +236,257 @@ def textShuffle(title, category):
             filesToMove = sortedInv
         else:
             filesToMove = [sortedInv[answer - 1]]
-        for file in filesToMove:
-            if not moveText(file, inventory[file], title, category):
+        for filename in filesToMove:
+            invTuple = LOCALIZATION_DICT[category]
+            destUrl = buildURL(Dest, invTuple[0], DestUser, DestSite, invTuple[1] + filename)
+            logger.debug("Source URL: " + inventory[filename])
+            logger.debug("Dest URL: " + destUrl)
+            if not moveText(filename, inventory[filename], destUrl, title):
                 return
 
-def moveText(id, invRecord, title, category):
-    # get the data
+def moveText(filename, sourceUrl, destUrl, title):
+    """Routine moves text data from source to destination, then deletes the source.
+    
+        Args:
+            filename: filename of the file to be moved
+            sourceUrl: complete URL of the source file
+            destUrl: complete URL of the destination file
+            title: type of file being moved
+
+        Returns:
+            True, if the move operation was successful. False, if not.
+    """
     try:
-        fileData = getTextData(invRecord)
+        fileData, checksum = getTextData(sourceUrl)
+        logger.debug("Retrieved [%s]", sourceUrl)
+        logger.debug("moveText: File: [%s], Checksum: [%s]", filename, checksum)
+        logger.debug("FileData:\n" + fileData[:2048])
     except:
-        logException("Error getting data: " + id + " ")
+        logger.exception("Error getting data: %s", sourceUrl)
         return False
     
-    # store the data
+    destUserForAuth = DestUser if DestUser not in ['BASE', 'CONFIGURED', 'SITE'] else getpass.getuser()
     try:
-        saveTextData(invRecord, fileData, category)
+        saveTextData(fileData, destUrl, destUserForAuth)
     except:
-        logException("Error saving data: " + id + " ")
+        logger.exception("Error saving data: %s", destUrl)
         return False
-    logEvent("Copied " + title + " [" + id + "] to [" + DestUser + "]")
-    
-    # delete the original
+
+    logger.info("Copied %s [%s] to [%s]", title, filename, DestUser)
+
     if not CopyOnly:
+        srcUserForAuth = SourceUser if SourceUser not in ['BASE', 'CONFIGURED', 'SITE'] else getpass.getuser()
         try:
-            deleteTextData(invRecord)
+            deleteTextData(sourceUrl, srcUserForAuth, checksum)
         except:
-            logException("Error deleting data: " + id + " ")
+            logger.exception("Error deleting data: %s", sourceUrl)
             return False
-        logEvent("Deleted " + title + " [" + id + "] from [" + SourceUser + "]")
-            
+        logger.info("Deleted %s [%s] from [%s]", title, filename, SourceUser)
+    
     return True
 
 def getTextInventory(category):
-    if SourceUser not in ["SITE", "CONFIGURED", "BASE"]:
-        locLevels = [LOCALIZATION_LEVELS[-1]]
-    elif SourceUser == "SITE":
-        locLevels = [LOCALIZATION_LEVELS[-2]]
-    elif SourceUser == "CONFIGURED":
-        locLevels = [LOCALIZATION_LEVELS[1]]
-    else:
-        locLevels = [LOCALIZATION_LEVELS[0]]
+    """Retrieves the localization inventory for a given GFE file type.
     
+        Args:
+            category: type of file we're retrieving inventory for
+
+        Returns:
+            A dict mapping filename to URL on source host.
+    """
     invTuple = LOCALIZATION_DICT[category]
-    inventory = {} 
-    for level in locLevels:
-        req = UtilityRequestMessage()
-        cmds = []
-        cmd = ListUtilityCommand()
-        cmd.setSubDirectory(invTuple[1])
-        cmd.setRecursive(False)
-        cmd.setFilesOnly(True)
-        cmd.setLocalizedSite(SourceSite)
-        ctx = LocalizationContext()
-        ll = LocalizationLevel(level)
-        type = LocalizationType(invTuple[0])
-        ctx.setLocalizationType(type)
-        ctx.setLocalizationLevel(ll)
-        if (level == "USER"):
-            ctx.setContextName(SourceUser)
-        if (level in ["CONFIGURED", "SITE"]):
-            ctx.setContextName(SourceSite)
-        cmd.setContext(ctx)
-        cmds.append(cmd)
-        req.setCommands(cmds)
-        
-        try:
-            serverResponse = Source.sendRequest(req)
-        except:
-            logException("Error getting inventory.")
-            return None
-           
-        for response in serverResponse.getResponses():
-            for entry in response.getEntries():
-                if not entry.getProtectedFile():
-                    filePath = entry.getFileName()
-                    filename = os.path.split(filePath)[1]
-                    shortName = os.path.splitext(filename)[0]
-                    record = textInventoryRecord(filePath, entry.getContext(), entry.getProtectedFile())
-                    inventory[shortName] = record
-    
-    return inventory
+    sourceUrl = buildURL(Source, invTuple[0], SourceUser, SourceSite, invTuple[1])
+    logger.debug("Listing Source URL: " + sourceUrl)
 
-def getTextData(invRecord):
-    request = LocalizationStreamGetRequest()
-    request.setOffset(0)
-    request.setNumBytes(BUFFER_SIZE)
-    request.setContext(invRecord.localCtx)
-    request.setMyContextName(invRecord.localCtx.getContextName())
-    request.setFileName(invRecord.filePath)
-    
-    bytes = numpy.array([], numpy.int8)
-    finished = False
-    while (not finished):
-        serverResponse = Source.sendRequest(request)
-        if not isinstance(serverResponse, SuccessfulExecution):
-            message = ""
-            if hasattr(serverResponse, "getMessage"):
-                message = serverResponse.getMessage()
-            raise RuntimeError(message)
-        serverResponse = serverResponse.getResponse()
-        # serverResponse will be returned as a LocalizationStreamPutRequest
-        # object. we'll use its methods to read back the serialized file 
-        # data.
-        # bytes get returned to us as an numpy.ndarray
-        bytes = numpy.append(bytes, serverResponse.getBytes())
-        request.setOffset(request.getOffset() + len(bytes))
-        finished = serverResponse.getEnd()
-    return bytes
+    request = urllib2.Request(sourceUrl)
+    request.add_header("Accept", "application/json")
+    response = urllib2.urlopen(request)
 
-def saveTextData(invRecord, fileData, category):
-    totalSize = len(fileData)
-    request = LocalizationStreamPutRequest()
-    request.setOffset(0)
-    ctx = LocalizationContext()
-    type = invRecord.localCtx.getLocalizationType()
-    if (DestUser != "SITE"):
-        ll = LocalizationLevel("USER")
-        ctx.setContextName(DestUser)
+    jsonInventory = json.load(response)
+    logger.debug("JSON data: " + repr(jsonInventory))
+    inventoryMap = {}
+    for filename in jsonInventory.keys():
+        filename = filename.encode('ascii')
+        inventoryMap[filename] = sourceUrl + filename
+
+    return inventoryMap
+
+def buildURL(formatString, localizationType, user, siteID, localizationPath):
+    if user not in ["SITE", "CONFIGURED", "BASE"]:
+        locLevelString = 'user/' + user
+    elif user == "SITE":
+        locLevelString = 'site/' + siteID
+    elif user == "CONFIGURED":
+        locLevelString = 'configured/' + siteID
     else:
-        ll = LocalizationLevel("SITE")
-        ctx.setContextName(DestSite)
-    ctx.setLocalizationType(type)
-    ctx.setLocalizationLevel(ll)
-    request.setContext(ctx)
-    request.setMyContextName(ctx.getContextName())
-    fileName = os.path.split(invRecord.filePath)[1]
-    path = LOCALIZATION_DICT[category][1]
-    request.setFileName(os.path.join(path, fileName))
-    
-    totalSent = 0
-    finished = False
-    while (not finished):
-        request.setOffset(totalSent)
-        sendBuffer = fileData[:BUFFER_SIZE]
-        fileData = fileData[BUFFER_SIZE:]
-        totalSent += len(sendBuffer)
-        request.setBytes(sendBuffer)
-        request.setEnd(totalSent == totalSize)
-        finished = request.getEnd()
-        serverResponse = Dest.sendRequest(request)
-        if not isinstance(serverResponse, SuccessfulExecution):
-            message = ""
-            if hasattr(serverResponse, "getMessage"):
-                message = serverResponse.getMessage()
-            raise RuntimeError(message)
-        serverResponse = serverResponse.getResponse()
+        locLevelString = 'base'
+    return formatString.format(locType=localizationType, locLevel=locLevelString, locPath=localizationPath)
 
-def deleteTextData(invRecord):
-    req = PrivilegedUtilityRequestMessage()
-    cmds = []
-    cmd = DeleteUtilityCommand()
-    cmd.setContext(invRecord.localCtx)
-    cmd.setFilename(invRecord.filePath)
-    cmd.setMyContextName(invRecord.localCtx.getContextName())
-    cmds.append(cmd)
-    # be sure to delete .pyo and .pyc files
-    if os.path.splitext(invRecord.filePath)[1] == ".py":
-        for ext in ["c", "o"]:
-            cmd = DeleteUtilityCommand()
-            cmd.setContext(invRecord.localCtx)
-            cmd.setMyContextName(invRecord.localCtx.getContextName())
-            cmd.setFilename(invRecord.filePath + ext)
-            cmds.append(cmd)
-    req.setCommands(cmds)
+def getTextData(url):
+    """Retrieves a localization file from the specified URL.
     
-    serverResponse = Source.sendRequest(req)
-    if not isinstance(serverResponse, SuccessfulExecution):
-        message = ""
-        if hasattr(serverResponse, "getMessage"):
-            message = serverResponse.getMessage()
-        raise RuntimeError(message)
+        Args:
+            url: URL for file to retrieve from localization service.
+
+        Returns:
+            A tuple containing the file contents and its MD5 checksum.
+    """
+    request = urllib2.Request(url)
+    response = urllib2.urlopen(request)
+    return (response.read(), response.headers["Content-MD5"])
+
+def saveTextData(data, url, user):
+    """Saves a file to the localization data store.
+    
+        Args:
+            data: contents of the file
+            url: URL for file to save using localization service.
+            user: user name of the person performing the save, used for 
+                  authorization purposes
+    """
+    try:
+        request = urllib2.Request(url)
+        response = urllib2.urlopen(request)
+    except urllib2.HTTPError as e:
+        if e.code == 404:
+            checksum = "NON_EXISTENT_CHECKSUM"
+        else:
+            raise
+    else:
+        checksum = response.headers["Content-MD5"]
+
+    logger.debug("saveTextData: File: [%s], Checksum: [%s]", url, checksum)
+
+    request = urllib2.Request(url)
+    request.get_method = lambda: "PUT"
+    request.add_data(data)
+    request.add_header("If-Match", checksum)
+
+    base64string = base64.b64encode('%s:%s' % (user, user))
+    authString = "Basic %s" % base64string
+    request.add_header("Authorization", authString)
+
+    try:
+        response = urllib2.urlopen(request)
+    except urllib2.HTTPError as e:
+        if e.code == 409:
+            raise LocalizationFileVersionConflictException(e.read())
+        else:
+            raise
+
+def deleteTextData(url, user, checksum):
+    """Deletes a localization file from the data store.
+    
+        Args:
+            url: URL of file to delete from localization service.
+            user: user name of the person performing the delete, used for 
+                  authorization purposes
+            checksum: checksum of file to delete, needed for version conflict
+                      resolution in localization service
+    """
+    deleteFile(url, user, checksum)
+    if url.endswith(".py"):
+        # make sure .pyc and .pyo files get deleted when necessary
+        for extension in ["c", "o"]:
+            try:
+                deleteFile(url + extension, user)
+            except urllib2.HTTPError as e:
+                if e.code != 404:
+                    raise
+
+def deleteFile(url, user, checksum=None):
+    logger.debug("Attempting to delete [%s]", url)
+
+    if not checksum:
+        request = urllib2.Request(url)
+        response = urllib2.urlopen(request)
+        checksum = response.headers["Content-MD5"]
+
+    logger.debug("deleteFile: File: [%s], Checksum: [%s]", url, checksum)
+    
+    request = urllib2.Request(url)
+    request.get_method = lambda: "DELETE"
+    request.add_header("If-Match", checksum)
+
+    base64string = base64.b64encode('%s:%s' % (user, user))
+    authString = "Basic %s" % base64string
+    request.add_header("Authorization", authString)
+
+    try:
+        response = urllib2.urlopen(request)
+    except urllib2.HTTPError as e:
+        if e.code == 409:
+            raise LocalizationFileVersionConflictException(e.read())
+        else:
+            raise
+
+
+def main():
+    """This contains the main routine for the program."""
+    logger.info("Move GFE Data")
+
+    options = validateArgs()
+    logger.debug("Options: %s", options)
+
+    global Source
+    Source = options.srcUrlFormat
+    global Dest
+    Dest = options.destUrlFormat
+    global SourceUser
+    SourceUser = options.sourceUser
+    global DestUser
+    DestUser = options.destUser
+    if options.srcSiteID:
+        global SourceSite
+        SourceSite = options.srcSiteID
+    if options.destSiteID:
+        global DestSite
+        DestSite = options.destSiteID
+    global CopyOnly
+    CopyOnly = options.copyOnly
+    if options.copyOnly:
+        global Action
+        Action = " copy "
+
+    print("******************* MoveGFEData ******************")
+    print("SourceUser:", options.sourceUser)
+    print("DestinationUser:", options.destUser)
+
+    print("")
+    print("Enter type of data.  Choose one of the options:")
+    print("0 - exit")
+
+    textCategories = [("Color Tables", "ColorTable"),
+                          ("Edit Areas (Reference Areas)", "EditArea"),
+                          ("Sample Sets", "SampleSet"),
+                          ("Weather Element Groups", "BUNDLE"),
+                          ("Edit Area Groups", "EditAreaGroup"),
+                          ("GFE Configuration Files", "GFECONFIG"),
+                          ("Selection Time Ranges", "SELECTTR"),
+                          ("Smart Tools", "Tool"),
+                          ("Procedures", "Procedure"),
+                          ("Utilities", "Utility"),
+                          ("Text Utilities", "TextUtility"), 
+                          ("Text Formatters", "TextProduct"), 
+                          ("Zone Combiner Saved Combos and Colors", "COMBODATA"), 
+                          ("Zone Combiner Combination Files", "COMBINATIONS")
+                      ]
+    for i, textInfo  in enumerate(textCategories):
+        print((i + 1), "-", textInfo[0])
+
+    category = int(raw_input())
+
+    if category == 0:
+        return 1
+
+    # range is now inclusive of last element
+    if category in range(1, len(textCategories) + 1):
+        category -= 1
+        logger.debug("Calling textShuffle(%s, %s)", textCategories[category][0], textCategories[category][1])
+        textShuffle(textCategories[category][0], textCategories[category][1])
+    
+    return 0
+
 
 
 if __name__ == '__main__':

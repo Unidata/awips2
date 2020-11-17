@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,8 +26,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import jep.NDArray;
-
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
@@ -38,12 +36,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
 
+import jep.NDArray;
+
 /**
  * Grid slice for Discrete weather elements
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Jan 29, 2008           chammack  Initial Creation.
@@ -59,13 +59,16 @@ import com.raytheon.uf.common.time.TimeRange;
  * Aug 02, 2016  5744     mapeters  Removed dead cache code
  * Aug 08, 2016  5744     randerso  Fix bad clone method exposed by previous
  *                                  change
- * 
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup.
+ *                                  Removed deprecated setKey methods
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
 @DynamicSerialize
-public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
+public class DiscreteGridSlice extends AbstractGridSlice {
 
     @DynamicSerializeElement
     private Grid2DByte discreteGrid;
@@ -83,7 +86,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     /**
      * Constructor with TimeRange, GFERecord, Grid2DByte, and a DiscreteKey
      * array.
-     * 
+     *
      * @param validTime
      * @param gfeRecord
      * @param aGrid
@@ -97,9 +100,9 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     /**
-     * Constructor with TimeRange, GridParmInfo, GridDataHistory, Grid2DByte,
-     * and a DiscreteKey array.
-     * 
+     * Constructor with TimeRange, GridParmInfo, GridDataHistory array,
+     * Grid2DByte, and a DiscreteKey array.
+     *
      * @param validTime
      * @param gpi
      * @param history
@@ -113,24 +116,34 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         keys = aKey;
     }
 
+    /**
+     * Constructor with TimeRange, GridParmInfo, GridHistory list, Grid2DByte,
+     * DiscreteKey list.
+     *
+     * @param validTime
+     * @param gpi
+     * @param history
+     * @param aGrid
+     * @param aKey
+     */
     public DiscreteGridSlice(TimeRange validTime, GridParmInfo gpi,
             List<GridDataHistory> history, Grid2DByte aGrid,
             List<DiscreteKey> aKey) {
-        this(validTime, gpi, history
-                .toArray(new GridDataHistory[history.size()]), aGrid, aKey
-                .toArray(new DiscreteKey[aKey.size()]));
+        this(validTime, gpi,
+                history.toArray(new GridDataHistory[history.size()]), aGrid,
+                aKey.toArray(new DiscreteKey[aKey.size()]));
     }
 
     /**
      * Copy constructor
-     * 
+     *
      * @param rhs
      *            DiscreteGridSlice to copy
      */
     public DiscreteGridSlice(DiscreteGridSlice rhs) {
         super(rhs);
 
-        Grid2DByte grid = rhs.getDiscreteGrid().clone();
+        Grid2DByte grid = rhs.getDiscreteGrid().copy();
         this.discreteGrid = grid;
 
         this.keys = new DiscreteKey[rhs.keys.length];
@@ -141,7 +154,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     public void assign(IGridSlice gs) {
         if (!(gs instanceof DiscreteGridSlice)) {
             throw new IllegalArgumentException(
-                    "Attempted to assign DiscreteGridSlice to non-DiscreteGridSlice object");
+                    "gs must be an instance of DiscreteGridSlice, received: "
+                            + gs.getClass().getName());
         }
 
         super.assign(gs);
@@ -152,8 +166,11 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         if (gsDiscreteGrid != null) {
             if ((discreteGrid.getXdim() != gsDiscreteGrid.getXdim())
                     || (discreteGrid.getYdim() != gsDiscreteGrid.getYdim())) {
-                throw new IllegalArgumentException(
-                        "Supplied grid is not of same dimension");
+                throw new IllegalArgumentException(String.format(
+                        "This grid and supplied grid have different dimensions.\n"
+                                + "Expected: [%d,%d], received: [%d,%d]",
+                        discreteGrid.getXdim(), discreteGrid.getYdim(),
+                        gsDiscreteGrid.getXdim(), gsDiscreteGrid.getYdim()));
             }
 
             discreteGrid.assign(gsDiscreteGrid);
@@ -190,7 +207,13 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     @Override
     public boolean equals(Object rhs) {
-        if (!(rhs instanceof DiscreteGridSlice)) {
+        if (this == rhs) {
+            return true;
+        }
+        if (rhs == null) {
+            return false;
+        }
+        if (getClass() != rhs.getClass()) {
             return false;
         }
 
@@ -228,7 +251,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      * Checks the key and grid values to ensure that there is a key entry for
      * every grid value. Returns the status. Checks that all data in the grid
      * has a key by using the key's length.
-     * 
+     *
      * @return null if everything was ok, otherwise the reason why not
      */
     public String checkKeyAndData() {
@@ -251,7 +274,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      * set to InvalidWeatherKey on failure. Success is always returned for
      * scalar and vector data. Uses the WeatherKey's isValid() to determine is a
      * key is valid.
-     * 
+     *
      * @return null if the key is ok, otherwise the reason why not
      */
     public String checkKey() {
@@ -266,7 +289,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     /**
      * Assigns the specified discrete value to the GridSlice.
-     * 
+     *
      * @param aValue
      *            value to assign into the grid
      * @param editArea
@@ -320,7 +343,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     /**
      * Assigns the specified value to the GridSlice.
-     * 
+     *
      * @param gs
      *            grid slice to assign from
      * @param editArea
@@ -353,8 +376,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
                             keyIndex = (byte) k;
                         }
                     }
-                    if (!found) // not found, so add the key
-                    {
+                    if (!found) {
+                        // not found, so add the key
                         DiscreteKey newKey[] = new DiscreteKey[keys.length + 1];
                         System.arraycopy(keys, 0, newKey, 0, keys.length);
                         newKey[newKey.length - 1] = dKey;
@@ -372,7 +395,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     /**
      * Assigns the specified weather value to the GridSlice.
-     * 
+     *
      * @param aValue
      *            the value to set this grid as
      * @return the result of the assignment
@@ -407,14 +430,14 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     /**
      * Assigns the specified value to the GridSlice.
-     * 
+     *
      * @param gs
      *            grid slice to assign from
      * @return result of assignment
      */
     public boolean assign(DiscreteGridSlice gs) {
         super.assign(gs);
-        Grid2DByte discreteGrid = gs.discreteGrid.clone();
+        Grid2DByte discreteGrid = gs.discreteGrid.copy();
 
         List<DiscreteKey> currentKeys = new ArrayList<>(
                 Arrays.asList(this.keys));
@@ -440,14 +463,15 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     /**
      * Returns a Grid2DBit that corresponds to the gridcells that are equal to
      * the specified DiscreteKey value.
-     * 
+     *
      * @param value
      *            the DiscreteKey to test for
      * @return a Grid2DBit with bits set that match the input DiscreteKey
      */
     public Grid2DBit eq(DiscreteKey value) {
         if (!value.isValid()) {
-            throw new IllegalArgumentException("Supplied keys is invalid");
+            throw new IllegalArgumentException(
+                    "Supplied key is invalid: " + value);
         }
 
         Point gridSize = new Point(discreteGrid.getXdim(),
@@ -481,7 +505,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     /**
      * Returns the inverse of the eq function. See eq() above for details.
-     * 
+     *
      * @param value
      *            the DiscreteKey to test for
      * @return a Grid2DBit with bits set that do not match the input DiscreteKey
@@ -501,7 +525,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     /**
      * Returns a Grid2DBit whose bits are set wherever the discrete type is the
      * same as that specified in the TextString value.
-     * 
+     *
      * @param value
      * @return a new Grid2DBit indicating where the String value is
      */
@@ -530,7 +554,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
             }
         }
 
-        if (byteValues.size() == 0) {
+        if (byteValues.isEmpty()) {
             return bits;
         }
 
@@ -546,10 +570,23 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         return bits;
     }
 
+    /**
+     * Almost is not valid for discrete grids
+     *
+     * @param gs
+     * @param fuzz
+     * @return mask with no bits set
+     */
     public Grid2DBit almost(DiscreteGridSlice gs, float fuzz) {
         return new Grid2DBit(discreteGrid.getXdim(), discreteGrid.getYdim());
     }
 
+    /**
+     * Almost is not valid for discrete grids
+     *
+     * @param gs
+     * @return mask with no bits set
+     */
     public Grid2DBit almost(DiscreteGridSlice gs) {
         return almost(gs, 0);
     }
@@ -557,7 +594,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     /**
      * Returns a Grid2DBit whose bits are set where ever the specified GridSlice
      * is equal to the same value as this GridSlice.
-     * 
+     *
      * @param gs
      * @return Grid2DBit
      */
@@ -580,7 +617,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     /**
      * Returns the inverse of the eq() function. See eq() above for more
      * details.
-     * 
+     *
      * @param gs
      * @return Grid2DBit
      */
@@ -637,25 +674,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     @Override
-    public DiscreteGridSlice clone() throws CloneNotSupportedException {
-        TimeRange aValidTime = this.validTime.clone();
-        GridParmInfo aGpi = this.gridParmInfo.clone();
-        GridDataHistory[] aHistory = new GridDataHistory[this.gridDataHistory
-                .size()];
-        for (int i = 0; i < aHistory.length; i++) {
-            aHistory[i] = this.gridDataHistory.get(i).clone();
-        }
-
-        Grid2DByte aGrid = null;
-        if (discreteGrid != null) {
-            aGrid = discreteGrid.clone();
-        }
-
-        DiscreteKey[] aKey = new DiscreteKey[this.keys.length];
-        for (int i = 0; i < aKey.length; i++) {
-            aKey[i] = new DiscreteKey(this.keys[i]);
-        }
-        return new DiscreteGridSlice(aValidTime, aGpi, aHistory, aGrid, aKey);
+    public DiscreteGridSlice copy() {
+        return new DiscreteGridSlice(this);
     }
 
     private String checkDims() {
@@ -669,12 +689,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         if ((x != gridParmInfo.getGridLoc().getNx())
                 || (y != gridParmInfo.getGridLoc().getNy())) {
             return "Grid Dimensions and GridParmInfo Dimensions are not identical GridDim: "
-                    + x
-                    + ","
-                    + y
-                    + " GridParmInfoDim: "
-                    + gridParmInfo.getGridLoc().getNx()
-                    + ","
+                    + x + "," + y + " GridParmInfoDim: "
+                    + gridParmInfo.getGridLoc().getNx() + ","
                     + gridParmInfo.getGridLoc().getNy();
         }
 
@@ -683,7 +699,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     /**
      * Return the discrete grid
-     * 
+     *
      * @return the discrete grid
      */
     public Grid2DByte getDiscreteGrid() {
@@ -692,45 +708,29 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
     /**
      * Return the discrete keys
-     * 
-     * @return the discrete keys
-     * @deprecated use getKeys() instead
-     */
-    @Deprecated
-    public DiscreteKey[] getKey() {
-        return this.keys;
-    }
-
-    /**
-     * Return the discrete keys
-     * 
+     *
      * @return the discrete keys
      */
     public DiscreteKey[] getKeys() {
         return this.keys;
     }
 
+    /**
+     * Set the discrete grid
+     *
+     * @param grid
+     */
     public void setDiscreteGrid(Grid2DByte grid) {
         this.discreteGrid = grid;
     }
 
     /**
-     * @param keys
-     *            the keys to set
-     * @deprecated use setKeys() instead
-     */
-    @Deprecated
-    public void setKey(DiscreteKey[] keys) {
-        this.keys = keys;
-    }
-
-    /**
      * Used by iscMosaic.py
-     * 
-     * @param key
+     *
+     * @param keys
      */
-    public void setKey(List<DiscreteKey[]> key) {
-        setKeys(key.toArray(new DiscreteKey[] {}));
+    public void setKeys(List<DiscreteKey> keys) {
+        setKeys(keys.toArray(new DiscreteKey[0]));
     }
 
     /**
@@ -754,10 +754,16 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
                 discreteGrid.getXdim());
     }
 
+    /**
+     * @return true if populated
+     */
     public boolean isPopulated() {
         return discreteGrid != null;
     }
 
+    /**
+     * @return weather keys as list of strings
+     */
     public List<String> getKeyList() {
         List<String> list = new ArrayList<>(keys.length);
         for (DiscreteKey k : keys) {

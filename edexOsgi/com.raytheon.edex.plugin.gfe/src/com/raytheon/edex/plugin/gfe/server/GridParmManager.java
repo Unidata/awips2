@@ -164,8 +164,10 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * Sep 12, 2016  5861     randerso  Changes to eliminate redundant database
  *                                  queries during D2DGridDatabase
  *                                  initialization.
- * Oct 19, 2017  #6126    dgilling  Make NetCDFDatabaseManager objects owned
- *                                  by GridParmManager.
+ * Oct 19, 2017  6126     dgilling  Make NetCDFDatabaseManager objects owned by
+ *                                  GridParmManager.
+ * Dec 14, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup
  *
  * </pre>
  *
@@ -173,7 +175,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  */
 
 public class GridParmManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridParmManager.class);
 
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
@@ -661,14 +663,13 @@ public class GridParmManager {
                         if ((gdh.getPublishTime() == null)
                                 || (gdh.getUpdateTime().getTime() > gdh
                                         .getPublishTime().getTime())
-                                        /*
-                                         * in service backup, times on
-                                         * srcHistory could appear as not
-                                         * needing a publish, even though dest
-                                         * data does not exist
-                                         */
+                                /*
+                                 * in service backup, times on srcHistory could
+                                 * appear as not needing a publish, even though
+                                 * dest data does not exist
+                                 */
                                 || (currentDestHistory.get(tr) == null)
-                                || (currentDestHistory.get(tr).size() == 0)) {
+                                || (currentDestHistory.get(tr).isEmpty())) {
                             doPublish = true;
                         }
                     }
@@ -727,37 +728,28 @@ public class GridParmManager {
 
                     // insert the grid into the "sourceGrid" list
                     for (int t = 0; t < officialTR.size(); t++) {
-                        // before
-                        try {
-                            if (officialTR.get(t).getStart()
-                                    .before(publishTime.getStart())) {
+                        if (officialTR.get(t).getStart()
+                                .before(publishTime.getStart())) {
 
-                                IGridSlice tempSlice = officialData.get(t)
-                                        .clone();
-                                tempSlice.setValidTime(new TimeRange(
-                                        officialTR.get(t).getStart(),
-                                        publishTime.getStart()));
-                                sourceData.add(0, tempSlice);
-                                publishTime
-                                        .setStart(officialTR.get(t).getStart());
-                                overlapInventory.add(tempSlice.getValidTime());
-                            }
+                            IGridSlice tempSlice = officialData.get(t).copy();
+                            tempSlice.setValidTime(
+                                    new TimeRange(officialTR.get(t).getStart(),
+                                            publishTime.getStart()));
+                            sourceData.add(0, tempSlice);
+                            publishTime.setStart(officialTR.get(t).getStart());
+                            overlapInventory.add(tempSlice.getValidTime());
+                        }
 
-                            // after
-                            if (officialTR.get(t).getEnd()
-                                    .after(publishTime.getEnd())) {
-                                IGridSlice tempSlice = officialData.get(t)
-                                        .clone();
-                                tempSlice.setValidTime(
-                                        new TimeRange(publishTime.getEnd(),
-                                                officialTR.get(t).getEnd()));
-                                sourceData.add(tempSlice);
-                                publishTime.setEnd(officialTR.get(t).getEnd());
-                                overlapInventory.add(tempSlice.getValidTime());
-                            }
-                        } catch (CloneNotSupportedException e) {
-                            sr.addMessage("Error cloning GridSlice "
-                                    + e.getMessage());
+                        // after
+                        if (officialTR.get(t).getEnd()
+                                .after(publishTime.getEnd())) {
+                            IGridSlice tempSlice = officialData.get(t).copy();
+                            tempSlice.setValidTime(
+                                    new TimeRange(publishTime.getEnd(),
+                                            officialTR.get(t).getEnd()));
+                            sourceData.add(tempSlice);
+                            publishTime.setEnd(officialTR.get(t).getEnd());
+                            overlapInventory.add(tempSlice.getValidTime());
                         }
                     }
                 }
@@ -903,8 +895,7 @@ public class GridParmManager {
     public ServerResponse<List<DatabaseID>> getDbInventory() {
         ServerResponse<List<DatabaseID>> sr = new ServerResponse<>();
 
-        List<DatabaseID> databases = new ArrayList<>(
-                this.dbMap.keySet());
+        List<DatabaseID> databases = new ArrayList<>(this.dbMap.keySet());
 
         sr.setPayload(databases);
         return sr;
@@ -1363,17 +1354,15 @@ public class GridParmManager {
                     TimeRange validPeriod = record.getDataTime()
                             .getValidPeriod();
 
-                    statusHandler
-                            .info("D2D grid received for "
-                                    + record.getParameter().getAbbreviation()
-                                    + "_" + record.getLevel() + " at "
-                                    + (validPeriod.isValid() ? validPeriod
-                                            : record.getDataTime()
-                                                    .getValidTimeAsDate())
-                                    + "\nFiring smartInit for " + dbId + " at "
-                                    + validTime
-                                    + "\nGridUpdateNotification.replacementTimeRange = "
-                                    + gun.getReplacementTimeRange());
+                    statusHandler.info("D2D grid received for "
+                            + record.getParameter().getAbbreviation() + "_"
+                            + record.getLevel() + " at "
+                            + (validPeriod.isValid() ? validPeriod
+                                    : record.getDataTime().getValidTimeAsDate())
+                            + "\nFiring smartInit for " + dbId + " at "
+                            + validTime
+                            + "\nGridUpdateNotification.replacementTimeRange = "
+                            + gun.getReplacementTimeRange());
 
                     queue.queue(siteID, config, dbId, validTime, false,
                             SmartInitRecord.LIVE_SMART_INIT_PRIORITY);
@@ -1677,8 +1666,7 @@ public class GridParmManager {
     public List<DatabaseID> versionPurge(DatabaseID modelToPurge) {
         int desiredVersions = this.config.desiredDbVersions(modelToPurge);
 
-        List<DatabaseID> currentInv = new ArrayList<>(
-                this.dbMap.keySet());
+        List<DatabaseID> currentInv = new ArrayList<>(this.dbMap.keySet());
         // sort the inventory by site, type, model, time (most recent first)
         Collections.sort(currentInv);
 

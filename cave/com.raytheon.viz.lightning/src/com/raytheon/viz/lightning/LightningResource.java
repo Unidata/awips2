@@ -106,12 +106,13 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * May 19, 2016  3253     bsteffen     Use extra text for count display.
  * Jul 26, 2016  5759     njensen      Use IBulkPointsRenderingExtension
  * Jun 20, 2017  DR20107  kingfield/meyer  Added GLM display functionality
+ * Nov 28, 2017  5863     bsteffen     Change dataTimes to a NavigableSet
  *
  * </pre>
  *
  * @author chammack
  */
-public class LightningResource 
+public class LightningResource
         extends AbstractVizResource<LightningResourceData, IMapDescriptor>
         implements IResourceDataChanged, IExtraTextGeneratingResource {
 
@@ -147,10 +148,9 @@ public class LightningResource
 
     public LightningResource(LightningResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(this);
 
-        this.dataTimes = new ArrayList<>();
         this.cacheObjectMap = new ConcurrentHashMap<>();
     }
 
@@ -203,7 +203,8 @@ public class LightningResource
      * @param resourceData
      * @return
      */
-    public static String formatResourceName(LightningResourceData resourceData) {
+    public static String formatResourceName(
+            LightningResourceData resourceData) {
         String rval = "";
         int absTimeInterval = Math
                 .abs(resourceData.getRepeatingBinOffset().getInterval());
@@ -311,20 +312,20 @@ public class LightningResource
                     if (needsUpdate) {
                         needsUpdate = false;
                         if (resourceData.isHandlingNegativeStrikes()) {
-                            currNegList = convertToPixel(bundle
-                                    .getNegLatLonList());
+                            currNegList = convertToPixel(
+                                    bundle.getNegLatLonList());
                         }
                         if (resourceData.isHandlingPositiveStrikes()) {
-                            currPosList = convertToPixel(bundle
-                                    .getPosLatLonList());
+                            currPosList = convertToPixel(
+                                    bundle.getPosLatLonList());
                         }
                         if (resourceData.isHandlingCloudFlashes()) {
-                            currCloudList = convertToPixel(bundle
-                                    .getCloudLatLonList());
+                            currCloudList = convertToPixel(
+                                    bundle.getCloudLatLonList());
                         }
                         if (resourceData.isHandlingPulses()) {
-                            currPulseList = convertToPixel(bundle
-                                    .getPulseLatLonList());
+                            currPulseList = convertToPixel(
+                                    bundle.getPulseLatLonList());
                         }
                     }
 
@@ -336,13 +337,13 @@ public class LightningResource
                     if (resourceData.isHandlingNegativeStrikes()) {
                         // Kingfield/Meyer DEV - Pull lightning source and if
                         // GLM, modify display type
-                        if (bundle.getMetadata().getSource().equals("GLMfl")) {
+                        if ("GLMfl".equals(bundle.getMetadata().getSource())) {
                             dt = DisplayType.GLM_FLASH;
-                        } else if (bundle.getMetadata().getSource()
-                                .equals("GLMgr")) {
+                        } else if ("GLMgr"
+                                .equals(bundle.getMetadata().getSource())) {
                             dt = DisplayType.GLM_GROUP;
-                        } else if (bundle.getMetadata().getSource()
-                                .equals("GLMev")) {
+                        } else if ("GLMev"
+                                .equals(bundle.getMetadata().getSource())) {
                             dt = DisplayType.GLM_EVENT;
                         }
                         negCount = drawPoints(target, paintTime, magnification,
@@ -537,7 +538,7 @@ public class LightningResource
              * is only one record we know about, return without removing the
              * time.
              */
-            if (dataTimes.indexOf(dataTime) == dataTimes.size() - 1) {
+            if (dataTime.equals(dataTimes.last())) {
                 CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap
                         .get(dataTime);
                 if (co != null) {
@@ -695,7 +696,8 @@ public class LightningResource
             text.add(currCounts.get(DisplayType.NEGATIVE) + " - Strikes");
         }
         if (currCounts.containsKey(DisplayType.CLOUD_FLASH)) {
-            text.add(currCounts.get(DisplayType.CLOUD_FLASH) + " Cloud Flashes");
+            text.add(
+                    currCounts.get(DisplayType.CLOUD_FLASH) + " Cloud Flashes");
         }
         if (currCounts.containsKey(DisplayType.PULSE)) {
             text.add(currCounts.get(DisplayType.PULSE) + " Pulses");

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,12 +31,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 /**
  * This class creates all of the buttons that corresponds to the available
  * methods. Example of use is generating the buttons with the various rules
  * methods in the Monitoring Rules configuration dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -44,12 +45,12 @@ import org.eclipse.swt.widgets.Composite;
  * 22 MAY 2008  1119       lvenable    Initial creation
  * 29 OCT 2010  7262       rferrel     Sort Rule method buttons.
  * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
- * 
+ * 02 Feb 2018  6584       tgurney     Add label above buttons
+ *
  * </pre>
- * 
+ *
  * @author lvenable
- * @version 1.0
- * 
+ *
  */
 public class AvailMethodsComp extends Composite {
     /**
@@ -64,7 +65,7 @@ public class AvailMethodsComp extends Composite {
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent composite.
      * @param methodArray
@@ -102,8 +103,8 @@ public class AvailMethodsComp extends Composite {
         GridData gd;
 
         MethodData methodData;
-        Map<String, Integer> methodIndex = new HashMap<String, Integer>();
-        ArrayList<String> keyList = new ArrayList<String>();
+        Map<String, Integer> methodIndex = new HashMap<>();
+        ArrayList<String> keyList = new ArrayList<>();
 
         for (int x = 0; x < methodArray.size(); ++x) {
             String key = methodArray.get(x).getMethodName();
@@ -111,6 +112,11 @@ public class AvailMethodsComp extends Composite {
             keyList.add(key);
         }
         Collections.sort(keyList);
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Label availableMethods = new Label(this, SWT.NONE);
+        availableMethods.setText("Available Methods");
+        availableMethods.setLayoutData(gd);
 
         for (String key : keyList) {
             methodData = methodArray.get(methodIndex.get(key).intValue());

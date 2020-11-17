@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.xy.timeheight.rsc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Resource for displaying cross sections as contours
+ * Resource for displaying time height as vectors
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -73,7 +72,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                  graph in loadInterpolatedData after we
  *                                  ensure that it is not NULL.
  * Sep 23, 2013  2363     bsteffen  Add more vector configuration options.
- * Aug 12, 2016  5822     bsteffen  impelment disposeRenderables
+ * Aug 12, 2016  5822     bsteffen  implement disposeRenderables
+ * Feb 08, 2018  6825     njensen   Remove Load as Image capability to match A1
+ * Feb 19, 2018  6666     bsteffen  Get data from adapter using loadPreparedData
  * 
  * </pre>
  * 
@@ -81,7 +82,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class TimeHeightVectorResource extends AbstractTimeHeightResource
         implements IResourceDataChanged {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeHeightVectorResource.class);
 
     /* Unknown source, provides acceptable density. */
@@ -89,7 +91,7 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
 
     private float[] vInterpolatedData;
 
-    private Map<Coordinate, IImage> imageMap = new HashMap<Coordinate, IImage>();
+    private Map<Coordinate, IImage> imageMap = new HashMap<>();
 
     public TimeHeightVectorResource(TimeHeightResourceData data,
             LoadProperties props, AbstractVarHeightAdapter<?> adapter) {
@@ -97,23 +99,20 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
 
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
         match.setLevel(null);
-        ArrayList<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
         paramList.add(resourceData.getParameter());
         match.setParameterName(paramList);
         StyleRule sr = null;
         try {
-            sr = StyleManager.getInstance().getStyleRule(
-                    StyleManager.StyleType.ARROW, match);
+            sr = StyleManager.getInstance()
+                    .getStyleRule(StyleManager.StyleType.ARROW, match);
         } catch (StyleException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Error getting arrow style rules", e);
         }
         if (sr != null) {
             prefs = sr.getPreferences();
         }
         this.getResourceData().addChangeListener(this);
-        getCapability(DisplayTypeCapability.class).setAlternativeDisplayTypes(
-                Arrays.asList(DisplayType.IMAGE));
     }
 
     @Override
@@ -135,12 +134,12 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
         }
 
         IGraph graph = descriptor.getGraph(this);
-        List<DataTime> dataTimes = new ArrayList<DataTime>(this.dataTimes);
+        List<DataTime> dataTimes = new ArrayList<>(this.dataTimes);
 
-        float[][] uColumns = new float[dataTimes.size()][(int) geometry
-                .getGridRange2D().getHeight()];
-        float[][] vColumns = new float[dataTimes.size()][(int) geometry
-                .getGridRange2D().getHeight()];
+        float[][] uColumns = new float[dataTimes
+                .size()][(int) geometry.getGridRange2D().getHeight()];
+        float[][] vColumns = new float[dataTimes
+                .size()][(int) geometry.getGridRange2D().getHeight()];
         float[] times = new float[dataTimes.size()];
 
         TimeDirection direction = this.getDescriptor().getTimeDirection();
@@ -151,12 +150,10 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
                 dataTimesIndex = dataTimes.size() - 1 - i;
             }
             try {
-                List<XYData> dataList = adapter.loadData(dataTimes
-                        .get(dataTimesIndex));
-                adapter.sortData(dataList);
-                adapter.convertData(dataList, getUnit());
-                List<XYData> uList = new ArrayList<XYData>(dataList.size());
-                List<XYData> vList = new ArrayList<XYData>(dataList.size());
+                List<XYData> dataList = adapter.loadPreparedData(
+                        dataTimes.get(dataTimesIndex), getUnit());
+                List<XYData> uList = new ArrayList<>(dataList.size());
+                List<XYData> vList = new ArrayList<>(dataList.size());
                 for (XYData xyData : dataList) {
                     XYWindImageData windData = (XYWindImageData) xyData;
                     double dir = windData.getWindDir();
@@ -165,28 +162,30 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
                     uList.add(new XYData(-spd * Math.sin(dir), xyData.getY()));
                     vList.add(new XYData(-spd * Math.cos(dir), xyData.getY()));
                 }
-                uColumns[i] = InterpUtils.makeColumn(uList, (int) geometry
-                        .getGridRange2D().getHeight(), graph, descriptor
-                        .getHeightScale().getMinVal() < descriptor
-                        .getHeightScale().getMaxVal(), Float.NaN);
-                vColumns[i] = InterpUtils.makeColumn(vList, (int) geometry
-                        .getGridRange2D().getHeight(), graph, descriptor
-                        .getHeightScale().getMinVal() < descriptor
-                        .getHeightScale().getMaxVal(), Float.NaN);
+                uColumns[i] = InterpUtils.makeColumn(uList,
+                        (int) geometry.getGridRange2D().getHeight(), graph,
+                        descriptor.getHeightScale().getMinVal() < descriptor
+                                .getHeightScale().getMaxVal(),
+                        Float.NaN);
+                vColumns[i] = InterpUtils.makeColumn(vList,
+                        (int) geometry.getGridRange2D().getHeight(), graph,
+                        descriptor.getHeightScale().getMinVal() < descriptor
+                                .getHeightScale().getMaxVal(),
+                        Float.NaN);
                 times[i] = dataTimes.get(dataTimesIndex).getValidTime()
                         .getTimeInMillis();
             } catch (VizException e) {
-                statusHandler.handle(
-                        Priority.PROBLEM,
+                statusHandler.handle(Priority.PROBLEM,
                         "Error loading Time Height Data for time "
                                 + dataTimes.get(dataTimesIndex)
-                                        .getLegendString() + ": "
-                                + e.getLocalizedMessage(), e);
+                                        .getLegendString()
+                                + ": " + e.getLocalizedMessage(),
+                        e);
             }
         }
 
-        interpolatedData = InterpUtils.makeRows(uColumns, times, (int) geometry
-                .getGridRange2D().getWidth(), graph,
+        interpolatedData = InterpUtils.makeRows(uColumns, times,
+                (int) geometry.getGridRange2D().getWidth(), graph,
                 direction == TimeDirection.LEFT_TO_RIGHT, Float.NaN);
         vInterpolatedData = InterpUtils.makeRows(vColumns, times,
                 (int) geometry.getGridRange2D().getWidth(), graph,
@@ -237,8 +236,10 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
         config.setSizeScaler(magnification * ratio);
         VectorGraphicsRenderable vgr = new VectorGraphicsRenderable(
                 this.descriptor, target, config);
-        for (int i = spacing / 2; i < geometry.getGridRange2D().getMaxX(); i += spacing) {
-            for (int j = spacing / 2; j < geometry.getGridRange2D().getMaxY(); j += spacing) {
+        for (int i = spacing / 2; i < geometry.getGridRange2D()
+                .getMaxX(); i += spacing) {
+            for (int j = spacing / 2; j < geometry.getGridRange2D()
+                    .getMaxY(); j += spacing) {
                 double screenX = graphArea.getMinX() + (i + 0.5) * width;
                 double screenY = graphArea.getMinY() + graphArea.getHeight()
                         - (j + 0.5) * height;
@@ -257,7 +258,8 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
                 double dir = Math.atan2(-uudd, -vvff);
                 Coordinate plotLoc = new Coordinate(screenX, screenY);
 
-                if (getCapability(DisplayTypeCapability.class).getDisplayType() == DisplayType.ARROW) {
+                if (getCapability(DisplayTypeCapability.class)
+                        .getDisplayType() == DisplayType.ARROW) {
                     vgr.paintArrow(plotLoc, spd, dir);
                 } else {
                     vgr.paintBarb(plotLoc, spd, dir);
@@ -265,20 +267,13 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
             }
         }
         vgr.setColor(color);
-        vgr.setLineWidth(getCapability(OutlineCapability.class)
-                .getOutlineWidth());
+        vgr.setLineWidth(
+                getCapability(OutlineCapability.class).getOutlineWidth());
         vgr.setLineStyle(getCapability(OutlineCapability.class).getLineStyle());
         vgr.paint(target);
         vgr.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.timeheight.rsc.AbstractTimeHeightResource#
-     * setDescriptor
-     * (com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor)
-     */
     @Override
     public void setDescriptor(TimeHeightDescriptor descriptor) {
         vInterpolatedData = null;
@@ -289,8 +284,8 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
     public void resourceChanged(ChangeType type, Object object) {
         if (type.equals(ChangeType.CAPABILITY)) {
             if (object instanceof ColorableCapability) {
-                getCapability(ColorableCapability.class).setColor(
-                        ((ColorableCapability) object).getColor());
+                getCapability(ColorableCapability.class)
+                        .setColor(((ColorableCapability) object).getColor());
                 imageMap.clear();
             }
         }
