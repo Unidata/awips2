@@ -8,6 +8,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:
 
+- Java
 - OpenGL 2.0 Compatible Devices
 - At least 4GB RAM
 - At least 2GB Disk Space for Caching
