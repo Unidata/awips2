@@ -26,7 +26,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 ### Download and Installation Instructions
 
 1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
-2. Go to the download directory and run: `awips_install.sh --cave`  
+2. In a terminal, go to the download directory 
 3. Make the installer an executable by running: `chmod 755 awips_install.sh`
 4. Run the installer: `sudo ./awips_install.sh --cave`
      - This will install the application in `/awips2/cave/` and set the local cache to `~/caveData/`
@@ -75,7 +75,7 @@ To run CAVE either:
 - JAVA_HOME must be defined
 - Visual C++ Build Tools 2015 Update 3 (Version 14.1)
 
-> Note: [Specific instructions](#download-and-installation-instructions_2) are detailed for installing the above, but they still may not install jep properly
+!!! warning "[Specific instructions](#download-and-installation-instructions_2) are detailed for installing the above, but they still may not install jep properly"
 
 #### Download and Installation Instructions
 
