@@ -1196,6 +1196,8 @@
             <parameter>TP3hr</parameter>
             <parameter>TP6hr</parameter>
             <parameter>SPAcc</parameter>
+            <parameter>TP-GFS</parameter>
+            <parameter>CP-GFS</parameter>
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->

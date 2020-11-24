@@ -810,3 +810,7 @@ TPpmmn_3600-0 TP1pmmn
 TPpmmn_10800-0 TP3pmmn
 WEASDmean_3600-0 WEASD1hrmean
 WEASDmean_10800-0 WEASD3hrmean
+
+// GFSFV3 transition from buckets
+TP_T170L42A-NCEP TP_GFS
+CP_T170L42A-NCEP CP_GFS
