@@ -1142,6 +1142,11 @@
 <li>16+ CPU cores (each CPU core can run a decorder in parallel)</li>
 <li>24GB RAM</li>
 <li>700GB+ Disk Space</li>
+<li>gcc-c++ package<ul>
+<li>Run <code>rpm -qa | grep gcc-c++</code> to verify if the package is installed</li>
+<li>If it is not installed, run <code>yum install gcc-c++</code> to install the package</li>
+</ul>
+</li>
 <li>A <strong>Solid State Drive (SSD)</strong> is recommended<ul>
 <li>A SSD should be mounted either to <code>/awips2</code> (to contain the entire EDEX system) or to <code>/awips2/edex/data/hdf5</code> (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.</li>
 </ul>
@@ -1168,7 +1173,6 @@
 <pre><code>wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
 chmod 755 awips_install.sh
 sudo ./awips_install.sh --edex
-/usr/bin/edex setup
 </code></pre>
 <div class="admonition note">
 <p class="admonition-title"><strong>awips_install.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
@@ -1182,6 +1186,10 @@ sudo ./awips_install.sh --edex
 </ol>
 </div>
 <h3 id="3-edex-setup">3. EDEX Setup<a class="headerlink" href="#3-edex-setup" title="Permanent link"></a></h3>
+<p>Change user and run edex setup:</p>
+<pre><code>sudo su - awips
+sudo edex setup
+</code></pre>
 <p>The command <code>edex setup</code> will try to determine your fully-qualified domain name and set it in <code>/awips2/edex/bin/setup.env</code>. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to <code>/etc/hosts</code> if necessary.</p>
 <h4 id="setup-example">Setup Example<a class="headerlink" href="#setup-example" title="Permanent link"></a></h4>
 <p>For example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in <code>/awips2/edex/bin/setup.env</code></p>
