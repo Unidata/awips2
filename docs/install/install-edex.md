@@ -10,6 +10,9 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 - 16+ CPU cores (each CPU core can run a decorder in parallel)
 - 24GB RAM
 - 700GB+ Disk Space
+- gcc-c++ package
+    - Run `rpm -qa | grep gcc-c++` to verify if the package is installed
+    - If it is not installed, run `yum install gcc-c++` to install the package
 - A **Solid State Drive (SSD)** is recommended
     - A SSD should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
 
@@ -43,7 +46,6 @@ Download the and run the installer: [**awips_install.sh** <i class="fa fa-downlo
 wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
 chmod 755 awips_install.sh
 sudo ./awips_install.sh --edex
-/usr/bin/edex setup
 ```
 
 
@@ -56,7 +58,15 @@ sudo ./awips_install.sh --edex
        5. Attempts to configure the EDEX hostname defined in `/awips2/edex/bin/setup.env`
        6. Alerts the user if the *awips* account does not exist (the RPMs will still install)
 
+
 ### 3. EDEX Setup
+
+Change user and run edex setup:
+
+```
+sudo su - awips
+sudo edex setup
+```
 
 The command `edex setup` will try to determine your fully-qualified domain name and set it in `/awips2/edex/bin/setup.env`. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to `/etc/hosts` if necessary.
 
