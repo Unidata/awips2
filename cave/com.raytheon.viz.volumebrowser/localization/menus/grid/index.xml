@@ -7,16 +7,7 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
-    
     <include installTo="menu:models" 
-             fileName="menus/grid/cmcFamilies.xml">
-             <substitute key="modelName" value="ECMWF-HiRes" />
-             <substitute key="menuName" value="ECMWF" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP"/>
-    </include>
-	
-	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
              <substitute key="menuName" value="GFS 0.25° Global" />
@@ -43,13 +34,6 @@
              <substitute key="menuName" value="HRRR" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
-    </include>
-	<include installTo="menu:models" 
-             fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="NAM3" />
-             <substitute key="menuName" value="NAM 3km" />
-             <substitute key="frameCount" value="60" />
-             <substitute key="TP" value="TP1hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
@@ -100,6 +84,13 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
+    <include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="RAP40" />
+             <substitute key="menuName" value="RAP 40km" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </include>
 	<include installTo="menu:models" 
              fileName="menus/grid/mesoFamilies.xml">
              <substitute key="modelName" value="NDFD" />
@@ -124,17 +115,9 @@
 	<include installTo="menu:models" 
              fileName="menus/grid/baseComparisonFamilies.xml">
     </include>
-    
-    
-	<include installTo="menu:models" 
-             fileName="menus/grid/rtofs.xml">
-             <substitute key="modelName" value="RTOFS-Now%" />
-             <substitute key="menuName" value="RTOFS" />
-             <substitute key="frameCount" value="50" />
-    </include>
-    
+
     <include installTo="menu:models" 
-             fileName="menus/grid/fnmocWW3.xml">
+             fileName="menus/grid/ww3.xml">
              <substitute key="modelName" value="FNMOC-WW3" />
              <substitute key="menuName" value="FNMOC WW3" />
              <substitute key="frameCount" value="39" />
