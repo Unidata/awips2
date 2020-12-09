@@ -8,12 +8,13 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:
 
-- Java
+- Java 1.8
 - OpenGL 2.0 Compatible Devices
 - At least 4GB RAM
 - At least 2GB Disk Space for Caching
+- NVIDIA Graphics Card
 - [Latest NVIDIA Driver](http://www.nvidia.com/Download/index.aspx?lang=en-us)
-> Note: NVIDIA Quadro graphics card is recommended for full visualization capability
+> Note: While other graphics cards *may* work, NVIDIA Quadro graphics card is recommended for full visualization capability
 
 ---
 
@@ -40,9 +41,17 @@ To run CAVE either:
 
 ## Windows <i class="fa fa-windows"></i> 
 
-For Windows, Unidata offers two installation options: a [**Linux Virtual Machine**](#method-1-linux-virtual-machine-recommended), or a [**Direct Windows Installation**](#method-2-direct-windows-install).  Currently, the virtual machine is the recommended form of install.  The direct installation can work, but currently we do not have complete instructions on how to get **jep** (which is a python package) running properly with CAVE.  Because of this, CAVE will install just fine, but certain data products will not render in the application.  The direct install also requires several system modifications and will require administrator priviledges.  We are in the process of producing a working set of instructions for the direct install, but as of now just have old instructions, which likely will not have jep working properly.
+For Windows, Unidata offers two installation options: a [**Linux Virtual Machine**](#method-1-linux-virtual-machine), or a [**Direct Windows Installation**](#method-2-direct-windows-install).
 
-### Method 1: Linux Virtual Machine (Recommended)
+Currently, the [virtual machine (VM)](#method-1-linux-virtual-machine) is the recommended form of install for those who do not have administrative priviledges on the machine, or beginners who want a simpler installation process.  
+> Note: At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)
+
+The [direct installation method](#method-2-direct-windows-install) is recommended for those who have administrative priviledges and a little bit of experience installing more software.
+
+
+### Method 1: Linux Virtual Machine
+
+This method is recommended for beginners, or those with less computer knowledge as it is a very simple installation, however at this time, some CAVE functionality may be missing (ex: rendering RGB satellite images).
 
 #### System Requirements
 
@@ -57,7 +66,7 @@ For Windows, Unidata offers two installation options: a [**Linux Virtual Machine
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
 
-To run CAVE either:
+Once inside the VM, to run CAVE either:
 
 - Use the desktop icon 
 - Use the terminal and type the command `cave`
@@ -65,34 +74,50 @@ To run CAVE either:
 
 ### Method 2: Direct Windows Install
 
+This method is recommended for personal use and requires Administrative priviledges.  It should enable full CAVE capability, but it is a bit lengthy and might take about 20 minutes or so to complete.  
+
 #### System Requirements
 
-- Miniconda3
-- Python
-- Numpy
-- Jep
-- PYTHONHOME must be defined
-- JAVA_HOME must be defined
-- Visual C++ Build Tools 2015 Update 3 (Version 14.1)
-
-!!! warning "[Specific instructions](#download-and-installation-instructions_2) are detailed for installing the above, but they still may not install jep properly"
+- 64-bit Miniconda3 (4.8.2)
+- Python3 (comes with Miniconda installation)
+- 64-bit Java JDK 1.8 (1.8_181)
+- 64-bit Visual C++ Build Tools 2015 Update 3 (14.1)
+- Numpy (1.15.1)
+- Jep (3.8.2)
+- User Variable PATH must have miniconda3 location
+- User Variables PYTHONHOME and PYTHONPATH must be defined
+- System Variable JAVA_HOME must be defined
 
 #### Download and Installation Instructions
 
-1. Download and install [Miniconda Python 3.7 for Windows](https://conda.io/miniconda.html)
+1. Download and install 64-bit [Miniconda Python 4.8.2 for Windows](https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.2-Windows-x86_64.exe)
     - Allow Miniconda3 to set **PATH** and other environment variables
-    - Ensure that **PYTHONHOME** is set to the Miniconda3 location
-    ![Environment Variables Screenshot](../images/windows_envvars.png)
+    - Register miniconda as the default python
+2. Download and install the 64-bit [Java JDK 1.8_181](https://www.unidata.ucar.edu/downloads/awips2/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
+    - Select **Development Tools** as the installation options
+    - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\)
+3. Set the environment variables:
+    - Access the Environment Variables window by typing "env" in the start bar, hitting enter, and clicking on the "Environment Variables..." button at the bottom of the "System Properties" window
+    - User Variables: **PYTHONPATH** and **PYTHONHOME**
+    - System Variable: **JAVA_HOME**
+    ![Env Vars](../images/envVars.png)
     > Note: If PYTHONHOME is not set, the **gridslice** Python module will not be installed or available
-2. [Download and install Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=visual%20studio%202015&wt.mc_id=o~msft~vscom~older-downloads)
+4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=visual%20studio%202015&wt.mc_id=o~msft~vscom~older-downloads)
     - To access the page linked above you will need a Microsoft account
     - Once at that webpage, **search for** ***"build tools c+"*** in order for the proper download to be returned
-    - Download **Visual C++ Build Tools 2015 Update 3**
-3. Install dependent Python packages
-    - `pip install numpy==1.15.1 jep=3.8.2`
-4. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)
+    - Download 64-bit **Visual C++ Build Tools 2015 Update 3**
+    - When running the installer, choose the **Default** Installation
+5. Install dependent Python packages
+    - Open a terminal by typing "cmd" into the start bar and hitting enter
+    - Run the following command: `pip install numpy==1.15.1 jep=3.8.2`
+6. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)
     - In addition to the application directory, the MSI installer will attempt to copy the [*gridslice*](https://github.com/Unidata/gridslice) shared library to `$PYTHONHOME/Dlls/`.  If the `$PYTHONHOME` environmental variable is not defined *gridslice* will not be installed.  You can check to see if it was installed in the Dlls directory after you have completed steps 1-3.
     > Note: CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [**isentropic analysis**](../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png), will not load.
+
+To run CAVE, either:
+
+- Type "cave" in the start bar and hit enter
+- Find and run CAVE app in the file browser:  C:\Program Files\Unidata\AWIPS CAVE\cave.exe
 
 ---
 
