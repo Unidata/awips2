@@ -2009,6 +2009,26 @@
             "location": "/cave/cave-keyboard-shortcuts/#text-editor-shortcuts",
             "text": "Action  Command      Extend Selection to Start of Line  Shift + Home    Extend Selection to End of Line  Shift + End    Extend Selection to Start of Document  Ctrl + Shift + Home    Extend Selection to End of Document  Ctrl + Shift + End    Extend Selection Up 1 Screen  Shift + Page Up    Extend Selection Down 1 Screen  Shift + Page Down    Extend Selection to Previous Character  Shift + \u2190    Extend Selection by Previous Word  Ctrl + Shift + \u2190    Extend Selection to Next Character  Shift + \u2192    Extend Selection by Next Word  Ctrl + Shift + \u2192    Extend Selection Up 1 Line  Shift + \u2191    Extend Selection Down 1 Line  Shift + \u2193    Delete Previous Word  Ctrl + Backspace    Delete Next Word  Ctrl + Delete    Close the Window  Ctrl + Shift + F4    Undo  Ctrl + Z    Copy  Ctrl + C    Paste  Ctrl + V    Cut  Ctrl + X",
             "title": "Text Editor Shortcuts"
+        },
+        {
+            "location": "/raytheon/cave_d2d/",
+            "text": "Raytheon: CAVE D2D User's Manual (13.4.1)\n\uf0c1\n\n\n\n\nNote: This manual is from Raytheon, specifically for the NWS AWIPS, some of the content may not apply to Unidata's AWIPS.  Also, this manual is for an older version of AWIPS, but it is the most recent version of the manual we have access to.\n\n\n\n\n\n\n\nThis browser does not support PDFs. Please download the PDF to view it: \n\nDownload PDF",
+            "title": "Raytheon: CAVE User's Manual"
+        },
+        {
+            "location": "/raytheon/cave_d2d/#raytheon-cave-d2d-users-manual-1341",
+            "text": "Note: This manual is from Raytheon, specifically for the NWS AWIPS, some of the content may not apply to Unidata's AWIPS.  Also, this manual is for an older version of AWIPS, but it is the most recent version of the manual we have access to.    \nThis browser does not support PDFs. Please download the PDF to view it:  Download PDF",
+            "title": "Raytheon: CAVE D2D User's Manual (13.4.1)"
+        },
+        {
+            "location": "/raytheon/smm/",
+            "text": "Raytheon: System Manager's Manual (13.4.1)\n\uf0c1\n\n\n\n\nNote: This manual is from Raytheon, specifically for the NWS AWIPS, some of the content may not apply to Unidata's AWIPS.  Also, this manual is for an older version of AWIPS, but it is the most recent version of the manual we have access to.\n\n\n\n\n\n\n\n\n\nThis browser does not support PDFs. Please download the PDF to view it: \n\nDownload PDF",
+            "title": "Raytheon: AWIPS System Manager's Manual"
+        },
+        {
+            "location": "/raytheon/smm/#raytheon-system-managers-manual-1341",
+            "text": "Note: This manual is from Raytheon, specifically for the NWS AWIPS, some of the content may not apply to Unidata's AWIPS.  Also, this manual is for an older version of AWIPS, but it is the most recent version of the manual we have access to.     \nThis browser does not support PDFs. Please download the PDF to view it:  Download PDF",
+            "title": "Raytheon: System Manager's Manual (13.4.1)"
         }
     ]
 }
