@@ -92,6 +92,8 @@ pages:
     # - COTS and FOSS: appendix/appendix-cots.md
     - WSR-88D Product Table: appendix/appendix-wsr88d.md
     - Keyboard Shortcuts: cave/cave-keyboard-shortcuts.md
+    - "Raytheon: CAVE User's Manual": raytheon/cave_d2d.md
+    - "Raytheon: AWIPS System Manager's Manual": raytheon/smm.md
 
 extra_css:
     - css/extra.css
