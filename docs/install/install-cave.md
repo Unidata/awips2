@@ -102,9 +102,8 @@ This method is recommended for personal use and requires Administrative priviled
     - System Variable: **JAVA_HOME**
     ![Env Vars](../images/envVars.png)
     > Note: If PYTHONHOME is not set, the **gridslice** Python module will not be installed or available
-4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=visual%20studio%202015&wt.mc_id=o~msft~vscom~older-downloads)
+4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=build%20tools%20c++%203&wt.mc_id=o~msft~vscom~older-downloads)
     - To access the page linked above you will need a Microsoft account
-    - Once at that webpage, **search for** ***"build tools c+"*** in order for the proper download to be returned
     - Download 64-bit **Visual C++ Build Tools 2015 Update 3**
     - When running the installer, choose the **Default** Installation
 5. Install dependent Python packages
