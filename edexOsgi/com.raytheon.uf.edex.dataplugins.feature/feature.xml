@@ -217,12 +217,14 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
    <plugin
-	 id="gov.noaa.nws.ost.edex.plugin.binlightning"
+         id="gov.noaa.nws.ost.edex.plugin.binlightning"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
    <plugin
          id="com.raytheon.edex.plugin.binlightning"
          download-size="0"
@@ -292,14 +294,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
-   <plugin
-         id="com.raytheon.uf.edex.plugin.bufrobs"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
--->
+
    <plugin
          id="com.raytheon.uf.common.nc.bufr"
          download-size="0"
@@ -432,7 +427,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
 
    <plugin
          id="com.raytheon.uf.common.menus.vb"
@@ -804,8 +798,6 @@
          version="0.0.0"
          unpack="false"/>
 
-   <!-- NCEP -->
-
    <plugin
          id="edu.wisc.ssec.mcidas"
          download-size="0"
@@ -847,7 +839,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-    
+
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.aww"
          download-size="0"
@@ -924,7 +916,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-  
+
    <plugin
          id="gov.noaa.nws.ncep.edex.plugin.convsigmet"
          download-size="0"
@@ -1119,7 +1111,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-    
+
    <plugin
          id="gov.nasa.gsfc.fits"
          download-size="0"
@@ -1168,5 +1160,18 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.pirep"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.pirep"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
