@@ -78,7 +78,7 @@ This method is recommended for personal use and requires Administrative priviled
 
 #### System Requirements
 
-- 64-bit Miniconda3 (4.8.2)
+- 64-bit Miniconda3 (Python3.7 - 4.8.2)
 - Python3 (comes with Miniconda installation)
 - 64-bit Java JDK 1.8 (1.8_181)
 - 64-bit Visual C++ Build Tools 2015 Update 3 (14.1)
@@ -90,12 +90,13 @@ This method is recommended for personal use and requires Administrative priviled
 
 #### Download and Installation Instructions
 
-1. Download and install 64-bit [Miniconda Python 4.8.2 for Windows](https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.2-Windows-x86_64.exe)
-    - Allow Miniconda3 to set **PATH** and other environment variables
-    - Register miniconda as the default python
+1. Download and install 64-bit [Miniconda Python3.7 version 4.8.2 for Windows](https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.2-Windows-x86_64.exe)
+    - **Allow** Miniconda3 to set **PATH** and other environment variables
+    - **Register** miniconda as the default python
+    ![Miniconda options](../images/minicondaOptions.png)
 2. Download and install the 64-bit [Java JDK 1.8_181](https://www.unidata.ucar.edu/downloads/awips2/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
     - Select **Development Tools** as the installation options
-    - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\)
+    - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\jdk1.8.0_181)
 3. Set the environment variables:
     - Access the Environment Variables window by typing "env" in the start bar, hitting enter, and clicking on the "Environment Variables..." button at the bottom of the "System Properties" window
     - User Variables: **PYTHONPATH** and **PYTHONHOME**
