@@ -61,6 +61,7 @@ pages:
     - Monitor Users: edex/edex-users.md
     - Data Plugins: edex/data-plugins.md
     - Archive Case Studies: edex/case-studies.md
+- Python-AWIPS: python/overview.md
 #- Hazard Services:
 #    - CAVE Display: cave/hazard-services-display.md
 #    - Hazard Creation: cave/hazard-services-create.md
@@ -76,7 +77,6 @@ pages:
 #     - NCEP/Hydro: cave/d2d-hydro.md
 #     - Map Overlays: cave/d2d-map-resources.md
 - Development: dev/awips-development-environment.md
-- Python API: python/overview.md
     # - Overview: python/python-awips-data-access.md
     # - AWIPS Grids and Cartopy: python/awips-grids-and-cartopy.md
     # - Satellite Imagery: python/satellite-imagery.md
