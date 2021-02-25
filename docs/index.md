@@ -23,7 +23,7 @@
 
 AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the [LDM](#ldm) client pulling data feeds from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by [EDEX](install/install-edex), which serves products and data over http.
 
-Unidata supports two data visualization frameworks: [CAVE](install/install-cave) (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and the [python-awips](http://python-awips.readthedocs.io).
+Unidata supports two data visualization frameworks: [CAVE](install/install-cave) (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and [python-awips](python/overview) (a python package).
 
 > **Note**: Our version of CAVE is a **non-operational** version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from Unidata's CAVE.  Additional functionality may not be available as well.
 
@@ -37,6 +37,10 @@ Unidata supports two data visualization frameworks: [CAVE](install/install-cave)
 ---
 
 ## [Download and Install EDEX](install/install-edex)
+
+---
+
+## [Work with Python-AWIPS](python/overview)
 
 ---
 
