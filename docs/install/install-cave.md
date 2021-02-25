@@ -76,6 +76,8 @@ Once inside the VM, to run CAVE either:
 
 This method is recommended for personal use and requires Administrative priviledges.  It should enable full CAVE capability, but it is a bit lengthy and might take about 20 minutes or so to complete.  
 
+> Note: It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures.
+
 #### System Requirements
 
 - 64-bit Miniconda3 (Python3.7 - 4.8.2)
