@@ -95,7 +95,7 @@ This method is recommended for personal use and requires Administrative priviled
 1. Download and install 64-bit [Miniconda Python3.7 version 4.8.2 for Windows](https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.2-Windows-x86_64.exe)
     - **Allow** Miniconda3 to set **PATH** and other environment variables
     - **Register** miniconda as the default python
-    ![Miniconda options](../images/minicondaOptions.png)s
+    ![Miniconda options](../images/minicondaOptions.png)
 2. Download and install the 64-bit [Java JDK 1.8_181](https://www.unidata.ucar.edu/downloads/awips2/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
     - Select **Development Tools** as the installation options
     - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\jdk1.8.0_181)
