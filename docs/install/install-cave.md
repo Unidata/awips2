@@ -76,6 +76,8 @@ Once inside the VM, to run CAVE either:
 
 This method is recommended for personal use and requires Administrative priviledges.  It should enable full CAVE capability, but it is a bit lengthy and might take about 20 minutes or so to complete.  
 
+> Note: It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures.
+
 #### System Requirements
 
 - 64-bit Miniconda3 (Python3.7 - 4.8.2)
@@ -93,7 +95,7 @@ This method is recommended for personal use and requires Administrative priviled
 1. Download and install 64-bit [Miniconda Python3.7 version 4.8.2 for Windows](https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.2-Windows-x86_64.exe)
     - **Allow** Miniconda3 to set **PATH** and other environment variables
     - **Register** miniconda as the default python
-    ![Miniconda options](../images/minicondaOptions.png)
+    ![Miniconda options](../images/minicondaOptions.png)s
 2. Download and install the 64-bit [Java JDK 1.8_181](https://www.unidata.ucar.edu/downloads/awips2/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
     - Select **Development Tools** as the installation options
     - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\jdk1.8.0_181)
