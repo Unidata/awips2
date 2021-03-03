@@ -149,7 +149,7 @@ To run CAVE, either:
     - This will install CAVE as an application and set the local cache to `~/Library/caveData`
 
 2. Download and install: [**awips-python.pkg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)  *(This step requires administrative privileges)*
-    - Your computer may a message saying it doesn't reconignize the developer, if so click the "?" button:
+    - Your computer may show a message saying it doesn't reconignize the developer, if so click the "?" button:
 
         ![python package unidentified developer](../images/pythonPkgMacInstall.png)
     
@@ -157,7 +157,7 @@ To run CAVE, either:
     
         ![Open security panel](../images/macSecurityPanel.png)
         
-    - First, unlock the panel by clicking the lock image in the bottom right corner and entering an Administrators password.  Then click the "Open Anyway" button to allow the awips-python.pkg to run:
+    - First, unlock the panel by clicking the lock image in the bottom left corner and entering an Administrator's password.  Then, click the "Open Anyway" button to allow the awips-python.pkg to run:
     
         ![Mac open anyway](../images/macOpenAnyway.png)
 
