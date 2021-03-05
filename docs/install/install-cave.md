@@ -115,7 +115,7 @@ This method is recommended for personal use and requires Administrative priviled
     - When running the installer, choose the **Default** Installation
 5. Install dependent Python packages
     - Open a terminal by typing "cmd" into the start bar and hitting enter
-    - Run the following command: `pip install numpy==1.15.1 jep=3.8.2`
+    - Run the following command: `pip install numpy==1.15.1 jep==3.8.2`
 6. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)
     - In addition to the application directory, the MSI installer will attempt to copy the [*gridslice*](https://github.com/Unidata/gridslice) shared library to `$PYTHONHOME/Dlls/`.  If the `$PYTHONHOME` environmental variable is not defined *gridslice* will not be installed.  You can check to see if it was installed in the Dlls directory after you have completed steps 1-3.
     > Note: CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [**isentropic analysis**](../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png), will not load.
