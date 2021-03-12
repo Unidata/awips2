@@ -2,53 +2,73 @@
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-
+        
         U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
         This_software_product_contains_export-restricted_data_whose
         export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
         to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
         an_export_license_or_other_authorization.
-
+        
         Contractor_Name:________Raytheon_Company
         Contractor_Address:_____6825_Pine_Street,_Suite_340
         ________________________Mail_Stop_B8
         ________________________Omaha,_NE_68106
         ________________________402.291.0100
-
+        
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-
-    <!--
-        This is an absolute override file, indicating that a higher priority
+   <!-- 
+        This is an absolute override file, indicating that a higher priority 
         version of the file will completely replace a lower priority version
-        of the file.
+        of the file. 
     -->
+    <!-- Updated 1/2/2018 Lee Byerle -->
 <viirsHeaderMapping>
-  <!-- NOTE, the only sure channelInfo mapping is I1-I5, update as more come in -->
   <!-- Alaska region -->
   <regionInfo id="TIPB">
     <region>Alaska</region>
   </regionInfo>
 
-  <!-- Global region -->
-  <regionInfo id="TIPG">
-    <region>Global</region>
-  </regionInfo>
+    <!-- 1/2/2018 NOAA-20 Alaska region -->
+    <regionInfo id="TIPA">
+        <region>AlaskaJPSS</region>
+    </regionInfo>
+
+
+    <!-- Global region -->
+    <regionInfo id="TIPG">
+        <region>Global</region>
+    </regionInfo>
 
 
   <regionInfo id="TIPC">
     <region>CONUS</region>
   </regionInfo>
 
+    <!-- 1/2/2018 NOAA-20 CONUS region -->
+  <regionInfo id="TIPD">
+    <region>CONUSJPSS</region>
+  </regionInfo>
+
   <regionInfo id="TIPI">
     <region>Pacific</region>
+  </regionInfo>
+
+    <!-- 1/2/2018 NOAA-20 Pacific region -->
+  <regionInfo id="TIPH">
+    <region>PacificJPSS</region>
   </regionInfo>
 
   <regionInfo id="TIPQ">
     <region>Puerto Rico</region>
   </regionInfo>
 
+    <!-- 1/2/2018 NOAA-20 Caribbean/PR region -->
+  <regionInfo id="TIPP">
+    <region>Puerto_RicoJPSS</region>
+  </regionInfo>
+  
   <!-- Global region -->
   <regionInfo id="TIPG">
     <region>Global</region>
@@ -61,7 +81,7 @@
     <channel>1</channel>
     <resolution>375.0</resolution>
   </channelInfo>
-
+  
   <!-- I2 -->
   <channelInfo id="02">
     <channelType>Imagery</channelType>
@@ -69,7 +89,7 @@
     <channel>2</channel>
     <resolution>375.0</resolution>
   </channelInfo>
-
+  
   <!-- I3 -->
   <channelInfo id="03">
     <channelType>Imagery</channelType>
@@ -77,7 +97,7 @@
     <channel>3</channel>
     <resolution>375.0</resolution>
   </channelInfo>
-
+  
   <!-- I4 -->
   <channelInfo id="04">
     <channelType>Imagery</channelType>
@@ -86,7 +106,7 @@
     <unit>K</unit>
     <resolution>375.0</resolution>
   </channelInfo>
-
+  
   <!-- I5 -->
   <channelInfo id="05">
     <channelType>Imagery</channelType>
@@ -95,13 +115,21 @@
     <unit>K</unit>
     <resolution>375.0</resolution>
   </channelInfo>
-
-  <!-- NCC -->
+  
+    <!-- NCC -->
   <channelInfo id="10">
     <channelType>NCC</channelType>
     <wavelength>0.7</wavelength>
     <channel>0</channel>
     <resolution>750.0</resolution>
+  </channelInfo>
+  
+    <!--March 13 2016 added by TOWR-S for implementation  M5 -->
+  <channelInfo id="15">
+    <channelType>Moderate</channelType>
+      <wavelength>0.672</wavelength>
+      <channel>5</channel>
+      <resolution>750.0</resolution>
   </channelInfo>
 
   <!-- M6 -->
@@ -111,7 +139,7 @@
     <channel>1</channel>
     <resolution>750.0</resolution>
   </channelInfo>
-
+  
   <!-- M9 -->
   <channelInfo id="19">
     <channelType>Moderate</channelType>
@@ -119,7 +147,7 @@
     <channel>2</channel>
     <resolution>750.0</resolution>
   </channelInfo>
-
+  
   <!-- M13 -->
   <channelInfo id="23">
     <channelType>Moderate</channelType>
@@ -129,6 +157,15 @@
     <resolution>750.0</resolution>
   </channelInfo>
 
+    <!-- M14 -->
+    <channelInfo id="24">
+        <channelType>Moderate</channelType>
+        <wavelength>8.55</wavelength>
+        <channel>6</channel>
+        <unit>K</unit>
+        <resolution>750.0</resolution>
+    </channelInfo>
+  
   <!-- M15 -->
   <channelInfo id="25">
     <channelType>Moderate</channelType>
@@ -137,7 +174,7 @@
     <unit>K</unit>
     <resolution>750.0</resolution>
   </channelInfo>
-
+  
   <!-- M16 -->
   <channelInfo id="26">
     <channelType>Moderate</channelType>
@@ -146,5 +183,13 @@
     <unit>K</unit>
     <resolution>750.0</resolution>
   </channelInfo>
-
+  
+    <!-- DNB/NCC -->
+  <!-- TOWR-S add -->
+    <channelInfo id="10">
+        <channelType>Moderate</channelType>
+        <wavelength>0.7</wavelength>
+        <channel>10</channel>
+        <resolution>750.0</resolution>
+    </channelInfo> 
 </viirsHeaderMapping>

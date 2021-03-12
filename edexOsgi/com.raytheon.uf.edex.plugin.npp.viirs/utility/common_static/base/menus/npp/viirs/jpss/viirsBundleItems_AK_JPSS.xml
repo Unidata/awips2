@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,18 +18,28 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-    <!-- 
+   <!-- 
         This is an absolute override file, indicating that a higher priority 
         version of the file will completely replace a lower priority version
         of the file. 
     -->
+   <!--  Lee Byerle  1/3/2018 -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subMenu" id="NPPProducts" menuText="NPP Products">
-        <contribute xsi:type="separator" id="Imagery"
-            visible="false" />
-        <contribute xsi:type="titleItem" id="SoundingsTitle"
-            titleText="------ Soundings ------" />
-        <contribute xsi:type="separator" id="Soundings"
-            visible="false" />
-    </contribute>
+    <contribute xsi:type="titleItem" id="VIIRSTitleJPSS" titleText="------ Imagery ------"/>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="0.64 μm Imagery Band 1 (CH 01)" id="Img0.64J">
+    <substitute key="parameter" value="0.64Ref"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="3.74 μm Imagery Band 4 (CH 04)" id="Img3.74J">
+    <substitute key="parameter" value="3.74BT"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="11.45 μm Imagery Band 5 (CH 05)" id="Img11.45J">
+    <substitute key="parameter" value="11.45BT"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="0.7 μm Near Constant Contrast" id="Moderate0.7J">
+  <substitute key="channelType" value="Moderate"/>
+  </contribute>
 </menuTemplate>
