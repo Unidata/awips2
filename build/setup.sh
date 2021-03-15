@@ -50,10 +50,14 @@ sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/
 #
 # Update/Recreate YUM Repository
 #
-if [[ $(whoami) == "mjames" ]]; then # local build
-  sudo chown -R mjames:ustaff dist/${os_version}-dev
-  repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
+
+date=$(date +%Y%m%d)
+
+if [[ $(whoami) == "awips" ]]; then # local build
+  sudo chown -R awips:fxalpha dist/${os_version}-dev
+  mv dist/${os_version}-dev dist/${os_version}-dev-${date}
   createrepo -g ../comps.xml dist/${os_version}-dev
+  #repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   #
   # Push to web server
   #
