@@ -65,7 +65,7 @@ Decrease Brightness of Image 1, Increase Image 2  | [Numpad] -
 Toggle Image Producted in Main Map On/Off         | [Numpad] 0  
 Toggle First 9 Graphic Products On/Off            | [Numpad] 1-9 
 Toggle Next 10 Graphic Prodcuts On/Off            | Shift + [Numpad] 0-9 
-Toggle Between Images 1/2 at Full Brightness      | [Numpad] .
+Toggle Between Images 1 and 2 at Full Brightness      | [Numpad] .
 Toggle Legend                                     | [Numpad] Enter 
 
 ## Panel Combo Rotate (PCR) Shortcuts
