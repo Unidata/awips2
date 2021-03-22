@@ -1,11 +1,25 @@
 #Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 8: Radar/Precipitation Products 
 0:0:Radar Quality Index (RQI)::RadarQualityIndex
-1:1:1 hour QPE Gauge Influence Index::GaugeInfIndex01H
-2:2:3 hour QPE Gauge Influence Index::GaugeInfIndex03H
-3:3:6 hour QPE Gauge Influence Index::GaugeInfIndex06H
-4:4:12 hour QPE Gauge Influence Index::GaugeInfIndex12H
-5:5:24 hour QPE Gauge Influence Index::GaugeInfIndex24H
-6:6:48 hour QPE Gauge Influence Index::GaugeInfIndex48H
-7:7:72 hour QPE Gauge Influence Index::GaugeInfIndex72H
+1:1:1 hour QPE Gauge Influence Index Pass 1::GaugeInfIndex01HP1
+2:2:3 hour QPE Gauge Influence Index Pass 1::GaugeInfIndex03HP1
+3:3:6 hour QPE Gauge Influence Index Pass 1::GaugeInfIndex06HP1
+4:4:12 hour QPE Gauge Influence Index Pass 1::GaugeInfIndex12HP1
+5:5:24 hour QPE Gauge Influence Index Pass 1::GaugeInfIndex24HP1
+6:6:48 hour QPE Gauge Influence Index Pass 1::GaugeInfIndex48HP1
+7:7:72 hour QPE Gauge Influence Index Pass 1::GaugeInfIndex72HP1
 8:8:Seamless Hybrid Scan Reflectivity (SHSR):dBZ:SeamlessHSR
 9:9:Seamless Hybrid Scan Reflectivity (SHSR) Height:km:SeamlessHSRHeight
+10:10:Radar Accumulation Quality Index 1 hour::RadarAQI01H
+11:11:Radar Accumulation Quality Index 1 hour::RadarAQI03H
+12:12:Radar Accumulation Quality Index 1 hour::RadarAQI06H
+13:13:Radar Accumulation Quality Index 1 hour::RadarAQI12H
+14:14:Radar Accumulation Quality Index 1 hour::RadarAQI24H
+15:15:Radar Accumulation Quality Index 1 hour::RadarAQI48H
+16:16:Radar Accumulation Quality Index 1 hour::RadarAQI72H
+17:17:1 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex01HP2
+18:18:3 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex03HP2
+19:19:6 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex06HP2
+20:20:12 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex12HP2
+21:21:24 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex24HP2
+22:22:48 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex48HP2
+23:23:72 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex72HP2

@@ -22,6 +22,8 @@
 32:32:MESH Tracks (240 min. accum.):mm:MESHTrack240min
 33:33:MESH Tracks (360 min. accum.):mm:MESHTrack360min
 34:34:MESH Tracks (1440 min. accum.):mm:MESHTrack1440min
+37:37:VIL Max (120 min.):kg/m^2:MRMSVIL120min
+40:40:VIL Max (1440 min.):kg/m^2:MRMSVIL1440min
 41:41:Vertically Integrated Liquid (VIL):kg/m^2:MRMSVIL
 42:42:Vertically Integrated Liquid (VIL) Density:g/m^3:MRMSVILDensity
 43:43:Vertically Integrated Ice (VII):kg/m^2:VII
