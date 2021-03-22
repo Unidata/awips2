@@ -57,6 +57,52 @@
             <id>97</id>
         </process>
     </model>
+    <model>
+        <name>MRMS_AK_1000</name>
+        <center>161</center>
+        <subcenter>0</subcenter>
+        <grid>10010</grid>
+        <process>
+            <id>98</id>
+        </process>
+    </model>
+    <model>
+        <name>MRMS_HI_0500</name>
+        <center>161</center>
+        <subcenter>0</subcenter>
+        <grid>10021</grid>
+        <process>
+            <id>99</id>
+        </process>
+    </model>
+    <model>
+        <name>MRMS_CA_1000</name>
+        <center>161</center>
+        <subcenter>0</subcenter>
+        <grid>10030</grid>
+        <process>
+            <id>100</id>
+        </process>
+    </model>
+    <model>
+        <name>MRMS_CA_0500</name>
+        <center>161</center>
+        <subcenter>0</subcenter>
+        <grid>10031</grid>
+        <process>
+            <id>100</id>
+        </process>
+    </model>
+    <model>
+        <name>MRMS_GU_0500</name>
+        <center>161</center>
+        <subcenter>0</subcenter>
+        <grid>10041</grid>
+        <process>
+            <id>101</id>
+        </process>
+    </model>
+    
     <!-- END SUBCENTER 0 -->
 
 

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+    <!--
+     Name - Organization - Date - Info
+     Darrel Kingfield - NOAA/NSSL/CIMMS - 09-02-2014 - Initial File Creation
+    -->
+<!-- Set the initial top level menu -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- Set the initial top level menu -->
+    <contribute xsi:type="titleItem" titleText="---Multiple-Radar/Multiple-Sensor---" id="MRMS-SVR"/>
+    <contribute xsi:type="titleItem" titleText="---CONUS---" id="MRMS-CONUS"/>
+    <contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProducts.xml">
+        <substitute key="resolutionOne" value="MRMS_1000"/>
+        <substitute key="resolutionTwo" value="MRMS_0500"/>
+        <substitute key="resolutionThree" value="MRMS_5000"/>
+    </contribute>
+    <contribute xsi:type="titleItem" titleText="---OCONUS---" id="MRMS-OCONUS"/>
+    <contribute xsi:type="subMenu" menuText="Alaska">
+        <contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProductsAK.xml">
+            <substitute key="resolutionOne" value="MRMS_AK_1000"/>
+            <substitute key="resolutionTwo" value="MRMS_AK_0500"/>
+        </contribute>   
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Caribbean">
+        <contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProductsOCONUS.xml">
+            <substitute key="resolutionOne" value="MRMS_CA_1000"/>
+            <substitute key="resolutionTwo" value="MRMS_CA_0500"/>
+        </contribute>
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Guam">
+        <contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProductsOCONUS.xml">
+            <substitute key="resolutionOne" value="MRMS_GU_0500"/>
+            <substitute key="resolutionTwo" value="MRMS_GU_0500"/>
+        </contribute>
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Hawaii">
+        <contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProductsOCONUS.xml">
+            <substitute key="resolutionOne" value="MRMS_HI_0500"/>
+            <substitute key="resolutionTwo" value="MRMS_HI_0500"/>
+        </contribute>   
+    </contribute>
+</menuTemplate>
