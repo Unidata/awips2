@@ -55,7 +55,7 @@
 ## E
 
 * ECMWF - European Centre for Medium-Range Forecasts
-* EDEX - Enterprise Data EXchange
+* EDEX - Environmental Data EXchange
 * EMC - Environmental Modeling Center
 * EL - Equilibrium Level
 * ESA - Electronic Systems Analyst

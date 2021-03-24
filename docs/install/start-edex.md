@@ -1,5 +1,7 @@
 # EDEX Basic Commands 
 
+Unidata's EDEX install also comes with a [simple **`edex`** program](#edex-commands) that can help execute basic EDEX utilities.  The most basic of the commands are the following:
+
 To start all EDEX services:
 
     edex start
@@ -7,6 +9,10 @@ To start all EDEX services:
 To stop all EDEX services:
 
     edex stop
+
+---
+
+## Service and Boot Settings
 
 These commands will start and stop five EDEX service files installed into **/etc/init.d/**, four of which are run on boot:
 
@@ -21,7 +27,45 @@ The fifth, `edex_ldm`, does **not run at boot** to prevent filling up disk space
 
 All of these services are started and stopped by the single program: `edex` as mentioned above.
 
+### LDM Troubleshooting
+
+If the EDEX machine is shut down abruptly, when restarted, it should start up the processes mentioned [above](#service-and-boot-settings).  If `sudo service edex_ldm start` does not start up LDM smoothly, please try these steps:
+
+!!! note "All of the following commands should be run as user *awips* and the `service` commands may need to be run with `sudo`."
+
+-  Run `sudo service edex_ldm start` or `ldmadmin start` and recieve this message:
+        
+        ldmadmin start
+        
+        start_ldm(): PID-file "/awips2/ldm/ldmd.pid" exists.  Verify that all 
+        is well and then execute "ldmadmin clean" to remove the PID-file.  
+
+- Run `ldmadmin clean` and `sudo service edex_ldm start` and receive this error:
+
+        ldmadmin clean
+        sudo service edex_ldm start
+        
+        Checking the product-queue...
+        The writer-counter of the product-queue isn't zero.  Either a process
+        has the product-queue open for writing or the queue might be corrupt.
+        Terminate the process and recheck or use
+            pqcat -l- -s -q /awips2/ldm/var/queues/ldm.pq && pqcheck -F -q
+            /awips2/ldm/var/queues/ldm.pq
+        to validate the queue and set the writer-counter to zero.
+        LDM not started
+
+- To resolve the above, run:
+
+        pqcat -l- -s -q /awips2/ldm/var/queues/ldm.pq && pqcheck -F -q  /awips2/ldm/var/queues/ldm.pq 
+        ldmadmin delqueue
+        ldmadmin mkqueue
+        sudo service edex_ldm start
+
 ---
+
+## EDEX Commands
+
+Unidata's version of EDEX installs with a helpful `edex` script that can be used for basic EDEX tasks.
 
 ### edex start
 
