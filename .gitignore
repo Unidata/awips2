@@ -34,15 +34,15 @@ edexOsgi/com.raytheon.uf.edex.dissemination/
 edexOsgi/com.raytheon.uf.edex.ndm/
 edexOsgi/com.raytheon.uf.edex.registry.ebxml/src/com/raytheon/uf/edex/registry/ebxml/web/security/
 edexOsgi/deploy.edex.awips2/esb/conf/resources/
-#	feature.xml
-#	getRPMoutput.pl
-#	modelNames.sh
-#	output/
-#	rpmOutput
-#	rpms/awips2.core/Installer.localization/createRadarsInUse.sh
-#	rpms/awips2.upc/Installer.metpy/
-#	scripts/
-#	sync.sh
-#	sync_dev.sh
-#	thriftServerUsersUnique.log
+	feature.xml
+getRPMoutput.pl
+	modelNames.sh
+output/
+	rpmOutput
+	rpms/awips2.core/Installer.localization/createRadarsInUse.sh
+	rpms/awips2.upc/Installer.metpy/
+	scripts/
+	sync.sh
+	sync_dev.sh
+	thriftServerUsersUnique.log
 
