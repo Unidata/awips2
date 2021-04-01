@@ -1,0 +1,19 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+:EXTERNAL - [0:0]
+:EDEX - [0:0]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p icmp --icmp-type any -j ACCEPT
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
+-A INPUT -s 10.0.0.7 -j EDEX
+-A INPUT -j EXTERNAL
+-A EXTERNAL -j REJECT
+-A EDEX -m state --state NEW -p tcp --dport 5432 -j ACCEPT
+-A EDEX -m state --state NEW -p tcp --dport 5672 -j ACCEPT
+-A EDEX -j REJECT
+COMMIT

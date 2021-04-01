@@ -1,7 +1,8 @@
 #!/bin/sh -xe
 #
 # Build Unidata AWIPS RPMs from source
-# Author: mjames@ucar.edu
+# author: Michael James
+# maintainer: <tiffanym@ucar.edu>
 #
 
 #
@@ -12,7 +13,7 @@ os_version=$1
 rpmname=$2
 
 if [ -z "$os_version" ]; then
-  echo "supply os_version (el6, el7)"
+  echo "supply os_version (el7)"
   exit
 fi
 

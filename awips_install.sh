@@ -1,7 +1,8 @@
 #!/bin/bash -f
 # about:  AWIPS install manager
 # devorg: Unidata Program Center
-# author: <mjames@ucar.edu>
+# author: Michael James
+# maintainer: <tiffanym@ucar.edu>
 # use: ./awips_install.sh (--cave|--edex|--database|--ingest|--help)
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"

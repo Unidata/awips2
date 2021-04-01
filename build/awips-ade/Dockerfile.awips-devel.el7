@@ -1,7 +1,7 @@
 FROM centos:7
 ENV VERSION 18.1.1
 ENV RELEASE 6
-MAINTAINER Michael James <mjames@ucar.edu>
+MAINTAINER Tiffany Meyer<tiffanym@ucar.edu>
 
 USER root
 

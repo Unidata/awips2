@@ -1,14 +1,15 @@
 #!/bin/sh -xe
 #
 # Unidata AWIPS Build Setup Script
-# Author: mjames@ucar.edu
+# author: Michael James
+# maintainer: <tiffanym@ucar.edu>
 #
 
 #
 # Require el6 or el7 be specified
 #
 if [ -z "$1" ]; then
-  echo "supply type (el6, el7)"
+  echo "supply type (el7)"
   exit
 fi
 os_version=$1

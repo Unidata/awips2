@@ -5,7 +5,7 @@ export AWIPSII_RELEASE="1"
 # Author
 export AWIPSII_BUILD_VENDOR="UCAR"
 export AWIPSII_BUILD_SITE="Unidata"
-export AWIPSII_AUTHOR="Michael James <mjames@ucar.edu>"
+export AWIPSII_AUTHOR="Tiffany Meyer <tiffanym@ucar.edu>"
 # Directories
 export UFRAME_ECLIPSE=/awips2/eclipse
 export JAVA_HOME=/awips2/java

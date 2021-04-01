@@ -5,7 +5,7 @@ pushd $dir
 
 
 if [ -z "$1" ]; then
-  echo "supply type (el6, el7)"
+  echo "supply type (el7)"
   exit
 fi
 os_version=$1
