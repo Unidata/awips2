@@ -13,6 +13,7 @@
 ##                                 de-selected required source                     ##
 ##        Bookbinder     1/30/2017 SVR/TOR watch capitalization DR 19649           ##
 ##        Bookbinder     3/19/2018 DR 19650 TOR Watch phrasing/location            ##
+##        Kurimski/Bookbinder  5/18/2020 IBW SVR Tag changes for SWIP DCS 22060    ##
 #####################################################################################
 ## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
@@ -25,6 +26,8 @@
 #set($torTag = "")
 #set($pdssvr = "")
 #set($extraSource = "")
+#set($observedHail="RADAR INDICATED")
+#set($observedWind="RADAR INDICATED")
 #if(${stormType} == "line")
   #set($report = "severe thunderstorms were reported")
   #set($reportType1 = "severe thunderstorms")
@@ -65,6 +68,11 @@
   #set($reportAuthSVR = "producing") 
   #set($source = "Emergency management.")
 #end
+#if(${list.contains(${bullets}, "broadcastMedia")})
+  #set($report = "broadcast media reported ${reportType1}")
+  #set($reportAuthSVR = "producing") 
+  #set($source = "Broadcast media.")
+#end
 #if(${list.contains(${bullets}, "public")})
   #set($report = "the public reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
@@ -75,24 +83,24 @@
 ###################################################
 #set($windSpeed = 0)
 #set($extensive = "")
-#set($windTag = "<50MPH")
+#set($windTag = "<50 MPH")
 #if(${list.contains(${bullets}, "60mphWind")})
   #set($windThreat = "damaging winds in excess of 60 mph") 
   #set($windHazard = "60 mph wind gusts")
   #set($windSpeed = 60)
-  #set($windTag = "60MPH")
+  #set($windTag = "60 MPH")
 #end
 #if(${list.contains(${bullets}, "70mphWind")})
   #set($windThreat = "destructive winds in excess of 70 mph")
   #set($windHazard = "70 mph wind gusts")
   #set($windSpeed = 70) 
-  #set($windTag = "70MPH")
+  #set($windTag = "70 MPH")
 #end
 #if(${list.contains(${bullets}, "80mphWind")})
   #set($windThreat = "Destructive winds in excess of 80 mph")
   #set($windHazard = "80 mph wind gusts")
   #set($windSpeed = 80) 
-  #set($windTag = "80MPH")
+  #set($windTag = "80 MPH")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
@@ -103,7 +111,7 @@
   #set($windThreat = "extreme damaging winds in excess of 90 mph")
   #set($windHazard = "90 mph wind gusts")
   #set($windSpeed = 90)
-  #set($windTag = "90MPH")
+  #set($windTag = "90 MPH")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
@@ -114,7 +122,7 @@
   #set($windThreat = "extreme damaging winds in excess of 100 mph")
   #set($windHazard = "100 mph wind gusts")
   #set($windSpeed = 100)
-  #set($windTag = "100MPH")
+  #set($windTag = "100 MPH")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
@@ -125,14 +133,14 @@
 ## HANDLE HAIL POSSIBILITIES ######################
 ###################################################
 #set($hailSize = 0)
-#set($hailTag = "<.75IN")
+#set($hailTag = "<.75 IN")
 #if(${list.contains(${bullets}, "pennyHail")})
   #set($hailThreat = "penny size") 
   #set($hailTrail = " hail") 
   #set($hailHazard = "penny size hail")
   #set($hailLead = "")
   #set($hailSize = 0.75) 
-  #set($hailTag = "0.75IN")
+  #set($hailTag = "0.75 IN")
 #end
 #if(${list.contains(${bullets}, "nickelHail")})
   #set($hailThreat = "nickel size") 
@@ -140,7 +148,7 @@
   #set($hailHazard = "nickel size hail")
   #set($hailLead = "") 
   #set($hailSize = 0.88) 
-  #set($hailTag = "0.88IN")
+  #set($hailTag = "0.88 IN")
 #end
 #if(${list.contains(${bullets}, "quarterHail")})
   #set($hailThreat = "quarter size") 
@@ -148,7 +156,7 @@
   #set($hailHazard = "quarter size hail")
   #set($hailLead = "") 
   #set($hailSize = 1.00)
-  #set($hailTag = "1.00IN")
+  #set($hailTag = "1.00 IN")
 #end
 #if(${list.contains(${bullets}, "halfdollarHail")})
   #set($hailThreat = "half dollar size") 
@@ -156,7 +164,7 @@
   #set($hailHazard = "half dollar size hail")
   #set($hailLead = "") 
   #set($hailSize = 1.25)
-  #set($hailTag = "1.25IN")
+  #set($hailTag = "1.25 IN")
 #end
 #if(${list.contains(${bullets}, "pingpongHail")})
   #set($hailThreat = "ping pong ball size") 
@@ -164,7 +172,7 @@
   #set($hailHazard = "ping pong ball size hail")
   #set($hailTrail = "")
   #set($hailSize = 1.50)  
-  #set($hailTag = "1.50IN")
+  #set($hailTag = "1.50 IN")
 #end
 #if(${list.contains(${bullets}, "golfballHail")})
   #set($hailThreat = "golf ball size") 
@@ -172,7 +180,7 @@
   #set($hailHazard = "golf ball size hail")
   #set($hailTrail = "")
   #set($hailSize = 1.75)
-  #set($hailTag = "1.75IN")
+  #set($hailTag = "1.75 IN")
 #end
 #if(${list.contains(${bullets}, "twoinchHail")})
   #set($hailThreat = "two inches in diameter") 
@@ -180,7 +188,7 @@
   #set($hailHazard = "two inch hail")
   #set($hailTrail = "")
   #set($hailSize = 2.00)
-  #set($hailTag = "2.00IN")
+  #set($hailTag = "2.00 IN")
 #end
 #if(${list.contains(${bullets}, "tennisBallHail")})
   #set($hailThreat = "tennis ball size") 
@@ -188,7 +196,7 @@
   #set($hailTrail = "")
   #set($hailHazard = "tennis ball size hail")
   #set($hailSize = 2.50)
-  #set($hailTag = "2.50IN")
+  #set($hailTag = "2.50 IN")
 #end
 #if(${list.contains(${bullets}, "baseballHail")})
   #set($hailThreat = "baseball size") 
@@ -196,7 +204,7 @@
   #set($hailHazard = "baseball size hail")
   #set($hailTrail = "")
   #set($hailSize = 2.75)  
-  #set($hailTag = "2.75IN")
+  #set($hailTag = "2.75 IN")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
@@ -209,7 +217,7 @@
   #set($hailHazard = "three inch hail")
   #set($hailTrail = "")
   #set($hailSize = 3.00)  
-  #set($hailTag = "3.00IN")
+  #set($hailTag = "3.00 IN")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
@@ -222,7 +230,7 @@
   #set($hailHazard = "softball size hail")
   #set($hailTrail = "")
   #set($hailSize = 4.00)  
-  #set($hailTag = "4.00IN")
+  #set($hailTag = "4.00 IN")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
@@ -235,12 +243,35 @@
   #set($hailHazard = "grapefruit size hail")
   #set($hailTrail = "")
   #set($hailSize = 4.50)  
-  #set($hailTag = "4.50IN")
+  #set($hailTag = "4.50 IN")
   #if(${stormType} == "line")
   #set($pdssvr = "These are very dangerous storms.")
   #else
   #set($pdssvr = "This is a very dangerous storm.")
   #end
+#end
+#####################################
+## Check for Observed Wind or Hail ##
+#####################################
+#if(${list.contains(${bullets}, "observedHail")})
+	#set($observedHail="OBSERVED")
+#end
+#if(${list.contains(${bullets}, "observedWind")})
+	#set($observedWind="OBSERVED")
+#end
+#####################################
+## Assign Severe Damage Threat Tag ##
+#####################################
+#set($svrDamageThreatTag = "")
+#if(${windSpeed} >= 80 || ${hailSize} >= 2.75)
+	#set($svrDamageThreatTag = "THUNDERSTORM DAMAGE THREAT...DESTRUCTIVE")
+	#if(${stormType} == "line")
+		#set($pdssvr = "THESE ARE DESTRUCTIVE STORMS FOR !** ENTER LOCATIONS **!.")
+	#else
+		#set($pdssvr = "THIS IS A DESTRUCTIVE STORM FOR !** ENTER LOCATIONS **!.")
+	#end
+#elseif((${windSpeed} < 80 && ${windSpeed} >= 70) || (${hailSize} < 2.75 && ${hailSize} >= 1.75))
+	#set($svrDamageThreatTag = "THUNDERSTORM DAMAGE THREAT...CONSIDERABLE")
 #end
 ###################################################################
 ### CHANGE MND EAS INSTRUCTIONS FOR REALLY SEVERE STORMS ##########
@@ -616,6 +647,26 @@ This thunderstorm is capable of producing all types of severe weather including 
 
 #end
 #end
+##
+#if(${list.contains(${bullets}, "windDrivenHailIndicatedCTA")})
+#if(${stormType} == "line")
+These are dangerous storms, capable of producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#else
+This is a dangerous storm, capable of producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#end
+#end
+##
+#if(${list.contains(${bullets}, "windDrivenHailObservedCTA")})
+#if(${stormType} == "line")
+These are dangerous storms, producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#else
+This is a dangerous storm, producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#end
+#end
 ################################
 ## MISCELLANEOUS CALLS TO ACTION
 ################################
@@ -645,6 +696,11 @@ Torrential rainfall is occurring with this storm, and may lead to flash flooding
 #end
 #end
 ##
+#if(${list.contains(${includedWatches}, "TO.A")})
+${torWatchPhrase}
+
+#end
+##
 #if(${ctaSelected} == "YES") 
 &&
 
@@ -659,21 +715,15 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 
-###########################################################
-## CODE FOR TORNADO/HAIL/WIND TAGS USED BY CR
-## FOR THE IMPACT BASED SEVERE WEATHER TEMPLATE EXPERIMENT
-## THE TORNADO TAGS WILL ONLY BE USED FOR CERTAIN WIND/HAIL/CTA SELECTIONS ABOVE
-###########################################################
 
 ${torTag}
-<L>HAIL...${hailTag}</L>
-<L>WIND...${windTag}</L>
-### POTENTIAL 2019 IBW ENHANCEMENT
-#* REMOVE THIS COMMENT LINE WHEN DIRECTION BY YOUR REGION
-#if ((${hailSize} >= $svrHailConsiderableThreshold) || (${windSpeed} >= $svrWindConsiderableThreshold))
-<L>$svrDamageThreat</L>
+#if($svrDamageThreatTag.length() > 0)
+<L>${svrDamageThreatTag}</L>
 #end
-*# ##REMOVE THIS COMMENT BLOCK WHEN DIRECTION BY YOUR REGION
+<L>HAIL THREAT...${observedHail}</L>
+<L>MAX HAIL SIZE...${hailTag}</L>
+<L>WIND THREAT...${observedWind}</L>
+<L>MAX WIND GUST...${windTag}</L>
 
 $$
 

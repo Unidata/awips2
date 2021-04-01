@@ -4,6 +4,8 @@
 ## BASED OFF SNOW SQUALL FOLLOW UP - EVAN B.                                             ##
 ## PRODUCT HISTORY                                                                       ##
 ##    WG TEAM (Tomalak/Bookbinder/Birchard/Dangelo  2-1-2017  First Go Around; DCS20066  ##
+##    E. Bookbinder   01-30-2019 DR20914 Fix format error caused when no highway         ##
+##                               mile markers are found                                  ##
 ###########################################################################################
 ##
 ##
@@ -342,7 +344,7 @@ THIS IS A TEST MESSAGE. ##
 #######################################
 #set($mileMarkers = "")
 #set($mileMarkers = "#parse('mileMarkers.vm')")
-#if(${mileMarkers.length()} == 0) 
+#if(${mileMarkers.length()} <= 10) 
 !**ENTER IN ANY AFFECTED ROAD/HIGHWAY INFORMATION**!
 
 #else

@@ -17,6 +17,7 @@
      Evan Bookbinder  6-15-2015 corrected grapefruit and softball hail sizes
      Phil Kurimski   03-19-2018 corrected parse strings in CTAs so (B) and (E)
         were not selected at the same time when only one was selected DR 20132
+     Phil Kurimski   05-12-2020 IBW Svr Tag changes DCS 22060
 -->
 <warngenConfig>
 
@@ -107,26 +108,31 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="SOURCE...TRAINED WEATHER SPOTTERS"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="SOURCE...LAW ENFORCEMENT"/>
   <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="broadcastMedia" bulletText="Broadcast Media Reported" bulletGroup="toggle1" parseString="SOURCE...BROADCAST MEDIA"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="SOURCE...PUBLIC"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
-  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60MPH"/>
-  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70MPH"/>
-  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80MPH"/>
-  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
-  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
-  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="toggle3" parseString="0.75IN"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="toggle3" parseString="0.88IN"/>
-  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="toggle3" parseString="1.00IN"/>
-  <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="toggle3" parseString="1.25IN"/>
-  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="toggle3" parseString="1.50IN"/>
-  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="toggle3" parseString="1.75IN"/>
-  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="toggle3" parseString="2.00IN"/>
-  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50IN"/>
-  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75IN"/>
-  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50IN"/>
+  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60 MPH"/>
+  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70 MPH"/>
+  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80 MPH"/>
+  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90 MPH"/>
+  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100 MPH"/>
+  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="toggle3" parseString="0.75 IN"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="toggle3" parseString="0.88 IN"/>
+  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="toggle3" parseString="1.00 IN"/>
+  <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="toggle3" parseString="1.25 IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="toggle3" parseString="1.50 IN"/>
+  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="toggle3" parseString="1.75 IN"/>
+  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="toggle3" parseString="2.00 IN"/>
+  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50 IN"/>
+  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75 IN"/>
+  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00 IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00 IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50 IN"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** SELECT FROM BELOW IF EITHER SEVERE HAIL OR WIND OBSERVED ********" bulletType="title"/>
+  <bullet bulletName="observedHail" bulletText="Select for Observed Hail" parseString="HAIL THREAT...OBSERVED"/>
+  <bullet bulletName="observedWind" bulletText="Select for Observed Wind" parseString="WIND THREAT...OBSERVED"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
@@ -158,6 +164,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
   <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER INCLUDING"/>
+  <bullet bulletName="windDrivenHailIndicatedCTA" bulletText="(E) Wind driven hail indicated" bulletGroup="CTAtoggle" parseString="capable of producing large hail driven by severe winds"/>
+  <bullet bulletName="windDrivenHailObservedCTA" bulletText="(E) Wind driven hail observed" bulletGroup="CTAtoggle" parseString="&quot;producing large hail driven by severe winds&quot;,&quot;-capable of producing large hail driven by severe winds&quot;"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
@@ -171,26 +179,31 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="SOURCE...TRAINED WEATHER SPOTTERS"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="SOURCE...LAW ENFORCEMENT"/>
   <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="broadcastMedia" bulletText="Broadcast Media Reported" bulletGroup="toggle1" parseString="SOURCE...BROADCAST MEDIA"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="SOURCE...PUBLIC"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
-  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60MPH"/>
-  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70MPH"/>
-  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80MPH"/>
-  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
-  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
-  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="toggle3" parseString="0.75IN"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="toggle3" parseString="0.88IN"/>
-  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="toggle3" parseString="1.00IN"/>
-  <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="toggle3" parseString="1.25IN"/>
-  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="toggle3" parseString="1.50IN"/>
-  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="toggle3" parseString="1.75IN"/>
-  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="toggle3" parseString="2.00IN"/>
-  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50IN"/>
-  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75IN"/>
-  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50IN"/>
+  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60 MPH"/>
+  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70 MPH"/>
+  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80 MPH"/>
+  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90 MPH"/>
+  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100 MPH"/>
+  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="toggle3" parseString="0.75 IN"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="toggle3" parseString="0.88 IN"/>
+  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="toggle3" parseString="1.00 IN"/>
+  <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="toggle3" parseString="1.25 IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="toggle3" parseString="1.50 IN"/>
+  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="toggle3" parseString="1.75 IN"/>
+  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="toggle3" parseString="2.00 IN"/>
+  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50 IN"/>
+  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75 IN"/>
+  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00 IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00 IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50 IN"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** SELECT FROM BELOW IF EITHER SEVERE HAIL OR WIND OBSERVED ********" bulletType="title"/>
+  <bullet bulletName="observedHail" bulletText="Select for Observed Hail" parseString="HAIL THREAT...OBSERVED"/>
+  <bullet bulletName="observedWind" bulletText="Select for Observed Wind" parseString="WIND THREAT...OBSERVED"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
@@ -223,6 +236,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
   <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER INCLUDING"/>
+  <bullet bulletName="windDrivenHailIndicatedCTA" bulletText="(E) Wind driven hail indicated" bulletGroup="CTAtoggle" parseString="capable of producing large hail driven by severe winds"/>
+  <bullet bulletName="windDrivenHailObservedCTA" bulletText="(E) Wind driven hail observed" bulletGroup="CTAtoggle" parseString="&quot;producing large hail driven by severe winds&quot;,&quot;-capable of producing large hail driven by severe winds&quot;"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>

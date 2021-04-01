@@ -5,6 +5,8 @@
 ##           choosing valid Vsby                                                         ##
 ##        WG TEAM (Tomalak/Birchard/Dangelo 2-1-2017  Initial Implementation; DCS20066   ##    
 ##        Bookbinder    9-12-2017 Modified to segmented format per directive req.        ##
+##        Bookbinder    1-30-2019 DR20914 Fix format error caused when no highway        ##
+##                                mile markers are found                                 ##
 ###########################################################################################
 ##
 #parse("config.vm")
@@ -192,7 +194,7 @@ THIS IS A TEST MESSAGE. ##
 #######################################
 #set($mileMarkers = "")
 #set($mileMarkers = "#parse('mileMarkers.vm')")
-#if(${mileMarkers.length()} == 0) 
+#if(${mileMarkers.length()} <= 10) 
 * !**ENTER IN ANY AFFECTED ROAD/HIGHWAY INFORMATION**!
 
 #else

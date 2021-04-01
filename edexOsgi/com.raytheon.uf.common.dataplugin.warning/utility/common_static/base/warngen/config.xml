@@ -3,9 +3,9 @@
     <warngenOfficeLoc>UNLOCALIZED SITE</warngenOfficeLoc>
     <backupCWAs></backupCWAs>
     <siteNode>OMA</siteNode>
-    <defaultTemplate>severeThunderstormWarning</defaultTemplate>
-    <mainWarngenProducts>Tornado/tornadoWarning,Severe Thunderstorm/severeThunderstormWarning,Severe Weather Statement/severeWeatherStatement,Significant Weather Advisory/significantWeatherAdvisory,Flash Flood Warning/flashFloodWarning</mainWarngenProducts>
-    <otherWarngenProducts>Flash Flood Statement/flashFloodWarningFollowup,Non-Convective FFW (incl. Dam Break)/nonConvectiveFlashFloodWarning,Non-Convective Flash Flood Statement/nonConvectiveFlashFloodWarningFollowup,Areal Flood Warning/arealFloodWarning,Areal Flood Warning Followup/arealFloodWarningFollowup,Areal Flood Advisory/arealFloodAdvisory,Areal Flood Advisory Followup/arealFloodAdvisoryFollowup,Special Weather Statement/specialWeatherStatement,Short Term Forecast/shortTermForecast</otherWarngenProducts>
+    <defaultTemplate>impactSevereThunderstormWarning</defaultTemplate>
+    <mainWarngenProducts>Tornado/impactTornadoWarning,Severe Thunderstorm/impactSevereThunderstormWarning,Severe Weather Statement/impactSevereWeatherStatement,Significant Weather Advisory/impactSignificantWeatherAdvisory,Flash Flood Warning/impactFlashFloodWarning</mainWarngenProducts>
+    <otherWarngenProducts>Flash Flood Statement/impactFlashFloodWarningFollowup,Non-Convective FFW (incl. Dam Break)/impactNonConvectiveFlashFloodWarning,Non-Convective Flash Flood Statement/impactNonConvectiveFlashFloodWarningFollowup,Areal Flood Warning/arealFloodWarning,Areal Flood Warning Followup/arealFloodWarningFollowup,Areal Flood Advisory/arealFloodAdvisory,Areal Flood Advisory Followup/arealFloodAdvisoryFollowup,Special Weather Statement/impactSpecialWeatherStatement,Short Term Forecast/shortTermForecast</otherWarngenProducts>
   <!-- Sites should override nx, ny with the values found in their site .gelt file -->
     <gridSpacing>
         <nx>600</nx>

@@ -19,21 +19,24 @@ SOFTWARE HISTORY
 Date         Ticket# Engineer    Description
 Aug 02, 2017 6362    randerso    Initial creation, copied from geospatialConfig_MARINE.xml
                                  modified to use alaska_marine view
+Feb 20, 2020 21031   dhaines     added commented-out default values for properties to 
+                                 enable coastal extensions   
+Dec 17, 2020 21031   dhaines     moved parentAreaSource out of geospatialConfig into areaSource(s)
+                                 to address problems discovered during regression testing                                                               
 -->
 
 <!-- CREATE DEFAULT OBJECTS. THIS SHOULD GENERALLY NOT BE TOUCHED -->
 <geospatialConfig>
     <pointSource>WarnGenLoc</pointSource>
     <areaSource>alaska_marine</areaSource>
-    <parentAreaSource>alaska_marine</parentAreaSource>
     <timezoneSource>TIMEZONES</timezoneSource>
     <timezoneField>TIME_ZONE</timezoneField>
 </geospatialConfig>
 
-
 <!-- CREATE areaSource OBJECT TO GENERATE MARINE-BASED INFORMATION OFF WARNGEN HATCHING -->
 <areaSource variable="areas">
     <areaSource>alaska_marine</areaSource>
+    <parentAreaSource>alaska_marine</parentAreaSource>
     <inclusionPercent>0</inclusionPercent>
     <inclusionAndOr>AND</inclusionAndOr>
     <inclusionArea>0</inclusionArea>
@@ -54,6 +57,22 @@ Aug 02, 2017 6362    randerso    Initial creation, copied from geospatialConfig_
     <includedWatchAreaBuffer>0</includedWatchAreaBuffer>
 </areaSource>
 
+<!-- UNCOMMENT to enable coastal extension functionality. Note: DO NOT change 
+the value of the type property - doing this will cause the generation of the 
+text product itself to fail -->
+<!-- areaSource variable="extensionAreas">
+    <areaSource>Zone</areaSource>
+    <parentAreaSource>States</parentAreaSource>
+    <type>INTERSECT</type>
+    <areaField>NAME</areaField>
+    <parentAreaField>NAME</parentAreaField>
+    <areaNotationField>STATE</areaNotationField>
+    <fipsField>STATE_ZONE</fipsField>
+</areaSource -->
+
+<!-- UNCOMMENT to enable coastal extension functionality. The values "3" and "2" are
+placeholders to be changed to better suit your local coastline's complexity -->
+<!-- extensionArea distance="3" simplification="2" /-->
 
 <!-- CREATE pointSource OBJECT TO GENERATE LIST OF CLOSEST POINTS TO DOT (3RD BULLET) -->
 <!-- type = AREA allows us to use multi-polygonal shapefiles despite the pointSource misnomer -->

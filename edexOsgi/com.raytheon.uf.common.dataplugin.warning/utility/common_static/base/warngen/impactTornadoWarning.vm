@@ -20,6 +20,8 @@
 ##                                fixed DR19038 TEST wording               ##
 ## UPDATED -- Phil Kurimski 03-19-2018 Removed extraThreat variable        ##
 ##            Kurimski   03-21-18 Added Torrential Rainfall CTA DR 20671   ##
+## UPDATED -- Bookbinder 01-09-20 Fixed torEmer CTA double period DR 21816 ##
+## UPDATED -- Kurimski/Bookbinder 05-18-2020 IBW Tag Changes DCS 22060     ##
 #############################################################################
 ## NOTE: Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
@@ -52,26 +54,26 @@
 #set($windImpact = "")
 #set($extensive = "")
 #set($windHazard = "")
-#set($windTag = "<50MPH")
+#set($windTag = "<50 MPH")
 #if(${list.contains(${bullets}, "60mphWind")})
   #set($windThreat = "damaging winds in excess of 60 mph") 
   #set($windHazard = "60 mph wind gusts")
   #set($windSpeed = 60)
-  #set($windTag = "60MPH")
+  #set($windTag = "60 MPH")
 ##  #set($windImpact = "large tree limbs broken off partially blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "70mphWind")})
   #set($windThreat = "destructive winds in excess of 70 mph")
   #set($windHazard = "70 mph wind gusts")
   #set($windSpeed = 70) 
-  #set($windTag = "70MPH")
+  #set($windTag = "70 MPH")
 ##  #set($windImpact = "trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "80mphWind")})
   #set($windThreat = "destructive winds in excess of 80 mph")
   #set($windHazard = "80 mph wind gusts")
   #set($windSpeed = 80) 
-  #set($windTag = "80MPH")
+  #set($windTag = "80 MPH")
   #set($extensive = "extensive ")
 ##  #set($windImpact = "trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
@@ -79,7 +81,7 @@
   #set($windThreat = "extreme damaging winds in excess of 90 mph")
   #set($windHazard = "90 mph wind gusts")
   #set($windSpeed = 90)
-  #set($windTag = "90MPH")
+  #set($windTag = "90 MPH")
   #set($extensive = "extensive ")
 ##  #set($windImpact ="trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
@@ -87,97 +89,97 @@
   #set($windThreat = "extreme damaging winds in excess of 100 mph")
   #set($windHazard = "100 mph wind gusts")
   #set($windSpeed = 100)
-  #set($windTag = "100MPH")
+  #set($windTag = "100 MPH")
   #set($extensive = "extensive ")
 ##  #set($windImpact ="trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #######################################
 ## HANDLE HAIL POSSIBILITIES ##########
 #######################################
-#set($hailTag = "<.75")
+#set($hailTag = "<.75 IN")
 #set($hailHazard = "small hail")
 #if(${list.contains(${bullets}, "noHail")})
   #set($hailThreat = "")  
   #set($hailSize = 0)
-  #set($hailTag = "0.00IN")
+  #set($hailTag = "0.00 IN")
   #set($hailHazard = "no hail")
 #end
 #if(${list.contains(${bullets}, "smallHail")})
   #set($hailThreat = "")  
   #set($hailSize = 0.75)
-  #set($hailTag = "<.75IN")
+  #set($hailTag = "<.75 IN")
   #set($hailHazard = "small hail")
 #end
 #if(${list.contains(${bullets}, "pennyHail")})
   #set($hailThreat = "penny size hail")  
   #set($hailSize = 0.75)
-  #set($hailTag = "0.75IN")
+  #set($hailTag = "0.75 IN")
   #set($hailHazard = "penny size hail")
 #end
 #if(${list.contains(${bullets}, "nickelHail")})
   #set($hailThreat = "nickel size hail")
   #set($hailSize = 0.88)
-  #set($hailTag = "0.88IN")
+  #set($hailTag = "0.88 IN")
   #set($hailHazard = "nickel size hail")
 #end
 #if(${list.contains(${bullets}, "quarterHail")})
   #set($hailThreat = "quarter size hail")
   #set($hailSize = 1.00) 
-  #set($hailTag = "1.00IN")
+  #set($hailTag = "1.00 IN")
   #set($hailHazard = "quarter size hail")
 #end
 #if(${list.contains(${bullets}, "halfdollarHail")})
   #set($hailThreat = "half dollar size hail")
   #set($hailSize = 1.25)
-  #set($hailTag = "1.25IN") 
+  #set($hailTag = "1.25 IN") 
   #set($hailHazard = "half dollar size hail")
 #end
 #if(${list.contains(${bullets}, "pingpongHail")})
   #set($hailThreat = "ping pong ball size") 
   #set($hailSize = 1.50)
-  #set($hailTag = "1.50IN")
+  #set($hailTag = "1.50 IN")
   #set($hailHazard = "ping pong ball size hail")
 #end
 #if(${list.contains(${bullets}, "golfballHail")})
   #set($hailThreat = "large damaging hail up to golf ball size") 
   #set($hailSize = 1.75)
-  #set($hailTag = "1.75IN")
+  #set($hailTag = "1.75 IN")
   #set($hailHazard = "golf ball size hail")
 #end
 #if(${list.contains(${bullets}, "twoinchHail")})
   #set($hailThreat = "large damaging hail up to two inches in diameter") 
   #set($hailSize = 2.00)
-  #set($hailTag = "2.00IN")
+  #set($hailTag = "2.00 IN")
   #set($hailHazard = "hail up to two inches in diameter")
 #end
 #if(${list.contains(${bullets}, "tennisBallHail")})
   #set($hailThreat = "large destructive hail up to tennis ball size") 
   #set($hailSize = 2.50)
-  #set($hailTag = "2.50IN")
+  #set($hailTag = "2.50 IN")
   #set($hailHazard = "tennis ball size hail")
 #end
 #if(${list.contains(${bullets}, "baseballHail")})
   #set($hailThreat = "large destructive hail up to baseball size") 
   #set($hailSize = 2.75)
-  #set($hailTag = "2.75IN")
+  #set($hailTag = "2.75 IN")
   #set($hailHazard = "baseball size hail")
 #end
 #if(${list.contains(${bullets}, "threeinchHail")})
   #set($hailThreat = "large destructive hail up to three inches in diameter") 
   #set($hailSize = 3.00)
-  #set($hailTag = "3.00IN")
+  #set($hailTag = "3.00 IN")
   #set($hailHazard = "hail up to three inches in diameter")
 #end
 #if(${list.contains(${bullets}, "softballHail")})
   #set($hailThreat = "dangerous and extremely large destructive hail up to softball size") 
   #set($hailSize = 4.00)
-  #set($hailTag = "4.00IN")
+  #set($hailTag = "4.00 IN")
   #set($hailHazard = "softball size hail")
 #end
 #if(${list.contains(${bullets}, "grapefruitHail")})
   #set($hailThreat = "dangerous and extremely large destructive hail up to grapefruit size") 
   #set($hailSize = 4.50)
-  #set($hailTag = "4.50IN")
+  #set($hailTag = "4.50 IN")
   #set($hailHazard = "grapefruit size hail")
 #end
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
@@ -315,7 +317,23 @@ THIS IS A TEST MESSAGE. ##
   #set($torTag = "OBSERVED")
   #set($torHazard = "Damaging tornado")
   #set($confirmed = "confirmed ")
-  #set($source = "Emergency Management confirmed tornado.")
+  #set($source = "Emergency management confirmed tornado.")
+  #if(${stormType} == "line")
+    #set($reportType = "tornado producing storms were located")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
+  #else
+    #set($reportType = "a confirmed tornado was located")
+    #set($pathcastLead = "The tornado")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
+  #end 
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ") 
+#end
+#if(${list.contains(${bullets}, "broadcastMedia")})
+  #set($torTag = "OBSERVED")
+  #set($torHazard = "Damaging tornado")
+  #set($confirmed = "confirmed ")
+  #set($source = "Broadcast media confirmed tornado.")
   #if(${stormType} == "line")
     #set($reportType = "tornado producing storms were located")
     #set($pathcastLead = "These tornadic storms")
@@ -546,7 +564,7 @@ Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm
 ## Comment out #parse command below to pull in Dynamic DSS Event Info
 ## If this feature is utilized, the "specialEvent" bullet (output above) can
 ## likely be commented out from the impactSevereThunderstormWarning.xml file
-#parse("dssEvents.vm")
+##parse("dssEvents.vm")
 ## parse file command here is to pull in mile marker info
 ## #parse("pointMarkers.vm")
 ## parse file command here is to pull in mile marker info
@@ -570,7 +588,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ##
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
 #if(${list.contains(${bullets}, "torEmergency")})
-To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, TAKE COVER NOW! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors.. Move to the closest substantial shelter and protect yourself from flying debris.
+To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, TAKE COVER NOW! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors, move to the closest substantial shelter and protect yourself from flying debris.
 
 #else
 !** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
@@ -632,6 +650,26 @@ This cluster of thunderstorms is capable of producing tornadoes and widespread s
 If on or near !** NAME OF WATER BODY **!, get away from the water and move to safe shelter immediately. If you can hear thunder, you are close enough to be struck by lightning. Severe thunderstorms can produce large capsizing waves, even on small bodies of water. Move into dock and seek safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
+##
+#if(${list.contains(${bullets}, "windDrivenHailIndicatedCTA")})
+#if(${stormType} == "line")
+These are dangerous storms, capable of producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#else
+This is a dangerous storm, capable of producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#end
+#end
+##
+#if(${list.contains(${bullets}, "windDrivenHailObservedCTA")})
+#if(${stormType} == "line")
+These are dangerous storms, producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#else
+This is a dangerous storm, producing large hail driven by severe winds! SEEK SHELTER NOW inside a sturdy structure and stay away from windows! If you are caught outdoors, cover your head and neck.
+
+#end
+#end
 #if(${list.contains(${bullets}, "torrentialRainfallCTA")})
 #if(${stormType} == "line")
 Torrential rainfall is occurring with these storms, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
@@ -664,7 +702,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #if($torThreat.length() > 0)
 ${torThreat}
 #end
-<L>HAIL...${hailTag}</L>
+<L>MAX HAIL SIZE...${hailTag}</L>
 ## uncomment out the line below to use the wind tag
 ##<L>WIND...${windTag}</L>
 

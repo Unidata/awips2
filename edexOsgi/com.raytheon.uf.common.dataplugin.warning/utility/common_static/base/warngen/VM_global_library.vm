@@ -44,6 +44,7 @@
 #####    Evan Bookbinder    2-03-2017  Backed out obselete commaOrEllipses() macro here and in all templates
 #####    Evan Bookbinder    9-13-2017  Fixed WordWrap macro subsequent line spacing
 #####    Evan Bookbinder    3-19-2018  DR 19650 TOR Watch Phrasing
+#####    Michael Rega       1-30-2019  DR20914 Format error in list of drainage basins
 ##############################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -217,14 +218,14 @@ ${item.name}, ##
 #set($size = ${list.size($riverdrainages)})
 #if($size > 0)
 #set($count = 0)
-This includes the following streams and drainages...##
+This includes the following streams and drainages...
 #foreach (${drainage} in ${riverdrainages})
 ${drainage.name}##
 #set($count = $count + 1)
 #if($count == $size - 1)
  and ##
 #elseif($count < $size)
-...##
+, ##
 #end
 #end
 .
