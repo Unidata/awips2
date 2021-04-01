@@ -35,22 +35,30 @@ Default projections and areas available in the menu
 
 ## New Map Editor / View
 
-**File > New Map**
+### Adding a New Map Editor
 
-Opens a new map editor tab with the default projection (CONUS Polar Stereographic).
+This can be done in two ways: using the **file menu** and **right clicking** on the tab bar.
+
+Using the file menu, simply go to: **File > New Map**.
+
+This opens a new map editor tab with the default projection (CONUS Polar Stereographic).
 
 ![image](../images/fileMenuNewMap.png)
 
-This can also be done by **right-click** on any tab and selecting **New Editor**
+To use the tab bar, **right-click** on or next to any tab and select **New Editor**
 
-![image](../images/Sd3qL6LJ55.gif)
+![image](../images/rightClickNewMap.gif)
+
+### Renaming Map Editor
+
+Any of the map editor tabs can be renamed.  This can be particularly helpful if you have multiple tabs, with a different focus on each (ie. different geographic reigon, different types of data, etc).
+
+![rename map editor](../images/renameMapEditor.gif)
 
 ---
 
 ## New Projection
 
-**File > New Projection**
-
-Create a new map projection.
+A new map projection can be created using the file menu: **File > New Projection**.
 
 ![image](../images/createProjection.png)
