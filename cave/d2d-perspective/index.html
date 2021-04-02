@@ -357,6 +357,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sample-loaded-resources" title="Sample Loaded Resources" class="md-nav__link">
+    Sample Loaded Resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#toggle-2-or-4-panel-layout" title="Toggle 2 or 4-Panel Layout" class="md-nav__link">
     Toggle 2 or 4-Panel Layout
   </a>
@@ -364,8 +371,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sample-loaded-resources" title="Sample Loaded Resources" class="md-nav__link">
-    Sample Loaded Resources
+  <a href="#unload-data" title="Unload Data" class="md-nav__link">
+    Unload Data
   </a>
   
 </li>
@@ -988,6 +995,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sample-loaded-resources" title="Sample Loaded Resources" class="md-nav__link">
+    Sample Loaded Resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#toggle-2-or-4-panel-layout" title="Toggle 2 or 4-Panel Layout" class="md-nav__link">
     Toggle 2 or 4-Panel Layout
   </a>
@@ -995,8 +1009,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sample-loaded-resources" title="Sample Loaded Resources" class="md-nav__link">
-    Sample Loaded Resources
+  <a href="#unload-data" title="Unload Data" class="md-nav__link">
+    Unload Data
   </a>
   
 </li>
@@ -1133,9 +1147,10 @@
 <h3 id="right-click-background-to-cycle-resource-views">Right-Click Background to Cycle Resource Views<a class="headerlink" href="#right-click-background-to-cycle-resource-views" title="Permanent link"></a></h3>
 <p>The default display in the resource stack is the Product Resources. Right Click the mouse on the map background (anywhere but on the stack itself) to switch to a Simple View, which just shows the current displayed time if product data is loaded.  Right Click again to show all Map Resources.  Right Click again to switch back to Product Resources.</p>
 <h3 id="hold-right-click-resource-name-for-menu">Hold-Right-Click Resource Name for Menu<a class="headerlink" href="#hold-right-click-resource-name-for-menu" title="Permanent link"></a></h3>
-<p>Drag the mouse over a loaded resource and <strong>hold</strong> the right mouse button until a menu appears (simply clicking the resource with the right mouse button will toggle its visibility).</p>
+<p>Drag the mouse over a loaded resource and <strong>hold</strong> the right mouse button until a menu appears.</p>
 <p>The hold-right-click menu allows you to control individual resource <strong>Image Properties</strong>, <strong>Change Colormaps</strong>, change resource color, width, density, and magnification, <strong>move resources up and down</strong> in the stack, as well as configure custom options with other interactive resources.</p>
 <p><img alt="image" src="../../images/lP4W1kmTIh.gif" /></p>
+<p>This menu also gives you the option to unload <strong>this specific product</strong>, as opposed to removing all data prodcuts.  Simply select the <strong>Unload</strong> option at the bottom of the resource's hold-right-click menu.</p>
 <hr />
 <h2 id="display-menu">Display Menu<a class="headerlink" href="#display-menu" title="Permanent link"></a></h2>
 <p>The display menu has many options which can alter the functionality in CAVE.</p>
@@ -1145,12 +1160,25 @@
 <h3 id="show-map-legends">Show Map Legends<a class="headerlink" href="#show-map-legends" title="Permanent link"></a></h3>
 <p>From the above menu select <strong>Show Map Legends</strong> and watch the Resource Stack show only map resources which are loaded to the view.</p>
 <p><img alt="image" src="../../images/maplayers.png" /></p>
-<h3 id="toggle-2-or-4-panel-layout">Toggle 2 or 4-Panel Layout<a class="headerlink" href="#toggle-2-or-4-panel-layout" title="Permanent link"></a></h3>
-<p>Right-click hold in the view and select <strong>Two Panel Layout</strong> or <strong>Four Panel Layout</strong> to create duplicates of the current view (note that any data loaded to the <em>view</em> will be loaded to <em>both displays within the view</em>).</p>
-<p>From this multi-pane display, hold-right-click again and you will see the <strong>Single Panel Layout</strong> option to switch back to a standard view (defaulting to the left of two, and top-left of four).</p>
 <h3 id="sample-loaded-resources">Sample Loaded Resources<a class="headerlink" href="#sample-loaded-resources" title="Permanent link"></a></h3>
 <p>Most data types have a right-click menu option for reading out the pixel value, displayed as multi-line text for multiple resources.  This can be toggled on and off by selecting the <strong>Sample</strong> option in the Display Menu.</p>
 <p><img alt="image" src="../../images/ui4fNI3X0C.gif" /></p>
+<h3 id="toggle-2-or-4-panel-layout">Toggle 2 or 4-Panel Layout<a class="headerlink" href="#toggle-2-or-4-panel-layout" title="Permanent link"></a></h3>
+<p>Right-click hold in the view and select <strong>Two Panel Layout</strong> or <strong>Four Panel Layout</strong> to create duplicates of the current view.</p>
+<div class="admonition note">
+<p class="admonition-title">Notice the readout is at the same position in both panels.  Any mouse movement made on one panel will be made on the other.</p>
+</div>
+<p><img alt="2-panel" src="../../images/2panelReadout.png" /></p>
+<p>By default, loading any data will load that data onto <strong>both</strong> panels.  However, there is the option to specify which panel you would like to load data into, which can be useful if you want to have different data in each of the panels.  To access this option, simple hold-right click to pull up the Display menu and choose <strong>Load to This Panel</strong> as shown below:</p>
+<p><img alt="select panel load" src="../../images/loadToThisPanel.png" /></p>
+<p>Now, a yellow <strong>L</strong> will appear in the lower left hand corner of the panel you selected to load data to.  When data is loaded from the menus it will only load to the display desginated with the L. 
+Switch back to loading in both panels, by using the <strong>Load to All Panels</strong> option in the Display Menu.</p>
+<p><img alt="single panel load" src="../../images/singlePanelLoad.png" /></p>
+<p>From this multi-pane display, hold-right-click again and you will see the <strong>Single Panel Layout</strong> option to switch back to a standard view (defaulting to the left of two, and top-left of four).</p>
+<h3 id="unload-data">Unload Data<a class="headerlink" href="#unload-data" title="Permanent link"></a></h3>
+<p>Select <strong>Unload All Products</strong> to remove all loaded graphic and image products from the display and start fresh.<br />
+Select <strong>Unload Graphics</strong> to remove all but the image products.</p>
+<p><img alt="display panel unload" src="../../images/displayPanelUnload.png" /></p>
 <hr />
 <h2 id="product-browser">Product Browser<a class="headerlink" href="#product-browser" title="Permanent link"></a></h2>
 <p>The Product Browser allows users to browse a complete data inventory in a side window, organized by data type.  To open the Product Browser, either select the icon in the toolbar (<img alt="" src="../../images/productBroswerIcon.png" />), or go to the menu: <strong>CAVE</strong> &gt; <strong>Data Broswers</strong> &gt; <strong>Product Broswers</strong>.</p>
