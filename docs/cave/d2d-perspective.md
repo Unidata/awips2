@@ -34,11 +34,13 @@ The default display in the resource stack is the Product Resources. Right Click 
 
 ### Hold-Right-Click Resource Name for Menu
 
-Drag the mouse over a loaded resource and **hold** the right mouse button until a menu appears (simply clicking the resource with the right mouse button will toggle its visibility).
+Drag the mouse over a loaded resource and **hold** the right mouse button until a menu appears.
 
 The hold-right-click menu allows you to control individual resource **Image Properties**, **Change Colormaps**, change resource color, width, density, and magnification, **move resources up and down** in the stack, as well as configure custom options with other interactive resources.
 
 ![image](../images/lP4W1kmTIh.gif)
+
+This menu also gives you the option to unload **this specific product**, as opposed to removing all data prodcuts.  Simply select the **Unload** option at the bottom of the resource's hold-right-click menu.
 
 ---
 
@@ -57,17 +59,37 @@ From the above menu select **Show Map Legends** and watch the Resource Stack sho
 
 ![image](../images/maplayers.png)
 
-### Toggle 2 or 4-Panel Layout
-
-Right-click hold in the view and select **Two Panel Layout** or **Four Panel Layout** to create duplicates of the current view (note that any data loaded to the *view* will be loaded to *both displays within the view*).
-
-From this multi-pane display, hold-right-click again and you will see the **Single Panel Layout** option to switch back to a standard view (defaulting to the left of two, and top-left of four).
-
 ### Sample Loaded Resources
 
 Most data types have a right-click menu option for reading out the pixel value, displayed as multi-line text for multiple resources.  This can be toggled on and off by selecting the **Sample** option in the Display Menu.
 
 ![image](../images/ui4fNI3X0C.gif)
+
+### Toggle 2 or 4-Panel Layout
+
+Right-click hold in the view and select **Two Panel Layout** or **Four Panel Layout** to create duplicates of the current view.
+
+!!! note "Notice the readout is at the same position in both panels.  Any mouse movement made on one panel will be made on the other."
+
+![2-panel](../images/2panelReadout.png)
+
+By default, loading any data will load that data onto **both** panels.  However, there is the option to specify which panel you would like to load data into, which can be useful if you want to have different data in each of the panels.  To access this option, simple hold-right click to pull up the Display menu and choose **Load to This Panel** as shown below:
+
+![select panel load](../images/loadToThisPanel.png)
+
+Now, a yellow **L** will appear in the lower left hand corner of the panel you selected to load data to.  When data is loaded from the menus it will only load to the display desginated with the L. 
+Switch back to loading in both panels, by using the **Load to All Panels** option in the Display Menu.
+
+![single panel load](../images/singlePanelLoad.png)
+
+From this multi-pane display, hold-right-click again and you will see the **Single Panel Layout** option to switch back to a standard view (defaulting to the left of two, and top-left of four).
+
+### Unload Data
+
+Select **Unload All Products** to remove all loaded graphic and image products from the display and start fresh.  
+Select **Unload Graphics** to remove all but the image products.
+
+![display panel unload](../images/displayPanelUnload.png)
 
 ---
 
@@ -79,7 +101,6 @@ Selections for **Grid**, **Lightning**, **Maps**, **Radar**, **Redbook**, and **
 >**Note**: The Linux and Mac version also have a selection for **GFE** available.
 
 ![image](../images/vPeaMsn9ZT.gif)
-
 
 ---
 
