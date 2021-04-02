@@ -86,8 +86,8 @@ From this multi-pane display, hold-right-click again and you will see the **Sing
 
 ### Unload Data
 
-Select **Unload All Products** to remove all loaded data products from the display and start fresh.
-Select **Unload Graphics** to remove all but the numerical products.
+Select **Unload All Products** to remove all loaded graphic and image products from the display and start fresh.  
+Select **Unload Graphics** to remove all but the image products.
 
 ![display panel unload](../images/displayPanelUnload.png)
 
