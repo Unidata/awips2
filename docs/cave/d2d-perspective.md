@@ -95,7 +95,7 @@ Select **Unload Graphics** to remove all but the image products.
 
 ## Product Browser
 
-The Product Browser allows users to browse a complete data inventory in a side window, organized by data type.  To open the Product Browser, either select the icon in the toolbar (![](../images/productBroswerIcon.png)), or go to the menu: **CAVE** > **Data Browsers** > **Product Browsers**.
+The Product Browser allows users to browse a complete data inventory in a side window, organized by data type.  To open the Product Browser, either select the icon in the toolbar (![](../images/productBroswerIcon.png)), or go to the menu: **CAVE** > **Data Browsers** > **Product Browser**.
 
 Selections for **Grid**, **Lightning**, **Maps**, **Radar**, **Redbook**, and **Satellite** are available.  All products loaded with the Product Browser are given default settings.
 >**Note**: The Linux and Mac version also have a selection for **GFE** available.
