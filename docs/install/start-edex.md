@@ -67,6 +67,8 @@ If the EDEX machine is shut down abruptly, when restarted, it should start up th
 
 Unidata's version of EDEX installs with a helpful `edex` script that can be used for basic EDEX tasks.
 
+---
+
 ### edex start
 
     edex start
@@ -117,6 +119,8 @@ To start all EDEX services *except* the LDM:
 This command configures and/or confirms that the EDEX hostname and IP address definitions exist (`edex setup` is run by `edex start`).
 
 > **Note**: If your EDEX server is running but you see the message **"Connectivity Error: Unable to validate localization preferences"** in CAVE, it may mean that the domain name defined in **/awips2/edex/bin/setup.env** can not be resolved from *outside* the server.  Some machines have different *internally-resolved* and *externally-resolved* domain names (cloud-based especially). The name defined in **setup.env** must be *externally-resolvable*.
+
+---
 
 ---
 

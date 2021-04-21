@@ -42,7 +42,6 @@
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS" />
 							</mapping>
-
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser" />
 					</resourceData>
@@ -81,7 +80,6 @@
                         <alertParser xsi:type="dataCubeAlertMessageParser"/>
                     </resourceData>
                 </resource>
-			<numberOfFrames>60</numberOfFrames>
 			</descriptor>
 		</displays>
 	</displayList>

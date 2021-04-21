@@ -54,10 +54,6 @@
                value="000000">
          </property>
          <property
-               name="windowImages"
-               value="icons/cave_16x16.png,icons/cave_32x32.png,icons/cave_48x48.png,icons/cave_64x64.png,icons/cave_128x128.png">
-         </property>
-         <property
                name="rendererFactoryUri"
                value="bundleclass://com.raytheon.uf.viz.personalities.cave/com.raytheon.uf.viz.personalities.cave.presentation.VizRendererFactory">
          </property>
