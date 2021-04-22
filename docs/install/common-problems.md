@@ -1,5 +1,31 @@
 # Common Problems
 
+## General Troubleshooting
+
+Along with closing and restarting CAVE, one of the first things user's should turn to for resolving weird or unexpected behavior is *flushing their local cache*.  The cache lives in a folder called **caveData**, so this process is also referred to as removing or deleting caveData.
+
+### Linux
+
+For Linux users, the easiest way is to open a new terminal and run the following command:
+
+    rm -rf ~/caveData 
+
+### Windows 
+
+For Windows users, simply delete the caveData folder in your home user directory:
+
+![Windows Remove caveData](../images/windowsRemoveCavedata.png)
+
+### Mac
+
+For Mac users, the easiest way is to open a new terminal and run the following command:
+
+    rm -rf ~/Library/caveData
+
+
+
+---
+
 ## Windows CAVE Start Up Error
 
 One common error some users are seeing manifests itself just after selecting an EDEX server to connect to.  The following error dialogs may show up:
