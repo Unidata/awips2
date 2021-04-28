@@ -20,9 +20,9 @@
 18:18:12hr MRMS Radar-Only ARI:year:PRP12H
 19:19:24hr MRMS Radar-Only ARI:year:PRP24H
 20:20:Maximum MRMS Radar-Only ARI:year:PRPMax
-26:26:1hr MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFG01H
-27:27:3hr MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFG03H
-28:28:6hr MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFG06H
-29:29:Maximum MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFGMax
+26:26:1hr MRMS Radar-Only QPE-to-FFG Ratio::QPEFFG01H
+27:27:3hr MRMS Radar-Only QPE-to-FFG Ratio::QPEFFG03H
+28:28:6hr MRMS Radar-Only QPE-to-FFG Ratio::QPEFFG06H
+29:29:Maximum MRMS Radar-Only QPE-to-FFG Ratio::QPEFFGMax
 39:39:QPE-Hydrophobic Maximum Unit Streamflow:(m^3)*(s^-1)*(km^-2):QPEHPUStreamflow
 40:40:QPE-Hydrophobic Maximum Streamflow:(m^3)*(s^-1):QPEHPStreamflow

@@ -45,7 +45,7 @@
         </contribute>   
     </contribute>
     <contribute xsi:type="subMenu" menuText="Caribbean">
-        <contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProductsOCONUS.xml">
+        <contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProductsCA.xml">
             <substitute key="resolutionOne" value="MRMS_CA_1000"/>
             <substitute key="resolutionTwo" value="MRMS_CA_0500"/>
         </contribute>
