@@ -45,6 +45,10 @@
                             <mapping key="pluginName">
                                 <constraint constraintValue="viirs" constraintType="EQUALS"/>
                             </mapping>
+                            <mapping key="region">
+                                <constraint constraintValue="${region}" constraintType="EQUALS"/>
+                            </mapping>
+
                         </metadataMap>
                     </resourceData>
 				</resource>
