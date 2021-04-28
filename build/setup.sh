@@ -55,9 +55,9 @@ sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/
 date=$(date +%Y%m%d)
 
 if [[ $(whoami) == "awips" ]]; then # local build
-  sudo chown -R awips:fxalpha dist/${os_version}-dev
   mv dist/${os_version}-dev dist/${os_version}-dev-${date}
-  createrepo -g ../comps.xml dist/${os_version}-dev
+  su - -c "createrepo -g ../comps.xml dist/${os_version}-dev"
+  sudo chown -R awips:fxalpha dist/${os_version}-dev
   #repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   #
   # Push to web server
