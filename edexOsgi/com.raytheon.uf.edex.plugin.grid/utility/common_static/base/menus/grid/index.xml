@@ -9,8 +9,8 @@
     </include>
     <include installTo="menu:models" 
              fileName="menus/grid/allFamilies-GFS.xml">
-             <substitute key="modelName" value="GFS" />
-             <substitute key="menuName" value="GFS 0.25° Global" />
+             <substitute key="modelName" value="GFS1p0" />
+             <substitute key="menuName" value="GFS 1.00° Global" />
              <substitute key="frameCount" value="180" />
              <substitute key="TP" value="TP"/>
     </include>
