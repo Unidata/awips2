@@ -1,55 +1,40 @@
+# ===============================
+# = NCEP data available via IDD =
+# ===============================
+#
+# Multi-Radar Multi-Sensor (MRMS) - Unidata via NCO
+#/data/ldm/pub/native/radar/MRMS/Model/CONUS/MRMS_BrightBandTopHeight_00.00_20210430-184000.grib2
+#CONUS Domain
+NGRID	^/data/ldm/pub/native/radar/MRMS/.*/CONUS/MRMS(.*)([0-9]{8})-([0-9]{2})([0-9]{4}).grib2
+	FILE	-edex -close	/awips2/data_store/grid/\2/\3/MRMS/CONUS/MRMS\1\2-\3\4.grib2
+#Alaska Domain
+NGRID	^/data/ldm/pub/native/radar/MRMS/.*/ALASKA/MRMS(.*)([0-9]{8})-([0-9]{2})([0-9]{4}).grib2
+	FILE	-edex -close	/awips2/data_store/grid/\2/\3/MRMS/ALASKA/MRMS\1\2-\3\4.grib2
+#Hawaii Domain
+NGRID	^/data/ldm/pub/native/radar/MRMS/.*/HAWAII/MRMS(.*)([0-9]{8})-([0-9]{2})([0-9]{4}).grib2
+	FILE	-edex -close	/awips2/data_store/grid/\2/\3/MRMS/HAWAII/MRMS\1\2-\3\4.grib2
+#Guam Domain
+NGRID	^/data/ldm/pub/native/radar/MRMS/.*/GUAM/MRMS(.*)([0-9]{8})-([0-9]{2})([0-9]{4}).grib2
+	FILE	-edex -close	/awips2/data_store/grid/\2/\3/MRMS/GUAM/MRMS\1\2-\3\4.grib2
+#Caribbean Domain
+NGRID	^/data/ldm/pub/native/radar/MRMS/.*/CARIB/MRMS(.*)([0-9]{8})-([0-9]{2})([0-9]{4}).grib2
+	FILE	-edex -close	/awips2/data_store/grid/\2/\3/MRMS/CARIB/MRMS\1\2-\3\4.grib2
+
+
 # Multi-Radar Multi-Sensor (MRMS) - NOAAport
-#
-# Full MRMS Feed
-#
-#NGRID	^YAU[CDLMPQS].. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-#	FILE	-edex -close
-#	/awips2/data_store/grid/MRMS/MRMS_\1_\2_\3_\4.grib2
-#
-# MRMS Precipitation Products
-#
-NGRID	^YAU[DP].. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-precip/MRMS_\1_\2_\3_\4.grib2
-#
-# MRMS Model Parameters (on different grid)
-#
-NGRID	^YAUM.. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-model/MRMS_\1_\2_\3_\4.grib2
-#
-# MRMS Lightning Products from NLDN
-#
-NGRID	^YAUL.. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-lightning/MRMS_\1_\2_\3_\4.grib2
-#
-# MRMS Rotation Track Products (on different grid)
-#
-NGRID	^YAUS0[0-4] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-rotation/MRMS_\1_\2_\3_\4.grib2
-#
-# MRMS Mid-level Rotation Track Products (on different grid)
-#
-NGRID	^YAUS0[5-9] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-rotation-ml/MRMS_\1_\2_\3_\4.grib2
-#
-# MRMS Merged Base Reflectivity
-#
-NGRID	^YAUQ.. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-merged/MRMS_\1_\2_\3_\4.grib2
-#
-# MRMS Radar Products
-#
-NGRID	^YAU(C[0-9]|S[1-9])[0-9] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-radar/MRMS_\2_\3_\4_\5.grib2
-#
-# MRMS Anything else (mainly future proofing)
-#
-NGRID	^YAU[ABE-KNORT-Z][0-9][0-9] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/MRMS-other/MRMS_\1_\2_\3_\4.grib2
+#ALL MRMS Products (changed 6/18/2020 - tmeyer)
+#CONUS
+#NGRID	^YAU[A-Z][0-9][0-9] KWNR (..)(..)(..) !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+#	FILE	-edex -close	/awips2/data_store/grid/(\1:yyyy)(\1:mm)\1/\2/MRMS/MRMS_\4_\5_\6_\7.grib2
+#Alaska Domain
+#NGRID	^YAA[A-Z][0-9][0-9] KWNR (..)(..)(..) !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+#	FILE	-edex -close	/awips2/data_store/grid/(\1:yyyy)(\1:mm)\1/\2/MRMS/MRMS_AK_\4_\5_\6_\7.grib2
+#Hawaii Domain
+#NGRID	^YAH[A-Z][0-9][0-9] KWNR (..)(..)(..) !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+#	FILE	-edex -close	/awips2/data_store/grid/(\1:yyyy)(\1:mm)\1/\2/MRMS/MRMS_HI_\4_\5_\6_\7.grib2
+#Caribbean Domain
+#NGRID	^YAC[A-Z][0-9][0-9] KWNR (..)(..)(..) !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+#	FILE	-edex -close	/awips2/data_store/grid/(\1:yyyy)(\1:mm)\1/\2/MRMS/MRMS_CA_\4_\5_\6_\7.grib2
+#Guam Domain
+#NGRID	^YAG[A-Z][0-9][0-9] KWNR (..)(..)(..) !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+#	FILE	-edex -close	/awips2/data_store/grid/(\1:yyyy)(\1:mm)\1/\2/MRMS/MRMS_GU_\4_\5_\6_\7.grib2
