@@ -131,8 +131,10 @@
     <!-- Post processor definition for the GFS20 model -->
     <postProcessedModel id="GFS20">
 <!--Tiff updated the model name because of changes in the GFS-Fv3 #20200625-->
+<!--Tiff added a generic GFS.* for the CONDUIT global GFS #20210405-->
+	</mapScale>
         <!-- modelName>GFS20|AK-GFS22|GFS20-.*</modelName -->
-        <modelName>GFS229|GFS20|AK-GFS22|GFS20-.*</modelName>
+        <modelName>GFS229|GFS20|AK-GFS22|GFS20-.*|GFS.*</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
     <!-- Post processor definition for the HWRF model -->
