@@ -1,6 +1,6 @@
 FROM unidata/awips-devel:el7
-ENV VERSION 18.1.1
-ENV RELEASE 6
+ENV VERSION 18.2.1
+ENV RELEASE 1
 MAINTAINER Tiffany Meyer<tiffanym@ucar.edu>
 
 USER root
