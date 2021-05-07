@@ -592,7 +592,7 @@
                   </reference>
                </visibleWhen>
             </command>
-            
+           <!-- Tiffany Meyer commented out 5/7/2021 to remove "GEMPAK" button from CAVE 
             <command
                   commandId="gov.noaa.nws.ncep.viz.actions.dataManager"
                   icon="icons/terminal.png"
@@ -607,6 +607,7 @@
                   </reference>
                </visibleWhen>
             </command>
+            -->
 			<command
                   commandId="com.raytheon.uf.viz.productbrowser.productBrowser"
 				  icon="icons/plus.png"
