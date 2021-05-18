@@ -82,6 +82,7 @@
          <packagereq type="default">awips2-common-base</packagereq>
          <packagereq type="default">awips2-psql</packagereq>
          <packagereq type="default">awips2-edex</packagereq>
+         <packagereq type="default">awips2-edex-probsevere</packagereq>
          <packagereq type="default">awips2-edex-base</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
@@ -130,6 +131,7 @@
          <packagereq type="default">awips2-data.gfe</packagereq>
          <packagereq type="default">awips2-data.hdf5-topo</packagereq>
          <packagereq type="default">awips2-edex</packagereq>
+         <packagereq type="default">awips2-edex-probsevere</packagereq>
          <packagereq type="default">awips2-edex-base</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
@@ -190,6 +192,7 @@
          <packagereq type="default">awips2-data.gfe</packagereq>
          <packagereq type="default">awips2-data.hdf5-topo</packagereq>
          <packagereq type="default">awips2-edex</packagereq>
+         <packagereq type="default">awips2-edex-probsevere</packagereq>
          <packagereq type="default">awips2-edex-base</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
@@ -253,6 +256,7 @@
          <packagereq type="default">awips2-data.gfe</packagereq>
          <packagereq type="default">awips2-data.hdf5-topo</packagereq>
          <packagereq type="default">awips2-edex</packagereq>
+         <packagereq type="default">awips2-edex-probsevere</packagereq>
          <packagereq type="default">awips2-edex-base</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
