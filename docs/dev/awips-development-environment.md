@@ -167,3 +167,4 @@ Select **Debug** > **Eclipse Application**
 ## Troubleshooting
 
 * If you are getting a lot of errors, try changing your Java Compiler to 1.7, build the project, then change back to 1.8 and rebuild.
+    * **Window** > Preferences > Java > Compiler > **Compiler compliance level** setting
