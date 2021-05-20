@@ -75,3 +75,26 @@ These errors are actually happening because the Windows machine is using IPv6, w
 **7. Restart CAVE.**
 
 ---
+
+## Products Not Loading Properly in Windows
+
+If the [Windows installation](install-cave.md#download-and-installation-instructions_2) was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.
+
+The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
+![failed load](../images/failedJepMetarLoad.png)
+
+You may see an error that mentions the python package, **jep**.
+
+Known datasets this can affect (this is not a comprehensive list):
+
+  - Model Winds
+  - Metars Winds
+  - METAR Station Plot
+  - GFS Precip Type
+
+To correct this issue:
+
+  - Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)
+  - Redo all necessary [installation instructions in **steps 1 through 6**](install-cave.md#download-and-installation-instructions_2)
+
+---
