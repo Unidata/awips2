@@ -92,6 +92,9 @@ Known datasets this can affect (this is not a comprehensive list):
   - METAR Station Plot
   - GFS Precip Type
 
-To correct this issue, please redo the [installation instructions from **steps 4 and 5**](install-cave.md#download-and-installation-instructions_2), related to the C++ Build Tools and pip installations.
+To correct this issue:
+
+  - Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)
+  - Redo all necessary [installation instructions in **steps 1 through 6**](install-cave.md#download-and-installation-instructions_2)
 
 ---
