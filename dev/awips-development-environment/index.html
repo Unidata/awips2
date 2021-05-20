@@ -652,9 +652,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-set-up-eclipse" title="5. Set Up Eclipse" class="md-nav__link">
-    5. Set Up Eclipse
+  <a href="#5-configure-eclipse" title="5. Configure Eclipse" class="md-nav__link">
+    5. Configure Eclipse
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-preferences" title="Set Preferences" class="md-nav__link">
+    Set Preferences
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#importing-git-repos" title="Importing Git Repos" class="md-nav__link">
+    Importing Git Repos
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#final-setup" title="Final Setup" class="md-nav__link">
+    Final Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -662,6 +689,26 @@
   <a href="#6-run-cave" title="6. Run CAVE" class="md-nav__link">
     6. Run CAVE
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-application" title="Run Application" class="md-nav__link">
+    Run Application
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-application" title="Debug Application" class="md-nav__link">
+    Debug Application
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -838,9 +885,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-set-up-eclipse" title="5. Set Up Eclipse" class="md-nav__link">
-    5. Set Up Eclipse
+  <a href="#5-configure-eclipse" title="5. Configure Eclipse" class="md-nav__link">
+    5. Configure Eclipse
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-preferences" title="Set Preferences" class="md-nav__link">
+    Set Preferences
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#importing-git-repos" title="Importing Git Repos" class="md-nav__link">
+    Importing Git Repos
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#final-setup" title="Final Setup" class="md-nav__link">
+    Final Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -848,6 +922,26 @@
   <a href="#6-run-cave" title="6. Run CAVE" class="md-nav__link">
     6. Run CAVE
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-application" title="Run Application" class="md-nav__link">
+    Run Application
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-application" title="Debug Application" class="md-nav__link">
+    Debug Application
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -876,10 +970,13 @@
                 
                 
                 <h1 id="awips-development-environment-ade">AWIPS Development Environment (ADE)<a class="headerlink" href="#awips-development-environment-ade" title="Permanent link"></a></h1>
-<p>Quick instructions on how to download the latest source code and run CAVE from Eclipse.</p>
-<blockquote>
-<p><strong>Note</strong>: It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS.</p>
-</blockquote>
+<p>Detailed instructions on how to download the latest source code and run CAVE from Eclipse.</p>
+<div class="admonition note">
+<p class="admonition-title">It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">The following <em>yum</em> commands listed in these instructions may need to be run as the <em>root</em> user, but the rest of the commands should be run as the local user.</p>
+</div>
 <h2 id="1-remove-awips-instances">1. Remove AWIPS Instances<a class="headerlink" href="#1-remove-awips-instances" title="Permanent link"></a></h2>
 <p>First, make sure to remove any instances of AWIPS that are already installed, this can potentially cause problems when setting up the development environment.  Below is an example that had CAVE installed.</p>
 <p>Uninstall with yum:</p>
@@ -895,6 +992,8 @@ yum groupremove awips2-cave
 <hr />
 <h2 id="2-set-up-awips-repo">2. Set Up AWIPS Repo<a class="headerlink" href="#2-set-up-awips-repo" title="Permanent link"></a></h2>
 <p>Create a repo file named <code>/etc/yum.repos.d/awips2.repo</code>, and set the contents to the following:</p>
+<pre><code>sudo vi /etc/yum.repos.d/awips2.repo
+</code></pre>
 <pre>
 [awips2repo]
 name=AWIPS II Repository
@@ -904,15 +1003,19 @@ protect=0
 gpgcheck=0
 proxy=_none_
 </pre>
-<blockquote>
-<p><strong>Note</strong>: This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl.</p>
-</blockquote>
+
+<div class="admonition note">
+<p class="admonition-title">This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl.</p>
+</div>
 <hr />
 <h2 id="3-install-the-ade">3. Install the ADE<a class="headerlink" href="#3-install-the-ade" title="Permanent link"></a></h2>
 <p>Install the AWIPS Development Environment (ADE) using yum.  This will install Eclipse (4.6.1), Java (1.8), Ant (1.9.6), Python 2.7 and its modules (Numpy, Matplotlib, Shapely, Jep, and others). </p>
 <pre><code>yum clean all
 yum groupinstall awips2-ade
 </code></pre>
+<div class="admonition note">
+<p class="admonition-title">Check the libGLU package is installed by running <code>rpm -qa | grep mesa-libGLU</code>.  If nothing is returned, install the package via: <code>yum install mesa-libGLU</code>.</p>
+</div>
 <hr />
 <h2 id="4-download-the-source-code">4. Download the Source Code<a class="headerlink" href="#4-download-the-source-code" title="Permanent link"></a></h2>
 <p>If it's not already installed, install git:</p>
@@ -920,62 +1023,114 @@ yum groupinstall awips2-ade
 </code></pre>
 <p>Next clone all of the required repositories for AWIPS:</p>
 <pre><code>git clone https://github.com/Unidata/awips2.git
+git clone https://github.com/Unidata/awips2-cimss.git
 git clone https://github.com/Unidata/awips2-core.git
 git clone https://github.com/Unidata/awips2-core-foss.git
+git clone https://github.com/Unidata/awips2-drawing.git
 git clone https://github.com/Unidata/awips2-foss.git
+git clone https://github.com/Unidata/awips2-goesr.git
+git clone https://github.com/Unidata/awips2-gsd.git
 git clone https://github.com/Unidata/awips2-ncep.git
 git clone https://github.com/Unidata/awips2-nws.git
-git clone https://github.com/Unidata/awips2-gsd.git
-git clone https://github.com/Unidata/awips2-drawing.git
-git clone https://github.com/Unidata/awips2-cimss.git
 </code></pre>
+<div class="admonition note">
+<p class="admonition-title">Make sure to run <code>git checkout</code> in each repo if you'd wish to develop from a branch different from the default.  It's best to do this before importing the repos into eclipse.</p>
+</div>
 <hr />
-<h2 id="5-set-up-eclipse">5. Set Up Eclipse<a class="headerlink" href="#5-set-up-eclipse" title="Permanent link"></a></h2>
-<p>Open eclipse by running: <code>/awips2/eclipse/eclipse.sh</code></p>
+<h2 id="5-configure-eclipse">5. Configure Eclipse<a class="headerlink" href="#5-configure-eclipse" title="Permanent link"></a></h2>
+<p>Open eclipse by running: <code>/awips2/eclipse/eclipse</code></p>
+<p>It is fine to choose the default workspace upon starting up.</p>
+<h3 id="set-preferences">Set Preferences<a class="headerlink" href="#set-preferences" title="Permanent link"></a></h3>
 <p>Verify or make the following changes to set up eclipse for AWIPS development:</p>
-<ul>
+<ol>
 <li>
-<p>Preferences &gt; Java </p>
-<p>Set to <strong>/awips2/java</strong></p>
+<p>Window &gt; Preferences &gt; Java &gt; Installed JREs</p>
+<ul>
+<li>Set to <strong>/awips2/java</strong></li>
+</ul>
 </li>
 <li>
-<p>Preferences &gt; PyDev &gt; Python Interpreter</p>
+<p>Window &gt; Preferences &gt; PyDev &gt; Interpreters &gt; Python Interpreter</p>
+<ul>
+<li>
 <p>Set to <strong>/awips2/python/bin/python</strong></p>
+<blockquote>
+<p>Note: Add all paths to the SYSTEM pythonpath if prompted</p>
+</blockquote>
+</li>
+</ul>
 </li>
 <li>
 <p>There might be some unresolved errors.  These should be made to warnings instead.</p>
-<p>Preferences &gt; Java &gt; Compiler &gt; Building &gt; <strong>Circular Dependencies</strong> &gt; Change to Warning
-Preferences &gt; Plug-in Development &gt; API Baselines &gt; <strong>Missing API Baseline</strong> &gt; Change to Warning</p>
+<ul>
+<li>Window &gt; Preferences &gt; Java &gt; Compiler &gt; Building &gt; Build path Problems &gt; <strong>Circular Dependencies</strong> &gt; Change to Warning</li>
+<li>Window &gt; Preferences &gt; Plug-in Development &gt; API Baselines &gt; <strong>Missing API Baseline</strong> &gt; Change to Warning</li>
+</ul>
 </li>
 <li>
 <p><strong>Turn off automatic building</strong> (you will turn this back on after importing the repos)</p>
-<p>Project &gt; Uncheck "Build Automatically"</p>
+<ul>
+<li>Project &gt; Uncheck "Build Automatically"</li>
+</ul>
 </li>
-<li>
-<p>File &gt; Import &gt; General &gt; Existing Projects Into Workspace</p>
-<p>Import all of the git cloned project folders <strong>EXCEPT</strong> for the main (first) <strong>github.com/Unidata/awips2.git</strong> directory (which should be <strong>~/awips2</strong>).<br />
-Select <strong>awips2-core</strong>, <strong>awips2-core-foss</strong>, <strong>awips2-foss</strong>, <strong>awips2-ncep</strong>, etc. &gt; Select All Projects &gt; Finish </p>
-<p>You'll want to import <strong>~/awips2</strong> in two parts to ensure a clean and error-free Eclipse build:</p>
-<ol>
-<li>Import <strong>awips2/cave</strong> &gt; Select All Projects &gt; Finish</li>
-<li>Import <strong>awips2/edexOsgi</strong> &gt; Select All Projects &gt; Finish</li>
 </ol>
+<h3 id="importing-git-repos">Importing Git Repos<a class="headerlink" href="#importing-git-repos" title="Permanent link"></a></h3>
+<p>All of the git repos that were <a href="#4-download-the-source-code">cloned in the previous step</a> will need to be imported into Eclipse.  <strong>But, be aware the <code>awips2</code> repo is done last,</strong> because it requires different steps.</p>
+<ol>
+<li>
+<p>File &gt; Import &gt; Git &gt; Projects from Git &gt; <strong>Next</strong>
+  <img alt="git import" src="../../images/gitImport1.png" /></p>
 </li>
 <li>
-<p>Project &gt; Clean</p>
-<p>Clean the build and ensure no errors are reported.  </p>
+<p>Continue with the default selection, Existing local repository &gt; <strong>Add..</strong> &gt; add each of the git repos (for example <code>.../awips2-core</code>) &gt; check the checkbox &gt; <strong>Finish</strong>
+  <img alt="add git repo" src="../../images/gitImport2.png" /></p>
+</li>
+<li>
+<p>Then for each of the repos (except awips2 right now):
+Select the repo name &gt; <strong>Next</strong> &gt; Continue with default selection (Working Tree) &gt; <strong>Next</strong> &gt; Continue with default selections (all choices selected) &gt; <strong>Finish</strong>
+  <img alt="finish import" src="../../images/gitImport3.png" /></p>
+</li>
+<li>
+<p>Finally, for <code>awips2</code> repo, follow all the above steps except in the Working Tree, only select:</p>
+<ul>
+<li><em>cave</em> &gt; <strong>Next</strong> &gt; <strong>Finish</strong>
+  <img alt="importCave" src="../../images/gitImportCave.png" /></li>
+<li><em>edexOsgi</em> &gt; <strong>Next</strong> &gt; <strong>Finish</strong>
+  <img alt="importEdexOsgi" src="../../images/gitImportEdexOsgi.png" /></li>
+</ul>
+</li>
+</ol>
+<h3 id="final-setup">Final Setup<a class="headerlink" href="#final-setup" title="Permanent link"></a></h3>
+<ol>
+<li>
+<p>Project &gt; Clean &gt; <strong>OK</strong></p>
+<ul>
+<li>Use default selections: <em>Clean all projects</em>, <em>Start a build immediately</em>, <em>Build the entire workspace</em></li>
+<li>Clean the build and ensure no errors are reported.<br />
+<img alt="cleanEclipse" src="../../images/cleanEclipse.png" /></li>
+</ul>
 </li>
 <li>
 <p>Turn automatic building back on</p>
-<p>Project &gt; Check "Build Automatically"</p>
-</li>
+<ul>
+<li>Project &gt; Check "Build Automatically"</li>
 </ul>
+</li>
+</ol>
 <hr />
 <h2 id="6-run-cave">6. Run CAVE<a class="headerlink" href="#6-run-cave" title="Permanent link"></a></h2>
-<p>Launch CAVE from eclipse using <strong>com.raytheon.viz.product.awips/developer.product</strong>.</p>
-<p>Double-click the <strong>developer.product</strong> file to open the Product View in Eclipse.  Select <strong>Overview</strong> &gt; <strong>Synchronize</strong> and then right-click the file in the left-side package explorer:</p>
-<p>Select <strong>Run As</strong> &gt; <strong>Eclipse Application</strong> to launch CAVE in the development environment. </p>
-<p>Select <strong>Debug</strong> &gt; <strong>Eclipse Application</strong> to launch CAVE in in debug mode. </p>
+<div class="admonition note">
+<p class="admonition-title">CAVE can be ran from eclipse by using the <em>com.raytheon.viz.product.awips/developer.product</em></p>
+</div>
+<p>Double-click the <strong>developer.product</strong> file to open the Project Explorer in Eclipse.  Select <strong>Overview</strong> &gt; <strong>Synchronize</strong></p>
+<p><img alt="synchronize developer product" src="../../images/synchronizeDeveloperProduct.png" /></p>
+<p>Use the <strong>Project Explorer</strong> on the left-hand side of eclipse to run CAVE as a <a href="#run-application">Java application</a> or in <a href="#debug-application">Debug mode</a>:</p>
+<h3 id="run-application">Run Application<a class="headerlink" href="#run-application" title="Permanent link"></a></h3>
+<p>Select <strong>Run As</strong> &gt; <strong>Eclipse Application</strong></p>
+<p><img alt="run application" src="../../images/runApplication.png" /></p>
+<h3 id="debug-application">Debug Application<a class="headerlink" href="#debug-application" title="Permanent link"></a></h3>
+<p>Select <strong>Debug</strong> &gt; <strong>Eclipse Application</strong></p>
+<p><img alt="debug application" src="../../images/debugApplication.png" /></p>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link"></a></h2>
 <ul>
