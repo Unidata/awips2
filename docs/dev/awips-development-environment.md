@@ -1,8 +1,10 @@
 # AWIPS Development Environment (ADE)
 
-Quick instructions on how to download the latest source code and run CAVE from Eclipse.
+Detailed instructions on how to download the latest source code and run CAVE from Eclipse.
 
-> **Note**: It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS.
+!!! note  "It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS."
+
+!!! note "The following *yum* commands listed in these instructions may need to be run as the *root* user, but the rest of the commands should be run as the local user."
 
 ## 1. Remove AWIPS Instances
 
@@ -26,6 +28,9 @@ Remove the awips2 directory:
 ## 2. Set Up AWIPS Repo
 
 Create a repo file named `/etc/yum.repos.d/awips2.repo`, and set the contents to the following:
+
+    sudo vi /etc/yum.repos.d/awips2.repo
+
 <pre>
 [awips2repo]
 name=AWIPS II Repository
@@ -35,7 +40,8 @@ protect=0
 gpgcheck=0
 proxy=_none_
 </pre>
->**Note**: This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl.
+
+!!! note "This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl."
         
 ---
 
@@ -45,6 +51,8 @@ Install the AWIPS Development Environment (ADE) using yum.  This will install Ec
 
     yum clean all
     yum groupinstall awips2-ade
+
+!!! note "Check the libGLU package is installed by running `rpm -qa | grep mesa-libGLU`.  If nothing is returned, install the package via: `yum install mesa-libGLU`."
 
 ---
 
@@ -57,69 +65,102 @@ If it's not already installed, install git:
 Next clone all of the required repositories for AWIPS:
     
     git clone https://github.com/Unidata/awips2.git
+    git clone https://github.com/Unidata/awips2-cimss.git
     git clone https://github.com/Unidata/awips2-core.git
     git clone https://github.com/Unidata/awips2-core-foss.git
+    git clone https://github.com/Unidata/awips2-drawing.git
     git clone https://github.com/Unidata/awips2-foss.git
+    git clone https://github.com/Unidata/awips2-goesr.git
+    git clone https://github.com/Unidata/awips2-gsd.git
     git clone https://github.com/Unidata/awips2-ncep.git
     git clone https://github.com/Unidata/awips2-nws.git
-    git clone https://github.com/Unidata/awips2-gsd.git
-    git clone https://github.com/Unidata/awips2-drawing.git
-    git clone https://github.com/Unidata/awips2-cimss.git
+    
+!!! note "Make sure to run `git checkout` in each repo if you'd wish to develop from a branch different from the default.  It's best to do this before importing the repos into eclipse."
 
 ---
 
-## 5. Set Up Eclipse
+## 5. Configure Eclipse
 
-Open eclipse by running: `/awips2/eclipse/eclipse.sh`
+Open eclipse by running: `/awips2/eclipse/eclipse`
+
+It is fine to choose the default workspace upon starting up.
+
+### Set Preferences
 
 Verify or make the following changes to set up eclipse for AWIPS development:
 
-* Preferences > Java 
+1. Window > Preferences > Java > Installed JREs
     
-    Set to **/awips2/java**
+     * Set to **/awips2/java**
 
-* Preferences > PyDev > Python Interpreter
+1. Window > Preferences > PyDev > Interpreters > Python Interpreter
 
-    Set to **/awips2/python/bin/python**
+      * Set to **/awips2/python/bin/python**
     
-* There might be some unresolved errors.  These should be made to warnings instead.
-
-    Preferences > Java > Compiler > Building > **Circular Dependencies** > Change to Warning
-    Preferences > Plug-in Development > API Baselines > **Missing API Baseline** > Change to Warning
+        > Note: Add all paths to the SYSTEM pythonpath if prompted
     
-* **Turn off automatic building** (you will turn this back on after importing the repos)
-    
-    Project > Uncheck "Build Automatically"
+1. There might be some unresolved errors.  These should be made to warnings instead.
 
-* File > Import > General > Existing Projects Into Workspace
-
-    Import all of the git cloned project folders **EXCEPT** for the main (first) **github.com/Unidata/awips2.git** directory (which should be **~/awips2**).  
-    Select **awips2-core**, **awips2-core-foss**, **awips2-foss**, **awips2-ncep**, etc. > Select All Projects > Finish 
-     
-    You'll want to import **~/awips2** in two parts to ensure a clean and error-free Eclipse build:
+      * Window > Preferences > Java > Compiler > Building > Build path Problems > **Circular Dependencies** > Change to Warning
+      * Window > Preferences > Plug-in Development > API Baselines > **Missing API Baseline** > Change to Warning
     
-    1. Import **awips2/cave** > Select All Projects > Finish
-    2. Import **awips2/edexOsgi** > Select All Projects > Finish
-
-* Project > Clean
-
-    Clean the build and ensure no errors are reported.  
+1. **Turn off automatic building** (you will turn this back on after importing the repos)
     
-* Turn automatic building back on
+      * Project > Uncheck "Build Automatically"
+
+### Importing Git Repos
+
+All of the git repos that were [cloned in the previous step](#4-download-the-source-code) will need to be imported into Eclipse.  **But, be aware the `awips2` repo is done last,** because it requires different steps.
+
+1. File > Import > Git > Projects from Git > **Next**
+  ![git import](../images/gitImport1.png)
+  
+1. Continue with the default selection, Existing local repository > **Add..** > add each of the git repos (for example `.../awips2-core`) > check the checkbox > **Finish**
+  ![add git repo](../images/gitImport2.png)
+  
+1. Then for each of the repos (except awips2 right now):
+Select the repo name > **Next** > Continue with default selection (Working Tree) > **Next** > Continue with default selections (all choices selected) > **Finish**
+  ![finish import](../images/gitImport3.png)
+  
+1. Finally, for `awips2` repo, follow all the above steps except in the Working Tree, only select:
+    * *cave* > **Next** > **Finish**
+      ![importCave](../images/gitImportCave.png)
+    * *edexOsgi* > **Next** > **Finish**
+      ![importEdexOsgi](../images/gitImportEdexOsgi.png)
+
+### Final Setup
+
+1. Project > Clean > **OK**
+     * Use default selections: *Clean all projects*, *Start a build immediately*, *Build the entire workspace*
+     * Clean the build and ensure no errors are reported.  
+      ![cleanEclipse](../images/cleanEclipse.png)
     
-    Project > Check "Build Automatically"
+1. Turn automatic building back on
+      * Project > Check "Build Automatically"
     
 ---
 
 ## 6. Run CAVE
     
-Launch CAVE from eclipse using **com.raytheon.viz.product.awips/developer.product**.
+!!! note "CAVE can be ran from eclipse by using the *com.raytheon.viz.product.awips/developer.product*"
 
-Double-click the **developer.product** file to open the Product View in Eclipse.  Select **Overview** > **Synchronize** and then right-click the file in the left-side package explorer:
+Double-click the **developer.product** file to open the Project Explorer in Eclipse.  Select **Overview** > **Synchronize**
 
-Select **Run As** > **Eclipse Application** to launch CAVE in the development environment. 
+![synchronize developer product](../images/synchronizeDeveloperProduct.png)
 
-Select **Debug** > **Eclipse Application** to launch CAVE in in debug mode. 
+Use the **Project Explorer** on the left-hand side of eclipse to run CAVE as a [Java application](#run-application) or in [Debug mode](#debug-application):
+
+### Run Application
+
+Select **Run As** > **Eclipse Application**
+
+![run application](../images/runApplication.png)
+
+### Debug Application
+
+Select **Debug** > **Eclipse Application**
+ 
+![debug application](../images/debugApplication.png)
 
 ---
 
