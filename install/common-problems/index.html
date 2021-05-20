@@ -311,6 +311,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#products-not-loading-properly-in-windows" title="Products Not Loading Properly in Windows" class="md-nav__link">
+    Products Not Loading Properly in Windows
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -856,6 +863,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#products-not-loading-properly-in-windows" title="Products Not Loading Properly in Windows" class="md-nav__link">
+    Products Not Loading Properly in Windows
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -919,6 +933,24 @@
 <p><strong>6. Uncheck "Internet Protocol Version 6 (TCP/IPv6)" and select OK.</strong></p>
 <p><img alt="" src="../../images/ipv6ProblemStep6.png" /></p>
 <p><strong>7. Restart CAVE.</strong></p>
+<hr />
+<h2 id="products-not-loading-properly-in-windows">Products Not Loading Properly in Windows<a class="headerlink" href="#products-not-loading-properly-in-windows" title="Permanent link"></a></h2>
+<p>If the <a href="../install-cave/#download-and-installation-instructions_2">Windows installation</a> was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.</p>
+<p>The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
+<img alt="failed load" src="../../images/failedJepMetarLoad.png" /></p>
+<p>You may see an error that mentions the python package, <strong>jep</strong>.</p>
+<p>Known datasets this can affect (this is not a comprehensive list):</p>
+<ul>
+<li>Model Winds</li>
+<li>Metars Winds</li>
+<li>METAR Station Plot</li>
+<li>GFS Precip Type</li>
+</ul>
+<p>To correct this issue:</p>
+<ul>
+<li>Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)</li>
+<li>Redo all necessary <a href="../install-cave/#download-and-installation-instructions_2">installation instructions in <strong>steps 1 through 6</strong></a></li>
+</ul>
 <hr />
                 
                   

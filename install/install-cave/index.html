@@ -1136,9 +1136,11 @@
 <li>At least 4GB RAM</li>
 <li>At least 2GB Disk Space for Caching</li>
 <li>NVIDIA Graphics Card</li>
-<li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA Driver</a><blockquote>
-<p>Note: While other graphics cards <em>may</em> work, NVIDIA Quadro graphics card is recommended for full visualization capability</p>
-</blockquote>
+<li>
+<p><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA Driver</a></p>
+<div class="admonition warning">
+<p class="admonition-title">While other graphics cards <em>may</em> work, NVIDIA Quadro graphics card is recommended for full visualization capability</p>
+</div>
 </li>
 </ul>
 <hr />
@@ -1167,9 +1169,9 @@
 <h2 id="windows">Windows <i class="fa fa-windows"></i><a class="headerlink" href="#windows" title="Permanent link"></a></h2>
 <p>For Windows, Unidata offers two installation options: a <a href="#method-1-linux-virtual-machine"><strong>Linux Virtual Machine</strong></a>, or a <a href="#method-2-direct-windows-install"><strong>Direct Windows Installation</strong></a>.</p>
 <p>Currently, the <a href="#method-1-linux-virtual-machine">virtual machine (VM)</a> is the recommended form of install for those who do not have administrative priviledges on the machine, or beginners who want a simpler installation process.  </p>
-<blockquote>
-<p>Note: At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)</p>
+</div>
 <p>The <a href="#method-2-direct-windows-install">direct installation method</a> is recommended for those who have administrative priviledges and a little bit of experience installing more software.</p>
 <h3 id="method-1-linux-virtual-machine">Method 1: Linux Virtual Machine<a class="headerlink" href="#method-1-linux-virtual-machine" title="Permanent link"></a></h3>
 <p>This method is recommended for beginners, or those with less computer knowledge as it is a very simple installation, however at this time, some CAVE functionality may be missing (ex: rendering RGB satellite images).</p>
@@ -1198,9 +1200,9 @@
 <h3 id="method-2-direct-windows-install">Method 2: Direct Windows Install<a class="headerlink" href="#method-2-direct-windows-install" title="Permanent link"></a></h3>
 <p>This method is recommended for personal use and requires Administrative priviledges.  It should enable full CAVE capability, but it is a bit lengthy and might take about 20 minutes or so to complete.<br />
 For additional assistance we have created an <a href="https://www.youtube.com/watch?v=02etW-PuZZ8"><strong>installation video</strong></a> that walks through the steps below.</p>
-<blockquote>
-<p>Note: It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures.</p>
+</div>
 <h4 id="system-requirements_2">System Requirements<a class="headerlink" href="#system-requirements_2" title="Permanent link"></a></h4>
 <ul>
 <li>64-bit Miniconda3 (Python3.7 - 4.8.2)</li>
@@ -1226,33 +1228,50 @@ For additional assistance we have created an <a href="https://www.youtube.com/wa
 <li>Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\jdk1.8.0_181)</li>
 </ul>
 </li>
-<li>Set the environment variables:<ul>
+<li>
+<p>Set the environment variables:</p>
+<ul>
 <li>Access the Environment Variables window by typing "env" in the start bar, hitting enter, and clicking on the "Environment Variables..." button at the bottom of the "System Properties" window</li>
 <li>User Variables: <strong>PYTHONPATH</strong> and <strong>PYTHONHOME</strong></li>
-<li>System Variable: <strong>JAVA_HOME</strong>
-<img alt="Env Vars" src="../../images/envVars.png" /><blockquote>
-<p>Note: If PYTHONHOME is not set, the <strong>gridslice</strong> Python module will not be installed or available</p>
-</blockquote>
+<li>
+<p>System Variable: <strong>JAVA_HOME</strong>
+<img alt="Env Vars" src="../../images/envVars.png" /></p>
+<div class="admonition warning">
+<p class="admonition-title">If PYTHONHOME is not set, the <strong>gridslice</strong> Python module will not be installed or available</p>
+</div>
 </li>
 </ul>
 </li>
-<li><a href="https://my.visualstudio.com/Downloads?q=build%20tools%20c++%203&amp;wt.mc_id=o~msft~vscom~older-downloads">Download and install 64-bit Microsoft Visual Studio C++ Build Tools</a><ul>
+<li>
+<p><a href="https://my.visualstudio.com/Downloads?q=Build%20Tools%20for%20Visual%20Studio%202019%20%28version%2016.9%29&amp;pgroup=">Download and install 64-bit Microsoft Visual Studio C++ Build Tools</a></p>
+<ul>
 <li>To access the page linked above you will need a Microsoft account</li>
-<li>Download 64-bit <strong>Visual C++ Build Tools 2015 Update 3</strong></li>
-<li>When running the installer, choose the <strong>Default</strong> Installation</li>
+<li>Download the executable for <strong>Build Tools for Visual Studio 2019 (version 16.9)</strong></li>
+<li>Allow it run some pre-installtions</li>
+<li>The installer will pop up as shown below.  Make sure to select the <strong>C++ build tools</strong> (upper left), and then view the <strong>Installation details</strong> on the right</li>
+<li>Scroll down and check the <strong>MSVC v140 - VS 20215 C++ build tools</strong>
+<img alt="buildToolsInstall" src="../../images/buildToolsInstall.png" /></li>
 </ul>
 </li>
 <li>Install dependent Python packages<ul>
-<li>Open a terminal by typing "cmd" into the start bar and hitting enter</li>
-<li>Run the following command: <code>pip install numpy==1.15.1 jep==3.8.2</code></li>
+<li>Once the installer has finished, close the installer. Another window is present and there is an option to <strong>launch</strong> a command terminal
+<img alt="launch terminal" src="../../images/buildToolsLaunchTerm.png" /></li>
+<li>Click that and run the following:<ul>
+<li><code>pip install numpy==1.15.1</code></li>
+<li><code>pip install jep==3.8.2</code></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">These must be run as two separate commands, as stated above for all derived parameters to display properly.</p>
+</div>
+</li>
 </ul>
 </li>
 <li>Download and install: <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi"><strong>awips-cave.msi</strong> <i class="fa fa-download"></i></a><ul>
-<li>In addition to the application directory, the MSI installer will attempt to copy the <a href="https://github.com/Unidata/gridslice"><em>gridslice</em></a> shared library to <code>$PYTHONHOME/Dlls/</code>.  If the <code>$PYTHONHOME</code> environmental variable is not defined <em>gridslice</em> will not be installed.  You can check to see if it was installed in the Dlls directory after you have completed steps 1-3.<blockquote>
-<p>Note: CAVE will still run without gridslice, but certain bundles which use derived parameters, such as <a href="../../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png"><strong>isentropic analysis</strong></a>, will not load.</p>
-</blockquote>
-</li>
+<li>In addition to the application directory, the MSI installer will attempt to copy the <a href="https://github.com/Unidata/gridslice"><em>gridslice</em></a> shared library to <code>$PYTHONHOME/Dlls/</code>.  If the <code>$PYTHONHOME</code> environmental variable is not defined <em>gridslice</em> will not be installed.  You can check to see if it was installed in the Dlls directory after you have completed steps 1-3.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">CAVE will still run without gridslice, but certain bundles which use derived parameters, such as <a href="../../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png"><strong>isentropic analysis</strong></a>, will not load.</p>
+</div>
 </li>
 </ol>
 <h4 id="run-cave_2">Run CAVE<a class="headerlink" href="#run-cave_2" title="Permanent link"></a></h4>
@@ -1266,11 +1285,13 @@ For additional assistance we have created an <a href="https://www.youtube.com/wa
 <h3 id="system-requirements_3">System Requirements<a class="headerlink" href="#system-requirements_3" title="Permanent link"></a></h3>
 <ul>
 <li>Will need admin privileges to install python package</li>
-<li>NVIDIA Graphics card is recommended, some Intel Graphics cards will working</li>
+<li>
+<p>NVIDIA Graphics card is recommended, some Intel Graphics cards will working</p>
+<div class="admonition warning">
+<p class="admonition-title">Most AMD graphics cards are not supported</p>
+</div>
+</li>
 </ul>
-<blockquote>
-<p>Note: Most AMD graphics cards are not supported</p>
-</blockquote>
 <h3 id="download-and-installation-instructions_3">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_3" title="Permanent link"></a></h3>
 <ol>
 <li>
@@ -1305,9 +1326,9 @@ For additional assistance we have created an <a href="https://www.youtube.com/wa
 <li>
 <p>This will launch the installer:</p>
 <p><img alt="Python pkg install" src="../../images/macPythonInstall.png" /></p>
-<blockquote>
-<p>Note: The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having <strong>jep</strong> installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having <strong>jep</strong> installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)</p>
+</div>
 </li>
 </ul>
 </li>
