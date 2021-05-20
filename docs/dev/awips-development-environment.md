@@ -1,14 +1,14 @@
 # AWIPS Development Environment (ADE)
 
-Quick instructions on how to download the latest source code and run CAVE from Eclipse.
+Detailed instructions on how to download the latest source code and run CAVE from Eclipse.
 
-> **Note**: It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS.
+!!! note  "It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS."
+
+!!! note "The following *yum* commands listed in these instructions may need to be run as the *root* user, but the rest of the commands should be run as the local user."
 
 ## 1. Remove AWIPS Instances
 
 First, make sure to remove any instances of AWIPS that are already installed, this can potentially cause problems when setting up the development environment.  Below is an example that had CAVE installed.
-
-!!! note "The following may need to be run as *root* user."
 
 Uninstall with yum:
 
@@ -28,6 +28,9 @@ Remove the awips2 directory:
 ## 2. Set Up AWIPS Repo
 
 Create a repo file named `/etc/yum.repos.d/awips2.repo`, and set the contents to the following:
+
+    sudo vi /etc/yum.repos.d/awips2.repo
+
 <pre>
 [awips2repo]
 name=AWIPS II Repository
@@ -37,13 +40,12 @@ protect=0
 gpgcheck=0
 proxy=_none_
 </pre>
->**Note**: This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl.
+
+!!! note "This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl."
         
 ---
 
 ## 3. Install the ADE
-
-!!! note "The following may need to be run as *root* user."
 
 Install the AWIPS Development Environment (ADE) using yum.  This will install Eclipse (4.6.1), Java (1.8), Ant (1.9.6), Python 2.7 and its modules (Numpy, Matplotlib, Shapely, Jep, and others). 
 
