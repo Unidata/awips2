@@ -120,7 +120,7 @@ For additional assistance we have created an [**installation video**](https://ww
 4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=Build%20Tools%20for%20Visual%20Studio%202019%20%28version%2016.9%29&pgroup=)
     - To access the page linked above you will need a Microsoft account
     - Download the executable for **Build Tools for Visual Studio 2019 (version 16.9)**
-    - Allow it run some pre-installtions
+    - Allow it to run some pre-installations
     - The installer will pop up as shown below.  Make sure to select the **C++ build tools** (upper left), and then view the **Installation details** on the right
       - Scroll down and check the **MSVC v140 - VS 20215 C++ build tools**
     ![buildToolsInstall](../images/buildToolsInstall.png)
