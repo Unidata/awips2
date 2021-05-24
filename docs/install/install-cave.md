@@ -93,7 +93,7 @@ For additional assistance we have created an [**installation video**](https://ww
 - 64-bit Miniconda3 (Python3.7 - 4.8.2)
 - Python3 (comes with Miniconda installation)
 - 64-bit Java JDK 1.8 (1.8_181)
-- 64-bit Visual C++ Build Tools 2015 Update 3 (14.1)
+- 64-bit Visual C++ Build Tools 2015 and 2019
 - Numpy (1.15.1)
 - Jep (3.8.2)
 - User Variable PATH must have miniconda3 location
@@ -122,7 +122,7 @@ For additional assistance we have created an [**installation video**](https://ww
     - Download the executable for **Build Tools for Visual Studio 2019 (version 16.9)**
     - Allow it to run some pre-installations
     - The installer will pop up as shown below.  Make sure to select the **C++ build tools** (upper left), and then view the **Installation details** on the right
-      - Scroll down and check the **MSVC v140 - VS 20215 C++ build tools**
+      - Scroll down and check the **MSVC v140 - VS 2015 C++ build tools**
     ![buildToolsInstall](../images/buildToolsInstall.png)
 5. Install dependent Python packages
     - Once the installer has finished, close the installer. Another window is present and there is an option to **launch** a command terminal
