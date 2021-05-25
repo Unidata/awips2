@@ -58,6 +58,7 @@ if [[ $(whoami) == "awips" ]]; then # local build
   mv dist/${os_version}-dev dist/${os_version}-dev-${date}
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
+  rsync -aP dist/${os_version}-dev-${date} awips@hardy:~/
   #repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   #
   # Push to web server
