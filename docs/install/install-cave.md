@@ -84,7 +84,7 @@ Once inside the VM, to run CAVE either:
 ### Method 2: Direct Windows Install
 
 This method is recommended for personal use and requires Administrative priviledges.  It should enable full CAVE capability, but it is a bit lengthy and might take about 20 minutes or so to complete.  
-For additional assistance we have created an [**installation video**](https://www.youtube.com/watch?v=02etW-PuZZ8) that walks through the steps below.
+For additional assistance we have created an [**installation video**](https://youtu.be/QAuBSsSp9Ak) that walks through the steps below.
 
 !!! note "It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures."
 
