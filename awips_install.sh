@@ -57,16 +57,53 @@ function check_netcdf {
   fi
 }
 
+function check_cave {
+  if [[ $(rpm -qa | grep awips2-cave) ]]; then
+    echo $'\n'CAVE is currently installed and needs to be removed before installing.
+    pkill cave.sh
+    pkill -f 'cave/run.sh'
+    remove_cave
+  fi
+}
+
+function remove_cave {
+  yum groupremove awips2-cave -y
+
+  if [[ $(rpm -qa | grep awips2-cave) ]]; then
+    echo "
+    =================== FAILED ===========================
+    Something went wrong with the un-install of CAVE 
+    and packages are still installed. Once the CAVE
+    group has been successfully uninstalled, you can try
+    running this script again.
+     Try running a \"yum grouplist\" to see if the AWIPS 
+     CAVE group is still installed and then do a 
+     \"yum groupremove [GROUP NAME]\". 
+       ex. yum groupremove 'AWIPS EDEX Server' 
+     
+     You may also need to run \"yum groups mark 
+     remove [GROUP NAME]\"
+       ex. yum groups mark remove 'AWIPS CAVE'"
+     exit
+  else
+    dir=cave
+    echo "Removing /awips2/$dir"
+    rm -rf /awips2/$dir
+    rm -rf /home/awips/caveData
+  fi
+}
+
 function check_edex {
   if [[ $(rpm -qa | grep awips2-edex) ]]; then
-    echo "found EDEX RPMs installed. Updating..."
+    echo "found EDEX RPMs installed. The current EDEX needs to be removed before installing."
+    check_remove_edex
   else
     if [ -d /awips2/database/data/ ]; then
       echo "cleaning up /awips2/database/data/ for new install..."
       rm -rf /awips2/database/data/
     fi
   fi
-  for dir in /awips2/tmp /awips2/data_store /awips2/crawl; do
+  for dir in /awips2/tmp /awips2/data_store ; do
     if [ ! -d $dir ]; then
       echo "creating $dir"
       mkdir -p $dir
@@ -79,6 +116,70 @@ function check_edex {
     echo
     echo "--- user awips does not exist"
     echo "--- installation will continue but EDEX services may not run as intended"
+  fi
+}
+
+function check_remove_edex {
+  while true; do
+    read -p "Do you wish to remove EDEX? (Please type yes or no) `echo $'\n> '`" yn
+    case $yn in
+      [Yy]* ) remove_edex; break;;
+      [Nn]* ) echo "Exiting..."; exit;;
+      * ) echo "Please answer yes or no"
+    esac
+  done
+}
+
+function remove_edex {
+  while true; do
+    read -p "`echo $'\n'`We are going to back up some files. What location do you want your files backed up to? `echo $'\n> '`" backup_dir
+    if [ ! -d $backup_dir ]; then
+      echo "$backup_dir does not exist, enter a path that exists"
+    else
+      break;
+    fi
+  done
+  date=$(date +'%Y%m%d')
+  backup_dir=${backup_dir}/awips2_backup_${date}
+  echo "Backing up to $backup_dir"
+
+  rsync -aP /awips2/database/data/pg_hba.conf $backup_dir/
+  rsync -aP /awips2/edex/data/utility $backup_dir/
+  rsync -aP /awips2/edex/bin/setup.env $backup_dir/
+  rsync -aP /awips2/ldm $backup_dir/
+  rsync -aP /awips2/edex/conf $backup_dir
+
+  if [[ $(rpm -qa | grep awips2-cave) ]]; then
+    echo "CAVE is also installed, now removing EDEX and CAVE"
+  else
+    echo "Now removing EDEX"
+  fi
+
+  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave
+
+  if [[ $(rpm -qa | grep awips2 | grep -v cave) ]]; then
+    echo "
+    =================== FAILED ===========================
+    Something went wrong with the un-install of EDEX 
+    and packages are still installed. Once the EDEX
+    groups have been successfully uninstalled, you can try
+    running this script again.
+     Try running a \"yum grouplist\" to see which AWIPS 
+     group is still installed and then do a 
+     \"yum groupremove [GROUP NAME]\". 
+       ex. yum groupremove 'AWIPS EDEX Server' 
+     
+     You may also need to run \"yum groups mark 
+     remove [GROUP NAME]\"
+       ex. yum groups mark remove 'AWIPS EDEX Server'"
+     exit
+  else
+    for dir in $(ls /awips2/); do
+      if [ $dir != cave ]; then
+        echo "Removing /awips2/$dir"
+        rm -rf /awips2/$dir
+      fi
+    done
   fi
 }
 
@@ -99,6 +200,7 @@ function server_prep {
 }
 
 function cave_prep {
+  check_cave
   check_users
   check_yumfile
   check_netcdf
@@ -114,18 +216,22 @@ case $key in
     --cave)
         cave_prep
         yum groupinstall awips2-cave -y 2>&1 | tee -a /tmp/awips-install.log
+        echo "CAVE has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --server|--edex)
         server_prep
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
+        echo "EDEX server has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --database)
         server_prep
         yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
+        echo "EDEX database has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --ingest)
         server_prep
         yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
+        echo "EDEX ingest has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     -h|--help)
         echo -e $usage
@@ -135,3 +241,4 @@ esac
 
 PATH=$PATH:/awips2/edex/bin/
 exit
+
