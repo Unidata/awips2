@@ -1,6 +1,6 @@
 # GOES 16/17
 
-The ***goesr*** EDEX decoder supports the ingest of GOES products coming over NOAAPort and Unidata's IDD. These include [**single channel imagery**](#individual-channels), [**derived products**](#derived-products) (Level 2b netCDF files), gridded [**Geostationary Lightning Mapper**](#geostationary-lightning-mapper-glm) (GLM) products (produced by Eric Bruning at Texas Tech), CIRA created [**RGB**](#cira-cloud-snow) specific products, and [**vertical temperature/moisture profiles**](#vertical-temperature-and-moisture-profile). Using derived parameters, additional [**RGB**](#rgb-composites) and [**channel difference**](#channel-differences) products can be loaded. The ***dmw*** EDEX decoder supports the ingest of GOES [**derived motion winds**](#derived-motion-winds).
+The ***goesr*** EDEX decoder supports the ingest of GOES products coming over NOAAPort and Unidata's IDD. These include [**single channel imagery**](#individual-channels), [**derived products**](#derived-products) (Level 2b netCDF files), gridded [**Geostationary Lightning Mapper**](#geostationary-lightning-mapper-glm) (GLM) products (produced by Eric Bruning at Texas Tech), [**CIRA created RGB**](#cira-geocolor) specific products, and [**vertical temperature/moisture profiles**](#vertical-temperature-and-moisture-profile). Using derived parameters, additional [**RGB**](#rgb-composites) and [**channel difference**](#channel-differences) products can be loaded. The ***dmw*** EDEX decoder supports the ingest of GOES [**derived motion winds**](#derived-motion-winds).
 
 ![](../images/GOESEW.png)
 
@@ -28,24 +28,27 @@ Each sector submenu has products for individual channels and vertical profiles, 
 
 The Unidata IDD redistributes both the NOAAPort/SBN GOES tiled products as well as stitched together GOES products. While AWIPS can decode and ingest both, it's important to only be requesting from one or the other so you aren't creating duplicate processing.  The entries that should be used for GOES data are shown below which is found in the LDM's pqact.conf file, located in `/awips2/ldm/etc`.   (For the full list of pqact entries, you can view [this](https://github.com/Unidata/awips2/blob/unidata_18.2.1/rpms/awips2.upc/Installer.ldm/patch/etc/pqact.goesr) file).
 
-    #
-    # GOES 16/17 ABI
-    #
-    NIMAGE  ^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/([^/]*)/([^/]*)/([0-9]{8})/([^/]*).nc
-        FILE    -close -edex
-        /awips2/data_store/GOES/CMI/\5.nc4
-    #
-    # GOES derived products
-    #
-    HDS     ^(IXT.99) KNES (......)
-        FILE    -close -edex
-        /awips2/data_store/GOES/derived/KNES_\1_\2-(seq)
-    #
-    # GLM
-    #
-    DIFAX   ^/data/cspp-geo/(EAST|WEST|GRB-R)/OR_GLM-L2-([^/]*).nc
-        FILE    -close -edex
-        /awips2/data_store/GOES/GLM/\1_OR_GLM-L2-\2.nc
+    # GOES 16/17 Single Channel (ABI) via Unidata IDD
+    NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+        FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CMI-IDD/\5\6\7\8.nc4
+
+    # GOES 16/17 derived products + derived motion wind via SBN
+    HDS	^(IXT.[8-9]9) (KNES) (..)(..)(..)
+        FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derivedProducts-SBN/\1_KNES_\2\3\4\5-(seq)
+    NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
+        FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derivedProducts-SBN/\1_KNES_\2\3\4\5-(seq)
+    
+    # GOES 16 GLM Gridded Products via Texas Tech-->Unidata IDD 
+    NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightningMapper/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+        FILE	-close -edex	/awips2/data_store/GOES/\3/\6/GLM-IDD/\4\5\6\7.nc4
+
+    # GOES CIRA derived products 
+    NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeoColor/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+        FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/GeoColor/\5\6\7\8.nc4
+    NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DebraDust/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+        FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/DebraDust/\5\6\7\8.nc4
+    NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+        FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/CloudSnow/\5\6\7\8.nc4
 
 ---
 
