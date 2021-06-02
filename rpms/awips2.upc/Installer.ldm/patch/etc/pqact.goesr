@@ -1,72 +1,43 @@
-# GOES 16/17 ABI via SBN
-# (not using)
-#NOTHER	^(TI[RSU]...) (KNES) (......) (...)
-#	FILE	-close -edex	/awips2/data_store/GOES/GINI/\1_\2_\3_\4_(seq).gini
+##########################
+#
+#  GOES Satellite Products
+#
+##########################
+# GOES 16/17 Single Channel (ABI) via NOAAPort/SBN - (not using)
+#NOTHER	^(TI[RSU]...) (KNES) (..)(..)(..) (...)
+#	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/CMI-SBN/\1_\2_\3\4\5_\6_(seq)
 
-# GOES 16/17 ABI via Unidata IDD
-# (using)
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/([^/]*)/([^/]*)/([0-9]{8})/([^/]*).nc
-	FILE	-close -edex	/awips2/data_store/GOES/CMI/\5.nc4
+#/data/ldm/pub/native/satellite/GOES/GOES16/Products/CloudAndMoistureImagery/Mesoscale-2/Channel03/20210528/OR_ABI-L2-CMIPM2-M6C03_G16_s20211481451520_e20211481451520_c20211481451520.nc
+# GOES 16/17 Single Channel (ABI) via Unidata IDD -(using)
+NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CMI-IDD/\5\6\7\8.nc4
 
-# GOES 16 derived products via SBN
-# (using)
-HDS	^(IXT.[8-9]9) KNES (......)
-	FILE	-close -edex	/awips2/data_store/GOES/derived/KNES_\1_\2-(seq)
-NOTHER	^(IXT[WXY]01) KNES (......)
-	FILE	-close -edex	/awips2/data_store/GOES/derived/KNES_\1_\2-(seq)
+# GOES 16/17 derived products + derived motion wind via SBN - (using)
+HDS	^(IXT.[8-9]9) (KNES) (..)(..)(..)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
+NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
 
-# GOES 16 derived products via Unidata IDD
-# (not using)
-#NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/([^/]*)/([^/]*)/([0-9]{8})/([^/]*).nc
-#	FILE	-close -edex	/awips2/data_store/GOES/derived/\3/\2/\1.nc4
+# GOES 16/17 derived products via Unidata IDD - (not using)
+#NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/([^/]*)/([^/]*)/([0-9]{7})/([^/]*)(c[0-9]{7})(..)(.....).nc
+#	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/derived-IDD/\5\6\7\8.nc4
 
-# GOES 16/17 derived motion wind products via Unidata IDD
-# (not using - getting from SBN derived products)
-#NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DerivedMotionWinds/([^/]*)/([^/]*)/([0-9]{8})/([^/]*).nc
-#	FILE	-close -edex	/awips2/data_store/GOES/derived/\5.nc4
+# GOES 16/17 derived motion wind products via Unidata IDD - (not using - getting from SBN derived products)
+#NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DerivedMotionWinds/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+#	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/derived-IDD/\5\6\7\8.nc4
 
-# GOES 16 GLM derived products via Texas Tech-->Unidata IDD
-# (using)
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightningMapper/([^/]*)/([0-9]{8})/([^/]*).nc
-	FILE	-close -edex	/awips2/data_store/GOES/GLM/TT/\4.nc4
+# GOES 16 GLM gridded products via Texas Tech-->Unidata IDD (using)
+NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightningMapper/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+	FILE	-close -edex	/awips2/data_store/GOES/\3/\6/GLM-IDD/\4\5\6\7.nc4
 
-# GOES 16/17 GLM Raw data
-# (not using)
+# GOES GLM Raw data - don't use, AWIPS does not display the raw GLM data (not using)
 #DIFAX	^/data/cspp-geo/(EAST|WEST|GRB-R)/OR_GLM-L2-([^/]*).nc
 #	FILE	-close -edex	/awips2/data_store/GOES/GLM/\1_OR_GLM-L2-\2.nc
 
-# GOES 16 CIRA derived products
-#
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeoColor/([^/]*)/([^/]*)/([0-9]{8})/([^/]*).nc
-	FILE	-close -edex	/awips2/data_store/GOES/CIRA/GeoColor/\5.nc4
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DebraDust/([^/]*)/([^/]*)/([0-9]{8})/([^/]*).nc
-	FILE	-close -edex	/awips2/data_store/GOES/CIRA/DebraDust/\5.nc4
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/([^/]*)/([0-9]{8})/([^/]*).nc
-	FILE	-close -edex	/awips2/data_store/GOES/CIRA/CloudSnow/\5.nc4
-
-#  GOES East Derived Products      WMO Header    Regions
-#  ---------------                 ----------    -------
-#  Aerosol Detection (Smoke+Dust)  IXTA99 KNES   F,C,M
-#  Aerosol Optical Depth           IXTB99 KNES   F,C
-#  Cloud Top Phase                 IXTD99 KNES   F,C,M
-#  Fog and Low Stratus             IXTE99 KNES   C
-#  Rainfall Rate/QPE               IXTF99 KNES   F
-#  Cloud Top Height                IXTG99 KNES   F,C,M
-#  Clear Sky Mask                  IXTH99 KNES   F,C,M
-#  Cloud Top Temperature           IXTI99 KNES   F,M
-#  Fire/Hot Spot Characterization  IXTJ99 KNES   F,C
-#  Land Surface (Skin) Temperature IXTK99 KNES   F,C,M
-#  Sea Surface (Skin) Temperature  IXTM99 KNES   F
-#  Derived Stability Indices       IXTN99 KNES   F,C,M
-#  Total Precipitable Water        IXTO99 KNES   F,C,M
-#  Vertical Moisture Profile       IXTP99 KNES   C
-#  Vertical Temperature Profile    IXTQ99 KNES   C
-#  Geostationay Lightning Mapper   IXTR99 KNES   F,C
-#  Derived Motion Winds            IXTU99 KNES   C,M
-#  Cloud Particle Size Dist        IXTW01 KNES   F,C,M
-#  Cloud Top Pressure              IXTX01 KNES   F,C
-#  Cloud Optical Depth             IXTY01 KNES   F,C
-
-#  GOES West Derived Products      WMO Header    Regions
-#  ---------------                 ----------    -------
-#  Derived Motion Winds (West)     IXTU89 KNES   C
+# GOES CIRA derived products 
+NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeoColor/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/GeoColor/\5\6\7\8.nc4
+NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DebraDust/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/DebraDust/\5\6\7\8.nc4
+NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/CloudSnow/\5\6\7\8.nc4
