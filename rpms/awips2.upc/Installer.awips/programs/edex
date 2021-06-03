@@ -326,13 +326,13 @@ edex_start() {
    elif [ "${args[1]}" == 'ingest' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
-      ldm_start
+      #ldm_start
    elif [ "${args[1]}" == 'database' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'request' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
    elif [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel start"
-      ldm_start
+      #ldm_start
    fi
 }
 

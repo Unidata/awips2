@@ -98,7 +98,7 @@ cd ${_Installer_ldm}/patch
 if [ $? -ne 0 ]; then
    exit 1
 fi
-_PATCH_DIRS=( 'bin' 'decoders' 'etc' )
+_PATCH_DIRS=( 'bin' 'decoders' 'etc' 'dev')
 for patchDir in ${_PATCH_DIRS[*]};
 do
    /bin/tar -cf ${patchDir}.tar ${patchDir}
@@ -183,7 +183,7 @@ if [ $? -ne 0 ]; then
 fi
 # Unpack patch tar files
 cd ${_ldm_dir}/SOURCES
-_PATCH_DIRS=( 'decoders' 'etc' )
+_PATCH_DIRS=( 'decoders' 'etc' 'dev')
 for patchDir in ${_PATCH_DIRS[*]};
 do
    /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}

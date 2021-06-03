@@ -281,6 +281,10 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.gisdatastore.feature" />
 		</antcall>
+<!--Tiff added -->
+		<antcall target="p2.build.repo">
+			<param name="feature" value="edu.wisc.ssec.cimss.viz.probsevere.feature" />
+		</antcall>		
 	<!--
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.nws.obs.viz.geodata.feature" />

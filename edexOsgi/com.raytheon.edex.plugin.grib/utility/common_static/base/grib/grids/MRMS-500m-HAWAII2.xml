@@ -24,7 +24,15 @@
         version of the file will completely replace a lower priority version
         of the file.
     -->
-<requestPatterns >
-    <regex>^SDUS[2345678]. .*</regex>
-    <regex>^Level3.*</regex>
-</requestPatterns>
+<latLonGridCoverage>
+    <name>10022</name>
+    <description>HAWAII domain for MRMS 500m products</description>
+    <la1>25.9975</la1>
+    <lo1>196.0025</lo1>
+    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
+    <nx>2600</nx>
+    <ny>2200</ny>
+    <dx>0.005</dx>
+    <dy>0.005</dy>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>

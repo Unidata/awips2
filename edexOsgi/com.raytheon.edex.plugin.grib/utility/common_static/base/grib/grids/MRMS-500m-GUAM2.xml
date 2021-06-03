@@ -24,7 +24,15 @@
         version of the file will completely replace a lower priority version
         of the file.
     -->
-<requestPatterns >
-    <regex>^SDUS[2345678]. .*</regex>
-    <regex>^Level3.*</regex>
-</requestPatterns>
+<latLonGridCoverage>
+    <name>10042</name>
+    <description>GUAM domain for MRMS 500m products</description>
+    <la1>17.995</la1>
+    <lo1>500.005004</lo1>
+    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
+    <nx>2000</nx>
+    <ny>1800</ny>
+    <dx>0.005</dx>
+    <dy>0.005</dy>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>

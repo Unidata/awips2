@@ -4,22 +4,18 @@
 	<contribute xsi:type="titleItem" titleText="------ Lightning ------" id="sfcMenuLightning" />
 	
 	<contribute xsi:type="subMenu" menuText="GLM - Geostationary Lightning Mapper" id="glm">
-	
-		<contribute xsi:type="subMenu" menuText="GLM Combined" id="glmGridPointSubmenu">
-		<contribute xsi:type="subinclude"
-			fileName="menus/glm/lightning/glmCombinedLightningBundleItems.xml">
+	    <contribute xsi:type="subinclude" subMenu="GOES East CONUS" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml">
+            <substitute key="sector" value="ECONUS" />
+            <substitute key="entity" value="GOES%" />
+            <substitute key="scene" value="Conus"/>
+            <substitute key="orbitalSlot" value="GOES-East"/>
+        </contribute>
+        <contribute xsi:type="subinclude" subMenu="GOES East Full Disk" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml">
+            <substitute key="sector" value="EFD" />
+            <substitute key="entity" value="GOES%" />
+            <substitute key="orbitalSlot" value="GOES-East"/>
+            <substitute key="scene" value="Full Disk"/>
 		</contribute>
-	</contribute>
-	<contribute xsi:type="subMenu" menuText="GLM" id="glmPointSubMenu">
-		<contribute xsi:type="subinclude"
-			fileName="menus/glm/lightning/glmPointLightningBundleItems.xml">
-		</contribute>
-	</contribute>
-	<contribute xsi:type="subMenu" menuText="GLM Grid" id="glmGridSubmenu">
-		<contribute xsi:type="subinclude"
-			fileName="menus/glm/lightning/glmGridLightningMenuItems.xml">
-		</contribute>
-	</contribute>
 	</contribute>
 	
 	<contribute xsi:type="subMenu" menuText="USPLN - US Precision Lightning Network" id="udpln">

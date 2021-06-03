@@ -97,12 +97,6 @@
                 <substitute key="datasetID" value="${resolutionOne}" />
                 <substitute key="parameterID" value="SuperLayerCompositeReflectivity" />
             </contribute>
-            <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-                menuText="Layer Composite Reflectivity (2-4.5km) (for ANC)" id="ANCLayer">
-                <substitute key="levelOneValue" value="500.0" />
-                <substitute key="datasetID" value="${resolutionOne}" />
-                <substitute key="parameterID" value="ANCLayerCompositeReflectivity" />
-            </contribute>
         </contribute>
         <contribute xsi:type="titleItem" titleText="------ Base Reflectivity ------" id="mrmsBaseZ"/>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
@@ -151,12 +145,6 @@
                 <substitute key="levelOneValue" value="500.0" />
                 <substitute key="datasetID" value="${resolutionOne}" />
                 <substitute key="parameterID" value="EchoTop60" />
-            </contribute>
-            <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-                menuText="Level III Echo Top Mosaic" id="ET">
-                <substitute key="levelOneValue" value="500.0" />
-                <substitute key="datasetID" value="${resolutionOne}" />
-                <substitute key="parameterID" value="L3EchoTop" />
             </contribute>
         </contribute>
         <contribute xsi:type="subMenu" menuText="Isothermal Reflectivity"
@@ -250,12 +238,6 @@
             <substitute key="levelOneValue" value="500.0" />
             <substitute key="datasetID" value="${resolutionOne}" />
             <substitute key="parameterID" value="MRMSVIL1440min" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Vertically Integrated Liquid (VIL) Level III Mosaic" id="MRMSVILMosaic">
-            <substitute key="levelOneValue" value="500.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="L3VIL" />
         </contribute>
     </contribute>
     <contribute xsi:type="subMenu" menuText="Velocity Products"
@@ -402,102 +384,49 @@
             <substitute key="parameterID" value="SHI" />
         </contribute>
     </contribute>
-    <contribute xsi:type="subMenu" menuText="Lightning Products"
-        id="MRMS_LIGHTNING">
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Cloud-to-Ground Lightning Density (1 min.)" id="LightDensity1min">
-            <substitute key="levelOneValue" value="0.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningDensity1min" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Cloud-to-Ground Lightning Density (5 min.)" id="LightDensity5min">
-            <substitute key="levelOneValue" value="0.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningDensity5min" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Cloud-to-Ground Lightning Density (15 min.)" id="LightDensity15min">
-            <substitute key="levelOneValue" value="0.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningDensity15min" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Cloud-to-Ground Lightning Density (30 min.)" id="LightDensity30min">
-            <substitute key="levelOneValue" value="0.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningDensity30min" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Cloud-to-Ground Lightning Probability (0-30 min.)" id="LightProb30min">
-            <substitute key="levelOneValue" value="500.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningProbabilityNext30min" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Cloud-to-Ground Lightning Probability (0-60 min.)"
-            id="LightProb60min">
-            <substitute key="levelOneValue" value="500.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningProbabilityNext60min" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Lightning Jump Algorithm"
-            id="LJAGrid">
-            <substitute key="levelOneValue" value="500.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningJumpGrid" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml"
-            menuText="Lightning Jump 5min Max"
-            id="LJAGrid5minMax">
-            <substitute key="levelOneValue" value="500.0" />
-            <substitute key="datasetID" value="${resolutionOne}" />
-            <substitute key="parameterID" value="LightningJumpGridMax5min" />
-        </contribute>
-    </contribute>
+ 
     <contribute xsi:type="separator" id="MySeparatorId"/>
     <contribute xsi:type="subMenu" menuText="FLASH Products">
         <contribute xsi:type="titleItem" titleText="------ QPE Models ------" 
             id="FLASH_QPE_MODELS" />
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="CREST Streamflow" id="QPECrestSF">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPECrestStreamflow" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="CREST Unit Streamflow" id="QPECrestUSF">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPECrestUStreamflow" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="CREST Soil Moisture" id="QPECrestSoil">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPECrestSoilMoisture" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="SAC-SMA Streamflow" id="QPESacSF">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPESacStreamflow" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="SAC-SMA Unit Streamflow" id="QPESacUSF">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPESacUStreamflow" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="SAC-SMA Soil Moisture" id="QPESacSoil">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPESacSoilMoisture" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="Hydrophobic Streamflow" id="QPEHPSF">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPEHPStreamflow" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/mrms/mrmsSFC.xml"
             menuText="Hydrophobic Unit Streamflow" id="QPEHPUSF">
-            <substitute key="datasetID" value="${resolutionOne}" />
+            <substitute key="datasetID" value="${resolutionTwo}" />
             <substitute key="parameterID" value="QPEHPUStreamflow" />
         </contribute>
         <contribute xsi:type="titleItem" titleText="------ Average Recurrence Interval ------"
@@ -914,33 +843,6 @@
             <substitute key="levelOneValue" value="500.0" />
             <substitute key="datasetID" value="${resolutionOne}" />
             <substitute key="parameterID" value="WarmRainProbability" />
-        </contribute>
-    </contribute>
-    <contribute xsi:type="subMenu" menuText="ProbSevere Products">
-        <contribute xsi:type="bundleItem" file="bundles/ProbSevere.xml" 
-            menuText="NOAA/CIMSS ProbSevere Model" id="probsevereModel">
-            <substitute key="modelType" value="probsevere"/>
-            <substitute key="probThresh" value="50"/>
-            <substitute key="torShapeThresh" value="3"/>
-            <substitute key="showID" value="false"/>
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/ProbSevere.xml" 
-            menuText="NOAA/CIMSS ProbTor Model" id="probtorModel">
-            <substitute key="modelType" value="probtor"/>
-            <substitute key="probThresh" value="50"/>
-            <substitute key="showID" value="false"/>
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/ProbSevere.xml" 
-            menuText="NOAA/CIMSS ProbHail Model" id="probhailModel">
-            <substitute key="modelType" value="probhail"/>
-            <substitute key="probThresh" value="50"/>
-            <substitute key="showID" value="false"/>
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/ProbSevere.xml" 
-            menuText="NOAA/CIMSS ProbWind Model" id="probwindModel">
-            <substitute key="modelType" value="probwind"/>
-            <substitute key="probThresh" value="50"/>
-            <substitute key="showID" value="false"/>
         </contribute>
     </contribute>
 </menuTemplate>

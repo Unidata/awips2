@@ -47,8 +47,9 @@
         <create forecastPeriodHours="3" accumulationParam="CP3hr" minuendParam="CP6hr" subtrahendParam="CP3hr" />
     </accumulation>
 -->
+<!--Tiff added a generic GFS.* for the CONDUIT global GFS #20210405-->
     <accumulation>
-        <model>GFS229|GFS20|AK-GFS22|GFS20-.*</model>
+        <model>GFS229|GFS20|AK-GFS22|GFS20-.*|GFS.*</model>
         <create forecastPeriodHours="3" accumulationParam="TP3hr" minuendParam="TP-GFS" subtrahendParam="TP-GFS" />
         <create forecastPeriodHours="6" accumulationParam="TP6hr" minuendParam="TP-GFS" subtrahendParam="TP-GFS" />
         <create forecastPeriodHours="3" accumulationParam="CP3hr" minuendParam="CP-GFS" subtrahendParam="CP-GFS" />
