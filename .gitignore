@@ -32,7 +32,6 @@ edexOsgi/build.edex/opt/db/replication/
 #	edexOsgi/com.raytheon.edex.plugin.satellite/utility/common_static/base/styleRules/
 edexOsgi/com.raytheon.uf.edex.dissemination/
 edexOsgi/com.raytheon.uf.edex.ndm/
-edexOsgi/com.raytheon.uf.edex.registry.ebxml/src/com/raytheon/uf/edex/registry/ebxml/web/security/
 edexOsgi/deploy.edex.awips2/esb/conf/resources/
 	feature.xml
 getRPMoutput.pl

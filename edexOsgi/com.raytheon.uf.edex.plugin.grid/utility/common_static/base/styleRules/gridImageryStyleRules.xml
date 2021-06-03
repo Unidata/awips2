@@ -5152,7 +5152,7 @@
         </paramLevelMatches>
         <imageStyle>
             <interpolate>false</interpolate>
-            <displayUnits>%</displayUnits>
+            <displayUnits label="">*1</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
                 <maxValue>500</maxValue>
@@ -5232,7 +5232,6 @@
             <parameter>EchoTop30</parameter>
             <parameter>EchoTop50</parameter>
             <parameter>EchoTop60</parameter>
-            <parameter>L3EchoTop</parameter>
         </paramLevelMatches>
         <imageStyle>
             <interpolate>false</interpolate>
@@ -5262,6 +5261,51 @@
                     displayValue='70' />
                 <entry pixelValue="60.96" operator="&gt;"
                     displayValue='200' />
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>L3EchoTop</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits>kft</displayUnits>
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>70</maxValue>
+            </range>
+            <defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+            <colorbarLabeling>
+                <values>10 20 30 40 50 60 70</values>
+            </colorbarLabeling>
+
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>SeamlessHSRHeight</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits>kft</displayUnits>
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>40</maxValue>
+            </range>
+            <defaultColormap>mrms/mrmsHSRHeight</defaultColormap>
+            <dataMapping>
+                <entry pixelValue="0" operator="&lt;" label="" />
+                <entry pixelValue="0.0015" operator="&gt;"
+                    displayValue='0.005' />
+                <entry pixelValue="3.048" operator="&gt;"
+                    displayValue='10' />
+                <entry pixelValue="6.095" operator="&gt;"
+                    displayValue='20' />
+                <entry pixelValue="9.144" operator="&gt;"
+                    displayValue='30' />
+                <entry pixelValue="12.191" operator="&gt;"
+                    displayValue='40' />
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -5399,7 +5443,7 @@
         </paramLevelMatches>
         <imageStyle>
             <interpolate>false</interpolate>
-            <displayUnits label="%">%*100</displayUnits>
+            <displayUnits label="%">%</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
                 <maxValue>100</maxValue>
@@ -5495,11 +5539,31 @@
             </dataMapping>
         </imageStyle>
     </styleRule>
-    <!-- MRMS Shear & Rotation Tracks Products -->
     <styleRule>
         <paramLevelMatches>
             <parameter>MergedAzShear02kmAGL</parameter>
             <parameter>MergedAzShear36kmAGL</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits label="s^-1">*1000</displayUnits>
+            <samplePrefs>
+                <formatString>3</formatString>
+            </samplePrefs>
+            <range scale="LINEAR">
+                <minValue>-.01</minValue>
+                <maxValue>.01</maxValue>
+            </range>
+            <defaultColormap>mrms/mrmsAzShear</defaultColormap>
+            <colorbarLabeling>
+                <values>-.010 -.008 -.006 -.004 -.002 -.001 -.0000001 0 .0000001 .002 .004 .006 .008 .010</values>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+
+    <!-- MRMS Shear & Rotation Tracks Products -->
+    <styleRule>
+        <paramLevelMatches>
             <parameter>RotationTrackLL30min</parameter>
             <parameter>RotationTrackLL60min</parameter>
             <parameter>RotationTrackLL120min</parameter>
@@ -5596,13 +5660,17 @@
         </paramLevelMatches>
         <imageStyle>
             <interpolate>false</interpolate>
-            <displayUnits label="in/hr">in/h</displayUnits>
+            <displayUnits>in/h</displayUnits>
             <range scale="LINEAR">
                 <minValue>-0.05</minValue>
                 <maxValue>12.0</maxValue>
             </range>
 
             <defaultColormap>mrms/mrmsSPRDP</defaultColormap>
+            <colorbarLabeling>
+                <values>1 2 3 4 5 6 7 8 12</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry pixelValue="-1" operator="&lt;" label="" />
                 <entry pixelValue="1" operator="&gt;"
@@ -5628,6 +5696,7 @@
                 <entry pixelValue="305.568" operator="&gt;"
                     displayValue='99' />
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS RQI -->
@@ -5765,7 +5834,7 @@
                 <minValue>-4</minValue>
                 <maxValue>8</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
                 <increment>1</increment>
             </colorbarLabeling>
@@ -5774,7 +5843,7 @@
     <!--  MRMS Merged RhoHV/CC -->
     <styleRule>
         <paramLevelMatches>
-            <parameter>CONUSMergedRhoHV</parameter>
+            <parameter>CONUSMergedRHV</parameter>
         </paramLevelMatches>
         <imageStyle>
             <displayUnits></displayUnits>
@@ -6019,34 +6088,22 @@
             <interpolate>false</interpolate>
             <displayUnits>g*m^-3</displayUnits>
             <range scale="LINEAR">
-                <minValue>-34.00</minValue>
-                <maxValue>82.00</maxValue>
+                <minValue>0.00</minValue>
+                <maxValue>6.00</maxValue>
             </range>
-            <defaultColormap>mrms/mrmsVIL</defaultColormap>
+            <defaultColormap>mrms/mrmsVILDensity</defaultColormap>
             <dataMapping>
-                <entry pixelValue="-34.00" operator="&gt;" label="" />
-                <entry pixelValue="0" operator="&gt;"
-                    displayValue='0' />
-                <entry pixelValue="10" operator="&gt;"
-                    displayValue='10' />
-                <entry pixelValue="20" operator="&gt;"
-                    displayValue='20' />
-                <entry pixelValue="30" operator="&gt;"
-                    displayValue='30' />
-                <entry pixelValue="40" operator="&gt;"
-                    displayValue='40' />
-                <entry pixelValue="50" operator="&gt;"
-                    displayValue='50' />
-                <entry pixelValue="60" operator="&gt;"
-                    displayValue='60' />
-                <entry pixelValue="70" operator="&gt;"
-                    displayValue='70' />
-                <entry pixelValue="80" operator="&gt;"
-                    displayValue='80' />
-                <entry pixelValue="90" operator="&gt;"
-                    displayValue='90' />
-                <entry pixelValue="200" operator="&gt;"
-                    displayValue='200' />
+                <entry pixelValue="0" operator="&gt;" label="" />
+                <entry pixelValue="1" operator="&gt;"
+                    displayValue='1' />
+                <entry pixelValue="2" operator="&gt;"
+                    displayValue='2' />
+                <entry pixelValue="3" operator="&gt;"
+                    displayValue='3' />
+                <entry pixelValue="4" operator="&gt;"
+                    displayValue='4' />
+                <entry pixelValue="5" operator="&gt;"
+                    displayValue='5' />
             </dataMapping>
         </imageStyle>
     </styleRule>

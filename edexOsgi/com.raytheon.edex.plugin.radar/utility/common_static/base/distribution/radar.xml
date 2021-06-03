@@ -25,6 +25,6 @@
         of the file.
     -->
 <requestPatterns >
-    <regex>^SDUS[234578]. .*</regex>
+    <regex>^SDUS[2345678]. .*</regex>
     <regex>^Level3.*</regex>
 </requestPatterns>

@@ -26,9 +26,12 @@
 		<contribute xsi:type="bundleItem" file="bundles/grid/Precip.xml"
 			    menuText="Precip Accumulation" id="" useReferenceTime="true">
 		</contribute>
+<!-- Tiffany Meyer commented out Snow Accum since it's not populated #20210507
+
 		<contribute xsi:type="bundleItem" file="bundles/grid/Snow.xml"
 			    menuText="Snow Accumulation" id="" useReferenceTime="true">
 		</contribute>
+-->
 		<contribute xsi:type="bundleItem" file="bundles/grid/SurfaceTempWind.xml"
 			    menuText="Sfc Temperature and Wind" id="" useReferenceTime="true">
 		</contribute>
@@ -44,12 +47,14 @@
 		<contribute xsi:type="bundleItem" file="bundles/grid/PrecipitableWater.xml"
 			    menuText="Precipitable Water" id="" useReferenceTime="true">
 		</contribute>
+<!-- Tiffany Meyer commented out since it's not populated #20210507
 		<contribute xsi:type="bundleItem" file="bundles/grid/SimulatedREFC.xml"
 			    menuText="Simulated Reflectivity (REFC)" id="" useReferenceTime="true">
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/grid/LightningThreat.xml"
 			    menuText="Lightning Threat" id="" useReferenceTime="true">
 		</contribute>
+-->
 		<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
 			    menuText="Precip Type / Moisture Transport" id="" useReferenceTime="true">
 		</contribute>

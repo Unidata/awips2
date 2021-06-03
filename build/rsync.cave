@@ -2,6 +2,10 @@ edexOsgi/* cave/* localization/*
 javaUtilities/* rpms pythonPackages 
 *.pdf
 ../awips2-nativelib/*
+../awips2-cimss/common/*
+../awips2-cimss/edex/*
+../awips2-cimss/features/*
+../awips2-cimss/viz/*
 ../awips2-core/common/* 
 ../awips2-core/edex/* 
 ../awips2-core/features/* 

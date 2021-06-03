@@ -9,8 +9,8 @@
     </include>
     <include installTo="menu:models" 
              fileName="menus/grid/allFamilies-GFS.xml">
-             <substitute key="modelName" value="GFS" />
-             <substitute key="menuName" value="GFS 0.25° Global" />
+             <substitute key="modelName" value="GFS1p0" />
+             <substitute key="menuName" value="GFS 1.00° Global" />
              <substitute key="frameCount" value="180" />
              <substitute key="TP" value="TP"/>
     </include>
@@ -77,6 +77,7 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
+<!-- Tiffany Meyer commented out because we aren't ignesting these models #20210507
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="RAP20" />
@@ -91,6 +92,7 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
+-->
 	<include installTo="menu:models" 
              fileName="menus/grid/mesoFamilies.xml">
              <substitute key="modelName" value="NDFD" />
