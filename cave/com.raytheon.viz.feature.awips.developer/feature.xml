@@ -136,11 +136,11 @@
    <includes
          id="com.raytheon.uf.viz.d2d.nsharp.feature"
          version="0.0.0"/>
-
+<!-- Tiff removed from build
    <includes
          id="com.raytheon.uf.viz.ncep.perspective.feature"
          version="0.0.0"/>
-
+-->
    <includes
          id="com.raytheon.uf.viz.thinclient.feature"
          version="0.0.0"/>
