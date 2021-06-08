@@ -23,16 +23,21 @@ function stop_edex_services {
 }
 
 function check_yumfile {
-  if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
-    if [[ $(grep "release 7" /etc/redhat-release) ]]; then
-      repofile=el7.repo
-    else
-      repofile=awips2.repo
-    fi
-    wget_url="https://www.unidata.ucar.edu/software/awips2/doc/${repofile}"
-    echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
-    wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
+  if [[ $(grep "release 7" /etc/redhat-release) ]]; then
+    repofile=el7.repo
+  else
+    echo "You need to be running CentOS7 or RedHat7"
+    exit
   fi
+  if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
+    date=$(date +%Y%m%d-%H:%M%:S)
+    cp /etc/yum.repos.d/awips2.repo /etc/yum.repos.d/awips2.repo-${date}
+  fi
+
+  wget_url="https://www.unidata.ucar.edu/software/awips2/doc/${repofile}"
+  echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
+  wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
+
   yum clean all --enablerepo=awips2repo --disablerepo="*" 1>> /dev/null 2>&1
 }
 
@@ -151,6 +156,9 @@ function remove_edex {
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "CAVE is also installed, now removing EDEX and CAVE"
+    pkill cave.sh
+    pkill -f 'cave/run.sh'
+    rm -rf /home/awips/caveData
   else
     echo "Now removing EDEX"
   fi
