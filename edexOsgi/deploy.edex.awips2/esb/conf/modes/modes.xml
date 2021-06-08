@@ -74,13 +74,17 @@
 
 	<mode name="ingestGrids">
 		<includeMode>ingest</includeMode>
-		<includeMode>pluginExclude</includeMode>
+		<includeMode>pluginModelSoundingExclude</includeMode>
 		<includeMode>radarExclude</includeMode>
 		<includeMode>goesrExclude</includeMode>
 	</mode>
 
 	<mode name="pluginExclude">
 		<exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|geodb|goessounding|lsr|modelsounding|nucaps|obs|poes|redbook|sfcobs|svrwx|tc|vaa|viirs|warning).*</exclude>
+	</mode>
+
+	<mode name="pluginModelSoundingExclude">
+		<exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|geodb|goessounding|lsr|nucaps|obs|poes|redbook|sfcobs|svrwx|tc|vaa|viirs|warning).*</exclude>
 	</mode>
 
 	<mode name="goesrExclude">
