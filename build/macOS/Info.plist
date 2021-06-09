@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plist version="1.0">
+
+<dict>
+	<key>CFBundleExecutable</key>
+		<string>cave</string>
+	<key>CFBundleGetInfoString</key>
+		<string>Eclipse 3.6 for Mac OS X, Copyright IBM Corp. and others 2002, 2010. All rights reserved.</string>
+	<key>CFBundleIconFile</key>
+		<string>cave-icon.icns</string>
+	<key>CFBundleIdentifier</key>
+		<string>cave</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+	<key>CFBundleName</key>
+		<string>Cave</string>
+	<key>CFBundlePackageType</key>
+		<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+		<string>3.6</string>
+	<key>CFBundleSignature</key>
+		<string>????</string>
+	<key>CFBundleVersion</key>
+		<string>3.6</string>
+	<key>CFBundleLocalizations</key>
+		<array>
+			<string>ar</string>
+			<string>cs</string>
+			<string>da</string>
+			<string>el</string>
+			<string>en</string>
+			<string>es</string>
+			<string>de</string>
+			<string>fi</string>
+			<string>fr</string>
+			<string>hu</string>
+			<string>it</string>
+			<string>iw</string>
+			<string>ja</string>
+			<string>ko</string>
+			<string>nl</string>
+			<string>no</string>
+			<string>pl</string>
+			<string>pt_BR</string>
+			<string>pt</string>
+			<string>ru</string>
+			<string>sv</string>
+			<string>tr</string>
+			<string>zh_HK</string>
+			<string>zh_TW</string>
+			<string>zh</string>
+		</array>
+		
+	<key>Eclipse</key>
+		<array>
+			<string>--launcher.library</string>
+        		<string>../Resources/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_1.1.500.v20170531-1133/eclipse_1624.so</string>
+       			<string>-startup</string>
+        		<string>../Resources/plugins/org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar</string>
+			<string>-keyring</string>
+      			<string>~/.eclipse_keyring</string>
+			<string>-showlocation</string>
+			<!-- WARNING:
+				If you try to add a single VM argument (-vmargs) here,
+				*all* vmargs specified in eclipse.ini will be ignored.
+				We recommend to add all arguments in eclipse.ini
+			 -->
+			<string>-data</string>
+			<string>@user.home/Library/caveData</string>
+			<string>-user</string>
+			<string>@user.home/Library/caveData</string>
+			<string>-clean</string>
+			<string>-consoleLog</string>
+			<string>-vm</string>
+			<string>../Resources/jre/jre/lib/jli/libjli.dylib</string>
+			<string>-vmargs</string>
+			<string>-Xmx4536M</string>
+			<string>-XX:+UseG1GC</string>
+			<string>-XstartOnFirstThread</string>
+			<string>-Djava.awt.headless=true</string>
+			<string>-Dosgi.instance.area.readOnly=true</string>
+			<string>-Dorg.eclipse.update.reconcile=false</string>
+			<string>-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme</string>
+			<string>-Dqpid.dest_syntax=BURL</string>
+			<string>-Djava.library.path=../Resources/jre/jre/lib</string>
+			<string>-Dlogback.configurationFile=logback-viz-alertview.xml</string>
+			<string>-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener</string>
+			<string>-Dthrift.stream.maxsize=400</string>
+			<string>-Dviz.memory.warn.threshold=99</string>
+			<string>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false</string>
+			<string>-Dhttps.certificate.check=false</string>
+			<string>-XX:MaxDirectMemorySize=1G</string>
+			<string>-XX:+UnlockExperimentalVMOptions</string>
+			<string>-XX:G1HeapRegionSize=4M</string>
+			<string>-XX:InitiatingHeapOccupancyPercent=25</string>
+			<string>-XX:G1MixedGCCountTarget=16</string>
+			<string>-XX:G1MixedGCLiveThresholdPercent=25</string>
+			<string>-XX:G1OldCSetRegionThresholdPercent=25</string>
+			<string>-XX:G1HeapWastePercent=5</string>
+			<string>-DvizVersion=DEVELOPMENT</string>
+		</array>
+<key>CFBundleDisplayName</key>
+    <string>Cave</string>
+  </dict>
+
+</plist>
