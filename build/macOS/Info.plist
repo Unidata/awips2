@@ -5,7 +5,7 @@
 	<key>CFBundleExecutable</key>
 		<string>cave</string>
 	<key>CFBundleGetInfoString</key>
-		<string>Eclipse 3.6 for Mac OS X, Copyright IBM Corp. and others 2002, 2010. All rights reserved.</string>
+		<string>Unidata AWIPS for macOS</string>
 	<key>CFBundleIconFile</key>
 		<string>cave-icon.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 		<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-		<string>3.6</string>
+		<string>18.2.1-1</string>
 	<key>CFBundleSignature</key>
 		<string>????</string>
 	<key>CFBundleVersion</key>
-		<string>3.6</string>
+		<string>18.2.1-1</string>
 	<key>CFBundleLocalizations</key>
 		<array>
 			<string>ar</string>
@@ -54,9 +54,9 @@
 	<key>Eclipse</key>
 		<array>
 			<string>--launcher.library</string>
-        		<string>../Resources/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_1.1.500.v20170531-1133/eclipse_1624.so</string>
+        		<string>../Resources/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_1.1.401.v20161122-1740/eclipse_1615.so</string>
        			<string>-startup</string>
-        		<string>../Resources/plugins/org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar</string>
+        		<string>../Resources/plugins/org.eclipse.equinox.launcher_1.3.201.v20161025-1711.jar</string>
 			<string>-keyring</string>
       			<string>~/.eclipse_keyring</string>
 			<string>-showlocation</string>
@@ -72,9 +72,9 @@
 			<string>-clean</string>
 			<string>-consoleLog</string>
 			<string>-vm</string>
-			<string>../Resources/jre/jre/lib/jli/libjli.dylib</string>
+			<string>../Resources/jre/lib/jli/libjli.dylib</string>
 			<string>-vmargs</string>
-			<string>-Xmx4536M</string>
+			<string>-Xmx8536M</string>
 			<string>-XX:+UseG1GC</string>
 			<string>-XstartOnFirstThread</string>
 			<string>-Djava.awt.headless=true</string>
@@ -82,11 +82,11 @@
 			<string>-Dorg.eclipse.update.reconcile=false</string>
 			<string>-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme</string>
 			<string>-Dqpid.dest_syntax=BURL</string>
-			<string>-Djava.library.path=../Resources/jre/jre/lib</string>
+			<string>-Djava.library.path=../Resources/jre/lib</string>
 			<string>-Dlogback.configurationFile=logback-viz-alertview.xml</string>
 			<string>-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener</string>
 			<string>-Dthrift.stream.maxsize=400</string>
-			<string>-Dviz.memory.warn.threshold=99</string>
+			<string>-Dviz.memory.warn.threshold=10M</string>
 			<string>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false</string>
 			<string>-Dhttps.certificate.check=false</string>
 			<string>-XX:MaxDirectMemorySize=1G</string>
@@ -97,7 +97,7 @@
 			<string>-XX:G1MixedGCLiveThresholdPercent=25</string>
 			<string>-XX:G1OldCSetRegionThresholdPercent=25</string>
 			<string>-XX:G1HeapWastePercent=5</string>
-			<string>-DvizVersion=DEVELOPMENT</string>
+			<string>-DvizVersion=18.2.1-1</string>
 		</array>
 <key>CFBundleDisplayName</key>
     <string>Cave</string>
