@@ -82,7 +82,7 @@
 			<string>-Dorg.eclipse.update.reconcile=false</string>
 			<string>-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme</string>
 			<string>-Dqpid.dest_syntax=BURL</string>
-			<string>-Djava.library.path=../Resources/jre/jre/lib</string>
+			<string>-Djava.library.path=../Resources/jre/lib</string>
 			<string>-Dlogback.configurationFile=logback-viz-alertview.xml</string>
 			<string>-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener</string>
 			<string>-Dthrift.stream.maxsize=400</string>

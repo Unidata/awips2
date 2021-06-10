@@ -21,7 +21,7 @@ rm -rf Cave.app
 cp -R ../${1}/Cave.app .
 cp ../${1}/MacOS/cave Cave.app/Contents/MacOS/
 cp -R ../${1}/Resources Cave.app/Contents/
-cp -R ../${1}/jre Cave.app/Contents/Resources/
+cp -R ../${1}/jre/jre Cave.app/Contents/Resources/
 cp -R ../${1}/configuration Cave.app/Contents/Resources/
 cp -R ../${1}/features Cave.app/Contents/Resources/
 cp -R ../${1}/plugins Cave.app/Contents/Resources/
@@ -31,12 +31,12 @@ rm -rf Cave.app/Contents/MacOS/cave.ini
 # Custom Info.plist
 #
 cp $workspace/Info.plist Cave.app/Contents/
-cp $workspace/libjep.dylib Cave.app/Contents/Resources/jre/jre/lib/
+cp $workspace/libjep.dylib Cave.app/Contents/Resources/jre/lib/
 
 #
 # jspawnhelper must be executable for pydev config within CAVE
 #
-chmod 755 Cave.app/Contents/Resources/jre/jre/lib/jspawnhelper
+chmod 755 Cave.app/Contents/Resources/jre/lib/jspawnhelper
 
 #
 # codesign the app

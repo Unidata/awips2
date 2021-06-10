@@ -8,7 +8,16 @@
 #
 
 workspace="$( cd "$(dirname "$0")" ; pwd -P )"
-VERS=17.1.1-6
+VERS=18.2.1-1
+
+#
+# Create the osx_release sub dir if it doesn't exist
+#
+if [[ ! -d osx_release ]]
+then 
+   mkdir osx_release
+fi
+
 DMG_TMP=osx_release/awips2-cave-$VERS-rw.dmg
 DMG_REL=osx_release/awips2-cave-$VERS-release.dmg
 VOL_NAME='AWIPS CAVE '$VERS
