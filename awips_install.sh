@@ -150,9 +150,10 @@ function remove_edex {
 
   rsync -aP /awips2/database/data/pg_hba.conf $backup_dir/
   rsync -aP /awips2/edex/data/utility $backup_dir/
-  rsync -aP /awips2/edex/bin/setup.env $backup_dir/
+  rsync -aP /awips2/edex/bin/ $backup_dir/
   rsync -aP /awips2/ldm $backup_dir/
   rsync -aP /awips2/edex/conf $backup_dir
+  rsync -aP /awips2/edex/etc $backup_dir
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "CAVE is also installed, now removing EDEX and CAVE"
