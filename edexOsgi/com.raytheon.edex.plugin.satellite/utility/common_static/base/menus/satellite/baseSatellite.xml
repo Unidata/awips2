@@ -8,7 +8,7 @@
 	    <substitute key="element" value="Imager 11 micron IR"/>
 	    <substitute key="sector" value="AREA3100"/>
 	    <substitute key="entity" value="UNIWISC"/>
-	    <substitute key="colormap" value="SAT/IR/CIRA (IR Default)"/>
+	    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Global Rectilinear 20km WV" id="waterVapor">
