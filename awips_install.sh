@@ -144,7 +144,7 @@ function remove_edex {
       break;
     fi
   done
-  date=$(date +'%Y%m%d')
+  date=$(date +'%Y%m%d-%H:%M%:S')
   backup_dir=${backup_dir}/awips2_backup_${date}
   echo "Backing up to $backup_dir"
 
@@ -167,7 +167,7 @@ function remove_edex {
     echo "Now removing EDEX"
   fi
 
-  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave
+  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave awips2-qpid-lib
 
   if [[ $(rpm -qa | grep awips2 | grep -v cave) ]]; then
     echo "
