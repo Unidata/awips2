@@ -8,7 +8,6 @@
 ##          Dave Tomalak 3-25/26-2015 Mixed Case
 ##          Mike Dangelo 10-22-2015 checked for mixed case = passed
 ##          Bookbinder 1-30-2017 capitalization of emphasis phrase DR19358 ##
-##          Mike Rega  4/24/2018 DR 20671 add && to end of full CON PPA
 ################################################
 ##
 #parse("config.vm")
@@ -239,10 +238,6 @@ TAKE COVER NOW! Treat these imminent extreme winds as if a tornado was approachi
 #end
 #if(${list.contains(${bullets}, "safePlacesCTA")})
 The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
-
-#end
-#if(${list.contains(${bullets}, "destructiveWindsCTA")} || ${list.contains(${bullets}, "takeCoverCTA")} || ${list.contains(${bullets}, "safePlacesCTA")})
-&&
 
 #end
 #############

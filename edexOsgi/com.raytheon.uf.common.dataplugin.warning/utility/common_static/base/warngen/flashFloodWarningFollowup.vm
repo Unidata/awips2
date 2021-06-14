@@ -20,7 +20,6 @@
 ##             Evan Bookbinder 9-5-2015 fixed bad grammar in line of storms option
 ##             Phil Kurimski 10-20-2015 Fixed FFW Emergency wording
 ##             Mike Dangelo  10-20-2015 Standard CTAs
-##             Mike Rega     04-20-2018 DR 20671 3rd bullet EMER mixed case fix
 #################################### SET SOME VARs ###################################
 #parse("config.vm")
 #set($hycType = "")
@@ -409,7 +408,7 @@ ${rainAmount} ${isExpected} ${snowMelt}
 ##########################
 #if(${list.contains(${bullets}, "ffwEmergency")} )
 #set($ctaSelected = "YES")
-THIS IS A FLASH FLOOD EMERGENCY FOR !** Edit Location(s) **!. This is a PARTICULARLY DANGEROUS SITUATION. SEEK HIGHER GROUND NOW!
+This is a FLASH FLOOD EMERGENCY for !** Edit Location(s) **!. This is a PARTICULARLY DANGEROUS SITUATION. SEEK HIGHER GROUND NOW!
 #end
 
 ######################################################

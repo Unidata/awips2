@@ -9,7 +9,6 @@
 ## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                         ##
 ##         Evan Bookbinder - 9/4/2015 Fixed line of storms grammar         ##
 ##         Phil Kurimski -- JAN 30 2017 Additional Basis options, DCS19347 ##
-##         Evan Bookbinder 3/19/2018 DR 19650 Watch phrasing/location      ##
 #############################################################################
 #parse("config.vm")
 ################################################
@@ -450,15 +449,9 @@ Those attending !**event/venue name or location**! are in the path of ${specialE
 ## Check to see if we've selected any calls to action. In our .xml file
 ## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
 #######################################################################
-#set($svrWatchPhrase = "#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
-#set($torWatchPhrase = "#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
-#if(${svrWatchPhrase.length()} > 10 || ${torWatchPhrase.length()} > 10)
-#set($ctaSelected = "YES")
-#else
 #foreach (${bullet} in ${bullets})
 #if(${bullet.endsWith("CTA")})
 #set($ctaSelected = "YES")
-#end
 #end
 #end
 
@@ -469,11 +462,6 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 ${ashfallCTA}
 
-#if(${list.contains(${includedWatches}, "TO.A")})
-${torWatchPhrase}
-#elseif(${list.contains(${includedWatches}, "SV.A")})
-${svrWatchPhrase}
-#end
 #if(${list.contains(${bullets}, "genericCTA")})
 Move to safe harbor until hazardous weather passes.
 
@@ -520,10 +508,18 @@ Report severe weather to the Coast Guard or the National Weather Service.
 #if(${ctaSelected} == "YES")
 &&
 #end
+#############
+## WATCHES ##
+#############
 
+#if(${list.contains(${includedWatches}, "TO.A")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains(${includedWatches}, "SV.A")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
-
 #end
 
 #printcoords(${areaPoly}, ${list})

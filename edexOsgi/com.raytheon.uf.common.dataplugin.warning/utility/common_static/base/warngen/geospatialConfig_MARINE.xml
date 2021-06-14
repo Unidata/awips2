@@ -22,15 +22,13 @@ Date     Ticket#    Engineer    Description
                                 <pointSource variable="otherPoints>, and <pointSource variable="locationList">.
 06/08/17 DCS 19299  Mike Rega   Add optional 4th bullet filter to exclude locations
                                 outside the CWA
-02/20/20 DR #21031  dhaines     added commented-out default values for properties to enable coastal extensions
-12/17/20 DR #21031  dhaines     moved parentAreaSource out of geospatialConfig into areaSource(s)
-                                to address problems discovered during regression testing
 -->
 
 <!-- CREATE DEFAULT OBJECTS. THIS SHOULD GENERALLY NOT BE TOUCHED -->
 <geospatialConfig>
     <pointSource>WarnGenLoc</pointSource>
     <areaSource>MarineZones</areaSource>
+    <parentAreaSource>MarineZones</parentAreaSource>
     <timezoneSource>TIMEZONES</timezoneSource>
     <timezoneField>TIME_ZONE</timezoneField>
 </geospatialConfig>
@@ -39,7 +37,6 @@ Date     Ticket#    Engineer    Description
 <!-- CREATE areaSource OBJECT TO GENERATE MARINE-BASED INFORMATION OFF WARNGEN HATCHING -->
 <areaSource variable="areas">
     <areaSource>MarineZones</areaSource>
-    <parentAreaSource>MarineZones</parentAreaSource>
     <inclusionPercent>0</inclusionPercent>
     <inclusionAndOr>AND</inclusionAndOr>
     <inclusionArea>0</inclusionArea>
@@ -60,22 +57,6 @@ Date     Ticket#    Engineer    Description
     <includedWatchAreaBuffer>0</includedWatchAreaBuffer>
 </areaSource>
 
-<!-- UNCOMMENT to enable coastal extension functionality. Note: DO NOT change 
-the value of the type property - doing this will cause the generation of the 
-text product itself to fail -->
-<!--areaSource variable="extensionAreas">
-    <areaSource>County</areaSource>
-    <parentAreaSource>States</parentAreaSource>
-    <type>INTERSECT</type>
-    <areaField>COUNTYNAME</areaField>
-    <parentAreaField>NAME</parentAreaField>
-    <areaNotationField>STATE</areaNotationField>
-    <fipsField>FIPS</fipsField>
-</areaSource-->
-
-<!-- UNCOMMENT to enable coastal extension functionality. The values "3" and "2" are
-placeholders to be changed to better suit your local coastline's complexity -->
-<!-- extensionArea distance="3" simplification="2" /-->
 
 <!-- CREATE pointSource OBJECT TO GENERATE LIST OF CLOSEST POINTS TO DOT (3RD BULLET) -->
 <!-- type = AREA allows us to use multi-polygonal shapefiles despite the pointSource misnomer -->
@@ -149,7 +130,7 @@ placeholders to be changed to better suit your local coastline's complexity -->
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
+            <constraint constraintValue="$warngenCWAFilter" constraintType="LIKE" />
             </mapping>
         -->
     </filter>
@@ -177,7 +158,7 @@ placeholders to be changed to better suit your local coastline's complexity -->
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
+            <constraint constraintValue="$warngenCWAFilter" constraintType="LIKE" />
             </mapping>
         -->
     </filter>
@@ -201,7 +182,7 @@ placeholders to be changed to better suit your local coastline's complexity -->
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
+            <constraint constraintValue="$warngenCWAFilter" constraintType="LIKE" />
             </mapping>
         -->
     </filter>
