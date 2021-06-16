@@ -1,5 +1,42 @@
 # Common Problems
 
+## General Troubleshooting
+
+Along with closing and restarting CAVE, one of the first things user's should turn to for resolving weird or unexpected behavior is *flushing their local cache*.  The cache lives in a folder called **caveData**, so this process is also referred to as removing or deleting caveData.
+
+### Linux
+
+For Linux users, the easiest way is to open a new terminal and run the following command:
+
+    rm -rf ~/caveData 
+
+### Windows 
+
+For Windows users, simply delete the caveData folder in your home user directory:
+
+![Windows Remove caveData](../images/windowsRemoveCavedata.png)
+
+### Mac
+
+For Mac users, the easiest way is to open a new terminal and run the following command:
+
+    rm -rf ~/Library/caveData
+
+
+---
+
+## Remotely Connecting to CAVE
+
+Since the pandemic began, many users have asked if they can use X11 forwarding or ssh tunneling to remotely connect to CAVE machines.  **This is not recommended or supported**, and CAVE crashes in many different ways and expresses strange behavior as well.
+
+We highly recommend you [download the appropriate CAVE installer](install-cave.md) on your local machine, if that is an option.
+
+If that is not an option, then the only remote access we recommend is using some type of VNC.
+[**RealVNC**](https://www.realvnc.com/en/) and [**nomachine**](https://www.nomachine.com) are two options that are in use with positive outcomes.  [**UltraVNC**](https://www.uvnc.com) may be another option, but may have quite a delay.  There *may* also be other free or paid software available that we are not aware of.
+!!! warning "It is likely that any VNC option you choose will also require some software or configuration to be set on the remote machine, and this will likely require administrative privileges."
+
+---
+
 ## Windows CAVE Start Up Error
 
 One common error some users are seeing manifests itself just after selecting an EDEX server to connect to.  The following error dialogs may show up:
@@ -36,5 +73,28 @@ These errors are actually happening because the Windows machine is using IPv6, w
 ![](../images/ipv6ProblemStep6.png)
 
 **7. Restart CAVE.**
+
+---
+
+## Products Not Loading Properly in Windows
+
+If the [Windows installation](install-cave.md#download-and-installation-instructions_2) was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.
+
+The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
+![failed load](../images/failedJepMetarLoad.png)
+
+You may see an error that mentions the python package, **jep**.
+
+Known datasets this can affect (this is not a comprehensive list):
+
+  - Model Winds
+  - Metars Winds
+  - METAR Station Plot
+  - GFS Precip Type
+
+To correct this issue:
+
+  - Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)
+  - Redo all necessary [installation instructions in **steps 1 through 6**](install-cave.md#download-and-installation-instructions_2)
 
 ---
