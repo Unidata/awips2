@@ -8,13 +8,18 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:
 
+- Local machine
+
+    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
+  
 - Java 1.8
 - OpenGL 2.0 Compatible Devices
 - At least 4GB RAM
 - At least 2GB Disk Space for Caching
 - NVIDIA Graphics Card
 - [Latest NVIDIA Driver](http://www.nvidia.com/Download/index.aspx?lang=en-us)
-> Note: While other graphics cards *may* work, NVIDIA Quadro graphics card is recommended for full visualization capability
+
+    !!! warning "While other graphics cards *may* work, NVIDIA Quadro graphics card is recommended for full visualization capability"
 
 ---
 
@@ -46,7 +51,7 @@ To run CAVE either:
 For Windows, Unidata offers two installation options: a [**Linux Virtual Machine**](#method-1-linux-virtual-machine), or a [**Direct Windows Installation**](#method-2-direct-windows-install).
 
 Currently, the [virtual machine (VM)](#method-1-linux-virtual-machine) is the recommended form of install for those who do not have administrative priviledges on the machine, or beginners who want a simpler installation process.  
-> Note: At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)
+!!! warning "At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)"
 
 The [direct installation method](#method-2-direct-windows-install) is recommended for those who have administrative priviledges and a little bit of experience installing more software.
 
@@ -79,16 +84,16 @@ Once inside the VM, to run CAVE either:
 ### Method 2: Direct Windows Install
 
 This method is recommended for personal use and requires Administrative priviledges.  It should enable full CAVE capability, but it is a bit lengthy and might take about 20 minutes or so to complete.  
-For additional assistance we have created an [**installation video**](https://www.youtube.com/watch?v=02etW-PuZZ8) that walks through the steps below.
+For additional assistance we have created an [**installation video**](https://youtu.be/QAuBSsSp9Ak) that walks through the steps below.
 
-> Note: It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures.
+!!! note "It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures."
 
 #### System Requirements
 
 - 64-bit Miniconda3 (Python3.7 - 4.8.2)
 - Python3 (comes with Miniconda installation)
 - 64-bit Java JDK 1.8 (1.8_181)
-- 64-bit Visual C++ Build Tools 2015 Update 3 (14.1)
+- 64-bit Visual C++ Build Tools 2015 and 2019
 - Numpy (1.15.1)
 - Jep (3.8.2)
 - User Variable PATH must have miniconda3 location
@@ -109,17 +114,26 @@ For additional assistance we have created an [**installation video**](https://ww
     - User Variables: **PYTHONPATH** and **PYTHONHOME**
     - System Variable: **JAVA_HOME**
     ![Env Vars](../images/envVars.png)
-    > Note: If PYTHONHOME is not set, the **gridslice** Python module will not be installed or available
-4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=build%20tools%20c++%203&wt.mc_id=o~msft~vscom~older-downloads)
+    
+        !!! warning "If PYTHONHOME is not set, the **gridslice** Python module will not be installed or available"
+      
+4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=Build%20Tools%20for%20Visual%20Studio%202019%20%28version%2016.9%29&pgroup=)
     - To access the page linked above you will need a Microsoft account
-    - Download 64-bit **Visual C++ Build Tools 2015 Update 3**
-    - When running the installer, choose the **Default** Installation
+    - Download the executable for **Build Tools for Visual Studio 2019 (version 16.9)**
+    - Allow it to run some pre-installations
+    - The installer will pop up as shown below.  Make sure to select the **C++ build tools** (upper left), and then view the **Installation details** on the right
+      - Scroll down and check the **MSVC v140 - VS 2015 C++ build tools**
+    ![buildToolsInstall](../images/buildToolsInstall.png)
 5. Install dependent Python packages
-    - Open a terminal by typing "cmd" into the start bar and hitting enter
-    - Run the following command: `pip install numpy==1.15.1 jep==3.8.2`
+    - Once the installer has finished, close the installer. Another window is present and there is an option to **launch** a command terminal
+    ![launch terminal](../images/buildToolsLaunchTerm.png)
+    - Click that and run the following:
+        - `pip install numpy==1.15.1`
+        - `pip install jep==3.8.2`
+        !!! note "These must be run as two separate commands, as stated above for all derived parameters to display properly."
 6. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)
     - In addition to the application directory, the MSI installer will attempt to copy the [*gridslice*](https://github.com/Unidata/gridslice) shared library to `$PYTHONHOME/Dlls/`.  If the `$PYTHONHOME` environmental variable is not defined *gridslice* will not be installed.  You can check to see if it was installed in the Dlls directory after you have completed steps 1-3.
-    > Note: CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [**isentropic analysis**](../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png), will not load.
+    !!! note "CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [**isentropic analysis**](../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png), will not load."
 
 #### Run CAVE
 
@@ -137,7 +151,7 @@ To run CAVE, either:
 - Will need admin privileges to install python package
 - NVIDIA Graphics card is recommended, some Intel Graphics cards will working
 
-> Note: Most AMD graphics cards are not supported
+    !!! warning "Most AMD graphics cards are not supported"
 
 ### Download and Installation Instructions
 1. Download and install: [**awips-cave.dmg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.dmg)
@@ -165,7 +179,8 @@ To run CAVE, either:
     - This will launch the installer:
 
         ![Python pkg install](../images/macPythonInstall.png)
-> Note: The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having **jep** installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)
+        
+        !!! note "The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having **jep** installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)"
 
 ### Run CAVE
 
