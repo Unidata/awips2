@@ -90,5 +90,5 @@ cd ${template}
 # codesign the app
 #
 #codesign --force --sign "Developer ID Application: University Corporation for Atmospheric Research (DQ4ZFL4KLF)" $template/Cave.app
-codesign --force --options=runtime --sign "${cert}" $template/Cave.app
+codesign --force --entitlements $workspace/entitlements.xml --options=runtime --sign "${cert}" $template/Cave.app
 
