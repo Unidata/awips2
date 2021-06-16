@@ -45,7 +45,7 @@ cp $workspace/libjep.dylib Cave.app/Contents/Resources/jre/lib/
 jsh=$template/Cave.app/Contents/Resources/jre/lib/jspawnhelper
 chmod 755 $jsh
 # min sdk must be updated
-minSDKCmd=/Users/awips1/dev/minSDK/fix_LC_VERSION_MIN_MACOSX/fixMonoMinVersion
+minSDKCmd=$workspace/fixMonoMinVersion
 $minSDKCmd $jsh
 # must also be signed
 codesign --force --options=runtime --sign "${cert}" $jsh
