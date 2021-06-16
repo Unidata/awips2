@@ -93,8 +93,7 @@ For additional assistance we have created an [**installation video**](https://ww
 - 64-bit Miniconda3 (Python3.7 - 4.8.2)
 - Python3 (comes with Miniconda installation)
 - 64-bit Java JDK 1.8 (1.8_181)
-- 64-bit Visual C++ Build Tools 2015
-- 64-bit Visual C++ Build Tools 2019
+- 64-bit Visual C++ Build Tools 2015 and 2019
 - Numpy (1.15.1)
 - Jep (3.8.2)
 - User Variable PATH must have miniconda3 location
