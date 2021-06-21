@@ -123,8 +123,12 @@ service iptables restart
 #### Troubleshooting 
 
 For CentOS 7 error:
->Redirecting to /bin/systemctl restart  iptables.service  
->Failed to restart iptables.service: Unit iptables.service failed to load: No such >file or directory.
+
+```
+Redirecting to /bin/systemctl restart  iptables.service 
+Failed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.
+```
+
 
 The solution is:
 ```
@@ -133,7 +137,7 @@ systemctl enable iptables
 service iptables restart
 ```
 
-### 5. Start EDEX
+### 4. Start EDEX
 
 !!! note "These steps should be run as root or with sudo"
 
