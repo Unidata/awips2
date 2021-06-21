@@ -16,7 +16,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 - A **Solid State Drive (SSD)** is recommended
     - A SSD should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
 
-> Note: EDEX is only supported for 64-bit CentOS and RHEL 7 Operating Systems.
+!!! note "EDEX is only supported for 64-bit CentOS and RHEL 7 Operating Systems."
 
 !!! warning "EDEX is **not** supported in Debian, Ubuntu, SUSE, Solaris, macOS, or Windows. You may have luck with Fedora Core 12 to 14 and Scientific Linux, but we will not provide support."
 
@@ -28,7 +28,7 @@ All of these command should be run as **root**
 
 ### 1. Install EDEX
 
-Download the and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
+Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
 
 ```
 wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
@@ -39,9 +39,9 @@ sudo ./awips_install.sh --edex
 
 !!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 
-       1. Checks to see if EDEX is currently running, if so stops the processes `edex stop`
-       2. If EDEX is installed, asks the user if it can be removed and where to backup data to and does a `yum groupremove awips2-server`
-       3. If the user/group awips:fxalpha doesn't exist, it will be created
+       1. Checks to see if EDEX is currently running, if so stops the processes with the `edex stop` command
+       2. If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a `yum groupremove awips2-server`
+       3. If the user/group awips:fxalpha does not exist, it gets created
        4. Saves the appropriate yum repo file to `/etc/yum.repos.d/awips2.repo`
        5. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
        6. Creates `/awips2/data_store` if it does not exist already
@@ -59,7 +59,7 @@ XXX.XXX.XXX.XXX   edex-cloud   edex-cloud.unidata.ucar.edu
 
 ### 3. Configure iptables
 
-This should be a one time configuration change. Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data publically to CAVE clients and the Python API.
+This should be a one time configuration change. Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data publicly to CAVE clients and the Python API.
 
 #### Open Port 9588
 
@@ -135,7 +135,7 @@ service iptables restart
 
 ### 5. Start EDEX
 
->**Note**: These steps should be run as root or with sudo
+!!! note "These steps should be run as root or with sudo"
 
 ```
 edex start
