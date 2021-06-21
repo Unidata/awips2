@@ -1284,7 +1284,7 @@ For additional assistance we have created an <a href="https://youtu.be/QAuBSsSp9
 <h2 id="macos">macOS <i class="fa fa-apple"></i><a class="headerlink" href="#macos" title="Permanent link"></a></h2>
 <h3 id="system-requirements_3">System Requirements<a class="headerlink" href="#system-requirements_3" title="Permanent link"></a></h3>
 <ul>
-<li>Will need admin privileges to install python package</li>
+<li>Will need admin privileges to install <code>awips-python.pkg</code></li>
 <li>
 <p>NVIDIA Graphics card is recommended, some Intel Graphics cards will working</p>
 <div class="admonition warning">
@@ -1294,6 +1294,22 @@ For additional assistance we have created an <a href="https://youtu.be/QAuBSsSp9
 </ul>
 <h3 id="download-and-installation-instructions_3">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_3" title="Permanent link"></a></h3>
 <ol>
+<li>
+<p>Download and install: <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg"><strong>awips-python.pkg</strong> <i class="fa fa-download"></i></a>  <em>(This step requires administrative privileges)</em></p>
+<ul>
+<li>Once downloaded, double click and the installer will launch with the following screens, <strong>please keep the default selections</strong>:</li>
+</ul>
+<p><img alt="mac pkg install 1" src="../../images/mac-pkg-install1.png" />
+<img alt="mac pkg install 2" src="../../images/mac-pkg-install2.png" />
+<img alt="mac pkg install 3" src="../../images/mac-pkg-install3.png" /></p>
+<div class="admonition warning">
+<p class="admonition-title">Between these steps it will prompt for an administrator's password</p>
+</div>
+<p><img alt="mac pkg install 4" src="../../images/mac-pkg-install4.png" /></p>
+<div class="admonition note">
+<p class="admonition-title">The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having <strong>jep</strong> installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)</p>
+</div>
+</li>
 <li>
 <p>Download and install: <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.dmg"><strong>awips-cave.dmg</strong> <i class="fa fa-download"></i></a></p>
 <ul>
@@ -1306,30 +1322,6 @@ For additional assistance we have created an <a href="https://youtu.be/QAuBSsSp9
 <img alt="Cave User Install" src="../../images/caveMacUserInstall.png" /></p>
 </li>
 <li>This will install CAVE as an application and set the local cache to <code>~/Library/caveData</code></li>
-</ul>
-</li>
-<li>
-<p>Download and install: <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg"><strong>awips-python.pkg</strong> <i class="fa fa-download"></i></a>  <em>(This step requires administrative privileges)</em></p>
-<ul>
-<li>
-<p>Your computer may show a message saying it doesn't reconignize the developer, if so click the "?" button:</p>
-<p><img alt="python package unidentified developer" src="../../images/pythonPkgMacInstall.png" /></p>
-</li>
-<li>
-<p>Next, open the security panel by clicking the link:</p>
-<p><img alt="Open security panel" src="../../images/macSecurityPanel.png" /></p>
-</li>
-<li>
-<p>First, unlock the panel by clicking the lock image in the bottom left corner and entering an Administrator's password.  Then, click the "Open Anyway" button to allow the awips-python.pkg to run:</p>
-<p><img alt="Mac open anyway" src="../../images/macOpenAnyway.png" /></p>
-</li>
-<li>
-<p>This will launch the installer:</p>
-<p><img alt="Python pkg install" src="../../images/macPythonInstall.png" /></p>
-<div class="admonition note">
-<p class="admonition-title">The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having <strong>jep</strong> installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)</p>
-</div>
-</li>
 </ul>
 </li>
 </ol>
