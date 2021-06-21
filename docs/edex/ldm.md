@@ -4,16 +4,17 @@
 
 Data feeds are defined by the **ldmd.conf** file in `/awips2/ldm/etc/ldmd.conf`.  The default feeds that come "turned on" with our EDEX are the following:
 
-    REQUEST NEXRAD3 "./p(DHR|DPR|DSP|DTA|DAA|HHC|N.P|N.Q|N.S|N.U|OHA)." idd.unidata.ucar.edu
-    REQUEST FNEXRAD|IDS|DDPLUS ".*" idd.unidata.ucar.edu
-    REQUEST UNIWISC|NIMAGE ".*" idd.unidata.ucar.edu        # AREA/GINI
-    REQUEST EXP "WwWind" idd.unidata.ucar.edu               # ESPL/PSD Profilers
-    REQUEST DIFAX "GLM" idd.unidata.ucar.edu                # GOES GLM
-    REQUEST EXP ".*" lead.unidata.ucar.edu                  # GOES ABI netCDF4 (full sector)
+    REQUEST FNEXRAD ".*" idd.unidata.ucar.edu # MRMS - Unidata feed via NCEP
+    REQUEST NEXRAD3 ".*" idd.unidata.ucar.edu # Radar Level3 
+    REQUEST HDS "^SDUS6.*" idd.unidata.ucar.edu # Radar Level3 - specific files
+    REQUEST WMO ".*" idd.unidata.ucar.edu                   # WMO Feedtype includes HDS|IDS|DDPLUS
+    REQUEST UNIWISC|NIMAGE ".*" idd.unidata.ucar.edu        # AREA/GINI and GOES Products
+    REQUEST DIFAX "GLM" idd.unidata.ucar.edu                # GOES GLM Gridded Product (Texas Tech-Eric Bruning)
+    REQUEST NOTHER "^TI[A-W]... KNES" idd.unidata.ucar.edu  # VIIRS and GOES CMI via SBN
+    REQUEST NOTHER "^IXT[WXY]01" idd.unidata.ucar.edu       #Special SBN GOES Derived products-different WMO (COD, CPS, CTP)
     REQUEST NGRID ".*" idd.unidata.ucar.edu
-    REQUEST HDS ".*" idd.unidata.ucar.edu
     REQUEST CONDUIT "nam" idd.unidata.ucar.edu              # NAM12
-    REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu            # GFS0p25
+    REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu            # GFS
 
 ---
 
