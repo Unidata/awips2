@@ -171,12 +171,11 @@ To run CAVE, either:
 1. Download and install: [**awips-cave.dmg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.dmg)
     - Either use the default location, which is in the system-wide "Applications" directory, by clicking and dragging the CAVE icon into the Applications folder, in the window that pops up when installing:
     
-        ![Cave System Install](../images/caveMacSystemInstall.png)
+        ![Cave System Install](../images/mac-install.png)
     
     - Or open a new Finder window to your \[user home\]/Applications/ directory (if it doesn't exist, simply create a new folder with the name "Applications"), and drag the CAVE icon into that folder:
     ![Cave User Install](../images/caveMacUserInstall.png)
     - This will install CAVE as an application and set the local cache to `~/Library/caveData`
-
 
 ### Run CAVE
 
@@ -184,6 +183,9 @@ To run CAVE either:
 
 - Use the System Menu Go > Applications > CAVE
 - Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit **enter** to run it
+
+!!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:"
+![internet warning](../images/mac-cave-internet-download.png)
 
 ---
 
