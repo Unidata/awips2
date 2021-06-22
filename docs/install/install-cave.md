@@ -148,12 +148,26 @@ To run CAVE, either:
 
 ### System Requirements
 
-- Will need admin privileges to install python package
+- Will need admin privileges to install `awips-python.pkg`
 - NVIDIA Graphics card is recommended, some Intel Graphics cards will working
 
     !!! warning "Most AMD graphics cards are not supported"
 
 ### Download and Installation Instructions
+
+1. Download and install: [**awips-python.pkg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)  *(This step requires administrative privileges)*
+    - Once downloaded, double click and the installer will launch with the following screens, **please keep the default selections**:
+    
+    ![mac pkg install 1](../images/mac-pkg-install1.png)
+    ![mac pkg install 2](../images/mac-pkg-install2.png)
+    ![mac pkg install 3](../images/mac-pkg-install3.png)
+    
+    !!! warning "Between these steps it will prompt for an administrator's password"
+    
+    ![mac pkg install 4](../images/mac-pkg-install4.png)
+        
+    !!! note "The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having **jep** installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)"
+        
 1. Download and install: [**awips-cave.dmg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.dmg)
     - Either use the default location, which is in the system-wide "Applications" directory, by clicking and dragging the CAVE icon into the Applications folder, in the window that pops up when installing:
     
@@ -163,24 +177,6 @@ To run CAVE, either:
     ![Cave User Install](../images/caveMacUserInstall.png)
     - This will install CAVE as an application and set the local cache to `~/Library/caveData`
 
-2. Download and install: [**awips-python.pkg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)  *(This step requires administrative privileges)*
-    - Your computer may show a message saying it doesn't reconignize the developer, if so click the "?" button:
-
-        ![python package unidentified developer](../images/pythonPkgMacInstall.png)
-    
-    - Next, open the security panel by clicking the link:
-    
-        ![Open security panel](../images/macSecurityPanel.png)
-        
-    - First, unlock the panel by clicking the lock image in the bottom left corner and entering an Administrator's password.  Then, click the "Open Anyway" button to allow the awips-python.pkg to run:
-    
-        ![Mac open anyway](../images/macOpenAnyway.png)
-
-    - This will launch the installer:
-
-        ![Python pkg install](../images/macPythonInstall.png)
-        
-        !!! note "The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having **jep** installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)"
 
 ### Run CAVE
 
