@@ -206,8 +206,9 @@ public class TrueColorResourceGroup
             Coordinate lr = new Coordinate(extent.getMaxX(), extent.getMinY());
             Coordinate ll = new Coordinate(extent.getMinX(), extent.getMinY());
 
-            target.drawRaster(image, new PixelCoverage(ul, ur, lr, ll),
-                    paintProps);
+            throw new VizException("RGB products cannot be rendered on the Mac currently");
+//            target.drawRaster(image, new PixelCoverage(ul, ur, lr, ll),
+//                    paintProps);
         }
     }
 
