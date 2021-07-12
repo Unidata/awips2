@@ -207,6 +207,8 @@ You can reset CAVE by removing the **caveData** directory and reconnecting to an
 - macOS: `/Users/<user>/Library/caveData/`
 - Windows: `C:\Users\<user>\caveData\`
 
+---
+
 ## Uninstalling CAVE (linux)
 These are instructions to manually uninstall CAVE. However, the [`awips_install.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
 
