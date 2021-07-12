@@ -103,5 +103,6 @@ codesign --force --entitlements $workspace/entitlements.xml --options=runtime --
 # run dmg
 if [ $runDmg == true ]; then
   echo "Running dmg.sh"
+  cd ${workspace}
   ${workspace}/dmg.sh
 fi
