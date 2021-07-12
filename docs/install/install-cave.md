@@ -111,6 +111,7 @@ For additional assistance we have created an [**installation video**](https://yo
     - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\jdk1.8.0_181)
 3. Set the environment variables:
     - Access the Environment Variables window by typing "env" in the start bar, hitting enter, and clicking on the "Environment Variables..." button at the bottom of the "System Properties" window
+    - Create the variables in their respective locations using the **New...** buttons
     - User Variables: **PYTHONPATH** and **PYTHONHOME**
     - System Variable: **JAVA_HOME**
     ![Env Vars](../images/envVars.png)
