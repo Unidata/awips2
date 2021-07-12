@@ -275,6 +275,8 @@ This file specifies configuration and runtime parameters. If you are pulling in 
 rpm -qa | grep awips2-edex
 ```
 
+---
+
 ## Uninstalling EDEX
 These are instructions to manually uninstall EDEX. However, the [`awips_install.sh`](#1-install-edex) script will do all of these steps for you if you are installing a newer version of EDEX.
 
@@ -299,20 +301,20 @@ Here are some possible important directories/files to backup:
 
 ```
 /awips2/database/data/pg_hba.conf
-/awips2/edex/data/utility
-/awips2/edex/bin
-/awips2/ldm
-/awips2/dev
-/awips2/edex/conf
-/awips2/edex/etc
-/awips2/edex/logs
-/usr/bin/edex
+/awips2/edex/data/utility/*
+/awips2/edex/bin/*
+/awips2/ldm/*
+/awips2/dev/*
+/awips2/edex/conf*
+/awips2/edex/etc/*
+/awips2/edex/logs/*
+/usr/bin/edex/*
 /etc/init.d/edexServiceList
 ```
 
 **3. See what AWIPS yum groups are currently installed**
 
-In this case the "AWIPS EDEX Server" group installed
+In this case the ```AWIPS EDEX Server``` group is installed
 
 ```
 sudo yum grouplist
@@ -362,7 +364,7 @@ Available Groups:
    Xfce
 ```
 
-**4. Remove currently installed AWIPS yum groups**
+**4. Remove any currently installed AWIPS yum groups**
 ```
 sudo yum clean all
 sudo yum groupremove "AWIPS EDEX Server"

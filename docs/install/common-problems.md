@@ -99,7 +99,7 @@ To correct this issue:
 
 ---
 
-## Troubleshooting Uninstalling EDEX
+## Troubleshooting Uninstalling EDEX (Linux)
 
 Sometimes yum can get in a weird state and not know what AWIPS groups have been installed. For example if you are trying to remove AWIPS you may see an error:
 
