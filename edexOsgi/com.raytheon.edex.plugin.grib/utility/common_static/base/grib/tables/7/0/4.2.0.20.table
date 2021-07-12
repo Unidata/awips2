@@ -1,0 +1,7 @@
+# Product Discipline 0: Meteorological products, Parameter Category 5: Atmospheric Chemical Constituents
+#192-254 Reserved for local use
+0:0:Near-Surface Smoke:g*10^-6*m^-3:NEARSFCSMOKE
+1:1:Vertically-Integrated Smoke:kg*m^-2:VERTINTSMOKE
+#192-254 Reserved for local use
+102:102:Aerosol Optical Depth::AEROSOLOPTICALDEPTH
+255:255:Missing
