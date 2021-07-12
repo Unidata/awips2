@@ -98,3 +98,29 @@ To correct this issue:
   - Redo all necessary [installation instructions in **steps 1 through 6**](install-cave.md#download-and-installation-instructions_2)
 
 ---
+
+## Troubleshooting Uninstalling EDEX
+
+Sometimes yum can get in a weird state and not know what AWIPS groups have been installed. For example if you are trying to remove AWIPS you may see an error:
+
+```
+yum groupremove "AWIPS EDEX Server"
+
+    Loaded plugins: fastestmirror, langpacks
+    Loading mirror speeds from cached hostfile
+    * base: mirror.dal.nexril.net
+    * elrepo: ftp.osuosl.org
+    * epel: mirrors.xmission.com
+    * extras: mirrors.cat.pdx.edu
+    * updates: mirror.mobap.edu
+
+    No environment named AWIPS EDEX Server exists
+    Maybe run: yum groups mark remove (see man yum)
+    No packages to remove from groups
+```
+
+To solve this issue, mark the group you want to remove and then try removing it again:
+```
+yum groups mark remove "AWIPS EDEX Server"
+yum groupremove "AWIPS EDEX Server"
+```
