@@ -8,11 +8,19 @@
 # Updates
 # June 12, 2018 - mjames last updates
 # June 15, 2021 - srcarter updates for notarization errors (hardened runtime when signing)
+# July 7, 2021 - add flag for runnign the dmg.sh immediately after this script
 #
+
+runDmg=false
 workspace="$( cd "$(dirname "$0")" ; pwd -P )"
 if [ -z "$1" ]; then
   echo "No directory given"
   exit
+else
+  if [ "$2" == "--dmg" ]; then
+  echo "Will run dmg.sh at the end"
+  runDmg=true
+  fi
 fi
 
 template=$workspace/awips2-cave-template
@@ -92,3 +100,8 @@ cd ${template}
 #codesign --force --sign "Developer ID Application: University Corporation for Atmospheric Research (DQ4ZFL4KLF)" $template/Cave.app
 codesign --force --entitlements $workspace/entitlements.xml --options=runtime --sign "${cert}" $template/Cave.app
 
+# run dmg
+if [ $runDmg == true ]; then
+  echo "Running dmg.sh"
+  ${workspace}/dmg.sh
+fi
