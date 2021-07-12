@@ -1,9 +1,10 @@
 name: publish mkdocs to github pages
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - unidata_18.1.1
+      - unidata_18.2.1
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
