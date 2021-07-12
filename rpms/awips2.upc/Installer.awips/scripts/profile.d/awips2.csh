@@ -2,7 +2,11 @@
 setenv PATH /awips2/edex/bin:$PATH
 if ( ${USER} == "root" ) then
   alias ldmadmin service edex_ldm
-  setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/lib64
+  if $?LD_LIBRARY_PATH then
+    setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/lib64
+  else
+    setenv LD_LIBRARY_PATH /usr/lib64
+  endif
   exit 1
 endif
 alias cave /awips2/cave/run.sh
