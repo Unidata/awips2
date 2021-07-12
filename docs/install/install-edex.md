@@ -250,8 +250,7 @@ This file specifies configuration and runtime parameters. If you are pulling in 
   </queue>
 ```
 
-!!! note "[Read more about registry.xml in the LDM User Manual] https://www.unidata.ucar.edu/software/ldm/ldm-current/basics/LDM-registry.html"
-
+!!! note "[Read more about registry.xml in the LDM User Manual](https://www.unidata.ucar.edu/software/ldm/ldm-current/basics/LDM-registry.html)"
 
 ---
 
@@ -274,4 +273,117 @@ This file specifies configuration and runtime parameters. If you are pulling in 
 ### What Version is my EDEX?
 ```
 rpm -qa | grep awips2-edex
+```
+
+---
+
+## Uninstalling EDEX
+These are instructions to manually uninstall EDEX. However, the [`awips_install.sh`](#1-install-edex) script will do all of these steps for you if you are installing a newer version of EDEX.
+
+**1. Make sure all EDEX processes are stopped**
+```
+sudo edex stop
+sudo edex status
+
+[edex status]
+ postgres    :: not running
+ pypies      :: not running
+ qpid        :: not running
+ EDEXingest  :: not running
+ EDEXgrib    :: not running
+ EDEXrequest :: not running
+ ldmadmin    :: not running
+```
+
+**2. Backup any important configuration files that you may want to reference**
+
+Here are some possible important directories/files to backup:
+
+```
+/awips2/database/data/pg_hba.conf
+/awips2/edex/data/utility/*
+/awips2/edex/bin/*
+/awips2/ldm/*
+/awips2/dev/*
+/awips2/edex/conf*
+/awips2/edex/etc/*
+/awips2/edex/logs/*
+/usr/bin/edex/*
+/etc/init.d/edexServiceList
+```
+
+**3. See what AWIPS yum groups are currently installed**
+
+In this case the ```AWIPS EDEX Server``` group is installed
+
+```
+sudo yum grouplist
+
+Available Environment Groups:
+   Minimal Install
+   Compute Node
+   Infrastructure Server
+   File and Print Server
+   Cinnamon Desktop
+   MATE Desktop
+   Basic Web Server
+   Virtualization Host
+   Server with GUI
+   GNOME Desktop
+   KDE Plasma Workspaces
+   Development and Creative Workstation
+Installed Groups:
+   AWIPS EDEX Server
+   Development Tools
+Available Groups:
+   AWIPS ADE SERVER
+   AWIPS CAVE
+   AWIPS Development
+   AWIPS EDEX DAT Server
+   AWIPS EDEX Database/Request Server
+   AWIPS EDEX Decode/Ingest Node (No Database, PyPIES, GFE)
+   Cinnamon
+   Compatibility Libraries
+   Console Internet Tools
+   Educational Software
+   Electronic Lab
+   Fedora Packager
+   General Purpose Desktop
+   Graphical Administration Tools
+   Haskell
+   LXQt Desktop
+   Legacy UNIX Compatibility
+   MATE
+   Milkymist
+   Scientific Support
+   Security Tools
+   Smart Card Support
+   System Administration Tools
+   System Management
+   TurboGears application framework
+   Xfce
+```
+
+**4. Remove any currently installed AWIPS yum groups**
+```
+sudo yum clean all
+sudo yum groupremove "AWIPS EDEX Server"
+```
+
+!!! note "If you are having trouble removing a group, see the [troubleshooting](common-problems.md#troubleshooting-uninstalling-edex) section."
+
+**5. Check to make sure all awips rpms have been removed**
+```
+rpm -qa | grep awips2
+```
+
+If you still have rpms installed, remove them
+
+```
+sudo yum remove awips2-*
+```
+
+**6. Remove everything in the /awips2 directory**
+```
+rm -rf /awips2/*
 ```
