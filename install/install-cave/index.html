@@ -409,6 +409,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#uninstalling-cave-linux" title="Uninstalling CAVE (Linux)" class="md-nav__link">
+    Uninstalling CAVE (Linux)
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -539,7 +546,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-satellite/" title="GOES 16/17" class="md-nav__link">
+    <a href="../../cave/goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
       GOES 16/17
     </a>
   </li>
@@ -1100,6 +1107,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#uninstalling-cave-linux" title="Uninstalling CAVE (Linux)" class="md-nav__link">
+    Uninstalling CAVE (Linux)
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -1114,7 +1128,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/install/install-cave.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/install/install-cave.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
                 <h1 id="install-cave">Install CAVE<a class="headerlink" href="#install-cave" title="Permanent link"></a></h1>
@@ -1316,7 +1330,7 @@ For additional assistance we have created an <a href="https://youtu.be/QAuBSsSp9
 <ul>
 <li>
 <p>Either use the default location, which is in the system-wide "Applications" directory, by clicking and dragging the CAVE icon into the Applications folder, in the window that pops up when installing:</p>
-<p><img alt="Cave System Install" src="../../images/caveMacSystemInstall.png" /></p>
+<p><img alt="Cave System Install" src="../../images/mac-install.png" /></p>
 </li>
 <li>
 <p>Or open a new Finder window to your [user home]/Applications/ directory (if it doesn't exist, simply create a new folder with the name "Applications"), and drag the CAVE icon into that folder:
@@ -1332,6 +1346,10 @@ For additional assistance we have created an <a href="https://youtu.be/QAuBSsSp9
 <li>Use the System Menu Go &gt; Applications &gt; CAVE</li>
 <li>Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit <strong>enter</strong> to run it</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:</p>
+</div>
+<p><img alt="internet warning" src="../../images/mac-cave-internet-download.png" /></p>
 <hr />
 <h2 id="edex-connection">EDEX Connection<a class="headerlink" href="#edex-connection" title="Permanent link"></a></h2>
 <p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong>edex-cloud.unidata.ucar.edu</strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
@@ -1345,6 +1363,27 @@ For additional assistance we have created an <a href="https://youtu.be/QAuBSsSp9
 <li>macOS: <code>/Users/&lt;user&gt;/Library/caveData/</code></li>
 <li>Windows: <code>C:\Users\&lt;user&gt;\caveData\</code></li>
 </ul>
+<hr />
+<h2 id="uninstalling-cave-linux">Uninstalling CAVE (Linux)<a class="headerlink" href="#uninstalling-cave-linux" title="Permanent link"></a></h2>
+<p>These are instructions to manually uninstall CAVE. However, the <a href="#download-and-installation-instructions"><code>awips_install.sh</code></a> script will do these steps for you if you are installing a newer version of CAVE.</p>
+<p><strong>1. Make sure you have exited out of any CAVE sessions</strong></p>
+<p><strong>2. Remove currently installed CAVE</strong></p>
+<pre><code>sudo yum clean all
+sudo yum groupremove &quot;AWIPS CAVE&quot;
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">If you are having trouble removing a group, see the <a href="../common-problems/#troubleshooting-uninstalling-edex">troubleshooting</a> section.</p>
+</div>
+<p><strong>3. Check to make sure all awips rpms have been removed</strong></p>
+<pre><code>rpm -qa | grep awips2
+</code></pre>
+<p>If you still have rpms installed, remove them</p>
+<pre><code>sudo yum remove awips2-*
+</code></pre>
+<p><strong>4. Remove the cave directory in /awips2 and caveData from your home directory</strong></p>
+<pre><code>rm -rf /awips2/cave
+rm -rf ~/caveData
+</code></pre>
                 
                   
                 
