@@ -16,32 +16,14 @@ build/logs/
 keepLocal
 .project
 .pydevproject
-#	build/awips-ade-server/
 build/clean.sh
 cave/diff.txt
 cave/menus/
-cmap.sh
-#	docs/images/ColoredSurfaceTemperature.png
-#	docs/images/RTOFS-barotropicv.png
-#	docs/images/RTOFS-current.png
-#	docs/images/RTOFS-wtemp.png
 edexOsgi/build.edex/opt/db/replication/
-#	edexOsgi/com.raytheon.edex.plugin.satellite/utility/common_static/base/colormaps/
-#	edexOsgi/com.raytheon.edex.plugin.satellite/utility/common_static/base/derivedParameters/
-#	edexOsgi/com.raytheon.edex.plugin.satellite/utility/common_static/base/menus/
-#	edexOsgi/com.raytheon.edex.plugin.satellite/utility/common_static/base/styleRules/
 edexOsgi/com.raytheon.uf.edex.dissemination/
 edexOsgi/com.raytheon.uf.edex.ndm/
 edexOsgi/deploy.edex.awips2/esb/conf/resources/
 	feature.xml
-getRPMoutput.pl
-	modelNames.sh
+scripts
 output/
-	rpmOutput
-	rpms/awips2.core/Installer.localization/createRadarsInUse.sh
-	rpms/awips2.upc/Installer.metpy/
-	scripts/
-	sync.sh
-	sync_dev.sh
-	thriftServerUsersUnique.log
-
+rpms/awips2.upc/Installer.metpy/

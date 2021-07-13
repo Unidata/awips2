@@ -30,7 +30,7 @@ function check_yumfile {
     exit
   fi
   if [ -f /etc/yum.repos.d/awips2.repo ]; then
-    date=$(date +%Y%m%d-%H:%M%:S)
+    date=$(date +%Y%m%d-%H:%M:%S)
     cp /etc/yum.repos.d/awips2.repo /etc/yum.repos.d/awips2.repo-${date}
   fi
 
@@ -144,7 +144,7 @@ function remove_edex {
       break;
     fi
   done
-  date=$(date +'%Y%m%d-%H:%M%:S')
+  date=$(date +'%Y%m%d-%H:%M:%S')
   backup_dir=${backup_dir}/awips2_backup_${date}
   echo "Backing up to $backup_dir"
 
@@ -152,11 +152,13 @@ function remove_edex {
   rsync -aP /awips2/edex/data/utility $backup_dir/
   rsync -aP /awips2/edex/bin $backup_dir/
   rsync -aP /awips2/ldm $backup_dir/
+  rsync -aP /awips2/dev $backup_dir/
   rsync -aP /awips2/edex/conf $backup_dir/
   rsync -aP /awips2/edex/etc $backup_dir/
+  rsync -aP /awips2/edex/logs $backup_dir/
   rsync -aP /usr/bin/edex $backup_dir/
   rsync -aP /etc/init.d/edexServiceList $backup_dir/init.d/
-  rsync -aP /etc/spool/cron/awips $backup_dir/
+  rsync -aP /var/spool/cron/awips $backup_dir/
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "CAVE is also installed, now removing EDEX and CAVE"
