@@ -6,9 +6,9 @@
 
 The Advanced Weather Interactive Processing System (AWIPS) is a meteorological software package.  It is used for decoding, displaying, and analyzing data, and was originally developed for the National Weather Service (NWS) by Raytheon. There is a division here at UCAR called the Unidata Program Center (UCP) which develops and supports a modified non-operational version of AWIPS for use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).  This is released as open source software, free to download and use by anyone.
 
-AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the [LDM](#ldm) client pulling data feeds from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by [EDEX](install/install-edex), which serves products and data over http.
+AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the LDM client pulling data feeds from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by [EDEX](docs/install/install-edex), which serves products and data over http.
 
-Unidata supports two data visualization frameworks: [CAVE](install/install-cave) (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and [python-awips](python/overview) (a python package).
+Unidata supports two data visualization frameworks: [CAVE](docs/install/install-cave) (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and [python-awips](docs/python/overview) (a python package).
 
 > **Note**: Our version of CAVE is a **non-operational** version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from Unidata's CAVE.  Additional functionality may not be available as well.
 
@@ -27,7 +27,7 @@ Unidata AWIPS source code and binaries (RPMs) are considered to be in the public
 
 Unidata and XSEDE Jetstream have partnered to offer an EDEX data server in the cloud, open to the community.  Select the server in the Connectivity Preferences dialog, or enter **`edex-cloud.unidata.ucar.edu`** (without *http://* before, or *:9581/services* after).
 
-![EDEX in the cloud](/images/boEbFSf28t.gif)
+![EDEX in the cloud](docs/images/boEbFSf28t.gif)
 
 
 # Documentation - http://unidata.github.io/awips2/
