@@ -46,7 +46,7 @@ Unidata supports two data visualization frameworks: [CAVE](install/install-cave)
 
 ## License
 
-Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the Master Rights licensing file.
+Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified). Unidata AWIPS license information can be found [here](https://github.com/Unidata/awips2/blob/unidata_18.2.1/LICENSE).
 
 ---
 
