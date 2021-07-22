@@ -40,7 +40,7 @@ The dropdown menus in the Volume Browser menu bar contain options for controllin
     * Find (Ctrl+F)
 * [**Tools**](#vb-tools)
 * [**Display Types**](#display-types)
-* [**Animation Types**](#animation-types)
+* [**Loop Types**](#loop-types)
 
 ---
 
@@ -110,7 +110,7 @@ Works in conjunction with the Interactive Points Tool to enable you to generate 
 
 Used in conjunction with the Interactive Points Tool to enable you to plot gridded data on a time versus data value graph for a specified point.
 
-## Animation Types
+## Loop Types
 
 ![](../images/volumeBrowserAnimationMenu.png)
 
