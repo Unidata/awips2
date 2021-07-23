@@ -61,10 +61,6 @@
                name="modelResourceHandler"
                value="bundleclass://com.raytheon.uf.viz.personalities.cave/com.raytheon.uf.viz.personalities.cave.workbench.VizModelResourceHandler">
          </property>
-         <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini">
-         </property>
       </product>
    </extension>
 </plugin>

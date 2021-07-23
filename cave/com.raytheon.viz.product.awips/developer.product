@@ -39,7 +39,7 @@
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5
 -XX:SoftRefLRUPolicyMSPerMB=1000
--DcaveVersion=18.2.1-1
+-DcaveVersion=18.2.1-2
 -DbuildSystem=macOS
       </vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8
@@ -53,7 +53,6 @@
       startupProgressRect="3,234,413,13"
       startupMessageRect="7,252,445,20"
       startupForegroundColor="000000" />
-
    <launcher name="cave">
       <macosx icon="/com.raytheon.viz.product.awips/icons/cave-icon.icns"/>
       <solaris/>
