@@ -4,6 +4,14 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ---
 
+## Latest CAVE Versions
+
+- **Linux: 18.2.1-1**
+- **Windows: 18.2.1-1**
+- **Mac: 18.2.1-2**
+
+---
+
 ## General Requirements
 
 Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:
@@ -24,6 +32,8 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 ---
 
 ## Linux <i class="fa fa-linux"></i> 
+
+**Latest Version: 18.2.1-1**
 
 ### System Requirements
 
@@ -47,6 +57,8 @@ To run CAVE either:
 ---
 
 ## Windows <i class="fa fa-windows"></i> 
+
+**Latest Version: 18.2.1-1**
 
 For Windows, Unidata offers two installation options: a [**Linux Virtual Machine**](#method-1-linux-virtual-machine), or a [**Direct Windows Installation**](#method-2-direct-windows-install).
 
@@ -146,6 +158,8 @@ To run CAVE, either:
 ---
 
 ## macOS <i class="fa fa-apple"></i> 
+
+**Latest Version: 18.2.1-2**
 
 ### System Requirements
 

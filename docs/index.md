@@ -28,7 +28,7 @@ Unidata supports two data visualization frameworks: [CAVE](install/install-cave)
 > **Note**: Our version of CAVE is a **non-operational** version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from Unidata's CAVE.  Additional functionality may not be available as well.
 
 
-![CAVE](https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png)
+![CAVE](../images/Unidata_AWIPS2_CAVE.png)
 
 ---
 
@@ -66,7 +66,7 @@ AWIPS makes use of service-oriented architecture to request, process, and serve 
 
 ---
 
-<img style="float:right;width:450px;" src="https://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png">
+<img style="float:right;width:450px;" src="../images/awips2_coms.png">
 
 ## Software Components
 
