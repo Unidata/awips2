@@ -66,7 +66,7 @@ AWIPS makes use of service-oriented architecture to request, process, and serve 
 
 ---
 
-<img style="float:right;width:450px;" src="https://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png">
+<img style="float:right;width:450px;" src="../images/awips2_coms.png">
 
 ## Software Components
 
