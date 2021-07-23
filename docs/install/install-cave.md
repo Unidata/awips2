@@ -4,7 +4,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ---
 
-## Current CAVE Versions
+## Latest CAVE Versions
 
 - **Linux: 18.2.1-1**
 - **Windows: 18.2.1-1**
