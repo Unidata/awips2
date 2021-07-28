@@ -10,6 +10,8 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 - **Windows: 18.2.1-1**
 - **Mac: 18.2.1-2**
 
+[**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
+
 ---
 
 ## General Requirements
