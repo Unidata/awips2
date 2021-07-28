@@ -6,9 +6,16 @@
 # Author: mjames@ucar.edu
 # Last updated: 06/2018
 #
+# Author: srcarter@ucar.edu
+# 07/28/21  Pull the version number from the Info.plist
 
 workspace="$( cd "$(dirname "$0")" ; pwd -P )"
-VERS=18.2.1-1
+VERS=$(awk -F '[=<]' '/DvizVersion/ {print $3}' $workspace/Info.plist)
+echo $VERS
+if [ -z "$VERS" ]; then
+  echo "No version specified in Info.plist"
+  exit
+fi
 
 #
 # Create the osx_release sub dir if it doesn't exist

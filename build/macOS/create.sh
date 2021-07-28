@@ -9,10 +9,20 @@
 # June 12, 2018 - mjames last updates
 # June 15, 2021 - srcarter updates for notarization errors (hardened runtime when signing)
 # July 7, 2021 - add flag for runnign the dmg.sh immediately after this script
+# July 28, 2021 - add version variable which is populated from Info.plist, and 
+#                add in the use of the splash screen updater
 #
 
 runDmg=false
 workspace="$( cd "$(dirname "$0")" ; pwd -P )"
+
+version=$(awk -F '[=<]' '/DvizVersion/ {print $3}' $workspace/Info.plist)
+if [ -z $version ]; then
+  echo "No version specified"
+  exit
+fi
+echo "Creating CAVE $version..."
+
 if [ -z "$1" ]; then
   echo "No directory given"
   exit
@@ -26,6 +36,7 @@ fi
 template=$workspace/awips2-cave-template
 cd $template
 rm -rf Cave.app
+
 
 #
 # Copy to template directory
@@ -93,6 +104,14 @@ rm -rf $jythonDir/jni
 cd ${template}
 
 ## ----- Done signing included packages -----
+
+#
+# Rebuild and replace the splash screen
+#
+java -jar $workspace/awips_splashscreen_updater.jar "$version"
+splashLoc=$(find $template/Cave.app/Contents/Resources/plugins/com.raytheon.viz* -name "splash.bmp")
+mv splash.bmp $splashLoc
+echo "replaceing splash.bmp"
 
 #
 # codesign the app
