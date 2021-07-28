@@ -1,8 +1,8 @@
 # Common Problems
 
-## General Troubleshooting
+## Removing caveData
 
-Along with closing and restarting CAVE, one of the first things user's should turn to for resolving weird or unexpected behavior is *flushing their local cache*.  The cache lives in a folder called **caveData**, so this process is also referred to as removing or deleting caveData.
+Removing caveData (flushing the local cache) should be one of the first troubleshooting steps to take when experiencing weird behavior in CAVE.  The cache lives in a folder called **caveData**, hence why this process is also referred to as removing or deleting caveData.
 
 ### Linux
 
