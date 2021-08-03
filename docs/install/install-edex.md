@@ -4,6 +4,15 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ---
 
+## Latest Version
+
+**18.2.1-1**
+
+[**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
+
+---
+
+
 ## System requirements
 
 - 64-bit CentOS/RHEL 7
