@@ -41,7 +41,10 @@ If that is not an option, then the only remote access we recommend is using some
 
 One common error some users are seeing manifests itself just after selecting an EDEX server to connect to.  The following error dialogs may show up:
 
+- *Error purging logs*  
 ![Error purging logs. Reason: Error occurred during purge and rotate](../images/errorPurgingLogs.png)
+
+- *Error instantiating workbench*  
 ![Error instantiating workbench: null](../images/errorWorkbenchNull.png)
 
 These errors are actually happening because the Windows machine is using IPv6, which is not compatible with AWIPS at this time.
