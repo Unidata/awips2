@@ -40,7 +40,7 @@
     <parameter>
         <name>Absolute Vorticity</name>
         <abbreviation>AV</abbreviation>
-        <unit>1/s</unit>
+        <unit>/s</unit>
     </parameter>
     <parameter>
         <name>Categorical Rain</name>
