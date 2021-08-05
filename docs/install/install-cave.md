@@ -166,7 +166,7 @@ To run CAVE, either:
 ### System Requirements
 
 - Will need admin privileges to install `awips-python.pkg`
-- NVIDIA Graphics card is recommended, some Intel Graphics cards will working
+- NVIDIA Graphics card is recommended, some Intel Graphics cards will work
 
     !!! warning "Most AMD graphics cards are not supported"
 
