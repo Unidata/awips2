@@ -32,7 +32,7 @@ Save a product display within the AWIPS system. This saves the display both loca
 
 ### **File > Save Display Locally**
 
-To save a product display to a path within the file directory of the workstation, select **File > Save Display Locally** and then select the **File** button on the right.
+To save a product display to a path within the file directory locally, select **File > Save Display Locally** and then select the **File** button on the right.
 
 ---
 
