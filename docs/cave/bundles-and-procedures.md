@@ -8,7 +8,7 @@ AWIPS contains two methods for saving and loading data resources: **Displays** a
 
 Load a previously-saved display from within the AWIPS system.  The pop-up dialog allows you to select your own saved displays as well as those saved by other users.
 
-When loading a display, all existing tabs will be closed and replaced with the saved contents
+When loading a display, all existing tabs will be closed and replaced with the contents from the saved display.
 
 ![image](../images/load-display.gif)
 
