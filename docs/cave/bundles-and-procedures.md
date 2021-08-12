@@ -8,7 +8,7 @@ AWIPS contains two methods for saving and loading data resources: **Displays** a
 
 Load a previously-saved display from within the AWIPS system.  The pop-up dialog allows you to select your own saved displays as well as those saved by other users.
 
-Each selected display will load its contents to new tabs which are named after the display file name (e.g. GFS_TempWind).
+When loading a display, all existing tabs will be closed and replaced with the saved contents
 
 ![image](../images/load-display.gif)
 
@@ -18,7 +18,7 @@ Most saved displays will consist of a single Map Editor (tab), but with multiple
 
 ### **Load Display from Local Disk**
 
-To load a previously-saved display from a path within the file directory of the workstation, select **File > Load Dislay** and then select the **File** button on the right to browse your local directories.
+To load a previously-saved display from a path within the file directory locally, select **File > Load Display** and then select the **File** button on the right to browse your local directories.
 
 ![image](../images/load-local-display.gif)
 
@@ -26,7 +26,7 @@ To load a previously-saved display from a path within the file directory of the 
 
 ### **File > Save Display**
 
-Save a product display within the AWIPS system. This syncs the display file between CAVE and the EDEX server.
+Save a product display within the AWIPS system. This saves the display both locally and to the EDEX server for your specific user.
 
 ---
 
@@ -38,11 +38,9 @@ To save a product display to a path within the file directory of the workstation
 
 ### **File > Manage Bundles**
 
-Select and remove a saved display under File > Manage Bundles, this will open a pop-up dialog.  Select the file name and click **OK** and then confirm deletion to remove the saved file permanently.
+Select and remove a saved display under **File > Manage Bundles**, this will open a pop-up dialog.  Select the file name and click **OK** and then confirm deletion to remove the saved file permanently.
 
-![image](../images/manage-bundles.png)
-
-![image](../images/delete-bundle.png)
+![image](../images/delete-display.gif)
 
 ---
 
@@ -56,9 +54,13 @@ Select and remove a saved display under File > Manage Bundles, this will open a 
 
 ![image](../images/save-procedure.gif)
 
+---
+
 ### Open Procedure
 
 Similar to creating a new Procedure, select **File > Procedures > Open**, select the saved resources and click **Load** to load them to CAVE.
+
+---
 
 ### Delete Procedure
 
