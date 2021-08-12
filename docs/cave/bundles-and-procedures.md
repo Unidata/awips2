@@ -1,48 +1,46 @@
-# Bundles and Procedures
-AWIPS contains two methods for saving and loading data resources: **Bundles** are a simple way to save loaded resources to access in future CAVE sessions.  **Procedures** are similar to Bundles, but can be thought of as *groups of bundles* and allows the user to manage saved resources with more control.
+# Displays and Procedures
+AWIPS contains two methods for saving and loading data resources: **Displays** are a simple way to save loaded resources into a bundle file to access in future CAVE sessions.  **Procedures** are similar to Displays, but can be thought of as *groups of displays* and allows the user to manage saved resources with more control.
 
 
-##  Bundles
+##  Displays
 
 ### **File > Load Display**
 
-Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users.
+Load a previously-saved display from within the AWIPS system.  The pop-up dialog allows you to select your own saved displays as well as those saved by other users.
 
-Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE).
+When loading a display, all existing tabs will be closed and replaced with the contents from the saved display.
 
-![image](../images/KTZZHoCV5S.gif)
+![image](../images/load-display.gif)
 
-Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor.
+Most saved displays will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor.
+
+---
+
+### **Load Display from Local Disk**
+
+To load a previously-saved display from a path within the file directory locally, select **File > Load Display** and then select the **File** button on the right to browse your local directories.
+
+![image](../images/load-local-display.gif)
 
 ---
 
 ### **File > Save Display**
 
-Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.
+Save a product display within the AWIPS system. This saves the display both locally and to the EDEX server for your specific user.
+
+---
+
+### **File > Save Display Locally**
+
+To save a product display to a path within the file directory locally, select **File > Save Display Locally** and then select the **File** button on the right.
 
 ---
 
 ### **File > Manage Bundles**
 
-Select and remove a saved bundle under File > Manage Bundles, this will open the Delete Bundle dialog.  Select the file name and click **OK** and then confirm deletion to remove the saved file permanently.
+Select and remove a saved display under **File > Manage Bundles**, this will open a pop-up dialog.  Select the file name and click **OK** and then confirm deletion to remove the saved file permanently.
 
-![image](../images/fileMenuManageBundles.png)
-
-![image](../images/delete_bundle2.png)
-
----
-
-### Load Bundle from Local Disk
-
-To load a previously-saved display from a path within the file directory of the workstation, select **File > Load Dislay** and then select the **File** button on the right to browse your local directories.
-
-![image](../images/XB6vQf78pl.gif)
-
----
-
-### Save Bundle to Local Disk
-
-To save a product display to a path within the file directory of the workstation, select **File > Save Display** and then select the **File** button on the right.
+![image](../images/delete-display.gif)
 
 ---
 
@@ -51,15 +49,19 @@ To save a product display to a path within the file directory of the workstation
 ### New Procedure
 
 * Select the menu **File > Procedures > New**
-* Select **Copy Into** to add all loaded resources to the Procedure Stack
+* Select **Copy Into** to add all loaded resources from your current map to the Procedure Stack
 * Select **Save** (or **Save As**) and then enter a name for the Procedure before clicking **OK** to save.
 
-![image](../images/O925hqJNac.gif)
+![image](../images/save-procedure.gif)
+
+---
 
 ### Open Procedure
 
 Similar to creating a new Procedure, select **File > Procedures > Open**, select the saved resources and click **Load** to load them to CAVE.
 
+---
+
 ### Delete Procedure
 
-From the menu  **File > Procedures > Delete** you can delete existing Procedure files in a way similar to deleting saved Bundle files.
+From the menu  **File > Procedures > Delete** you can delete existing Procedure files in a way similar to deleting saved display files.
