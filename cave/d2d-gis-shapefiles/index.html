@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/dev/awips-development-environment/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/cave/d2d-gis-shapefiles/">
       
       
         <meta name="author" content="support-awips@unidata.ucar.edu">
@@ -21,7 +21,7 @@
     
     
       
-        <title>Development - Unidata AWIPS User Manual</title>
+        <title>GIS and Shapefiles - Unidata AWIPS User Manual</title>
       
     
     
@@ -87,9 +87,13 @@
               
 
                   
+                      <span class="md-header-nav__parent">
+                      CAVE User Manual
+                      </span>
+                  
  
                   
-                      Development
+                      GIS and Shapefiles
                   
 
               
@@ -247,10 +251,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
     
     <label class="md-nav__link" for="nav-5">
       CAVE User Manual
@@ -268,7 +274,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+    <a href="../d2d-perspective/" title="D2D Perspective" class="md-nav__link">
       D2D Perspective
     </a>
   </li>
@@ -280,7 +286,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+    <a href="../maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
       Maps, Views, Projections
     </a>
   </li>
@@ -292,7 +298,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/bundles-and-procedures/" title="Displays and Procedures" class="md-nav__link">
+    <a href="../bundles-and-procedures/" title="Displays and Procedures" class="md-nav__link">
       Displays and Procedures
     </a>
   </li>
@@ -304,7 +310,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+    <a href="../localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
   </li>
@@ -316,7 +322,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+    <a href="../nsharp/" title="NSHARP" class="md-nav__link">
       NSHARP
     </a>
   </li>
@@ -328,7 +334,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/warngen/" title="WarnGen Walkthrough" class="md-nav__link">
+    <a href="../warngen/" title="WarnGen Walkthrough" class="md-nav__link">
       WarnGen Walkthrough
     </a>
   </li>
@@ -340,7 +346,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
+    <a href="../goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
       GOES 16/17
     </a>
   </li>
@@ -350,11 +356,169 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        GIS and Shapefiles
+      </label>
+    
+    <a href="./" title="GIS and Shapefiles" class="md-nav__link md-nav__link--active">
       GIS and Shapefiles
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#display-gis-data" title="Display GIS Data" class="md-nav__link">
+    Display GIS Data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gis-data-preferences" title="GIS Data Preferences" class="md-nav__link">
+    GIS Data Preferences
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizing-the-gis-attribute-dialog" title="Customizing the GIS Attribute Dialog" class="md-nav__link">
+    Customizing the GIS Attribute Dialog
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#highlighting" title="Highlighting" class="md-nav__link">
+    Highlighting
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#highlighting-selected-areas" title="Highlighting Selected Areas" class="md-nav__link">
+    Highlighting Selected Areas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unhighlighting-selected-areas" title="Unhighlighting Selected Areas" class="md-nav__link">
+    Unhighlighting Selected Areas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unhighlighting-all-areas" title="Unhighlighting All Areas" class="md-nav__link">
+    Unhighlighting All Areas
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controlling-visibility-of-image-areas" title="Controlling Visibility of Image Areas" class="md-nav__link">
+    Controlling Visibility of Image Areas
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hiding-selected-areas" title="Hiding Selected Areas" class="md-nav__link">
+    Hiding Selected Areas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unhiding-selected-areas" title="Unhiding Selected Areas" class="md-nav__link">
+    Unhiding Selected Areas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unhiding-all-areas" title="Unhiding All Areas" class="md-nav__link">
+    Unhiding All Areas
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-attributes-table" title="Configuring Attributes Table" class="md-nav__link">
+    Configuring Attributes Table
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selecting-columns-to-display" title="Selecting Columns to Display" class="md-nav__link">
+    Selecting Columns to Display
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sorting-column-information" title="Sorting Column Information" class="md-nav__link">
+    Sorting Column Information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labeling-gis-data" title="Labeling GIS Data" class="md-nav__link">
+    Labeling GIS Data
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -364,7 +528,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+    <a href="../d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
     </a>
   </li>
@@ -376,7 +540,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
       Display Tools
     </a>
   </li>
@@ -388,7 +552,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
       Radar Tools
     </a>
   </li>
@@ -400,7 +564,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+    <a href="../d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
       Editing Menus
     </a>
   </li>
@@ -412,7 +576,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+    <a href="../cave-localization/" title="Change Localization" class="md-nav__link">
       Change Localization
     </a>
   </li>
@@ -424,7 +588,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/import-export/" title="Import/Export" class="md-nav__link">
+    <a href="../import-export/" title="Import/Export" class="md-nav__link">
       Import/Export
     </a>
   </li>
@@ -607,136 +771,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        Development
-      </label>
-    
-    <a href="./" title="Development" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../../dev/awips-development-environment/" title="Development" class="md-nav__link">
       Development
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-remove-awips-instances" title="1. Remove AWIPS Instances" class="md-nav__link">
-    1. Remove AWIPS Instances
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-set-up-awips-repo" title="2. Set Up AWIPS Repo" class="md-nav__link">
-    2. Set Up AWIPS Repo
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-install-the-ade" title="3. Install the ADE" class="md-nav__link">
-    3. Install the ADE
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-download-the-source-code" title="4. Download the Source Code" class="md-nav__link">
-    4. Download the Source Code
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-configure-eclipse" title="5. Configure Eclipse" class="md-nav__link">
-    5. Configure Eclipse
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#set-preferences" title="Set Preferences" class="md-nav__link">
-    Set Preferences
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#importing-git-repos" title="Importing Git Repos" class="md-nav__link">
-    Importing Git Repos
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#final-setup" title="Final Setup" class="md-nav__link">
-    Final Setup
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-run-cave" title="6. Run CAVE" class="md-nav__link">
-    6. Run CAVE
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#run-application" title="Run Application" class="md-nav__link">
-    Run Application
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#debug-application" title="Debug Application" class="md-nav__link">
-    Debug Application
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" title="Troubleshooting" class="md-nav__link">
-    Troubleshooting
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
     
@@ -813,7 +852,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+    <a href="../cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
       Keyboard Shortcuts
     </a>
   </li>
@@ -869,59 +908,119 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-remove-awips-instances" title="1. Remove AWIPS Instances" class="md-nav__link">
-    1. Remove AWIPS Instances
+  <a href="#display-gis-data" title="Display GIS Data" class="md-nav__link">
+    Display GIS Data
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-set-up-awips-repo" title="2. Set Up AWIPS Repo" class="md-nav__link">
-    2. Set Up AWIPS Repo
+  <a href="#gis-data-preferences" title="GIS Data Preferences" class="md-nav__link">
+    GIS Data Preferences
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-install-the-ade" title="3. Install the ADE" class="md-nav__link">
-    3. Install the ADE
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-download-the-source-code" title="4. Download the Source Code" class="md-nav__link">
-    4. Download the Source Code
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-configure-eclipse" title="5. Configure Eclipse" class="md-nav__link">
-    5. Configure Eclipse
+  <a href="#customizing-the-gis-attribute-dialog" title="Customizing the GIS Attribute Dialog" class="md-nav__link">
+    Customizing the GIS Attribute Dialog
   </a>
   
     <nav class="md-nav">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#set-preferences" title="Set Preferences" class="md-nav__link">
-    Set Preferences
+  <a href="#highlighting" title="Highlighting" class="md-nav__link">
+    Highlighting
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#highlighting-selected-areas" title="Highlighting Selected Areas" class="md-nav__link">
+    Highlighting Selected Areas
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#importing-git-repos" title="Importing Git Repos" class="md-nav__link">
-    Importing Git Repos
+  <a href="#unhighlighting-selected-areas" title="Unhighlighting Selected Areas" class="md-nav__link">
+    Unhighlighting Selected Areas
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#final-setup" title="Final Setup" class="md-nav__link">
-    Final Setup
+  <a href="#unhighlighting-all-areas" title="Unhighlighting All Areas" class="md-nav__link">
+    Unhighlighting All Areas
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controlling-visibility-of-image-areas" title="Controlling Visibility of Image Areas" class="md-nav__link">
+    Controlling Visibility of Image Areas
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hiding-selected-areas" title="Hiding Selected Areas" class="md-nav__link">
+    Hiding Selected Areas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unhiding-selected-areas" title="Unhiding Selected Areas" class="md-nav__link">
+    Unhiding Selected Areas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unhiding-all-areas" title="Unhiding All Areas" class="md-nav__link">
+    Unhiding All Areas
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-attributes-table" title="Configuring Attributes Table" class="md-nav__link">
+    Configuring Attributes Table
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selecting-columns-to-display" title="Selecting Columns to Display" class="md-nav__link">
+    Selecting Columns to Display
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sorting-column-information" title="Sorting Column Information" class="md-nav__link">
+    Sorting Column Information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -931,35 +1030,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-run-cave" title="6. Run CAVE" class="md-nav__link">
-    6. Run CAVE
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#run-application" title="Run Application" class="md-nav__link">
-    Run Application
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#debug-application" title="Debug Application" class="md-nav__link">
-    Debug Application
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" title="Troubleshooting" class="md-nav__link">
-    Troubleshooting
+  <a href="#labeling-gis-data" title="Labeling GIS Data" class="md-nav__link">
+    Labeling GIS Data
   </a>
   
 </li>
@@ -978,179 +1050,87 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/dev/awips-development-environment.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/cave/d2d-gis-shapefiles.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h1 id="awips-development-environment-ade">AWIPS Development Environment (ADE)<a class="headerlink" href="#awips-development-environment-ade" title="Permanent link"></a></h1>
-<p>Detailed instructions on how to download the latest source code and run CAVE from Eclipse.</p>
-<div class="admonition note">
-<p class="admonition-title">It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">The following <em>yum</em> commands listed in these instructions may need to be run as the <em>root</em> user, but the rest of the commands should be run as the local user.</p>
-</div>
-<h2 id="1-remove-awips-instances">1. Remove AWIPS Instances<a class="headerlink" href="#1-remove-awips-instances" title="Permanent link"></a></h2>
-<p>First, make sure to remove any instances of AWIPS that are already installed, this can potentially cause problems when setting up the development environment.  Below is an example that had CAVE installed.</p>
-<p>Uninstall with yum:</p>
-<pre><code>yum clean all
-yum groupremove awips2-cave
-</code></pre>
-<p>Check to make sure all rpms have been removed:</p>
-<pre><code>rpm -qa | grep awips2
-</code></pre>
-<p>Remove the awips2 directory:</p>
-<pre><code>rm -rf /awips2
-</code></pre>
+                <h1 id="gis-import">GIS Import<a class="headerlink" href="#gis-import" title="Permanent link"></a></h1>
+<p>The Geographic Information System (GIS) Import menu entry enables users to import geospatial data from varying GIS data sources for display in CAVE. CAVE currently only supports shape data in WGS84 unprojected latitude/longitude. This section describes how to:</p>
+<ul>
+<li><a href="#display-gis-data">Load GIS Data in CAVE</a></li>
+<li><a href="#gis-data-preferences">Modify the GIS Data Preferences</a></li>
+<li><a href="#customizing-the-gis-attribute-dialog">Customize the Attributes</a></li>
+<li><a href="#labeling-gis-data">Label GIS Data</a></li>
+</ul>
 <hr />
-<h2 id="2-set-up-awips-repo">2. Set Up AWIPS Repo<a class="headerlink" href="#2-set-up-awips-repo" title="Permanent link"></a></h2>
-<p>Create a repo file named <code>/etc/yum.repos.d/awips2.repo</code>, and set the contents to the following:</p>
-<pre><code>sudo vi /etc/yum.repos.d/awips2.repo
-</code></pre>
-<pre>
-[awips2repo]
-name=AWIPS II Repository
-baseurl=https://www.unidata.ucar.edu/repos/yum/<b>el7-dev</b>/
-enabled=1
-protect=0
-gpgcheck=0
-proxy=_none_
-</pre>
+<h2 id="display-gis-data">Display GIS Data<a class="headerlink" href="#display-gis-data" title="Permanent link"></a></h2>
+<p>Importing a GIS shapefile is accessed through <strong>File &gt; Import &gt; GIS Data</strong>. The GIS DataStore Parameters dialog is comprised of four sections:</p>
+<ul>
+<li><strong>DataStore Type</strong>: You can select a file type from the dropdown list. The only option is <em>GIS File</em>.</li>
+<li><strong>Connection Parameters</strong>:  Click the <strong>Browse</strong> button and navigate to the directory where your shapefiles are. Pressing <strong>Connect</strong> will populate the available shapefiles.</li>
+<li><strong>Load As</strong>: Shapefiles can be loaded as a Map or as a Product. <ul>
+<li><strong>Map</strong>: The selected shapefile displays as a map, similar to if you load a map from the Maps menu. </li>
+<li><strong>Product</strong>: When this radio button is selected, you will also need to select the start and end date/time the data is valid for. The selected shapefile displays as a product with a shaded (color-filled) image. When plotting with additional products, if the display time falls within the start/end time range selected, the shapefile will display. When the valid time falls outside the start/end time, the map product image does not display.</li>
+</ul>
+</li>
+<li><strong>Table</strong>:  This section lists all of the available shapefiles that are available for display.</li>
+</ul>
+<p><img alt="image" src="../../images/gis-gui.png" /></p>
+<hr />
+<h2 id="gis-data-preferences">GIS Data Preferences<a class="headerlink" href="#gis-data-preferences" title="Permanent link"></a></h2>
+<p>Updating GIS display preferences is accessed through <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>GIS Viewer</strong>. You are able to alter the highlight color, style, width, and opacity of the product in the Main Display here.</p>
+<p><img alt="image" src="../../images/gis-preferences.png" /></p>
+<!--
+A description of each attribute follows.
 
+* **Highlight Color**: This button opens a dialog that includes a color wheel and a color palette. Clicking the OK button after changing the color sets the new color for the highlight that appears around a selected area (via the Attributes dialog), and closes the dialog. The new color is then displayed on the swatch.
+* **Highlight Style**: This button opens a menu displaying a set of lines of differing styles. Doubleclicking on the desired line style sets the new style for the highlight that appears around a selected area (via the Attributes dialog), and closes the menu. The new line style is then displayed on the swatch.
+* **Highlight Width**: This button opens a menu displaying a set of lines of differing widths. Double-clicking on the desired line width sets the new width for the highlight that appears around a selected area (via the Attributes dialog), and closes the menu. The new line width is then displayed on the swatch.
+* **Product Opacity**: This button opens the Set Opacity dialog for setting the default opacity level for GIS map product images. The dialog includes a swatch and a slider. Moving the slider increases or decreases the opacity level. Clicking the OK button sets the default level and closes the dialog.
+
+Beneath the four attributes are two buttons: Restore Defaults on the left and Apply on the right. The function of the Restore Defaults button is to restore "all" the attributes to their initial (default) values. Click this button only if you want to restore all attributes to their default values. If you accidentally click the Restore Defaults button, you will need to return to the attribute dialog(s) and redefine your desired values.
+
+Use the Apply button to save any changes you make to the default attribute settings. Wait until you are satisfied with all the values you have set, and then click the Apply button once to save all the changes. The values you set here for the attributes will then be applied to the GIS application as the new defaults.
+-->
+
+<hr />
+<h2 id="customizing-the-gis-attribute-dialog">Customizing the GIS Attribute Dialog<a class="headerlink" href="#customizing-the-gis-attribute-dialog" title="Permanent link"></a></h2>
+<p>You have the ability to highlight or hide specific areas of the displayed map. These functionalities are available by right click and holding on the Map Product ID in the Legend area and selecting <strong>Display Attributes</strong>. The pop-up window is commonly referred to as the "Attributes Table". For each row of information there is an associated map/map product image displayed on the Main Display Pane.</p>
+<p><img alt="image" src="../../images/gisattr.png" /></p>
+<h3 id="highlighting">Highlighting<a class="headerlink" href="#highlighting" title="Permanent link"></a></h3>
+<h4 id="highlighting-selected-areas">Highlighting Selected Areas<a class="headerlink" href="#highlighting-selected-areas" title="Permanent link"></a></h4>
+<p>To highlight a selected area(s) of the GIS image, highlight the corresponding row(s) in the Attributes Table, right click and hold on one of the selected rows, and check the Highlighted checkbox. Active highlighted rows will be yellow in the table and the corresponding area in the map display will be pink.</p>
+<h4 id="unhighlighting-selected-areas">Unhighlighting Selected Areas<a class="headerlink" href="#unhighlighting-selected-areas" title="Permanent link"></a></h4>
+<p>You can unhighlight by selecting the row, right mouse hold and uncheck the Highlighted checkbox.</p>
+<h4 id="unhighlighting-all-areas">Unhighlighting All Areas<a class="headerlink" href="#unhighlighting-all-areas" title="Permanent link"></a></h4>
+<p>To remove all highlighted, select <strong>Annotation &gt; Clear Highlights</strong>.</p>
 <div class="admonition note">
-<p class="admonition-title">This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl.</p>
+<p class="admonition-title">If you are interested in a particular area in the Main Display Pane, but don't know the where in the Attributes Table it is, left double-click on the area of interest and the corresponding row will be highlighted.</p>
 </div>
+<h3 id="controlling-visibility-of-image-areas">Controlling Visibility of Image Areas<a class="headerlink" href="#controlling-visibility-of-image-areas" title="Permanent link"></a></h3>
+<h4 id="hiding-selected-areas">Hiding Selected Areas<a class="headerlink" href="#hiding-selected-areas" title="Permanent link"></a></h4>
+<p>To hide a selected area(s) of the GIS image, highlight the corresponding row(s) in the Attributes Table, right click and hold on one of the selected rows, and check the Visible checkbox. Hidden rows will be gray in the table and the corresponding area in the map display will disappear.</p>
+<h4 id="unhiding-selected-areas">Unhiding Selected Areas<a class="headerlink" href="#unhiding-selected-areas" title="Permanent link"></a></h4>
+<p>You can make these images visible by selecting the row, right mouse hold and check the Visible checkbox.</p>
+<h4 id="unhiding-all-areas">Unhiding All Areas<a class="headerlink" href="#unhiding-all-areas" title="Permanent link"></a></h4>
+<p>To make all images visible, select <strong>Annotation &gt; Make All Visible</strong>.</p>
+<h3 id="configuring-attributes-table">Configuring Attributes Table<a class="headerlink" href="#configuring-attributes-table" title="Permanent link"></a></h3>
+<p>In the Attributes Table, you have the option to sort by columns and select which columns are displayed.</p>
+<h4 id="selecting-columns-to-display">Selecting Columns to Display<a class="headerlink" href="#selecting-columns-to-display" title="Permanent link"></a></h4>
+<p>By default, all available columns are displayed. The Select Columns dialog will pop-up if you select <strong>Data &gt; Select Columns...</strong>. You can highlight the columns use the arrows to move them into the Available or Displayed columns. Clicking OK will update your table.</p>
+<h4 id="sorting-column-information">Sorting Column Information<a class="headerlink" href="#sorting-column-information" title="Permanent link"></a></h4>
+<p>The <strong>Sort Order</strong> dialog will pop-up if you select <strong>Data &gt; Sort...</strong>. You can use the drop down menu to choose the column to sort by and then sort by Ascending or Descending. You can sort by additional columns. Clicking OK will update your table.</p>
 <hr />
-<h2 id="3-install-the-ade">3. Install the ADE<a class="headerlink" href="#3-install-the-ade" title="Permanent link"></a></h2>
-<p>Install the AWIPS Development Environment (ADE) using yum.  This will install Eclipse (4.6.1), Java (1.8), Ant (1.9.6), Python 2.7 and its modules (Numpy, Matplotlib, Shapely, Jep, and others). </p>
-<pre><code>yum clean all
-yum groupinstall awips2-ade
-</code></pre>
-<div class="admonition note">
-<p class="admonition-title">Check the libGLU package is installed by running <code>rpm -qa | grep mesa-libGLU</code>.  If nothing is returned, install the package via: <code>yum install mesa-libGLU</code>.</p>
-</div>
-<hr />
-<h2 id="4-download-the-source-code">4. Download the Source Code<a class="headerlink" href="#4-download-the-source-code" title="Permanent link"></a></h2>
-<p>If it's not already installed, install git:</p>
-<pre><code>yum install git
-</code></pre>
-<p>Next clone all of the required repositories for AWIPS:</p>
-<pre><code>git clone https://github.com/Unidata/awips2.git
-git clone https://github.com/Unidata/awips2-cimss.git
-git clone https://github.com/Unidata/awips2-core.git
-git clone https://github.com/Unidata/awips2-core-foss.git
-git clone https://github.com/Unidata/awips2-drawing.git
-git clone https://github.com/Unidata/awips2-foss.git
-git clone https://github.com/Unidata/awips2-goesr.git
-git clone https://github.com/Unidata/awips2-gsd.git
-git clone https://github.com/Unidata/awips2-ncep.git
-git clone https://github.com/Unidata/awips2-nws.git
-</code></pre>
-<div class="admonition note">
-<p class="admonition-title">Make sure to run <code>git checkout</code> in each repo if you'd wish to develop from a branch different from the default.  It's best to do this before importing the repos into eclipse.</p>
-</div>
-<hr />
-<h2 id="5-configure-eclipse">5. Configure Eclipse<a class="headerlink" href="#5-configure-eclipse" title="Permanent link"></a></h2>
-<p>Open eclipse by running: <code>/awips2/eclipse/eclipse</code></p>
-<p>It is fine to choose the default workspace upon starting up.</p>
-<h3 id="set-preferences">Set Preferences<a class="headerlink" href="#set-preferences" title="Permanent link"></a></h3>
-<p>Verify or make the following changes to set up eclipse for AWIPS development:</p>
-<ol>
-<li>
-<p>Window &gt; Preferences &gt; Java &gt; Installed JREs</p>
-<ul>
-<li>Set to <strong>/awips2/java</strong></li>
-</ul>
-</li>
-<li>
-<p>Window &gt; Preferences &gt; PyDev &gt; Interpreters &gt; Python Interpreter</p>
-<ul>
-<li>
-<p>Set to <strong>/awips2/python/bin/python</strong></p>
-<blockquote>
-<p>Note: Add all paths to the SYSTEM pythonpath if prompted</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li>
-<p>There might be some unresolved errors.  These should be made to warnings instead.</p>
-<ul>
-<li>Window &gt; Preferences &gt; Java &gt; Compiler &gt; Building &gt; Build path Problems &gt; <strong>Circular Dependencies</strong> &gt; Change to Warning</li>
-<li>Window &gt; Preferences &gt; Plug-in Development &gt; API Baselines &gt; <strong>Missing API Baseline</strong> &gt; Change to Warning</li>
-</ul>
-</li>
-<li>
-<p><strong>Turn off automatic building</strong> (you will turn this back on after importing the repos)</p>
-<ul>
-<li>Project &gt; Uncheck "Build Automatically"</li>
-</ul>
-</li>
-</ol>
-<h3 id="importing-git-repos">Importing Git Repos<a class="headerlink" href="#importing-git-repos" title="Permanent link"></a></h3>
-<p>All of the git repos that were <a href="#4-download-the-source-code">cloned in the previous step</a> will need to be imported into Eclipse.  <strong>But, be aware the <code>awips2</code> repo is done last,</strong> because it requires different steps.</p>
-<ol>
-<li>
-<p>File &gt; Import &gt; Git &gt; Projects from Git &gt; <strong>Next</strong>
-  <img alt="git import" src="../../images/gitImport1.png" /></p>
-</li>
-<li>
-<p>Continue with the default selection, Existing local repository &gt; <strong>Add..</strong> &gt; add each of the git repos (for example <code>.../awips2-core</code>) &gt; check the checkbox &gt; <strong>Finish</strong>
-  <img alt="add git repo" src="../../images/gitImport2.png" /></p>
-</li>
-<li>
-<p>Then for each of the repos (except awips2 right now):
-Select the repo name &gt; <strong>Next</strong> &gt; Continue with default selection (Working Tree) &gt; <strong>Next</strong> &gt; Continue with default selections (all choices selected) &gt; <strong>Finish</strong>
-  <img alt="finish import" src="../../images/gitImport3.png" /></p>
-</li>
-<li>
-<p>Finally, for <code>awips2</code> repo, follow all the above steps except in the Working Tree, only select:</p>
-<ul>
-<li><em>cave</em> &gt; <strong>Next</strong> &gt; <strong>Finish</strong>
-  <img alt="importCave" src="../../images/gitImportCave.png" /></li>
-<li><em>edexOsgi</em> &gt; <strong>Next</strong> &gt; <strong>Finish</strong>
-  <img alt="importEdexOsgi" src="../../images/gitImportEdexOsgi.png" /></li>
-</ul>
-</li>
-</ol>
-<h3 id="final-setup">Final Setup<a class="headerlink" href="#final-setup" title="Permanent link"></a></h3>
-<ol>
-<li>
-<p>Project &gt; Clean &gt; <strong>OK</strong></p>
-<ul>
-<li>Use default selections: <em>Clean all projects</em>, <em>Start a build immediately</em>, <em>Build the entire workspace</em></li>
-<li>Clean the build and ensure no errors are reported.<br />
-<img alt="cleanEclipse" src="../../images/cleanEclipse.png" /></li>
-</ul>
-</li>
-<li>
-<p>Turn automatic building back on</p>
-<ul>
-<li>Project &gt; Check "Build Automatically"</li>
-</ul>
-</li>
-</ol>
-<hr />
-<h2 id="6-run-cave">6. Run CAVE<a class="headerlink" href="#6-run-cave" title="Permanent link"></a></h2>
-<div class="admonition note">
-<p class="admonition-title">CAVE can be ran from eclipse by using the <em>com.raytheon.viz.product.awips/developer.product</em></p>
-</div>
-<p>Double-click the <strong>developer.product</strong> file to open the Project Explorer in Eclipse.  Select <strong>Overview</strong> &gt; <strong>Synchronize</strong></p>
-<p><img alt="synchronize developer product" src="../../images/synchronizeDeveloperProduct.png" /></p>
-<p>Use the <strong>Project Explorer</strong> on the left-hand side of eclipse to run CAVE as a <a href="#run-application">Java application</a> or in <a href="#debug-application">Debug mode</a>:</p>
-<h3 id="run-application">Run Application<a class="headerlink" href="#run-application" title="Permanent link"></a></h3>
-<p>Select <strong>Run As</strong> &gt; <strong>Eclipse Application</strong></p>
-<p><img alt="run application" src="../../images/runApplication.png" /></p>
-<h3 id="debug-application">Debug Application<a class="headerlink" href="#debug-application" title="Permanent link"></a></h3>
-<p>Select <strong>Debug</strong> &gt; <strong>Eclipse Application</strong></p>
-<p><img alt="debug application" src="../../images/debugApplication.png" /></p>
-<hr />
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link"></a></h2>
-<ul>
-<li>If you are getting a lot of errors, try changing your Java Compiler to 1.7, build the project, then change back to 1.8 and rebuild.<ul>
-<li><strong>Window</strong> &gt; Preferences &gt; Java &gt; Compiler &gt; <strong>Compiler compliance level</strong> setting</li>
-</ul>
-</li>
-</ul>
+<h2 id="labeling-gis-data">Labeling GIS Data<a class="headerlink" href="#labeling-gis-data" title="Permanent link"></a></h2>
+<p>You can select which attribute you want to use to label the objects on the Main Display.</p>
+<p>To open the Label submenu, right click and hold on the Map Product ID in the Legend area to open a pop-up menu and select <strong>Label</strong> and choose which attribute you want as the label.</p>
+<p><img alt="image" src="../../images/gis-label.png" /></p>
+<!--
+##  GIS Data and Display Customization from within the GIS Application
+
+Once the GIS data is displayed, there are several ways to customize the displayed data from within the GIS application. All customizations originate by selecting from the pop-up menu. To open the pop-up menu, click and hold mouse Button B3 (B3) on the GIS displayed image or on the Map/Map Product ID in the Legend area and move the cursor to the option you want to modify.
+
+![image](../images/gispopup.png)
+-->
                 
                   
                 
@@ -1169,7 +1149,7 @@ Select the repo name &gt; <strong>Next</strong> &gt; Continue with default selec
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../../python/overview/" title="Python-AWIPS" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../goes-16-17-satellite/" title="GOES 16/17" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1178,19 +1158,19 @@ Select the repo name &gt; <strong>Next</strong> &gt; Continue with default selec
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Python-AWIPS
+                GOES 16/17
               </span>
             </div>
           </a>
         
         
-          <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../d2d-gridded-models/" title="Volume Browser" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                AWIPS Grid Parameters
+                Volume Browser
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
