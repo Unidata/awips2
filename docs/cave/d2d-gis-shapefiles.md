@@ -1,31 +1,35 @@
+# GIS Import
+The Geographic Information System (GIS) Import menu entry enables users to import geospatial data from varying GIS data sources for display in CAVE. CAVE currently only supports shape data in WGS84 unprojected latitude/longitude. This section describes how to:
 
-The Geographic Information System (GIS) application enables users to import geospatial data from varying GIS data sources for display in CAVE. CAVE currently only supports shape data in WGS84 unprojected latitude/longitude.
+* [Load GIS Data in CAVE](#display-gis-data)
+* [Modify the GIS Data Preferences](#gis-data-preferences)
+* [Customize the Attributes](#customizing-the-gis-attribute-dialog)
+* [Label GIS Data](#labeling-gis-data)
 
-This section describes how to start the GIS application, configure the display attributes, and navigate through the various dialogs for importing map/map product shapefiles for display within CAVE. The following topics are discussed:
+---
 
 ## Display GIS Data
 
-The GIS application is accessed through **File > Import > GIS Data**. The GIS DataStore Parameters dialog is comprised of four sections:
+Importing a GIS shapefile is accessed through **File > Import > GIS Data**. The GIS DataStore Parameters dialog is comprised of four sections:
 
-<center>![image](../images/gis-gui.png)</center>
+* **DataStore Type**: You can select a file type from the dropdown list. The only option is *GIS File*.
+* **Connection Parameters**:  Click the **Browse** button and navigate to the directory where your shapefiles are. Pressing **Connect** will populate the available shapefiles.
+* **Load As**: Shapefiles can be loaded as a Map or as a Product. 
+    * **Map**: The selected shapefile displays as a map, similar to if you load a map from the Maps menu. 
+    * **Product**: When this radio button is selected, you will also need to select the start and end date/time the data is valid for. The selected shapefile displays as a product with a shaded (color-filled) image. When plotting with additional products, if the display time falls within the start/end time range selected, the shapefile will display. When the valid time falls outside the start/end time, the map product image does not display.
+* **Table**:  This section lists all of the available shapefiles that are available for display.
 
-* **DataStore Type**: This section contains a data field where you select a file type from the dropdown
-list. The only option is *GIS File*.
-* **Connection Parameters**:  This section contains a **Directory** data field where you can either select from a dropdown list or browse to a directory containing a set of map shapefiles. Clicking the **Browse** button opens the directory navigating/browser dialog, which allows you to navigate easily to the desired directory. After locating the desired directory, clicking the **Connect** button lists the available shapefiles.
-* **Load As**: In this section the shapefiles can be loaded as a Map or as a Product. Descriptions of both follow.
-    * **Map**: When this radio button is selected, the selected shapefile displays as a map. Click and hold the middle mouse button to open a pop-up menu and select **Show Map Legend** to display the **Map ID** in the **Legend area** at the bottom of the display.
-    * **Product**: When this radio button is selected, the start and end date/time data fields become enabled. You can select a start and end date/time from the **Calendar** dialog.   Clicking on the Calendar icon opens the **Calendar** dialog. Loading a shapefile with the **Product** radio button selected will return a shaded (color-filled) image of the Map Product. The **Product ID** will appear in the Legend area at the bottom of the display after selecting **Show Product Legend** from the middle mouse click pop-up menu. The map product displays with the model data when the valid time of the model data falls within the start/end time range selected for the map product in the **GIS DataStore Parameters** dialog. When the valid time of the model data falls outside the start/end time of the map product, the map product image does not display.
+![image](../images/gis-gui.png)
 
-* **Table**:  In this section you can select one of the shapefiles listed in the window for display. The selected file will be highlighted and the OK button at the bottom of the dialog will be enabled. Clicking the OK button closes the GIS DataStore Parameters dialog box and displays the selected map or map product.
+---
 
 ## GIS Data Preferences
 
-Using the **Preferences** dialog, you can modify certain GIS display attributes in CAVE without having the GIS application open. Access the GIS Viewer via **CAVE** > **Preferences** > **GIS Viewer**.
+Updating GIS display preferences is accessed through **CAVE** > **Preferences** > **GIS Viewer**.
 
-The attributes that can be modified within CAVE apply to the map/map product image displayed on the Main Display Pane. They are: color of the highlights; highlight line style; highlight line width; and map product opacity. The button next to the name of the attribute displays a swatch of the current value. Selecting this button opens a dialog for modifying that attribute and redefining the default value.
+![image](../images/gis-preferences.png)
 
-<center>![image](../images/gis-preferences.png)</center>
-
+<!--
 A description of each attribute follows.
 
 * **Highlight Color**: This button opens a dialog that includes a color wheel and a color palette. Clicking the OK button after changing the color sets the new color for the highlight that appears around a selected area (via the Attributes dialog), and closes the dialog. The new color is then displayed on the swatch.
@@ -36,77 +40,66 @@ A description of each attribute follows.
 Beneath the four attributes are two buttons: Restore Defaults on the left and Apply on the right. The function of the Restore Defaults button is to restore "all" the attributes to their initial (default) values. Click this button only if you want to restore all attributes to their default values. If you accidentally click the Restore Defaults button, you will need to return to the attribute dialog(s) and redefine your desired values.
 
 Use the Apply button to save any changes you make to the default attribute settings. Wait until you are satisfied with all the values you have set, and then click the Apply button once to save all the changes. The values you set here for the attributes will then be applied to the GIS application as the new defaults.
+-->
 
+---
 
 ## Customizing the GIS Attribute Dialog
 
-You have the ability to highlight specific areas of the displayed map or map product image, and to hide other areas. These functionalities are executed through the **Attributes dialog**, commonly referred to as the "Attributes Table" because of its tabular style. To access the **Attributes dialog**, right click and hold mouse button 3 on the Map ID in the Legend area to open the pop-up menu.
-
-From the pop-up menu select the **Display Attributes** option to open the **Attributes** dialog.
+You have the ability to highlight or hide specific areas of the displayed map. These functionalities are available by right click and holding on the Map Product ID in the Legend area and selecting **Display Attributes**. The pop-up window is commonly referred to as the "Attributes Table". For each row of information there is an associated map/map product image displayed on the Main Display Pane.
 
 ![image](../images/gisattr.png)
-
-The Attributes dialog includes two menus, Annotation and Data, which allow you to control highlighting and visibility for both the displayed images and the information contained in the Attributes dialog. For each row of information on the Attributes dialog there is an associated map/map product image displayed on the Main Display Pane.
 
 ### Highlighting
 
 #### Highlighting Selected Areas
 
-To place a highlight around a selected area of the GIS display image and highlight the corresponding row on the Attributes dialog, right click and hold B3 on the row you want to select. Multiple rows can be selected using Ctrl + B1 to select each row, which will highlight the selected row in blue. Then click and hold B3 on one of the selected rows and check the Highlighted checkbox in the pop-up menu to activate highlighting. After checking the Highlighted checkbox all selected rows will be highlighted yellow and a highlighted border surrounding all the areas on the map corresponding to those selected rows will be highlighted with the color setup in the Preferences dialog box.
+To highlight a selected area(s) of the GIS image, highlight the corresponding row(s) in the Attributes Table, right click and hold on one of the selected rows, and check the Highlighted checkbox. Active highlighted rows will be yellow in the table and the corresponding area in the map display will be pink.
 
 #### Unhighlighting Selected Areas
 
-To unhighlight selected rows and associated highlighted borders around the areas of the image, click and hold B3 on the row or select multiple rows via Ctrl + B1 and then click and hold B3 to open the pop-up menu and uncheck the Highlighted checkbox.
+You can unhighlight by selecting the row, right mouse hold and uncheck the Highlighted checkbox.
 
 #### Unhighlighting All Areas
 
-To remove all highlighted borders around the areas of the image and remove all yellow highlighted rows on the Attributes dialog, select the Clear Highlights option under the Annotation menu.
+To remove all highlighted, select **Annotation > Clear Highlights**.
 
-> If you are interested in a particular area but don't know the Feature ID, which is listed in the Attributes dialog, double-click on the area of interest on the image in the Main Display Pane and the corresponding row will be highlighted. Conversely, double-clicking on a particular row will place a highlighted border around the corresponding area on the image.
+!!!Note "If you are interested in a particular area in the Main Display Pane, but don't know the where in the Attributes Table it is, left double-click on the area of interest and the corresponding row will be highlighted."
 
 
 ### Controlling Visibility of Image Areas
 
 #### Hiding Selected Areas
 
-
-To hide an area of the image displayed on the Main Display Pane, simply click and hold B3 on the row in the Attributes dialog corresponding to the area of interest. This will open a pop-up menu where you will uncheck the Visible checkbox to deactivate visibility for the selected area. If you want to hide multiple areas of the image, preselect the rows using Ctrl + B1 to highlight in blue the multiple selections; then click and hold B3 on one of the rows to open the pop-up menu. The deactivation of visibility will affect all areas corresponding to the selected rows. The areas of the image will disappear from the display and the selected row(s) on the Attributes dialog box will be shaded light gray.
+To hide a selected area(s) of the GIS image, highlight the corresponding row(s) in the Attributes Table, right click and hold on one of the selected rows, and check the Visible checkbox. Hidden rows will be gray in the table and the corresponding area in the map display will disappear.
 
 #### Unhiding Selected Areas
 
-To return the hidden area(s) of the image to their original visible state, click and hold B3 on the corresponding gray-highlighted row to open the pop-up menu. On the pop-up menu, check the Visible checkbox. To return multiple areas to their original visual state, use Ctrl + B1 to select all corresponding gray-highlighted rows; and then click and hold B3 on one of the rows to open the pop-up menu. Checking the Visible checkbox will affect all the selected rows and corresponding areas of the image. The previously gray highlighted rows will return to their orginal nonhighlighted state.
+You can make these images visible by selecting the row, right mouse hold and check the Visible checkbox.
 
 #### Unhiding All Areas
 
-The Make All Visible option under the Annotation menu enables you to return "all" hidden areas to their original visible state. All gray highlighted rows on the Attributes dialog will be returned to their original nonhighlighted state.
+To make all images visible, select **Annotation > Make All Visible**.
 
 ### Configuring Attributes Table
 
-In the Attributes dialog ("Attributes Table"), the options under the Data menu allow you to customize the table based on which columns to display and how the table is to be sorted.
+In the Attributes Table, you have the option to sort by columns and select which columns are displayed.
 
 #### Selecting Columns to Display
 
-To select which columns to display, select **Data > Select Columns...**.
-
-Within the Select Columns dialog, you can select the column(s) you don't want displayed by
-first selecting the individual item(s) and then using the single arrow button to move the item
-(s) from the Displayed window to the Available window. Clicking the OK button saves the
-change and removes the columns from the Attributes dialog. Use the double arrow button to
-move all the items listed in the Displayed window to the Available window.
-
-By default, all available columns are displayed.
+By default, all available columns are displayed. The Select Columns dialog will pop-up if you select **Data > Select Columns...**. You can highlight the columns use the arrows to move them into the Available or Displayed columns. Clicking OK will update your table.
 
 #### Sorting Column Information
 
-Selecting the **Sort** option opens the **Sort Order** dialog.
+The **Sort Order** dialog will pop-up if you select **Data > Sort...**. You can use the drop down menu to choose the column to sort by and then sort by Ascending or Descending. You can sort by additional columns. Clicking OK will update your table.
 
-Within the Sort Order dialog, you can select a column from the dropdown list of displayed columns and select how you want the information in that column sorted. The other columns will adjust accordingly. Clicking the OK button (hidden in the Exhibit under the dropdown list) closes the Sort Order dialog and saves the change according to your selection. Clicking the Cancel button closes the dialog without making any changes to the Attributes Table.
+---
 
 ## Labeling GIS Data
 
 You can select which attribute you want to use to label the objects on the Main Display.
 
-To open the Label submenu, click and hold B3 on the Map Product ID in the Legend area to open a pop-up menu and select the Label and choose which attribute you want as the label.
+To open the Label submenu, right click and hold on the Map Product ID in the Legend area to open a pop-up menu and select **Label** and choose which attribute you want as the label.
 
 ![image](../images/gis-label.png)
 
