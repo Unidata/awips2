@@ -25,7 +25,7 @@ Importing a GIS shapefile is accessed through **File > Import > GIS Data**. The 
 
 ## GIS Data Preferences
 
-Updating GIS display preferences is accessed through **CAVE** > **Preferences** > **GIS Viewer**.
+Updating GIS display preferences is accessed through **CAVE** > **Preferences** > **GIS Viewer**. You are able to alter the highlight color, style, width, and opacity of the product in the Main Display here.
 
 ![image](../images/gis-preferences.png)
 
