@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- **Linux: 18.2.1-1**
-- **Windows: 18.2.1-1**
-- **Mac: 18.2.1-2**
+- [**Linux: 18.2.1-1**](#linux)
+- [**Windows: 18.2.1-1**](#windows)
+- [**Mac: 18.2.1-2**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -43,7 +43,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ### Download and Installation Instructions
 
-1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
+1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
 2. In a terminal, go to the download directory 
 3. Make the installer an executable by running: `chmod 755 awips_install.sh`
 4. Run the installer: `sudo ./awips_install.sh --cave`
@@ -146,7 +146,7 @@ For additional assistance we have created an [**installation video**](https://yo
         - `pip install numpy==1.15.1`
         - `pip install jep==3.8.2`
         !!! note "These must be run as two separate commands, as stated above for all derived parameters to display properly."
-6. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)
+6. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/awips-cave.msi)
     - In addition to the application directory, the MSI installer will attempt to copy the [*gridslice*](https://github.com/Unidata/gridslice) shared library to `$PYTHONHOME/Dlls/`.  If the `$PYTHONHOME` environmental variable is not defined *gridslice* will not be installed.  You can check to see if it was installed in the Dlls directory after you have completed steps 1-3.
     !!! note "CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [**isentropic analysis**](../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png), will not load."
 
@@ -172,7 +172,7 @@ To run CAVE, either:
 
 ### Download and Installation Instructions
 
-1. Download and install: [**awips-python.pkg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)  *(This step requires administrative privileges)*
+1. Download and install: [**awips-python.pkg** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-python.pkg)  *(This step requires administrative privileges)*
     - Once downloaded, double click and the installer will launch with the following screens, **please keep the default selections**:
     
     ![mac pkg install 1](../images/mac-pkg-install1.png)
@@ -185,7 +185,7 @@ To run CAVE, either:
         
     !!! note "The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having **jep** installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)"
         
-1. Download and install: [**awips-cave.dmg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.dmg)
+1. Download and install: [**awips-cave.dmg** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave.dmg)
     - Either use the default location, which is in the system-wide "Applications" directory, by clicking and dragging the CAVE icon into the Applications folder, in the window that pops up when installing:
     
         ![Cave System Install](../images/mac-install.png)
