@@ -28,7 +28,7 @@ For this example, this server will be referred to by the IP address **10.0.0.9**
 
 	groupadd fxalpha && useradd -G fxalpha awips
 	mkdir /awips2
-	wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+	wget -O /etc/yum.repos.d/awips2.repo https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo
 	yum clean all
 	yum groupinstall awips2-database
 
@@ -126,7 +126,7 @@ For this example, this server will be referred to by the IP address **10.0.0.7**
 #### 1. Install
 
 	groupadd fxalpha && useradd -G fxalpha awips
-	wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+	wget -O /etc/yum.repos.d/awips2.repo https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo
 	yum clean all
 	yum groupinstall awips2-ingest
 

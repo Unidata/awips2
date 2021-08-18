@@ -34,7 +34,7 @@ Create a repo file named `/etc/yum.repos.d/awips2.repo`, and set the contents to
 <pre>
 [awips2repo]
 name=AWIPS II Repository
-baseurl=https://www.unidata.ucar.edu/repos/yum/<b>el7-dev</b>/
+baseurl=https://downloads.unidata.ucar.edu/awips2/current/linux/rpms/<b>el7-dev/</b>
 enabled=1
 protect=0
 gpgcheck=0
