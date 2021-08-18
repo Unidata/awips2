@@ -37,10 +37,10 @@ All of these command should be run as **root**
 
 ### 1. Install EDEX
 
-Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
+Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
 
 ```
-wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
+wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
 chmod 755 awips_install.sh
 sudo ./awips_install.sh --edex
 ```

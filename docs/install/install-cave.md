@@ -80,7 +80,7 @@ This method is recommended for beginners, or those with less computer knowledge 
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**unidata_cave.zip** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/unidata_cave.zip)
+1. Download the zipped file containing the virtual machine: [**unidata_cave.zip** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
 2. Unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into a new folder.
 3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 18-1-1.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
@@ -120,7 +120,7 @@ For additional assistance we have created an [**installation video**](https://yo
     - **Allow** Miniconda3 to set **PATH** and other environment variables
     - **Register** miniconda as the default python
     ![Miniconda options](../images/minicondaOptions.png)
-2. Download and install the 64-bit [Java JDK 1.8_181](https://www.unidata.ucar.edu/downloads/awips2/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
+2. Download and install the 64-bit [Java JDK 1.8_181](https://downloads.unidata.ucar.edu/awips2/current/windows/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
     - Select **Development Tools** as the installation options
     - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\jdk1.8.0_181)
 3. Set the environment variables:
