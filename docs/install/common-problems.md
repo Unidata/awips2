@@ -75,6 +75,8 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 ![](../images/ipv6ProblemStep6.png)
 
+!!! note "You may need to restart your machine for this to take effect"
+
 **7. Restart CAVE.**
 
 ---
