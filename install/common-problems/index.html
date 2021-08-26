@@ -312,8 +312,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#products-not-loading-properly-in-windows" title="Products Not Loading Properly in Windows" class="md-nav__link">
-    Products Not Loading Properly in Windows
+  <a href="#products-not-loading-properly" title="Products Not Loading Properly" class="md-nav__link">
+    Products Not Loading Properly
   </a>
   
 </li>
@@ -883,8 +883,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#products-not-loading-properly-in-windows" title="Products Not Loading Properly in Windows" class="md-nav__link">
-    Products Not Loading Properly in Windows
+  <a href="#products-not-loading-properly" title="Products Not Loading Properly" class="md-nav__link">
+    Products Not Loading Properly
   </a>
   
 </li>
@@ -968,7 +968,8 @@
 <p><img alt="" src="../../images/ipv6ProblemStep6.png" /></p>
 <p><strong>7. Restart CAVE.</strong></p>
 <hr />
-<h2 id="products-not-loading-properly-in-windows">Products Not Loading Properly in Windows<a class="headerlink" href="#products-not-loading-properly-in-windows" title="Permanent link"></a></h2>
+<h2 id="products-not-loading-properly">Products Not Loading Properly<a class="headerlink" href="#products-not-loading-properly" title="Permanent link"></a></h2>
+<p>This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation, and the root of the problem is not having Python installed properly for CAVE to use the packages.</p>
 <p>If the <a href="../install-cave/#download-and-installation-instructions_2">Windows installation</a> was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.</p>
 <p>The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
 <img alt="failed load" src="../../images/failedJepMetarLoad.png" /></p>
@@ -980,10 +981,14 @@
 <li>METAR Station Plot</li>
 <li>GFS Precip Type</li>
 </ul>
-<p>To correct this issue:</p>
+<p>To correct this issue on Windows:</p>
 <ul>
 <li>Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)</li>
 <li>Redo all necessary <a href="../install-cave/#download-and-installation-instructions_2">installation instructions in <strong>steps 1 through 6</strong></a></li>
+</ul>
+<p>To correct this issue on Mac:</p>
+<ul>
+<li>Install the <a href="https://unidata.github.io/awips2/install/install-cave/#download-and-installation-instructions_3">awips-python.pkg package found on <strong>step 1</strong></a></li>
 </ul>
 <hr />
 <h2 id="troubleshooting-uninstalling-edex-linux">Troubleshooting Uninstalling EDEX (Linux)<a class="headerlink" href="#troubleshooting-uninstalling-edex-linux" title="Permanent link"></a></h2>
