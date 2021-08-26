@@ -79,7 +79,9 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 ---
 
-## Products Not Loading Properly in Windows
+## Products Not Loading Properly
+
+This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation, and the root of the problem is not having Python installed properly for CAVE to use the packages.
 
 If the [Windows installation](install-cave.md#download-and-installation-instructions_2) was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.
 
@@ -95,10 +97,14 @@ Known datasets this can affect (this is not a comprehensive list):
   - METAR Station Plot
   - GFS Precip Type
 
-To correct this issue:
+To correct this issue on Windows:
 
   - Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)
   - Redo all necessary [installation instructions in **steps 1 through 6**](install-cave.md#download-and-installation-instructions_2)
+
+To correct this issue on Mac:
+
+ - Install the [awips-python.pkg package found on **step 1**](https://unidata.github.io/awips2/install/install-cave/#download-and-installation-instructions_3)
 
 ---
 
