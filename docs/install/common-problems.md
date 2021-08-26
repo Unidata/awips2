@@ -81,7 +81,7 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 ## Products Not Loading Properly
 
-This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation, and the root of the problem is not having Python installed properly for CAVE to use the packages properly.
+This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation, and the root of the problem is not having Python installed properly for CAVE to use the packages.
 
 If the [Windows installation](install-cave.md#download-and-installation-instructions_2) was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.
 
