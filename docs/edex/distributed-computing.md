@@ -123,7 +123,7 @@ Since this Database/Request server is not running the main *edexIngest* JVM, we 
 
 ---
 
-### Ingest/Decode Server (Ancillary EDEX Server)
+### Ancillary EDEX Server (Ingest/Decode EDEX Server)
 
 For this example, this server will be referred to by the IP address **10.0.0.7**.
 The **Main EDEX** server will be referred to by the IP address **10.0.0.9**.
@@ -140,7 +140,7 @@ The **Main EDEX** server will be referred to by the IP address **10.0.0.9**.
 
 Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Main** or  **Database/Request** server (10.0.0.9) and the `EDEX_SERVER` to point to the current **Ingest** server (10.0.0.7)
 
-	export EDEX_SERVER=10.0.0.7
+	export EXT_ADDR=10.0.0.7
 	
 	# postgres connection
 	export DB_ADDR=10.0.0.9
@@ -150,9 +150,9 @@ Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Main** 
 	export PYPIES_SERVER=http://10.0.0.9:9582
 
 	# qpid connection
-	export BROKER_ADDR=${EDEX_SERVER}
+	export BROKER_ADDR=${EXT_ADDR}
 
-Notice that `EDEX_SERVER` and `BROKER_ADDR` (qpid) should remain defined as the *localhost* IP address (10.0.0.7)
+Notice that `EXT_ADDR` and `BROKER_ADDR` (qpid) should remain defined as the *localhost* IP address (10.0.0.7)
 
 #### 3. Modify the edexServiceList
 
