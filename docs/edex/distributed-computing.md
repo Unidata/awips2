@@ -26,11 +26,10 @@ For this example, this server will be referred to by the IP address **10.0.0.9**
 
 #### 1. Install
 
-	groupadd fxalpha && useradd -G fxalpha awips
-	mkdir /awips2
-	wget -O /etc/yum.repos.d/awips2.repo https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo
-	yum clean all
-	yum groupinstall awips2-database
+	wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
+	chmod 755 awips_install.sh
+	sudo ./awips_install.sh --database
+
 
 #### 2. IPtables Config
 
@@ -64,15 +63,20 @@ Note the line **`-A INPUT -s 10.0.0.7 -j EDEX`** as well as the following **`-A 
 
 #### 3. Database Config
 
-In the file `/awips2/database/data/pg_hba.conf` you define remote connections for all postgres tables with as `<IP address>/32`, after the block of IPv4 local connections:
+In the file `/awips2/database/data/pg_hba.conf` you define remote connections for all postgres tables with as `<IP address>/32`, after the block of IPv4 local connections and generic `<IP address/24>` for hostnossl:
 
 	vi /awips2/database/data/pg_hba.conf
 	
 	# "local" is for Unix domain socket connections only
-    local      all   all                               trust
-    hostssl    all   all         10.0.0.7/32           cert clientcert=1
-    hostssl    all   all         162.0.0.0/8           cert clientcert=1
-    hostssl    all   all         127.0.0.1/32          cert clientcert=1
+    local      all         all                               trust
+    hostssl    all         all         162.0.0.0/8           cert clientcert=1
+    hostssl    all         all         127.0.0.1/32          cert clientcert=1
+
+	hostssl    all         all         10.0.0.7/32           cert clientcert=1
+	hostnossl  postgres    all         10.0.0.0/24           md5
+	hostnossl  fxatext     all         10.0.0.0/24           md5
+	hostnossl  metadata    all         10.0.0.0/24           md5
+
     # IPv6 local connections:
     hostssl    all   all         ::1/128               cert clientcert=1
     hostnossl  all   all         ::1/128               md5
@@ -119,24 +123,24 @@ Since this Database/Request server is not running the main *edexIngest* JVM, we 
 
 ---
 
-### Ingest/Decode Server
+### Ancillary EDEX Server (Ingest/Decode EDEX Server)
 
 For this example, this server will be referred to by the IP address **10.0.0.7**.
+The **Main EDEX** server will be referred to by the IP address **10.0.0.9**.
 
 #### 1. Install
 
-	groupadd fxalpha && useradd -G fxalpha awips
-	wget -O /etc/yum.repos.d/awips2.repo https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo
-	yum clean all
-	yum groupinstall awips2-ingest
+	wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
+	chmod 755 awips_install.sh
+	sudo ./awips_install.sh --ingest
 
 #### 2. EDEX Config
 
 `vi /awips2/edex/bin/setup.env`
 
-Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Database/Request** server (10.0.0.9)
+Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Main** or  **Database/Request** server (10.0.0.9) and the `EXT_ADDR` to point to the current **Ingest** server (10.0.0.7)
 
-	export EDEX_SERVER=10.0.0.7
+	export EXT_ADDR=10.0.0.7
 	
 	# postgres connection
 	export DB_ADDR=10.0.0.9
@@ -146,15 +150,39 @@ Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Databas
 	export PYPIES_SERVER=http://10.0.0.9:9582
 
 	# qpid connection
-	export BROKER_ADDR=${EDEX_SERVER}
+	export BROKER_ADDR=${EXT_ADDR}
 
-Notice that `EDEX_SERVER` and `BROKER_ADDR` (qpid) should remain defined as the *localhost* IP address (10.0.0.7)
+Notice that `EXT_ADDR` and `BROKER_ADDR` (qpid) should remain defined as the *localhost* IP address (10.0.0.7)
 
-#### 3. Start EDEX
+#### 3. Modify the edexServiceList
 
-	edex start ingest
+  Most likely if you are running a distributed EDEX setup, you are only processing a subset of data. You can change your edexServiceList to only run the processes you need. You will need to update the `/etc/init.d/edexServiceList` file. For example replace the services with the associated right column based on the data you're processing:
 
-This will start Qpid and the EDEX Ingest and IngestGrib JVMs (and not start PostgreSQL, httpd-pypies, or the EDEX Request JVM)
+	export SERVICES=('')
+
+  | Data Processing: | edexServiceList |
+  |---------------| ------------|
+  | radar | ingestRadar |
+  | satellite | ingestGoesR | 
+  | model | ingestGrids, ingestGrib | 
+   
+
+#### 4. Configure your LDM
+
+
+You'll want to modify your pqact.conf file to store only the data you want processed. There are example files in `/awips2/ldm/etc` that you can copy over to the main pqact.conf file. For example if you are wanting to process goesr data only, you can do the following steps:
+
+	cd /awips2/ldm/etc
+	mv pqact.conf pqact.conf.orig
+	cp pqact.goesr pqact.conf
+
+You will also want to edit the `pqact.conf` file on your **Main EDEX** and comment out any entries you're processing on this EDEX server. 
+
+#### 5. Start EDEX
+
+	edex start
+
+This will start LDM, Qpid and the specified EDEX Ingest JVMs (and not start PostgreSQL, httpd-pypies, or the EDEX Request JVM)
 
 #### 4. Monitor Services
 
@@ -192,3 +220,5 @@ Watch the edex JVM log with the command
 * You can install multiple `awips2-ingest` servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (`DB_ADDR` and `PYPIES_SERVER` in `/awips2/edex/bin/setup.env`):
 
 * Every EDEX Ingest IP address must be allowed in both **iptables** and **pg_hba.conf** as [shown above](#2-iptables-config).
+
+* Data processed on 
