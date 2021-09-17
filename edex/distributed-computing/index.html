@@ -580,8 +580,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ingestdecode-server" title="Ingest/Decode Server" class="md-nav__link">
-    Ingest/Decode Server
+  <a href="#ancillary-edex-server-ingestdecode-edex-server" title="Ancillary EDEX Server (Ingest/Decode EDEX Server)" class="md-nav__link">
+    Ancillary EDEX Server (Ingest/Decode EDEX Server)
   </a>
   
     <nav class="md-nav">
@@ -602,8 +602,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-start-edex" title="3. Start EDEX" class="md-nav__link">
-    3. Start EDEX
+  <a href="#3-modify-the-edexservicelist" title="3. Modify the edexServiceList" class="md-nav__link">
+    3. Modify the edexServiceList
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-configure-your-ldm" title="4. Configure your LDM" class="md-nav__link">
+    4. Configure your LDM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-start-edex" title="5. Start EDEX" class="md-nav__link">
+    5. Start EDEX
   </a>
   
 </li>
@@ -958,8 +972,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ingestdecode-server" title="Ingest/Decode Server" class="md-nav__link">
-    Ingest/Decode Server
+  <a href="#ancillary-edex-server-ingestdecode-edex-server" title="Ancillary EDEX Server (Ingest/Decode EDEX Server)" class="md-nav__link">
+    Ancillary EDEX Server (Ingest/Decode EDEX Server)
   </a>
   
     <nav class="md-nav">
@@ -980,8 +994,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-start-edex" title="3. Start EDEX" class="md-nav__link">
-    3. Start EDEX
+  <a href="#3-modify-the-edexservicelist" title="3. Modify the edexServiceList" class="md-nav__link">
+    3. Modify the edexServiceList
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-configure-your-ldm" title="4. Configure your LDM" class="md-nav__link">
+    4. Configure your LDM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-start-edex" title="5. Start EDEX" class="md-nav__link">
+    5. Start EDEX
   </a>
   
 </li>
@@ -1041,11 +1069,9 @@
 <h3 id="databaserequest-server">Database/Request Server<a class="headerlink" href="#databaserequest-server" title="Permanent link"></a></h3>
 <p>For this example, this server will be referred to by the IP address <strong>10.0.0.9</strong>.</p>
 <h4 id="1-install">1. Install<a class="headerlink" href="#1-install" title="Permanent link"></a></h4>
-<pre><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips
-mkdir /awips2
-wget -O /etc/yum.repos.d/awips2.repo https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo
-yum clean all
-yum groupinstall awips2-database
+<pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
+chmod 755 awips_install.sh
+sudo ./awips_install.sh --database
 </code></pre>
 <h4 id="2-iptables-config">2. IPtables Config<a class="headerlink" href="#2-iptables-config" title="Permanent link"></a></h4>
 <p>It is required that ports 5432 and 5672 be open for the specific IP addresses of outside EDEX ingest servers.  It is <em>not recommended</em> that you leave port 5432 open to all connections (since the default awips database password is known, and is not meant as a security measure).  Further, it <em>is recommended</em> that you change the default postgres awips user password (which then requires a reconfiguration of every remote EDEX ingest server in order to connect to this database/request server).</p>
@@ -1076,14 +1102,19 @@ COMMIT
 <p class="admonition-title">The two ports left open to all connections (9581,9582) in addition to default port 22 are for outside CAVE client connections</p>
 </div>
 <h4 id="3-database-config">3. Database Config<a class="headerlink" href="#3-database-config" title="Permanent link"></a></h4>
-<p>In the file <code>/awips2/database/data/pg_hba.conf</code> you define remote connections for all postgres tables with as <code>&lt;IP address&gt;/32</code>, after the block of IPv4 local connections:</p>
+<p>In the file <code>/awips2/database/data/pg_hba.conf</code> you define remote connections for all postgres tables with as <code>&lt;IP address&gt;/32</code>, after the block of IPv4 local connections and generic <code>&lt;IP address/24&gt;</code> for hostnossl:</p>
 <pre><code>vi /awips2/database/data/pg_hba.conf
 
 # "local" is for Unix domain socket connections only
-local      all   all                               trust
-hostssl    all   all         10.0.0.7/32           cert clientcert=1
-hostssl    all   all         162.0.0.0/8           cert clientcert=1
-hostssl    all   all         127.0.0.1/32          cert clientcert=1
+local      all         all                               trust
+hostssl    all         all         162.0.0.0/8           cert clientcert=1
+hostssl    all         all         127.0.0.1/32          cert clientcert=1
+
+hostssl    all         all         10.0.0.7/32           cert clientcert=1
+hostnossl  postgres    all         10.0.0.0/24           md5
+hostnossl  fxatext     all         10.0.0.0/24           md5
+hostnossl  metadata    all         10.0.0.0/24           md5
+
 # IPv6 local connections:
 hostssl    all   all         ::1/128               cert clientcert=1
 hostnossl  all   all         ::1/128               md5
@@ -1123,18 +1154,18 @@ Found 499 db classes in 720 ms
 <p>If the log stops at the <strong>Found db classes...</strong> line, that means EDEX is not connecting to PostgreSQL - double-check <code>DB_ADDR</code> in <code>/awips2/edex/bin/setup.env</code></p>
 </div>
 <hr />
-<h3 id="ingestdecode-server">Ingest/Decode Server<a class="headerlink" href="#ingestdecode-server" title="Permanent link"></a></h3>
-<p>For this example, this server will be referred to by the IP address <strong>10.0.0.7</strong>.</p>
+<h3 id="ancillary-edex-server-ingestdecode-edex-server">Ancillary EDEX Server (Ingest/Decode EDEX Server)<a class="headerlink" href="#ancillary-edex-server-ingestdecode-edex-server" title="Permanent link"></a></h3>
+<p>For this example, this server will be referred to by the IP address <strong>10.0.0.7</strong>.
+The <strong>Main EDEX</strong> server will be referred to by the IP address <strong>10.0.0.9</strong>.</p>
 <h4 id="1-install_1">1. Install<a class="headerlink" href="#1-install_1" title="Permanent link"></a></h4>
-<pre><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips
-wget -O /etc/yum.repos.d/awips2.repo https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo
-yum clean all
-yum groupinstall awips2-ingest
+<pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
+chmod 755 awips_install.sh
+sudo ./awips_install.sh --ingest
 </code></pre>
 <h4 id="2-edex-config">2. EDEX Config<a class="headerlink" href="#2-edex-config" title="Permanent link"></a></h4>
 <p><code>vi /awips2/edex/bin/setup.env</code></p>
-<p>Here you should redefine <code>DB_ADDR</code> and <code>PYPIES_SERVER</code> to point to the <strong>Database/Request</strong> server (10.0.0.9)</p>
-<pre><code>export EDEX_SERVER=10.0.0.7
+<p>Here you should redefine <code>DB_ADDR</code> and <code>PYPIES_SERVER</code> to point to the <strong>Main</strong> or  <strong>Database/Request</strong> server (10.0.0.9) and the <code>EXT_ADDR</code> to point to the current <strong>Ingest</strong> server (10.0.0.7)</p>
+<pre><code>export EXT_ADDR=10.0.0.7
 
 # postgres connection
 export DB_ADDR=10.0.0.9
@@ -1144,13 +1175,46 @@ export DB_PORT=5432
 export PYPIES_SERVER=http://10.0.0.9:9582
 
 # qpid connection
-export BROKER_ADDR=${EDEX_SERVER}
+export BROKER_ADDR=${EXT_ADDR}
 </code></pre>
-<p>Notice that <code>EDEX_SERVER</code> and <code>BROKER_ADDR</code> (qpid) should remain defined as the <em>localhost</em> IP address (10.0.0.7)</p>
-<h4 id="3-start-edex">3. Start EDEX<a class="headerlink" href="#3-start-edex" title="Permanent link"></a></h4>
-<pre><code>edex start ingest
+<p>Notice that <code>EXT_ADDR</code> and <code>BROKER_ADDR</code> (qpid) should remain defined as the <em>localhost</em> IP address (10.0.0.7)</p>
+<h4 id="3-modify-the-edexservicelist">3. Modify the edexServiceList<a class="headerlink" href="#3-modify-the-edexservicelist" title="Permanent link"></a></h4>
+<p>Most likely if you are running a distributed EDEX setup, you are only processing a subset of data. You can change your edexServiceList to only run the processes you need. You will need to update the <code>/etc/init.d/edexServiceList</code> file. For example replace the services with the associated right column based on the data you're processing:</p>
+<pre><code>export SERVICES=('')
 </code></pre>
-<p>This will start Qpid and the EDEX Ingest and IngestGrib JVMs (and not start PostgreSQL, httpd-pypies, or the EDEX Request JVM)</p>
+<table>
+<thead>
+<tr>
+<th>Data Processing:</th>
+<th>edexServiceList</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>radar</td>
+<td>ingestRadar</td>
+</tr>
+<tr>
+<td>satellite</td>
+<td>ingestGoesR</td>
+</tr>
+<tr>
+<td>model</td>
+<td>ingestGrids, ingestGrib</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4-configure-your-ldm">4. Configure your LDM<a class="headerlink" href="#4-configure-your-ldm" title="Permanent link"></a></h4>
+<p>You'll want to modify your pqact.conf file to store only the data you want processed. There are example files in <code>/awips2/ldm/etc</code> that you can copy over to the main pqact.conf file. For example if you are wanting to process goesr data only, you can do the following steps:</p>
+<pre><code>cd /awips2/ldm/etc
+mv pqact.conf pqact.conf.orig
+cp pqact.goesr pqact.conf
+</code></pre>
+<p>You will also want to edit the <code>pqact.conf</code> file on your <strong>Main EDEX</strong> and comment out any entries you're processing on this EDEX server. </p>
+<h4 id="5-start-edex">5. Start EDEX<a class="headerlink" href="#5-start-edex" title="Permanent link"></a></h4>
+<pre><code>edex start
+</code></pre>
+<p>This will start LDM, Qpid and the specified EDEX Ingest JVMs (and not start PostgreSQL, httpd-pypies, or the EDEX Request JVM)</p>
 <h4 id="4-monitor-services">4. Monitor Services<a class="headerlink" href="#4-monitor-services" title="Permanent link"></a></h4>
 <p>Watch the edex JVM log with the command</p>
 <pre><code>edex log
@@ -1184,6 +1248,9 @@ psql -U awips -h &lt;remote IP address&gt; -p 5432 metadata
 </li>
 <li>
 <p>Every EDEX Ingest IP address must be allowed in both <strong>iptables</strong> and <strong>pg_hba.conf</strong> as <a href="#2-iptables-config">shown above</a>.</p>
+</li>
+<li>
+<p>Data processed on </p>
 </li>
 </ul>
                 
