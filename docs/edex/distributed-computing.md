@@ -138,7 +138,7 @@ The **Main EDEX** server will be referred to by the IP address **10.0.0.9**.
 
 `vi /awips2/edex/bin/setup.env`
 
-Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Main** or  **Database/Request** server (10.0.0.9) and the `EDEX_SERVER` to point to the current **Ingest** server (10.0.0.7)
+Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Main** or  **Database/Request** server (10.0.0.9) and the `EXT_ADDR` to point to the current **Ingest** server (10.0.0.7)
 
 	export EXT_ADDR=10.0.0.7
 	
