@@ -118,6 +118,7 @@
 | CP3hr | Convective Precipitation(3 hours) | mm |
 | CP6hr | Convective Precipitation(6 hours) | mm |
 | CP9hr | Convective Precipitation(9 hours) | mm |
+| CP-GFS | Convective Precipitation for GFS | mm |
 | CPOFP | Percent of Frozen Precipitation | % |
 | CPOFP | Probability of Frozen precip | % |
 | CPOFP | Probability of Frozen Precip | % |
@@ -1105,6 +1106,7 @@
 | TP_TUA | TUA Precip | in |
 | TPFI | Turbulence Index |  |
 | TPFI | Turbulence Potential Forecast Index |  |
+| TP-GFS | Total Precipitation for GFS  | mm |
 | tpHPC | HPC Precip | in |
 | tpHPCndfd | Precipitation | mm |
 | TPmodel | Model Run Precip | mm |
