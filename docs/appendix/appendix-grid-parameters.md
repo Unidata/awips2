@@ -197,14 +197,14 @@
 | dT | Vrt Temp Chg | ℃ |
 | DthDt | Total Theta Tendency | K/S |
 | DUVB | UV-B Downward Solar Flux | W/m^2 |
-| dVAdv | Diff vort Adv | /s*1.0E9 |
+| dVAdv | Diff vort Adv | /s\*1.0E9 |
 | dZ | Thickness | m |
 | EchoTop18 | 18 dBZ Echo Top | km |
 | EchoTop30 | 30 dBZ Echo Top | km |
 | EchoTop50 | 50 dBZ Echo Top | km |
 | EchoTop60 | 60 dBZ Echo Top | km |
 | EHI | Energy Helicity Index |  |
-| EHI01 | Energy Helicity Index 0-1km | m*m/s*s |
+| EHI01 | Energy Helicity Index 0-1km | m\*m/s\*s |
 | EHIi | Energy Helicity Index |  |
 | ELEV | Ocean Surface Elevation Relative to Geoid | m |
 | ELEV | Tidal Height | m |
@@ -308,7 +308,7 @@
 | HCDC | High Cloud Cover | % |
 | HeightCompositeReflectivity | Composite Reflectivity Height | m |
 | HeightLLCompositeReflectivity | Low-Level Composite Reflectivity Height | m |
-| Heli | Helicity | m*m/s*s |
+| Heli | Helicity | m\*m/s\*s |
 | Heli | Storm Relative Helicity | m^2/s^2 |
 | HeliC | Helicity (for &gt; 300J/Kg MLCape) |  |
 | HeliD | Helicity (NCEP Delivered) | m²/s² |
@@ -482,7 +482,7 @@
 | MRMSVIL120min | VIL Max (120 min.) | kg/m^2 |
 | MRMSVIL1440min | VIL Max (1440 min.) | kg/m^2 |
 | MRMSVILDensity | Vertically Integrated Liquid (VIL) Density | g/m^3 |
-| MSFDi | Isen Moisture Stability Flux Div | (g*hPa*m)/(kg*K*s^2) |
+| MSFDi | Isen Moisture Stability Flux Div | (g\*hPa\*m)/(kg\*K\*s^2) |
 | MSFi | Isentropic Moisture Stability Flux | g·hPa·m/(kg·K·s) |
 | MSFmi | Isen Moisture Stability Flux Mag | g·hPa·m/(kg·K·s) |
 | MSG | Mont Strm Func | m |
@@ -697,7 +697,7 @@
 | PTNN | Prob Temp near nrml | % |
 | Ptopo | Surface pressure | hPa |
 | PTOR | Tornado Probability | % |
-| PTvA | Pot Vorticity Adv | K/hPa/s*1.0E5 |
+| PTvA | Pot Vorticity Adv | K/hPa/s\*1.0E5 |
 | PTyp | Precip Type |  |
 | PTypeRefIP | Prob Precip Type is Refreezing Ice Pellets | % |
 | pV | Potential Vorticity | K/hPa/s |
@@ -713,7 +713,7 @@
 | PWS50 | Incremental Prob of wind speed &gt;= 50 knots | % |
 | PWS64 | Incremental Prob of wind speed &gt;= 64 knots | % |
 | PWsprd | Precipitable Water sprd | mm |
-| qDiv | Div Q | K/m^2/s*1.0E-12 |
+| qDiv | Div Q | K/m^2/s\*1.0E-12 |
 | QMAX | Maximum specific humidity at 2m | kg/kg |
 | QMIN | Minimum specific humidity at 2m | kg/kg |
 | qnVec | Qn Vectors | K/m^2/s |
@@ -729,7 +729,7 @@
 | QPESacSoilMoisture | QPE-SAC-SMA Soil Moisture | % |
 | QPESacStreamflow | QPE-SAC-SMA Maximum Streamflow | (m^3)*(s^-1) |
 | QPESacUStreamflow | QPE-SAC-SMA Maximum Unit Streamflow | (m^3)*(s^-1)*(km^-2) |
-| QPV1 | QVec Conv | K/m^2/s*1.0E-12 |
+| QPV1 | QVec Conv | K/m^2/s\*1.0E-12 |
 | QPV2 | Negative EPV* | K/hPa/s |
 | QPV3 | QPV Net |  |
 | QPV4 | QG-EPV, RH&gt;75% |  |
@@ -988,7 +988,7 @@
 | TCOLS | Total Column Integrated Snow | kg/m^2 |
 | TCOLW | Total Column-Integrated Cloud Water | kg/m^2 |
 | TCOND | Total Condensate | kg/kg |
-| Tdef | Total Deformation | /s*100000.0 |
+| Tdef | Total Deformation | /s\*100000.0 |
 | Tdend | Dendritic Growth Temperatures | K |
 | Terranl | Temperature Analysis Uncertainty | K |
 | Terranl | Temperature Error Analysis | K |
@@ -1167,7 +1167,7 @@
 | uzfwc | Upper Zone Free Water Content | % |
 | uztwc | Upper Zone Tension Water Content | % |
 | V-GWD | Meridional Flux of Gravity Wave Stress | N/m^2 |
-| VAdv | Vorticity Adv | /s*1.0E9 |
+| VAdv | Vorticity Adv | /s\*1.0E9 |
 | VAdvAdvection | Vorticity Adv | /s |
 | VAPP | Vapor Pressure | Pa |
 | VBDSF | Visible Beam Downward Solar Flux | W/m^2 |
@@ -1194,13 +1194,13 @@
 | VPT | Virtual Potential Temperature | K |
 | VRATE | Ventilation Rate | m^2/s |
 | vSmthW | Verticall Smoothed Wind  | m/s |
-| VSS | Vertical Shear Speed | 1/s |
+| VSS | Vertical Shear Speed | /s |
 | VSTM | V-Component of Storm Motion | m/s |
 | VTMP | Virtual Temperature | K |
 | vTOT | Vertical Totals |  |
-| VUCSH | Vertical u-component shear | 1/s |
+| VUCSH | Vertical u-component shear | /s |
 | VV | Vertical velocity | m/s |
-| VVCSH | Vertical v-component shear | 1/s |
+| VVCSH | Vertical v-component shear | /s |
 | vW | v Component of Wind | m/s |
 | vW | V-Component of Wind | m/s |
 | vWerranl |  |  |
