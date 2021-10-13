@@ -52,9 +52,30 @@ Recommended:
 
 - The clear outline on the left allows learners to gauge how far along they are and how much time is required to finish the next subsection. 
 - Built in videos, images, and gifs make it easy to follow along and understand important functionality in CAVE.  
-- Quizes, tasks, and challenges keep learners engaged and focused on understanding new concepts.
+- Quizzes, tasks, and challenges keep learners engaged and focused on understanding new concepts.
 
 
 ---
 
 ## Python-AWIPS Example Notebooks
+
+In addition to CAVE, AWIPS also has a Python package called ***python-awips*** which allows access to all data on an EDEX server.  We have created a suite of Jupyter Notebooks as examples for how to use various functions of python-awips.
+
+### Access
+
+All of our Notebooks can be downloaded and accessed locally by following the <a href="http://unidata.github.io/python-awips/#source-code-with-examples-install" target="_blank" rel="noopener noreferrer"> source code installation instructions</a> found on our [python-awips website](http://unidata.github.io/python-awips/).
+
+![GOES CIRA Notebook Example](../images/goesCiraNotebook.png)
+
+Additionally, non-interactive [webpage renderings](http://unidata.github.io/python-awips/examples/index.html) of each of the Notebooks are also available for quick and easy references.
+
+![GOES CIRA Notebook Webpage Example](../images/goesCiraNotebookWebpage.png)
+
+### Content
+
+Our python-awips Notebooks span a wide range of topics, but generally cover the following:
+
+- Investigating what data is available on an EDEX server
+- Accessing and filtering desired data based on time and location
+- Plotting and analyzing datasets
+- Specific examples for various data types: satellite imagery, model data, soundings, surface obs, and more
