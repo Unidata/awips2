@@ -54,6 +54,9 @@ Recommended:
 - Built in videos, images, and gifs make it easy to follow along and understand important functionality in CAVE.  
 - Quizzes, tasks, and challenges keep learners engaged and focused on understanding new concepts.
 
+### Support
+
+If you experience any technical issues with our online course, please contact us at: **support-elearning@unidata.ucar.edu**
 
 ---
 
