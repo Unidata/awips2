@@ -42,17 +42,18 @@ Required:
 Recommended:
   
   - A keyboard with a numpad and mouse with a scrollwheel
+  - Second monitor
 
 
 ### Design
 
-*Learn AWIPS CAVE* is organized in a modular layout, with multiple different sections and subsections.  The design allows for completing the course all at once, or in segments.  Throughout the course there are quizzes and interactive assessments to help gauge learning and understanding.  Below is a snapshot taken from the course.  
+*Learn AWIPS CAVE* is designed for those new to AWIPS or for those seeking to learn best practices. The course is organized into modular sections with supporting lessons, allowing for spaced learning or completion in multiple class or lab sessions. Each section concludes with a quiz to assess learning, and results can be requested by instructors or supervisors for their classes/teams. Below is a snapshot taken from the course.
 
 ![Learn AWIPS CAVE screenshot](../images/learnAwipsCave.png)
 
-- The clear outline on the left allows learners to gauge how far along they are and how much time is required to finish the next subsection. 
-- Built in videos, images, and gifs make it easy to follow along and understand important functionality in CAVE.  
-- Quizzes, tasks, and challenges keep learners engaged and focused on understanding new concepts.
+- Lessons are tied to relevant learning objectives.
+- Lessons are scaffolded such that each skill builds upon the next.
+- Tutorials, challenges, and assessments are designed to support higher-order thinking skills and learning retention.
 
 ### Support
 
