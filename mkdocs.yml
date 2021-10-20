@@ -62,6 +62,7 @@ pages:
     - Data Plugins: edex/data-plugins.md
     - Archive Case Studies: edex/case-studies.md
 - Python-AWIPS: python/overview.md
+- Educational Resources: appendix/educational-resources.md
 #- Hazard Services:
 #    - CAVE Display: cave/hazard-services-display.md
 #    - Hazard Creation: cave/hazard-services-create.md
