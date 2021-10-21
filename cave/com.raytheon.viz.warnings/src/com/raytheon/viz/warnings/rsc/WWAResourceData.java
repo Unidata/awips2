@@ -75,25 +75,7 @@ public class WWAResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        boolean watchResource = false;
-        records = new ArrayList<AbstractWarningRecord>(objects.length);
-        if (objects.length > 0) {
-            for (int i = 0; i < objects.length; i++) {
-                records.add((AbstractWarningRecord) objects[i]);
-            }
-            watchResource = "A".equals(((AbstractWarningRecord) objects[0])
-                    .getSig());
-        } else if (loadProperties.isLoadWithoutData()) {
-            // I must be trying to load without data, Ill try.
-            RequestConstraint phenSig = metadataMap.get("phensig");
-            watchResource = phenSig != null
-                    && phenSig.getConstraintValue().contains(".A");
-        }
-
-        if (watchResource) {
-            return new WatchesResource(this, loadProperties);
-        }
-
+    	
         return new WarningsResource(this, loadProperties);
     }
 

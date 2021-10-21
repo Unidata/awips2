@@ -37,12 +37,16 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
+import com.raytheon.uf.viz.core.drawables.FillPatterns;
+import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
+import com.raytheon.viz.warnings.rsc.AbstractWWAResource.WarningEntry;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -179,25 +183,47 @@ public class WarningsResource extends AbstractWWAResource {
                     entry.record = record;
                     entryMap.put(record.getDataURI(), entry);
                 }
-                IWireframeShape wfs = entry.wireframeShape;
-
-                if (wfs != null) {
-                    wfs.dispose();
-                }
+                
                 WarningAction act = WarningAction.valueOf(record.getAct());
-                // Do not paint a wire frame shape for a CAN
-                if (act != WarningAction.CAN) {
-                    wfs = target.createWireframeShape(false, descriptor);
+                String sig = record.getSig();
+               
+                //if it's a watch, give it a shaded shape, otherwise a wireframeshape
+                if(sig.equalsIgnoreCase("A")){
+                	IShadedShape ss = target.createShadedShape(false,
+                            descriptor.getGridGeometry());
                     geo = record.getGeometry();
+                    JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
+                            this.descriptor);
+                    JTSGeometryData geoData = jtsCompiler.createGeometryData();
+                    geoData.setGeometryColor(color);
+                    jtsCompiler.handle(geo, geoData);
+                    ss.setFillPattern(FillPatterns.getGLPattern(record.getPhen()
+                            .equals("TO") ? "VERTICAL" : "HORIZONTAL"));
+                    ss.compile();
 
-                    JTSCompiler jtsCompiler = new JTSCompiler(null, wfs,
-                            descriptor);
-                    jtsCompiler.handle(geo);
-                    wfs.compile();
-                    entry.wireframeShape = wfs;
-                } else {
-                    // Prevents sampling and a label to be painted
-                    entry.record.setGeometry(null);
+                    entry.shadedShape = ss;
+                }
+                else{
+	                IWireframeShape wfs = entry.wireframeShape;
+	
+	                if (wfs != null) {
+	                    wfs.dispose();
+	                }
+	
+	                // Do not paint a wire frame shape for a CAN
+	                if (act != WarningAction.CAN) {
+	                    wfs = target.createWireframeShape(false, descriptor);
+	                    geo = record.getGeometry();
+	
+	                    JTSCompiler jtsCompiler = new JTSCompiler(null, wfs,
+	                            descriptor);
+	                    jtsCompiler.handle(geo);
+	                    wfs.compile();
+	                    entry.wireframeShape = wfs;
+	                } else {
+	                    // Prevents sampling and a label to be painted
+	                    entry.record.setGeometry(null);
+	                }
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
