@@ -46,7 +46,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
-import com.raytheon.viz.warnings.rsc.AbstractWWAResource.WarningEntry;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
