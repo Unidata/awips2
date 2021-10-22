@@ -16,6 +16,12 @@
  *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date          Ticket #    Engineer    Description
+ * ------------- ----------- ----------- -----------------------------
+ * Oct 21, 2021              srcarter    modified initShape to set the shape on watches, and wireframe on warnings and advisories
  **/
 
 package com.raytheon.viz.warnings.rsc;

@@ -43,7 +43,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Oct 25, 2013 2249       rferrel     getAvailableTimes always returns a non-empty list.
  * Apr 28, 2014 DR 17310   D. Friedman Handle null VTEC fields.
  * Aug 28, 2014 ASM #15682 D. Friedman Refactor for WouWcnWatchesResourceData.
- * 
+ * Oct 21, 2021            srcarter    Simplified the construct method to always return WarningsResource 
+ *
  * </pre>
  * 
  * @author jsanchez
