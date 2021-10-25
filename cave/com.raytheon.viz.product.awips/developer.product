@@ -59,9 +59,11 @@
       </win>
    </launcher>
 
+
    <vm>
       <windows include="true">jdk1.7.0</windows>
    </vm>
+
 
    <plugins>
    </plugins>
@@ -77,5 +79,12 @@
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>
