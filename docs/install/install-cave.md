@@ -204,6 +204,14 @@ To run CAVE either:
 !!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:"
 ![internet warning](../images/mac-cave-internet-download.png)
 
+### MacOS Monterey Warning
+
+If you are running MacOS Monterey, you may see the following message when starting CAVE:
+
+![Monterey warning](../images/monterey-warning.png)
+
+This message can be ignored, and will hopefully go away when we release version 20+ of AWIPS.
+
 ---
 
 ## EDEX Connection

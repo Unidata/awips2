@@ -25,6 +25,16 @@ For Mac users, the easiest way is to open a new terminal and run the following c
 
 ---
 
+## Monterey CAVE Warning
+
+If you are running MacOS Monterey, you may see the following message when starting CAVE:
+
+![Monterey warning](../images/monterey-warning.png)
+
+This message can be ignored, and will hopefully go away when we release version 20+ of AWIPS.
+
+---
+
 ## Remotely Connecting to CAVE
 
 Since the pandemic began, many users have asked if they can use X11 forwarding or ssh tunneling to remotely connect to CAVE machines.  **This is not recommended or supported**, and CAVE crashes in many different ways and expresses strange behavior as well.
