@@ -266,7 +266,7 @@ public class HistoryListDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
         Button alterBundleBtn = new Button(buttonComp, SWT.PUSH);
-        alterBundleBtn.setText("Alter Bundle...");
+        alterBundleBtn.setText("Alter Procedure Item...");
         alterBundleBtn.setLayoutData(gd);
         alterBundleBtn.setEnabled(true);
         alterBundleBtn.addSelectionListener(new SelectionAdapter() {

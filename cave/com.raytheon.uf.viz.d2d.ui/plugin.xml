@@ -118,7 +118,7 @@
              </command>
 			 <command
                    commandId="com.raytheon.viz.ui.deleteAWIPSBundle"
-                   label="Manage Bundles"
+                   label="Manage Display"
                    style="push">
              </command>
              <separator
@@ -1553,8 +1553,8 @@
       <command
             id="com.raytheon.viz.ui.deleteAWIPSBundle"
             categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Delete a bundle"
-            name="Manage Bundles">
+            description="Delete a display (bundle)"
+            name="Manage Display">
       </command>
       <command
             id="com.raytheon.viz.ui.deleteAWIPSProcedure"

@@ -113,7 +113,7 @@ public class AlterBundleDlg extends CaveSWTDialog {
 
     protected AlterBundleDlg(Bundle bundle, Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
-        setText("Alter Bundle on Loading");
+        setText("Alter Procedure Item on Loading");
 
         this.bundle = bundle;
         this.contribListenerMap = new HashMap<IAlterBundleContributor, IAlterBundleChangeListener>();
