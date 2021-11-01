@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg.Mode;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Jul 12, 2017             mjames@ucar Copied from DeleteAWIPSProcedure
+ * Oct 29, 2021           srcarter@ucar Replaced "Bundle" with "Display"
  * </pre>
  * 
  * @author mjames@ucar

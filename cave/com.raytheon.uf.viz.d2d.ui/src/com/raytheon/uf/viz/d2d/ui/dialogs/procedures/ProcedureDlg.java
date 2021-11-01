@@ -126,6 +126,7 @@ import com.raytheon.viz.ui.views.PartAdapter2;
  * Nov 13, 2017 6044       mapeters    Added null checks in disposed()
  * Feb 20, 2018 6883       tgurney     Prompt for save on CAVE close
  * Dec 13, 2018 6883       tgurney     Remove workbench listener when the dialog is closed
+ * Oct 29, 2021 ----     srcarter@ucar Replaced "Bundle/bundle" with "Procedure Item/item"
  *
  * </pre>
  *
