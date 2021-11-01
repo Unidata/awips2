@@ -578,8 +578,8 @@ public class ProcedureDlg extends CaveSWTDialog implements IWorkbenchListener {
                 BundlePair b = bundles.get(idx);
                 boolean done = false;
                 while (!done) {
-                    InputDialog id = new InputDialog(shell, "Enter Bundle Name",
-                            "Enter bundle name:", b.name, null);
+                    InputDialog id = new InputDialog(shell, "Enter Procedure Item Name",
+                            "Enter Item name:", b.name, null);
                     if (Window.OK == id.open()) {
                         String newName = id.getValue();
 

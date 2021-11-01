@@ -61,7 +61,7 @@ public class DeleteAWIPSBundle extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (listDlg == null || listDlg.getShell() == null
                 || listDlg.isDisposed()) {
-            listDlg = new VizLocalizationFileListDlg("Delete Bundle",
+            listDlg = new VizLocalizationFileListDlg("Delete Display",
                     HandlerUtil.getActiveShell(event), Mode.DELETE,
                     SavePerspectiveHandler.PERSPECTIVES_DIR, "perspectives",
                     LocalizationType.COMMON_STATIC);
