@@ -69,7 +69,8 @@ import com.raytheon.viz.ui.widgets.MenuButton;
  * Oct 03, 2012 #1248      rferrel     Bundle change listeners added.
  * Oct 16, 2012 #1229      rferrel     Made dialog non-blocking.
  * Apr 01, 2014 #2979      lvenable     Added dispose check in runAsync call.
- * 
+ * Oct 29, 2021 ----      srcarter@ucar Replaced "Bundle" with "Procedure Item" 
+ *
  * </pre>
  * 
  * @author mschenke
