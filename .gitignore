@@ -21,7 +21,6 @@ cave/diff.txt
 cave/menus/
 edexOsgi/build.edex/opt/db/replication/
 edexOsgi/com.raytheon.uf.edex.dissemination/
-edexOsgi/com.raytheon.uf.edex.ndm/
 edexOsgi/deploy.edex.awips2/esb/conf/resources/
 	feature.xml
 scripts

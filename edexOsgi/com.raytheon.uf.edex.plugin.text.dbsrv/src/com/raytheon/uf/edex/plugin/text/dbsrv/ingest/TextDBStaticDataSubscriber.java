@@ -32,7 +32,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.text.impl.TextDBStaticData;
 
 /**
