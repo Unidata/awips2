@@ -132,7 +132,7 @@ For additional assistance we have created an [**installation video**](https://yo
     
         !!! warning "If PYTHONHOME is not set, the **gridslice** Python module will not be installed or available"
       
-4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=Build%20Tools%20for%20Visual%20Studio%202019%20%28version%2016.9%29&pgroup=)
+4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=Build%20Tools%20for%20Visual%20Studio%202019)
     - To access the page linked above you will need a Microsoft account
     - Download the executable for **Build Tools for Visual Studio 2019 (version 16.9)**
     - Allow it to run some pre-installations
