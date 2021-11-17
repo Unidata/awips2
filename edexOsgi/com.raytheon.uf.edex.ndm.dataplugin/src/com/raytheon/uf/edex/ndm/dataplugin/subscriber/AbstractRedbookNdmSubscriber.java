@@ -39,7 +39,7 @@ import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
  * Abstract class for listening for Redbook NDM files that are dropped into EDEX

@@ -51,7 +51,7 @@ Recommended:
 
 ![Learn AWIPS CAVE screenshot](../images/learnAwipsCave.png)
 
-- Lessons are tied to relevant learning objectives.
+- Lessons are tied to relevant [learning objectives](https://elearning.unidata.ucar.edu/AWIPS/LearnAWIPSCAVE/LearnAWIPSCAVELearningObjectives.pdf).
 - Lessons are scaffolded such that each skill builds upon the next.
 - Tutorials, challenges, and assessments are designed to support higher-order thinking skills and learning retention.
 
