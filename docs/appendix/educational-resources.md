@@ -61,6 +61,16 @@ If you experience any technical issues with our online course, please contact us
 
 ---
 
+<img src="../../images/awipsTips.png" alt="GeeksforGeeks logo" align="right">
+
+## AWIPS Tips Blog Series
+
+AWIPS Tips is a bi-weekly (every two weeks) blog series that is posted on our Unidata blogs page.  <a href="https://www.unidata.ucar.edu/blogs/news/tags/awipstips" target="_blank" rel="noopener noreferrer">View all of the AWIPS Tips blogs here</a>, and easily search for them using the *awips-tips* tag.
+
+<br>
+
+---
+
 ## Python-AWIPS Example Notebooks
 
 In addition to CAVE, AWIPS also has a Python package called ***python-awips*** which allows access to all data on an EDEX server.  We have created a suite of Jupyter Notebooks as examples for how to use various functions of python-awips.
