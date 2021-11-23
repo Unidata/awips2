@@ -139,7 +139,6 @@ AMT           0 WEST UNION                              3886  -8356     0  0
 AMW           0 AMES,IA                                 4203  -9367     0  0
 ANA           0 ANAHEIM,CA                              3383 -11783     0  0
 ANB           0 ANNISTON,AL                             3358  -8585     0  0
-ANC           0 ANCHORAGE                               6115 -15021     0  0
 AND           0 ANDERSON COUNTY                         3450  -8271     0  0
 ANE           0 MINNEAPOLIS,MN                          4513  -9322     0  0
 ANI           0 ANIAK                                   6159 -15960     0  0
@@ -260,6 +259,7 @@ AWW           0 WINCHESTER                              4017  -8492     0  0
 AWY           0 ERIE,PA                                 4208  -8018     0  0
 AWZ           0 MERCED,CA                               3728 -12052     0  0
 AXA           0 ALGONA                                  4308  -9427     0  0
+AXC           0 ADDERS                                  3974  -8886     0  0
 AXH           0 ARCOLA,TX                               2947  -9548     0  0
 AXI           0 MOUNT AIRY,NC                           3652  -8045     0  0
 AXN           0 ALEXANDRIA                              4596  -9523     0  0
@@ -496,7 +496,6 @@ BTL           0 BATTLE CREEK                            4231  -8525     0  0
 BTM           0 BUTTE,MT                                4595 -11250     0  0
 BTN           0 BRITTON                                 4582  -9775     0  0
 BTP           0 BUTLER,PA                               4073  -7992     0  0
-BTR           0 BATON ROUGE                             3049  -9129     0  0
 BTS           0 WOOD RIVER                              5900 -15855     0  0
 BTT           0 BETTLES                                 6691 -15154     0  0
 BTV           0 BURLINGTON                              4440  -7318     0  0
@@ -1156,7 +1155,7 @@ EKE           0 BILOXI,MS                               3040  -8890     0  0
 EKG           0 CARLSBAD,CALIFORNIA                     3300 -11708     0  0
 EKI           0 CORPUS CHRISTI,TX                       2777  -9750     0  0
 EKM           0 ELKHART,IN                              4170  -8598     0  0
-EKN           0 ELKINS                                  3891  -8010     0  0
+EKN           0 ELKINS, WV                              3891  -8010     0  0
 EKO           0 ELKO,NV                                 4082 -11578     0  0
 EKP           0 WISCONSIN RAPIDS,WI                     4448  -8977     0  0
 EKQ           0 ELK SPRING                              3686  -8485     0  0
@@ -1306,7 +1305,7 @@ FBK           0 FAIRBANKS                        AK US  6484 -14761     0  0
 FBL           0 FARIBAULT,MN                            4430  -9322     0  0
 FBR           0 FORT BRIDGER                            4138 -11042     0  0
 FBY           0 FAIRBURY                                4018  -9717     0  0
-FCA           0 KALISPELL                               4821 -11418     0  0
+GPI           0 KALISPELL                               4821 -11418     0  0
 FCH           0 CHANDLER                                3672 -11983     0  0
 FCI           0 RICHMOND                         VA US  3741  -7752     0  0
 FCL           0 FT COLLINS,CO                           4045 -10502     0  0
@@ -1444,6 +1443,7 @@ FTA           0 HOT SPRINGS,SOUTH DAKOTA                4333 -10343     0  0
 FTD           0 FRANCE,REPUBLIC OF PANAMA                935  -7987     0  0
 FTE           0 FOLLETT,TEXAS                           3633 -10012     0  0
 FTG           0 DENVER - FRONT RANGE                    3979 -10454     0  0
+FTI           0 FT_UNION                                3566 -10514     0  0
 FTK           0 FORT KNOX                               3791  -8597     0  0
 FTO           0 YUKON RIVER                             6658 -14521     0  0
 FTP           0 FORT PAYNE                              3452  -8567     0  0
@@ -2428,6 +2428,7 @@ LSN           0 LOS BANOS,CA                            3698 -12088     0  0
 LSO           0 KELSO                                   4616 -12291     0  0
 LSQ           0 NEWARK,NJ                               4070  -7417     0  0
 LST           0 LONE STAR                               3293  -9474     0  0
+LSU           0 FLYING TIGER                            3049  -9129     0  0
 LSV           0 NELLIS AFB,NV                           3625 -11503     0  0
 LSW           0 DETROIT,MI                              4223  -8353     0  0
 LTA           0 LAKE TAHOE,CA -VOR-                     3915 -12023     0  0
@@ -2586,6 +2587,7 @@ MHR           0 MATHER AFB,CA                           3858 -12130     0  0
 MHS           0 MOUNT SHASTA,CA                         4132 -12232     0  0
 MHT           0 MANCHESTER                              4287  -7137     0  0
 MHV           0 MOJAVE,CA                               3508 -11812     0  0
+MHZ           0 MADISON,MS --VOR--                      3243  -9010     0  0
 MIA           0 MIAMI,FL                                2580  -8028     0  0
 MIB           0 MINOT AFB,ND                            4842 -10138     0  0
 MIC           0 CRYSTAL ARPT,MN                         4503  -9332     0  0
@@ -2634,6 +2636,7 @@ MLR           0 MILLERSBURG                             4054  -8187     0  0
 MLS           0 MILES CITY                              4638 -10595     0  0
 MLT           0 MILLINOCKET                             4559  -6852     0  0
 MLU           0 MONROE                                  3252  -9204     0  0
+MMB           0 MITBEE                                  3634  -9988     0  0
 MMH           0 MAMMOTH LAKES,CA                        3763 -11885     0  0
 MMI           0 MC MINN COUNTY                          3539  -8456     0  0
 MMJ           0 MONTOUR                                 4049  -8019     0  0
@@ -2801,6 +2804,7 @@ NBW           0 GUANTANAMO,CUBA                         1985  -7522     0  0
 NCA           0 NEW RIVER                               3472  -7743     0  0
 NCL           0 NORFOLK                          VA US  3693  -7630     0  0
 NCQ           0 MARIETTA,GA                             3392  -8452     0  0
+NDB           0 VALLEY_ISLAND                           2088 -15644     0  0
 NDP           0 PENSACOLA,FL                            3047  -8718     0  0
 NDY           0 DAHLGREN                         VA US  3833  -7704     0  0
 NDZ           0 MILTON,FL                               3063  -8700     0  0
@@ -3378,7 +3382,6 @@ RFK           0 ANGUILLA,MS                             3292  -9078     0  0
 RFX           0 EAST HARTFORD,CT                        4175  -7262     0  0
 RGJ           0 RICHMOND,VA                             3750  -7732     0  0
 RGK           0 RED WING                                4459  -9249     0  0
-RGL           0 WRANGELL,ALASKA                         5633 -13240     0  0
 RGO           0 AKRON,OH                                4092  -8143     0  0
 RGR           0 OKLAHOMA CITY,OK                        3540  -9760     0  0
 RGS           0 RENO,NV -CANNON VOR-                    3950 -11977     0  0
@@ -3473,6 +3476,7 @@ RRX           0 DARR                                    4084  -9986     0  0
 RSD           0 ROCK SOUND/ELEU IS,BAHAMA IS            2485  -7617     0  0
 RSG           0 ROCKSPRINGS                             3001 -10030     0  0
 RSH           0 RUSSIAN MISSION                  AK US  6178 -16132     0  0
+RSK           0 RATTLESNAKE                             3675 -10810     0  0
 RSL           0 RUSSELL,KS                              3887  -9882     0  0
 RSM           0 GRISSOM AFB,IN                          4065  -8615     0  0
 RSN           0 RUSHTON,LA                              3252  -9262     0  0
@@ -3885,6 +3889,7 @@ TDW           0 TRADEWIND ARPT,TX                       3518 -10182     0  0
 TDZ           0 TOLEDO,OH                               4158  -8380     0  0
 TEB           0 TETERBORO                               4085  -7406     0  0
 TEC           0 TECH                                    3721  -8041     0  0
+TED           0 TED                              AK US  6117 -14996     0  0
 TEL           0 TELL CITY                               3801  -8669     0  0
 TEW           0 MASON                            MI US  4256  -8442     0  0
 TEX           0 TELLURIDE,CO                            3807 -10753     0  0
@@ -3968,6 +3973,7 @@ TRK           0 TRUCKEE,CA                              3937 -12017     0  0
 TRL           0 TERRELL,TX                              3267  -9630     0  0
 TRM           0 THERMAL                                 3363 -11616     0  0
 TRT           0 UNIVERSAL CITY,TX                       2953  -9828     0  0
+TRV           0 VERO BEACH, FL - VOR -                  2768  -8049     0  0
 TRX           0 TRENTON                                 4008  -9359     0  0
 TSG           0 TANACROSS                        AK US  6337 -14333     0  0
 TSL           0 CHICAGO,IL                              4202  -8792     0  0
@@ -4245,6 +4251,7 @@ WLW           0 WILLOWS,CA                              3948 -12225     0  0
 WLY           0 LYTTON                           BS CN  5423 -12158     0  0
 WMC           0 WINNEMUCCA,NV                           4090 -11780     0  0
 WRB           0 WARNER ROBBINS,GA                       3257  -8367     0  0
+WRG           0 WRANGELL,ALASKA                         5633 -13240     0  0
 WRI           0 MC GUIRE AFB,NJ                         4000  -7460     0  0
 WRL           0 WORLAND,WY                              4397 -10797     0  0
 WST           0 WESTERLY,RI                             4138  -7190     0  0
@@ -4551,7 +4558,6 @@ ZGV           0 GOVERNORS HARBOUR,BAHAMA ISL            2517  -7632     0  0
 ZIN           0 GREAT INAGUA ISLAND,BAHAMA I            2083  -7367     0  0
 ZIY           0 GRAND CAYMAN,BRITISH WEST IN            1917  -8138     0  0
 ZKI           0 KITIMAT/B.C.,CANADA                     5400 -12867     0  0
-ZLS           0 STELLA MARIS NDB, BAHAMA ISL            2358  -7526     0  0
 ZMH           0 MARSH HARBOUR; ABACO IS,BAHA            2652  -7708     0  0
 ZPC           0 PINCHER CREEK AIRPORT            -- CN  4952 -11398     0  0
 ZPH           0 ZEPHYR HILLS,FL                         2822  -8215     0  0
@@ -4563,5 +4569,3 @@ ZUN           0 ZUNI                                    3497 -10915     0  0
 ZVL           0 EDMONTON / VOILLENEUVE           AB CN  5307 -11387     0  0
 ZWE           0 WEST END; GRAND BAHAMA IS,BA            2667  -7898     0  0
 ZZV           0 ZANESVILLE                              3994  -8189     0  0
-LSU           0 FLYING TIGER                            3049  -9129     0  0
-TED           0 TED                              AK US  6117 -14996     0  0
