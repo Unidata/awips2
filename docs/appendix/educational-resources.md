@@ -114,10 +114,11 @@ A full list of all released blogs can be found below:
 - [Explore the CAVE Product Browser](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave)
 - [CAVE's Local Cache: caveData](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-cave-s-local)
 - [Explore the CAVE Volume Browser: Plan Views](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave1)
-- [Points and Baselines](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-cave-s)
+- [Using CAVE's Points and Baselines Tool](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-cave-s)
 - [Explore the CAVE Volume Browser: Cross Section and Time Series](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave2)
 - [Using CAVE Displays and Procedures](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-cave-displays)
-- [Using the NSHARP display tool](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-nsharp)
+- [Getting Started With the NSHARP Display Tool](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-nsharp)
+- [Explore the CAVE Volume Browser: Model Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave3)
 
 #### Python-AWIPS
 
