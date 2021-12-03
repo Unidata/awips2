@@ -62,7 +62,15 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+mkdir -p %{_build_root}/awips2/edex/data/ndm
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+
 /bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/qpidNotify.py ${RPM_BUILD_ROOT}/awips2/edex/bin/
+
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/ndm/* ${RPM_BUILD_ROOT}/awips2/edex/data/ndm/
 
 DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb-configuration.xml"
 

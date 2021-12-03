@@ -3,7 +3,7 @@ setenv PATH /awips2/edex/bin:$PATH
 if ( ${USER} == "root" ) then
   alias ldmadmin service edex_ldm
   if $?LD_LIBRARY_PATH then
-    setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/lib64
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/lib64
   else
     setenv LD_LIBRARY_PATH /usr/lib64
   endif
