@@ -77,7 +77,7 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
         } else if ("BUOY.goodness".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File outFile = pathMgr.getFile(lc, "basemaps/BUOY.goodness");
             saveFile(file, outFile);
             if (null == combineThread) {
@@ -101,7 +101,7 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
         } else if ("BUOY.primary".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File outFile = pathMgr.getFile(lc, "basemaps/BUOY.primary");
             saveFile(file, outFile);
             if (null == combineThread) {
@@ -125,7 +125,7 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
         } else if ("maritimeStationInfo.txt".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File outFile = pathMgr.getFile(lc, "maritimeStationInfo.txt");
             File goodnessFile = pathMgr.getFile(lc, "BUOY.goodness");
             saveFile(file, outFile);
@@ -226,7 +226,7 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
     private void processGoodness() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         File goodness = pathMgr.getFile(lc, "basemaps/BUOY.goodness");
         File primary = pathMgr.getFile(lc, "basemaps/BUOY.primary");
         File spi = pathMgr.getFile(lc, "basemaps/BUOY.spi");
