@@ -23,6 +23,7 @@ edexOsgi/build.edex/opt/db/replication/
 edexOsgi/com.raytheon.uf.edex.dissemination/
 edexOsgi/deploy.edex.awips2/esb/conf/resources/
 	feature.xml
+edexOsgi/build.edex/${site-package.directory}
 scripts
 output/
 rpms/awips2.upc/Installer.metpy/
