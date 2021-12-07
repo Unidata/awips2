@@ -10,12 +10,12 @@
 8:8:Seamless Hybrid Scan Reflectivity (SHSR):dBZ:SeamlessHSR
 9:9:Seamless Hybrid Scan Reflectivity (SHSR) Height:km:SeamlessHSRHeight
 10:10:Radar Accumulation Quality Index 1 hour::RadarAQI01H
-11:11:Radar Accumulation Quality Index 1 hour::RadarAQI03H
-12:12:Radar Accumulation Quality Index 1 hour::RadarAQI06H
-13:13:Radar Accumulation Quality Index 1 hour::RadarAQI12H
-14:14:Radar Accumulation Quality Index 1 hour::RadarAQI24H
-15:15:Radar Accumulation Quality Index 1 hour::RadarAQI48H
-16:16:Radar Accumulation Quality Index 1 hour::RadarAQI72H
+11:11:Radar Accumulation Quality Index 3 hour::RadarAQI03H
+12:12:Radar Accumulation Quality Index 6 hour::RadarAQI06H
+13:13:Radar Accumulation Quality Index 12 hour::RadarAQI12H
+14:14:Radar Accumulation Quality Index 24 hour::RadarAQI24H
+15:15:Radar Accumulation Quality Index 48 hour::RadarAQI48H
+16:16:Radar Accumulation Quality Index 72 hour::RadarAQI72H
 17:17:1 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex01HP2
 18:18:3 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex03HP2
 19:19:6 hour QPE Gauge Influence Index Pass 2::GaugeInfIndex06HP2

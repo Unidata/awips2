@@ -2,21 +2,22 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<contribute xsi:type="titleItem" titleText="------ Lightning ------" id="sfcMenuLightning" />
+
 	
 	<contribute xsi:type="subMenu" menuText="GLM - Geostationary Lightning Mapper" id="glm">
-	    <contribute xsi:type="subinclude" subMenu="GOES East CONUS" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml">
-            <substitute key="sector" value="ECONUS" />
-            <substitute key="entity" value="GOES%" />
-            <substitute key="scene" value="Conus"/>
-            <substitute key="orbitalSlot" value="GOES-East"/>
-        </contribute>
-        <contribute xsi:type="subinclude" subMenu="GOES East Full Disk" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml">
+	    <contribute xsi:type="subinclude" subMenu="GOES East Full Disk" fileName="menus/satellite/goesr/goesrLevel2GLMgridFullDisk_1min_5min.xml">
             <substitute key="sector" value="EFD" />
             <substitute key="entity" value="GOES%" />
-            <substitute key="orbitalSlot" value="GOES-East"/>
             <substitute key="scene" value="Full Disk"/>
-		</contribute>
-	</contribute>
+            <substitute key="orbitalSlot" value="GOES-East"/>
+        </contribute>
+        <contribute xsi:type="subinclude" subMenu="GOES West Full Disk" fileName="menus/satellite/goesr/goesrLevel2GLMgridFullDisk_1min_5min.xml">
+            <substitute key="sector" value="WFD" />
+            <substitute key="entity" value="GOES%" />
+            <substitute key="orbitalSlot" value="GOES-West"/>
+            <substitute key="scene" value="Full Disk"/>
+        </contribute>
+        </contribute>
 	
 	<contribute xsi:type="subMenu" menuText="USPLN - US Precision Lightning Network" id="udpln">
 		

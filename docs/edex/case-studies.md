@@ -10,7 +10,7 @@ Follow the [EDEX Install Instructions](../install/install-edex.md) including ipt
 
 	groupadd fxalpha && useradd -G fxalpha awips
 	mkdir -p /awips2/data_store
-	wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/el7.repo
+	wget -O /etc/yum.repos.d/awips2.repo https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo
 	yum clean all
 	yum groupinstall awips2-server -y
 	

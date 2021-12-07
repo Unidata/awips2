@@ -126,6 +126,7 @@ import com.raytheon.viz.ui.views.PartAdapter2;
  * Nov 13, 2017 6044       mapeters    Added null checks in disposed()
  * Feb 20, 2018 6883       tgurney     Prompt for save on CAVE close
  * Dec 13, 2018 6883       tgurney     Remove workbench listener when the dialog is closed
+ * Oct 29, 2021 ----     srcarter@ucar Replaced "Bundle/bundle" with "Procedure Item/item"
  *
  * </pre>
  *
@@ -578,8 +579,8 @@ public class ProcedureDlg extends CaveSWTDialog implements IWorkbenchListener {
                 BundlePair b = bundles.get(idx);
                 boolean done = false;
                 while (!done) {
-                    InputDialog id = new InputDialog(shell, "Enter Bundle Name",
-                            "Enter bundle name:", b.name, null);
+                    InputDialog id = new InputDialog(shell, "Enter Procedure Item Name",
+                            "Enter Item name:", b.name, null);
                     if (Window.OK == id.open()) {
                         String newName = id.getValue();
 

@@ -1,6 +1,14 @@
 # Volume Browser
 
-The Volume Browser provides access to numerical models, other gridded data, sounding data, and selected point data sources, such as RAOB, METAR, and Profiler. Through the Browser interface, you can choose the data source(s), field(s), plane(s), and point(s), and generate a customized list of model graphics or images for display.
+The Volume Browser provides access to numerical models, sounding data, and selected point data sources, such as RAOB, METAR, and Profiler. Through the Browser interface, you can choose the data source(s), field(s), plane(s), and point(s), and generate a customized list of model graphics or images for display.
+
+The Volume Browser can be accessed from either the **Tools** (alphabetically organized) or **Models** (first option) menus.
+
+![menuBar](../images/menuBar.png)
+
+---
+
+## Visual Overview
 
 The Volume Browser window is divided into four areas:
 
@@ -32,7 +40,7 @@ The dropdown menus in the Volume Browser menu bar contain options for controllin
     * Find (Ctrl+F)
 * [**Tools**](#vb-tools)
 * [**Display Types**](#display-types)
-* [**Animation Types**](#animation-types)
+* [**Loop Types**](#loop-types)
 
 ---
 
@@ -102,7 +110,7 @@ Works in conjunction with the Interactive Points Tool to enable you to generate 
 
 Used in conjunction with the Interactive Points Tool to enable you to plot gridded data on a time versus data value graph for a specified point.
 
-## Animation Types
+## Loop Types
 
 ![](../images/volumeBrowserAnimationMenu.png)
 

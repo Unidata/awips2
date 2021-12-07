@@ -7,7 +7,7 @@
 196:196:Clear sky downward solar flux:W/m^2:CSDSF
 197:197:Solar Radiative Heating Rate:K/s:SWHR
 198:198:Clear Sky Upward Solar Flux:W/m^2:CSUSF
-199:199:Cloud Forcing Net Solar Flux:W/m^2:CFNSF
+199:199:Fire Radiative Power:MW:FRPMean
 200:200:Visible Beam Downward Solar Flux:W/m^2:VBDSF
 201:201:Visible Diffuse Downward Solar Flux:W/m^2:VDDSF
 202:202:Near IR Beam Downward Solar Flux:W/m^2:NBDSF

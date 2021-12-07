@@ -4,6 +4,15 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ---
 
+## Latest Version
+
+**18.2.1-1**
+
+[**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
+
+---
+
+
 ## System requirements
 
 - 64-bit CentOS/RHEL 7
@@ -16,9 +25,9 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 - A **Solid State Drive (SSD)** is recommended
     - A SSD should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
 
-> Note: EDEX is only supported for 64-bit CentOS and RHEL 7 Operation Systems.  You may have luck with Fedora Core 12 to 14 and Scientific Linux.
+!!! note "EDEX is only supported for 64-bit CentOS and RHEL 7 Operating Systems."
 
-!!! warning "EDEX is **not** supported in Debian, Ubuntu, SUSE, Solaris, macOS, or Windows."
+!!! warning "EDEX is **not** supported in Debian, Ubuntu, SUSE, Solaris, macOS, or Windows. You may have luck with Fedora Core 12 to 14 and Scientific Linux, but we will not provide support."
 
 ---
 
@@ -26,24 +35,12 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 All of these command should be run as **root**
 
-### 1. Create AWIPS User
+### 1. Install EDEX
 
-Create user awips and group fxalpha
+Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
 
 ```
-groupadd fxalpha && useradd -G fxalpha awips
-```
-
-or if the awips account already exists:
-```
-groupadd fxalpha && usermod -G fxalpha awips
-```
-
-### 2. Install EDEX
-
-Download the and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
-```
-wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
+wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
 chmod 755 awips_install.sh
 sudo ./awips_install.sh --edex
 ```
@@ -51,45 +48,27 @@ sudo ./awips_install.sh --edex
 
 !!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 
-       1. Saves the appropriate Yum repo file to `/etc/yum.repos.d/awips2.repo`
-       2. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
-       3. Creates `/awips2/data_store` if it does not exist already
-       4. Runs `yum groupinstall awips2-server`
-       5. Attempts to configure the EDEX hostname defined in `/awips2/edex/bin/setup.env`
-       6. Alerts the user if the *awips* account does not exist (the RPMs will still install)
+       1. Checks to see if EDEX is currently running, if so stops the processes with the `edex stop` command
+       2. If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a `yum groupremove awips2-server`
+       3. If the user/group awips:fxalpha does not exist, it gets created
+       4. Saves the appropriate yum repo file to `/etc/yum.repos.d/awips2.repo`
+       5. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
+       6. Creates `/awips2/data_store` if it does not exist already
+       7. Runs `yum groupinstall awips2-server`
 
 
-### 3. EDEX Setup
-
-Change user and run edex setup:
-
-```
-sudo su - awips
-sudo edex setup
-```
-
-The command `edex setup` will try to determine your fully-qualified domain name and set it in `/awips2/edex/bin/setup.env`. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to `/etc/hosts` if necessary.
-
-#### Setup Example
-For example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in `/awips2/edex/bin/setup.env`
+### 2. EDEX Setup 
+The external and localhost addresses need to be specified in `/etc/hosts`
 
 ```
-export EXT_ADDR=js-196-132.jetstream-cloud.org
-export DB_ADDR=localhost
-export DB_PORT=5432
-export BROKER_ADDR=localhost
-export PYPIES_SERVER=http://${EXT_ADDR}:9582
-```
-
-The external address needs to direct to localhost in `/etc/hosts`
+127.0.0.1         localhost    localhost.localdomain
+XXX.XXX.XXX.XXX   edex-cloud   edex-cloud.unidata.ucar.edu
 
 ```
-127.0.0.1   localhost localhost.localdomain js-196-132.jetstream-cloud.org
-```
 
-### 4. Configure iptables
+### 3. Configure iptables
 
-Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.
+This should be a one time configuration change. Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data publicly to CAVE clients and the Python API.
 
 #### Open Port 9588
 
@@ -153,8 +132,12 @@ service iptables restart
 #### Troubleshooting 
 
 For CentOS 7 error:
->Redirecting to /bin/systemctl restart  iptables.service  
->Failed to restart iptables.service: Unit iptables.service failed to load: No such >file or directory.
+
+```
+Redirecting to /bin/systemctl restart  iptables.service 
+Failed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.
+```
+
 
 The solution is:
 ```
@@ -163,7 +146,10 @@ systemctl enable iptables
 service iptables restart
 ```
 
-### 5. Start EDEX
+### 4. Start EDEX
+
+!!! note "These steps should be run as root or with sudo"
+
 ```
 edex start
 ```
@@ -174,13 +160,9 @@ service httpd-pypies start
 service qpidd start
 service edex_camel start
 ```
-The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running.
+The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. Start ldm manually:
 ```
-ldmadmin start
-```
-To start *all services except the LDM* (good for troubleshooting):
-```
-edex start base
+service edex_ldm start
 ```
 To restart EDEX
 ```
@@ -189,20 +171,9 @@ edex restart
 
 ---
 
-## Additional Steps
-
-### Increase Process Limit
-
-**/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by `./awips_install.sh --edex`). Without these definitions, Qpid is known to crash during periods of high ingest.
-
-    awips soft nproc 65536
-    awips soft nofile 65536
-
----
+## Additional Notes
 
 ### Ensure SELinux is Disabled
-
-!!! note "This step is no longer necessary with version *LDM-6.13* or higher.  The version shipped with Unidata's EDEX is higher than this cutoff."
 
 ```
 vi /etc/sysconfig/selinux
@@ -276,6 +247,20 @@ NIMAGE  ^(sat[^/]*)/ch[0-9]/([^/]*)/([^/]*)/([^ ]*) ([^/]*)/([^/]*)/([^/]*)/ (T[
 !!! note "[Read more about pqact.conf in the LDM User Manual](https://www.unidata.ucar.edu/software/ldm/ldm-current/basics/pqact.conf.html)"
 !!! tip "[See available AWIPS LDM feeds](/edex/ldm/)"
 
+#### Configuration File: /awips2/ldm/etc/registry.xml
+
+This file specifies configuration and runtime parameters. If you are pulling in a lot of data, you may want to consider increasing your LDM queue size:
+
+```
+  <queue>
+    <path>/awips2/ldm/var/queues/ldm.pq</path>
+    <size>24GB</size>
+    <slots>default</slots>
+  </queue>
+```
+
+!!! note "[Read more about registry.xml in the LDM User Manual](https://www.unidata.ucar.edu/software/ldm/ldm-current/basics/LDM-registry.html)"
+
 ---
 
 ### Directories to Know
@@ -297,4 +282,117 @@ NIMAGE  ^(sat[^/]*)/ch[0-9]/([^/]*)/([^/]*)/([^ ]*) ([^/]*)/([^/]*)/([^/]*)/ (T[
 ### What Version is my EDEX?
 ```
 rpm -qa | grep awips2-edex
+```
+
+---
+
+## Uninstalling EDEX
+These are instructions to manually uninstall EDEX. However, the [`awips_install.sh`](#1-install-edex) script will do all of these steps for you if you are installing a newer version of EDEX.
+
+**1. Make sure all EDEX processes are stopped**
+```
+sudo edex stop
+sudo edex status
+
+[edex status]
+ postgres    :: not running
+ pypies      :: not running
+ qpid        :: not running
+ EDEXingest  :: not running
+ EDEXgrib    :: not running
+ EDEXrequest :: not running
+ ldmadmin    :: not running
+```
+
+**2. Backup any important configuration files that you may want to reference**
+
+Here are some possible important directories/files to backup:
+
+```
+/awips2/database/data/pg_hba.conf
+/awips2/edex/data/utility/*
+/awips2/edex/bin/*
+/awips2/ldm/*
+/awips2/dev/*
+/awips2/edex/conf*
+/awips2/edex/etc/*
+/awips2/edex/logs/*
+/usr/bin/edex/*
+/etc/init.d/edexServiceList
+```
+
+**3. See what AWIPS yum groups are currently installed**
+
+In this case the ```AWIPS EDEX Server``` group is installed
+
+```
+sudo yum grouplist
+
+Available Environment Groups:
+   Minimal Install
+   Compute Node
+   Infrastructure Server
+   File and Print Server
+   Cinnamon Desktop
+   MATE Desktop
+   Basic Web Server
+   Virtualization Host
+   Server with GUI
+   GNOME Desktop
+   KDE Plasma Workspaces
+   Development and Creative Workstation
+Installed Groups:
+   AWIPS EDEX Server
+   Development Tools
+Available Groups:
+   AWIPS ADE SERVER
+   AWIPS CAVE
+   AWIPS Development
+   AWIPS EDEX DAT Server
+   AWIPS EDEX Database/Request Server
+   AWIPS EDEX Decode/Ingest Node (No Database, PyPIES, GFE)
+   Cinnamon
+   Compatibility Libraries
+   Console Internet Tools
+   Educational Software
+   Electronic Lab
+   Fedora Packager
+   General Purpose Desktop
+   Graphical Administration Tools
+   Haskell
+   LXQt Desktop
+   Legacy UNIX Compatibility
+   MATE
+   Milkymist
+   Scientific Support
+   Security Tools
+   Smart Card Support
+   System Administration Tools
+   System Management
+   TurboGears application framework
+   Xfce
+```
+
+**4. Remove any currently installed AWIPS yum groups**
+```
+sudo yum clean all
+sudo yum groupremove "AWIPS EDEX Server"
+```
+
+!!! note "If you are having trouble removing a group, see the [troubleshooting](common-problems.md#troubleshooting-uninstalling-edex) section."
+
+**5. Check to make sure all awips rpms have been removed**
+```
+rpm -qa | grep awips2
+```
+
+If you still have rpms installed, remove them
+
+```
+sudo yum remove awips2-*
+```
+
+**6. Remove everything in the /awips2 directory**
+```
+rm -rf /awips2/*
 ```

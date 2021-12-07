@@ -226,9 +226,11 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.alertview.feature" />
 		</antcall>
+<!-- Tiff removed from build
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.ncep.perspective.feature" />
 		</antcall>
+-->
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
@@ -261,9 +263,6 @@
         	</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.satellite.goesr.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature" value="gov.noaa.gsd.viz.ensemble.feature" />
 		</antcall>
         	<antcall target="p2.build.repo">
         		<param name="feature" value="com.raytheon.uf.viz.vtec.feature" />
