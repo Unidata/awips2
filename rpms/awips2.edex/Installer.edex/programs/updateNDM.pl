@@ -32,7 +32,7 @@ if(!-e "$ndmDir/.git")
 
 #Pull latest files and copy them to the AWIPS-II NDM endpoint
 `cd $ndmDir ; 
- git fetch origin ;
+ git fetch origin $branch ;
  git reset --hard origin/$branch ;
  rsync -aP $ndmDir/$ndmGitPath /awips2/edex/data/ndm/
 `;
