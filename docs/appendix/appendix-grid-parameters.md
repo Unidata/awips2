@@ -1,1450 +1,1287 @@
-
 | Abbreviation | Description | Units |
 | ---------|:-----|---------- |
-| WSPD | 10 Metre neutral wind speed over waves | m/s |
-| WDRT | 10 Metre Wind Direction Over Waves | Degree |
-| ARI12H1000YR | 12H Average Recurrance Interval Accumulation 1000 Year | in\*1000 |
-| ARI12H100YR | 12H Average Recurrance Interval Accumulation 100 Year | in\*1000 |
-| ARI12H10YR | 12H Average Recurrance Interval Accumulation 10 Year | in\*1000 |
-| ARI12H1YR | 12H Average Recurrance Interval Accumulation 1 Year | in\*1000 |
-| ARI12H200YR | 12H Average Recurrance Interval Accumulation 200 Year | in\*1000 |
-| ARI12H25YR | 12H Average Recurrance Interval Accumulation 25 Year | in\*1000 |
-| ARI12H2YR | 12H Average Recurrance Interval Accumulation 2 Year | in\*1000 |
-| ARI12H500YR | 12H Average Recurrance Interval Accumulation 500 Year | in\*1000 |
-| ARI12H50YR | 12H Average Recurrance Interval Accumulation 50 Year | in\*1000 |
-| ARI12H5YR | 12H Average Recurrance Interval Accumulation 5 Year | in\*1000 |
-| PRP12H | 12 hour Precipitation Accumulation Return Period | year |
-| GaugeInfIndex12H | 12 hour QPE Gauge Influence Index |  |
-| FFG12 | 12-hr flash flood guidance | mm |
-| FFR12 | 12-hr flash flood runoff values | mm |
-| EchoTop18 | 18 dBZ Echo Top | km |
-| ARI1H1000YR | 1H Average Recurrance Interval Accumulation 1000 Year | in\*1000 |
-| ARI1H100YR | 1H Average Recurrance Interval Accumulation 100 Year | in\*1000 |
-| ARI1H10YR | 1H Average Recurrance Interval Accumulation 10 Year | in\*1000 |
-| ARI1H1YR | 1H Average Recurrance Interval Accumulation 1 Year | in\*1000 |
-| ARI1H200YR | 1H Average Recurrance Interval Accumulation 200 Year | in\*1000 |
-| ARI1H25YR | 1H Average Recurrance Interval Accumulation 25 Year | in\*1000 |
-| ARI1H2YR | 1H Average Recurrance Interval Accumulation 2 Year | in\*1000 |
-| ARI1H500YR | 1H Average Recurrance Interval Accumulation 500 Year | in\*1000 |
-| ARI1H50YR | 1H Average Recurrance Interval Accumulation 50 Year | in\*1000 |
-| ARI1H5YR | 1H Average Recurrance Interval Accumulation 5 Year | in\*1000 |
-| PRP01H | 1 hour Precipitation Accumulation Return Period | year |
-| GaugeInfIndex01H | 1 hour QPE Gauge Influence Index |  |
-| QPEFFG01H | 1 hour QPE-to-FFG Ratio | % |
-| FFG01 | 1-hr flash flood guidance | mm |
-| FFR01 | 1-hr flash flood runoff values | mm |
-| QPE01 | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_ACR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_ALR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_FWR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_KRF | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_MSR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_ORN | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_PTR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_RHA | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_RSA | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_STR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_TAR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_TIR | 1-hr Quantitative Precip Estimate | mm |
-| QPE01_TUA | 1-hr Quantitative Precip Estimate | mm |
-| EVEC1 | 1st Vector Component of Electric Field | V\*m^1 |
-| BVEC1 | 1st Vector Component of Magnetic Field | T |
-| VEL1 | 1st Vector Component of Velocity (Coordinate system dependent) | m\*s^1 |
-| TCSRG20 | 20% Tropical Cyclone Storm Surge Exceedance | m |
-| ARI24H1000YR | 24H Average Recurrance Interval Accumulation 1000 Year | in\*1000 |
-| ARI24H100YR | 24H Average Recurrance Interval Accumulation 100 Year | in\*1000 |
-| ARI24H10YR | 24H Average Recurrance Interval Accumulation 10 Year | in\*1000 |
-| ARI24H1YR | 24H Average Recurrance Interval Accumulation 1 Year | in\*1000 |
-| ARI24H200YR | 24H Average Recurrance Interval Accumulation 200 Year | in\*1000 |
-| ARI24H25YR | 24H Average Recurrance Interval Accumulation 25 Year | in\*1000 |
-| ARI24H2YR | 24H Average Recurrance Interval Accumulation 2 Year | in\*1000 |
-| ARI24H500YR | 24H Average Recurrance Interval Accumulation 500 Year | in\*1000 |
-| ARI24H50YR | 24H Average Recurrance Interval Accumulation 50 Year | in\*1000 |
-| ARI24H5YR | 24H Average Recurrance Interval Accumulation 5 Year | in\*1000 |
-| PRP24H | 24 hour Precipitation Accumulation Return Period | year |
-| GaugeInfIndex24H | 24 hour QPE Gauge Influence Index |  |
-| FFG24 | 24-hr flash flood guidance | mm |
-| FFR24 | 24-hr flash flood runoff values | mm |
-| QPE24 | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_ACR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_ALR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_FWR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_KRF | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_MSR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_ORN | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_PTR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_RHA | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_RSA | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_STR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_TAR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_TIR | 24-hr Quantitative Precip Estimate | mm |
-| QPE24_TUA | 24-hr Quantitative Precip Estimate | mm |
-| QPF24 | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_ACR | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_ALR 205 | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_FWR | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_KRF | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_MSR | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_ORN | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_PTR | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_RHA | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_RSA | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_STR | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_TAR | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_TIR | 24-hr Quantitative Precip Forecast | mm |
-| QPF24_TUA | 24-hr Quantitative Precip Forecast | mm |
-| ARI2H1000YR | 2H Average Recurrance Interval Accumulation 1000 Year | in\*1000 |
-| ARI2H100YR | 2H Average Recurrance Interval Accumulation 100 Year | in\*1000 |
-| ARI2H10YR | 2H Average Recurrance Interval Accumulation 10 Year | in\*1000 |
-| ARI2H1YR | 2H Average Recurrance Interval Accumulation 1 Year | in\*1000 |
-| ARI2H200YR | 2H Average Recurrance Interval Accumulation 200 Year | in\*1000 |
-| ARI2H25YR | 2H Average Recurrance Interval Accumulation 25 Year | in\*1000 |
-| ARI2H2YR | 2H Average Recurrance Interval Accumulation 2 Year | in\*1000 |
-| ARI2H500YR | 2H Average Recurrance Interval Accumulation 500 Year | in\*1000 |
-| ARI2H50YR | 2H Average Recurrance Interval Accumulation 50 Year | in\*1000 |
-| ARI2H5YR | 2H Average Recurrance Interval Accumulation 5 Year | in\*1000 |
-| EVEC2 | 2nd Vector Component of Electric Field | V\*m^1 |
-| BVEC2 | 2nd Vector Component of Magnetic Field | T |
-| VEL2 | 2nd Vector Component of Velocity (Coordinate system dependent) | m\*s^1 |
-| EchoTop30 | 30 dBZ Echo Top | km |
-| ARI30M1000YR | 30M Average Recurrance Interval Accumulation 1000 Year | in\*1000 |
-| ARI30M100YR | 30M Average Recurrance Interval Accumulation 100 Year | in\*1000 |
-| ARI30M10YR | 30M Average Recurrance Interval Accumulation 10 Year | in\*1000 |
-| ARI30M1YR | 30M Average Recurrance Interval Accumulation 1 Year | in\*1000 |
-| ARI30M200YR | 30M Average Recurrance Interval Accumulation 200 Year | in\*1000 |
-| ARI30M25YR | 30M Average Recurrance Interval Accumulation 25 Year | in\*1000 |
-| ARI30M2YR | 30M Average Recurrance Interval Accumulation 2 Year | in\*1000 |
-| ARI30M500YR | 30M Average Recurrance Interval Accumulation 500 Year | in\*1000 |
-| ARI30M50YR | 30M Average Recurrance Interval Accumulation 50 Year | in\*1000 |
-| ARI30M5YR | 30M Average Recurrance Interval Accumulation 5 Year | in\*1000 |
-| PRP30min | 30 min Precipitation Accumulation Return Period | year |
-| TCSRG30 | 30% Tropical Cyclone Storm Surge Exceedance | m |
-| SALIN | 3-D Salinity |  |
-| WTMPC | 3-D Temperature | ℃ |
-| ARI3H1000YR | 3H Average Recurrance Interval Accumulation 1000 Year | in\*1000 |
-| ARI3H100YR | 3H Average Recurrance Interval Accumulation 100 Year | in\*1000 |
-| ARI3H10YR | 3H Average Recurrance Interval Accumulation 10 Year | in\*1000 |
-| ARI3H1YR | 3H Average Recurrance Interval Accumulation 1 Year | in\*1000 |
-| ARI3H200YR | 3H Average Recurrance Interval Accumulation 200 Year | in\*1000 |
-| ARI3H25YR | 3H Average Recurrance Interval Accumulation 25 Year | in\*1000 |
-| ARI3H2YR | 3H Average Recurrance Interval Accumulation 2 Year | in\*1000 |
-| ARI3H500YR | 3H Average Recurrance Interval Accumulation 500 Year | in\*1000 |
-| ARI3H50YR | 3H Average Recurrance Interval Accumulation 50 Year | in\*1000 |
-| ARI3H5YR | 3H Average Recurrance Interval Accumulation 5 Year | in\*1000 |
-| PRP03H | 3 hour Precipitation Accumulation Return Period | year |
-| GaugeInfIndex03H | 3 hour QPE Gauge Influence Index |  |
-| QPEFFG03H | 3 hour QPE-to-FFG Ratio | % |
-| FFG03 | 3-hr flash flood guidance | mm |
-| FFR03 | 3-hr flash flood runoff values | mm |
-| TSLSA | 3-hr pressure tendency (Std. Atmos. Reduction) | Pa/s |
-| EVEC3 | 3rd Vector Component of Electric Field | V\*m^1 |
-| BVEC3 | 3rd Vector Component of Magnetic Field | T |
-| VEL3 | 3rd Vector Component of Velocity (Coordinate system dependent) | m\*s^1 |
-| TCSRG40 | 40% Tropical Cyclone Storm Surge Exceedance | m |
-| GaugeInfIndex48H | 48 hour QPE Gauge Influence Index |  |
-| EchoTop50 | 50 dBZ Echo Top | km |
-| TCSRG50 | 50% Tropical Cyclone Storm Surge Exceedance | m |
-| 5WAVA | 5-wave geopotential height anomaly | gpm |
-| 5WAVA | 5-Wave Geopotential Height Anomaly | gpm |
-| 5WAVH | 5-wave geopotential height | gpm |
-| 5WAVH | 5-Wave Geopotential Height | gpm |
-| EchoTop60 | 60 dBZ Echo Top | km |
-| TCSRG60 | 60% Tropical Cyclone Storm Surge Exceedance | m |
-| ARI6H1000YR | 6H Average Recurrance Interval Accumulation 1000 Year | in\*1000 |
-| ARI6H100YR | 6H Average Recurrance Interval Accumulation 100 Year | in\*1000 |
-| ARI6H10YR | 6H Average Recurrance Interval Accumulation 10 Year | in\*1000 |
-| ARI6H1YR | 6H Average Recurrance Interval Accumulation 1 Year | in\*1000 |
-| ARI6H200YR | 6H Average Recurrance Interval Accumulation 200 Year | in\*1000 |
-| ARI6H25YR | 6H Average Recurrance Interval Accumulation 25 Year | in\*1000 |
-| ARI6H2YR | 6H Average Recurrance Interval Accumulation 2 Year | in\*1000 |
-| ARI6H500YR | 6H Average Recurrance Interval Accumulation 500 Year | in\*1000 |
-| ARI6H50YR | 6H Average Recurrance Interval Accumulation 50 Year | in\*1000 |
-| ARI6H5YR | 6H Average Recurrance Interval Accumulation 5 Year | in\*1000 |
-| PRP06H | 6 hour Precipitation Accumulation Return Period | year |
-| GaugeInfIndex06H | 6 hour QPE Gauge Influence Index |  |
-| QPEFFG06H | 6 hour QPE-to-FFG Ratio | % |
-| FFG06 | 6-hr flash flood guidance | mm |
-| FFR06 | 6-hr flash flood runoff values | mm |
-| QPE06 | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_ACR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_ALR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_FWR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_KRF | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_MSR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_ORN | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_PTR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_RHA | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_RSA | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_STR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_TAR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_TIR | 6-hr Quantitative Precip Estimate | mm |
-| QPE06_TUA | 6-hr Quantitative Precip Estimate | mm |
-| QPF06 | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_ACR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_ALR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_FWR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_KRF | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_MSR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_ORN | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_PTR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_RHA | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_RSA | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_STR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_TAR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_TIR | 6-hr Quantitative Precip Forecast | mm |
-| QPF06_TUA | 6-hr Quantitative Precip Forecast | mm |
-| TCSRG70 | 70% Tropical Cyclone Storm Surge Exceedance | m |
-| GaugeInfIndex72H | 72 hour QPE Gauge Influence Index |  |
-| TCSRG80 | 80% Tropical Cyclone Storm Surge Exceedance | m |
-| TCSRG90 | 90% Tropical Cyclone Storm Surge Exceedance | m |
-| ABSD | Absolute divergence | s^-1 |
-| ABSH | Absolute Humidity | kg m-3 |
-| AH | Absolute humidity | kg/m^3 |
-| ABSV | Absolute vorticity | s^-1 |
-| ASD | Accumulated Snow Depth | m |
+| 0to5 | t-5Day Mean Hgt | m |
+| 2xTP6hr | 12Hr Accum Precip from 2 6hr | mm |
+| 36SHRMi | S=Shear incr &gt; 10kts 3-6km |  |
+| 50dbzZ | 50dbz Hgt for 1 in. Svr Hail | m |
+| accum_altimeter24 | accum_altimeter24 | Pa |
+| accum_dewpoint24 | accum_dewpoint24 | F |
+| accum_dpFromTenths24 | accum_dpFromTenths24 |  |
+| accum_GH12 | accum_GH12 | m |
+| accum_htMan12 | accum_htMan12 | m |
+| accum_numMand12 | accum_numMand12 |  |
+| accum_precip1Hour3 | accum_precip1Hour3 | in |
+| accum_precip1Hour6 | accum_precip1Hour6 | in |
+| accum_precip6Hour24 | accum_precip6Hour24 | in |
+| accum_prMan12 | accum_prMan12 | Pa |
+| accum_rawMETAR24 | accum_rawMETAR24 |  |
+| accum_sfcPress3 | accum_sfcPress3 | Pa |
+| accum_temperature24 | accum_temperatur24 | in |
+| accum_tempFromTenths24 | accum_tempFromTenths24 | in |
+| accum_windDir24 | accum_windDir24 | in |
+| accum_windSpeed24 | accum_windSpeed24 | in |
 | ACOND | Aerodynamic conductance | m/s |
-| AETYP | Aerosol type | (Code table 4.205) |
-| AC137 | Air concentration of Caesium 137 | Bq/m^3 |
-| AI131 | Air concentration of Iodine 131 | Bq/m^3 |
-| ARADP | Air concentration of radioactive pollutant | Bq/m^3 |
+| adimc | Additional Impervious Area Water Content | % |
+| ageoVC | Ageo Vert Circ |  |
+| ageoW | Ageo Wind | m/s |
+| ageoWM | Magnitude Ageo Wind | m/s |
 | ALBDO | Albedo | % |
-| ACWVH | Altimeter corrected wave height | m |
-| ALRRC | Altimeter Range Relative Correction |  |
-| ASET | Altimeter setting | Pa |
-| AWVH | Altimeter wave height | m |
-| ALTMSL | Altitude above mean sea level | m |
+| Along | Component Along | m/s |
+| Alt24Chg | Alt24Chg | Pa |
+| Alti | Altimeter | hPa |
 | ANCConvectiveOutlook | ANC Convective Outlook |  |
 | ANCFinalForecast | ANC Final Forecast | dBZ |
-| AOSGSO | Angle Of Sub-Grid Scale Orography | Rad |
-| ASGSO | Anisotropy Of Sub-Grid Scale Orography | Numeric |
-| APTMP | Apparent Temperature | K |
-| ARBTXT | Arbitrary text string | CCITTIA5 |
-| ASHFL | Assimilative Heat Flux | W/m^2 |
-| AMIXL | Asymptotic mixing length scale | m |
-| ATMDIV | Atmospheric Divergence | s^-1 |
-| AVSFT | Average surface skin temperature | K |
-| BARET | Bare soil surface skin temperature | K |
-| BKENG | Barotropic Kinectic Energy | J/kg |
-| UBARO | Barotropic U velocity | m/s |
-| UBARO | Barotropic U Velocity | m/s |
-| VBARO | Barotropic V velocity | m/s |
-| VBARO | Barotropic V Velocity | m/s |
-| BGRUN | Baseflow-groundwater runoff | mm |
-| BASRV | Base radial velocity | m/s |
-| BASR | Base reflectivity | dB |
-| BASSW | Base spectrum width | m/s |
-| 4LFTX | Best (4-layer) lifted index | K |
-| 4LFTX | Best (4 layer) Lifted Index | K |
-| BLI | Best lifted index (to 500 mb) | K |
-| BMIXL | Blackadars mixing length scale | m |
-| BLST | Bottom layer soil temperature | K |
-| NONE | Bottom of Ocean Isothermal Layer | m |
-| OBIL | Bottom of Ocean Isothermal Layer | m |
-| NONE | Bottom of Ocean Mixed Layer (m) | m |
-| OBML | Bottom of Ocean Mixed Layer (m) | m |
-| BCBL | Boundary layer cloud bottom level |  |
-| BCBL | Boundary Layer Cloud Bottom Level |  |
-| BCLY | Boundary Layer Cloud Layer |  |
-| BCY | Boundary layer cloud layer |  |
-| BCY | Boundary Layer Cloud Layer |  |
-| BCTL | Boundary layer cloud top level |  |
-| BCTL | Boundary Layer Cloud Top Level |  |
-| BLYSP | Boundary layer dissipation | W/m^2 |
+| ANCLayerCompositeReflectivity | ANC Layer Composite Reflectivity | dBZ |
+| AppT | Apparent Temperature | °F |
+| AV | Absolute Vorticity | /s |
+| AV | Vorticity | /s |
+| BARO | Barometric Velocity Vectors | m/s |
+| BASSW | Spectrum Width | kts |
+| BdEPT06 | Max ThetaE Difference (3-6km Min minus 0-3km Max) | K |
+| BGRUN | Baseflow-Groundwater Runoff | kg/m^2 |
+| BLI | Best (4 layer) Lifted Index | K |
+| BLI | Best Lifted Index | K |
+| BlkMag | Bulk Shear Magnitude | m/s |
+| BlkShr | Bulk Shear Vectors | m/s |
+| BMIXL | Blackadar's Mixing Length Scale | m |
+| BREFMaxHourly | Hourly Base Reflectivity Maximum | dBZ |
 | BrightBandBottomHeight | Bright Band Bottom Height | m |
 | BrightBandTopHeight | Bright Band Top Height | m |
-| BRTMP | Brightness temperature | K |
-| CAIIRAD | CaII-K Radiance | W\*s\*r^1\*m^2 |
-| CCOND | Canopy conductance | m/s |
-| EVCW | Canopy water evaporation | W/m^2 |
-| CONVP | Categorical Convection | categorical |
+| BRN | Net Bulk Richardson Number |  |
+| BRNEHIi | 72% Supercell Cases Tornadic |  |
+| BRNmag |  | m/s |
+| BRNSHR | BRN Shear |  |
+| BRNvec |  | m/s |
+| BRTMP | Brightness Temperature | K |
+| CAPE | Convective Available Potential Energy | J/kg |
+| CAPEc1 | Prob CAPE &gt; 500 J/kg | % |
+| CAPEc2 | Prob CAPE &gt; 1000 J/kg | % |
+| CAPEc3 | Prob CAPE &gt; 2000 J/kg | % |
+| CAPEc4 | Prob CAPE &gt; 3000 J/kg | % |
+| CAPEc5 | Prob CAPE &gt; 4000 J/kg | % |
+| CapeStk | Cape Stack |  |
+| capeToLvl | cape up to level |  |
+| CAT | Clear Air Turbulence | % |
+| cCape | Computed CAPE | J/kg |
+| cCin | Computed CIN | J/kg |
+| CCOND | Canopy Conductance | m/s |
+| CCP | Cloud Cover | % |
+| CCPerranl | Cloud Cover Analysis Uncertainty | % |
+| CD | Drag Coefficient | Numeric |
+| CDCON | Convective Cloud Cover | % |
+| CDUVB | Clear sky UV-B Downward Solar Flux | W/m^2 |
+| CEIL | Ceiling | m |
 | CFRZR | Categorical Freezing Rain |  |
-| CFRZR | Categorical Freezing Rain | Code table 4.222 |
-| CFRZR | Categorical Freezing Rain | non-dim |
-| CFRZR | Categorical freezing rain | (See Code table 4.222) |
-| CFRZR | Categorical Freezing Rain (yes=1; no=0) |  |
-| CFRZR | Categorical Freezing Rain (yes=1; no=0) | non-dim |
+| CFRZR | Categorical Freezing Rain | bit |
+| CFRZRc1 | Chc of Measurable FZRA (Dominant) | % |
+| CFRZRmean | Categorical Freezing Precip mean |  |
+| CFRZRsprd | Categorical Freezing Precip sprd |  |
+| CIce | Cloud Ice | g/m^3 |
+| CICE | Cloud Ice | kg/m^2 |
 | CICEP | Categorical Ice Pellets |  |
-| CICEP | Categorical Ice Pellets | Code table 4.222 |
-| CICEP | Categorical Ice Pellets | non-dim |
-| CICEP | Categorical ice pellets | (See Code table 4.222) |
-| CICEP | Categorical Ice Pellets (yes=1; no=0) |  |
-| CICEP | Categorical Ice Pellets (yes=1; no=0) | non-dim |
-| CLGTN | Categorical Lightning | categorical |
-| OZCAT | Categorical Ozone Concentration | Non-Dim |
-| OZCAT | Categorical Ozone Concentration |  |
-| CRAIN | Categorical Rain | Code table 4.222 |
+| CICEP | Categorical Ice Pellets | bit |
+| CICEPc1 | Chc of Measurable IP (Dominant) | % |
+| CICEPmean | Categorical Ice Pellets mean |  |
+| CICEPsprd | Categorical Ice Pellets sprd |  |
+| Cig | Ceiling Height |  |
+| Cigc1 | Prob Ceiling Hgt &lt; 500 ft | % |
+| Cigc2 | Prob Ceiling Hgt &lt; 1000 ft | % |
+| Cigc3 | Prob Ceiling Hgt &lt; 3000 ft | % |
+| CIn | Convective Inhibition | J/kg |
+| ClCond | Cloud Condensate | g/m^3 |
+| CLGTN | Categorical Lightning Potential |  |
+| CLGTN2hr | 2hr Categorical Lightning Potential |  |
+| climoPW | PW % of normal | % |
+| climoPWimp | Import NARR PW | in |
+| CloudCover | Cloud Cover | K |
+| CLWMR | Cloud Mixing Ratio | kg/kg |
+| CnvP2hr | 2hr Convective probability | % |
+| CnvPcat | Categorical convective potential |  |
+| CNWAT | Plant Canopy Surface Water | mm |
+| COCO | Correlation Coefficient |  |
+| CompositeReflectivityMaxHourly | Hourly Composite Reflectivity Maximum | dBZ |
+| CONUSMergedReflectivity | CONUS Merged Reflectivity | dBZ |
+| CONUSMergedRHV | CONUS Merged RhoHV |  |
+| CONUSMergedZDR | CONUS Merged ZDR | dB |
+| CONUSPlusMergedReflectivity | CONUS-Plus Merged Reflectivity | dBZ |
+| CONVP | Categorical Convection Potential |  |
+| CONVP2hr | 2hr Convection potential |  |
+| Corf | Corfidi Vectors | m/s |
+| CorfF | Corfidi Vectors-Forward Prop | kn |
+| CorfFM | Corfidi Vec-Forward Mag | kn |
+| CorfM | Corfidi Vec Mag | kn |
+| covCat | Coverage Category | % |
+| CP | Conv Precip | mm |
+| CP | Convective Precipitation | mm |
+| CP12hr | Convective Precipitation(12 hours) | mm |
+| CP1hr | Convective Precipitation(1 hour) | mm |
+| CP3hr | Convective Precipitation(3 hours) | mm |
+| CP6hr | Convective Precipitation(6 hours) | mm |
+| CP9hr | Convective Precipitation(9 hours) | mm |
+| CP-GFS | Convective Precipitation for GFS | mm |
+| CPOFP | Percent of Frozen Precipitation | % |
+| CPOFP | Probability of Frozen precip | % |
+| CPOFP | Probability of Frozen Precip | % |
+| CPOLP | Probability of liquid precip | % |
+| CPOP | Categorical POP |  |
+| CPOZP | Probability of Freezing Precip | % |
+| CPOZP | Probability of Freezing Precip | % |
+| CPr | Condensation Pressure | hPa |
+| CPRAT | Convective Precipitation Rate | mm/s |
+| CPrD | Condensation Pressure Deficit | hPa |
 | CRAIN | Categorical Rain |  |
-| CRAIN | Categorical Rain | non-dim |
-| CRAIN | Categorical rain | (See Code table 4.222) |
-| CRAIN | Categorical Rain (yes=1; no=0) |  |
-| CRAIN | Categorical Rain (yes=1; no=0) | non-dim |
-| SVRTS | Categorical Servre Thunderstorm |  |
-| SVRTS | Categorical Severe Thunderstorm |  |
-| CSNOW | Categorical Snow | Code table 4.222 |
-| CSNOW | Categorical Snow |  |
-| CSNOW | Categorical Snow | non-dim |
-| CSNOW | Categorical snow | (See Code table 4.222) |
-| CSNOW | Categorical Snow (yes=1; no=0) |  |
-| CSNOW | Categorical Snow (yes=1; no=0) | non-dim |
-| CTSTM | Categorical Thunderstorm (1-yes, 0-no) | categorical |
-| TSTMC | Categorical Thunderstorm (1-yes, 0-no) | categorical |
-| CCEIL | Ceiling | m |
-| LightningDensity15min | CG Lightning Density (15 min.) | Flashes/km^2/min |
-| LightningDensity1min | CG Lightning Density (1 min.) | Flashes/km^2/min |
-| LightningDensity30min | CG Lightning Density (30 min.) | Flashes/km^2/min |
-| LightningDensity5min | CG Lightning Density (5 min.) | Flashes/km^2/min |
-| LightningProbabilityNext30min | CG Lightning Probability (0-30 min.) | % |
-| CAT | Clear Air Turbulence (CAT) | % |
-| CAT | Clear Air Turbulence(CAT) | % |
+| CRAIN | Categorical Rain | bit |
+| CRAINc1 | Chc of Measurable Rain (Dominant) | % |
+| CRAINmean | Categorical Rain mean |  |
+| CRAINsprd | Categorical Rain sprd |  |
+| CritT1 | Layer Min Temperature -6C, -10C | K |
 | CSDLF | Clear Sky Downward Long Wave Flux | W/m^2 |
-| CSDSF | Clear sky downward solar flux | W/m^2 |
+| CSDSF | Clear Sky Downward Solar Flux | W/m^2 |
+| CSNOW | Categorical Snow |  |
+| CSNOW | Categorical Snow | bit |
+| CSNOWc1 | Chc of Measurable Snow (Dominant) | % |
+| CSNOWmean | Categorical Snow mean |  |
+| CSNOWsprd | Categorical Snow sprd |  |
+| CSSI | CO Svr Storm Idx |  |
 | CSULF | Clear Sky Upward Long Wave Flux | W/m^2 |
 | CSUSF | Clear Sky Upward Solar Flux | W/m^2 |
-| CDUVB | Clear sky UV-B downward solar flux | W/m^2 |
-| CAMT | Cloud amount | % |
-| CBL | Cloud Base Level |  |
-| CBASE | Cloud base | m |
-| CEIL | Cloud Ceiling |  |
-| CLG | Cloud ceiling |  |
-| CLG | Cloud Ceiling |  |
-| CloudCover | Cloud Cover | K |
-| CFNLF | Cloud Forcing Net Long Wave Flux | W/m^2 |
-| CFNSF | Cloud Forcing Net Solar Flux | W/m^2 |
-| CDCIMR | Cloud Ice Mixing Ratio | kg/kg |
-| CICE | Cloud ice | mm |
-| CLOUDM | Cloud mask | (Code table 4.217) |
-| CLWMR | Cloud Mixing Ratio | kg kg-1 |
-| CLWMR | Cloud mixing ratio | kg/kg |
-| CTOPHQI | Cloud top height quality indicator | (Code table 4.219) |
-| CTOP | Cloud top | m |
-| heightCTHGT | Cloud top | m |
-| CTYP | Cloud type | (Code table 4.203) |
-| CWAT | Cloud water | mm |
-| CWORK | Cloud work function | J/kg |
-| CWORK | Cloud Work Function | J/kg |
-| CDWW | Coefficient of Drag With Waves |  |
-| CISOILW | Column-Integrated Soil Water | mm |
-| REFC | Composite reflectivity | dB |
-| MergedReflectivityQCComposite | Composite Reflectivity | dBZ |
-| HeightCompositeReflectivity | Composite Reflectivity Height | m |
-| MergedReflectivityQComposite | Composite Reflectivity Mosaic | dBZ |
-| EF25M | Cond 25% pcpn smy fractile past 24 hrs | mm |
-| EF50M | Cond 50% pcpn smy fractile past 24 hrs | mm |
-| TCOND | Condensate | kg kg-1 |
-| CONDE | Condensate | kg/kg |
-| CONDP | Condensation Pressure of Parcali Lifted From Indicate Surface | Pa |
-| CONDP | Condensation Pressure of Parcal Lifted From Indicate Surface | Pa |
-| CPPAF | Conditional percent precipitation amount fractile for an overall period (Encoded as an accumulation) | mm |
-| CICEL | Confidence - Ceiling |  |
-| CIFLT | Confidence - Flight Category |  |
-| CIVIS | Confidence - Visibility |  |
-| CONTB | Contrail base | m |
-| CONTB | Contrail Base | m |
-| CONTE | Contrail engine type | (Code table 4.211) |
-| CONTET | Contrail Engine Type | See Table 4.211 |
-| CONTI | Contrail intensity | (Code table 4.210) |
-| CONTI | Contrail Intensity | See Table 4.210 |
-| CONTT | Contrail top | m |
-| CONTT | Contrail Top | m |
-| CONUSMergedReflectivity | CONUS Merged Reflectivity | dBZ |
-| CONUSPlusMergedReflectivity | CONUS-Plus Merged Reflectivity | dBZ |
-| CONVP | Convection Potential |  |
-| CAPE | Convective available potential energy | J/kg |
-| CCBL | Convective cloud bottom level |  |
-| CCBL | Convective Cloud Bottom Level |  |
-| CCLY | Convective Cloud |  |
-| CCY | Convective cloud |  |
-| CCY | Convective Cloud |  |
-| CDCON | Convective cloud cover | % |
-| CUEFI | Convective Cloud Efficiency |  |
+| cTOT | Cross Totals | C |
+| CTSTM | Categorical Tstorm |  |
+| CTyp | Cloud Type |  |
 | CUEFI | Convective Cloud Efficiency | non-dim |
-| CUEFI | Convective cloud efficiency | Proportion |
-| MFLUX | Convective Cloud Mass Flux | Pa/s |
-| CCTL | Convective cloud top level |  |
-| CCTL | Convective Cloud Top Level |  |
-| CNVDEMF | Convective detrainment mass flux | mm/s |
-| CNVDMF | Convective downdraft mass flux | mm/s |
-| CNGWDV | Convective Gravity wave drag meridional acceleration | m/s^2 |
-| CNGWDU | Convective Gravity wave drag zonal acceleration | m/s^2 |
-| CIN | Convective inhibition | J/kg |
-| CNVV | Convective meridional momentum mixing acceleration | m/s^2 |
-| ACPCP | Convective Precipitation | kg m-2 |
-| ACPCP | Convective precipitation | mm |
-| ACPCPN | Convective precipitation (nearest grid point) | kg/m2 |
-| ACPCPN | Convective precipitation (nearest grid point) | mm |
-| CPRAT | Convective Precipitation Rate | kg m-2 s-1 |
-| CPRAT | Convective Precipitation Rate | kg\*m^-2\*s^-1 |
-| CPRAT | Convective precipitation rate | mm / s |
-| CPRAT | Convective Precipitation Rate | mm / s |
-| CSRATE | Convective Snowfall Rate | m s-1 |
-| CSRATE | Convective Snowfall Rate | m/s |
-| CSRWE | Convective Snowfall Rate Water Equivalent | kg m-2s-1 |
-| CSRWE | Convective Snowfall Rate Water Equivalent | mm/s |
-| SNOC | Convective snow | mm |
-| CNVUMF | Convective updraft mass flux | mm/s |
-| CWP | Convective Water Precipitation | kg m-2 |
-| CWP | Convective Water Precipitation | mm |
-| CWDI | Convective Weather Detection Index |  |
-| CNVU | Convective zonal momentum mixing acceleration | m/s^2 |
-| SNO C | Convect Snow | kg m-2 |
-| NTRNFLUX | Cosmic Ray Neutron Flux | h^1 |
-| COVTZ | Covariance between izonal component of the wind and temperature. Defined as [uT]-[u][T], where "[]" indicates the mean over the indicated time span. | K\*m/s |
-| COVMM | Covariance between meridional and meridional components of the wind. Defined as [vv]-[v][v], where "[]" indicates the mean over the indicated time span. | m^2/s^2 |
-| COVMZ | Covariance between Meridional and Zonal Components of the wind. | m^2/s^2 |
-| COVTM | Covariance between meridional component of the wind and temperature. Defined as [vT]-[v][T], where "[]" indicates the mean over the indicated time span. | K\*m/s |
-| COVQM | Covariance between specific humidity and meridional components of the wind. Defined as [vq]-[v][q], where "[]" indicates the mean over the indicated time span. | kg/kg\*m/s |
-| COVQQ | Covariance between specific humidity and specific humidy. Defined as [qq]-[q][q], where "[]" indicates the mean over the indicated time span. | kg/kg\*kg/kg |
-| COVQVV | Covariance between specific humidity and vertical components of the wind. Defined as [Ωq]-[Ω][q], where "[]" indicates the mean over the indicated time span. | kg/kg\*Pa/s |
-| COVQZ | Covariance between specific humidity and zonal components of the wind. Defined as [uq]-[u][q], where "[]" indicates the mean over the indicated time span. | kg/kg\*m/s |
-| COVPSPS | Covariance between surface pressure and surface pressure. Defined as [Psfc]-[Psfc][Psfc], where "[]" indicates the mean over the indicated time span. | Pa\*Pa |
-| COVTM | Covariance between Temperature and Meridional Components of the wind. | K\*m/s |
-| COVTT | Covariance between temperature and temperature. Defined as [TT]-[T][T], where "[]" indicates the mean over the indicated time span. | K\*K |
-| COVTW | Covariance between temperature and vertical component of the wind. Defined as [wT]-[w][T], where "[]" indicates the mean over the indicated time span. | K\*m/s |
-| COVTVV | Covariance between temperature and vertical components of the wind. Defined as [ΩT]-[Ω][T], where "[]" indicates the mean over the indicated time span. | K\*Pa/s |
-| COVTZ | Covariance between Temperature and Zonal Components of the wind. | K\*m/s |
-| COVVVVV | Covariance between vertical and vertical components of the wind. Defined as [ΩΩ]-[Ω][Ω], where "[]" indicates the mean over the indicated time span. | Pa^2/s^2 |
-| COVMZ | Covariance between zonal and meridional components of the wind. Defined as [uv]-[u][v], where "[]" indicates the mean over the indicated time span. | m^2/s^2 |
-| COVZZ | Covariance between zonal and zonal components of the wind. Defined as [uu]-[u][u], where "[]" indicates the mean over the indicated time span. | m^2/s^2 |
-| CrestMaxStreamflow | CREST Maximum Streamflow | (m^3)\*(s^-1) |
-| CrestMaxUStreamflow | CREST Maximum Unit Streamflow | (m^3)\*(s^-1)\*(km^-2) |
-| CrestSoilMoisture | CREST Soil Moisture | % |
-| CRTFRQ | Critical Frequency | Hz |
-| CB | Cumulonimbus Base | m |
-| CBHE | Cumulonimbus Horizontal Exten | % |
-| CT | Cumulonimbus Top | m |
-| DIRC | Current direction | Degree true |
-| SPC | Current speed | m/s |
-| DCBL | Deep convective cloud bottom level |  |
-| DCBL | Deep Convective Cloud Bottom Level |  |
-| DCCBL | Deep Convective Cloud Bottom Level |  |
-| DCCTL | Deep Convective Cloud Top Level |  |
-| DCTL | Deep convective cloud top level |  |
-| DCTL | Deep Convective Cloud Top Level |  |
-| CNVHR | Deep Convective Heating rate | K/s |
-| CNVMR | Deep Convective Moistening Rate | kg kg-1 s-1 |
-| CNVMR | Deep Convective Moistening Rate | kg/kg\*s |
-| DALT | Density altitude | m |
-| DEN | Density | kg/m^3 |
-| DBLL | Depth Below Land surface | m |
-| DPBLW | Depth below land surface | m |
-| DBSL | Depth Below Sea Level | m |
-| DPMSL | Depth below sea level | m |
-| REFZI | Derived radar reflectivity backscatter from ice | mm^6/m^3 |
-| REFZI | Derived radar reflectivity backscatter from ice | mm^6\*m^-3 |
-| REFZC | Derived radar reflectivity backscatter from parameterized convection | mm^6/m^3 |
-| REFZC | Derived radar reflectivity backscatter from parameterized convection | mm^6\*m^-3 |
-| REFZR | Derived radar reflectivity backscatter from rain | mm^6/m^3 |
-| REFZR | Derived radar reflectivity backscatter from rain | mm^6\*m^-3 |
-| REFD | Derived radar reflectivity | dB |
-| DEVMSL | Deviation of sea level from mean | m |
-| DEPR | Dew point depression or deficit | K |
-| DPT | Dew point temperature | K |
-| DIREC | Direct Evaporation Cease(Soil Moisture) | kg/m^3 |
-| SMDRY | Direct evaporation cease (soil moisture) | Proportion |
-| EVBS | Direct evaporation from bare soil | W/m^2 |
-| DIRWWW | Directional Width of The Wind Waves |  |
-| Degree true | Direction Degrees true | DIRDEGTRU |
-| WWSDIR | Direction of combined wind waves and swell | Degree |
-| DICED | Direction of ice drift | Degree true |
-| SWDIR | Direction of swell waves | Degree |
-| WVDIR | Direction of wind waves | Degree |
-| DSKDAY | Disk Intensity Day | J\*m^2\*s^1 |
-| DSKINT | Disk Intensity | j\*m^2\*s^1 |
-| DSKNGT | Disk Intensity Night | J\*m^2\*s^1 |
+| CumNrm | Normalized Cumulative Shear | /s |
+| CumShr | Cumulative Shear | m/s |
+| CURU | Cu Rule 0&gt;SKC,-1&gt;SCT,-4&lt;BKN,-6&lt;OVC |  |
+| CW | Cloud Water | g/m^3 |
+| CWAT | Cloud Water | mm |
+| CWORK | Cloud Work Function | J/kg |
+| CXR | Comp Refl | dBZ |
+| dCape | Downdraft CAPE | J/kg |
+| defV | Deformation | sec^-1 |
+| del2gH |  |  |
+| df | Duct Function |  |
+| dGH12 | 12hr Height Change | m |
+| DIABi | Omega from Diabatic Effects | dPa/s |
+| diam | Feature Diameter | km |
+| Dir24Chg | Dir24Chg | ° |
+| DIRC | Current Direction | ° |
+| DIRC | Surface Current Direction | degree |
+| dirPW | Primary Wave Direction |  |
+| DIRPW | Primary Wave Direction | deg |
+| dirSW | Secondary Wave Direction |  |
+| DIRSW | Secondary Wave Direction | deg |
+| DivF | Frontogenesis Vector Divergence | K/m/s^2 |
+| DivFn | Fn Vector Divergence | K/m/s^2 |
+| DivFs | Fs Vector Divergence | K/m/s^2 |
 | DLWRF | Downward Long-Wave Rad. Flux | W/m^2 |
-| DLWRF | Downward long-wave radiation flux | W/m^2 |
-|  | Downward Long-W/m^2 | DLWRF |
-| DSWRF | Downward Short-Wave Rad. Flux | W/m^2 |
-| DSWRF | Downward short-wave radiation flux | W/m^2 |
-|  | Downward Short-W/m^2 | DSWRF |
-| DTRF | Downward Total radiation Flux | W/m^2 |
-| DWUVR | Downward UV Radiation | W/m^2 |
-| CD | Drag Coefficient |  |
-| CD | Drag coefficient | Numeric |
-| ELON | East Longitude (0 - 360) | deg |
-| ELON | East Longitude (0 - 360) | degrees |
-| ELONN | East Longitude (nearest neighbor) (0 - 360) | degrees |
-| RETOP | Echo Top | m |
-| RADT | Effective radiative skin temperature | K |
-| ETOT | Electric Field Magnitude | V\*m^1 |
-| ELCDEN | Electron Density | m^3 |
-| DIFEFLUX | Electron Flux (Differential) | (m^2\*s\*sr\*eV)^1 |
-| INTEFLUX | Electron Flux (Integral) | (m^2\*s\*sr)^1 |
-| ELECTMP | Electron Temperature | K |
-| ELSCT | Elevation of snow covered terrain | (Code table 4.216) |
-| EHELX | Energy helicity index | Numeric |
-| EATM | Entire atmosphere (considered as a single layer) |  |
-| EA | Entire Atmosphere |  |
-| EATM | Entire Atmosphere |  |
-| NONE | Entire Atmosphere |  |
-| EOCN | Entire ocean (considered as a single layer) |  |
-| EOCN | Entire Ocean |  |
-| NONE | Entire Ocean |  |
-| EHLT | Equilibrium level |  |
-| EHLT | Equilibrium Level |  |
-| REFZC | Equivalent radar reflectivity factor for parameterized convection | m m6 m-3 |
-| REFZR | Equivalent radar reflectivity factor for rain | m m6 m-3 |
-| REFZI | Equivalent radar reflectivity factor for snow | m m6 m-3 |
-| ESTPC | Estimated precipitation | mm |
-| ESTUWIND | Estimated u component of wind | m/s |
-| ESTVWIND | Estimated v component of wind | m/s |
-| ELYR | Eta Level | Eta value |
-| ETAL | Eta Level | Eta value |
-| EUVRAD | EUV Radiance | W\*s\*r^1\*m^2 |
-| EVP | Evaporation | kg m-2 |
-| EVP | Evaporation | mm |
-|  | Evaporation - Precipitation | cm/day  EMNP |
-| EMNP | Evaporation - Precipitation | cm/day |
-| EMNP | Evaporation - Precipitation | cm per day |
-| EVAPT | Evapotranspiration | kg^-2\*s^-1 |
-| SFEXC | Exchange coefficient | kg\*m^-2\*s^-1 |
-| SFEXC | Exchange coefficient | mm \* s |
+| dP | Pressure Thickness | mb |
+| dP1hr | 1hr MSL Press Change | hPa |
+| Dp24Chg | Dp24Chg | °F |
+| dP3hr | 3hr MSL Press Change | hPa |
+| dP6hr | 6hr MSL Press Change | hPa |
+| DpD | Dew Point Depression | K |
+| DpD | Dewpoint depression | K |
+| DpDt | Local Pressure Derivative | hPa/s |
+| Dpress | Pressure Difference | hPa |
+| DpT | Dew Point Temperature | K |
+| DpT | Dewpoint temperature | K |
+| DpTerranl | Dew Point Temperature Error Analysis | K |
+| DpTerranl | Dewpoint Analysis Uncertainty | K |
+| DpTmean | Dewpoint Temp mean | K |
+| DpTsprd | Dewpoint Temp sprd | K |
+| dPW1hr | 1hr Precipitable Water Change | in |
+| dPW3hr | 3hr Precipitable Water Change | in |
+| dPW6hr | 6hr Precipitable Water Change | in |
+| DSLM | Deviation Of Sea Level from Mean | m |
+| DSWRF | Downward Short-Wave Radiation Flux | W/m^2 |
+| dT | Vrt Temp Chg | ℃ |
+| DthDt | Total Theta Tendency | K/S |
+| DUVB | UV-B Downward Solar Flux | W/m^2 |
+| dVAdv | Diff vort Adv | /s\*1.0E9 |
+| dZ | Thickness | m |
+| EchoTop18 | 18 dBZ Echo Top | km |
+| EchoTop30 | 30 dBZ Echo Top | km |
+| EchoTop50 | 50 dBZ Echo Top | km |
+| EchoTop60 | 60 dBZ Echo Top | km |
+| EHI | Energy Helicity Index |  |
+| EHI01 | Energy Helicity Index 0-1km | m\*m/s\*s |
+| EHIi | Energy Helicity Index |  |
+| ELEV | Ocean Surface Elevation Relative to Geoid | m |
+| ELEV | Tidal Height | m |
+| ELON | East Longitude (0 to 360) | deg |
+| EMSP | MSLP (ETA Reduction) | Pa |
+| EPT | Equiv Pot Temp | K |
+| EPT | Equivalent Potential Temperature | K |
+| EPTA | Equiv Pot Temp Adv | K/s |
+| EPTC | Equiv Pot Temp Conv | K/s |
+| EPTGrd | Theta-E Gradient | K/m |
+| EPTGrdM | Theta-E Grad Mag | K/m |
+| EPTs | Saturated Equiv Pot Temp | K |
+| EPVg | Geo Equiv Pot Vort | K/hPa/s |
+| EPVs | Saturated Equiv Pot Vort | K/hPa/s |
+| EPVt1 | Instability is Slantwise=S Upright=U |  |
+| EPVt2 | EPV* Instability is Slantwise=S Upright=U |  |
+| ESP | Enhanced Stretching Potential (ML) |  |
+| ESP2 | ESP gamma |  |
 | ETCWL | Extra Tropical Storm Surge Combined Surge and Tide | m |
 | ETSRG | Extra Tropical Storm Surge | m |
-| F107 | F10.7 | W\*m^2\*H\*z^1 |
-| FLDCP | Field Capacity | fraction |
-| FIREDI | Fire Detection Indicator | (Code Table 4.223) |
-| FIREODT | Fire Outlook Due to Dry Thunderstorm | index(see GRIB 2 code table 4.224) |
-| FIREOLK | Fire Outlook | index (see GRIB 2 code table 4.224) |
-| FFG | Flash flood guidance (Encoded as an accumulation over a floating subinterval of time between the reference time and valid time) | mm |
-| FFRUN | Flash flood runoff (Encoded as an accumulation over a floating subinterval of time) | mm |
-| FLGHT | Flight Category |  |
-| QREC | Flood plain recharge | mm |
-| ModelHeight0C | Freezing Level Height | m |
-| FRZR | Freezing Rain | kg/m2 |
-| FRZR | Freezing Rain | mm |
-| FPRATE | Freezing Rain Precipitation Rate | kg m-2s-1 |
-| FPRATE | Freezing Rain Precipitation Rate | mm/s |
-| FREQ | Frequency | s^-1 |
-| FRICV | Frictional velocity | m/s |
+| EVBS | Direct Evaporation from Bare Soil | W/m^2 |
+| EVCW | Canopy water evaporation | W/m^2 |
+| EVP | Evaporation | kg/m^2 |
+| FD | Fire Danger |  |
+| FeatMot | Feature Motion | kn |
+| fGen | QG Frontogenesis | K^2/m^2/s |
+| FLDCP | Field Capacity | Fraction |
+| fnD | Qn Div | K/m^2/s |
+| FnVecs | Fn Vectors | K/m/s |
 | FRICV | Frictional Velocity | m/s |
-| FRICV | Friction Velocity | m/s |
-| FROZR | Frozen Rain | kg/m2 |
-| FROZR | Frozen Rain | mm |
-| GHT | Geometrical height | m |
-| DBSS | Geometric Depth Below Sea Surface | m |
-| DIST | Geometric height | m |
-| GPA | Geopotential height anomaly | gpm |
-| GH | Geopotential height | gpm |
-| HGT | Geopotential height | gpm |
-| HGTN | Geopotential Height (nearest grid point) | gpm |
-| GP | Geopotential | m^2/s^2 |
-| GRAD | Global radiation flux | W/m^2 |
-| GRAUP | Graupel (snow pellets) | kg/kg |
-| GRLE | Grauple | kg kg-1 |
-| GSGSO | Gravity Of Sub-Grid Scale Orography | W/m^2 |
-| GWDV | Gravity wave drag meridional acceleration | m/s^2 |
-| GWDU | Gravity wave drag zonal acceleration | m/s^2 |
-| GCBL | Grid scale cloud bottom level |  |
-| GCBL | Grid Scale Cloud Bottom Level |  |
-| GSCBL | Grid Scale Cloud Bottom Level |  |
-| GCTL | Grid scale cloud top level |  |
-| GCTL | Grid Scale Cloud Top Level |  |
-| GSCTL | Grid Scale Cloud Top Level |  |
-| GC137 | Ground deposition of Caesium 137 | Bq/m^2 |
-| GI131 | Ground deposition of Iodine 131 | Bq/m^2 |
-| GRADP | Ground deposition of radioactive | Bq/m^2 |
-| GFLUX | Ground heat flux | W/m^2 |
-| SFC | Ground or Water Surface |  |
-| GWREC | Groundwater recharge | mm |
-| HAIL | Hail | m |
-| HAILPROB | Hail probability | % |
-| HINDEX | Haines Index | Numeric |
-| SIGHAL | Hall Conductivity | S\*m^1 |
-| HARAD | H-Alpha Radiance | W\*s\*r^1\*m^2 |
-| HFLUX | Heat Flux | W/m^2 |
-| HTX | Heat index | K |
-| DIFIFLUX | Heavy Ion Flux (Differential) | ((m^2\*s\*sr\*eV)/nuc)^1 |
-| INTIFLUX | Heavy Ion Flux (iIntegral) | (m^2\*s\*sr)^1 |
-| HGTAG | Height above ground (see Note 1) | m |
+| FROZR | Frozen Rain | kg/m^2 |
+| FRZR | Ice Accum | m |
+| FRZR12hr | 12 Hr Ice Accum | mm |
+| FRZR6hr | 6 Hr Ice Accum | mm |
+| FRZRmodel | Model Run Ice | mm |
+| FRZRrun | Model Run Ice Accum | mm |
+| fsD | Qs Div | K/m^2/s |
+| FsVecs | Fs Vectors | K/m/s |
+| FVecs | Frontogenesis Vectors | K/m/s |
+| Fzra1 | 850-1000 fz thk |  |
+| Fzra2 | Thickness: FZRA/FZDZ |  |
+| g2gsh | Gate to Gate Shear | kts |
+| gamma | Lapse Rate | K/m |
+| gammaE | ThetaE Lapse Rate | K/m |
+| GaugeCorrQPE01H | QPE - Radar with Gauge Bias Correction (1 hr. accum.) | mm |
+| GaugeCorrQPE03H | QPE - Radar with Gauge Bias Correction (3 hr. accum.) | mm |
+| GaugeCorrQPE06H | QPE - Radar with Gauge Bias Correction (6 hr. accum.) | mm |
+| GaugeCorrQPE12H | QPE - Radar with Gauge Bias Correction (12 hr. accum.) | mm |
+| GaugeCorrQPE24H | QPE - Radar with Gauge Bias Correction (24 hr. accum.) | mm |
+| GaugeCorrQPE48H | QPE - Radar with Gauge Bias Correction (48 hr. accum.) | mm |
+| GaugeCorrQPE72H | QPE - Radar with Gauge Bias Correction (72 hr. accum.) | mm |
+| GaugeInfIndex01HP1 | 1 hour QPE Gauge Influence Index Pass 1 |  |
+| GaugeInfIndex01HP2 | 1 hour QPE Gauge Influence Index Pass 2 |  |
+| GaugeInfIndex03HP1 | 3 hour QPE Gauge Influence Index Pass 1 |  |
+| GaugeInfIndex03HP2 | 3 hour QPE Gauge Influence Index Pass 2 |  |
+| GaugeInfIndex06HP1 | 6 hour QPE Gauge Influence Index Pass 1 |  |
+| GaugeInfIndex06HP2 | 6 hour QPE Gauge Influence Index Pass 2 |  |
+| GaugeInfIndex12HP1 | 12 hour QPE Gauge Influence Index Pass 1 |  |
+| GaugeInfIndex12HP2 | 12 hour QPE Gauge Influence Index Pass 2 |  |
+| GaugeInfIndex24HP1 | 24 hour QPE Gauge Influence Index Pass 1 |  |
+| GaugeInfIndex24HP2 | 24 hour QPE Gauge Influence Index Pass 2 |  |
+| GaugeInfIndex48HP1 | 48 hour QPE Gauge Influence Index Pass 1 |  |
+| GaugeInfIndex48HP2 | 48 hour QPE Gauge Influence Index Pass 2 |  |
+| GaugeInfIndex72HP1 | 72 hour QPE Gauge Influence Index Pass 1 |  |
+| GaugeInfIndex72HP2 | 72 hour QPE Gauge Influence Index Pass 2 |  |
+| GaugeOnlyQPE01H | QPE - Radar Gauge Only (1 hr. accum.) | mm |
+| GaugeOnlyQPE03H | QPE - Radar Gauge Only (3 hr. accum.) | mm |
+| GaugeOnlyQPE06H | QPE - Radar Gauge Only (6 hr. accum.) | mm |
+| GaugeOnlyQPE12H | QPE - Radar Gauge Only (12 hr. accum.) | mm |
+| GaugeOnlyQPE24H | QPE - Radar Gauge Only (24 hr. accum.) | mm |
+| GaugeOnlyQPE48H | QPE - Radar Gauge Only (48 hr. accum.) | mm |
+| GaugeOnlyQPE72H | QPE - Radar Gauge Only (72 hr. accum.) | mm |
+| GeH | Geometric Height | m |
+| geoVort | Geo Vorticity | /s |
+| geoW | Geostrophic Wind | m/s |
+| geoWM | Magnitude Geo Wind | m/s |
+| GFLUX | Ground Heat Flux | W/m^2 |
+| GH | Geopotential Height | gpm |
+| GH | Height | m |
+| GH12hour | 12 hour Height | m |
+| GH2day | 2 day Height | m |
+| GH5day | 5 day Height | m |
+| GH_avg | Height Ensemble Mean | m |
+| GH_perts | Height Perturbations | m |
+| GH_std | Height Ensemble Std Dev | m |
+| GHmean | Geopotential Height mean | m |
+| GHsprd | Geopotential Height spread | m |
+| GHxSM | Filtered-500km Hgt | m |
+| GHxSM2 | Filtered-250km Hgt | m |
+| gOvf |  |  |
+| Gust | Wind Gust | m/s |
+| GVV | Geometric Vertical Velocity | m/s |
+| GVV | Geometric Vertical Velocity | m/s |
+| GVV1hr | Mean 1hr Geometric Vertical Velocity | m/s |
 | H50Above0C | Height of 50 dBZ Echo Above 0C | km |
 | H50AboveM20C | Height of 50 dBZ Echo Above -20C | km |
 | H60Above0C | Height of 60 dBZ Echo Above 0C | km |
 | H60AboveM20C | Height of 60 dBZ Echo Above -20C | km |
-| HELCOR | Heliospheric Radiance | W\*s\*r^1\*m^2 |
-| ABSRB | HF Absorption | dB |
-| ABSFRQ | HF Absorption Frequency | Hz |
-| HPRIMF | h'F | m |
-| HCBL | High cloud bottom level |  |
-| HCBL | High Cloud Bottom Level |  |
-| HCDC | High cloud cover | % |
-| HCL | High cloud layer |  |
-| HCL | High Cloud Layer |  |
-| HCLY | High Cloud Layer |  |
-| HCTL | High cloud top level |  |
-| HCTL | High Cloud Top Level |  |
-| HSCLW | Highest top level of supercooled liquid water layer |  |
-| HSCLW | Highest Top Level of Supercooled Liquid Water Layer |  |
-| HTSLW | Highest Top Level of Supercooled Liquid Water Layer |  |
-| HTFL | Highest tropospheric freezing level |  |
-| HTFL | Highest Tropospheric Freezing Level |  |
-| HighLayerCompositeReflectivity | High Layer Composite Reflectivity (24-60 kft) | dBZ |
-| HAVNI | High-Level aviation interest |  |
-| HRCONO | High risk convective outlook | categorical |
-| MCONV | Horizontal Moisture Convergence | kg kg-1 s-1 |
-| HMC | Horizontal moisture convergence | kg/kg\*s |
-| MCONV | Horizontal Moisture Divergence | kg kg-1 s-1 |
-| MCONV | Horizontal Moisture Divergence | kg\*kg^-1\*s^-1 |
-| MCONV | Horizontal moisture divergence | kg/kg\*s |
-| MCONV | Horizontal Moisture Divergence | kg/kg\*s |
-| MFLX | Horizontal momentum flux | N/m^2 |
-| MFLX | Horizontal Momentum Flux | N \* m-2 |
-| MFLX | Horizontal Momentum Flux | N/m^2 |
-| CompositeReflectivityMaxHourly | Hourly Composite Reflectivity Maximum | dBZ |
-| MAXDVV | Hourly Maximum of Downward Vertical Vorticity in the lowest 400hPa | m/s |
-| MAXREF | Hourly Maximum of Simulated Reflectivity at 1 km AGL | dB |
-| MXUPHL | Hourly Maximum of Updraft Helicity over Layer 2-5 km AGL | m^2/s^2 |
-| MXUPHL | Hourly Maximum of Updraft Helicity over Layer 2km to 5 km AGL | m^2/s^2 |
-| MAXUVV | Hourly Maximum of Upward Vertical Vorticity in the lowest 400hPa | m/s |
-| MIXR | Humidity Mixing Ratio | kg kg-1 |
-| MIXR | Humidity mixing ratio | kg/kg |
-| RCQ | Humidity parameterin canopy conductance | Fraction |
-| RCQ | Humidity parameter in canopy conductance | Proportion |
-| HYBL | Hybrid Level |  |
-| HCBB | ICAO Height at Cumulonimbus Bas | m |
-| HCBT | ICAO Height at Cumulonimbus To | m |
-| HECBB | ICAO Height at Embedded Cumulonimbus Bas | m |
-| HECBT | ICAO Height at Embedded Cumulonimbus To | m |
-| ICAHT | ICAO Standard Atmosphere Reference Height | m |
-| ICEC | Ice cover | Proportion |
-| ICED | Ice divergence | s^-1 |
-| FICE | Ice fraction of total condensate |  |
-| FICE | Ice fraction of total condensate | non-dim |
-| FICE | Ice fraction of total condensate | Proportion |
-| surface | Ice-free water | ICWAT |
-| ICWAT | Ice-free water surface | % |
-| ICEG | Ice growth rate | m/s |
-| IPRATE | Ice Pellets Precipitation Rate | kg m-2s-1 |
-| IPRATE | Ice Pellets Precipitation Rate | mm/s |
-| ICE T | Ice Temperature | K |
-| ICETK | Ice thickness | m |
-| ICMR | Ice Water Mixing Ratio | kg kg-1 |
-| ICMR | Ice water mixing ratio | kg/kg |
-| ICIB | Icing base | m |
-| ICIB | Icing Base | m |
-| ICIP | Icing | % |
-| ICIP | Icing Potential | % |
-| TIPD | Icing Potential | non-dim |
-| ICPRB | Icing probability | non-dim |
-| ICI | Icing | See Table 4.207 |
-|  | Icing Severity | ICI |
-| ICSEV | Icing severity | non-dim |
-| ICIT | Icing top | m |
-| ICIT | Icing Top | m |
-| CTP | In-Cloud Turbulence | % |
-| IRBand4 | Infrared Imagery | K |
-| INSTRR | Instantaneous rain rate | mm / s |
-| LIPMF | Integrated column particulate matter (fine) | log10(mg \* m^-3) |
-| LIPMF | Integrated column particulate matter (fine) | log10(mm\*g/m^3) |
-| ILIQW | Integrated Liquid Water | kg m-2 |
-| ILW | Integrated liquid water | mm |
-| TSI | Integrated Solar Irradiance | W\*m^2 |
-| INTFD | Interface Depths | m |
-| IMFTSW | Inverse Mean Frequency of The Total Swell | s |
-| IMFWW | Inverse Mean Frequency of The Wind Waves | s |
-| IMWF | Inverse Mean Wave Frequency | s |
-| IONDEN | Ion Density | m^3 |
-| IDRL | Ionospheric D-region level |  |
-| IERL | Ionospheric E-region level |  |
-| IF1RL | Ionospheric F1-region level |  |
-| IF2RL | Ionospheric F2-region level |  |
-| IONTMP | Ion Temperature | K |
-| THEL | Isentropic (theta) level | K |
-| ISBL | Isobaric Surface | Pa |
-| TMPL | Isothermal Level | K |
-| KX | K index | K |
-| KENG | Kinetic Energy | J/kg |
-| MELBRNE | KNES1 | 1 |
-| KOX | KO index | K |
-| BENINX | Kurtosis of The Sea Surface Elevation Due to Waves |  |
-| LAND | Land cover (0=sea, 1=land) | Proportion |
-| LANDN | Land-sea coverage (nearest neighbor) | [land=1,sea=0] |
-| LSPA | Land Surface Precipitation Accumulation | mm |
-| LANDU | Land use | (Code table 4.212) |
-| LAPR | Lapse rate | K/m |
-| LRGHR | Large Scale Condensate Heating rate | K/s |
-| LRGMR | Large scale moistening rate | kg/kg/s |
-| NCPCP | Large-Scale Precipitation (non-convective) | kg m-2 |
-| NCPCP | Large scale precipitation (non-convective) | mm |
-| LSPRATE | Large Scale Precipitation Rate | kg m-2s-1 |
-| LSPRATE | Large Scale Precipitation Rate | mm/s |
-| LSSRATE | Large Scale Snowfall Rate | m s-1 |
-| LSSRATE | Large Scale Snowfall Rate | m/s |
-| LSSRWE | Large Scale Snowfall Rate Water Equivalent | kg m-2s-1 |
-| LSSRWE | Large Scale Snowfall Rate Water Equivalent | mm/s |
-| SNO L | Large-Scale Snow | kg m-2 |
-| SNOL | Large scale snow | mm |
-| LSWP | Large Scale Water Precipitation (Non-Convective) | kg m-2 |
-| LSWP | Large Scale Water Precipitation (Non-Convective) | mm |
-| LHTFL | Latent heat net flux | W/m^2 |
-| NLAT | Latitude (-90 to +90) | deg |
-| NLAT | Latitude (-90 to +90) | degrees |
-| NLATN | Latitude (nearest neighbor) (-90 to +90) | degrees |
-| LAPP | Latitude of Presure Point | degrees |
-| LAUV | Latitude of U Wind Component of Velocity | degrees |
-| LAVV | Latitude of V Wind Component of Velocity | degrees |
-| NONE | Layer Between Two Depths Below Ocean Surface |  |
-| OLYR | Layer between two depths below ocean surface |  |
-| OLYR | Layer Between Two Depths Below Ocean Surface |  |
-| LBTHL | Layer Between Two Hybrid Levels |  |
-| NONE | Layer Between Two Hybrid Levels |  |
-| LMBSR | Layer-maximum base reflectivity | dB |
-| LOS | Layer Ocean Surface and 26C Ocean Isothermal Level |  |
-| NONE | Layer Ocean Surface and 26C Ocean Isothermal Level |  |
-| LAYTH | Layer Thickness | m |
-| LAI | Leaf Area Index |  |
-| PDLY | Level at Specified Pressure Difference from Ground to Level | Pa |
-| SPDL | Level at Specified Pressure Difference from Ground to Level | Pa |
-| 0DEG | level of 0C Isotherm |  |
-| ADCL | Level of Adiabatic Condensation Lifted from the Surface |  |
-| CTL | Level of Cloud Tops |  |
-| LTNG | Lightning |  |
-| LTNG | Lightning | non-dim |
-| LMBINT | Limb Intensity | J\*m^2\*s^1 |
-| ARAIN | Liquid precipitation (rainfall) | kg/m2 |
-| ARAIN | Liquid precipitation (rainfall) | mm |
-| LSOIL | Liquid soil moisture content (non-frozen) | mm |
-| LIQVSM | Liquid Volumetric Soil Moisture (Non-Frozen) | m^3/m^3 |
-| SOILL | Liquid volumetric soil moisture (non-frozen) | Proportion |
-| LOPP | Longitude of Presure Point | degrees |
-| LOUV | Longitude of U Wind Component of Velocity | degrees |
-| LOVV | Longitude of V Wind Component of Velocity | degrees |
-| LWAVR | Long wave radiation flux | W/m^2 |
-| LWHR | Long-Wave Radiative Heating Rate | K/s |
-| LCBL | Low cloud bottom level |  |
-| LCBL | Low Cloud Bottom Level |  |
-| LCDC | Low cloud cover | % |
-| LCLY | Low Cloud Layer |  |
-| LCY | Low cloud layer |  |
-| LCY | Low Cloud Layer |  |
-| LCTL | Low cloud top level |  |
-| LCTL | Low Cloud Top Level |  |
-| LLSM | Lower layer soil moisture | kg/m^3 |
-| LBSLW | Lowest Bottom Level of Supercooled Liquid Water Layer |  |
-| LSCLW | Lowest bottom level of supercooled liquid water layer |  |
-| LSCLW | Lowest Bottom Level of Supercooled Liquid Water Layer |  |
-| LLTW | Lowest level of the wet bulb zero |  |
-| LLTW | Lowest Level of the Wet Bulb Zero |  |
-| LWBZ | Lowest Level of the Wet Bulb Zero |  |
-| WBZ | Lowest Level of the Wet Bulb Zero |  |
-| LowLayerCompositeReflectivity | Low Layer Composite Reflectivity (0-24 kft) | dBZ |
-| LAVNI | Low-Level aviation interest |  |
-| MergedAzShear02kmAGL | Low-Level Azimuthal Shear (0-2km AGL) | 1/s |
-| LLCompositeReflectivity | Low-Level Composite Reflectivity | dBZ |
+| HAILPROB | Hail Probability | % |
+| HC | Hydrometeor Class |  |
+| HCDC | High Cloud Cover | % |
+| HeightCompositeReflectivity | Composite Reflectivity Height | m |
 | HeightLLCompositeReflectivity | Low-Level Composite Reflectivity Height | m |
-| RotationTrackLL120min | Low-Level Rotation Tracks 0-2km AGL (120 min. accum.) | 1/s |
-| RotationTrackLL1440min | Low-Level Rotation Tracks 0-2km AGL (1440 min. accum.) | 1/s |
-| RotationTrackLL240min | Low-Level Rotation Tracks 0-2km AGL (240 min. accum.) | 1/s |
-| RotationTrackLL30min | Low-Level Rotation Tracks 0-2km AGL (30 min. accum.) | 1/s |
-| RotationTrackLL360min | Low-Level Rotation Tracks 0-2km AGL (360 min. accum.) | 1/s |
-| RotationTrackLL60min | Low-Level Rotation Tracks 0-2km AGL (60 min. accum.) | 1/s |
-| BTOT | Magnetic Field Magnitude | T |
-| MTHA | Main thermocline anomaly | m |
-| MTHD | Main thermocline depth | m |
-| LMH | Mass Point Model Surface |  |
-| MAXAH | Maximum absolute humidity | kg/m^3 |
-| MAXAH | Maximum Absolute Humidity | kg m-3 |
-| MACAT | Maximum Cloud Air Turbulence Potential | mm |
-| REFC | Maximum/Composite radar reflectivity | dB |
-| MTHE | Maximum equivalent potential temperature level |  |
-| MTHE | Maximum Equivalent Potential Temperature level |  |
-| MESH | Maximum Estimated Size of Hail (MESH) | mm |
-| MAIP | Maximum Icing Potential | mm |
-| MAXWH | Maximum Individual Wave Height | m |
-| PRPMax | Maximum Precipitation Return Period | year |
-| QPEFFGMax | Maximum QPE-to-FFG Ratio | % |
-| MAXRH | Maximum relative humidity | % |
+| Heli | Helicity | m\*m/s\*s |
+| Heli | Storm Relative Helicity | m^2/s^2 |
+| HeliC | Helicity (for &gt; 300J/Kg MLCape) |  |
+| HeliD | Helicity (NCEP Delivered) | m²/s² |
+| HI | Haines Index |  |
+| HI | Haines Index | Numeric |
+| HI1 | Haines Stab Term |  |
+| HI3 | HI1 Index Assign |  |
+| HI4 | Moist Term Index Assign |  |
+| HIdx | Heat Index | K |
+| HIdx | Heat Index | K |
+| HighLayerCompositeReflectivity | High Layer Composite Reflectivity (24-60 kft) | dBZ |
+| HIWC | HiWc | K |
+| HPBL | Height of Planetary Boundary Layer | m |
+| HPBL | Planetary Boundary Layer Height | m |
+| HTSGW | Total Significant Wave Height | m |
+| HyC | Hydrometer Conc | g/m^3 |
+| ICAHT | ICAO Standard Atmosphere Reference Height | m |
+| ICEC | Derived Radar Composite | Proportion |
+| ICEC | Ice Cover |  |
+| ICEC | Ice Cover | Proportion |
+| ICEG | Ice growth rate | m/s |
+| ICETK | Ice Thickness | m |
+| ICI | Icing Severity Index |  |
+| ICIP | Icing Probability | % |
+| ICMR | Ice Water Mixing Ratio |  |
+| ICNG | Icing Potential | % |
+| ICPRB | Icing Probability | % |
+| ICSEV | Icing Severity Index |  |
+| ICSEV | Icing severity | non-dim |
+| ILW | Int Liquid Water | g/m^2 |
+| Into | Component Into | m/s |
+| INV | Height of MaxTw above FrzLvl | ft |
+| IP | Icing Pot |  |
+| IPLayer | SFC Cold Lyr Probs Toward SLEET | ft |
+| IRBand4 | Infrared Imagery | K |
+| JFWPRB9-20 | Fire Wx: Prob Wind &gt;= 17.5 kts and RH &lt; 20% | % |
+| KDP | Specific Differential Phase | deg/km |
+| KI | K Index | K |
+| KI | K Index | K |
+| L-I | Computed LI | ℃ |
+| L3EchoTop | Level III High Resolution Enhanced Echo Top Mosaic | kft |
+| L3VIL | Level III High Resolution VIL Mosaic | kg/m^2 |
+| LAND | Land Cover (0=sea, 1=land) | Proportion |
+| LANDN | Land-sea coverage (nearest neighbor) [land=1,sea=0] |  |
+| LAPR | Lapse Rate | K/m |
+| latitude | Latitude | ° |
+| LatLon | Earth Location |  |
+| LCDC | Low Cloud Cover | % |
+| LgSP | Large Scale Precipitation | mm |
+| LgSP1hr | Large Scale Precipitation(1 hour) | mm |
+| LgSP3hr | Large Scale Precipitation(3 hour) | mm |
+| LHF | Latent Heat Flux | W/m^2 |
+| LightningDensity15min | CG Lightning Density (15 min.) | Flashes/km^2/min |
+| LightningDensity1min | CG Lightning Density (1 min.) | Flashes/km^2/min |
+| LightningDensity30min | CG Lightning Density (30 min.) | Flashes/km^2/min |
+| LightningDensity5min | CG Lightning Density (5 min.) | Flashes/km^2/min |
+| LightningJumpGrid | Lightning Jump |  |
+| LightningJumpGridMax5min | Lightning Jump Max |  |
+| LightningProbabilityNext30min | CG Lightning Probability (0-30 min.) | % |
+| LightningProbabilityNext60min | CG Lightning Probability (0-60 min.) | % |
+| LIsfc2x | Lifted Index Sfc to | ℃ |
+| LLCompositeReflectivity | Low-Level Composite Reflectivity | dBZ |
+| LLWSWind | LLWSWind | kts |
+| LM5 | Bunkers Left-Moving Supercell | m/s |
+| LM6 | Elevated Left-Moving Supercell | m/s |
+| loCape | CAPE to 3kmAGL (Tv) | J/kg |
+| longitude | Longitude | ° |
+| LowLayerCompositeReflectivity | Low Layer Composite Reflectivity (0-24 kft) | dBZ |
+| LSOIL | Liquid soil moisture content (non-frozen) | kg/m^2 |
+| lsrSample | LSR Sample |  |
+| LtgP2hr | 2hr Lightning probability | % |
+| LtgPcat | Categorical lightning potential |  |
+| LTNG | Lightning | non-dim |
+| LTNG | Max 1hr Lightning Threat (flashes/km^2) |  |
+| LWHR | Long-Wave Radiative Heating Rate | K/s |
+| lzfpc | Lower Zone Primary Free Water Content | % |
+| lzfsc | Lower Zone Secondary Free Water Content | % |
+| lztwc | Lower Zone Tension Water Content | % |
+| MAdv | Moisture Adv | (g/kg)/s |
+| maritimeObscuredSkyIFR |  | ft |
+| maritimeObscuredSkyLIFR |  | ft |
+| maritimeObscuredSkyMVFR |  | ft |
+| maritimeObscuredSkySymIFR |  |  |
+| maritimeObscuredSkySymLIFR |  |  |
+| maritimeObscuredSkySymMVFR |  |  |
+| maritimeObscuredSkySymVFR |  |  |
+| maritimeObscuredSkyVFR |  | ft |
+| maritimeWind20T34 |  | kn |
+| maritimeWind34T48 |  | kn |
+| maritimeWind48T64 |  | kn |
+| maritimeWind64P |  | kn |
+| maritimeWindDir20T34 |  | deg |
+| maritimeWindDir34T48 |  | deg |
+| maritimeWindDir48T64 |  | deg |
+| maritimeWindDir64P |  | deg |
+| maritimeWindDirLow |  | deg |
+| maritimeWindGust20T34 |  | kn |
+| maritimeWindGust34T48 |  | kn |
+| maritimeWindGust48T64 |  | kn |
+| maritimeWindGust64P |  | kn |
+| maritimeWindGustLow |  | kn |
+| maritimeWindLow |  | kn |
+| MaxDVV | Max 1hr Downdraft Vertical Velocity | m/s |
+| maxEPT | Max ThetaE (0-3kmAgl) | K |
+| MaxGRPL1hr | Max Hourly Graupel | kg/m^2 |
+| MaxREF1hr | Max Hourly Reflectivity | dBZ |
 | MAXRH | Maximum Relative Humidity | % |
-| MXSALB | Maximum snow albedo | % |
-| MXSALB | Maximum Snow Albedo | % |
-| MXSALB | Maximum Snow Albedo\* | % |
-| QMAX | Maximum specific humidity at 2m | kg/kg |
-| TMAX | Maximum temperature | K |
-| MWSL | Maximum Wind Level |  |
-| MAXWS | Maximum wind speed | m/s |
-| MACTP | Max in-Cloud Turbulence Potential | mm |
-| MECAT | Mean Cloud Air Turbulence Potential | mm |
-| MEI | Mean Icing Potential | mm |
-| MECTP | Mean in-Cloud Turbulence Potential | mm |
-| MWSPER | Mean period of combined wind waves and swell | s |
-| SWPER | Mean period of swell waves | s |
-| WVPER | Mean period of wind waves | s |
-| MSL | Mean Sea Level | Pa |
-| M2SPW | Mean square slope of waves |  |
-| MZPTSW | Mean Zero-Crossing Period of The Total Swell | s |
-| MZPWW | Mean Zero-Crossing Period of The Wind Waves | s |
-| MZWPER | Mean Zero-Crossing Wave Period | s |
-| MCDC | Medium cloud cover | % |
+| MAXRH12hr | 12-hour Maximum Rel Humidity | % |
+| MAXRH3hr | 3-hour Maximum Rel Humidity | % |
+| MAXUPHL | Max 1hr Updraft Helicity | m^2/s^2 |
+| MAXUPHL | Max Updraft Helicity | m^2/s^2 |
+| MaxUPHL1hr | Max Hourly Updft Helicity | m^2/s^2 |
+| MaxUVV | Max 1hr Updraft Vertical Velocity | m/s |
+| MAXUW | U Component of Hourly Maximum Wind Speed | m/s |
+| MAXVW | V Component of Hourly Maximum Wind Speed | m/s |
+| MaxWGS1hr | Max Hourly Wind Gust | m/s |
+| MaxWHRRR | Maximum 1hr Wind Gust | m/s |
+| MaxWind1hr | MaxWind1hr | m/s |
+| MCDC | Medium Cloud Cover | % |
+| MCon | Moisture Flux Div | (g/kg)/s |
+| MCon2 | Moisture Flux Div (Conv only) | (g/kg)/s |
+| MCONV | Horizontal Moisture Convergence | kg/kg*s^m^2/s |
+| MergedAzShear02kmAGL | Low-Level Azimuthal Shear (0-2km AGL) | 1/s |
+| MergedAzShear36kmAGL | Mid-Level Azimuthal Shear (3-6km AGL) | 1/s |
+| MergedBaseReflectivity | Raw Merged Base Reflectivity | dBZ |
 | MergedBaseReflectivityQC | Merged Base Reflectivity | dBZ |
 | MergedReflectivityAtLowestAltitude | Merged Reflectivity At Lowest Altitude (RALA) | dBZ |
-| VGWD | Meridional flux of gravity wave stress | N/m^2 |
-| V-GWD | Meridional Flux of Gravity Wave Stress | N/m^2 |
+| MergedReflectivityComposite | Raw Composite Reflectivity Mosaic | dBZ |
+| MergedReflectivityQCComposite | Composite Reflectivity | dBZ |
+| MergedReflectivityQComposite | Composite Reflectivity Mosaic | dBZ |
+| MESH | Maximum Estimated Size of Hail (MESH) | mm |
 | MESHTrack120min | MESH Tracks (120 min. accum.) | mm |
 | MESHTrack1440min | MESH Tracks (1440 min. accum.) | mm |
 | MESHTrack240min | MESH Tracks (240 min. accum.) | mm |
 | MESHTrack30min | MESH Tracks (30 min. accum.) | mm |
 | MESHTrack360min | MESH Tracks (360 min. accum.) | mm |
 | MESHTrack60min | MESH Tracks (60 min. accum.) | mm |
-| MCBL | Middle cloud bottom level |  |
-| MCBL | Middle Cloud Bottom Level |  |
-| MCLY | Middle Cloud Layer |  |
-| MCY | Middle cloud layer |  |
-| MCY | Middle Cloud Layer |  |
-| MCTL | Middle cloud top level |  |
-| MCTL | Middle Cloud Top Level |  |
-| MergedAzShear36kmAGL | Mid-Level Azimuthal Shear (3-6km AGL) | 1/s |
+| minEPT | Min ThetaE (3-6kmAgl) | K |
+| MINRH | Minimum Relative Humidity | % |
+| MINRH12hr | 12-hour Minimum Rel Humidity | % |
+| MINRH3hr | 3-hour Minimum Rel Humidity | % |
+| Mix1 | 850-1000 mx thk |  |
+| Mix2 | Thickness: Wintery MIX |  |
+| MIXR | Humidity Mixing Ratio | kg/kg |
+| mixRat | Mixing Ratio | g/kg |
+| MLLCL | ML LCL Height | m |
+| Mmag | Moisture Trans Mag | g·m/(kg·s) |
+| MMP | MCS Maintenance Probability | % |
+| MMSP | MSLP (MAPS Reduction) | Pa |
+| MnT | Minimum Temperature | K |
+| MnT | Minimum Temperature | K |
+| MnT12hr | 12-hr Minimum Temperature | K |
+| MnT3hr | 3-hr Minimum Temperature | K |
+| MnT6hr | 6-hr Minimum Temperature | K |
+| MnT_avg | Min Temp Ensemble Mean | K |
+| MnT_perts | Min Temp Perturbations | K |
+| MnT_std | Min Temp Ensemble Std Dev | K |
+| ModelHeight0C | Freezing Level Height | m |
+| ModelSurfaceTemperature | Surface Temperature | C |
+| ModelWetbulbTemperature | Wet Bulb Temperature | C |
+| MountainMapperQPE01H | QPE - Mountain Mapper (1 hr. accum.) | mm |
+| MountainMapperQPE03H | QPE - Mountain Mapper (3 hr. accum.) | mm |
+| MountainMapperQPE06H | QPE - Mountain Mapper (6 hr. accum.) | mm |
+| MountainMapperQPE12H | QPE - Mountain Mapper (12 hr. accum.) | mm |
+| MountainMapperQPE24H | QPE - Mountain Mapper (24 hr. accum.) | mm |
+| MountainMapperQPE48H | QPE - Mountain Mapper (48 hr. accum.) | mm |
+| MountainMapperQPE72H | QPE - Mountain Mapper (72 hr. accum.) | mm |
+| MpV | Saturated Geo Pot Vort | K/hPa/s |
+| MRETag | Echo Tops | m |
+| MRMSVIL | Vertically Integrated Liquid (VIL) | kg/m^2 |
+| MRMSVIL120min | VIL Max (120 min.) | kg/m^2 |
+| MRMSVIL1440min | VIL Max (1440 min.) | kg/m^2 |
+| MRMSVILDensity | Vertically Integrated Liquid (VIL) Density | g/m^3 |
+| MSFDi | Isen Moisture Stability Flux Div | (g\*hPa\*m)/(kg\*K\*s^2) |
+| MSFi | Isentropic Moisture Stability Flux | g·hPa·m/(kg·K·s) |
+| MSFmi | Isen Moisture Stability Flux Mag | g·hPa·m/(kg·K·s) |
+| MSG | Mont Strm Func | m |
+| MSG | Montgomery Stream Function | m^2/s^2 |
+| msl-P | MSL Pressure | hPa |
+| msl-P2 | MSL Pressure (2) | hPa |
+| msl-P_avg | MSL Press Ensemble Mean | hPa |
+| msl-P_perts | MSL Press Perturbations | hPa |
+| msl-P_std | MSL Press Ensemble Std Dev | hPa |
+| MSL1 | MSL1 | ft |
+| MSL2 | MSL2 | ft |
+| MSL3 | MSL3 | ft |
+| MSL4 | MSL4 | ft |
+| MSL5 | MSL5 | ft |
+| MSLSA | Altimeter | hPa |
+| MTV | Moisture Trans Vecs | g·m/(kg·s) |
+| muCape | Most Unstable CAPE  | J/kg |
+| MultiSensorP1QPE01H | QPE - Multi Sensor P1 (1 hr. accum.) | mm |
+| MultiSensorP1QPE03H | QPE - Multi Sensor P1 (3 hr. accum.) | mm |
+| MultiSensorP1QPE06H | QPE - Multi Sensor P1 (6 hr. accum.) | mm |
+| MultiSensorP1QPE12H | QPE - Multi Sensor P1 (12 hr. accum.) | mm |
+| MultiSensorP1QPE24H | QPE - Multi Sensor P1 (24 hr. accum.) | mm |
+| MultiSensorP1QPE48H | QPE - Multi Sensor P1 (48 hr. accum.) | mm |
+| MultiSensorP1QPE72H | QPE - Multi Sensor P1 (72 hr. accum.) | mm |
+| MultiSensorP2QPE01H | QPE - Multi Sensor P2 (1 hr. accum.) | mm |
+| MultiSensorP2QPE03H | QPE - Multi Sensor P2 (3 hr. accum.) | mm |
+| MultiSensorP2QPE06H | QPE - Multi Sensor P2 (6 hr. accum.) | mm |
+| MultiSensorP2QPE12H | QPE - Multi Sensor P2 (12 hr. accum.) | mm |
+| MultiSensorP2QPE24H | QPE - Multi Sensor P2 (24 hr. accum.) | mm |
+| MultiSensorP2QPE48H | QPE - Multi Sensor P2 (48 hr. accum.) | mm |
+| MultiSensorP2QPE72H | QPE - Multi Sensor P2 (72 hr. accum.) | mm |
+| MXDVV | Max Downdraft Vertical Velocity | m/s |
+| MXREF | Max 1hr CAPPI | dB |
+| MXSALB | Maximum Snow Albedo | % |
+| MxT | Maximum Temperature | K |
+| MxT | Maximum Temperature | K |
+| MxT12hr | 12-hr Maximum Temperature | K |
+| MxT3hr | 3-hr Maximum Temperature | K |
+| MxT6hr | 6-hr Maximum Temperature | K |
+| MxT_avg | Max Temp Ensemble Mean | K |
+| MxT_perts | Max Temp Perturbations | K |
+| MxT_std | Max Temp Ensemble Std Dev | K |
+| MXUVV | Max Updraft Vertical Velocity | m/s |
+| NBDSF | Near IR Beam Downward Solar Flux | W/m^2 |
+| NBE | Neg Buoy Energy | J/kg |
+| NDDSF | Near IR Diffuse Downward Solar Flux | W/m^2 |
+| NetIO | Net Isen Adiabatic Omega | Pa/s |
+| NLAT | Latitude (-90 to 90) | deg |
+| NST | Nonsupercell Tornado (&gt;1 NST Threat) |  |
+| NST1 | Nonsupercell Tornado (&gt;1 NST Threat |  |
+| NST2 | Nonsupercell Tornado (&gt;1 NST Threat |  |
+| numLevels | Number of Levels |  |
+| O3MR | Ozone Mixing Ratio | kg/kg |
+| obscuredSky2IFR |  | ft |
+| obscuredSky2LIFR |  | ft |
+| obscuredSky2MVFR |  | ft |
+| obscuredSky2VFR |  | ft |
+| obscuredSky3IFR |  | ft |
+| obscuredSky3LIFR |  | ft |
+| obscuredSky3MVFR |  | ft |
+| obscuredSky3VFR |  | ft |
+| obscuredSkyIFR |  | ft |
+| obscuredSkyLIFR |  | ft |
+| obscuredSkyMVFR |  | ft |
+| obscuredSkySym2IFR |  |  |
+| obscuredSkySym2LIFR |  |  |
+| obscuredSkySym2MVFR |  |  |
+| obscuredSkySym2VFR |  |  |
+| obscuredSkySym3IFR |  |  |
+| obscuredSkySym3LIFR |  |  |
+| obscuredSkySym3MVFR |  |  |
+| obscuredSkySym3VFR |  |  |
+| obscuredSkySymIFR |  |  |
+| obscuredSkySymLIFR |  |  |
+| obscuredSkySymMVFR |  |  |
+| obscuredSkySymVFR |  |  |
+| obscuredSkyVFR |  | ft |
+| obsWind30T50 |  | kn |
+| obsWind50P |  | kn |
+| obsWindDir30T50 |  | deg |
+| obsWindDir50P |  | deg |
+| obsWindDirLow |  | deg |
+| obsWindGust30T50 |  | kn |
+| obsWindGust50P |  | kn |
+| obsWindGustLow |  | kn |
+| obsWindLow |  | kn |
+| obVis | Obstruction to Vision |  |
+| OGRD | Current Vectors | m/s |
+| OmDiff | mb between -15C Omega and MaxOmega | hPa |
+| ONE | One |  |
+| OTIM | Observation Time |  |
+| OZCON | Ozone Concentration | ppb |
+| OZMAX1 | Ozone Daily Max from 1-hour Average | ppbV |
+| OZMAX8 | Ozone Daily Max from 8-hour Average | ppbV |
+| P | Pressure | hPa |
+| P | Pressure | Pa |
+| PAdv | Pressure Adv | hPa/s |
+| PBE | Pos Buoy Energy | J/kg |
+| PBLREG | Planetary Boundary Layer Regime |  |
+| PEC | Precipitation Potential Placement | in |
+| PEC_TT24 | 24h Cumulative Precip Potential Placement | in |
+| PERPW | Primary Wave Mean Period | s |
+| PERPW | Primary Wave Period | s |
+| Perranl | Pressure Analysis Uncertainty | Pa |
+| Perranl | Pressure Error Analysis | Pa |
+| PERSW | Secondary wave mean period | s |
+| PERSW | Secondary Wave Mean Period | s |
+| PEVAP | Potential Evaporation | mm |
+| PEVPR | Potential Evaporation Rate | W/m^2 |
+| PFrnt | 2-D Frontogenesis/Mag Fn | K/m/s |
+| PGrd | Pressure Gradient | hPa/m |
+| PGrd1 | Pressure Gradient | dPa/km |
+| PGrdM | Pressure Grad Mag | hPa/m |
+| PICE | Pecipitating ice content | g/m^3 |
+| PIVA | Thermal Wind Vort Adv | /s |
+| pkPwr | Peak Power | dB |
+| PLI | Parcel Lifted Index (to 500 mb) | K |
+| PLIxc1 | Prob LI &lt; 0 | % |
+| PLIxc2 | Prob LI &lt; -2 | % |
+| PLIxc3 | Prob LI &lt; -4 | % |
+| PLIxc4 | Prob LI &lt; -6 | % |
+| PLIxc5 | Prob LI &lt; -8 | % |
+| PMSL | Pressure Reduced to MSL | Pa |
+| PMSLmean | Mean Sea Level Pressure mean | hPa |
+| PMSLsprd | Mean Sea Level Pressure sprd | hPa |
+| poesDif11u3_7uIR | POES 11u-3.7u Satellite | GenericPixel |
+| POP | Probability of precip | % |
+| POP12hr | 12hr precip probability | % |
+| POP3hr | 3hr precip probability | % |
+| POP6 | POP 6hr | % |
+| POP6hr | 6hr precip probability | % |
+| POP_001 | Prob of .1in/6hr Precip | % |
+| POP_002 | Prob of .3in/6hr Precip | % |
+| POP_003 | Prob of .6in/6hr Precip | % |
+| POP_004 | Prob of 1in/6hr Precip | % |
+| POP_005 | Prob of 2in/6hr Precip | % |
+| POP_006 | Prob of .1in/12hr Precip | % |
+| POP_007 | Prob of .3in/12hr Precip | % |
+| POP_008 | Prob of .6in/12hr Precip | % |
+| POP_009 | Prob of 1in/12hr Precip | % |
+| POP_010 | Prob of 2in/12hr Precip | % |
+| POP_011 | Prob of .05in/6hr Precip | % |
+| POP_012 | Prob of .05in/12hr Precip | % |
+| POP_013 | Prob of 1in/24hr Precip | % |
+| POP_014 | Prob of 2in/24hr Precip | % |
+| POP_015 | Prob of 2in/36hr Precip | % |
+| POP_016 | Prob of 2in/48hr Precip | % |
+| POROS | Soil Porosity | Proportion |
+| POSH | Probability of Severe Hail (POSH) | % |
+| PoT | Potential Temp | K |
+| PoT | Potential Temperature | K |
+| PoTA | Pot Temp Adv | K/s |
+| PPAM | Prob Precip abv nrml | % |
+| PPAN | Prob Precip abv nrml | % |
+| PPAS | Prob Precip abv nrml | % |
+| PPBM | Prob Precip blw nrml | % |
+| PPBN | Prob Precip blw nrml | % |
+| PPBS | Prob Precip blw nrml | % |
+| PPFFG | Probability of excessive rain | % |
+| PPI | Precipitation Probability Index | % |
+| PPI1hr | Precipitation Probability Index(1 hour) | % |
+| PPI6hr | Precipitation Probability Index(6 hour) | % |
+| PPNN | Prob Precip near nrml | % |
+| PR | Precip Rate | mm/s |
+| PR | Precipitation Rate | mm/s |
+| prCloudHgt | prCLoud converted to Hgt | m |
+| prCloudHgtHi | prCloudHgt when in hi layer | m |
+| prCloudHgtLow | prCloudHgt when in low layer | m |
+| prCloudHgtMid | prCloudHgt when in mid layer | m |
+| prcp12hr | 12hr probability of 0.01 inch of precip | % |
+| prcp3hr | 3hr probability of 0.01 inch of precip | % |
+| prcp6hr | 6hr probability of 0.01 inch of precip | % |
+| Precip24Hr | Precip24Hr | in |
+| Precip3Hr | Precip3Hr | in |
+| Precip6Hr | Precip6Hr | in |
+| PrecipRate | Radar Precipitation Rate (SPR) | mm/hr |
+| PrecipType | Surface Precipitation Type (SPT) |  |
+| PRESA | Pressure Anomaly | Pa |
+| PresStk | Obsolete, replace later |  |
+| presWeather | Present Weather |  |
+| Prob34 | Prob of Wind Speed &gt; 34 knots | m/s |
+| Prob50 | Prob of Wind Speed &gt; 50 knots | m/s |
+| Prob64 | Prob of Wind Speed &gt; 64 knots | m/s |
+| ProbDpT50 | Probability of Dewpoint temp &gt; 50 degF | % |
+| ProbDpT55 | Probability of Dewpoint temp &gt; 55 degF | % |
+| ProbDpT60 | Probability of Dewpoint temp &gt; 60 degF | % |
+| ProbDpT65 | Probability of Dewpoint temp &gt; 65 degF | % |
+| ProbDpT70 | Probability of Dewpoint temp &gt; 70 degF | % |
+| ProbVSS10p3Layer | Prob Vertical Speed Shear &gt; 20 kts | % |
+| ProbVSS10p3Sfc | Prob 0-2kft Shear &gt; 20 kts | % |
+| PROCON | Probability of convection | % |
+| PROCON2hr | 2hr Convection probability | % |
+| PROLGHT | Lightning probability | % |
+| PROLGHT2hr | 2hr Lightning probability | % |
+| PRP01H | 1hr MRMS Radar-Only ARI | year |
+| PRP03H | 3hr MRMS Radar-Only ARI | year |
+| PRP06H | 6hr MRMS Radar-Only ARI | year |
+| PRP12H | 12hr MRMS Radar-Only ARI | year |
+| PRP24H | 24hr MRMS Radar-Only ARI | year |
+| PRP30M | 30min MRMS Radar-Only ARI | year |
+| PRPMax | Maximum MRMS Radar-Only ARI | year |
+| PRSIGSV | Total Probability of Extreme Severe Thunderstorms | % |
+| PRSVR | Total Probability of Severe Thunderstorms | % |
+| Psfc | Surface pressure | hPa |
+| PT3 | 3 hr Pres Change | hPa |
+| PTAM | Prob Temp abv nrml | % |
+| PTAN | Prob Temp abv nrml | % |
+| PTAS | Prob Temp abv nrml | % |
+| PTBM | Prob Temp blw nrml | % |
+| PTBN | Prob Temp blw nrml | % |
+| PTBS | Prob Temp blw nrml | % |
+| PTNN | Prob Temp near nrml | % |
+| Ptopo | Surface pressure | hPa |
+| PTOR | Tornado Probability | % |
+| PTvA | Pot Vorticity Adv | K/hPa/s\*1.0E5 |
+| PTyp | Precip Type |  |
+| PTypeRefIP | Prob Precip Type is Refreezing Ice Pellets | % |
+| pV | Potential Vorticity | K/hPa/s |
+| pVeq | Equiv Pot Vort | K/hPa/s |
+| PVORT | Potential Vorticity | m^2*kg^-1*s^-1 |
+| PVV | Omega | Pa/s |
+| PVV | Vertical Velocity Pressure | Pa/s |
+| PW | Precipitable Water | mm |
+| PW | Preciptable H2O | in |
+| PW2 | Preciptable H2O &gt;1.4 in. | in |
+| PWmean | Precipitable Water mean | mm |
+| PWS34 | Incremental Prob of wind speed &gt;= 34 knots | % |
+| PWS50 | Incremental Prob of wind speed &gt;= 50 knots | % |
+| PWS64 | Incremental Prob of wind speed &gt;= 64 knots | % |
+| PWsprd | Precipitable Water sprd | mm |
+| qDiv | Div Q | K/m^2/s\*1.0E-12 |
+| QMAX | Maximum specific humidity at 2m | kg/kg |
+| QMIN | Minimum specific humidity at 2m | kg/kg |
+| qnVec | Qn Vectors | K/m^2/s |
+| QPECrestSoilMoisture | QPE-CREST Soil Moisture | % |
+| QPECrestStreamflow | QPE-CREST Maximum Streamflow | (m^3)*(s^-1) |
+| QPECrestUStreamflow | QPE-CREST Maximum Unit Streamflow | (m^3)*(s^-1)*(km^-2) |
+| QPEFFG01H | 1hr MRMS Radar-Only QPE-to-FFG Ratio |  |
+| QPEFFG03H | 3hr MRMS Radar-Only QPE-to-FFG Ratio |  |
+| QPEFFG06H | 6hr MRMS Radar-Only QPE-to-FFG Ratio |  |
+| QPEFFGMax | Maximum MRMS Radar-Only QPE-to-FFG Ratio |  |
+| QPEHPStreamflow | QPE-Hydrophobic Maximum Streamflow | (m^3)*(s^-1) |
+| QPEHPUStreamflow | QPE-Hydrophobic Maximum Unit Streamflow | (m^3)*(s^-1)*(km^-2) |
+| QPESacSoilMoisture | QPE-SAC-SMA Soil Moisture | % |
+| QPESacStreamflow | QPE-SAC-SMA Maximum Streamflow | (m^3)*(s^-1) |
+| QPESacUStreamflow | QPE-SAC-SMA Maximum Unit Streamflow | (m^3)*(s^-1)*(km^-2) |
+| QPV1 | QVec Conv | K/m^2/s\*1.0E-12 |
+| QPV2 | Negative EPV* | K/hPa/s |
+| QPV3 | QPV Net |  |
+| QPV4 | QG-EPV, RH&gt;75% |  |
+| qsVec | Qs Vectors | K/m^2/s |
+| qVec | Q Vectors | K/m^2/s |
+| RadarAQI01H | Radar Accumulation Quality Index 1 hour |  |
+| RadarAQI03H | Radar Accumulation Quality Index 3 hour |  |
+| RadarAQI06H | Radar Accumulation Quality Index 6 hour |  |
+| RadarAQI12H | Radar Accumulation Quality Index 12 hour |  |
+| RadarAQI24H | Radar Accumulation Quality Index 24 hour |  |
+| RadarAQI48H | Radar Accumulation Quality Index 48 hour |  |
+| RadarAQI72H | Radar Accumulation Quality Index 72 hour |  |
+| RadarOnlyQPE01H | QPE - Radar Only (1 hr. accum.) | mm |
+| RadarOnlyQPE03H | QPE - Radar Only (3 hr. accum.) | mm |
+| RadarOnlyQPE06H | QPE - Radar Only (6 hr. accum.) | mm |
+| RadarOnlyQPE12H | QPE - Radar Only (12 hr. accum.) | mm |
+| RadarOnlyQPE12Z | QPE - Radar Only (Since 12Z accum.) | mm |
+| RadarOnlyQPE15M | QPE - Radar Only (15 min accum.) | mm |
+| RadarOnlyQPE24H | QPE - Radar Only (24 hr. accum.) | mm |
+| RadarOnlyQPE48H | QPE - Radar Only (48 hr. accum.) | mm |
+| RadarOnlyQPE72H | QPE - Radar Only (72 hr. accum.) | mm |
+| RadarQualityIndex | Radar Quality Index (RQI) |  |
+| RAIN | Rain content | g/m^3 |
+| Rain1 | 850-1000 ra thk |  |
+| Rain2 | 700-850 ra thk |  |
+| Rain3 | Thickness: Rain Likely |  |
+| Raob | Raob Interleaved Data |  |
+| rawMETAR24Chg | rawMETAR24Chg | ℃ |
+| RCQ | Humidity parameter in canopy conductance | Proportion |
+| RCS | Solar parameter in canopy conductance | Proportion |
+| RCSOL | Soil moisture parameter in canopy conductance | Proportion |
+| Reflectivity0C | Reflectivity at 0C | dBZ |
+| ReflectivityAtLowestAltitude | Reflectivity At Lowest Altitude (RALA) | dBZ |
+| ReflectivityM10C | Reflectivity at -10C | dBZ |
+| ReflectivityM15C | Reflectivity at -15C | dBZ |
+| ReflectivityM20C | Reflectivity at -20C | dBZ |
+| ReflectivityM5C | Reflectivity at -5C | dBZ |
+| RETOP | Echo Top | m |
+| RH | Rel Humidity | % |
+| RH | Relative Humidity | % |
+| RH_001 | Prob of RH Grtn 70 percent | % |
+| RH_001_bin | Binary Prob of RH Grtn 70 percent |  |
+| RH_001_perts | Prob of RH Grtn 70 percent Perts |  |
+| RH_002 | Prob of RH Grtn 90 percent | % |
+| RH_002_bin | Binary Prob of RH Grtn 90 percent |  |
+| RH_002_perts | Prob of RH Grtn 90 percent Perts |  |
+| RH_avg | Rel Humidity Ensemble Mean | % |
+| RH_perts | Rel Humidity Perturbations | % |
+| RH_std | Rel Humidity Ensemble Std Dev | % |
+| RHmean | Relative Humidity mean | % |
+| RHsprd | Relative Humidity spread | % |
+| RIME | Rime Factor | non-dim |
+| RLYRS | Number of Soil Layers in Root Zone | Numeric |
+| RM5 | Bunkers Right-Moving Supercell | m/s |
+| RM6 | Elevated Right-Moving Supercell | m/s |
+| RMGH2 | t-2Day Mean Hgt | m |
+| RMprop | Right Mover Propagation Vector |  |
+| RMprop2 | Elevated Right Mover Propagation Vector |  |
+| rms | root mean square | kn |
+| Ro | Rossby Number Vag/Vg  |  |
+| RotationTrackLL120min | Low-Level Rotation Tracks 0-2km AGL (120 min. accum.) | 1/s |
+| RotationTrackLL1440min | Low-Level Rotation Tracks 0-2km AGL (1440 min. accum.) | 1/s |
+| RotationTrackLL240min | Low-Level Rotation Tracks 0-2km AGL (240 min. accum.) | 1/s |
+| RotationTrackLL30min | Low-Level Rotation Tracks 0-2km AGL (30 min. accum.) | 1/s |
+| RotationTrackLL360min | Low-Level Rotation Tracks 0-2km AGL (360 min. accum.) | 1/s |
+| RotationTrackLL60min | Low-Level Rotation Tracks 0-2km AGL (60 min. accum.) | 1/s |
 | RotationTrackML120min | Mid-Level Rotation Tracks 3-6km AGL (120 min. accum.) | 1/s |
 | RotationTrackML1440min | Mid-Level Rotation Tracks 3-6km AGL (1440 min. accum.) | 1/s |
 | RotationTrackML240min | Mid-Level Rotation Tracks 3-6km AGL (240 min. accum.) | 1/s |
 | RotationTrackML30min | Mid-Level Rotation Tracks 3-6km AGL (30 min. accum.) | 1/s |
 | RotationTrackML360min | Mid-Level Rotation Tracks 3-6km AGL (360 min. accum.) | 1/s |
 | RotationTrackML60min | Mid-Level Rotation Tracks 3-6km AGL (60 min. accum.) | 1/s |
-| RSMIN | Minimal stomatal resistance | s/m |
-| DEPMN | Minimum dew point depression | K |
-| MINRH | Minimum Relative Humidity | % |
-| QMIN | Minimum specific humidity at 2m | kg/kg |
-| TMIN | Minimum temperature | K |
-| Entire Atmosphere | Missing200 | 200 |
-| MIXHT | mixed layer depth | m |
-| MIXHT | Mixed Layer Depth | m |
-| MIXL | Mixed Layer Depth | m |
-| MLYNO | Model Layer number (From bottom up) |  |
-| MTHT | Model terrain height | m |
-| MRCONO | Moderate risk convective outlook | categorical |
-| MSTAV | Moisture availability | % |
-| UFLX | Momentum flux, u component | N/m^2 |
-| VFLX | Momentum flux, v component | N/m^2 |
-| MNTSF | Montgomery stream function | m^2/s^2 |
-| MSLET | MSLP (Eta model reduction) | Pa |
-| MSLPM | MSLP (MAPS System Reduction) | Pa |
-| NLGSP | Natural Log of Surface Pressure | ln(kPa) |
-| NBDSF | Near IR Beam Downward Solar Flux | W/m^2 |
-| NBSALB | Near IR, Black Sky Albedo | % |
-| NDDSF | Near IR Diffuse Downward Solar Flux | W/m^2 |
-| NWSALB | Near IR, White Sky Albedo | % |
-| AOHFLX | Net Air-Ocean Heat Flux | W/m^2 |
-| NLWRCS | Net Long-Wave Radiation Flux, Clear Sky | W/m^2 |
-| NLWRS | Net long wave radiation flux (surface) | W/m^2 |
-| NLWRT | Net long wave radiation flux (top of atmosphere) | W/m^2 |
-| NLWRF | Net Long-Wave Radiation Flux | W/m^2 |
-| NSWRFCS | Net Short-Wave Radiation Flux, Clear Sky | W/m^2 |
-| NSWRS | Net short-wave radiation flux (surface) | W/m^2 |
-| NSWRT | Net short-wave radiation flux (top of atmosphere) | W/m^2 |
-| NSWRF | Net Short Wave Radiation Flux | W/m^2 |
-| NTAT | Nominal Top of the Atmosphere |  |
-| CDLYR | Non-convective cloud cover | % |
-| CDLYR | Non-Convective Cloud Cover | % |
-|  | non-dim | CD |
-| NWSTR | Normalised Waves Stress |  |
-| NDVI | Normalized Difference Vegetation Index |  |
-| NCIP | Number concentration for ice particles |  |
-| NCIP | Number concentration for ice particles | non-dim |
-| MIXLY | Number of mixed layers next to surface | integer |
-| NPIXU | Number Of Pixels Used | Numeric |
-| RLYRS | Number of soil layers in root zone | non-dim |
-| RLYRS | Number of soil layers in root zone | Numeric |
-| RLYRS | Number of soil layers in root zone |  |
-| OHC | Ocean Heat Content | J/m^2 |
-| OITL | Ocean Isotherm Level (1/10 deg C) | C |
-| NONE | Ocean Isotherm Level | 1/10 ℃ |
-| OITL | Ocean Isotherm Level | 1/10 ℃ |
-| NONE | Ocean Mixed Layer |  |
-| OML | Ocean Mixed Layer |  |
-| P2OMLT | Ocean Mixed Layer Potential Density (Reference 2000m) | kg/m^3 |
-| OMLU | Ocean Mixed Layer U Velocity | m/s |
-| OMLV | Ocean Mixed Layer V Velocity | m/s |
-| ELEV | Ocean Surface Elevation Relative to Geoid | m |
-| OMGALF | Omega (Dp/Dt) divide by density | K |
-| EWATR | Open water evaporation (standing water) | W/m^2 |
-| OSD | Ordered Sequence of Data |  |
-| OSEQ | Ordered Sequence of Data |  |
-| OZCON | Ozone Concentration (PPB) | PPB |
-| OZMAX1 | Ozone Daily Max from 1-hour Average | ppbV |
-| OZMAX8 | Ozone Daily Max from 8-hour Average | ppbV |
-| O3MR | Ozone Mixing Ratio | kg \* kg^-1 |
-| O3MR | Ozone mixing ratio | kg/kg |
-| O3MR | Ozone Mixing Ratio | kg/kg |
-| POZO | Ozone production from col ozone term | kg/kg/s |
-| POZT | Ozone production from temperature term | kg/kg/s |
-| POZ | Ozone production | kg/kg/s |
-| TOZ | Ozone tendency | kg/kg/s |
-| VDFOZ | Ozone vertical diffusion | kg/kg/s |
-| SIGPAR | Parallel Conductivity | S\*m^1 |
-| PRATMP | Parallel Temperature | K |
-| PLI | Parcel lifted index (to 500 mb) | K |
-| PLSMDEN | Particle Number Density | m^3 |
-| PMTC | Particulate matter (coarse) | mg \* m^-3 |
-| PMTC | Particulate matter (coarse) | mm\*g/m^3 |
-| LPMTF | Particulate matter (fine) | log10(mg \* m^-3) |
-| LPMTF | Particulate matter (fine) | log10(mm\*g/m^3) |
-| PMTF | Particulate matter (fine) | mg \* m^-3 |
-| PMTF | Particulate matter (fine) | mm\*g/m^3 |
-| PPERTS | Peak Period of The Total Swell | s |
-| PPERWW | Peak Period of The Wind Waves | s |
-| PWPER | Peak Wave Period | s |
-| SIGPED | Pedersen Conductivity | S\*m^1 |
-| CPOFP | Percent frozen precipitation | % |
-| PCTP1 | Percent pcpn in 1st 6-h sub-period of 24 hr period | % |
-| PCTP2 | Percent pcpn in 2nd 6-h sub-period of 24 hr period | % |
-| PCTP3 | Percent pcpn in 3rd 6-h sub-period of 24 hr period | % |
-| PCTP4 | Percent pcpn in 4th 6-h sub-period of 24 hr period | % |
-| PPSUB | Percent precipitation in a sub-period of an overall period (Encoded as per cent accumulation over the sub-period) | % |
-| PMAXWH | Period of Maximum Individual Wave Height | s |
-| PRPTMP | Perpendicular Temperature | K |
-| PHOTAR | Photosynthetically Active Radiation | W/m^2 |
-| PIXST | Pixel scene type | (Code table 4.218) |
-| BLD | Planetary Boundary Layer |  |
-| HPBL | Planetary boundary layer height | m |
-| HPBL | Planetary Boundary Layer Height | m |
-| PLBL | Planetary Boundary Layer |  |
-| PBLR | Planetary boundary layer regime | (Code table 4.209) |
-| PBLREG | Planetary Boundary Layer Regime | See Table 4.209 |
-| CNWAT | Plant canopy surface water | mm |
-| PDMAX1 | PM 2.5 Daily Max from 1-hour Average | ug/m^3 |
-| PDMAX24 | PM 2.5 Daily Max from 24-hour Average | ug/m^3 |
-| PEVAP | Potential Evaporation | kg m-2 |
-| PEVAP | Potential evaporation | mm |
-| PEVAP | Potential Evaporation | mm |
-| PEVPR | Potential Evaporation Rage | W/m^2 |
-| PEVPR | Potential evaporation rate | W/m^2 |
-| PEVPR | Potential Evaporation Rate | W m-2 |
-| THZ0 | Potential temperature at top of viscous sublayer | K |
-| POT | Potential temperature | K |
-| POT | Potential temperature (theta) | K |
-| PV | Potential vorticity | K \*m^-2 \*kg^-1 \*s^-1 |
-| PV | Potential vorticity | K \*m^-2\* kg^-1 \*s^-1 |
-| PVL | Potential Vorticity | K \* m^2/kg^1\*s^1 |
-| PVORT | Potential vorticity | K \* m^2 \* kg^-1\* s^-1 |
-| PVMWW | Potential Vorticity (Mass-Weighted) | m/s |
-| PWC | Precipitable water category | (Code table 4.202) |
-| PWCAT | Precipitable Water Category | See Table 4.202 |
-| P WAT | Precipitable Water | kg m-2 |
-| PWAT | Precipitable water | mm |
-| PRCP | Precipitation | mm |
-| PRATE | Precipitation Rate | kg m-2 s-1 |
-| PRATE | Precipitation rate | mm / s |
-| PTYPE | Precipitation type | (Code table 4.201) |
-| PTYPE | Precipitation Type | See Table 4.201 |
-| PR | Precip rate | mm/hr |
-| (See note 3) | Predominant Weather | Numeric |
-| PWTHER | Predominant Weather | Numeric (See note 3) |
-| PALT | Pressure altitude | m |
-| PRESA | Pressure anomaly | Pa |
-| PCBB | Pressure at Cumulonimbus Bas | Pa |
-| PCBT | Pressure at Cumulonimbus To | Pa |
-| PECBB | Pressure at Embedded Cumulonimbus Bas | Pa |
-| PECBT | Pressure at Embedded Cumulonimbus To | Pa |
-| PRESDEV | Pressure deviation from ground to level | Pa |
-| PRESD | Pressure deviation from mean sea level | Pa |
-| PRESN | Pressure (nearest grid point) | Pa |
-| PLPL | Pressure of level from which parcel was lifted | Pa |
-| PLPL | Pressure of most parcel with highest theta-e in lowest 300 mb | Pa |
-| P | Pressure | Pa |
-| PRES | Pressure | Pa |
-| PRES | Pressure | Pa |
-| PRMSL | Pressure reduced to MSL | Pa |
-| PTEND | Pressure tendency | Pa/s |
-| DIRPW | Primary wave direction | Degree |
-| PERPW | Primary wave mean period | s |
-| POP | Probability of 0.01 inches of precipitation | % |
-| POP | Probability of 0.01 inch of precipitation (POP) | % |
-| PROCON | Probability of Convection | % |
-| CPOZP | Probability of Freezing Precipitation | % |
-| PFREZPREC | Probability of Freezing Precipitation | % |
-| CPOFP | Probability of Frozen Precipitation | % |
-| PFROZPREC | Probability of Frozen Precipitation | % |
-| PPFFG | Probability of precip exceeding FFG values | % |
-| POSH | Probability of Severe Hail (POSH) | % |
-| WarmRainProbability | Probability of Warm Rain | % |
-| CWR | Probability of Wetting Rain, exceeding in 0.10" in a given time period | % |
-| PTAN | Prob of Temperature above normal | % |
-| PTBN | Prob of Temperature below normal | % |
-| PTNN | Prob of Temperature near normal | % |
-| PPAN | Prob of Total Precipitation above normal | % |
-| PPBN | Prob of Total Precipitation below normal | % |
-| PPNN | Prob of Total Precipitation near normal | % |
-| PROTDEN | Proton Density | m^3 |
-| DIFPFLUX | Proton Flux (Differential) | (m^2\*s\*sr\*eV)^1 |
-| INTPFLUX | Proton Flux (Integral) | (m^2\*s\*sr)^1 |
-| PROTTMP | Proton Temperature | K |
-| EPOT | Pseudo-adiabatic potential temperature or equivalent potential temperature | K |
-| MountainMapperQPE12H | QPE - Mountain Mapper (12 hr. accum.) | mm |
-| MountainMapperQPE01H | QPE - Mountain Mapper (1 hr. accum.) | mm |
-| MountainMapperQPE24H | QPE - Mountain Mapper (24 hr. accum.) | mm |
-| MountainMapperQPE03H | QPE - Mountain Mapper (3 hr. accum.) | mm |
-| MountainMapperQPE48H | QPE - Mountain Mapper (48 hr. accum.) | mm |
-| MountainMapperQPE06H | QPE - Mountain Mapper (6 hr. accum.) | mm |
-| MountainMapperQPE72H | QPE - Mountain Mapper (72 hr. accum.) | mm |
-| GaugeOnlyQPE12H | QPE - Radar Gauge Only (12 hr. accum.) | mm |
-| GaugeOnlyQPE01H | QPE - Radar Gauge Only (1 hr. accum.) | mm |
-| GaugeOnlyQPE24H | QPE - Radar Gauge Only (24 hr. accum.) | mm |
-| GaugeOnlyQPE03H | QPE - Radar Gauge Only (3 hr. accum.) | mm |
-| GaugeOnlyQPE48H | QPE - Radar Gauge Only (48 hr. accum.) | mm |
-| GaugeOnlyQPE06H | QPE - Radar Gauge Only (6 hr. accum.) | mm |
-| GaugeOnlyQPE72H | QPE - Radar Gauge Only (72 hr. accum.) | mm |
-| RadarOnlyQPE12H | QPE - Radar Only (12 hr. accum.) | mm |
-| RadarOnlyQPE01H | QPE - Radar Only (1 hr. accum.) | mm |
-| RadarOnlyQPE24H | QPE - Radar Only (24 hr. accum.) | mm |
-| RadarOnlyQPE03H | QPE - Radar Only (3 hr. accum.) | mm |
-| RadarOnlyQPE48H | QPE - Radar Only (48 hr. accum.) | mm |
-| RadarOnlyQPE06H | QPE - Radar Only (6 hr. accum.) | mm |
-| RadarOnlyQPE72H | QPE - Radar Only (72 hr. accum.) | mm |
-| GaugeCorrQPE12H | QPE - Radar with Gauge Bias Correction (12 hr. accum.) | mm |
-| GaugeCorrQPE01H | QPE - Radar with Gauge Bias Correction (1 hr. accum.) | mm |
-| GaugeCorrQPE24H | QPE - Radar with Gauge Bias Correction (24 hr. accum.) | mm |
-| GaugeCorrQPE03H | QPE - Radar with Gauge Bias Correction (3 hr. accum.) | mm |
-| GaugeCorrQPE48H | QPE - Radar with Gauge Bias Correction (48 hr. accum.) | mm |
-| GaugeCorrQPE06H | QPE - Radar with Gauge Bias Correction (6 hr. accum.) | mm |
-| GaugeCorrQPE72H | QPE - Radar with Gauge Bias Correction (72 hr. accum.) | mm |
-| PrecipRate | Radar Precipitation Rate (SPR) | mm/hr |
-| RadarQualityIndex | Radar Quality Index (RQI) |  |
-| RDSP1 | Radar spectra (1) |  |
-| RDSP2 | Radar spectra (2) |  |
-| RDSP3 | Radar spectra (3) |  |
-| RDLNUM | Radial number (2pi/lambda) | m-1 |
-| SWRAD | Radiance (with respect to wave length) | W \* m^-3 \*sr^-1 |
-| LWRAD | Radiance (with respect to wave number) | W \* m^-1 \*sr^-1 |
-| EPSR | Radiative emissivity |  |
-| EPSR | Radiative emissivity | mm |
-| FRAIN | Rain fraction of total cloud water | Proportion |
-| FRAIN | Rain Fraction of Total Liquid Water |  |
-| FRAIN | Rain Fraction of Total Liquid Water | non-dim |
-| FRAIN | Rain Fraction of Total Liquid Water | Proportion |
-| RWMR | Rain Mixing Ratio | kg kg-1 |
-| RWMR | Rain mixing ratio | kg/kg |
-| RPRATE | Rain Precipitation Rate | kg m-2s-1 |
-| RPRATE | Rain Precipitation Rate | mm/s |
-| RDRIP | Rate of water dropping from canopy to ground | unknown |
-| ground | Rate of water dropping from canopy to | RDRIP |
-| MergedReflectivityComposite | Raw Composite Reflectivity Mosaic | dBZ |
-| MergedBaseReflectivity | Raw Merged Base Reflectivity | dBZ |
-| RFL06 | Reflectance in 0.6 Micron Channel | % |
-| RFL08 | Reflectance in 0.8 Micron Channel | % |
-| RFL16 | Reflectance in 1.6 Micron Channel | % |
-| RFL39 | Reflectance in 3.9 Micron Channel | % |
-| Reflectivity0C | Reflectivity at 0C | dBZ |
-| ReflectivityM10C | Reflectivity at -10C | dBZ |
-| ReflectivityM15C | Reflectivity at -15C | dBZ |
-| REFD | Reflectivity at 1 km AGL | dB |
-| ReflectivityM20C | Reflectivity at -20C | dBZ |
-| ReflectivityM5C | Reflectivity at -5C | dBZ |
-| ReflectivityAtLowestAltitude | Reflectivity At Lowest Altitude (RALA) | dBZ |
-| REFD | Reflectivity | dB |
-| RAZA | Relative Azimuth Angle | Degree |
-| RELD | Relative divergence | s^-1 |
-| REV | Relative Error Variance |  |
-| RH | Relative humidity | % |
-| R H | Relative Humidity | % |
-| RHPW | Relative Humidity with Respect to Precipitable Water | % |
-| RELV | Relative vorticity | s^-1 |
-| RSSC | Remotely sensed snow cover | (Code table 4.215) |
-| RI | Richardson number | Numeric |
-| RI | Richardson Number | Numeric |
-| FRIME | Rime Factor |  |
-| RIME | Rime Factor | non-dim |
-| RIME | Rime factor | Numeric |
-| RIME | Rime Factor | Numeric |
-| RIME | Rime Factor |  |
-| SFCRH | Roughness length for heat | m |
+| routed_flow | Channel Routed Flow [Low] |  |
+| routed_flow_c | Channel Routed Flow [Combo] |  |
+| routed_flow_h | Channel Routed Flow [Hi] |  |
+| routed_flow_m | Channel Routed Flow [Mid] |  |
+| RR | Reflectivity | dBZ |
+| RRtype | Radar w/PType | dBZ |
+| RRV | Radial Velocity | kts |
+| RSMIN | Minimal Stomatal Resistance | s/m |
+| RV | Rel Vorticity | /s |
+| RWMR | Rain Mixing Ratio | kg/kg |
+| s2H2O_CLIMO | Climatological -SON/DJF/MAM- Snow-to-water ratio |  |
+| s2H2O_GFS | GFS Snow-to-water ratio |  |
+| s2H2O_MEAN | HPC Mean Snow-to-water ratio |  |
+| s2H2O_NAM | NAM Snow-to-water ratio |  |
+| SA12hr | 12 Hr Snow Accum | mm |
+| SA1hr | 1 Hr Snow Accum | mm |
+| SA24hr | 24 Hr Snow Accum | mm |
+| SA36hr | 36 Hr Snow Accum | mm |
+| SA3hr | 3 Hr Snow Accum | mm |
+| SA48hr | 48 Hr Snow Accum | mm |
+| SA6hr | 6 Hr Snow Accum | mm |
+| SAcc | Snow Accum via Thickness | mm |
+| SALIN | Practical Salinity |  |
 | SALTY | Salinity | kg/kg |
-| SLTFL | Salt Flux | mm\*s |
-| SATD | Saturation deficit | Pa |
-| SAT D | Saturation Deficit | Pa |
-| SATOSM | Saturation Of Soil Moisture | kg/m^3 |
-| SCALB | Scaled albedo | Numeric |
-| SCBT | Scaled brightness temperature | Numeric |
-| SCCTP | Scaled cloud top pressure | Numeric |
-| SCLI | Scaled lifted index | Numeric |
-| SCPW | Scaled precipitable water | Numeric |
-| SCRAD | Scaled radiance | Numeric |
-| SCST | Scaled skin temperature | Numeric |
-| SCESTUWIND | Scatterometer Estimated U Wind Component | m/s |
-| SCESTVWIND | Scatterometer Estimated V Wind Component | m/s |
-| SCINT | Scintillation | Numeric |
-| SEAB | Sea Bottom |  |
-| SeamlessHSR | Seamless Hybrid Scan Reflectivity (SHSR) | dBZ |
-| SeamlessHSRHeight | Seamless Hybrid Scan Reflectivity (SHSR) Height | km |
-| SSHG | Sea Surface Height Relative to Geoid | m |
-| DIRSW | Secondary wave direction | Degree |
-| PERSW | Secondary wave mean periods | s |
-| s | Seconds prior to initial reference time (defined in Section 1) | TSEC |
-| TSEC | Seconds prior to initial reference time | s |
-| TSEC | Seconds Prior To Initial Reference Time | s |
-| SHTFL | Sensible heat net flux | W/m^2 |
-| SHI | Severe Hail Index (SHI) |  |
-| SCBL | Shallow convective cloud bottom level |  |
-| SCBL | Shallow Convective Cloud Bottom Level |  |
-| SCCBT | Shallow Convective Cloud Bottom Level |  |
-| SCCTL | Shallow Convective Cloud Top Level |  |
-| SCTL | Shallow convective cloud top level |  |
-| SCTL | Shallow Convective Cloud Top Level |  |
-| SHAHR | Shallow Convective Heating rate | K/s |
-| SHAMR | Shallow Convective Moistening Rate | kg kg-1 s-1 |
-| SHAMR | Shallow Convective Moistening Rate | kg/kg\*s |
-| SWAVR | Short wave radiation flux | W/m^2 |
-| SGCVV | Sigma coordinate vertical velocity | s^-1 |
-| SIGL | Sigma Level |  |
-| SHAILPRO | Significant Hail probability | % |
-| SIGHAILPROB | Significant Hail probability | % |
-| HTSGW | Significant height of combined wind waves and swell | m |
-| SWELL | Significant height of swell waves | m |
-| WVHGT | Significant height of wind waves (m) | m |
-| SIGTRNDPROB | Significant Tornado probability | % |
-| STORPROB | Significant Tornado probability | % |
-| SIGWINDPROB | Significant Wind probability | % |
-| SWINDPRO | Significant Wind probability | % |
-|  | Silt loam |  |
-| SBC123 | Simulated Brightness Counts for GOES 12, Channel 3 | Byte |
-| SBC124 | Simulated Brightness Counts for GOES 12, Channel 4 | Byte |
-| SBTA1610 | Simulated Brightness Temperature for ABI GOES-16, Band-10 | K |
-| SBTA1611 | Simulated Brightness Temperature for ABI GOES-16, Band-11 | K |
-| SBTA1612 | Simulated Brightness Temperature for ABI GOES-16, Band-12 | K |
-| SBTA1613 | Simulated Brightness Temperature for ABI GOES-16, Band-13 | K |
-| SBTA1614 | Simulated Brightness Temperature for ABI GOES-16, Band-14 | K |
-| SBTA1615 | Simulated Brightness Temperature for ABI GOES-16, Band-15 | K |
-| SBTA1616 | Simulated Brightness Temperature for ABI GOES-16, Band-16 | K |
-| SBTA167 | Simulated Brightness Temperature for ABI GOES-16, Band-7 | K |
-| SBTA168 | Simulated Brightness Temperature for ABI GOES-16, Band-8 | K |
-| SBTA169 | Simulated Brightness Temperature for ABI GOES-16, Band-9 | K |
-| SBTA1710 | Simulated Brightness Temperature for ABI GOES-17, Band-10 | K |
-| SBTA1711 | Simulated Brightness Temperature for ABI GOES-17, Band-11 | K |
-| SBTA1712 | Simulated Brightness Temperature for ABI GOES-17, Band-12 | K |
-| SBTA1713 | Simulated Brightness Temperature for ABI GOES-17, Band-13 | K |
-| SBTA1714 | Simulated Brightness Temperature for ABI GOES-17, Band-14 | K |
-| SBTA1715 | Simulated Brightness Temperature for ABI GOES-17, Band-15 | K |
-| SBTA1716 | Simulated Brightness Temperature for ABI GOES-17, Band-16 | K |
-| SBTA177 | Simulated Brightness Temperature for ABI GOES-17, Band-7 | K |
-| SBTA178 | Simulated Brightness Temperature for ABI GOES-17, Band-8 | K |
-| SBTA179 | Simulated Brightness Temperature for ABI GOES-17, Band-9 | K |
-| AMSRE10 | Simulated Brightness Temperature for AMSRE on Aqua, Channel 10 | K |
-| AMSRE11 | Simulated Brightness Temperature for AMSRE on Aqua, Channel 11 | K |
-| AMSRE12 | Simulated Brightness Temperature for AMSRE on Aqua, Channel 12 | K |
-| AMSRE9 | Simulated Brightness Temperature for AMSRE on Aqua, Channel 9 | K |
-| SBT112 | Simulated Brightness Temperature for GOES 11, Channel 2 | K |
+| SAmodel | Model Run Snow via Thickness | mm |
+| SArun | Model Run Snow Accum via Thickness | mm |
+| satCloudPhase | Satellite Cloud Phase[8.5-11.2 um] | K |
+| SATD | Saturation Deficit | Pa |
+| satDif11u12uIR | 11u-12u Satellite | GenericPixel |
+| satDif11u13uIR | 11u-13u Satellite | GenericPixel |
+| satDif11u3_9uIR | 11u-3.9u Satellite | GenericPixel |
+| satDivWVIR | IR in WV Satellite | DerivedWV |
+| satFog | Satellite Fog[3.9-11.2 um] | K |
+| satMoisture | Satellite Moisture[11.2-12.3 um] | K |
+| satSnow | Satellite Snow[0.64-1.61 um] |  |
+| satUpperLevelInfo | Satellite Upper Level Info[11.2-6.19 um] | K |
+| satVegetation | Satellite Vegetation[0.64-0.87 um] |  |
+| SBSNO | Sublimation (evaporation from snow) | W/m^2 |
 | SBT113 | Simulated Brightness Temperature for GOES 11, Channel 3 | K |
 | SBT114 | Simulated Brightness Temperature for GOES 11, Channel 4 | K |
-| SBT115 | Simulated Brightness Temperature for GOES 11, Channel 5 | K |
-| SBT122 | Simulated Brightness Temperature for GOES 12, Channel 2 | K |
 | SBT123 | Simulated Brightness Temperature for GOES 12, Channel 3 | K |
 | SBT124 | Simulated Brightness Temperature for GOES 12, Channel 4 | K |
-| SBT125 | Simulated Brightness Temperature for GOES 12, Channel 5 | K |
-| SBT124 | Simulated Brightness Temperature for GOES E Infrared | K |
-| SBT123 | Simulated Brightness Temperature for GOES E Water Vapor | K |
-| SBT114 | Simulated Brightness Temperature for GOES W Infrared | K |
-| SBT113 | Simulated Brightness Temperature for GOES W Water Vapor | K |
-| SRFA161 | Simulated Reflectance Factor for ABI GOES-16, Band-1 |  |
-| SRFA162 | Simulated Reflectance Factor for ABI GOES-16, Band-2 |  |
-| SRFA163 | Simulated Reflectance Factor for ABI GOES-16, Band-3 |  |
-| SRFA164 | Simulated Reflectance Factor for ABI GOES-16, Band-4 |  |
-| SRFA165 | Simulated Reflectance Factor for ABI GOES-16, Band-5 |  |
-| SRFA166 | Simulated Reflectance Factor for ABI GOES-16, Band-6 |  |
-| SRFA171 | Simulated Reflectance Factor for ABI GOES-17, Band-1 |  |
-| SRFA172 | Simulated Reflectance Factor for ABI GOES-17, Band-2 |  |
-| SRFA173 | Simulated Reflectance Factor for ABI GOES-17, Band-3 |  |
-| SRFA174 | Simulated Reflectance Factor for ABI GOES-17, Band-4 |  |
-| SRFA175 | Simulated Reflectance Factor for ABI GOES-17, Band-5 |  |
-| SRFA176 | Simulated Reflectance Factor for ABI GOES-17, Band-6 |  |
-| SKTMP | Skin Temperature | K |
-| SRCONO | Slight risk convective outlook | categorical |
-| SSGSO | Slope Of Sub-Grid Scale Orography | Numeric |
-| SNOAG | Snow age | day |
-| SNOAG | Snow Age | day |
-| SALBD | Snow Albedo | % |
-| SCE | Snow Cover by elevation (snow=0-252,neither=253,clouds=254) | dm |
+| sce | NOHRSC Snow Coverage Elevation | kft |
+| SCP | Snow Cover |  |
 | SCP | Snow Cover | % |
-| SC | Snow Cover (snow=250,clouds=100,neither=50) |  |
-| SNOWC | Snow cover | % |
-| SNOWC | Snow Cover | % |
-| SDEN | Snow Density | kg m-3 |
-| SDEN | Snow Density | kg/m^3 |
-| SNOD | Snow depth | m |
-| SNO D | Snow Depth | m |
-| SDWE | Snow Depth Water Equivalent | kg m-2 |
-| SDWE | Snow Depth Water Equivalent | mm |
-| SEVAP | Snow Evaporation | kg m-2 |
-| SEVAP | Snow Evaporation | mm |
-| SRWEQ | Snowfall Rate Water Equivalent | kg m-2 s-1 |
-| SRWEQ | Snowfall rate water equivalent | mm / s |
-| SNFALB | Snow free albedo | % |
-| SNFALB | Snow-Free Albedo | % |
-| SNO M | Snow Melt | kg m-2 |
-| SNOM | Snow melt | mm |
-| SNMR | Snow Mixing Ratio | kg kg-1 |
-| SNMR | Snow mixing ratio | kg/kg |
-| SNOHF | Snow phase change heat flux | W/m^2 |
-| SNOHF | Snow Phase Change Heat Flux | W/m^2 |
-| SPRATE | Snow Precipitation Rate | kg m-2s-1 |
-| SPRATE | Snow Precipitation Rate | mm/s |
-| SNOWT | Snow temperature, depth-avg | K |
-| SNOT | Snow temperature | K |
-| SNO T | Snow temperature | K |
-| SNOT | Snow Temperature | K |
-| SCE | Snow water equivalent | cm |
-| SWEPN | Snow water equivalent percent of normal | % |
-| SOILM | Soil moisture content | mm |
-| SOILM | Soil Moisture | kg/m^3 |
-| RCSOL | Soil moisture parameter in canopy conductance | Fraction |
-| RCSOL | Soil moisture parameter in canopy conductance | Proportion |
-| SOILP | Soil Porosity | m^3/m^3 |
-| POROS | Soil porosity | Proportion |
-| TSOIL | Soil temperature | K |
-| SOTYP | Soil type | index  |
-| EUVIRR | Solar EUV Irradiance | W\*m^2 |
-| RCS | Solar parameter in canopy conductance | Fraction |
-| RCS | Solar parameter in canopy conductance | Proportion |
-| SP | Solar photosphere |  |
-| SWHR | Solar Radiative Heating Rate | K/s |
-| SOLRF | Solar Radio Emissions | W\*m^2\*Hz^1 |
-| SPECIRR | Solar Spectral Irradiance | W\*m^2\*n\*m^1 |
-| XLONG | Solar X-ray Flux (XRS Long) | W\*m^2 |
-| XSHRT | Solar X-ray Flux (XRS Short) | W\*m^2 |
-| SOLZA | Solar Zenith Angle | Degree |
-| AMSL | Specific Altitude Above Mean Sea Level | m |
-| QZ0 | Specific humidity at top of viscous sublayer | kg/kg |
-| SPF H | Specific Humidity | kg kg-1 |
-| SPFH | Specific humidity | kg/kg |
-| HTGL | Specified Height Level Above Ground | m |
-| SRCS | Specified radius from the center of the Sun | m |
-| DWWW | Spectal directional width of the wind waves |  |
-| SPFTR | Spectral Peakedness Factor | s^-1 |
-| SICED | Speed of ice drift | m/s |
-| SPRDF | Spread F | m |
-| HSTDV | Standard deviation of height | m |
-| SDSGSO | Standard Deviation Of Sub-Grid Scale Orography | m |
-| TSD1D | Standard Dev. of IR Temp. over 1x1 deg. area | K |
-| HLCY | Storm relative helicity | J/kg |
-| SSRUN | Storm surface runoff | mm |
-| SURGE | Storm Surge | m |
-| STPA | Storm total precip accum | mm |
-| STRM | Stream function | m^2/s |
-| SBSNO | Sublimation (evaporation from snow) | W m-2 |
-| SBSNO | Sublimation (evaporation from snow) | W/m^2 |
-| SUN | Sunshine duration (ECMWF proposal, not WMO approved) | s |
-| SUNSD | Sunshine Duration | s |
-| SUNS | SunShine | Numeric |
-| SIPD | Supercooled Large Droplet Icing | mm |
-| SIPD | Supercooled Large Droplet (SLD) Icing | See Table 4.207See Note (1) |
-| SLDP | Supercooled Large Droplet (SLD) Probabilitysee note 1 | % |
-| SLDP | Supercooled Large Droplet (SLD) Probability | % |
-| SuperLayerCompositeReflectivity | Super Layer Composite Reflectivity (33-60 kft) | dBZ |
-| AKHS | Surface exchange coefficients for T and Q divided by delta z | m/s |
-| AKMS | Surface exchange coefficients for U and V divided by delta z | m/s |
-| LFTX | Surface Lifted Index | K |
-| SLI | Surface lifted index | K |
-| PrecipType | Surface Precipitation Type (SPT) |  |
-| SFCR | Surface roughness | m |
-| SSST | Surface Salinity Trend | psu per day |
+| SCWind | SCWind | m/s |
+| SDEN | Snow Density | kg/m³ |
+| SDENCLIMO | Climatological -SON/DJF/MAM- Snow Density | kg/m³ |
+| SDENGFS | GFS Snow Density | kg/m³ |
+| SDENMEAN | HPC Mean Snow Density | kg/m³ |
+| SDENNAM | NAM Snow Density | kg/m³ |
+| SeamlessHSR | Seamless Hybrid Scan Reflectivity (SHSR) | dBZ |
+| SeamlessHSRHeight | Seamless Hybrid Scan Reflectivity (SHSR) Height | km |
+| SFCR | Surface Roughness | m |
+| SH | Spec Humidity |  |
+| SH | Specific Humidity | % |
+| Shear | Shear (Vector) | /s |
+| SHF | Sensible Heat Flux | W/m^2 |
+| SHI | Severe Hail Index (SHI) |  |
+| ShrMag | Shear Magnitude | /s |
+| shWlt | Showalter Index | ℃ |
+| SHx | Spec Humidity | g/kg |
+| SIGHAILPROB | Significant Hail Probability | % |
+| SIGTRNDPROB | Significant Tornado Probability | % |
+| SIGWINDPROB | Significant Wind Probability | % |
+| SIPD | Supercooled Large Droplet Threat |  |
+| SLDP | Supercooled Large Droplet Threat |  |
+| SLI | Lifted Index | K |
+| SLI | Surface Lifted Index | K |
 | SLTYP | Surface Slope Type | Index |
-| ModelSurfaceTemperature | Surface Temperature | C |
-| SSTT | Surface Temperature Trend | degree per day |
-| SSTOR | Surface water storage | mm |
-| Surge | Surge Height | m |
-| SX | Sweat index | Numeric |
-| TMPA | Temperature anomaly | K |
+| SMC | Soil Moisture | % |
+| SMDRY | Direct Evaporation Cease (soil moisture) | Proportion |
+| SMREF | Transpiration Stress-onset (soil moisture) | Proportion |
+| SnD | Snow Depth | m |
+| SnD | Snow Depth | m |
+| SNFALB | Snow-Free Albedo |  |
+| SNMR | Snow Mixing Ratio | kg/kg |
+| SNOL12c1 | Prob 12-hr SNOW &gt; 1 in | % |
+| SNOL12c10 | Prob 12-hr SNOW &gt; 24 in | % |
+| SNOL12c2 | Prob 12-hr SNOW &gt; 2 in | % |
+| SNOL12c3 | Prob 12-hr SNOW &gt; 4 in | % |
+| SNOL12c4 | Prob 12-hr SNOW &gt; 6 in | % |
+| SNOL12c5 | Prob 12-hr SNOW &gt; 7.5 in | % |
+| SNOL12c6 | Prob 12-hr SNOW &gt; 8 in | % |
+| SNOL12c7 | Prob 12-hr SNOW &gt; 10 in | % |
+| SNOL12c8 | Prob 12-hr SNOW &gt; 12 in | % |
+| SNOL12c9 | Prob 12-hr SNOW &gt; 16 in | % |
+| SNOL12mean | 12-hr Snowfall mean | mm |
+| SNOL12sprd | 12-hr Large scale Snowfall sprd | mm |
+| SNOM | Snow Melt | kg/m^2 |
+| snoRat |  |  |
+| snoRatCrocus | Snow Ratio - Crocus/ECMWF |  |
+| snoRatEMCSREF | Snow Ratio: EMC SREF |  |
+| snoRatOv2 |  |  |
+| snoRatSPC | Snow Ratio - SPC |  |
+| snoRatSPCdeep | Snow Ratio - SPC 0-3km MaxT |  |
+| snoRatSPCsurface | Snow Ratio - SPCsurface |  |
+| snoRatWPC | Snow Ratio - WPC Mean |  |
+| SNOW | Snow content | g/m^3 |
+| Snow1 | 850-1000 sn thk |  |
+| Snow2 | 700-850 sn thk |  |
+| Snow3 | Thickness: Snow Likely |  |
+| snowd3hr | 3hr Snow Depth | m |
+| snowd6hr | 6hr Snow Depth | m |
+| SNOWLVL | Snow Level | m |
+| SnowT | Preferred Ice Growth | K |
+| SNSQ | Snow Sql Parameter |  |
+| SNW | Sect Norm Wind | m/s |
+| SNWA | Ageo Sect Norm Wind | kn |
+| SOILM | Soil Moisture Content | kg/m^2 |
+| SOILW | Volumetric Soil Moisture Content | Proportion |
+| SOTYP | Soil Type |  |
+| SPAcc | Storm Total Precip | mm |
+| SPBARO | Barotropic Velocity | m/s |
+| SPC | Current Speed | m/s |
+| SPC | Surface Current Speed | m/s |
+| Spd24Chg | Spd24Chg | kn |
+| sRank | Feature Strength Rank |  |
+| SRMl | Storm Relative Flow Vectors LM | m/s |
+| SRMlM | Storm Relative Flow Mag LM | m/s |
+| SRMm | Storm Relative Flow Vecs (Mean Wind) | m/s |
+| SRMmM | Storm Relative Flow Mag (Mean Wind) | m/s |
+| SRMr | Storm Relative Flow Vecs (RM) | m/s |
+| SRMrM | Storm Relative Flow Mag (RM) | m/s |
+| SSAcc | Storm Total Snow | mm |
+| SSi | Isentropic Static Stability | hPa/K |
+| SSP | Significant Severe Parameter |  |
+| SSRUN | Storm Surface Runoff | kg/m^2 |
+| St-Pr | Stable Precipitation | mm |
+| St-Pr1hr | 1 hr Stable Precipitation | mm |
+| St-Pr2hr | 2 hr Stable Precipitation | mm |
+| St-Pr3hr | 3 hr Stable Precipitation | mm |
+| staName | StaName |  |
+| stationId | Station Id | C |
+| stdDewpoint | Std Dewpoint | K |
+| stdMaxWindSpeed | Std Max Wind Speed | m/s |
+| stdSkyCover | Std Sky Cover |  |
+| stdTemperature | Std Temperature | K |
+| stdWindDir | Std Wind Direction |  |
+| stdWindSpeed | Std Wind Speed | m/s |
+| STP | Sig. Tornado Parameter (&gt;1 Sig Tor) |  |
+| STP1 | Sig. Tornado Parameter (&gt;1 Sig Tor) |  |
+| STRM | Stream Function | m^2/s |
+| StrmMot | Storm Motion | kn |
+| StrTP | Strong Tornado Parameter | m/s^2 |
+| SuCP | Supercell Composite Parameter |  |
+| SUNSD | Sunshine Duration | s |
+| SuperLayerCompositeReflectivity | Super Layer Composite Reflectivity (33-60 kft) | dBZ |
+| SVV | Sigma Coordinate Vertical Velocity | /s |
+| SWDIR | Direction of Swell Waves | deg |
+| SWdir | Swell Direction |  |
+| swe | NOHRSC Snow Water Equivalent | in |
+| SWELL | Significant Height of Swell Waves | m |
+| SWELL | Swell Height | m |
+| SWHR | Solar Radiative Heating Rate | K/s |
+| SWLEN | Mean length of swell waves | m |
+| SWPER | Mean Period of Swell Waves | s |
+| SWPER | Swell Period | s |
+| SWSTP | Steepness of swell waves |  |
+| swtIdx | Sweat Index |  |
+| SynPrecip24Hr | SynPrecip24Hr | mm |
+| SynthPrecipRateID | QPE - Synthetic Precip Rate ID |  |
 | T | Temperature | K |
-| TMP | Temperature | K |
-| TMPSWP | Temperature | K |
-| RCT | Temperature parameter in canopy conductance | Fraction |
-| RCT | Temperature parameter in canopy conductance | Proportion |
-| TTDIA | Temperature Tendency By All Physics | K/s |
-| TTRAD | Temperature tendency by all radiation | K\*s^-1 |
-| TTRAD | Temperature tendency by all radiation | K/s |
-| TTPHY | Temperature Tendency By Non-radiation Physics | K/s |
-| WTEND | Tendency of vertical velocity | m/s^2 |
-|  | The Associated Legendre Functions of the first kind are defined by |  |
-| MASK | Thematic Mask | Numeric |
-| THICK | Thickness | m |
-| TSC | Thunderstorm coverage | (Code table 4.204) |
-| TSMT | Thunderstorm maximum tops | m |
-| TSTM | Thunderstorm probability | % |
-| TSTM | Thunderstorm Probability | % |
-| TACONCP | Time-integrated air concentration of caesium pollutant | Bq\*s/m^3 |
-| TACONIP | Time-integrated air concentration of iodine pollutant | Bq\*s/m^3 |
-| TACONRDP | Time-integrated air concentration of radioactive pollutant | Bq\*s/m^3 |
-| PTOR | Tornado probability | % |
-| TORPROB | Tornado probability | % |
-| TRNDPROB | Tornado probability | % |
-| TCDC | Total cloud cover | % |
-| TCOLI | Total column-integrated cloud ice | mm |
-| TCOLI | Total Column-Integrated Cloud Ice | mm |
-| TCOLW | Total column-integrated cloud water | mm |
-| TCOLW | Total Column-Integrated Cloud Water | mm |
-| TCOLC | Total column-integrated condensate | mm |
-| TCOLC | Total Column-Integrated Condensate | mm |
-| TCOLM | Total column-integrated melting ice | kg m-2 |
-| TCOLM | Total column-integrated melting ice | mm |
-| TCIOZ | Total Column Integrated Ozone | Dobson |
-| TCOLR | Total Column Integrated Rain | kg m-2 |
-| TCOLR | Total column integrated rain | mm |
-| TCOLR | Total Column Integrated Rain | mm |
-| TCOLS | Total Column Integrated Snow | kg m-2 |
-| TCOLS | Total column integrated snow | mm |
-| TCOLS | Total Column Integrated Snow | mm |
-| TCLSW | Total column-integrated supercooled liquid water | kg m-2 |
-| TCLSW | Total column-integrated supercooled liquid water | mm |
-| TCIWV | Total Column Integrated Water Vapour | kg m-2 |
-| TCIWV | Total Column Integrated Water Vapour | mm |
-| TCOLG | Total Column Integrate Graupel | kg/m^2 |
-| TCWAT | Total Column Water (Vertically integrated total water (vapour+cloud water/ice) | kg m-2 |
-| TCWAT | Total Column Water(Vertically integrated total water (vapour+cloud water/ice) | mm |
-| TCOND | Total Condensate | kg \* kg^-1 |
-| TCOND | Total condensate | kg/kg |
+| T | Temperature | K |
+| T24Chg | T24Chg | °F |
+| T24hr | 24 hr Temperature | K |
+| T_001 | Prob of Temp Lstn 0C | % |
+| T_001_bin | Binary Prob of Temp Lstn 0C |  |
+| T_001_perts | Prob of Temp Lstn 0C Perturbations |  |
+| T_avg | Temperature Ensemble Mean | K |
+| T_perts | Temperature Perturbations | K |
+| T_std | Temperature Ensemble Std Dev | K |
+| Ta | Temperature Anomaly | K |
+| TAdv | Temperature Adv | K/s |
+| Tc1 | Prob Temp &lt; O C | % |
+| TCC | Total Cloud Cover | % |
+| TCCerranl | Total Cloud Cover Error Analysis | % |
+| TCICON | Total Column-Integrated Condensate | kg/m^2 |
+| TCLSW | Total Column Integrated Supercooled Liquid Water | kg/m^2 |
+| TCOLG | Total Column Integrated Graupel | kg/m^2 |
+| TCOLI | Total Column-Integrated Cloud Ice | kg/m^2 |
+| TCOLM | Total Column Integrated Melting Ice | kg/m^2 |
+| TCOLR | Total Column Integrated Rain | kg/m^2 |
+| TCOLS | Total Column Integrated Snow | kg/m^2 |
+| TCOLW | Total Column-Integrated Cloud Water | kg/m^2 |
 | TCOND | Total Condensate | kg/kg |
-| THFLX | Total Downward Heat Flux at Surface | W/m^2 |
-| TIPD | Total Icing Potential Diagnostic | non-dim |
-| TIPD | Total Icing Potential Diagnostic |  |
-| TOZNE | Total ozone | Dobson |
-| A PCP | Total Precipitation | kg m-2 |
-| APCP | Total precipitation | mm |
-| APCPN | Total precipitation (nearest grid point) | kg/m2 |
-| APCPN | Total precipitation (nearest grid point) | mm |
-| TPRATE | Total Precipitation Rate | kg m-2s-1 |
-| TPRATE | Total Precipitation Rate | mm/s |
-| PRSIGSV | Total Probability of Extreme Severe Thunderstorms (Days 2,3) | % |
-| PRSIGSVR | Total Probability of Extreme Severe Thunderstorms (Days 2,3) | % |
-| PRSVR | Total Probability of Severe Thunderstorms (Days 2,3) | % |
-| ASNOW | Total Snowfall | m |
-| TOTSN | Total snowfall | m |
-| TSRATE | Total Snowfall Rate | m s-1 |
-| TSRATE | Total Snowfall Rate | m/s |
-| TSRWE | Total Snowfall Rate Water Equivalent | kg m-2s-1 |
-| TSRWE | Total Snowfall Rate Water Equivalent | mm/s |
-| TSNOW | Total Snow | kg/m2 |
-| TSNOW | Total Snow | mm |
-| TSNOWP | Total Snow Precipitation | kg m-2 |
-| TSNOWP | Total Snow Precipitation | mm |
-| TTX | Total totals index | K |
-| TWATP | Total Water Precipitation | kg m-2 |
-| TWATP | Total Water Precipitation | mm |
-| TTHDP | Transient thermocline depth | m |
-| TRANSO | Transpiration Stree-Onset(Soil Moisture) | kg/m^3 |
-| SMREF | Transpiration stress-onset (soil moisture) | Proportion |
-| TRANS | Transpiration | W/m^2 |
-| TCHP | Tropical Cyclone Heat Potential | J/m^2\*K |
-| TRO | Tropopause |  |
-| TRBBS | Turbulence base | m |
-| TURBB | Turbulence Base | m |
-| TURB | Turbulence | (Code table 4.208) |
+| Tdef | Total Deformation | /s\*100000.0 |
+| Tdend | Dendritic Growth Temperatures | K |
+| Terranl | Temperature Analysis Uncertainty | K |
+| Terranl | Temperature Error Analysis | K |
+| TGrd | Temperature Gradient | K/m |
+| TGrdM | Temperature Grad Mag | K/m |
+| ThetaE | Theta E | K |
+| ThGrd | Temperature Gradient | ℃/m |
+| Thom5 | S-R Flow |  |
+| Thom5a | S-R Flow |  |
+| Thom6 | S-R Flow Suggests Tor Supercells |  |
+| ThP | Thunderstorm probability | % |
+| ThP | Thunderstorm Probability | % |
+| ThP12hr | 12hr Thunderstorm probability | % |
+| ThP3hr | 3hr Thunderstorm probability | % |
+| ThP6hr | 6hr Thunderstorm probability | % |
+| ThPcat | Categorical thunderstorm |  |
+| TiltAng | Radar Tilt Angle  | deg |
+| TKE | Turb Kin Energy | J/kg |
+| TKE | Turbulent Kinetic Energy | J/kg |
+| Tmax | Layer Max Temperature | K |
+| TmDpD | Temp minus Dewp Dep |  |
+| Tmean | Temperature mean | K |
+| Tmin | Layer Min Temperature | K |
+| Topo | Topography | m |
+| TORi | BRNSHR,EHI,LRate&gt;3C/km,CIN &lt; 150 |  |
+| TORi2 | BRNSHR,EHI,0-2km LRate &gt; 3C/km |  |
+| TotQi | Isentropic Total Moisture | g·hPa/(kg·K) |
+| TOTSN | 24hr Snowfall | m |
+| TOTSN12hr | 12hr Snowfall | m |
+| TOZNE | Total Ozone | DU |
+| TP | Precipitation | mm |
+| TP | Total Precipitation | mm |
+| TP120hr | 5 Day Total Gridded Precip | in |
+| TP12c1 | 12-hr POP &gt; 0.01 in | % |
+| TP12c2 | 12-hr POP &gt; 0.05 in | % |
+| TP12c3 | 12-hr POP &gt; 0.10 in | % |
+| TP12c4 | 12-hr POP &gt; 0.25 in | % |
+| TP12c5 | 12-hr POP &gt; 0.50 in | % |
+| TP12c6 | 12-hr POP &gt; 1.00 in | % |
+| TP12c7 | 12-hr POP &gt; 1.50 in | % |
+| TP12c8 | 12-hr POP &gt; 2.00 in | % |
+| TP12hr | 12 Hr Accum Precip | mm |
+| TP12hr | Total Precipitation(12 hours) | mm |
+| TP12mean | 12-hr Total Precip mean | mm |
+| TP12sprd | 12-hr Total Precip sprd | mm |
+| TP168hr | 7 Day Total Gridded Precip | mm |
+| TP18hr | Total Precipitation(18 hours) | mm |
+| TP1hr | 1 Hr Accum Precip | mm |
+| TP1hr | Total Precipitation(1 hour) | mm |
+| TP24c1 | 24-hr POP &gt; 0.01 in | % |
+| TP24c2 | 24-hr POP &gt; 0.05 in | % |
+| TP24c3 | 24-hr POP &gt; 0.10 in | % |
+| TP24c4 | 24-hr POP &gt; 0.25 in | % |
+| TP24c5 | 24-hr POP &gt; 0.50 in | % |
+| TP24c6 | 24-hr POP &gt; 1.00 in | % |
+| TP24c7 | 24-hr POP &gt; 1.50 in | % |
+| TP24c8 | 24-hr POP &gt; 2.00 in | % |
+| TP24hr | 24 Hr Accum Precip | mm |
+| TP24hr | Total Precipitation(24 hours) | mm |
+| TP24hr_avg | 24hr Precip Ensemble Mean | mm |
+| TP24hr_perts | 24hr Precip Perturbations | mm |
+| TP24hr_std | 24hr Precip Ensemble Std Dev | mm |
+| TP24mean | 24-hr Total Precip mean | mm |
+| TP24sprd | 24-hr Total Precip sprd | mm |
+| TP36hr | 36 Hr Accum Precip | mm |
+| TP3c1 | 3-hr POP &gt; 0.01 in | % |
+| TP3c2 | 3-hr POP &gt; 0.05 in | % |
+| TP3c3 | 3-hr POP &gt; 0.10 in | % |
+| TP3c4 | 3-hr POP &gt; 0.25 in | % |
+| TP3c5 | 3-hr POP &gt; 0.50 in | % |
+| TP3c6 | 3-hr POP &gt; 1.00 in | % |
+| TP3c7 | 3-hr POP &gt; 1.50 in | % |
+| TP3c8 | 3-hr POP &gt; 2.00 in | % |
+| TP3hr | 3 Hr Accum Precip | mm |
+| TP3hr | Total Precipitation(3 hours) | mm |
+| TP3mean | 3-hr Total Precip mean | mm |
+| TP3sprd | 3-hr Total Precip sprd | mm |
+| TP48hr | 48 Hr Accum Precip | mm |
+| TP48hr | Total Precipitation(48 hours) | mm |
+| TP6c1 | 6-hr POP &gt; 0.01 in | % |
+| TP6c2 | 6-hr POP &gt; 0.05 in | % |
+| TP6c3 | 6-hr POP &gt; 0.10 in | % |
+| TP6c4 | 6-hr POP &gt; 0.25 in | % |
+| TP6c5 | 6-hr POP &gt; 0.50 in | % |
+| TP6c6 | 6-hr POP &gt; 1.00 in | % |
+| TP6c7 | 6-hr POP &gt; 1.50 in | % |
+| TP6c8 | 6-hr POP &gt; 2.00 in | % |
+| TP6hr | 6 Hr Accum Precip | mm |
+| TP6hr | Total Precipitation(6 hours) | mm |
+| TP6hr_avg | 6hr Precip Ensemble Mean | mm |
+| TP6hr_perts | 6hr Precip Perturbations | mm |
+| TP6hr_std | 6hr Precip Ensemble Std Dev | mm |
+| TP6mean | 6-hr Total Precip mean | mm |
+| TP6sprd | 6-hr Total Precip sprd | mm |
+| TP72hr | 3 Day Total Gridded Precip | mm |
+| TP9hr | Total Precipitation(9 hours) | mm |
+| TP_ACR | ACR Precip | in |
+| TP_ALR | ALR Precip | in |
+| TP_avg | Precip Ensemble Mean | mm |
+| TP_ECMWF | ECMWF Precipitation | in |
+| TP_ECMWF12hr | ECMWF 12 Hr Accum Precip | in |
+| TP_FWR | FWR Precip | in |
+| TP_HPC | HPC Precip | in |
+| TP_KRF | KRF Precip | in |
+| TP_MSR | MSR Precip | in |
+| TP_ORN | ORN Precip | in |
+| TP_perts | Precip Perturbations | mm |
+| TP_PTR | PTR Precip | in |
+| TP_RHA | RHA Precip | in |
+| TP_RSA | RSA Precip | in |
+| TP_std | Precip Ensemble Std Dev | mm |
+| TP_STR | STR Precip | in |
+| TP_TAR | TAR Precip | in |
+| TP_TIR | TIR Precip | in |
+| TP_TUA | TUA Precip | in |
+| TPFI | Turbulence Index |  |
 | TPFI | Turbulence Potential Forecast Index |  |
-| TURB | Turbulence | See Table 4.208 |
-| TRBTP | Turbulence top | m |
-| TURBT | Turbulence Top | m |
-| TKE | Turbulent Kinetic Energy | J kg-1 |
-| TKE | Turbulent kinetic energy | J/kg |
-| UOGRD | u-component of current | cm/s |
-| UOGRD | u-component of current | m/s |
-| MAXUW | U Component of Hourly Maximum 10m Wind Speed | m/s |
-| UICE | u-component of ice drift | m/s |
-| UGUST | u-component of wind gust | m/s |
-| UGRD | u-component of wind | m/s |
-| USTM | U-component storm motion | m/s |
-| USTM | U-Component Storm Motion | m/s |
-| USSD | U-component Surface Stokes Drift | m/s |
-| UVI | Ultra Violet Index | J/m^2 |
-| UPHL | Updraft Helicity in Layer 2-5 km AGL | m^2/s^2 |
-| UPHL | Updraft Helicity | m^2/s^2 |
-| ULSM | Upper layer soil moisture | kg/m^3 |
-| ULST | Upper layer soil temperature | K |
-| ULWRF | Upward Long-Wave Rad. Flux | W/m^2 |
-| ULWRF | Upward long-wave radiation flux | W/m^2 |
-|  | Upward Long-W/m^2 | ULWRF |
-| USWRF | Upward Short-Wave Rad. Flux | W/m^2 |
-| USWRF | Upward short-wave radiation flux | W/m^2 |
-|  | Upward Short-W/m^2 | USWRF |
-| UTRF | Upward Total radiation Flux | W/m^2 |
-| DUVB | UV-B downward solar flux | W/m^2 |
-| UVI | UV Index | J/m^2 |
-| UVIUCS | UV Index (Under Clear Sky) | Numeric |
-| VAPP | Vapor pressure | Pa |
-| VAPP | Vapor Pressure | Pa |
-| VOGRD | v-component of current | cm/s |
-| VOGRD | v-component of current | m/s |
-| MAXVW | V Component of Hourly Maximum 10m Wind Speed | m/s |
-| VICE | v-component of ice drift | m/s |
-| UGUST | v-component of wind gust | m/s |
-| VGRD | v-component of wind | m/s |
-| VSTM | V-component storm motion | m/s |
-| VSTM | V-Component Storm Motion | m/s |
-| VSSD | V-component Surface Stokes Drift | m/s |
-| VEGT | Vegetation canopy temperature | K |
-| VGTYP | Vegetation Type | Integer 0-13 |
-| VEG | Vegetation | % |
-| SPEED | Velocity Magnitude (Speed) | m\*s^1 |
-| LMV | Velocity Point Model Surface |  |
-| VPOT | Velocity potential | m^2/s |
-| VRATE | Ventilation Rate | m^2/s |
-| VDFHR | Vertical Diffusion Heating rate | K/s |
-| VDFVA | Vertical Diffusion Meridional Acceleration | m/s^2 |
-| VDFMR | Vertical Diffusion Moistening Rate | kg/kg\*s |
-| VDFUA | Vertical Diffusion Zonal Acceleration | m/s^2 |
-| VEDH | Vertical Eddy Diffusivity Heat exchange | m^2/s |
-| VTEC | Vertical Electron Content | m^2 |
-| VII | Vertically Integrated Ice (VII) | kg/m^2 |
-| VILIQ | Vertically-integrated liquid | kg/m^2 |
-| MRMSVILDensity | Vertically Integrated Liquid (VIL) Density | g/m^3 |
-| MRMSVIL | Vertically Integrated Liquid (VIL) | kg/m^2 |
-| VIL | Vertically Integrated Liquid (VIL) | kg/m^2 |
-| VWSH | Vertical speed shear | s^-1 |
-| VWSH | Vertical speed sheer | s^-1 |
-| VUCSH | Vertical u-component shear | s^-1 |
-| VVCSH | Vertical v-component shear | s^-1 |
-| DZDT | Vertical velocity geometric | m/s |
-| VVEL | Vertical velocity pressure | Pa/s |
-| VPTMP | Virtual potential temperature | K |
-| VTMP | Virtual temperature | K |
-| VIS | Visibility | m |
-| VBDSF | Visible Beam Downward Solar Flux | W/m^2 |
-| SBSALB | Visible, Black Sky Albedo | % |
-| VDDSF | Visible Diffuse Downward Solar Flux | W/m^2 |
-| Visible | Visible Imagery |  |
-| SWSALB | Visible, White Sky Albedo | % |
-| VASH | Volcanic ash | (Code table 4.206) |
-| VAFTD | Volcanic Ash Forecast Transport and Dispersion | log10(kg/m^3) |
-| VOLASH | Volcanic Ash | See Table 4.206 |
-| VOLDEC | Volumetric Direct Evaporation Cease(Soil Moisture) | m^3/m^3 |
-| VSOSM | Volumetric Saturation Of Soil Moisture | m^3/m^3 |
-| SOILW | Volumetric soil moisture content | Proportion |
-| VSOILM | Volumetric Soil Moisture | m^3/m^3 |
-| VOLTSO | Volumetric Transpiration Stree-Onset(Soil Moisture) | m^3/m^3 |
-| VWILTM | Volumetric Wilting Moisture | m^3/m^3 |
-| WCINC | Water condensate added by precip assimilation | mm |
-| WCCONV | Water Condensate Flux Convergance (Vertical Int) | mm |
-| WCVFLX | Water Condensate Meridional Flux (Vertical Int) | mm |
-| WCUFLX | Water Condensate Zonal Flux (Vertical Int) | mm |
-| WEASD | Water Equivalent of Accumulated Snow Depth | kg m-2 |
-| WEASD | Water equivalent of accumulated snow depth | mm |
-| WATR | Water runoff | mm |
-| TEMPWTR | Water temperature | K |
-| WVINC | Water vapor added by precip assimilation | mm |
-| WVCONV | Water Vapor Flux Convergance (Vertical Int) | mm |
-| WaterVapor | Water Vapor Imagery | K |
-| WVVFLX | Water Vapor Meridional Flux (Vertical Int) | mm |
-| WVUFLX | Water Vapor Zonal Flux (Vertical Int) | mm |
-| WDIRW | Wave Directional Width |  |
-| WESP | Wave Engery Spectrum | s/m^2 |
-| WVSP1 | Wave spectra (1) |  |
-| WVSP2 | Wave spectra (2) |  |
-| WVSP3 | Wave spectra (3) |  |
-| WSTP | Wave Steepness |  |
-| WSTR | Wave Stress | N/m^2 |
-| wxType | Weather |  |
-| ModelWetbulbTemperature | Wet Bulb Temperature | C |
-| WHTCOR | White Light Coronagraph Radiance | W\*s\*r^1\*m^2 |
-| WHTRAD | White Light Radiance | W\*s\*r^1\*m^2 |
-| WILT | Wilting Point | kg/m^3 |
-| WILT | Wilting point | Proportion |
-| WCI | Wind chill factor | K |
-| WDIR | Wind direction (from which blowing) | deg |
-| WMIXE | Wind mixing energy | J |
-| WINDPROB | Wind probability | % |
-| WINDPROB | Wind Probability | % |
-| WGS | Wind speed gust | m/s |
-| PWS | Wind speed | m/s |
-| WIND | Wind speed | m/s |
-| HGT X | X-gradient of Height | m^-1 |
-| LPS X | X-gradient of Log Pressure | m^-1 |
-| XRAYRAD | X-Ray Radiance | W\*s\*r^1\*m^2 |
-| HGT Y | Y-gradient of Height | m^-1 |
-| LPS Y | Y-gradient of Log Pressure | m^-1 |
-| UGWD | Zonal flux of gravity wave stress | N/m^2 |
+| TP-GFS | Total Precipitation for GFS  | mm |
+| tpHPC | HPC Precip | in |
+| tpHPCndfd | Precipitation | mm |
+| TPmodel | Model Run Precip | mm |
+| TPrun | Run Accum Pcpn | mm |
+| TPrun_avg | Accum Precip Ensemble Mean | mm |
+| TPrun_perts | Accum Precip Perturbations | mm |
+| TPrun_std | Accum Precip Ensemble Std Dev | mm |
+| TPx12x6 | 12-6 Hr Accum Precip | mm |
+| TPx1x3 | 3x1 Hr Accum Precip | mm |
+| TPx3 | 3 Hr Accum Precip | mm |
+| TQIND | TQ Index 12=Cold Pool 17=Embedded Convection | C |
+| TRANS | Transpiration | W/m^2 |
+| transparentMaritimeSky |  | ft |
+| transparentMaritimeSkySym |  | ft |
+| transparentSky |  | ft |
+| transparentSky2 |  | ft |
+| transparentSky3 |  | ft |
+| transparentSkySym |  | ft |
+| transparentSkySym2 |  | ft |
+| transparentSkySym3 |  | ft |
+| TransWind | TransWind | kts |
+| TShrMi | S=0-6km Shear Supports Scells |  |
+| TSLSA | 3 hr Pres Change | hPa |
+| TSNOW | Total Snow | kg/m^2 |
+| TSOIL | Soil Temperature | K |
+| Tsprd | Temperature spread | K |
+| TSRWE | Total Snowfall Rate Water Equivalent | kg/m^2/s |
+| Tstk | Temp Stack | K |
+| tTOT | Total Totals | C |
+| TURB | Turbulence Index |  |
+| TV | Virtual Temperature | K |
+| TW | Wet Bulb Temp | K |
+| tWind | Thermal Wind | kn |
+| tWindU | U Component of Thermal Wind | kn |
+| tWindV | V Component of Thermal Wind | kn |
+| TwMax | Layer Max Wet-bulb Temperature | K |
+| TwMin | Layer Min Wet-bulb Temperature | K |
+| TWO | Two |  |
+| Twstk | Wet-bulb Temp Stack | K |
+| TxSM | Filtered-500km Temp | C |
 | U-GWD | Zonal Flux of Gravity Wave Stress | N/m^2 |
+| UFLX | Momentum Flux, U-Component | N/m^2 |
+| uFX | Geo Momentum | m/s |
+| ulSnoRat |  |  |
+| ULWRF | Comp Refl | dBZ |
+| ULWRF | Upward Long-Wave Rad. Flux | W/m^2 |
+| UPHL | Updraft Helicity | m^2/s^2 |
+| USTM | U-Component of Storm Motion | m/s |
+| USWRF | Reflectivity | dBZ |
+| USWRF | Upward Short-Wave Radiation Flux | W/m^2 |
+| uv2 | Horz Variance | m^2/s^2 |
+| uW | u Component of Wind | m/s |
+| uW | U-Component of Wind | m/s |
+| uWerranl |  |  |
+| uWmean |  | m/s |
+| uWsprd |  |  |
+| uWStk | U Stack | m/s |
+| uzfwc | Upper Zone Free Water Content | % |
+| uztwc | Upper Zone Tension Water Content | % |
+| V-GWD | Meridional Flux of Gravity Wave Stress | N/m^2 |
+| VAdv | Vorticity Adv | /s\*1.0E9 |
+| VAdvAdvection | Vorticity Adv | /s |
+| VAPP | Vapor Pressure | Pa |
+| VBDSF | Visible Beam Downward Solar Flux | W/m^2 |
+| VEG | Vegetation | % |
+| vertCirc | Vertical Circulation |  |
+| VFLX | Momentum Flux, V-Component | N/m^2 |
+| VGP | Vort Gen Param |  |
+| VGTYP | Vegetation Type | Integer (0-13) |
+| VII | Vertically Integrated Ice (VII) | kg/m^2 |
+| VILIQ | Vertically Integrated Liquid (VIL) | kg/m^2 |
+| Vis | Visibility | m |
+| Vis | Visibility | m |
+| visbyIFR |  | mi |
+| visbyLIFR |  | mi |
+| visbyMVFR |  | mi |
+| visbyVFR |  | mi |
+| Visc1 | Prob Sfc Visibility &lt; 1 mile | % |
+| Visc2 | Prob Sfc Visibility &lt; 3 miles | % |
+| Visc23 | Prob Sfc Visibility &lt; 5 miles | % |
+| visCat | Categorical visibility |  |
+| Viserranl | Visibility Analysis Uncertainty | m |
+| Viserranl | Visibility Error Analysis | m |
+| Visible | Visible Imagery |  |
+| VPT | Virtual Potential Temperature | K |
+| VRATE | Ventilation Rate | m^2/s |
+| vSmthW | Verticall Smoothed Wind  | m/s |
+| VSS | Vertical Shear Speed | /s |
+| VSTM | V-Component of Storm Motion | m/s |
+| VTMP | Virtual Temperature | K |
+| vTOT | Vertical Totals |  |
+| VUCSH | Vertical u-component shear | /s |
+| VV | Vertical velocity | m/s |
+| VVCSH | Vertical v-component shear | /s |
+| vW | v Component of Wind | m/s |
+| vW | V-Component of Wind | m/s |
+| vWerranl |  |  |
+| vWmean |  | m/s |
+| vwpSample | VWP Sample |  |
+| VWSH | Vertical Speed Shear | /s |
+| vWsprd |  |  |
+| vWStk | V Stack | m/s |
+| w2 | Vert Variance | m^2/s^2 |
+| WarmRainProbability | Probability of Warm Rain | % |
+| water_depth | Hillslope Water Depth | in |
+| WaterVapor | Water Vapor Imagery | K |
+| WATR | Water Runoff | kg/m^2 |
+| WCD | Warm Cloud Depth Approx.: Frzlvl-LCL Thickness | m |
+| WD | Wind Direction (from which blowing) | deg |
+| WD | Wind direction | deg |
+| WDea | Wind Direction Analysis Uncertainity | deg |
+| WDEPTH | Geometric Depth Below Sea Surface | m |
+| WDerranl | Wind Direction Error Analysis | deg |
+| wDiv | Wind Divergence | /s |
+| WDmean | Wind Direction mean | deg |
+| WEASD | Water Equiv accum snow depth | m |
+| WEASD | Water Equivalent of Accumulated Snow Depth | mm |
+| WGH | 5-Wave Geopotential Height | gpm |
+| WGH | 5-wave geopotential height | m |
+| WGS | Wind Gust Speed | m/s |
+| WGS | Wind Gust Speed | m/s |
+| WGS1hr | Max 1-hr Wind Gust Speed | m/s |
+| WGSea | Wind Gust Speed Analysis Uncertainty | m/s |
+| WGSerranl | Wind Gust Speed Error Analysis | m/s |
+| WGSMX1hr | Max Hourly Wind Gust | m/s |
+| WILT | Wilting Point | Proportion |
+| Wind | Wind | m/s |
+| Wind_avg | Wind Ensemble Mean | m/s |
+| Wind_perts | Wind Perturbations | m/s |
+| Windmean | Mean Wind | kn |
+| WINDPROB | Wind Probability | % |
+| WMIXE | Wind Mixing Energy | J |
+| WndChl | Wind Chill | K |
+| WS | Wind Speed | m/s |
+| WSc1 | Prob SFC wind speed &gt; 25 kt | % |
+| WSc2 | Prob SFC wind speed &gt; 34 kt | % |
+| WSc3 | Prob SFC wind speed &gt; 48 kt | % |
+| WSc4 | Prob SFC wind speed &gt; 50 kt | % |
+| WSc6 | Prob SFC wind speed &gt; 20 kt | % |
+| WSc7 | Prob SFC wind speed &gt; 30 kt | % |
+| WSc8 | Prob SFC wind speed &gt; 40 kt | % |
+| WSerranl | Wind Speed Error Analysis | m/s |
+| WSmean | Wind Speed mean | m/s |
+| wSp | Wind speed | m/s |
+| wSp_001 | Prob of Wind Grtn 40kts | % |
+| wSp_001_bin | Binary Prob of Wind Grtn 40kts |  |
+| wSp_001_perts | Prob of Wind Grtn 40kts Perts |  |
+| wSp_002 | Prob of Wind Grtn 50kts | % |
+| wSp_002_bin | Binary Prob of Wind Grtn 50kts |  |
+| wSp_002_perts | Prob of Wind Grtn 50kts Perts |  |
+| wSp_003 | Prob of Wind Grtn 60kts | % |
+| wSp_003_bin | Binary Prob of Wind Grtn 60kts |  |
+| wSp_003_perts | Prob of Wind Grtn 60kts Perts |  |
+| wSp_004 | Prob of Wind Grtn 30kts | % |
+| wSp_004_bin | Binary Prob of Wind Grtn 30kts |  |
+| wSp_004_perts | Prob of Wind Grtn 30kts Perts |  |
+| wSp_avg | Windspeed Ensemble Mean | m/s |
+| wSp_perts | Windspeed Perturbations | m/s |
+| wSp_std | Windspeed Ensemble Std Dev | m/s |
+| wSpea | Wind Speed Analysis Uncertainty | kn |
+| wSpmean | Mean Windspeed | kt |
+| wSpsprd | Windspread spread | kt |
+| WSsprd | Wind Speed sprd | m/s |
+| WVDIR | Direction of Wind Waves | deg |
+| WVdir | Wind Wave Direction |  |
+| wvHeight | wvHeight | m |
+| WVHGT | Significant Height of Wind Waves | m |
+| WVHGT | Wind Wave Height | m |
+| WVLEN | Mean length of wind waves | m |
+| WVPER | Mean Period of Wind Waves | s |
+| WVPER | Wind Wave Period | s |
+| wvPeriod | wvPeriod |  |
+| WVSTP | Steepness of wind waves |  |
+| wvType | wvType |  |
+| wW | w Component of Wind | cm/s |
+| wx | Weather |  |
+| zAGL | Height AGL | m |
+| ZDR | Differential Reflectivity | dB |

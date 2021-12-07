@@ -77,4 +77,5 @@
 	<alias base="UKMET44">UKMET</alias>
 	<alias base="UKMET-Global">UKMET</alias>
 	<alias base="WaveWatch-WNA">WNAwave</alias>
+        <alias base="HRRR-Smoke">HRRR Smoke</alias>
 </aliasList>
