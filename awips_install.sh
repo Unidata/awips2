@@ -62,6 +62,14 @@ function check_netcdf {
   fi
 }
 
+function check_git {
+  if ! [[ $(rpm -qa | grep ^git-[12]) ]]; then
+    # install git if not installed
+    yum install git -y
+
+  fi
+}
+
 function check_cave {
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo $'\n'CAVE is currently installed and needs to be removed before installing.
@@ -169,7 +177,7 @@ function remove_edex {
     echo "Now removing EDEX"
   fi
 
-  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave awips2-qpid-lib
+  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave awips2-qpid-lib -y
 
   if [[ $(rpm -qa | grep awips2 | grep -v cave) ]]; then
     echo "
@@ -210,6 +218,7 @@ function server_prep {
   check_limits
   check_netcdf
   check_edex
+  check_git
   check_epel
 }
 
