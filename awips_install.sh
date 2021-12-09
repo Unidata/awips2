@@ -24,7 +24,7 @@ function stop_edex_services {
 
 function check_yumfile {
   if [[ $(grep "release 7" /etc/redhat-release) ]]; then
-    repofile=el7.repo
+    repofile=awips2.repo
   else
     echo "You need to be running CentOS7 or RedHat7"
     exit
@@ -34,7 +34,7 @@ function check_yumfile {
     cp /etc/yum.repos.d/awips2.repo /etc/yum.repos.d/awips2.repo-${date}
   fi
 
-  wget_url="https://www.unidata.ucar.edu/software/awips2/doc/${repofile}"
+  wget_url="https://downloads.unidata.ucar.edu/awips2/current/linux/${repofile}"
   echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
   wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
 
@@ -197,7 +197,7 @@ function remove_edex {
      exit
   else
     for dir in $(ls /awips2/); do
-      if [ $dir != cave ]; then
+      if [ $dir != dev ] && [ $dir != cave ] ; then
         echo "Removing /awips2/$dir"
         rm -rf /awips2/$dir
       fi
