@@ -287,6 +287,12 @@ edex_setup() {
    if [ -d "/awips2/ldm/etc" ]; then
       su - awips -c 'regutil -s '$HOSTNAME' /hostname'
    fi
+
+   # ldm port
+   if [ -d "/awips2/ldm/etc" ]; then
+     su - awips -c 'regutil -s '388' /server/port'
+   fi
+
    edit_setup
 }
 
