@@ -19,7 +19,7 @@ If the parameters in the grib file haven't been previously specified, another ch
 
 1. Download an example grib1 file and rename to a `*.grib` extension, then copy to the manual ingest point `/awips2/data_store/ingest/` 
 
-        wget https://www.unidata.ucar.edu/software/awips2/14102318_nmm_d01.GrbF00600 -O wrf.grib
+        wget https://downloads.unidata.ucar.edu/awips2/current/files/14102318_nmm_d01.GrbF00600 -O wrf.grib
     
         cp wrf.grib /awips2/data_store/ingest/
     
@@ -46,7 +46,7 @@ If the parameters in the grib file haven't been previously specified, another ch
 
 1. Download an example grib2 file and rename to a `*.grib2` extension, then copy to the manual ingest point `/awips2/data_store/ingest/` 
 
-        wget https://www.unidata.ucar.edu/software/awips2/CPTI_00.50_20180502-000144.grib2 -O cpti.grib2
+        wget https://downloads.unidata.ucar.edu/awips2/current/files/CPTI_00.50_20180502-000144.grib2 -O cpti.grib2
     
         cp cpti.grib2 /awips2/data_store/ingest/
     

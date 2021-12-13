@@ -59,9 +59,11 @@
       </win>
    </launcher>
 
+
    <vm>
       <windows include="true">jdk1.7.0</windows>
    </vm>
+
 
    <plugins>
    </plugins>

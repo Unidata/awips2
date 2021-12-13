@@ -64,6 +64,11 @@ fi
 
 /bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/qpidNotify.py ${RPM_BUILD_ROOT}/awips2/edex/bin/
 
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/updateNDM.pl ${RPM_BUILD_ROOT}/awips2/dev/
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/logs ${RPM_BUILD_ROOT}/awips2/dev/
+
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/ndm/* ${RPM_BUILD_ROOT}/awips2/edex/data/ndm/
+
 DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb-configuration.xml"
 
 # use deploy-install to deploy edex-configuration.
@@ -190,4 +195,5 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/edex/bin/*.sh
 /awips2/edex/bin/scriptLauncher
 %attr(755,awips,fxalpha) /awips2/edex/bin/qpidNotify.py
+%attr(755,awips,fxalpha) /awips2/dev/updateNDM.pl
 %attr(744,root,root) /etc/init.d/edex_camel

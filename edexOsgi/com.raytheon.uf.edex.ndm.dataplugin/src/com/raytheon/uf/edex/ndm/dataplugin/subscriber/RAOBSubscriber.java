@@ -38,7 +38,7 @@ import com.raytheon.uf.common.pointdata.vadriver.VA_Driver;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
  * RAOB NDM subscriber.
@@ -70,13 +70,13 @@ public class RAOBSubscriber implements INationalDatasetSubscriber {
         if ("raob.spi".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File outFile = pathMgr.getFile(lc, "basemaps/raob.spi");
             saveFile(file, outFile);
         } else if ("raob.goodness".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File outFile = pathMgr.getFile(lc, "basemaps/raob.goodness");
             saveFile(file, outFile);
             if (null == combineThread) {
@@ -100,7 +100,7 @@ public class RAOBSubscriber implements INationalDatasetSubscriber {
         } else if ("raob.primary".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File outFile = pathMgr.getFile(lc, "basemaps/raob.primary");
             saveFile(file, outFile);
             if (null == combineThread) {
@@ -170,7 +170,7 @@ public class RAOBSubscriber implements INationalDatasetSubscriber {
     private void processGoodness() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         File goodness = pathMgr.getFile(lc, "basemaps/raob.goodness");
         File primary = pathMgr.getFile(lc, "basemaps/raob.primary");
         File spi = pathMgr.getFile(lc, "basemaps/raob.spi");

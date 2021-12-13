@@ -7,7 +7,7 @@ foreach $path(@paths)
 {
 
 #find files that haven't been touched in the past 5 minutes 
-  $syscmd="find $path -name \"*-concat-*\" -mmin +5"; 
+  $syscmd="find $path -name \"*-concat-*\" -mmin +2"; 
 
   print "\t$syscmd\n";
 

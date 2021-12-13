@@ -67,9 +67,9 @@ and after install
 
 # Linux Download
 
-For 64-bit RHEL/CentOS 6 and 7, download and run the script [awips_install.sh --edex](https://www.unidata.ucar.edu/software/awips2/awips_install.sh):
+For 64-bit RHEL/CentOS 6 and 7, download and run the script [awips_install.sh --edex](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh):
 
-    wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
+    wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
     chmod 755 ./awips_install.sh
     sudo ./awips_install.sh --edex
 
@@ -99,6 +99,6 @@ LDM config
 
 # What does `awips_install.sh --edex` do?
 
-1. Downloads [https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo](https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo) to `/etc/yum.repos.d/awips2.repo`
+1. Downloads [https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo](https://downloads.unidata.ucar.edu/awips2/current/linux/awips2.repo) to `/etc/yum.repos.d/awips2.repo`
 2. Runs `yum clean all`
 3. Runs `yum groupinstall awips2-server`

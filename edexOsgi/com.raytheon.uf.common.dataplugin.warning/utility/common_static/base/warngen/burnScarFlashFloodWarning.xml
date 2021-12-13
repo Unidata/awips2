@@ -8,8 +8,7 @@
      to issue a FFW for outside of a dam break. -->
 <!-- Created by Phil Kurimski 02-07-2013 for OB13.2.1-5
      Phil Kurimski   09-19-2013 added geospatialConfig.xml
-     Mike Dangelo    10-20-2015 standard CTAs
-     Phil Kurimski   03-21-2018 Fixed FFW Emergency CTA Parse String DR 20671
+     Mike Dangelo 10-20-2015 standard CTAs
 -->
 
 <warngenConfig>
@@ -32,18 +31,18 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <unitSpeed>mph</unitSpeed>
 
      <!-- OPTIONAL: Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
-    The various menu items are also the different maps
-    that can be loaded with each template. -->
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
  <maps>
-<!-- <map>FFMP Small Stream Basin Links</map> -->    
+<!-- 	<map>FFMP Small Stream Basin Links</map> -->    
    <map>County Names</map>
    <map>County Warning Areas</map>
    <map>FFMP Small Stream Basin Links</map> 
    <map>Major Rivers</map> 
  </maps>
-
+ 	
  <!-- Followups: VTEC actions of allowable followups when this template is selected 
-    Each followup will become available when the appropriate time range permits.
+	Each followup will become available when the appropriate time range permits.
  -->
  <followups>
   <followup>NEW</followup>
@@ -66,11 +65,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
  
  <!-- Enables/disables the 'Dam Break Threat Area' button -->
-<enableDamBreakThreat>true</enableDamBreakThreat>
+<enablePresetThreat>true</enablePresetThreat>
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
-    included with the warning product include TO.A and/or SV.A, 
-    respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. 
  <includedWatches>
   <includedWatch>TO.A</includedWatch>
   <includedWatch>SV.A</includedWatch>
@@ -92,17 +91,17 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  </durations>
  
 <!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
-<pointSource variable="riverdrainages">
-  <pointSource>ffmp_basins</pointSource>
-  <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
-  <pointField>streamname</pointField>
-  <filter>
-    <mapping key="cwa">
-      <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
-    </mapping>
-  </filter>
-  <withinPolygon>true</withinPolygon>
-</pointSource>
+ <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
+ </pointSource>
 --> 
  
 <lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup> 
@@ -143,7 +142,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   -->
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString="AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" bulletDefault="true" parseString="RECENTLY BURNED AREAS"/>
   <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
@@ -158,9 +157,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
   <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
-  <bullet bulletText="* The next section is for sites to load pre-configured *" bulletType="title"/>
-  <bullet bulletText="* polygons for burn scars and other scenarios needing *" bulletType="title"/>
-  <bullet bulletText="* a flash flood warning. *" bulletType="title"/>
+  <bullet bulletText="* The next section is for sites to load pre-configured *"/>
+  <bullet bulletText="* polygons for burn scars and other scenarios needing *"/>
+  <bullet bulletText="* a flash flood warning. *"/>
   <bullet bulletText="****** BURN SCAR AREA (Choose BurnArea and Scenario) ******" bulletType="title"/>
  </bullets>
  <!-- The following are examples on how to include site specific burn scars in your template
@@ -200,7 +199,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString="AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" bulletDefault="true" parseString="RECENTLY BURNED AREAS"/>
   <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
@@ -215,9 +214,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
   <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
-  <bullet bulletText="* The next section is for sites to load pre-configured *" bulletType="title"/>
-  <bullet bulletText="* polygons for burn scars and other scenarios needing *" bulletType="title"/>
-  <bullet bulletText="* a flash flood warning. *" bulletType="title"/>
+  <bullet bulletText="* The next section is for sites to load pre-configured *"/>
+  <bullet bulletText="* polygons for burn scars and other scenarios needing *"/>
+  <bullet bulletText="* a flash flood warning. *"/>
   <bullet bulletText="****** BURN SCAR AREA (Choose 1) ******" bulletType="title"/>
  </bullets>
  <!-- The following are examples on how to include site specific burn scars in your template
@@ -262,7 +261,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString="AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" bulletDefault="true" parseString="RECENTLY BURNED AREAS"/>
   <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
@@ -277,9 +276,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
   <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
-  <bullet bulletText="* The next section is for sites to load pre-configured *" bulletType="title"/>
-  <bullet bulletText="* polygons for burn scars and other scenarios needing *" bulletType="title"/>
-  <bullet bulletText="* a flash flood warning. *" bulletType="title"/>
+  <bullet bulletText="* The next section is for sites to load pre-configured *"/>
+  <bullet bulletText="* polygons for burn scars and other scenarios needing *"/>
+  <bullet bulletText="* a flash flood warning. *"/>
   <bullet bulletText="****** BURN SCAR AREA (Choose 1) ******" bulletType="title"/>
  </bullets>
  <!-- The following are examples on how to include site specific burn scars in your template

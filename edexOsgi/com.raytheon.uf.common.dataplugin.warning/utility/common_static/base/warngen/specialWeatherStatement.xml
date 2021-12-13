@@ -12,8 +12,6 @@
      Mike Dangelo 6/24/2014 removed unnecessary example bullets
      Evan Bookbinder 6/21/2015 fixed bad parse strings (thunderstorms) on two winter weather CTAs.
      Phil Kurimski 10-20-2015 added campers CTA
-     Phil Kurimski 03/19/2018 Added Cold Air Funnel and generic thunderstorm CTA and
-        Changed Dime to Penny size hail to match SVR prods DR 20616
 -->
 <warngenConfig>
 
@@ -108,10 +106,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
   <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
   <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
-  <bullet bulletName="peaHail" bulletText="Pea size hail" bulletGroup="hailThreat" parseString="PEA SIZE HAIL"/>
+  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="hailThreat" parseString="PEA SIZED HAIL"/>
   <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
-  <bullet bulletName="pennyHail" bulletText="Penny size hail" bulletGroup="hailThreat" parseString="PENNY SIZE HAIL"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel size hail" bulletGroup="hailThreat" parseString="NICKEL SIZE HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
   <bullet bulletName="quarterMile" bulletText="SNOW: Visibilities M1/4SM" bulletGroup="toggle4" parseString="BELOW ONE QUARTER"/>
   <bullet bulletName="zeroMile" bulletText="SNOW: Visibilities near Zero" bulletGroup="toggle4" parseString="NEAR ZERO"/>
   <bullet bulletText="************ ADDITIONAL INFO  **************" bulletType="title"/>
@@ -119,14 +117,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="toggle5"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
-  <bullet bulletName="genericCTA" bulletText="Generic seek shelter CTA" parseString="CONSIDER SEEKING SHELTER INSIDE A BUILDING"/>
   <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
-  <bullet bulletName="coldAirFunnel" bulletText="Cold Air Funnel wording" parseString="BRIEF FUNNELS MAY FORM"/>
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/> 
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
@@ -160,10 +156,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
   <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
   <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
-  <bullet bulletName="peaHail" bulletText="Pea size hail" bulletGroup="hailThreat" parseString="PEA SIZE HAIL"/>
+  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="hailThreat" parseString="PEA SIZED HAIL"/>
   <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
-  <bullet bulletName="pennyHail" bulletText="Penny size hail" bulletGroup="hailThreat" parseString="PENNY SIZE HAIL"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel size hail" bulletGroup="hailThreat" parseString="NICKEL SIZE HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
   <bullet bulletName="quarterMile" bulletText="SNOW: Visibilities M1/4SM" bulletGroup="toggle4" parseString="BELOW ONE QUARTER"/>
   <bullet bulletName="zeroMile" bulletText="SNOW: Visibilities near Zero" bulletGroup="toggle4" parseString="NEAR ZERO"/>
   <bullet bulletText="************ ADDITIONAL INFO  **************" bulletType="title"/>
@@ -173,14 +169,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle5" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
-  <bullet bulletName="genericCTA" bulletText="Generic seek shelter CTA" parseString="CONSIDER SEEKING SHELTER INSIDE A BUILDING"/>
   <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
-  <bullet bulletName="coldAirFunnel" bulletText="Cold Air Funnel wording" parseString="BRIEF FUNNELS MAY FORM"/>
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/>
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>

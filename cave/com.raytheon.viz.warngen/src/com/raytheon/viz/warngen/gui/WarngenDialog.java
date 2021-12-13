@@ -205,6 +205,9 @@ import com.vividsolutions.jts.geom.Polygon;
  *
  *  Oct 16, 2017 18282       Qinglu Lin  Updated resetPressed().
  *  Jun 07, 2018             mjames@ucar Bypass JMS messaging and send directly to a textWS window.
+ *  Nov 17, 2021           srcarter@ucar Set reasonable height, allow proper resizing, remove instructions label call because 
+ *                                       it's null and never used, change bulletlist functionality so it doesn't scroll to the
+ *                                       top as soon as a user makes a selection
  * </pre>
  *
  * @author chammack
@@ -426,8 +429,9 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         gl.marginWidth = 1;
         mainComposite.setLayout(gl);
 
-        GridData gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         mainComposite.setLayoutData(gd);
+        tabs.setLayoutData(gd);
 
         createBackupTrackEditGroups(mainComposite);
         createRedrawBoxGroup(mainComposite);
@@ -482,7 +486,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = BULLETLIST_WIDTH_IN_CHARS * charWidth;
-        gd.heightHint = BULLETLIST_HEIGHT_IN_LINES * lineHeight;
+        gd.heightHint = lineHeight*4;
         bulletList.setLayoutData(gd);
         bulletListManager.recreateBullets(warngenLayer.getConfiguration()
                 .getBullets(), warngenLayer.getConfiguration()
@@ -492,7 +496,11 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         bulletList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                bulletListSelected();
+            	//get the current scroll location
+            	int topIdx = bulletList.getTopIndex();	
+            	bulletListSelected();
+            	//reset the scroll location back after the update
+            	bulletList.setTopIndex(topIdx);	
             }
         });
 
@@ -1421,7 +1429,6 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         }
         warngenLayer.resetInitialFrame();
         warngenLayer.setWarningAction(null);
-        instructionsLabel.setText("Instructions");
         changeStartEndTimes();
         warngenLayer.issueRefresh();
         setTrackLocked(false);

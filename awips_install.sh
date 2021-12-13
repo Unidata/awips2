@@ -24,17 +24,17 @@ function stop_edex_services {
 
 function check_yumfile {
   if [[ $(grep "release 7" /etc/redhat-release) ]]; then
-    repofile=el7.repo
+    repofile=awips2.repo
   else
     echo "You need to be running CentOS7 or RedHat7"
     exit
   fi
-  if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
-    date=$(date +%Y%m%d-%H:%M%:S)
+  if [ -f /etc/yum.repos.d/awips2.repo ]; then
+    date=$(date +%Y%m%d-%H:%M:%S)
     cp /etc/yum.repos.d/awips2.repo /etc/yum.repos.d/awips2.repo-${date}
   fi
 
-  wget_url="https://www.unidata.ucar.edu/software/awips2/doc/${repofile}"
+  wget_url="https://downloads.unidata.ucar.edu/awips2/current/linux/${repofile}"
   echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
   wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
 
@@ -59,6 +59,14 @@ function check_netcdf {
   if [[ $(rpm -qa | grep netcdf-AWIPS) ]]; then
     # replaced by epel netcdf(-devel) pkgs in 17.1.1-5 so force remove
     yum remove netcdf-AWIPS netcdf netcdf-devel -y
+  fi
+}
+
+function check_git {
+  if ! [[ $(rpm -qa | grep ^git-[12]) ]]; then
+    # install git if not installed
+    yum install git -y
+
   fi
 }
 
@@ -144,15 +152,21 @@ function remove_edex {
       break;
     fi
   done
-  date=$(date +'%Y%m%d')
+  date=$(date +'%Y%m%d-%H:%M:%S')
   backup_dir=${backup_dir}/awips2_backup_${date}
   echo "Backing up to $backup_dir"
 
   rsync -aP /awips2/database/data/pg_hba.conf $backup_dir/
   rsync -aP /awips2/edex/data/utility $backup_dir/
-  rsync -aP /awips2/edex/bin/setup.env $backup_dir/
+  rsync -aP /awips2/edex/bin $backup_dir/
   rsync -aP /awips2/ldm $backup_dir/
-  rsync -aP /awips2/edex/conf $backup_dir
+  rsync -aP /awips2/dev $backup_dir/
+  rsync -aP /awips2/edex/conf $backup_dir/
+  rsync -aP /awips2/edex/etc $backup_dir/
+  rsync -aP /awips2/edex/logs $backup_dir/
+  rsync -aP /usr/bin/edex $backup_dir/
+  rsync -aP /etc/init.d/edexServiceList $backup_dir/init.d/
+  rsync -aP /var/spool/cron/awips $backup_dir/
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "CAVE is also installed, now removing EDEX and CAVE"
@@ -163,7 +177,7 @@ function remove_edex {
     echo "Now removing EDEX"
   fi
 
-  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave
+  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave awips2-qpid-lib -y
 
   if [[ $(rpm -qa | grep awips2 | grep -v cave) ]]; then
     echo "
@@ -183,7 +197,7 @@ function remove_edex {
      exit
   else
     for dir in $(ls /awips2/); do
-      if [ $dir != cave ]; then
+      if [ $dir != dev ] && [ $dir != cave ] ; then
         echo "Removing /awips2/$dir"
         rm -rf /awips2/$dir
       fi
@@ -204,6 +218,7 @@ function server_prep {
   check_limits
   check_netcdf
   check_edex
+  check_git
   check_epel
 }
 

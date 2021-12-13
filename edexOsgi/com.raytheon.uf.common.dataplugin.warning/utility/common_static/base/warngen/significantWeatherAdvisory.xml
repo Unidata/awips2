@@ -9,7 +9,6 @@
      Mike Dangelo            6/26/2014 added bullets for watch info inclusion (bulletDefault set to true)
      Phil Kurimski          10-20-2015 added campers CTA
      Evan Bookbinder         4-29-2016 minor fix to storm intensify CTA/parsing DR 18958
-     Phil Kurimski 03-19-2018 Changed Dime to Penny size hail to match SVR, added Pea size hail DR 20616
  -->
 <warngenConfig>
 
@@ -93,10 +92,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
   <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
   <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
-  <bullet bulletName="peaHail" bulletText="Pea size hail" bulletGroup="hailThreat" parseString="PEA SIZE HAIL"/>
   <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
-  <bullet bulletName="pennyHail" bulletText="Penny size hail" bulletGroup="hailThreat" parseString="PENNY SIZE HAIL"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel size hail" bulletGroup="hailThreat" parseString="NICKEL SIZE HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
   <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast"/>
@@ -127,10 +125,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
   <bullet bulletName="wind50" bulletText="Strong winds to 50 mph" bulletGroup="windThreat" parseString="50 MPH"/>
   <bullet bulletName="wind55" bulletText="Strong winds 50 to 55 mph" bulletGroup="windThreat" parseString="55 MPH"/>
-  <bullet bulletName="peaHail" bulletText="Pea size hail" bulletGroup="hailThreat" parseString="PEA SIZE HAIL"/>
   <bullet bulletName="halfHail" bulletText="Half inch hail" bulletGroup="hailThreat" parseString="HALF INCH HAIL"/>
-  <bullet bulletName="pennyHail" bulletText="Penny size hail" bulletGroup="hailThreat" parseString="PENNY SIZE HAIL"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel size hail" bulletGroup="hailThreat" parseString="NICKEL SIZE HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>

@@ -17,6 +17,12 @@ rpmname=$2
 dirs=" -v `pwd`:/awips2/repo/awips2-builds:rw "
 . /awips2/repo/awips2-builds/build/buildEnvironment.sh
 
+version=${AWIPSII_VERSION}-${AWIPSII_RELEASE}
+java -jar /awips2/repo/awips-unidata-builds/all/awips_splashscreen_updater.jar "$version"
+splashLoc=$(find /awips2/repo/awips2/cave -name "splash.bmp")
+mv splash.bmp $splashLoc
+echo "replacing splash.bmp"
+
 # If local source directories, exist, mount them to the container
 if [ $rpmname = "buildCAVE" ]; then
   for dn in `cat build/repos| grep -v static| grep -v nativelib |grep -v awips2-rpm`
@@ -55,11 +61,20 @@ sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/
 date=$(date +%Y%m%d)
 
 if [[ $(whoami) == "awips" ]]; then # local build
+  #copy awips_install-YYYYMMDD.sh to robin
+  cp awips_install.sh awips_install-${date}.sh
+  sed -i 's/el7.repo/el7-test.repo/' awips_install-${date}.sh
+  rsync -aP awips_install-${date}.sh tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
+ 
+  #For testing, copy el7-test.repo to robin with updated path
+  #sed -i 's/el7-dev-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/el7-dev-${date}/' dist/el7-test.repo
+ 
   mv dist/${os_version}-dev dist/${os_version}-dev-${date}
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
-  rsync -aP dist/${os_version}-dev-${date} awips@hardy:~/
-  rsync -aP dist/${os_version}-dev-${date} tomcat@robin:/web/content/repos/yum/
+#  rsync -aP dist/${os_version}-
+  rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
+  #rsync -aP dist/${os_version}-dev-${date} awips@hardy:~/
   #repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   #
   # Push to web server

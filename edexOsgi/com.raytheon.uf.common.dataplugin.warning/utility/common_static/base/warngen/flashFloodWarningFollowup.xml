@@ -15,7 +15,6 @@
      Modified by Gene Petrescu    09-20-2013 added Alaska Modifications (G
      Modified by Mike Rega        01-18-2014 added Alaska GP changes for 14.2.1
                  Mike Dangelo     10-20-2015 Standard CTAs
-                 Phil Kurimski    03-21-2018 Fixed FFW Emergency CTA Parse String DR 20671
 -->
 
 <warngenConfig>
@@ -38,17 +37,17 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <unitSpeed>mph</unitSpeed>
 
  <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
-    The various menu items are also the different maps
-    that can be loaded with each template. -->
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
  <maps>
   <map>County Names</map>
   <map>County Warning Areas</map>
-  <!--  <map>FFMP Small Stream Basin Links</map> -->
-  <!--  <map>Major Rivers</map> --> 
+  <!-- 	<map>FFMP Small Stream Basin Links</map> -->
+  <!-- 	<map>Major Rivers</map> --> 
  </maps>
 
  <!-- Followups: VTEC actions of allowable followups when this template is selected 
-    Each followup will become available when the appropriate time range permits.
+	Each followup will become available when the appropriate time range permits.
  -->
  <followups>
   <followup>COR</followup>
@@ -84,17 +83,17 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <duration>30</duration>
  </durations>
  
-<!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
-<pointSource variable="riverdrainages">
-  <pointSource>ffmp_basins</pointSource>
-  <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
-  <pointField>streamname</pointField>
-  <filter>
-    <mapping key="cwa">
-      <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
-    </mapping>
-  </filter>
-  <withinPolygon>true</withinPolygon>
+  <!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
+  <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
  </pointSource>
 --> 
 
@@ -158,7 +157,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString="AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
   <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
@@ -213,7 +212,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
-  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString="AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
   <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
   <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
