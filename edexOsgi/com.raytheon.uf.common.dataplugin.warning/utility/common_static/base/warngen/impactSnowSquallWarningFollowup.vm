@@ -3,9 +3,6 @@
 ## VERSION HISTORY                                                                    ##
 ##   Mike Dangelo &                                                                   ##
 ##    Evan Bookbinder   1-31-2017 First Revisions/Refinements, all new CTAs; DCS20066 ##
-##    E. Bookbinder    01-30-2019 DR20914 Fix format error caused when no highway     ##
-##                                mile markers are found                              ##
-##    M. Rega          01-16-2020 DR 21824 add "in " for Extremely poor vis HAZARD    ##
 ########################################################################################
 ##
 #parse("config.vm")
@@ -67,7 +64,7 @@
   #set($vizHazard = "Poor visibility in ")
 #end
 #if(${list.contains(${bullets}, "ExtremelyPoorV")})
-  #set($vizHazard = "Extremely poor visibility in ")
+  #set($vizHazard = "Extremely poor visibility ")
 #end
 #if(${list.contains(${bullets}, "WhiteoutV")})
   #set($vizHazard = "Whiteout conditions. Zero visibility in ")
@@ -329,7 +326,7 @@ THIS IS A TEST MESSAGE. ##
 ########## BEGIN 4TH BULLET ###########
 #set($mileMarkers = "")
 #set($mileMarkers = "#parse('mileMarkers.vm')")
-#if(${mileMarkers.length()} <= 10) 
+#if(${mileMarkers.length()} == 0) 
 !**ENTER IN ANY AFFECTED ROAD/HIGHWAY INFORMATION**!
 
 #else

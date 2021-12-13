@@ -4,21 +4,38 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ---
 
+## Latest CAVE Versions
+
+- [**Linux: 18.2.1-1**](#linux)
+- [**Windows: 18.2.1-1**](#windows)
+- [**Mac: 18.2.1-2**](#macos)
+
+[**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
+
+---
+
 ## General Requirements
 
 Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:
 
+- Local machine
+
+    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
+  
 - Java 1.8
 - OpenGL 2.0 Compatible Devices
 - At least 4GB RAM
 - At least 2GB Disk Space for Caching
 - NVIDIA Graphics Card
 - [Latest NVIDIA Driver](http://www.nvidia.com/Download/index.aspx?lang=en-us)
-> Note: While other graphics cards *may* work, NVIDIA Quadro graphics card is recommended for full visualization capability
+
+    !!! warning "While other graphics cards *may* work, NVIDIA Quadro graphics card is recommended for full visualization capability"
 
 ---
 
 ## Linux <i class="fa fa-linux"></i> 
+
+**Latest Version: 18.2.1-1**
 
 ### System Requirements
 
@@ -26,7 +43,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ### Download and Installation Instructions
 
-1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
+1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
 2. In a terminal, go to the download directory 
 3. Make the installer an executable by running: `chmod 755 awips_install.sh`
 4. Run the installer: `sudo ./awips_install.sh --cave`
@@ -43,10 +60,12 @@ To run CAVE either:
 
 ## Windows <i class="fa fa-windows"></i> 
 
+**Latest Version: 18.2.1-1**
+
 For Windows, Unidata offers two installation options: a [**Linux Virtual Machine**](#method-1-linux-virtual-machine), or a [**Direct Windows Installation**](#method-2-direct-windows-install).
 
 Currently, the [virtual machine (VM)](#method-1-linux-virtual-machine) is the recommended form of install for those who do not have administrative priviledges on the machine, or beginners who want a simpler installation process.  
-> Note: At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)
+!!! warning "At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)"
 
 The [direct installation method](#method-2-direct-windows-install) is recommended for those who have administrative priviledges and a little bit of experience installing more software.
 
@@ -61,7 +80,7 @@ This method is recommended for beginners, or those with less computer knowledge 
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**unidata_cave.zip** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/unidata_cave.zip)
+1. Download the zipped file containing the virtual machine: [**unidata_cave.zip** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
 2. Unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into a new folder.
 3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 18-1-1.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
@@ -79,16 +98,16 @@ Once inside the VM, to run CAVE either:
 ### Method 2: Direct Windows Install
 
 This method is recommended for personal use and requires Administrative priviledges.  It should enable full CAVE capability, but it is a bit lengthy and might take about 20 minutes or so to complete.  
-For additional assistance we have created an [**installation video**](https://www.youtube.com/watch?v=02etW-PuZZ8) that walks through the steps below.
+For additional assistance we have created an [**installation video**](https://youtu.be/QAuBSsSp9Ak) that walks through the steps below.
 
-> Note: It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures.
+!!! note "It is important to use the exact versions of software that we link to or specify in our instructions.  Deviations may cause installation problems or failures."
 
 #### System Requirements
 
 - 64-bit Miniconda3 (Python3.7 - 4.8.2)
 - Python3 (comes with Miniconda installation)
 - 64-bit Java JDK 1.8 (1.8_181)
-- 64-bit Visual C++ Build Tools 2015 Update 3 (14.1)
+- 64-bit Visual C++ Build Tools 2015 and 2019
 - Numpy (1.15.1)
 - Jep (3.8.2)
 - User Variable PATH must have miniconda3 location
@@ -101,25 +120,35 @@ For additional assistance we have created an [**installation video**](https://ww
     - **Allow** Miniconda3 to set **PATH** and other environment variables
     - **Register** miniconda as the default python
     ![Miniconda options](../images/minicondaOptions.png)
-2. Download and install the 64-bit [Java JDK 1.8_181](https://www.unidata.ucar.edu/downloads/awips2/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
+2. Download and install the 64-bit [Java JDK 1.8_181](https://downloads.unidata.ucar.edu/awips2/current/windows/jdk-8u181-windows-x64.exe) (this is necessary so Jep can install properly).
     - Select **Development Tools** as the installation options
     - Make note of where it installs on your computer (the default is C:\ProgramFiles\Java\jdk1.8.0_181)
 3. Set the environment variables:
     - Access the Environment Variables window by typing "env" in the start bar, hitting enter, and clicking on the "Environment Variables..." button at the bottom of the "System Properties" window
+    - Create the variables in their respective locations using the **New...** buttons
     - User Variables: **PYTHONPATH** and **PYTHONHOME**
     - System Variable: **JAVA_HOME**
     ![Env Vars](../images/envVars.png)
-    > Note: If PYTHONHOME is not set, the **gridslice** Python module will not be installed or available
-4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=build%20tools%20c++%203&wt.mc_id=o~msft~vscom~older-downloads)
+    
+        !!! warning "If PYTHONHOME is not set, the **gridslice** Python module will not be installed or available"
+      
+4. [Download and install 64-bit Microsoft Visual Studio C++ Build Tools](https://my.visualstudio.com/Downloads?q=Build%20Tools%20for%20Visual%20Studio%202019)
     - To access the page linked above you will need a Microsoft account
-    - Download 64-bit **Visual C++ Build Tools 2015 Update 3**
-    - When running the installer, choose the **Default** Installation
+    - Download the executable for **Build Tools for Visual Studio 2019 (version 16.9)**
+    - Allow it to run some pre-installations
+    - The installer will pop up as shown below.  Make sure to select the **C++ build tools** (upper left), and then view the **Installation details** on the right
+      - Scroll down and check the **MSVC v140 - VS 2015 C++ build tools**
+    ![buildToolsInstall](../images/buildToolsInstall.png)
 5. Install dependent Python packages
-    - Open a terminal by typing "cmd" into the start bar and hitting enter
-    - Run the following command: `pip install numpy==1.15.1 jep==3.8.2`
-6. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)
+    - Once the installer has finished, close the installer. Another window is present and there is an option to **launch** a command terminal
+    ![launch terminal](../images/buildToolsLaunchTerm.png)
+    - Click that and run the following:
+        - `pip install numpy==1.15.1`
+        - `pip install jep==3.8.2`
+        !!! note "These must be run as two separate commands, as stated above for all derived parameters to display properly."
+6. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/awips-cave.msi)
     - In addition to the application directory, the MSI installer will attempt to copy the [*gridslice*](https://github.com/Unidata/gridslice) shared library to `$PYTHONHOME/Dlls/`.  If the `$PYTHONHOME` environmental variable is not defined *gridslice* will not be installed.  You can check to see if it was installed in the Dlls directory after you have completed steps 1-3.
-    > Note: CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [**isentropic analysis**](../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png), will not load.
+    !!! note "CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [**isentropic analysis**](../images/screenCapture-2016.04.04.13.41.26-20160404_000000.png), will not load."
 
 #### Run CAVE
 
@@ -132,40 +161,38 @@ To run CAVE, either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
+**Latest Version: 18.2.1-2**
+
 ### System Requirements
 
-- Will need admin privileges to install python package
-- NVIDIA Graphics card is recommended, some Intel Graphics cards will working
+- Will need admin privileges to install `awips-python.pkg`
+- NVIDIA Graphics card is recommended, however some Intel Graphics cards will support a majority of the functionality
 
-> Note: Most AMD graphics cards are not supported
+    !!! warning "Most AMD graphics cards are not supported"
 
 ### Download and Installation Instructions
-1. Download and install: [**awips-cave.dmg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.dmg)
+
+1. Download and install: [**awips-python.pkg** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-python.pkg)  *(This step requires administrative privileges)*
+    - Once downloaded, double click and the installer will launch with the following screens, **please keep the default selections**:
+    
+    ![mac pkg install 1](../images/mac-pkg-install1.png)
+    ![mac pkg install 2](../images/mac-pkg-install2.png)
+    ![mac pkg install 3](../images/mac-pkg-install3.png)
+    
+    !!! warning "Between these steps it will prompt for an administrator's password"
+    
+    ![mac pkg install 4](../images/mac-pkg-install4.png)
+        
+    !!! note "The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having **jep** installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)"
+        
+1. Download and install: [**awips-cave.dmg** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave.dmg)
     - Either use the default location, which is in the system-wide "Applications" directory, by clicking and dragging the CAVE icon into the Applications folder, in the window that pops up when installing:
     
-        ![Cave System Install](../images/caveMacSystemInstall.png)
+        ![Cave System Install](../images/mac-install.png)
     
     - Or open a new Finder window to your \[user home\]/Applications/ directory (if it doesn't exist, simply create a new folder with the name "Applications"), and drag the CAVE icon into that folder:
     ![Cave User Install](../images/caveMacUserInstall.png)
     - This will install CAVE as an application and set the local cache to `~/Library/caveData`
-
-2. Download and install: [**awips-python.pkg** <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)  *(This step requires administrative privileges)*
-    - Your computer may show a message saying it doesn't reconignize the developer, if so click the "?" button:
-
-        ![python package unidentified developer](../images/pythonPkgMacInstall.png)
-    
-    - Next, open the security panel by clicking the link:
-    
-        ![Open security panel](../images/macSecurityPanel.png)
-        
-    - First, unlock the panel by clicking the lock image in the bottom left corner and entering an Administrator's password.  Then, click the "Open Anyway" button to allow the awips-python.pkg to run:
-    
-        ![Mac open anyway](../images/macOpenAnyway.png)
-
-    - This will launch the installer:
-
-        ![Python pkg install](../images/macPythonInstall.png)
-> Note: The awips-python.pkg is not necessarily required, and CAVE will still run without it, but any derived data such as barbs, arrows, and various grid products will not render without having **jep** installed (it is assumed to be in /Library/Python/2.7/site-packages/jep/)
 
 ### Run CAVE
 
@@ -173,6 +200,17 @@ To run CAVE either:
 
 - Use the System Menu Go > Applications > CAVE
 - Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit **enter** to run it
+
+!!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:"
+![internet warning](../images/mac-cave-internet-download.png)
+
+### MacOS Monterey Warning
+
+If you are running MacOS Monterey, you may see the following message when starting CAVE:
+
+![Monterey warning](../images/monterey-warning.png)
+
+This message can be ignored, and will hopefully go away when we release version 20+ of AWIPS.
 
 ---
 
@@ -193,3 +231,35 @@ You can reset CAVE by removing the **caveData** directory and reconnecting to an
 - Linux: `/home/<user>/caveData/`
 - macOS: `/Users/<user>/Library/caveData/`
 - Windows: `C:\Users\<user>\caveData\`
+
+---
+
+## Uninstalling CAVE (Linux)
+These are instructions to manually uninstall CAVE. However, the [`awips_install.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
+
+**1. Make sure you have exited out of any CAVE sessions**
+
+**2. Remove currently installed CAVE**
+```
+sudo yum clean all
+sudo yum groupremove "AWIPS CAVE"
+```
+
+!!! note "If you are having trouble removing a group, see the [troubleshooting](common-problems.md#troubleshooting-uninstalling-edex) section."
+
+**3. Check to make sure all awips rpms have been removed**
+```
+rpm -qa | grep awips2
+```
+
+If you still have rpms installed, remove them
+
+```
+sudo yum remove awips2-*
+```
+
+**4. Remove the cave directory in /awips2 and caveData from your home directory**
+```
+rm -rf /awips2/cave
+rm -rf ~/caveData
+```

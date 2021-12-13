@@ -43,8 +43,6 @@
 #####    Evan Bookbinder    1-30-2017  Added period after 2nd bullet (NWS Directives finally corrected) DR 19345
 #####    Evan Bookbinder    2-03-2017  Backed out obselete commaOrEllipses() macro here and in all templates
 #####    Evan Bookbinder    9-13-2017  Fixed WordWrap macro subsequent line spacing
-#####    Evan Bookbinder    3-19-2018  DR 19650 TOR Watch Phrasing
-#####    Michael Rega       1-30-2019  DR20914 Format error in list of drainage basins
 ##############################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -218,14 +216,14 @@ ${item.name}, ##
 #set($size = ${list.size($riverdrainages)})
 #if($size > 0)
 #set($count = 0)
-This includes the following streams and drainages...
+This includes the following streams and drainages...##
 #foreach (${drainage} in ${riverdrainages})
 ${drainage.name}##
 #set($count = $count + 1)
 #if($count == $size - 1)
  and ##
 #elseif($count < $size)
-, ##
+...##
 #end
 #end
 .
@@ -234,13 +232,10 @@ ${drainage.name}##
 #end
 ########END MACRO
 
-#macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat $watchPhrase)
+#macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat)
 #set($tornadoWatches = [])
 #set($ALSO = "")
 
-#if(${list.size($watches)} > 0 && ${watchPhrase} == 'GENERIC')
-A Tornado Watch remains in effect for the warned area.
-#else
 #foreach(${watch} in ${watches})
 #if(${watch.getPhenSig()} == 'TO.A')
 #set($success = $tornadoWatches.add($watch))
@@ -288,7 +283,6 @@ ${currTime}##
 .
 #end
 #end
-#end
 ########END MACRO
 
 #macro(until $endTime $timeFormat $secondtimezone $watch)
@@ -297,13 +291,10 @@ ${currTime}##
 until #formatTwoTimes($time1, $time2) for ##
 #end
 
-#macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat $watchPhrase)
+#macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
 #set($svrWatches = [])
 #set($ALSO = "")
 
-#if(${list.size($watches)} > 0 && ${watchPhrase} == 'GENERIC')
-A Severe Thunderstorm Watch remains in effect for the warned area.
-#else
 #foreach(${watch} in ${watches})
 #if(${watch.getPhenSig()} == 'SV.A')
 #set($success = $svrWatches.add($watch))
@@ -349,7 +340,6 @@ ${currTime}##
 #end
 #if(${lastEtn} != "")
 .
-#end
 #end
 #end
 ########END MACRO
@@ -1607,7 +1597,7 @@ ${location}##
 #capitalize(${otherLead}, 'FIRST') will remain over mainly open waters.
 #else
 #capitalize(${otherLead}, 'FIRST') will remain over ${noLocPhrase} of ##
-#headlineLocList(${areas} true true true false 'AS' 'COMMAS')##
+#headlineLocList(${areas} true true true false)##
 ###NOW SEARCH FOR OTHER POINTS (PRESUMABLY 3s) AND LIST THEM HERE
 ### NEED TO CODE THIS ONCE SECTION IS ADDED
 #set($numOtherPoints = ${list.size($otherPoints)})
@@ -1842,7 +1832,7 @@ and ${strOutput}
 #capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over mainly open waters.
 #else
 ## NO MAJOR POINTS FOUND. LIST RURAL AREAS
-#capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over ${noLocPhrase} of #headlineLocList(${areas} true true true false 'AS' 'COMMAS')##
+#capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over ${noLocPhrase} of #headlineLocList(${areas} true true true false)##
 #set($numMinorPoints = ${list.size($otherLocList)})
 #if(${numMinorPoints} == 1)
 , which includes ##

@@ -38,8 +38,8 @@
         <model>ECMWF-HiRes</model>
         <create forecastPeriodHours="6" accumulationParam="TP6hr" minuendParam="TP-ECMWF" subtrahendParam="TP-ECMWF" />
     </accumulation>
-
 <!-- Tiff added the new GFS-FV3 updates for precip accum # 20200625 -->
+<!-- Tiff added a generic "GFS.*" for the world GFS CONDUIT products #20210405 -->
 <!--
     <accumulation>
         <model>GFS20|AK-GFS22|GFS20-.*</model>

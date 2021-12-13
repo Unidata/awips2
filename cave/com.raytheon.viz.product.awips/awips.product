@@ -66,10 +66,12 @@
       </win>
    </launcher>
 
+
    <vm>
       <linux include="true">jdk1.7.0</linux>
       <windows include="true">jdk1.7.0</windows>
    </vm>
+
 
    <plugins>
    </plugins>
@@ -114,7 +116,6 @@
       <feature id="com.raytheon.uf.viz.acarssounding.feature"/>
       <feature id="com.raytheon.uf.viz.npp.sounding.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.npp.feature"/>
-      <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
       <feature id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"/>
       <feature id="com.raytheon.uf.viz.satellite.goesr.feature"/>
@@ -128,5 +129,12 @@
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

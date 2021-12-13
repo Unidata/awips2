@@ -36,7 +36,7 @@ import com.raytheon.uf.common.pointdata.vadriver.VA_Driver;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
  * MTR NDM subscriber.
@@ -101,7 +101,7 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.CONFIGURED);
+                    LocalizationLevel.BASE);
             ILocalizationFile outFile = pathMgr.getLocalizationFile(lc,
                     SPI_FILE_PATH);
             saveFile(file, outFile);
@@ -109,9 +109,10 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.CONFIGURED);
+                    LocalizationLevel.BASE);
             ILocalizationFile outFile = pathMgr.getLocalizationFile(lc,
                     GOODNESS_FILE_PATH);
+            
             saveFile(file, outFile);
             if (null == combineThread) {
                 combineThread = new Thread(updateSPIFile,
@@ -122,7 +123,7 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.CONFIGURED);
+                    LocalizationLevel.BASE);
             ILocalizationFile outFile = pathMgr.getLocalizationFile(lc,
                     PRIMARY_FILE_PATH);
             saveFile(file, outFile);
@@ -157,7 +158,7 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
     private void processGoodness() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
 
         File primary = pathMgr.getFile(lc, PRIMARY_FILE_PATH);
         File primaryArg = (primary.exists()) ? primary : null;

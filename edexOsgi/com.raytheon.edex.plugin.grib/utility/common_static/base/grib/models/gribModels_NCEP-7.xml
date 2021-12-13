@@ -358,6 +358,16 @@
     </model>
 
     <model>
+        <name>HRRR-Smoke</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>17991059001</grid>
+        <process>
+            <id>254</id>
+        </process>
+    </model>
+
+    <model>
         <name>NAM5</name>
         <center>7</center>
         <subcenter>0</subcenter>

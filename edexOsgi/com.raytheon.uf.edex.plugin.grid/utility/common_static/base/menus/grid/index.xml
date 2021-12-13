@@ -35,6 +35,12 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
+        <include installTo="menu:models" 
+             fileName="menus/grid/hrrrSmokeProducts.xml">
+             <substitute key="modelName" value="HRRR-Smoke" />
+             <substitute key="menuName" value="HRRR Smoke" />
+             <substitute key="frameCount" value="19" />
+    </include>
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
@@ -153,4 +159,5 @@
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
+
 </menuContributionFile>

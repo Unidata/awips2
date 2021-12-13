@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- TOWRdocs Header
+         GOES-R Product Description file
+    -->
+    <!-- TOWRdocs Description
+         GOES-R description configuration.  This file accounts for additional dataset_name
+         combinations for GOES-R derived products:
+
+         "OR" = OE Real-Time Data
+         "OT" = OE Test Data
+         "IR" = ITE Real-Time Data
+         "IT" = ITE Test Data"
+     -->
+    <!-- TOWRdocs Status
+         This file is a modification to the previous baseline file of the same name, which currently
+         accounts for products whose dataset_name begins with "OR".
+         10/5/2020 Add Mask variable
+         3/27/2021 Use m*m for Area units (was km*km). m*m  matches product
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 3/27/2021
+         
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<goesrProductDescriptions>
+  <default>
+    <matches>
+      <match pattern="[OD][RT]_ABI-L2-FDC(C|F|M1|M2)-M\d_G\d\d_s\d{14}_e\d{14}_c\d{14}.nc">
+        <attribute name="dataset_name" />
+      </match>
+    </matches>
+  </default>
+
+  <description>
+    <data>
+      <variable name="Area" />
+      <discreteMask name="DQF" value="0" keep="true">
+        <fillByte>-1</fillByte>
+      </discreteMask>
+    </data>
+    <units>
+      <value value="m*m" /> 
+      <!--<value value="km*km" />  -->
+    </units> 
+    <physicalElement>
+      <value value="FDC Area" />
+    </physicalElement>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Power" />
+      <discreteMask name="DQF" value="0" keep="true">
+        <fillByte>-9</fillByte>
+      </discreteMask>
+    </data>
+    <physicalElement>
+      <value value="FDC Power" />
+    </physicalElement>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Temp" />
+      <discreteMask name="DQF" value="0" keep="true">
+        <fillByte>-1</fillByte>
+      </discreteMask>
+    </data>
+    <physicalElement>
+      <value value="FDC Temp" />
+    </physicalElement>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Mask" />
+    </data>
+    <physicalElement>
+      <value value="Fire_Mask" />
+    </physicalElement>
+  </description>
+</goesrProductDescriptions>

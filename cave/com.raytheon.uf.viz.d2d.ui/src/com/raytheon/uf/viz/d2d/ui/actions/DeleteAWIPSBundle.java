@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg.Mode;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Jul 12, 2017             mjames@ucar Copied from DeleteAWIPSProcedure
+ * Oct 29, 2021           srcarter@ucar Replaced "Bundle" with "Display"
  * </pre>
  * 
  * @author mjames@ucar
@@ -61,7 +62,7 @@ public class DeleteAWIPSBundle extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (listDlg == null || listDlg.getShell() == null
                 || listDlg.isDisposed()) {
-            listDlg = new VizLocalizationFileListDlg("Delete Bundle",
+            listDlg = new VizLocalizationFileListDlg("Delete Display",
                     HandlerUtil.getActiveShell(event), Mode.DELETE,
                     SavePerspectiveHandler.PERSPECTIVES_DIR, "perspectives",
                     LocalizationType.COMMON_STATIC);

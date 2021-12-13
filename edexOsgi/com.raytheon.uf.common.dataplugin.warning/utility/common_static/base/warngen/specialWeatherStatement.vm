@@ -17,9 +17,6 @@
 ## Phil Kurimski 10/20/2015  Added campers CTA                                   ## 
 ## Bookbinder     12/7/2016  DR 19600 Fixed freezing rain/drizzle CTA case check for inc. ##
 ## Bookbinder     1/30/2017  Stationary phrase first character capitalization DR 19186 ##
-## Phil Kurimski 03/19/2018  DR 20133 Fixed Rural wording in pathcast section.   ##
-##                           Added Cold Air Funnel and generic thunderstorm CTA  ##
-##                  DR 20616 Changed Dime to Penny size hail to match SVR prods  ##
 ###################################################################################
 ##
 ## SET SOME INITIAL VARIABLES
@@ -169,9 +166,9 @@
   #set($hailThreat = "half inch") 
   #set($hailTrail = " hail") 
 #end
-#if(${list.contains(${bullets}, "pennyHail")})
+#if(${list.contains(${bullets}, "dimeHail")})
   #set($hailSize = 0.75)
-  #set($hailThreat = "penny size") 
+  #set($hailThreat = "dime size") 
   #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "nickelHail")})
@@ -274,12 +271,11 @@ ${describeMovement} ##
 ###################################################
 ######## GENERATE PATHCAST OR CITIES LIST #########
 ###################################################
-#set($pathcastLead = "#capitalize(${thisEvent} 'FIRSTONLY')")
 #if(${list.contains($bullets, "pathcast")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#pathCast("${pathcastLead} will be near..." ${pathcastLead} ${pathCast} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0) 
+#pathCast("#capitalize(${thisEvent} 'FIRSTONLY') will be near..." ${thisEvent} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0) 
 #elseif(${list.contains($bullets, "listofcities")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
@@ -288,7 +284,7 @@ THIS IS A TEST MESSAGE. ##
 #### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("Locations impacted include..." ${thisEvent} 0 ${cityList} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0)
+#locationsList("Locations impacted include..." ${thisEvent} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
 ##############################################
@@ -316,18 +312,6 @@ Visibilities will drop quickly to less than a quarter of a mile in ${thisEvent}.
 #end
 #if(${list.contains($bullets, "zeroMile")} && ${SvsR} == "SNOW")
 Visibilities will drop quickly to near zero in ${thisEvent}.
-
-#end
-#if(${list.contains(${bullets}, "coldAirFunnel")}) 
-Conditions in the atmosphere are such that weak, brief funnels may form this afternoon. They usually develop beneath showers or weak thunderstorms when the air aloft is especially cold.
-
-These funnels are usually harmless, but on rare occasions can briefly touch down and cause wind gusts over 50 mph. If a funnel approaches your location, move indoors.
-
-Please contact the National Weather Service if you see a funnel.
-
-#end
-#if(${list.contains(${bullets}, "genericCTA")}) 
-If outdoors, consider seeking shelter inside a building.
 
 #end
 #if(${list.contains($bullets, "torrentialRainfallCTA")} && ${SvsR} == "RAIN")

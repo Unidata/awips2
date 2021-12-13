@@ -28,7 +28,7 @@ Unidata supports two data visualization frameworks: [CAVE](install/install-cave)
 > **Note**: Our version of CAVE is a **non-operational** version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from Unidata's CAVE.  Additional functionality may not be available as well.
 
 
-![CAVE](https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png)
+![CAVE](images/Unidata_AWIPS2_CAVE.png)
 
 ---
 
@@ -46,7 +46,7 @@ Unidata supports two data visualization frameworks: [CAVE](install/install-cave)
 
 ## License
 
-Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the Master Rights licensing file.
+Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified). Unidata AWIPS license information can be found [here](https://github.com/Unidata/awips2/blob/unidata_18.2.1/LICENSE).
 
 ---
 
@@ -66,7 +66,7 @@ AWIPS makes use of service-oriented architecture to request, process, and serve 
 
 ---
 
-<img style="float:right;width:450px;" src="https://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png">
+<img style="float:right;width:450px;" src="images/awips2_coms.png">
 
 ## Software Components
 

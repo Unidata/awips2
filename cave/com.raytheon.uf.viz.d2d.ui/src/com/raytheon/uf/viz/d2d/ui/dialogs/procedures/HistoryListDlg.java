@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Oct 16, 2012 1229       rferrel     Make dialog non-blocking.
  * Jan 06, 2015 3879       nabowle     Handle load clicked with nothing selected.
  * Feb 12, 2018 6580       tgurney     Do not minimize when CAVE is minimized
+ * Oct 29, 2021 ----     srcarter@ucar Replaced "Bundle" with "Procedure Item"
  *
  * </pre>
  *
@@ -266,7 +267,7 @@ public class HistoryListDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
         Button alterBundleBtn = new Button(buttonComp, SWT.PUSH);
-        alterBundleBtn.setText("Alter Bundle...");
+        alterBundleBtn.setText("Alter Procedure Item...");
         alterBundleBtn.setLayoutData(gd);
         alterBundleBtn.setEnabled(true);
         alterBundleBtn.addSelectionListener(new SelectionAdapter() {
