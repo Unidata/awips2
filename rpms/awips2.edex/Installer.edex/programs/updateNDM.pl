@@ -5,10 +5,9 @@
 $ndmGitPath = "rpms/awips2.edex/Installer.edex/ndm/";
 
 #get the current branch/version of awips2
-$version = `grep AWIPSII_VERSION /awips2/repo/awips2/build/buildEnvironment.sh`;
+$version = `rpm -qa | grep awips2-[12]`;
 chomp $version;
-@split = split(/"/,$version);
-
+@split=split(/-/,$version);
 $branch = "unidata_$split[1]";
 
 #Check if ndm location has been created

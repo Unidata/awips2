@@ -123,7 +123,7 @@ A full list of all released blogs can be found below:
 #### Python-AWIPS
 
 - [Access Model Output with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-model-output)
-- [Plot new GOES products from Unidata's public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
+- [Plot New GOES Products From Unidata's Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
 - [Load Map Resources and Topography using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-load-map-resources)
 
 #### EDEX

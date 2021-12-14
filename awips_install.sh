@@ -466,6 +466,14 @@ function server_prep {
   check_epel
 }
 
+function disable_ndm_update {
+  crontab -u awips -l >cron_backup
+  crontab -u awips -r
+  sed -i -e 's/30 3 \* \* \* \/bin\/perl \/awips2\/dev\/updateNDM.pl/#30 3 \* \* \* \/bin\/perl \/awips2\/dev\/updateNDM.pl/' cron_backup
+  crontab -u awips cron_backup
+  rm cron_backup
+}
+
 function cave_prep {
   check_cave
   check_users
@@ -493,11 +501,13 @@ case $key in
     --database)
         server_prep
         yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
+        disable_ndm_update
         echo "EDEX database has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --ingest)
         server_prep
         yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
+        disable_ndm_update
         echo "EDEX ingest has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     -h|--help)
