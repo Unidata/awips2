@@ -14,7 +14,6 @@ build/logs/
 *.o
 *.orig
 keepLocal
-.project
 .pydevproject
 build/clean.sh
 cave/diff.txt
