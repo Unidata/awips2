@@ -208,6 +208,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Nov 17, 2021           srcarter@ucar Set reasonable height, allow proper resizing, remove instructions label call because 
  *                                       it's null and never used, change bulletlist functionality so it doesn't scroll to the
  *                                       top as soon as a user makes a selection
+ *  Dec 20, 2021           srcarter@ucar Check for null before setting layout data on tabs. Make all other components have false
+ *                                       for vertical expansion so the resizing only resizes the bullet list                                     
  * </pre>
  *
  * @author chammack
