@@ -431,8 +431,10 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         mainComposite.setLayoutData(gd);
-        tabs.setLayoutData(gd);
-
+        if(tabs !=null){
+        	tabs.setLayoutData(gd);
+        }
+        
         createBackupTrackEditGroups(mainComposite);
         createRedrawBoxGroup(mainComposite);
         createProductTypeGroup(mainComposite);
@@ -517,13 +519,13 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
         timeRange.setLayout(gl);
-        timeRange.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+        timeRange.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1,
                 1));
         
         Composite timeRangeComp = new Composite(timeRange, SWT.NONE);
         timeRangeComp.setLayout(new GridLayout(3, false));
         timeRangeComp.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
-                true));
+                false));
         
         GridData gd = new GridData();
         gd.horizontalSpan = 1;
@@ -776,7 +778,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
 
         restartBtn = new Button(backupTrackEditComp, SWT.PUSH);
         restartBtn.setText("Reset");
-        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
         gd.widthHint = 100;
         restartBtn.setLayoutData(gd);
         restartBtn.addSelectionListener(new SelectionAdapter() {
@@ -788,7 +790,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         createTrackGroup(backupTrackEditComp);
         createEditGroup(backupTrackEditComp);
         
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, false);
         gd.heightHint = 40;
         instructionsBox = new Text(mainComposite, SWT.NONE | SWT.READ_ONLY
                 | SWT.MULTI);
@@ -805,7 +807,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         gl.marginHeight = 1;
         trackGroup.setLayout(gl);
         trackGroup.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
-                true));
+                false));
         trackGroup.setBackgroundMode(SWT.INHERIT_NONE);
         
         oneStorm = new Button(trackGroup, SWT.RADIO);
@@ -849,7 +851,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         gl.marginHeight = 1;
         editGroup.setLayout(gl);
         editGroup.setLayoutData(
-                new GridData(SWT.DEFAULT, SWT.FILL, false, true));
+                new GridData(SWT.DEFAULT, SWT.FILL, false, false));
 
         box = new Button(editGroup, SWT.RADIO);
         box.setText("Box");
@@ -897,7 +899,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
 
         okButton = new Button(buttonComp, SWT.PUSH);
         okButton.setText(OK_BTN_LABEL);
-        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
         gd.widthHint = 100;
         okButton.setLayoutData(gd);
         okButton.addSelectionListener(new SelectionAdapter() {
@@ -917,7 +919,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
 
         Button btn = new Button(buttonComp, SWT.PUSH);
         btn.setText(CLOSE_BUTTON_LABEL);
-        gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
         gd.widthHint = 100;
         btn.setLayoutData(gd);
         btn.addSelectionListener(new SelectionAdapter() {
