@@ -61,6 +61,20 @@ mkdir -p %{_build_root}/awips2/edex/data/share
 if [ $? -ne 0 ]; then
    exit 1
 fi
+mkdir -p %{_build_root}/awips2/edex/data/ndm
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+mkdir -p %{_build_root}/awips2/dev
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+mkdir -p %{_build_root}/awips2/dev/logs
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 /bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/qpidNotify.py ${RPM_BUILD_ROOT}/awips2/edex/bin/
 
@@ -194,6 +208,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/bin
 /awips2/edex/bin/*.sh
 /awips2/edex/bin/scriptLauncher
+#%dir /awips2/dev/logs
 %attr(755,awips,fxalpha) /awips2/edex/bin/qpidNotify.py
 %attr(755,awips,fxalpha) /awips2/dev/updateNDM.pl
+%attr(755,awips,fxalpha) /awips2/dev/logs/updateNDM.log
 %attr(744,root,root) /etc/init.d/edex_camel
