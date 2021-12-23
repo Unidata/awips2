@@ -7,19 +7,19 @@
 # the data flow of other datatypes.
 ##
 
-numCores=`grep -c ^processor /proc/cpuinfo`                     # e.g. = 48
-let "GRIB_DECODE_THREADS = numCores / 4"                          #      = 12
-let "GRIB_SPLIT_THREADS = GRIB_DECODE_THREADS / 2"               #      = 6
+numCores=`grep -c ^processor /proc/cpuinfo`                     # e.g. = 44
+let "GRIB_DECODE_THREADS = numCores / 3"                          #      = 14
+let "GRIB_SPLIT_THREADS = GRIB_DECODE_THREADS / 2"               #      = 7
 if [ $GRIB_DECODE_THREADS -lt 4 ]; then
     GRIB_DECODE_THREADS=4
 fi
 if [ $GRIB_SPLIT_THREADS -lt 2 ]; then
     GRIB_SPLIT_THREADS=2
 fi
-let "MAX_MEM = GRIB_DECODE_THREADS * 400"                       # = 12 * 400 = 4800MB
-let "GRIB_MAX_GRID_POINTS = GRIB_DECODE_THREADS * 25000000"     # = 12 * 25,000,000 = 300,000,000
-let "GRID_PERSIST_THREADS = GRIB_DECODE_THREADS / 2"            # = 6
-let "GRID_MAX_PERSIST_MEMORY_IN_MB = GRID_PERSIST_THREADS * 50" # = 6 * 50 = 300
+let "MAX_MEM = GRIB_DECODE_THREADS * 800"                       # = 14 * 800 = 11200MB (11.2GB)
+let "GRIB_MAX_GRID_POINTS = GRIB_DECODE_THREADS * 100000000"    # = 14 * 100,000,000 = 1,400,000,000
+let "GRID_PERSIST_THREADS = GRIB_DECODE_THREADS / 2"            # = 7
+let "GRID_MAX_PERSIST_MEMORY_IN_MB = GRID_PERSIST_THREADS * 100" # = 7 * 100 = 700
 let "METADATA_POOL_MAX = GRIB_DECODE_THREADS * 2"               # = 24
 
 export INIT_MEM=128 # MB
@@ -33,7 +33,7 @@ export GRID_MAX_PERSIST_MEMORY_IN_MB
 export METADATA_POOL_MAX
 # Minimum coverage of a defined subgrid for the grid to be accepted
 export SUB_GRID_COVERAGE_PERCENT=20
-export GRID_MAX_GRIDS_PER_PERSIST=100
-export GRID_MAX_MEMORY_IN_MB_PER_PERSIST=10
+export GRID_MAX_GRIDS_PER_PERSIST=500
+export GRID_MAX_MEMORY_IN_MB_PER_PERSIST=40
 
 export EDEX_DEBUG_PORT=5007
