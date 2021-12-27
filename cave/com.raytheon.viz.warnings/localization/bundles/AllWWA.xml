@@ -55,6 +55,58 @@
                                 </metadataMap>
                             </resourceData>
                         </resource>
+                                                <resource>
+                            <loadProperties loadWithoutData="true">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="wwaResourceData" name="Convective Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
+                                <metadataMap>
+                                    <mapping key="phensig">
+                                        <constraint constraintType="IN" constraintValue="TO.W,SV.W,EW.W,TO.A,SV.A"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="warning"/>
+                                    </mapping>
+                                    <mapping key="act">
+                                        <constraint constraintType="IN" constraintValue="NEW,CON,CAN,EXP"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                                                <resource>
+                            <loadProperties loadWithoutData="true">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="wwaResourceData" name="Winter Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
+                                <metadataMap>
+                                    <mapping key="phensig">
+                                        <constraint constraintType="IN" constraintValue="WS.A,WS.W,WW.Y"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="warning"/>
+                                    </mapping>
+                                    <mapping key="act">
+                                        <constraint constraintType="IN" constraintValue="NEW,CON,CAN,EXP"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
                         <resource>
                             <loadProperties loadWithoutData="true">
                                 <resourceType>PLAN_VIEW</resourceType>
@@ -105,6 +157,7 @@
                                 </metadataMap>
                             </resourceData>
                         </resource>
+                        
                         <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
                     </descriptor>
                 </displays>
