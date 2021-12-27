@@ -6,7 +6,7 @@
 #/data/ldm/pub/native/radar/MRMS/Model/CONUS/MRMS_BrightBandTopHeight_00.00_20210430-184000.grib2
 #CONUS Domain
 FNEXRAD	^/data/ldm/pub/native/radar/MRMS/.*/CONUS/MRMS(.*)([0-9]{8})-([0-9]{2})([0-9]{4}).grib2
-	FILE	-edex -close	/awips2/data_store/grid/\2/\3/MRMS/CONUS/MRMS\1\2-\3\4\5.grib2
+	FILE	-close	/awips2/data_store/grid/\2/\3/MRMS/CONUS/staging/MRMS-concat-%Y%m%d_%H%M.grib2
 #Alaska Domain
 FNEXRAD	^/data/ldm/pub/native/radar/MRMS/.*/ALASKA/MRMS(.*)([0-9]{8})-([0-9]{2})([0-9]{4}).grib2
 	FILE	-close	/awips2/data_store/grid/\2/\3/MRMS/ALASKA/staging/MRMS-concat-%Y%m%d_%H%M.grib2
