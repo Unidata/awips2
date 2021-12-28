@@ -50,6 +50,7 @@
 	  <entry><key>HW.W</key><value color="goldenrod" name="High Wind Warning"></value></entry>
 	  <entry><key>HZ.A</key><value color="royalblue" name="Hard Freeze Watch"></value></entry>
 	  <entry><key>HZ.W</key><value color="blue" name="Hard Freeze Warning"></value></entry>
+	  <entry><key>SQ.W</key><value color="#EF2B1C" name="Snow Squall Warning"></value></entry>
 	  <entry><key>IS.W</key><value color="darkmagenta" name="Ice Storm Warning"></value></entry>
 	  <entry><key>LE.A</key><value color="LightSkyBlue" name="Lake Effect Snow Watch"></value></entry>
 	  <entry><key>LE.W</key><value color="DarkCyan" name="Lake Effect Snow Warning"></value></entry>
