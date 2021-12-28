@@ -8,9 +8,9 @@
           menuText="All Weather Statements" id="warnings">
     </contribute>
     
-    <contribute xsi:type="bundleItem" file="bundles/AllWarnings.xml" 
+  <!--   <contribute xsi:type="bundleItem" file="bundles/AllWarnings.xml" 
           menuText="All Warnings" id="warnings">
-    </contribute>
+    </contribute> --> 
 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
              menuText="Convective Watches" id="convectiveWatches">
     </contribute>
