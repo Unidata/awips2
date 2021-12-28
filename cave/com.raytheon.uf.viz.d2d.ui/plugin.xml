@@ -1539,10 +1539,16 @@
       		name="Show History List">
       </command>
       <command
+            id="com.raytheon.viz.ui.newAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Create a new procedure"
+            name="New Procedure">
+      </command>
+      <command
             id="com.raytheon.viz.ui.openAWIPSProcedure"
             categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Load an existing display"
-            name="Load Display">
+            description="Load an existing procedure"
+            name="Load Procedure">
       </command>
       <command
             id="com.raytheon.viz.ui.saveAWIPSProcedure"
