@@ -23,7 +23,7 @@
 								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
 							</mapping>
 							<mapping key="phensig">
-								<constraint constraintValue="WS.A,WS.W,WW.Y" constraintType="IN" />
+								<constraint constraintValue="WS.A,WS.W,WW.Y,SQ.W" constraintType="IN" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />

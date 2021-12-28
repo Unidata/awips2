@@ -96,7 +96,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Winter Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="WS.A,WS.W,WW.Y"/>
+                                        <constraint constraintType="IN" constraintValue="WS.A,WS.W,WW.Y,SQ.W"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>
