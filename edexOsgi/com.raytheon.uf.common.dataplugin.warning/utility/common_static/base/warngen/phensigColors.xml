@@ -74,6 +74,7 @@
 	  <entry><key>SE.W</key><value color="thistle" name="Hazardous Seas Warning"></value></entry>
 	  <entry><key>SI.Y</key><value color="thistle" name="Small Craft Advisory for winds"></value></entry>
 	  <entry><key>SM.Y</key><value color="khaki" name="Dense Smoke Advisory"></value></entry>
+          <entry><key>SQ.W</key><value color="#EF2B1C" name="Snow Squall Warning"></value></entry>
 	  <entry><key>SR.A</key><value color="violet" name="Storm Watch"></value></entry>
 	  <entry><key>SR.W</key><value color="darkorchid" name="Storm Warning"></value></entry>
 	  <entry><key>SS.A</key><value color="#DB7FF7" name="Storm Surge Watch"></value></entry>
