@@ -361,8 +361,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-manage-bundles" title="File &gt; Manage Bundles" class="md-nav__link">
-    File &gt; Manage Bundles
+  <a href="#file-delete-displays" title="File &gt; Delete Displays" class="md-nav__link">
+    File &gt; Delete Displays
   </a>
   
 </li>
@@ -909,8 +909,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-manage-bundles" title="File &gt; Manage Bundles" class="md-nav__link">
-    File &gt; Manage Bundles
+  <a href="#file-delete-displays" title="File &gt; Delete Displays" class="md-nav__link">
+    File &gt; Delete Displays
   </a>
   
 </li>
@@ -972,42 +972,46 @@
                 
                 
                 <h1 id="displays-and-procedures">Displays and Procedures<a class="headerlink" href="#displays-and-procedures" title="Permanent link"></a></h1>
-<p>AWIPS contains two methods for saving and loading data resources: <strong>Displays</strong> are a simple way to save loaded resources into a bundle file to access in future CAVE sessions.  <strong>Procedures</strong> are similar to Displays, but can be thought of as <em>groups of displays</em> and allows the user to manage saved resources with more control.</p>
+<p>AWIPS contains two methods for saving and loading data resources:</p>
+<ul>
+<li><strong>Displays</strong> are an all-encompasing way to save loaded resources and current view configurations either onto the connected EDEX server, or a local file for access in future CAVE sessions. </li>
+<li><strong>Procedures</strong> are similar to Displays, but can be thought of as <em>groups of procedure items</em> which allow the user to save/load only parts of the procedure they desire, and allows the user to manage saved resources with more control.</li>
+</ul>
 <h2 id="displays">Displays<a class="headerlink" href="#displays" title="Permanent link"></a></h2>
 <h3 id="file-load-display"><strong>File &gt; Load Display</strong><a class="headerlink" href="#file-load-display" title="Permanent link"></a></h3>
 <p>Load a previously-saved display from within the AWIPS system.  The pop-up dialog allows you to select your own saved displays as well as those saved by other users.</p>
-<p>When loading a display, all existing tabs will be closed and replaced with the contents from the saved display.</p>
+<p>When loading a display, all existing tabs will be closed and replaced with the contents from the saved display.  Displays will load as many Map Editor tabs as existed when the display was originally saved.</p>
 <p><img alt="image" src="../../images/load-display.gif" /></p>
-<p>Most saved displays will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor.</p>
 <hr />
 <h3 id="load-display-from-local-disk"><strong>Load Display from Local Disk</strong><a class="headerlink" href="#load-display-from-local-disk" title="Permanent link"></a></h3>
 <p>To load a previously-saved display from a path within the file directory locally, select <strong>File &gt; Load Display</strong> and then select the <strong>File</strong> button on the right to browse your local directories.</p>
 <p><img alt="image" src="../../images/load-local-display.gif" /></p>
 <hr />
 <h3 id="file-save-display"><strong>File &gt; Save Display</strong><a class="headerlink" href="#file-save-display" title="Permanent link"></a></h3>
-<p>Save a product display within the AWIPS system. This saves the display both locally and to the EDEX server for your specific user.</p>
+<p>Save a product display within the AWIPS system. This saves the display to the EDEX server for your specific user.</p>
 <hr />
 <h3 id="file-save-display-locally"><strong>File &gt; Save Display Locally</strong><a class="headerlink" href="#file-save-display-locally" title="Permanent link"></a></h3>
 <p>To save a product display to a path within the file directory locally, select <strong>File &gt; Save Display Locally</strong> and then select the <strong>File</strong> button on the right.</p>
 <hr />
-<h3 id="file-manage-bundles"><strong>File &gt; Manage Bundles</strong><a class="headerlink" href="#file-manage-bundles" title="Permanent link"></a></h3>
-<p>Select and remove a saved display under <strong>File &gt; Manage Bundles</strong>, this will open a pop-up dialog.  Select the file name and click <strong>OK</strong> and then confirm deletion to remove the saved file permanently.</p>
+<h3 id="file-delete-displays"><strong>File &gt; Delete Displays</strong><a class="headerlink" href="#file-delete-displays" title="Permanent link"></a></h3>
+<p>Select and remove a saved display under <strong>File &gt; Delete Displays</strong>, this will open a pop-up dialog.  Select the file name and click <strong>OK</strong> and then confirm deletion to remove the saved file permanently.</p>
 <p><img alt="image" src="../../images/delete-display.gif" /></p>
 <hr />
 <h2 id="procedures">Procedures<a class="headerlink" href="#procedures" title="Permanent link"></a></h2>
 <h3 id="new-procedure">New Procedure<a class="headerlink" href="#new-procedure" title="Permanent link"></a></h3>
 <ul>
-<li>Select the menu <strong>File &gt; Procedures &gt; New</strong></li>
+<li>Select the menu <strong>File &gt; Procedures &gt; New...</strong></li>
 <li>Select <strong>Copy Into</strong> to add all loaded resources from your current map to the Procedure Stack</li>
 <li>Select <strong>Save</strong> (or <strong>Save As</strong>) and then enter a name for the Procedure before clicking <strong>OK</strong> to save.</li>
 </ul>
 <p><img alt="image" src="../../images/save-procedure.gif" /></p>
 <hr />
 <h3 id="open-procedure">Open Procedure<a class="headerlink" href="#open-procedure" title="Permanent link"></a></h3>
-<p>Similar to creating a new Procedure, select <strong>File &gt; Procedures &gt; Open</strong>, select the saved resources and click <strong>Load</strong> to load them to CAVE.</p>
+<p>Similar to creating a new Procedure, select <strong>File &gt; Procedures &gt; Open...</strong>, select the saved resources and click <strong>Load</strong> to load them to the current Map Editor tab.  If multiple procedure items are wanted for loading, create a new tab for each procedure item and then load that item into the tab.  This process is shown in the video below.</p>
+<p><img alt="load procedures" src="../../images/load-procedures.gif" /></p>
 <hr />
 <h3 id="delete-procedure">Delete Procedure<a class="headerlink" href="#delete-procedure" title="Permanent link"></a></h3>
-<p>From the menu  <strong>File &gt; Procedures &gt; Delete</strong> you can delete existing Procedure files in a way similar to deleting saved display files.</p>
+<p>From the menu  <strong>File &gt; Procedures &gt; Delete...</strong> you can delete existing Procedure files in a way similar to deleting saved display files.</p>
                 
                   
                 
