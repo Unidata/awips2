@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 18.2.1-1**](#linux)
-- [**Windows: 18.2.1-1**](#windows)
-- [**Mac: 18.2.1-2**](#macos)
+- [**Linux: 18.2.1-3**](#linux)
+- [**Windows: 18.2.1-3**](#windows)
+- [**Mac: 18.2.1-3**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -35,7 +35,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 18.2.1-1**
+**Latest Version: 18.2.1-3**
 
 ### System Requirements
 
@@ -60,7 +60,7 @@ To run CAVE either:
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 18.2.1-1**
+**Latest Version: 18.2.1-3**
 
 For Windows, Unidata offers two installation options: a [**Linux Virtual Machine**](#method-1-linux-virtual-machine), or a [**Direct Windows Installation**](#method-2-direct-windows-install).
 
@@ -161,7 +161,7 @@ To run CAVE, either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 18.2.1-2**
+**Latest Version: 18.2.1-3**
 
 ### System Requirements
 
