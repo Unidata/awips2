@@ -148,7 +148,7 @@ service iptables restart
 
 ### 4. Start EDEX
 
-!!! note "These steps should be run as root or with sudo"
+!!! note "These steps should be run as user *awips* with sudo"
 
 ```
 edex start
