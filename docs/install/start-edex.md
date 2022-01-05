@@ -1,6 +1,6 @@
 # EDEX Basic Commands 
 
-!!! note "These steps should be run as user *awips* with sudo"
+!!! note "These steps should be run as user *awips* with sudo.  Switch to the user by running `su - awips`."
 
 Unidata's EDEX install also comes with a [simple **`edex`** program](#edex-commands) that can help execute basic EDEX utilities.  The most basic of the commands are the following:
 

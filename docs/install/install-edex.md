@@ -33,7 +33,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Download and Installation Instructions
 
-All of these command should be run as **root**
+The first 3 steps should all be run as **root**
 
 ### 1. Install EDEX
 
@@ -55,6 +55,12 @@ sudo ./awips_install.sh --edex
        5. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
        6. Creates `/awips2/data_store` if it does not exist already
        7. Runs `yum groupinstall awips2-server`
+
+!!! warning "If you receive an error relating to yum, then please run"
+
+    ```
+    sudo su - -c [PATH_TO_INSTALL_FILE]/awips_install.sh --edex
+    ```
 
 
 ### 2. EDEX Setup 
@@ -148,7 +154,7 @@ service iptables restart
 
 ### 4. Start EDEX
 
-!!! note "These steps should be run as user *awips* with sudo"
+!!! note "These steps should be run as user *awips* with sudo.  Switch to the user by running `su - awips`."
 
 ```
 edex start
