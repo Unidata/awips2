@@ -59,7 +59,7 @@ sudo ./awips_install.sh --edex
 !!! warning "If you receive an error relating to yum, then please run"
 
     ```
-    sudo su - -c [PATH_TO_INSTALL_FILE]/awips_install.sh --edex
+    sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"
     ```
 
 
