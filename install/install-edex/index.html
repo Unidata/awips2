@@ -1200,7 +1200,7 @@
 </div>
 <hr />
 <h2 id="download-and-installation-instructions">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions" title="Permanent link"></a></h2>
-<p>All of these command should be run as <strong>root</strong></p>
+<p>The first 3 steps should all be run as <strong>root</strong></p>
 <h3 id="1-install-edex">1. Install EDEX<a class="headerlink" href="#1-install-edex" title="Permanent link"></a></h3>
 <p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></p>
 <pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
@@ -1218,6 +1218,10 @@ sudo ./awips_install.sh --edex
 <li>Creates <code>/awips2/data_store</code> if it does not exist already</li>
 <li>Runs <code>yum groupinstall awips2-server</code></li>
 </ol>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">If you receive an error relating to yum, then please run</p>
+<p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"</code></p>
 </div>
 <h3 id="2-edex-setup">2. EDEX Setup<a class="headerlink" href="#2-edex-setup" title="Permanent link"></a></h3>
 <p>The external and localhost addresses need to be specified in <code>/etc/hosts</code></p>
@@ -1286,7 +1290,7 @@ service iptables restart
 </code></pre>
 <h3 id="4-start-edex">4. Start EDEX<a class="headerlink" href="#4-start-edex" title="Permanent link"></a></h3>
 <div class="admonition note">
-<p class="admonition-title">These steps should be run as root or with sudo</p>
+<p class="admonition-title">These steps should be run as user <em>awips</em> with sudo.  Switch to the user by running <code>su - awips</code>.</p>
 </div>
 <pre><code>edex start
 </code></pre>
