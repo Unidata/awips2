@@ -167,12 +167,14 @@ function remove_edex {
     backup_dir=$(echo $backup_dir | tr '[:upper:]' '[:lower:]')
     if [ $backup_dir = "no" ] || [ $backup_dir = "n" ]; then
         while true; do
-          read -p "`echo $'\n'`Are you sure you don't want to back up any AWIPS configuraiton files? type \"yes\" to confirm.` echo $'\n> '`" answer
+          read -p "`echo $'\n'`Are you sure you don't want to back up any AWIPS configuraiton files? Type \"yes\" to confirm or \"quit\" to exit` echo $'\n> '`" answer
           answer=$(echo $answer | tr '[:upper:]' '[:lower:]')
           if [ $answer = yes ] || [ $answer = y ]; then
             break 2 ;
+          elif [ $answer = quit ] || [ $answer = q ]; then
+            exit;
           else
-            echo "Please answer \"yes\" to confirm you don't want to back up any AWIPS configuraiton files?"
+            echo "Please answer \"yes\" to confirm you don't want to back up any AWIPS configuraiton files or type \"quit\" to exit"
           fi
         done
     elif [ ! -d $backup_dir ]; then
