@@ -6,7 +6,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 18.2.1-3**](#linux)
+- [**Linux: 18.2.1-4**](#linux)
 - [**Windows: 18.2.1-3**](#windows)
 - [**Mac: 18.2.1-3**](#macos)
 
@@ -35,7 +35,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 18.2.1-3**
+**Latest Version: 18.2.1-4**
 
 ### System Requirements
 
