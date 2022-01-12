@@ -105,6 +105,7 @@ A full list of all released blogs can be found below:
 - [Welcome to AWIPS Tips!](https://www.unidata.ucar.edu/blogs/news/entry/welcome-to-awips-tips)
 - [AWIPS 18.2.1 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-software)
 - [Announcing AWIPS eLearning](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course)
+- [AWIPS 18.2.1-3 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-3)
 
 #### CAVE
 
@@ -125,6 +126,7 @@ A full list of all released blogs can be found below:
 - [Access Model Output with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-model-output)
 - [Plot New GOES Products From Unidata's Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
 - [Load Map Resources and Topography using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-load-map-resources)
+- [Create a Colored Surface Temperature Plot](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-a-colored)
 
 #### EDEX
 
