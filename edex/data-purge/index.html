@@ -987,7 +987,7 @@
                 
                 <h1 id="purging-and-retention">Purging and Retention<a class="headerlink" href="#purging-and-retention" title="Permanent link"></a></h1>
 <h2 id="purge-types">Purge Types<a class="headerlink" href="#purge-types" title="Permanent link"></a></h2>
-<p>There are two main forms of data puring in AWIPS.  The most often thought of is the purging for <a href="#processed-data-purging"><strong>processed data</strong></a>.  This has to do with how long data is stored for <strong>after</strong> it has been decoded and processed.</p>
+<p>There are two main forms of data purging in AWIPS.  The most often thought of is the purging for <a href="#processed-data-purging"><strong>processed data</strong></a>.  This has to do with how long data is stored for <strong>after</strong> it has been decoded and processed.</p>
 <p>The second type of purging has to do with <a href="#raw-data-purging"><strong>raw data</strong></a>.  This has to do with how long data is stored for <strong>before</strong> it has been decoded.</p>
 <h2 id="processed-data-purging">Processed Data Purging<a class="headerlink" href="#processed-data-purging" title="Permanent link"></a></h2>
 <p>AWIPS uses a plugin-based purge strategy for processed <strong>HDF5 data</strong>.  This allows the user to change the purge frequency for each plugin individually, and even set purge rules for specific products for a particular plugin.  There is also a default purge rules file for those products which do not have specific rules written.</p>
