@@ -129,13 +129,13 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     @XmlAttribute
     @DynamicSerializeElement
     @Column
-    private double minX;
+    private float minX;
 
     /** Minimum y coordinate in crs space */
     @XmlAttribute
     @DynamicSerializeElement
     @Column
-    private double minY;
+    private float minY;
 
     /** Number of points along the x-axis */
     @XmlAttribute
@@ -224,7 +224,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
      * @param crs
      *            the satellite data crs
      */
-    public SatMapCoverage(int projection, double minX, double minY, int nx,
+    public SatMapCoverage(int projection, float minX, float minY, int nx,
             int ny, double dx, double dy, CoordinateReferenceSystem crs) {
         this(projection, minX, minY, nx, ny, dx, dy, crs, null);
     }
@@ -251,7 +251,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
      * @param latLonGeometry
      *            A Geometry representing the satellite bounds in lat/lon space
      */
-    public SatMapCoverage(int projection, double minX, double minY, int nx,
+    public SatMapCoverage(int projection, float minX, float minY, int nx,
             int ny, double dx, double dy, CoordinateReferenceSystem crs,
             Geometry latLonGeometry) {
         this.projection = projection;
@@ -311,7 +311,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
      * @param latLonGeometry
      *            A Geometry representing the satellite bounds in lat/lon space
      */
-    public SatMapCoverage(int projection, double minX, double minY, int nx,
+    public SatMapCoverage(int projection, float minX, float minY, int nx,
             int ny, double dx, double dy, int upperLeftElement, int upperLeftLine, 
             int xres, int yres, CoordinateReferenceSystem crs, Geometry latLonGeometry) {
         this.projection = projection;
@@ -364,19 +364,19 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.gid = gid;
     }
 
-    public double getMinX() {
+    public float getMinX() {
         return minX;
     }
 
-    public void setMinX(double minX) {
+    public void setMinX(float minX) {
         this.minX = minX;
     }
 
-    public double getMinY() {
+    public float getMinY() {
         return minY;
     }
 
-    public void setMinY(double minY) {
+    public void setMinY(float minY) {
         this.minY = minY;
     }
 

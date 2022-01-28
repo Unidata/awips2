@@ -365,8 +365,8 @@ public class SatSpatialFactory {
             ProjectedCRS crs, Envelope envelope, int nx, int ny) {
         float dx = (float) (envelope.getWidth() / nx);
         float dy = (float) (envelope.getWidth() / nx);
-        return new SatMapCoverage(crsType, envelope.getMinX(),
-                envelope.getMinY(), nx, ny, dx, dy, crs);
+        return new SatMapCoverage(crsType, (float) envelope.getMinX(),
+                (float) envelope.getMinY(), nx, ny, dx, dy, crs);
     }
 
     /**
@@ -378,7 +378,7 @@ public class SatSpatialFactory {
                Geometry geometry) {
         float dx = 999999.f;
         float dy = 999999.f;
-        double minX, minY;
+        float minX, minY;
         minX = upperLeftElement;
         minY = upperLeftLine + (ny * yres);
         minY = -minY;
