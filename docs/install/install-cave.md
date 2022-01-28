@@ -41,6 +41,8 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 - 64 bit CentOS/Red Hat 7
 
+!!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."
+
 ### Download and Installation Instructions
 
 1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)

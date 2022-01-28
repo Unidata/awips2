@@ -1012,7 +1012,6 @@
 0000000000|K1IM | 47.31219|-111.473| 1110|Ulm, MT                           |US|MTR
 0000000000|K1IN | 48.34578|-102.304|  681|Palermo, ND                       |US|MTR
 0000000000|K1IW | 41.04556|-102.86575| 1294|8.5m SE Sidney, NE              |US|MTR
-0000000000|K1J0 | 30.84578| -85.601389| 26|Tri-Cnty AP, Bonifay, FL         |US|MTR
 0000000000|K1JM | 47.7515 |-111.547 | 1154|Power, MT                        |US|MTR
 0000000000|K1JN | 48.41174|-101.891 |  672|Donnybrook, ND                   |US|MTR
 0000000000|K1JW | 40.96088|-103.19967| 1383|4.6W of Peetz, CO               |US|MTR
@@ -1261,7 +1260,7 @@
 0000000000|KABH | 38.75777|-104.308296|1840|Bullseye, USAF Acad, Ellicott,CO|US|MTR
 0000072266|KABI | 32.43 | -99.68 |  546|ABILENE MUNICIPA, TX                |US|MTR
 0000072365|KABQ | 35.05 |-106.62 | 1620|ALBUQUERQ/KRTLND, NM                |US|MTR
-0000072659|KABR | 45.46 | -98.43 |  397|ABERDEEN REGIONA, SD                |US|MTR
+0000072659|KABR | 45.45 | -98.43 |  397|ABERDEEN REGIONA, SD                |US|MTR
 0000072216|KABY | 31.54 | -84.18 |   59|ALBANY MUNICIPAL, GA                |US|MTR
 0000000000|KACB | 44.99 | -85.20 |  190|Bellaire, MI                        |US|MTR
 0000000000|KACJ | 32.11081| -84.18886| 143|Jimmy Carter Rgnl, Americus,GA   |US|MTR
@@ -1420,6 +1419,7 @@
 0000000000|KBCB | 37.2026| -80.4078|  650|Virginia Tech Arpt, VA            |US|MTR
 0000000000|KBCE | 37.71 |-112.16 | 2312|BRYCE CANYON, UT                    |US|MTR
 0000000000|KBCK | 44.250739| -90.85528| 255|Black River Falls Area AP, WI   |US|MTR
+0000000000|KBCR | 30.84389| -85.60175| 26|Tri-County Airport, Bonifay, FL   |US|MTR
 0000000000|KBCT | 26.38 | -80.10 |    4|Boca Raton Arpt, FL                 |US|MTR
 0000000000|KBDE | 48.73 | -94.60 |  330|BAUDETTE, MN                        |US|MTR
 0000000000|KBDG | 37.5833|-109.4833|1789|Blanding Muni, Blanding, UT        |US|MTR

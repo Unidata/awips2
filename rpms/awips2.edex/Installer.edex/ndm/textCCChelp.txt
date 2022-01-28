@@ -322,7 +322,6 @@
 1IM Ulm, MT
 1IN Palermo, ND
 1IW 8.5m SE Sidney, NE
-1J0 Tri-County AP, Bonifay, FL
 1JM Power, MT
 1JN Donnybrook, ND
 1JW 4.6W of Peetz, CO
@@ -1018,6 +1017,7 @@ BCB Virginia Tech Arpt, VA
 BCE Bryce Canyon, UT
 BCK Black River Falls Area AP, WI
 BCQ Central Region Hq, Kansas City, MO
+BCR Tri-County Airport, Bonifay, FL
 BCS Cairns to Honolulu
 BCT Boca Raton Arpt, FL
 BDE Baudette, MN

@@ -12,7 +12,7 @@ Here at Unidata, we want to provide as many resources as possible to make our to
 
 ### Access
 
-Please <a href="https://forms.gle/Ea84m4JvboSm6iQx5" target="_blank" rel="noopener noreferrer">fill out this registration form</a> to receive access to *Learn AWIPS CAVE*.
+Please create an account on <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">Unidata eLearning</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=2" target="_blank" rel="noopener noreferrer">Learn AWIPS CAVE</a>.
 
 ### Content
 
@@ -106,6 +106,7 @@ A full list of all released blogs can be found below:
 - [AWIPS 18.2.1 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-software)
 - [Announcing AWIPS eLearning](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course)
 - [AWIPS 18.2.1-3 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-3)
+- [Access Learn AWIPS CAVE from Unidata eLearning](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-learn-awips)
 
 #### CAVE
 
