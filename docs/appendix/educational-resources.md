@@ -132,3 +132,4 @@ A full list of all released blogs can be found below:
 #### EDEX
 
 - [Get to Know EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-get-to-know)
+- [EDEX Data Retention](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-edex-data-retention)
