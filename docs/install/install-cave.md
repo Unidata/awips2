@@ -84,7 +84,7 @@ This method is recommended for beginners, or those with less computer knowledge 
 
 1. Download the zipped file containing the virtual machine: [**unidata_cave.zip** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
 2. Unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into a new folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 18-1-1.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 18-2-1-3.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
