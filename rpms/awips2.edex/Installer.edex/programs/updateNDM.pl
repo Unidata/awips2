@@ -33,6 +33,7 @@ if(!-e "$ndmDir/.git")
 `cd $ndmDir ; 
  git fetch origin $branch ;
  git reset --hard origin/$branch ;
+ git pull origin $branch ; 
  rsync -aP $ndmDir/$ndmGitPath /awips2/edex/data/ndm/
 `;
 
