@@ -121,6 +121,7 @@ A full list of all released blogs can be found below:
 - [Using CAVE Displays and Procedures](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-cave-displays)
 - [Getting Started With the NSHARP Display Tool](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-nsharp)
 - [Explore the CAVE Volume Browser: Model Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave3)
+- [NUCAPS Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-nucaps-soundings)
 
 #### Python-AWIPS
 
