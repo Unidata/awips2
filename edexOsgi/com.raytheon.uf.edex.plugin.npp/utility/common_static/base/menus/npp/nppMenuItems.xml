@@ -24,9 +24,9 @@
         of the file. 
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="titleItem" titleText="------ VIIRS Imagery ------" id="viirsImagery"/>
-    <contribute xsi:type="subMenu" id="NPPProducts" menuText="S-NPP and NOAA-20">
-        <contribute xsi:type="separator" id="Imagery"
-            visible="false" />
+    <contribute xsi:type="titleItem" titleText="------ Polar Orbiting Satellites ------" id="polarSat"/>
+    <contribute xsi:type="subMenu" id="NPPProducts" menuText="S-NPP and NOAA-20 VIIRS Imagery">
+        <contribute xsi:type="separator" id="Imagery" visible="false" />
     </contribute>
+
 </menuTemplate>
