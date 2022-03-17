@@ -43,6 +43,7 @@
     <vbSource key="NamDNG" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM12" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlend" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM40" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RFCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />

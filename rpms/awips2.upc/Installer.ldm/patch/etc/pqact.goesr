@@ -52,13 +52,16 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightn
 #DIFAX	^/data/cspp-geo/(EAST|WEST|GRB-R)/OR_GLM-L2-([^/]*).nc
 #	FILE	-close -edex	/awips2/data_store/GOES/GLM/\1_OR_GLM-L2-\2.nc
 
-#GOES GLM gridded products via ISatSS (using)
-EXP	(OR_GLM-L2-GLMF-M6_G(..)_T[0-9]{2}_e(........)(..).*)
-	FILE	-close -edex	/awips2/data_store/GOES/\3/\4/GLMISatSS/\1
+#GOES GLM gridded products via ISatSS (not using)
+#EXP	(OR_GLM-L2-GLMF-M6_G(..)_T[0-9]{2}_e(........)(..).*)
+#	FILE	-close -edex	/awips2/data_store/GOES/\3/\4/GLMISatSS/\1
 
-EXP	(OR_GLM-L3-GLMF-M6_G(..)_T[0-9]{2}_e(........)(..).*)
-	FILE	-close -edex	/awips2/data_store/GOES/\3/\4/GLMISatSS/\1
+#EXP	(OR_GLM-L3-GLMF-M6_G(..)_T[0-9]{2}_e(........)(..).*)
+#	FILE	-close -edex	/awips2/data_store/GOES/\3/\4/GLMISatSS/\1
 
+#GOES GLM Stitched gridded products via ISatSS (using)
+SPARE|NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GLMISatSS/Level[23]/([^/]*)/([0-9]{8})/(OR_GLM-L[23]-GLMF-M6_G(..)_s(.......)(..).*)
+	FILE	-close -edex	/awips2/data_store/GOES/\3/\7/GLMISatSS-Stitched/\4
 # GOES CIRA derived products 
 NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeoColor/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
 	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/GeoColor/\5\6\7\8.nc4
@@ -77,7 +80,7 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/(
 #  Cloud Top Height                IXTG99 KNES   F,C,M
 #  Clear Sky Mask                  IXTH99 KNES   F,C,M
 #  Cloud Top Temperature           IXTI99 KNES   F,M
-#  Fire/Hot Spot Characterization  IXTJ99 KNES   F,C
+#  Fire/Hot Spot Characterization  IXTJ99 KNES   F,C,M
 #  Land Surface (Skin) Temperature IXTK99 KNES   F,C,M
 #  Sea Surface (Skin) Temperature  IXTM99 KNES   F
 #  Derived Stability Indices       IXTN99 KNES   F,C,M

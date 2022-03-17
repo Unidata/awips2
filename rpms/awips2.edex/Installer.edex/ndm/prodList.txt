@@ -1,4 +1,5 @@
 # Updates:
+# 10/25/2021 Implement RC 17698
 # 04/21/2021 stop collecting products 34, 136, 171,
 #            19, 20, and 27
 #
@@ -8,16 +9,16 @@
    32         0            DHR          SDUS5
    37         0            NCR          SDUS5
    38         0            NCZ          SDUS6
-   41         0            NET          SDUS7
+   41         0            NET          SDUS6
    48         0            NVW          SDUS3
    56         5            N0S          SDUS5
-   56        13            N1S          SDUS2
-   56        15            N1S          SDUS2
-   56        24            N2S          SDUS2
-   56        25            N2S          SDUS2
-   56        31            N3S          SDUS3
-   56        34            N3S          SDUS3
-   56        35            N3S          SDUS3
+   56        13            N1S          SDUS6
+   56        15            N1S          SDUS6
+   56        24            N2S          SDUS6
+   56        25            N2S          SDUS6
+   56        31            N3S          SDUS6
+   56        34            N3S          SDUS6
+   56        35            N3S          SDUS6
    57         0            NVL          SDUS5
    58         0            NST          SDUS3
    59         0            NHI          SDUS6
@@ -33,31 +34,31 @@
    90         0            NHL          SDUS6
    138        0            DSP          SDUS5
    141        0            NMD          SDUS3
-   152        0            RSL          SDUS4
-   94        -2            NXQ          SDUS5
-   94         0            NYQ          SDUS5
-   94         2            NYQ          SDUS5
-   94         3            NZQ          SDUS5
-   94         4            NZQ          SDUS5
-   94         5            N0Q          SDUS5
-   94         9            NAQ          SDUS5
-   94        13            N1Q          SDUS2
-   94        15            N1Q          SDUS2
-   94        18            NBQ          SDUS2
-   94        24            N2Q          SDUS2
-   94        25            N2Q          SDUS2
-   94        31            N3Q          SDUS2
-   94        34            N3Q          SDUS2
-   94        35            N3Q          SDUS2
-   99        -2            NXU          SDUS5
-   99         0            NYU          SDUS5
-   99         2            NYU          SDUS5
-   99         3            NZU          SDUS5
-   99         4            NZU          SDUS5
-   99         5            N0U          SDUS5
-   99         9            NAU          SDUS5
-   99        13            N1U          SDUS2
-   99        15            N1U          SDUS2
+   152        0            RSL          SDUS6
+   94        -2            NXQ          SDUS6
+   94         0            NYQ          SDUS6
+   94         2            NYQ          SDUS6
+   94         3            NZQ          SDUS6
+   94         4            NZQ          SDUS6
+   94         5            N0Q          SDUS6
+   94         9            NAQ          SDUS6
+   94        13            N1Q          SDUS6
+   94        15            N1Q          SDUS6
+   94        18            NBQ          SDUS6
+   94        24            N2Q          SDUS6
+   94        25            N2Q          SDUS6
+   94        31            N3Q          SDUS6
+   94        34            N3Q          SDUS6
+   94        35            N3Q          SDUS6
+   99        -2            NXU          SDUS6
+   99         0            NYU          SDUS6
+   99         2            NYU          SDUS6
+   99         3            NZU          SDUS6
+   99         4            NZU          SDUS6
+   99         5            N0U          SDUS6
+   99         9            NAU          SDUS6
+   99        13            N1U          SDUS6
+   99        15            N1U          SDUS6
    99        18            NBU          SDUS2
    99        24            N2U          SDUS2
    99        25            N2U          SDUS2
@@ -81,6 +82,30 @@
    113       35            N3F          SDUS6
    134        0            DVL          SDUS5
    135        0            EET          SDUS7
+   153       -2            NXB          SDUS5
+   153        0            NYB          SDUS5
+   153        2            NYB          SDUS5
+   153        3            NZB          SDUS5
+   153        4            NZB          SDUS5
+   153        5            N0B          SDUS5
+   153        9            NAB          SDUS5
+   153       13            N1B          SDUS2
+   153       15            N1B          SDUS2
+   153       18            NBB          SDUS2
+   153       24            N2B          SDUS2
+   153       25            N2B          SDUS2
+   153       31            N3B          SDUS2
+   153       34            N3B          SDUS2
+   153       35            N3B          SDUS2
+   154       -2            NXG          SDUS5
+   154        0            NYG          SDUS5
+   154        2            NYG          SDUS5
+   154        3            NZG          SDUS5
+   154        4            NZG          SDUS5
+   154        5            N0G          SDUS5
+   154        9            NAG          SDUS5
+   154       13            N1G          SDUS2
+   154       15            N1G          SDUS2
    159       -2            NXX          SDUS8
    159        0            NYX          SDUS8
    159        2            NYX          SDUS8
@@ -159,7 +184,7 @@
    169        0            OHA          SDUS8
    170        0            DAA          SDUS8
    172        0            DTA          SDUS8
-   174        0            DOD          SDUS8
-   175        0            DSD          SDUS8
+   174        0            DOD          SDUS6
+   175        0            DSD          SDUS6
    176        0            DPR          SDUS8
    177        0            HHC          SDUS8
