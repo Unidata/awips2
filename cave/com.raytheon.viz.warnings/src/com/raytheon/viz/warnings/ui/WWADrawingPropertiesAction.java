@@ -5,6 +5,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.warnings.rsc.AbstractWWAResource;
+import com.raytheon.viz.warnings.rsc.CWASPSResource;
 import com.raytheon.viz.warnings.rsc.WarningsResource;
 import com.raytheon.viz.warnings.rsc.WatchesResource;
 
@@ -20,6 +21,7 @@ import com.raytheon.viz.warnings.rsc.WatchesResource;
  * Date         Ticket#    Engineer          Description
  * ------------ ---------- ----------------  --------------------------
  * Mar 15, 2022            srcarter@ucar     Initial creation
+ * Mar 17, 2022 		   srcarter@ucar	 Small change to isHidden to only display for proper resources
  * 
  * </pre>
  * 
@@ -56,13 +58,14 @@ public class WWADrawingPropertiesAction extends AbstractRightClickAction {
 	/* (non-Javadoc)
 	 * @see com.raytheon.viz.ui.cmenu.AbstractRightClickAction#isHidden()
 	 * 
-	 * Only display the drawing properties dialog or WarningsResource and
-	 * WatchesResource.  Will not display for CWASPS resources.
+	 * Only display the drawing properties dialog for WarningsResource and
+	 * WatchesResource, but not for a CWASPS resource.
 	 */
 	@Override
 	public boolean isHidden(){
 	 	AbstractVizResource rsc = getSelectedRsc();
-	 	if(rsc instanceof WarningsResource || rsc instanceof WatchesResource){
+	 	
+	 	if((rsc instanceof WatchesResource || rsc instanceof WarningsResource) && !(rsc instanceof CWASPSResource)){
 	 		return false;
 	 	}
 	 	return true;
