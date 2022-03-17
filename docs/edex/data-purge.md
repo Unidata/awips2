@@ -2,7 +2,7 @@
 
 ## Purge Types
 
-There are two main forms of data puring in AWIPS.  The most often thought of is the purging for [**processed data**](#processed-data-purging).  This has to do with how long data is stored for **after** it has been decoded and processed.
+There are two main forms of data purging in AWIPS.  The most often thought of is the purging for [**processed data**](#processed-data-purging).  This has to do with how long data is stored for **after** it has been decoded and processed.
 
 The second type of purging has to do with [**raw data**](#raw-data-purging).  This has to do with how long data is stored for **before** it has been decoded.
 

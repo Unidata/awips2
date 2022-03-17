@@ -171,6 +171,7 @@
  	  </colorbarLabeling>
   </imageStyle>
 </styleRule>
+<!--
 <styleRule>
   <paramLevelMatches>
      <parameter>CAPE</parameter>
@@ -190,6 +191,7 @@
 	 <defaultColormap>Grid/Gridded Data</defaultColormap>
   </imageStyle>
 </styleRule>
+-->
 <styleRule>
   <paramLevelMatches>
      <parameter>Sounder Based Derived Lifted Index (LI)</parameter>

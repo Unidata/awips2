@@ -26,3 +26,5 @@ edexOsgi/build.edex/${site-package.directory}
 scripts
 output/
 rpms/awips2.upc/Installer.metpy/
+build/patches/*
+awips_install-*

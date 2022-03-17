@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.warnings.ui.DrawingPropertiesDialog;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -94,6 +95,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Nov 05, 2015   5070     randerso    Adjust font sizes for dpi scaling
  * Aug 22, 2016   5842     dgilling    Remove dependency on viz.texteditor plugin.
  * Dec 19, 2018   ----     mjames@ucar Added phensig color table lookup.
+ * Mar 15, 2022			 srcarter@ucar Add support for display settings for outline, fill, text and time displays
  *
  * </pre>
  *
@@ -134,7 +136,48 @@ public abstract class AbstractWWAResource extends
         protected boolean project = false;
 
     }
-
+    
+    /** Whether to display warning outlines by default */
+    public static final boolean WARN_OUTLINE_DEFAULT = true;
+    /** Whether to display warning fill by default */
+    public static final boolean WARN_FILL_DEFAULT = false;
+    /** Whether to display warning text by default */
+    public static final boolean WARN_TEXT_DEFAULT = true;
+    /** Whether to display warning times by default */
+    public static final boolean WARN_TIME_DEFAULT = true;
+    /** Whether to display watch outlines by default */
+    public static final boolean WATCH_OUTLINE_DEFAULT = false;
+    /** Whether to display watch fill by default */
+    public static final boolean WATCH_FILL_DEFAULT = true;
+    /** Whether to display watch text by default */
+    public static final boolean WATCH_TEXT_DEFAULT = true;
+    /** Whether to display watch time by default */
+    public static final boolean WATCH_TIME_DEFAULT = true;
+    /** Whether to display advisory outlines by default */
+    public static final boolean ADV_OUTLINE_DEFAULT = true;
+    /** Whether to display advisory fill by default */
+    public static final boolean ADV_FILL_DEFAULT = false;
+    /** Whether to display advisory text by default */
+    public static final boolean ADV_TEXT_DEFAULT = true;
+    /** Whether to display advisory time by default */
+    public static final boolean ADV_TIME_DEFAULT = true;
+    //gui display variables
+    private boolean warnOutline = WARN_OUTLINE_DEFAULT;
+    private boolean warnFill = WARN_FILL_DEFAULT;
+    private boolean warnText = WARN_TEXT_DEFAULT;
+    private boolean warnTime = WARN_TIME_DEFAULT;
+    private boolean watchOutline = WATCH_OUTLINE_DEFAULT;
+    private boolean watchFill = WATCH_FILL_DEFAULT;
+    private boolean watchText = WATCH_TEXT_DEFAULT;
+    private boolean watchTime = WATCH_TIME_DEFAULT;
+    private boolean advOutline = ADV_OUTLINE_DEFAULT;
+    private boolean advFill = ADV_FILL_DEFAULT;
+    private boolean advText = ADV_TEXT_DEFAULT;
+    private boolean advTime = ADV_TIME_DEFAULT;
+    
+    /** The dialog used to change display properties */
+    private DrawingPropertiesDialog drawingDialog;
+    
     protected static GeometryFactory gf = new GeometryFactory();
 
     protected static PreparedGeometryFactory pgf = new PreparedGeometryFactory();
@@ -366,6 +409,36 @@ public abstract class AbstractWWAResource extends
             }
             for (WarningEntry entry : candidates.values()) {
                 AbstractWarningRecord record = entry.record;
+                boolean drawShape = true;
+                boolean drawOutline = true;
+                boolean drawText = true;
+                boolean drawTime = true;
+                
+                if(record != null && record.getSig() != null){
+                	String sig = record.getSig();
+                	
+                	//warning
+                	if(sig.equalsIgnoreCase("W")){
+                		drawShape = warnFill;
+                		drawOutline = warnOutline;
+                		drawText = warnText;
+                		drawTime = warnTime;
+                	}
+                	//watch
+                	else if(sig.equalsIgnoreCase("A")){
+                		drawShape = watchFill;
+                		drawOutline = watchOutline;
+                		drawText = watchText;
+                		drawTime = watchTime;
+                	}
+                	//advisory
+                	else if(sig.equals("Y")){
+                		drawShape = advFill;
+                		drawOutline = advOutline;
+                		drawText = advText;
+                		drawTime = advTime;
+                	}
+                }
 
                 // check shapes
                 if (entry.project) {
@@ -377,27 +450,27 @@ public abstract class AbstractWWAResource extends
                 if ( ! record.getPil().equals("SPS")) {
                 	displaycolor = RGBColors.getRGBColor(getPhensigColor(record.getPhensig()));
                 }
+                
+                if(entry != null){
+                	//draw shape
+                	if(drawShape && entry.shadedShape != null){
+                		target.drawShadedShape(entry.shadedShape, 1);
+                	}
+                	//draw outline
+                	if(drawOutline && entry.wireframeShape != null){
+                		OutlineCapability oc = getCapability(OutlineCapability.class);
+                		LineStyle lineStyle = oc.getLineStyle();
+                		int outlineWidth = oc.getOutlineWidth();
+                		// Make wire frame outline thicker for EMERGENCY warnings
+                		if (EmergencyType.isEmergency(record.getRawmessage())) {
+                			outlineWidth *= 3;
+                		}
 
-                if (entry != null && entry.wireframeShape != null) {
-                    LineStyle lineStyle = LineStyle.SOLID;
-                    if (record.getProductClass() != null
-                            && record.getProductClass().equals("T")) {
-                        lineStyle = LineStyle.DASHED;
-                    }
-
-                    int outlineWidth = getCapability(OutlineCapability.class)
-                            .getOutlineWidth();
-                    // Make wire frame outline thicker for EMERGENCY warnings
-                    if (EmergencyType.isEmergency(record.getRawmessage())) {
-                        outlineWidth *= 3;
-                    }
-
-                    target.drawWireframeShape(
-                            entry.wireframeShape,
-                            displaycolor,
-                            outlineWidth, lineStyle);
-                } else if (entry != null && entry.shadedShape != null) {
-                    target.drawShadedShape(entry.shadedShape, 1);
+                		target.drawWireframeShape(
+                              entry.wireframeShape,
+                              displaycolor,
+                              outlineWidth, lineStyle);
+                	}
                 }
 
                 if (record != null && record.getGeometry() != null) {
@@ -416,7 +489,15 @@ public abstract class AbstractWWAResource extends
 
                     double mapWidth = descriptor.getMapWidth()
                             * paintProps.getZoomLevel() / 1000;
-                    String[] textToPrint = getText(record, mapWidth);
+                    String[] fullText = getText(record, mapWidth);
+                    
+                    String[] textToPrint = {"",""};
+                    if(drawText){
+                    	textToPrint[0] = fullText[0];
+                    }
+                    if(drawTime){
+                    	textToPrint[1] = fullText[1];
+                    }
 
                     if (warningsFont == null) {
                         warningsFont = target.initializeFont(target
@@ -741,5 +822,208 @@ public abstract class AbstractWWAResource extends
             // set font to null for recycle safety
             emergencyFont = null;
         }
+        
+        if(drawingDialog != null){
+        	drawingDialog.hide();
+        	drawingDialog = null;
+        }
     }
+
+	/**
+	 * Set whether or not to display the outline for warnings
+	 * @param warnOutline If true, will draw warning outlines
+	 */
+	public void setWarnOutlineDisplay(boolean warnOutline) {
+		this.warnOutline = warnOutline;
+	}
+
+	/**
+	 * Set whether or not to display the fill (shaded shape)
+	 * for warnings
+	 * @param warnFill  If true, will draw the warning fill
+	 */
+	public void setWarnFillDisplay(boolean warnFill) {
+		this.warnFill = warnFill;
+	}
+
+	/**
+	 * Set whether or not to display the text for warnings
+	 * @param warnText  If true, will draw the warning title
+	 */
+	public void setWarnTextDisplay(boolean warnText) {
+		this.warnText = warnText;
+	}
+
+	/**
+	 * Set whether or not to display the time for warnings
+	 * @param warnTime  If true, will draw the warning time
+	 */
+	public void setWarnTimeDisplay(boolean warnTime) {
+		this.warnTime = warnTime;
+	}
+
+	/**
+	 * Set whether or not to display the outline for watches
+	 * @param watchOutline  If true, will draw the watch outline
+	 */
+	public void setWatchOutlineDisplay(boolean watchOutline) {
+		this.watchOutline = watchOutline;
+	}
+
+	/**
+	 * Set whether or not to display the fill (shaded shape) for watches
+	 * @param watchFill  If true, will draw the watch fill
+	 */
+	public void setWatchFillDisplay(boolean watchFill) {
+		this.watchFill = watchFill;
+	}
+
+	/**
+	 * Set whether or not to display the text for watches
+	 * @param watchText  If true, will draw the watch title
+	 */
+	public void setWatchTextDisplay(boolean watchText) {
+		this.watchText = watchText;
+	}
+
+	/**
+	 * Set whether or not to display the time for watches
+	 * @param watchTime  If true, will draw the watch time
+	 */
+	public void setWatchTimeDisplay(boolean watchTime) {
+		this.watchTime = watchTime;
+	}
+
+	/**
+	 * Set whether or not to display the outline for advisories
+	 * @param advOutline  If true, will draw the advisory outline
+	 */
+	public void setAdvisoryOutlineDisplay(boolean advOutline) {
+		this.advOutline = advOutline;
+	}
+
+	/**
+	 * Set whether or not to display the fill (shaded shape) for
+	 * advisories
+	 * @param advFill  If true, will draw the advisory fill
+	 */
+	public void setAdvisoryFillDisplay(boolean advFill) {
+		this.advFill = advFill;
+	}
+
+	/**
+	 * Set whether or not to display the text for advisories
+	 * @param advText  If true, will draw the advisory title
+	 */
+	public void setAdvisoryTextDisplay(boolean advText) {
+		this.advText = advText;
+	}
+
+	/**
+	 * Set whether or not to display the time for advisories
+	 * @param advTime  If true, will draw the advisory time
+	 */
+	public void setAdvisoryTimeDisplay(boolean advTime) {
+		this.advTime = advTime;
+	}
+	
+	/**
+	 * @return  True if the warning outline is displayed
+	 */
+	public boolean showWarnOutline(){
+		return warnOutline;
+	}
+	
+	/**
+	 * @return  True if the warning fill is displayed
+	 */
+	public boolean showWarnFill(){
+		return warnFill;
+	}
+	
+	/**
+	 * @return  True if the warning text is displayed
+	 */
+	public boolean showWarnText(){
+		return warnText;
+	}
+	
+	/**
+	 * @return  True if the warning time is displayed
+	 */
+	public boolean showWarnTime(){
+		return warnTime;
+	}
+	
+	/**
+	 * @return  True if the watch outline is displayed
+	 */
+	public boolean showWatchOutline(){
+		return watchOutline;
+	}
+	
+	/**
+	 * @return  True if the watch fill is displayed
+	 */
+	public boolean showWatchFill(){
+		return watchFill;
+	}
+	
+	/**
+	 * @return  True if the watch text is displayed
+	 */
+	public boolean showWatchText(){
+		return watchText;
+	}
+	
+	/**
+	 * @return  True if the watch time is displayed
+	 */
+	public boolean showWatchTime(){
+		return watchTime;
+	}
+	
+	/**
+	 * @return  True if the advisory outline is displayed
+	 */
+	public boolean showAdvisoryOutline(){
+		return advOutline;
+	}
+	
+	/**
+	 * @return  True if the advisory fill is displayed
+	 */
+	public boolean showAdvisoryFill(){
+		return advFill;
+	}
+	
+	/**
+	 * @return True if the advisory text is displayed
+	 */
+	public boolean showAdvisoryText(){
+		return advText;
+	}
+	
+	/**
+	 * @return True if the advisory time is displayed
+	 */
+	public boolean showAdvisoryTime(){
+		return advTime;
+	}
+	
+	/**
+	 * Set the associated DrawingPropertiesDialog
+	 * @param dialog
+	 */
+	public void setDrawingDialog(DrawingPropertiesDialog dialog){
+		drawingDialog = dialog;
+	}
+	
+	/**
+	 * @return The dialog used to set the display (drawing) properties
+	 */
+	public DrawingPropertiesDialog getDrawingDialog(){
+		return drawingDialog;
+	}
+	
 }
