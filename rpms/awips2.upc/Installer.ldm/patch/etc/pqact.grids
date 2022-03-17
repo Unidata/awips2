@@ -750,5 +750,5 @@ NGRID	^OUTA98 KWNB (......)[^!]*!grib2
 #
 # National Blend of Models
 #
-NGRID	^(Y.A...) (KWE[AB]) (..)(..)(..)
+NGRID|HDS	^(Y.A...) (KWE[AB]) (..)(..)(..)
 	FILE	-close	/awips2/data_store/grid/(\3:yyyy)(\3:mm)\3/\4/NationalBlend/staging/NationalBlend_\3\4\5-concat-%Y%m%d_%H%M.grib2

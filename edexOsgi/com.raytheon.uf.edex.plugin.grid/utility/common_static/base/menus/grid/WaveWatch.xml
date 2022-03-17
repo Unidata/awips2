@@ -19,26 +19,24 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="${menuName}">
-		<contribute xsi:type="bundleItem" file="bundles/grid/WW3-TSWH.xml"
-			    menuText="Significant Wave Height" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-SfcWind.xml"
-			    menuText="Sfc Wave Wind" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-PrimaryPeriod.xml"
-			    menuText="Primary Wave Period" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-SecondaryPeriod.xml"
-			    menuText="Secondary Wave Period" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-VorticityWind.xml"
-			    menuText="Sfc Vorticity and Wind" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/WW3-TSWH.xml"
+			menuText="Significant Wave Height" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-SfcWind.xml"
+			menuText="Sfc Wave Wind" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-PrimaryPeriod.xml"
+			menuText="Primary Wave Period" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-SecondaryPeriod.xml"
+			menuText="Secondary Wave Period" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-VorticityWind.xml"
+			menuText="Sfc Vorticity and Wind" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
 	</contribute>
 </menuTemplate>

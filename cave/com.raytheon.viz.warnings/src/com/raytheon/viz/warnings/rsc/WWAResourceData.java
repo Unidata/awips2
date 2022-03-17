@@ -44,6 +44,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Apr 28, 2014 DR 17310   D. Friedman Handle null VTEC fields.
  * Aug 28, 2014 ASM #15682 D. Friedman Refactor for WouWcnWatchesResourceData.
  * Oct 21, 2021            srcarter    Simplified the construct method to always return WarningsResource 
+ * Mar 15, 2022			   srcarter	   Added a getter for the resource name
  *
  * </pre>
  * 
@@ -204,5 +205,13 @@ public class WWAResourceData extends AbstractRequestableResourceData {
     @Override
     public boolean isRequeryNecessaryOnTimeMatch() {
         return false;
+    }
+    
+    /**
+     * @return  The resource name (similar to what's displayed
+     * in the resource stack, except without the timestamp)
+     */
+    public String getName(){
+    	return name;
     }
 }
