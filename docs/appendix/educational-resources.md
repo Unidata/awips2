@@ -12,7 +12,7 @@ Here at Unidata, we want to provide as many resources as possible to make our to
 
 ### Access
 
-Please <a href="https://forms.gle/Ea84m4JvboSm6iQx5" target="_blank" rel="noopener noreferrer">fill out this registration form</a> to receive access to *Learn AWIPS CAVE*.
+Please create an account on <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">Unidata eLearning</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=2" target="_blank" rel="noopener noreferrer">Learn AWIPS CAVE</a>.
 
 ### Content
 
@@ -105,6 +105,8 @@ A full list of all released blogs can be found below:
 - [Welcome to AWIPS Tips!](https://www.unidata.ucar.edu/blogs/news/entry/welcome-to-awips-tips)
 - [AWIPS 18.2.1 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-software)
 - [Announcing AWIPS eLearning](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course)
+- [AWIPS 18.2.1-3 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-3)
+- [Access Learn AWIPS CAVE from Unidata eLearning](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-learn-awips)
 
 #### CAVE
 
@@ -119,13 +121,16 @@ A full list of all released blogs can be found below:
 - [Using CAVE Displays and Procedures](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-cave-displays)
 - [Getting Started With the NSHARP Display Tool](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-nsharp)
 - [Explore the CAVE Volume Browser: Model Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave3)
+- [NUCAPS Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-nucaps-soundings)
 
 #### Python-AWIPS
 
 - [Access Model Output with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-model-output)
 - [Plot New GOES Products From Unidata's Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
 - [Load Map Resources and Topography using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-load-map-resources)
+- [Create a Colored Surface Temperature Plot](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-a-colored)
 
 #### EDEX
 
 - [Get to Know EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-get-to-know)
+- [EDEX Data Retention](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-edex-data-retention)

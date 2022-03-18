@@ -39,6 +39,7 @@ function check_yumfile {
   wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
 
   yum clean all --enablerepo=awips2repo --disablerepo="*" 1>> /dev/null 2>&1
+  yum --enablerepo=awips2repo clean metadata
 }
 
 function check_limits {
@@ -54,6 +55,21 @@ function check_epel {
     yum clean all
   fi
 }
+
+function check_wget {
+  if ! [[ $(rpm -qa | grep ^wget) ]]; then
+    # install wget if not installed
+    yum install wget -y
+  fi
+}
+
+function check_rsync {
+  if ! [[ $(rpm -qa | grep ^rsync) ]]; then
+    # install rsync if not installed
+    yum install rsync -y
+  fi
+}
+
 
 function check_netcdf {
   if [[ $(rpm -qa | grep netcdf-AWIPS) ]]; then
@@ -145,28 +161,51 @@ function check_remove_edex {
 
 function remove_edex {
   while true; do
-    read -p "`echo $'\n'`We are going to back up some files. What location do you want your files backed up to? `echo $'\n> '`" backup_dir
-    if [ ! -d $backup_dir ]; then
+    read -p "`echo $'\n'`We want to back up some configuration files. What location do you want your files backed up to?
+        If you choose not to back up files (you will lose all your configurations) type \"no\"`echo $'\n> '`" backup_dir
+
+    backup_dir=$(echo $backup_dir | tr '[:upper:]' '[:lower:]')
+    if [ $backup_dir = "no" ] || [ $backup_dir = "n" ]; then
+        while true; do
+          read -p "`echo $'\n'`Are you sure you don't want to back up any AWIPS configuraiton files? Type \"yes\" to confirm or \"quit\" to exit` echo $'\n> '`" answer
+          answer=$(echo $answer | tr '[:upper:]' '[:lower:]')
+          if [ $answer = yes ] || [ $answer = y ]; then
+            break 2 ;
+          elif [ $answer = quit ] || [ $answer = q ]; then
+            exit;
+          else
+            echo "Please answer \"yes\" to confirm you don't want to back up any AWIPS configuraiton files or type \"quit\" to exit"
+          fi
+        done
+    elif [ ! -d $backup_dir ]; then
       echo "$backup_dir does not exist, enter a path that exists"
+
     else
+      date=$(date +'%Y%m%d-%H:%M:%S')
+      backup_dir=${backup_dir}/awips2_backup_${date}
+      echo "Backing up to $backup_dir"
+
+      if [ ! -d $backup_dir ]; then 
+        mkdir -p $backup_dir
+      fi    
+      rsync -aP /awips2/database/data/pg_hba.conf $backup_dir/
+      rsync -aP /awips2/edex/data/utility $backup_dir/
+      rsync -aP /awips2/edex/bin $backup_dir/
+      if [ ! -d $backup_dir/ldm ]; then
+        mkdir -p $backup_dir/ldm
+      fi
+      rsync -aP /awips2/ldm/etc $backup_dir/ldm/
+      rsync -aP /awips2/ldm/dev $backup_dir/ldm/
+      rsync -aP /awips2/dev $backup_dir/
+      rsync -aP /awips2/edex/conf $backup_dir/
+      rsync -aP /awips2/edex/etc $backup_dir/
+      rsync -aP /awips2/edex/logs $backup_dir/
+      rsync -aP /usr/bin/edex $backup_dir/
+      rsync -aP /etc/init.d/edexServiceList $backup_dir/init.d/
+      rsync -aP /var/spool/cron/awips $backup_dir/
       break;
     fi
   done
-  date=$(date +'%Y%m%d-%H:%M:%S')
-  backup_dir=${backup_dir}/awips2_backup_${date}
-  echo "Backing up to $backup_dir"
-
-  rsync -aP /awips2/database/data/pg_hba.conf $backup_dir/
-  rsync -aP /awips2/edex/data/utility $backup_dir/
-  rsync -aP /awips2/edex/bin $backup_dir/
-  rsync -aP /awips2/ldm $backup_dir/
-  rsync -aP /awips2/dev $backup_dir/
-  rsync -aP /awips2/edex/conf $backup_dir/
-  rsync -aP /awips2/edex/etc $backup_dir/
-  rsync -aP /awips2/edex/logs $backup_dir/
-  rsync -aP /usr/bin/edex $backup_dir/
-  rsync -aP /etc/init.d/edexServiceList $backup_dir/init.d/
-  rsync -aP /var/spool/cron/awips $backup_dir/
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "CAVE is also installed, now removing EDEX and CAVE"
@@ -217,6 +256,8 @@ function server_prep {
   stop_edex_services
   check_limits
   check_netcdf
+  check_wget
+  check_rsync
   check_edex
   check_git
   check_epel
@@ -235,7 +276,9 @@ function cave_prep {
   check_users
   check_yumfile
   check_netcdf
+  check_wget
   check_epel
+ rm -rf /home/awips/caveData 
 }
 
 if [ $# -eq 0 ]; then
@@ -252,18 +295,21 @@ case $key in
     --server|--edex)
         server_prep
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
+        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
         echo "EDEX server has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --database)
         server_prep
         yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
         disable_ndm_update
+        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
         echo "EDEX database has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --ingest)
         server_prep
         yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
         disable_ndm_update
+        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
         echo "EDEX ingest has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     -h|--help)

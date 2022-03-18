@@ -6,7 +6,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Latest Version
 
-**18.2.1-1**
+**18.2.1-4**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -16,6 +16,9 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 ## System requirements
 
 - 64-bit CentOS/RHEL 7
+
+!!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."  
+
 - 16+ CPU cores (each CPU core can run a decorder in parallel)
 - 24GB RAM
 - 700GB+ Disk Space
@@ -33,7 +36,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Download and Installation Instructions
 
-All of these command should be run as **root**
+The first 3 steps should all be run as **root**
 
 ### 1. Install EDEX
 
@@ -55,6 +58,12 @@ sudo ./awips_install.sh --edex
        5. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
        6. Creates `/awips2/data_store` if it does not exist already
        7. Runs `yum groupinstall awips2-server`
+
+!!! warning "If you receive an error relating to yum, then please run"
+
+    ```
+    sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"
+    ```
 
 
 ### 2. EDEX Setup 
@@ -148,7 +157,7 @@ service iptables restart
 
 ### 4. Start EDEX
 
-!!! note "These steps should be run as root or with sudo"
+!!! note "These steps should be run as user *awips* with sudo.  Switch to the user by running `su - awips`."
 
 ```
 edex start
