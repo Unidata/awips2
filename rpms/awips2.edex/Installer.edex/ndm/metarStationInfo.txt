@@ -1230,6 +1230,7 @@
 0000000000|K8G2 | 41.9075| -79.6410| 1766|CORRY, PA                         |US|MTR
 0000000000|K8K2 | 37.27819|-98.04348| 435|Harper Muni AP, Harper, KS        |US|MTR
 0000000000|K8S0 | 48.601|-113.115| 1419|Browning/Starr-Browning Airstp, MT  |US|MTR
+0000000000|K8T6 | 28.36281|-98.11647| 39|Live Oak Cnty AP, George West, TX  |US|MTR
 0000000000|K8W2 | 38.6560| -78.7085| 293|New Market AP, New Market, VA      |US|MTR
 0000000000|K8Y8 | 48.28 | -92.48 |  341|CRANE LAKE, MN                      |US|MTR
 0000000000|K90J | 29.12 | -81.57 |   33|ASTOR NAS, FL                       |US|MTR
@@ -1290,6 +1291,7 @@
 0000000000|KAFP | 35.021| -80.077|   91|Anson Cnty AP, Wadesboro, NC        |US|MTR
 0000000000|KAFW | 32.98 | -97.32 |  220|Fort Worth/Alliance, TX             |US|MTR
 0000000000|KAGC | 40.35504|-79.92134| 382|Pittsburgh/Allegheny Co, PA       |US|MTR
+0000000000|KAGO | 33.22747|-93.2170| 97|Ralph C Weiser AP, Magnolia, AR     |US|MTR
 0000072218|KAGS | 33.38 | -81.97 |   45|AUGUSTA/BUSH FIE, GA                |US|MTR
 0000072311|KAHN | 33.96 | -83.32 |  246|Athens/Ben Epps AP, Athens, GA      |US|MTR
 0000000000|KAHQ | 41.24061| -96.59456| 383|Wahoo Muni, Wahoo, NE            |US|MTR
@@ -2458,7 +2460,7 @@
 0000000000|KL98 | 34.46 |-120.04 |   27|EL CAPITAN BEACH, CA                |US|MTR
 0000000000|KLAA | 38.07 |-102.68 | 1129|LAMAR, CO                           |US|MTR
 0000000000|KLAF | 40.43 | -86.93 |  184|LAFAYETTE/PURDUE, IN                |US|MTR
-0000000000|KLAL | 27.989| -82.019|   43|Lakeland Linder Rgnl, Lakeland, FL  |US|MTR
+0000000000|KLAL | 27.989| -82.019|   43|Lakeland Linder Intl, Lakeland, FL  |US|MTR
 0000000000|KLAM | 35.88 |-106.269| 2186|Los Alamos AP, Los Alamos, NM       |US|MTR
 0000072539|KLAN | 42.776110|-84.599728| 266|LANSING/CAPITAL, MI             |US|MTR
 0000000000|KLAR | 41.33 |-105.68 | 2218|LARAMIE/BREES, WY                   |US|MTR
@@ -2824,7 +2826,7 @@
 0000000000|KNQA | 35.36 | -89.87 |   98|MEMPHIS NAS, TN                     |US|MTR
 0000000000|KNQI | 27.507| -97.810|   15|Kingsville NAS, Kingsville, TX      |US|MTR
 0000000000|KNQX | 24.576| -81.689|    2|Key West NAS, FL                    |US|MTR
-0000000000|KNRA | 48.183|-122.633|   61|Coupeville NOF, Coupeville, WA      |US|MTR
+0000000000|KNRA | 48.1833|-122.6333| 61|Coupeville NOF, Coupeville, WA      |US|MTR
 0000000000|KNRB | 30.392| -81.424|    5|Mayport NAS, FL                     |US|MTR
 0000000000|KNRC | 37.41 |-121.10 |   50|CROWS LANDING, CA                   |US|MTR
 0000000000|KNRN | 39.850| -99.895|  726|Norton, KS                          |US|MTR
@@ -4024,6 +4026,7 @@
 0000047764|RJOI | 34.15 | 132.23 |    2|Iwacuni MCAS                        |JP|MTR
 0000047771|RJOO | 34.78 | 135.45 |   15|Osaka Intl/Itami                    |JP|MTR
 0000047671|RJTT | 35.55 | 139.78 |    8|Tokyo Intl                          |JP|MTR
+0000000000|RJTX | 35.289| 139.6801|   5|NOAC Yokosuka, JP                   |JP|MTR
 0000047642|RJTY | 35.75 | 139.35 |  139|Yokota                              |JP|MTR
 0000047141|RKJK | 35.90 | 126.62 |    9|Kunsan                              |KO|MTR
 0000047122|RKSO | 37.08 | 127.03 |   12|Osan                                |KO|MTR
