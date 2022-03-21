@@ -642,6 +642,7 @@
 8G2 CORREY, PA
 8K2 Harper Muni AP, Harper, KS
 8S0 Browning/Starr-Browning Airstp, MT
+8T6 Live Oak County Airport, George West, TX
 8W2 New Market AP, New Market, VA
 8Y8 Crane Lake, MN
 90J Astor NAS, FL
@@ -750,6 +751,7 @@ AGK Gulkana Arpt, AK
 AGL Golovin, AK
 AGM Gambell, AK
 AGN P-Angoon, AK
+AGO Ralph C Weiser Airport, Magnolia, AR
 AGS K-Augusta, GA; P-Gustavus, AK
 AGY Skagway, AK
 AHC P-Holy Cross AP, Holy Cross, AK
@@ -2537,6 +2539,7 @@ JST Johnstown, PA
 JSV Sallisaw Muni, OK
 JSY Joseph State Airport, Joseph, OR
 JTC Springerville Muni, AZ
+JTX NOAC Yokosuka, JP
 JUA San Juan, Puerto Rico WSR-88D
 JVL Janesville, WI
 JVU Queen Cty AP, Allentown, PA
@@ -2611,7 +2614,7 @@ LA1 South Louisiana Area
 LA2 North Louisiana Area
 LAA Lamar, CO
 LAF Lafayette, IN
-LAL Lakeland Linder Rgnl, Lakeland, FL
+LAL Lakeland Linder Intl, Lakeland, FL
 LAM Los Alamos, NM
 LAN Lansing, MI
 LAR Laramie, WY
