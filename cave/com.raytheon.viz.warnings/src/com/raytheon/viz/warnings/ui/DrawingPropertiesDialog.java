@@ -25,6 +25,7 @@ import com.raytheon.viz.warnings.rsc.AbstractWWAResource;
  * Date         Ticket#    Engineer          Description
  * ------------ ---------- ----------------  --------------------------
  * Mar 15, 2022            srcarter@ucar     Initial creation
+ * Mar 21, 2022			   srcarter@ucar	 Set the current values every time initializeComponents is called (also called from .Open)
  * 
  * </pre>
  * 
@@ -154,8 +155,7 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 	// --- end Buttons ---
 		
 		//set all the values
-//		setCurrentValues();
-		resetDefaults();
+		setToCurrentValues();
 	}
 	
 	/**
@@ -195,10 +195,12 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		myResource.setWarnFillDisplay(warnFillChk.getSelection());
 		myResource.setWarnTextDisplay(warnTextChk.getSelection());
 		myResource.setWarnTimeDisplay(warnTimeChk.getSelection());
+		
 		myResource.setWatchOutlineDisplay(watchOutlineChk.getSelection());
 		myResource.setWatchFillDisplay(watchFillChk.getSelection());
 		myResource.setWatchTextDisplay(watchTextChk.getSelection());
 		myResource.setWatchTimeDisplay(watchTimeChk.getSelection());
+		
 		myResource.setAdvisoryOutlineDisplay(advOutlineChk.getSelection());
 		myResource.setAdvisoryFillDisplay(advFillChk.getSelection());
 		myResource.setAdvisoryTextDisplay(advTextChk.getSelection());
@@ -225,5 +227,26 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		advFillChk.setSelection(AbstractWWAResource.ADV_FILL_DEFAULT);
 		advTextChk.setSelection(AbstractWWAResource.ADV_TEXT_DEFAULT);
 		advTimeChk.setSelection(AbstractWWAResource.ADV_TIME_DEFAULT);
+	}
+	
+	/**
+	 * Set all the GUI checkboxes to the current boolean values from 
+	 * the associated resource
+	 */
+	protected void setToCurrentValues(){
+		warnOutlineChk.setSelection(myResource.showWarnOutline());
+		warnFillChk.setSelection(myResource.showWarnFill());
+		warnTextChk.setSelection(myResource.showWarnText());
+		warnTimeChk.setSelection(myResource.showWarnTime());
+		
+		watchOutlineChk.setSelection(myResource.showWatchOutline());
+		watchFillChk.setSelection(myResource.showWatchFill());
+		watchTextChk.setSelection(myResource.showWatchText());
+		watchTimeChk.setSelection(myResource.showWatchTime());
+		
+		advOutlineChk.setSelection(myResource.showAdvisoryOutline());
+		advFillChk.setSelection(myResource.showAdvisoryFill());
+		advTextChk.setSelection(myResource.showAdvisoryText());
+		advTimeChk.setSelection(myResource.showAdvisoryTime());
 	}
 }
