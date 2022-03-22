@@ -107,6 +107,7 @@ A full list of all released blogs can be found below:
 - [Announcing AWIPS eLearning](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course)
 - [AWIPS 18.2.1-3 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-3)
 - [Access Learn AWIPS CAVE from Unidata eLearning](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-learn-awips)
+- [AWIPS 18.2.1-5 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-5)
 
 #### CAVE
 
