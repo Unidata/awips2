@@ -11,47 +11,20 @@ jobs:
     environment:
       name: VLAB
     steps:
-#       # This may or may not be necessary, but it's what's done in the perl script
-#       # - name: Create awips-unidata-builds dir
-#       # - run: |
-#       #     mkdir -p /home/awips/dev/ndm_local
-#       #     cd /home/awips/dev/ndm_local
-#       # Could possibly just start with this? Where does it checkout the repo? /?
-#       - name: Checkout awips-unidata-build repo 
-#         uses: actions/checkout@v3
-#         with:
-#           repository:  unidata/awips-unidata-builds
-#           ref: main
-#           # need to add a secret I think, because a-u-b is a private repo?
-#           token: ''
-      # Also need to checkout this repo
+      # Checkout this repo
       # this gets the latest code (and is run on the default branch)
       - name: Checkout awips2
         uses: actions/checkout@v3
-      ### Might need to install 'svn' command first??
-#       - name: Install SVN
-#         run: |
-#           pip install svn
-      # Do individual pulls for all the files in the ndm text file
-      # I think we need some kind of SECRET for this so the pull can be made?
+      # Do individual pulls for all the files in the ndm directory
       - name: Pull latest from vlab svn repo
         run: |
           cd rpms/awips2.edex/Installer.edex/ndm/
           for file in *; do
             svn export --force https://vlab.noaa.gov/svn/awips-ndm/trunk/"$file" --username ${{ secrets.VLAB_UNAME }} --password ${{ secrets.VLAB_PASS }}
           done
-
-      # Get the current date/time, because it's used in auto-commit
-#       - name: Get current time
-#         id: time
-#         uses: Kaven-Universe/github-action-current-date-time@v1.1.0
-#         with:
-#           format: "YYYY_MM_DD HH_mm_ss_SSS"
+      # Check in all the new files
       # Do we need to check for a change or can we just run a git add?
       - name: Update existing NDM files for awips2 repo
-      # not sure if I have all the quotes just right for this one
-      # there is definitely a way to get the current default branch...do this properly?
-      # assume this is going to need some kind of SECRET as well??
         run: |
           date=`date +%Y%m%d-%H:%M:%S`
           git config user.name $GITHUB_ACTOR
