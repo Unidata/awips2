@@ -929,6 +929,7 @@ AT2 Atlantic #2 (B,G,L,R); Entire Atlantic (Tsunami Info)
 AT3 Atlantic #3 (C,H,M,S)
 AT4 Atlantic #4 (D,I,N,T)
 AT5 Atlantic #5 (E,J,O,V)
+ATA Hall-Miller Municipal Airport, Atlanta, TX
 ATA Tanana/Calhoun Mem, AK
 ATC Tin City AFS, AK
 ATE P-Teller, AK
@@ -4016,6 +4017,7 @@ TPP M-Port-Au-Prince, HA; T-Piarco Intl Arpt, TD
 TQE Tekamah, NE
 TQH Tahlequah Muni, OK
 TQK Scott City Airport, Scott City, KS
+TQV Duke University North Heliport, Durham, NC
 TRI Bristol, TN
 TRK Truckee-Tahoe AP, CA
 TRL Terrell, TX

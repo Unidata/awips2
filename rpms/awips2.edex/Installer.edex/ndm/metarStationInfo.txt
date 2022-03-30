@@ -1366,6 +1366,7 @@
 0000072791|KAST | 46.1570|-123.8820|  7|Astoria/Clatsop, OR                 |US|MTR
 0000000000|KASW | 41.275| -85.84 |  259|Warsaw, IN                          |US|MTR
 0000000000|KASX | 46.55 | -90.92 |  252|Ashland/John F Kennedy Mem, WI      |US|MTR
+0000000000|KATA | 33.10253|-94.19503| 85|Hall-Miller Muni AP, Atlanta, TX   |US|MTR
 0000072219|KATL | 33.66 | -84.42 |  315|Hartsfield-Jackson IAP, Atlanta, GA |US|MTR
 0000000000|KATP | 27.195| -90.027|   -0|Green Canyon 787, Atlantis, LA      |US|MTR
 0000000000|KATS | 32.85 |-104.47 | 1081|Artesia, NM                         |US|MTR
@@ -3474,6 +3475,7 @@
 0000000000|KTQE | 41.76 | -96.18 |  313|Tekamah, NE                         |US|MTR
 0000000000|KTQH | 35.93 | -95.00 |  266|Tahlequah Muni, OK                  |US|MTR
 0000000000|KTQK | 38.47503| -100.88444| 905|Scott City AP, Scott City, KS   |US|MTR
+0000000000|KTQV | 36.00704|-78.93733| 157|Duke Univ N Heliport, Durham, NC  |US|MTR
 0000000000|KTRI | 36.48 | -82.40 |  474|TRI-CITY/BRISTOL, TN                |US|MTR
 0000000000|KTRK | 39.32 |-120.13956 | 1798|Truckee-Tahoe AP, CA             |US|MTR
 0000000000|KTRL | 32.71 | -96.27 |  145|Terrell Muni, TX                    |US|MTR
