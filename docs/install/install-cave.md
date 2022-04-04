@@ -167,6 +167,8 @@ To run CAVE, either:
 
 ### System Requirements
 
+!!! error "MacOS Monterey version 12.3 and above no longer supports Python2.  This will cause several visualization aspects to fail in CAVE.  If you update to MacOS 12.3 CAVE will not be fully functional.  A potential workaround is to run a Virtual Machine with a different OS (older Mac or possibly CentOS7) and run CAVE inside of that."
+
 - Will need admin privileges to install `awips-python.pkg`
 - NVIDIA Graphics card is recommended, however some Intel Graphics cards will support a majority of the functionality
 
