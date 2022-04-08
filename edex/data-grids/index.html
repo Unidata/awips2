@@ -1,0 +1,2311 @@
+
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for all things AWIPS.">
+      
+      
+        <link rel="canonical" href="http://unidata.github.io/awips2/edex/data-grids/">
+      
+      
+        <meta name="author" content="support-awips@unidata.ucar.edu">
+      
+      
+        <link rel="shortcut icon" href="../../images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-unidata-1.5.4">
+    
+    
+      
+        <title>Available IDD Grids - Unidata AWIPS User Manual</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-b1a1975878.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="blue-grey" data-md-color-accent="light-blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    
+      <a href="../.."><div class="background-logo" style="background-image: url(../../images/cave.png);"></div>
+    
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="../.." title="Unidata AWIPS User Manual" class="md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+              
+
+                  
+ 
+                  
+                      Available IDD Grids
+                  
+
+              
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result" data-md-lang-search="" data-md-lang-tokenizer="[\s\-]+">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <a href="http://unidata.github.io/awips2/" title="Unidata AWIPS User Manual" class="md-nav__button md-logo">
+      
+        <i class="md-icon md-icon--home"></i>
+      
+    </a>
+    Unidata AWIPS User Manual
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-cave/" title="Install CAVE" class="md-nav__link">
+      Install CAVE
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-edex/" title="Install EDEX" class="md-nav__link">
+      Install EDEX
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/common-problems/" title="Common Problems" class="md-nav__link">
+      Common Problems
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      CAVE User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        CAVE User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+      D2D Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+      Maps, Views, Projections
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/bundles-and-procedures/" title="Displays and Procedures" class="md-nav__link">
+      Displays and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+      Localization Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+      NSHARP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/warngen/" title="WarnGen Walkthrough" class="md-nav__link">
+      WarnGen Walkthrough
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
+      GOES 16/17
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+      GIS and Shapefiles
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+      Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+      Display Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+      Radar Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+      Editing Menus
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+      Change Localization
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/import-export/" title="Import/Export" class="md-nav__link">
+      Import/Export
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      EDEX User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        EDEX User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../install/start-edex/" title="EDEX Basic Commands" class="md-nav__link">
+      EDEX Basic Commands
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../settings/" title="EDEX Settings" class="md-nav__link">
+      EDEX Settings
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../distributed-computing/" title="Distributed EDEX" class="md-nav__link">
+      Distributed EDEX
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../edex-ingest-docker-container/" title="Docker EDEX" class="md-nav__link">
+      Docker EDEX
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ldm/" title="LDM Feeds" class="md-nav__link">
+      LDM Feeds
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+      Data Distribution Files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../new-grid/" title="Ingest a New Grid" class="md-nav__link">
+      Ingest a New Grid
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../data-purge/" title="Purging and Retention" class="md-nav__link">
+      Purging and Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../edex-users/" title="Monitor Users" class="md-nav__link">
+      Monitor Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../data-plugins/" title="Data Plugins" class="md-nav__link">
+      Data Plugins
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../case-studies/" title="Archive Case Studies" class="md-nav__link">
+      Archive Case Studies
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../python/overview/" title="Python-AWIPS" class="md-nav__link">
+      Python-AWIPS
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/educational-resources/" title="Educational Resources" class="md-nav__link">
+      Educational Resources
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../dev/awips-development-environment/" title="Development" class="md-nav__link">
+      Development
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-10" type="checkbox" id="nav-10">
+    
+    <label class="md-nav__link" for="nav-10">
+      Appendix
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-10">
+        Appendix
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+      AWIPS Grid Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+      Maps Database
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+      Acronyms and Abbreviations
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+      WSR-88D Product Table
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+      Keyboard Shortcuts
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../raytheon/cave_d2d/" title="Raytheon: CAVE User's Manual" class="md-nav__link">
+      Raytheon: CAVE User's Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../raytheon/smm/" title="Raytheon: AWIPS System Manager's Manual" class="md-nav__link">
+      Raytheon: AWIPS System Manager's Manual
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gfs" title="GFS" class="md-nav__link">
+    GFS
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gfs-global-025-degree" title="GFS Global 0.25 degree" class="md-nav__link">
+    GFS Global 0.25 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-global-10-degree" title="GFS Global 1.0 degree" class="md-nav__link">
+    GFS Global 1.0 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-global-25-degree" title="GFS Global 2.5 degree" class="md-nav__link">
+    GFS Global 2.5 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-global-10-degree-noaaport" title="GFS Global 1.0 degree (NOAAPORT)" class="md-nav__link">
+    GFS Global 1.0 degree (NOAAPORT)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-pacific-40-km" title="GFS Pacific 40 km" class="md-nav__link">
+    GFS Pacific 40 km
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-pacific-20-km-mercator" title="GFS Pacific 20 km Mercator" class="md-nav__link">
+    GFS Pacific 20 km Mercator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-puerto-rico-05-degree" title="GFS Puerto Rico 0.5 degree" class="md-nav__link">
+    GFS Puerto Rico 0.5 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-puerto-rico-20-km-latlon-025-degree" title="GFS Puerto Rico 20 km Lat/Lon 0.25 degree" class="md-nav__link">
+    GFS Puerto Rico 20 km Lat/Lon 0.25 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-conus-80-km" title="GFS CONUS 80 km" class="md-nav__link">
+    GFS CONUS 80 km
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-alaska-95-km-gfs95" title="GFS Alaska 95 km (GFS95)" class="md-nav__link">
+    GFS Alaska 95 km (GFS95)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-conus-20-km-gfs20" title="GFS CONUS 20 km (GFS20)" class="md-nav__link">
+    GFS CONUS 20 km (GFS20)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-alaska-20-km-ak-gfs22" title="GFS Alaska 20 km (AK-GFS22)" class="md-nav__link">
+    GFS Alaska 20 km (AK-GFS22)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfsguide" title="GFSGuide" class="md-nav__link">
+    GFSGuide
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rtma-and-urma" title="RTMA and URMA" class="md-nav__link">
+    RTMA and URMA
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rtma-197-5km" title="RTMA 197 (5km)" class="md-nav__link">
+    RTMA 197 (5km)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rtma-mosaic-25km-i" title="RTMA-Mosaic 2.5km (I)" class="md-nav__link">
+    RTMA-Mosaic 2.5km (I)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#urma25-q" title="URMA2.5 (Q)" class="md-nav__link">
+    URMA2.5 (Q)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nam" title="NAM" class="md-nav__link">
+    NAM
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nam-conus-12-km-nam12-noaaport" title="NAM CONUS 12 km (NAM12) - NOAAport" class="md-nav__link">
+    NAM CONUS 12 km (NAM12) - NOAAport
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-alaska-11-km-ak-nam11" title="NAM Alaska 11 km (AK-NAM11)" class="md-nav__link">
+    NAM Alaska 11 km (AK-NAM11)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-alaska-45-km-grid216-conduit-ak-nam45" title="NAM Alaska 45 km GRID216 - CONDUIT (AK-NAM45)" class="md-nav__link">
+    NAM Alaska 45 km GRID216 - CONDUIT (AK-NAM45)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-conus-12-km-nam12-conduit" title="NAM CONUS 12 km (NAM12) - CONDUIT" class="md-nav__link">
+    NAM CONUS 12 km (NAM12) - CONDUIT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-conus-40-km-nam40-conduit" title="NAM CONUS 40 km (NAM40) - CONDUIT" class="md-nav__link">
+    NAM CONUS 40 km (NAM40) - CONDUIT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-conus-40-km-nam40-noaaport" title="NAM CONUS 40 km (NAM40) - NOAAport" class="md-nav__link">
+    NAM CONUS 40 km (NAM40) - NOAAport
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-alaska-95-km-ak-nam95" title="NAM Alaska 95 km (AK-NAM95)" class="md-nav__link">
+    NAM Alaska 95 km (AK-NAM95)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-conus-80-km-nam80" title="NAM CONUS 80 km (NAM80)" class="md-nav__link">
+    NAM CONUS 80 km (NAM80)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-conus-20-km-nam20-removed" title="NAM CONUS 20 km (NAM20) (removed??)" class="md-nav__link">
+    NAM CONUS 20 km (NAM20) (removed??)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-alaska-45-km-grid216-noaaport-ak-nam45" title="NAM Alaska 45 km GRID216 - NOAAport (AK-NAM45)" class="md-nav__link">
+    NAM Alaska 45 km GRID216 - NOAAport (AK-NAM45)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-alaska-22-km-ak-nam22" title="NAM Alaska 22 km (AK-NAM22)" class="md-nav__link">
+    NAM Alaska 22 km (AK-NAM22)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-puerto-rico-grid-237-pr-nam" title="NAM Puerto Rico Grid 237 (PR-NAM)" class="md-nav__link">
+    NAM Puerto Rico Grid 237 (PR-NAM)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-polar-90-km" title="NAM Polar 90 km" class="md-nav__link">
+    NAM Polar 90 km
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nam-fire-weather-nest" title="NAM Fire Weather Nest" class="md-nav__link">
+    NAM Fire Weather Nest
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#namdng-25-km-ngrid-namdng" title="NamDNG 2.5 km NGRID (NamDNG)" class="md-nav__link">
+    NamDNG 2.5 km NGRID (NamDNG)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#namdng-5-km-namdng5" title="NamDNG 5 km (NamDNG5)" class="md-nav__link">
+    NamDNG 5 km (NamDNG5)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ak-namdng5" title="AK-NamDNG5" class="md-nav__link">
+    AK-NamDNG5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-namdng5" title="PR-NamDNG5" class="md-nav__link">
+    PR-NamDNG5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hawaii-namdng5" title="Hawaii-NamDNG5" class="md-nav__link">
+    Hawaii-NamDNG5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ak-namdng-3km" title="AK NamDNG 3km" class="md-nav__link">
+    AK NamDNG 3km
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rap" title="RAP" class="md-nav__link">
+    RAP
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rap-conus-13-km-rap13" title="RAP CONUS 13 km (RAP13)" class="md-nav__link">
+    RAP CONUS 13 km (RAP13)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rap-conus-20-km-rap20" title="RAP CONUS 20 km (RAP20)" class="md-nav__link">
+    RAP CONUS 20 km (RAP20)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rap-conus-40-km-rap40-noaaport" title="RAP CONUS 40 km (RAP40) - NOAAport" class="md-nav__link">
+    RAP CONUS 40 km (RAP40) - NOAAport
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rap-conus-40-km-rap40-condiut" title="RAP CONUS 40 km (RAP40) - CONDIUT" class="md-nav__link">
+    RAP CONUS 40 km (RAP40) - CONDIUT
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hrrr" title="HRRR" class="md-nav__link">
+    HRRR
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hrrr-noaaport-1hr" title="HRRR - NOAAport 1hr" class="md-nav__link">
+    HRRR - NOAAport 1hr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hrrrx-experimental-gsd-hourly-and-sub-hourly" title="HRRRX - Experimental GSD Hourly and Sub-Hourly" class="md-nav__link">
+    HRRRX - Experimental GSD Hourly and Sub-Hourly
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shef" title="SHEF" class="md-nav__link">
+    SHEF
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sref-conus-40-km-ensemble-derived-products" title="SREF CONUS 40 km Ensemble Derived Products" class="md-nav__link">
+    SREF CONUS 40 km Ensemble Derived Products
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sref-conus-40-km-bias-corrected-ensemble-derived-products" title="SREF CONUS 40 km Bias Corrected Ensemble Derived Products" class="md-nav__link">
+    SREF CONUS 40 km Bias Corrected Ensemble Derived Products
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sref-conus-40-km-bias-corrected-ensemble-members" title="SREF CONUS 40 km Bias Corrected Ensemble Members" class="md-nav__link">
+    SREF CONUS 40 km Bias Corrected Ensemble Members
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sref-alaska-45-km-ensemble-derived-products" title="SREF Alaska 45 km Ensemble Derived Products" class="md-nav__link">
+    SREF Alaska 45 km Ensemble Derived Products
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sref-pacific-northeast-04-degree-ensemble-derived-products" title="SREF Pacific Northeast 0.4 degree Ensemble Derived Products" class="md-nav__link">
+    SREF Pacific Northeast 0.4 degree Ensemble Derived Products
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fnmoc" title="FNMOC" class="md-nav__link">
+    FNMOC
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#navy-coupled-ocean-data-assimilation-ncoda-global-025-degree" title="Navy Coupled Ocean Data Assimilation (NCODA) - Global 0.25 degree" class="md-nav__link">
+    Navy Coupled Ocean Data Assimilation (NCODA) - Global 0.25 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navy-global-environmental-model-navgem-05-degree" title="NAVy Global Environmental Model (NAVGEM) - 0.5 degree" class="md-nav__link">
+    NAVy Global Environmental Model (NAVGEM) - 0.5 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forecast-of-aerosol-radiative-optical-properties-farop-global-10-degree" title="Forecast of Aerosol Radiative Optical Properties (FAROP) - Global 1.0 degree" class="md-nav__link">
+    Forecast of Aerosol Radiative Optical Properties (FAROP) - Global 1.0 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wavewatch-iii-ww3-global-10-degree" title="WAVEWATCH III (WW3) - Global 1.0 degree" class="md-nav__link">
+    WAVEWATCH III (WW3) - Global 1.0 degree
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-europe" title="WW3 Europe" class="md-nav__link">
+    WW3 Europe
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coupled-oceanatmospheric-mesoscale-prediction-system-coamps-western-atlantic" title="Coupled Ocean/Atmospheric Mesoscale Prediction System (COAMPS) - Western Atlantic" class="md-nav__link">
+    Coupled Ocean/Atmospheric Mesoscale Prediction System (COAMPS) - Western Atlantic
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coamps-europe" title="COAMPS Europe" class="md-nav__link">
+    COAMPS Europe
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coamps-equatorial-america" title="COAMPS Equatorial America" class="md-nav__link">
+    COAMPS Equatorial America
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coamps-northeast-pacific" title="COAMPS Northeast Pacific" class="md-nav__link">
+    COAMPS Northeast Pacific
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coamps-southern-california" title="COAMPS Southern California" class="md-nav__link">
+    COAMPS Southern California
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-radar-multi-sensor-mrms-noaaport" title="Multi-Radar Multi-Sensor (MRMS) - NOAAport" class="md-nav__link">
+    Multi-Radar Multi-Sensor (MRMS) - NOAAport
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#full-feed" title="Full Feed" class="md-nav__link">
+    Full Feed
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-precipitation-products" title="MRMS Precipitation Products" class="md-nav__link">
+    MRMS Precipitation Products
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-model-parameters-on-different-grid" title="MRMS Model Parameters (on different grid)" class="md-nav__link">
+    MRMS Model Parameters (on different grid)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-lightning-products-from-nldn" title="MRMS Lightning Products from NLDN" class="md-nav__link">
+    MRMS Lightning Products from NLDN
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-rotation-track-products-on-different-grid" title="MRMS Rotation Track Products (on different grid)" class="md-nav__link">
+    MRMS Rotation Track Products (on different grid)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-mid-level-rotation-track-products-on-different-grid" title="MRMS Mid-level Rotation Track Products (on different grid)" class="md-nav__link">
+    MRMS Mid-level Rotation Track Products (on different grid)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-merged-base-reflectivity" title="MRMS Merged Base Reflectivity" class="md-nav__link">
+    MRMS Merged Base Reflectivity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-radar-products" title="MRMS Radar Products" class="md-nav__link">
+    MRMS Radar Products
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mrms-anything-else-mainly-future-proofing" title="MRMS Anything else (mainly future proofing)" class="md-nav__link">
+    MRMS Anything else (mainly future proofing)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ecmwf" title="ECMWF" class="md-nav__link">
+    ECMWF
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ecmf-global-ecmf1ecmf12" title="ECMF-Global, ECMF1..ECMF12" class="md-nav__link">
+    ECMF-Global, ECMF1..ECMF12
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other" title="Other" class="md-nav__link">
+    Other
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canadian-gem-regional-model-cmc" title="Canadian GEM Regional Model (CMC)" class="md-nav__link">
+    Canadian GEM Regional Model (CMC)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ukmet-global" title="UKMET Global" class="md-nav__link">
+    UKMET Global
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#national-precipitation-verification-unit-npvu-rfc-multisensor-precipitation-estimates-mpe-mpe-local-mpe-mosaic-" title="National Precipitation Verification Unit (NPVU) - RFC Multisensor Precipitation Estimates (MPE) (MPE-Local-..., MPE-Mosaic-...)" class="md-nav__link">
+    National Precipitation Verification Unit (NPVU) - RFC Multisensor Precipitation Estimates (MPE) (MPE-Local-..., MPE-Mosaic-...)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automated-satellite-precipitation-estimates-from-nesdis-hourly-autospe" title="Automated Satellite Precipitation Estimates from NESDIS (hourly) (AUTOSPE)" class="md-nav__link">
+    Automated Satellite Precipitation Estimates from NESDIS (hourly) (AUTOSPE)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#river-forecast-center-rfc-quantitative-precipitation-estimation-qpe" title="River Forecast Center (RFC) Quantitative Precipitation Estimation (QPE)" class="md-nav__link">
+    River Forecast Center (RFC) Quantitative Precipitation Estimation (QPE)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ocean-sea-surface-temperature-sst-grids-61-64" title="Ocean Sea Surface Temperature (SST) Grids #61-64" class="md-nav__link">
+    Ocean Sea Surface Temperature (SST) Grids #61-64
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hpcguide" title="HPCGuide" class="md-nav__link">
+    HPCGuide
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#national-convective-weather-forecast-ncwf" title="National Convective Weather Forecast (NCWF)" class="md-nav__link">
+    National Convective Weather Forecast (NCWF)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#national-operational-hydrologic-remote-sensing-center-snow-analysis-nohrsc-snow" title="National Operational Hydrologic Remote Sensing Center Snow Analysis (NOHRSC-SNOW)" class="md-nav__link">
+    National Operational Hydrologic Remote Sensing Center Snow Analysis (NOHRSC-SNOW)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gfs-mos-based-localized-aviation-mos-program-lamp-guidance-lamp2p5-gfslamp5" title="GFS MOS-Based Localized Aviation MOS Program (LAMP) guidance - LAMP2p5, GFSLAMP5" class="md-nav__link">
+    GFS MOS-Based Localized Aviation MOS Program (LAMP) guidance - LAMP2p5, GFSLAMP5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#radar-coded-messages-rcm" title="Radar Coded Messages (RCM)" class="md-nav__link">
+    Radar Coded Messages (RCM)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#national-digital-forecast-database-ndfd" title="National Digital Forecast Database (NDFD)" class="md-nav__link">
+    National Digital Forecast Database (NDFD)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ndfd-wpc-quantitative-precipitation-forecast-hpcqpfndfd" title="NDFD WPC Quantitative Precipitation Forecast (HPCqpfNDFD)" class="md-nav__link">
+    NDFD WPC Quantitative Precipitation Forecast (HPCqpfNDFD)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ndfd-wpc-day-1-3-excessive-rainfall-outlook-hpcqpfndfd" title="NDFD WPC Day 1-3 Excessive Rainfall Outlook (HPCqpfNDFD)" class="md-nav__link">
+    NDFD WPC Day 1-3 Excessive Rainfall Outlook (HPCqpfNDFD)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mosguidemosguideextendedgmos" title="MOSGuide/MOSGuideExtended/GMOS" class="md-nav__link">
+    MOSGuide/MOSGuideExtended/GMOS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flash-flood-guidance-ffg-grids-1hrhpbl-3hr5wavh-6hrcnwat-ffg-ptr" title="Flash Flood Guidance (FFG) grids - 1HR=HPBL, 3HR=5WAVH, 6HR=CNWAT (FFG-PTR...)" class="md-nav__link">
+    Flash Flood Guidance (FFG) grids - 1HR=HPBL, 3HR=5WAVH, 6HR=CNWAT (FFG-PTR...)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prob3hr236" title="PROB3HR/#236" class="md-nav__link">
+    PROB3HR/#236
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#national-data-buoy-center-ndbc-high-frequency-radar-hfr-total-vector-velocity-tvv" title="National Data Buoy Center (NDBC) High Frequency Radar (HFR) Total Vector Velocity (TVV)" class="md-nav__link">
+    National Data Buoy Center (NDBC) High Frequency Radar (HFR) Total Vector Velocity (TVV)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regional-river-forecast-cebter-rfc-quantitative-precipitation-forecast-qpf-rfcqpf" title="Regional River Forecast Cebter (RFC) Quantitative Precipitation Forecast (QPF) (RFCqpf)" class="md-nav__link">
+    Regional River Forecast Cebter (RFC) Quantitative Precipitation Forecast (QPF) (RFCqpf)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grid218-hpcqpf" title="GRID218 = HPCqpf" class="md-nav__link">
+    GRID218 = HPCqpf
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regional-river-forecast-cebter-rfc-quantitative-precipitation-forecast-qpf" title="Regional River Forecast Cebter (RFC) Quantitative Precipitation Forecast (QPF)" class="md-nav__link">
+    Regional River Forecast Cebter (RFC) Quantitative Precipitation Forecast (QPF)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ocean-models" title="Ocean Models" class="md-nav__link">
+    Ocean Models
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wave-233-grid-global-noaa-wavewatch-iii-wavewatch" title="WAVE 233 Grid - Global NOAA WAVEWATCH III (WaveWatch)" class="md-nav__link">
+    WAVE 233 Grid - Global NOAA WAVEWATCH III (WaveWatch)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wave-238-grid-regional-western-north-atlantic-wave-wna" title="WAVE 238 Grid - Regional Western North Atlantic (WAVE-WNA)" class="md-nav__link">
+    WAVE 238 Grid - Regional Western North Atlantic (WAVE-WNA)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wave-238-grid-regional-western-north-atlantic-hurricane-wave-wna-hurr" title="WAVE 238 Grid - Regional Western North Atlantic Hurricane (WAVE-WNA-Hurr)" class="md-nav__link">
+    WAVE 238 Grid - Regional Western North Atlantic Hurricane (WAVE-WNA-Hurr)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wave-239-grid-regional-alaska-waters-wave-ak" title="WAVE 239 Grid - Regional Alaska Waters (WAVE-AK)" class="md-nav__link">
+    WAVE 239 Grid - Regional Alaska Waters (WAVE-AK)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wave-253-grid-regional-eastern-north-pacific-wave-enp" title="WAVE 253 Grid - Regional Eastern North Pacific (WAVE-ENP)" class="md-nav__link">
+    WAVE 253 Grid - Regional Eastern North Pacific (WAVE-ENP)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wave-253-grid-regional-eastern-north-pacific-hurricane-wave-enp-hurr" title="WAVE 253 Grid - Regional Eastern North Pacific Hurricane (WAVE-ENP-Hurr)" class="md-nav__link">
+    WAVE 253 Grid - Regional Eastern North Pacific Hurricane (WAVE-ENP-Hurr)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-global" title="WW3 Global" class="md-nav__link">
+    WW3 Global
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-regional-alaska" title="WW3 Regional Alaska" class="md-nav__link">
+    WW3 Regional Alaska
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-coastal-alaska" title="WW3 Coastal Alaska" class="md-nav__link">
+    WW3 Coastal Alaska
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-eastern-pacific-regional" title="WW3 Eastern Pacific (Regional)" class="md-nav__link">
+    WW3 Eastern Pacific (Regional)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-us-east-coast-regional" title="WW3 US East Coast (Regional)" class="md-nav__link">
+    WW3 US East Coast (Regional)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-us-east-coast-coastal" title="WW3 US East Coast (Coastal)" class="md-nav__link">
+    WW3 US East Coast (Coastal)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-us-west-coast-regional" title="WW3 US West Coast (Regional)" class="md-nav__link">
+    WW3 US West Coast (Regional)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ww3-us-west-coast-coastal" title="WW3 US West Coast (Coastal)" class="md-nav__link">
+    WW3 US West Coast (Coastal)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estofs-us" title="ESTOFS - US" class="md-nav__link">
+    ESTOFS - US
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estofs-puerto-rico" title="ESTOFS - Puerto Rico" class="md-nav__link">
+    ESTOFS - Puerto Rico
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estofs-pacific-alaska" title="ESTOFS Pacific - Alaska" class="md-nav__link">
+    ESTOFS Pacific - Alaska
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estofs-pacific-conus-west-coast" title="ESTOFS Pacific - CONUS (West Coast)" class="md-nav__link">
+    ESTOFS Pacific - CONUS (West Coast)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estofs-pacific-hawaii" title="ESTOFS Pacific - Hawaii" class="md-nav__link">
+    ESTOFS Pacific - Hawaii
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra-tropical-storm-surge-etss" title="Extra-Tropical Storm Surge (ETSS)" class="md-nav__link">
+    Extra-Tropical Storm Surge (ETSS)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glerl" title="GLERL" class="md-nav__link">
+    GLERL
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/edex/data-grids.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
+                
+                <h1 id="available-idd-grids">Available IDD Grids<a class="headerlink" href="#available-idd-grids" title="Permanent link"></a></h1>
+<p>The file <code>/awips2/ldm/etc/pqact.conf</code> defines which grids the LDM will request for EDEX ingest.  After editing this file (as user <code>awips</code>) you should run <code>ldmadmin pqactHUP</code> to re-read the new edits (<code>ldmadmin restart</code> will also work).</p>
+<h2 id="gfs">GFS<a class="headerlink" href="#gfs" title="Permanent link"></a></h2>
+<h3 id="gfs-global-025-degree">GFS Global 0.25 degree<a class="headerlink" href="#gfs-global-025-degree" title="Permanent link"></a></h3>
+<pre><code>CONDUIT ^data/nccf/com/.*gfs.t[0-9][0-9]z.pgrb2.0p25.*!grib2/[^/]*.*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*! (......)
+        FILE    -edex -log
+        /awips2/data_store/grid/GFS0p25/GFS_Global_0p25deg_\1\2\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="gfs-global-10-degree">GFS Global 1.0 degree<a class="headerlink" href="#gfs-global-10-degree" title="Permanent link"></a></h3>
+<pre><code>CONDUIT        ^data/nccf/com/.*gfs.t[0-9][0-9]z.pgrb2.1p00.*!grib2/[^/]*/.*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*! (......)
+       FILE    -edex -log
+       /awips2/data_store/grid/GFS1p0/GFS_Global_onedeg_\1\2\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="gfs-global-25-degree">GFS Global 2.5 degree<a class="headerlink" href="#gfs-global-25-degree" title="Permanent link"></a></h3>
+<pre><code>CONDUIT        ^data/nccf/com/.*gfs.t[0-9][0-9]z.pgrb2.2p50.*!grib2/[^/]*/.*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*! (......)
+       FILE    -edex -log
+       /awips2/data_store/grid/GFS2p5/GFS_Global_2p50deg_\1\2\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="gfs-global-10-degree-noaaport">GFS Global 1.0 degree (NOAAPORT)<a class="headerlink" href="#gfs-global-10-degree-noaaport" title="Permanent link"></a></h3>
+<pre><code>NGRID  ^[YZ].P... KWBC ...... !grib2/ncep/GFS.*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+       FILE    -edex -log
+       /awips2/data_store/grid/GFS1p0_noaaport/GFS_Global_onedeg_noaaport_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="gfs-pacific-40-km">GFS Pacific 40 km<a class="headerlink" href="#gfs-pacific-40-km" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].O... KWBC ...... !grib2.*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/GFSPacific-40km/GFSPacific-40km_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfs-pacific-20-km-mercator">GFS Pacific 20 km Mercator<a class="headerlink" href="#gfs-pacific-20-km-mercator" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[YZ].F... KWBC ...... !grib2.*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/GFSPacific-20km/GFSPacific-20km_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfs-puerto-rico-05-degree">GFS Puerto Rico 0.5 degree<a class="headerlink" href="#gfs-puerto-rico-05-degree" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].T... KWBC ...... !grib2.*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/PR-GFS0p5/PR-GFS0p5_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfs-puerto-rico-20-km-latlon-025-degree">GFS Puerto Rico 20 km Lat/Lon 0.25 degree<a class="headerlink" href="#gfs-puerto-rico-20-km-latlon-025-degree" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[YZ].E... KWBC ...... !grib2.*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/PR-GFS0p25/PR-GFS0p25_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfs-conus-80-km">GFS CONUS 80 km<a class="headerlink" href="#gfs-conus-80-km" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ].Q... KWBC ...... !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/GFS80/GFS80_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfs-alaska-95-km-gfs95">GFS Alaska 95 km (GFS95)<a class="headerlink" href="#gfs-alaska-95-km-gfs95" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].H... KWBC ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-GFS95/AK-GFS95\1_\2Z_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfs-conus-20-km-gfs20">GFS CONUS 20 km (GFS20)<a class="headerlink" href="#gfs-conus-20-km-gfs20" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[YZ].N... KWBC ...... !grib.*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/GFS20/GFS20_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfs-alaska-20-km-ak-gfs22">GFS Alaska 20 km (AK-GFS22)<a class="headerlink" href="#gfs-alaska-20-km-ak-gfs22" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[YZ].B... KWBC ...... !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-GFS20/AK-GFS20_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="gfsguide">GFSGuide<a class="headerlink" href="#gfsguide" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].I... KWBJ ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/GFSGuide/GFSGuide_\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h2 id="rtma-and-urma">RTMA and URMA<a class="headerlink" href="#rtma-and-urma" title="Permanent link"></a></h2>
+<h3 id="rtma-197-5km">RTMA 197 (5km)<a class="headerlink" href="#rtma-197-5km" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].M... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/RTMA5/RTMA_5km_\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h3 id="rtma-mosaic-25km-i">RTMA-Mosaic 2.5km (I)<a class="headerlink" href="#rtma-mosaic-25km-i" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].I... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/RTMA/RTMA_2p5km_\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h3 id="urma25-q">URMA2.5 (Q)<a class="headerlink" href="#urma25-q" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].Q... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/URMA25/URMA_2p5km_\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h2 id="nam">NAM<a class="headerlink" href="#nam" title="Permanent link"></a></h2>
+<h3 id="nam-conus-12-km-nam12-noaaport">NAM CONUS 12 km (NAM12) - NOAAport<a class="headerlink" href="#nam-conus-12-km-nam12-noaaport" title="Permanent link"></a></h3>
+<pre><code>NGRID  ^[LM].B... KWBE ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+       FILE    -edex -log
+       /awips2/data_store/grid/NAM12/noaaport/NAM_CONUS_12km_noaaport_\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h3 id="nam-alaska-11-km-ak-nam11">NAM Alaska 11 km (AK-NAM11)<a class="headerlink" href="#nam-alaska-11-km-ak-nam11" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].S... KWBE ...... !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-NAM11/NAM_Alaska_11km_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="nam-alaska-45-km-grid216-conduit-ak-nam45">NAM Alaska 45 km GRID216 - CONDUIT (AK-NAM45)<a class="headerlink" href="#nam-alaska-45-km-grid216-conduit-ak-nam45" title="Permanent link"></a></h3>
+<pre><code>CONDUIT ^data/nccf/com/nam/prod/nam.*t(..)z.awipak.* !grib2/ncep/NAM_84/#000/(............)(F...)/(.*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-NAM45/conduit/NAM_Alaska_45km_conduit_\2_\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="nam-conus-12-km-nam12-conduit">NAM CONUS 12 km (NAM12) - CONDUIT<a class="headerlink" href="#nam-conus-12-km-nam12-conduit" title="Permanent link"></a></h3>
+<pre><code>CONDUIT ^data/nccf/com/nam/.*nam.*awip12.*!grib2/ncep/NAM_84/#[^/]*/([0-9]{8})([0-9]{4})(F[0-1]..)/([^/]*)/.*! (......)
+        FILE    -edex -log
+        /awips2/data_store/grid/NAM12/conduit/NAM_CONUS_12km_conduit_\1_\2Z_\3_\4-(seq).\5.grib2
+</code></pre>
+<h3 id="nam-conus-40-km-nam40-conduit">NAM CONUS 40 km (NAM40) - CONDUIT<a class="headerlink" href="#nam-conus-40-km-nam40-conduit" title="Permanent link"></a></h3>
+<pre><code>CONDUIT ^data/nccf/com/nam/.*awip3d.*!grib2/ncep/NAM_84/#[^/]*/([0-9]{8})([0-9]{4})(F[0-1]..)/([^/]*)/.*! (......)
+        FILE    -edex -log
+        /awips2/data_store/grid/NAM40/conduit/NAM_CONUS_40km_conduit_\1_\2Z_\3_\4-(seq).\5.grib2
+</code></pre>
+<h3 id="nam-conus-40-km-nam40-noaaport">NAM CONUS 40 km (NAM40) - NOAAport<a class="headerlink" href="#nam-conus-40-km-nam40-noaaport" title="Permanent link"></a></h3>
+<pre><code>HDS    ^[YZ].[A-WYZ].{1,3} KWBD ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+       FILE    -edex -log
+       /awips2/data_store/grid/NAM40/noaaport/NAM_CONUS_40km_noaaport_\1\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="nam-alaska-95-km-ak-nam95">NAM Alaska 95 km (AK-NAM95)<a class="headerlink" href="#nam-alaska-95-km-ak-nam95" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ].N... KWBE .......*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-NAM95/noaaport/NAM_Alaska_95km_\2_\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="nam-conus-80-km-nam80">NAM CONUS 80 km (NAM80)<a class="headerlink" href="#nam-conus-80-km-nam80" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ].Q... KWB. [0-3][0-9][0-2][0-9].*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/NAM80/NAM_CONUS_80km_\1_\2Z_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="nam-conus-20-km-nam20-removed">NAM CONUS 20 km (NAM20) (removed??)<a class="headerlink" href="#nam-conus-20-km-nam20-removed" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ].U... KWB. [0-3][0-9][0-2][0-9].*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/NAM20/NAM_CONUS_20km_\2_\3Z_\4_\5-(seq).\1.grib2
+</code></pre>
+<h3 id="nam-alaska-45-km-grid216-noaaport-ak-nam45">NAM Alaska 45 km GRID216 - NOAAport (AK-NAM45)<a class="headerlink" href="#nam-alaska-45-km-grid216-noaaport-ak-nam45" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ].V... KWB. .......*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-NAM45/noaaport/NAM_Alaska_45km_noaaport_\2_\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="nam-alaska-22-km-ak-nam22">NAM Alaska 22 km (AK-NAM22)<a class="headerlink" href="#nam-alaska-22-km-ak-nam22" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ].Y... KWBE .......*/m(ETA|NAM) !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-NAM22/NAM_Alaska_22km_\2_\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="nam-puerto-rico-grid-237-pr-nam">NAM Puerto Rico Grid 237 (PR-NAM)<a class="headerlink" href="#nam-puerto-rico-grid-237-pr-nam" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ].Z.{1,3} KWBE .......*/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/PR-NAM12/GRID\8/Regional_NAM_GRID\8_\2_\3_\4_\5-(seq).grib
+</code></pre>
+<h3 id="nam-polar-90-km">NAM Polar 90 km<a class="headerlink" href="#nam-polar-90-km" title="Permanent link"></a></h3>
+<pre><code>CONDUIT ^data/nccf/com/nam/prod/nam........./nam.t..z.grbgrd.*NAM_84/#[^/]*/([0-9]{8})([0-9]{4})(F[0-1]..)/([^/]*)/.*! (......)
+        FILE    -edex -log
+        /awips2/data_store/grid/NAM90/NAM_Polar_90km_\1_\2Z_\3_\4.\5.grib2
+</code></pre>
+<h3 id="nam-fire-weather-nest">NAM Fire Weather Nest<a class="headerlink" href="#nam-fire-weather-nest" title="Permanent link"></a></h3>
+<pre><code>CONDUIT        ^data/nccf/com/nam/prod/nam........./nam.t..z.firewxnest.*NMM_89/#[^/]*/([0-9]{8})([0-9]{4})(F[0-1]..)/([^/]*)/.*! (......)
+       FILE    -edex -log
+       /awips2/data_store/grid/NAMFirewxnest/NAM_Firewxnest_\1_\2Z_\3_\4.\5.grib2
+</code></pre>
+<h3 id="namdng-25-km-ngrid-namdng">NamDNG 2.5 km NGRID (NamDNG)<a class="headerlink" href="#namdng-25-km-ngrid-namdng" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].I... KWBE ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/NamDNG/ngrid/NamDNG_2p5km_\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h3 id="namdng-5-km-namdng5">NamDNG 5 km (NamDNG5)<a class="headerlink" href="#namdng-5-km-namdng5" title="Permanent link"></a></h3>
+<pre><code>NGRID  ^[LM].M... KWBE ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+       FILE    -edex -log
+       /awips2/data_store/grid/NamDNG5/NamDNG_5km_\1_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h3 id="ak-namdng5">AK-NamDNG5<a class="headerlink" href="#ak-namdng5" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[LM].A.{1,3} KWB. .......*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-NamDNG5/AK-NamDNG5_\1_\2\3\4-(seq).grib2
+</code></pre>
+<h3 id="pr-namdng5">PR-NamDNG5<a class="headerlink" href="#pr-namdng5" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[LM].C.{1,3} KWB. .......*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/PR-NamDNG5/PR-NamDNG5_\1_\2\3\4-(seq).grib2
+</code></pre>
+<h3 id="hawaii-namdng5">Hawaii-NamDNG5<a class="headerlink" href="#hawaii-namdng5" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[LM].H.{1,3} KWB. .......*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/Hawaii-NamDNG5/Hawaii-NamDNG5_\1_\2\3\4-(seq).grib2
+</code></pre>
+<h3 id="ak-namdng-3km">AK NamDNG 3km<a class="headerlink" href="#ak-namdng-3km" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[LM].K.{1,3} KWB. .......*/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AK-NamDNG-3km/AK-NamDNG-3km_\1_\2\3\4.grib2
+</code></pre>
+<h2 id="rap">RAP<a class="headerlink" href="#rap" title="Permanent link"></a></h2>
+<h3 id="rap-conus-13-km-rap13">RAP CONUS 13 km (RAP13)<a class="headerlink" href="#rap-conus-13-km-rap13" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].D... KWBG ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/RAP13/RR_CONUS_13km_\3_\4Z_\5_\6-(seq).grib2
+</code></pre>
+<h3 id="rap-conus-20-km-rap20">RAP CONUS 20 km (RAP20)<a class="headerlink" href="#rap-conus-20-km-rap20" title="Permanent link"></a></h3>
+<pre><code>CONDUIT ^data/nccf/com/rap.*awp252.*!grib2/ncep/RUC2/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)/.*! (......)
+        FILE    -edex -log
+        /awips2/data_store/grid/RAP20/RR_CONUS_20km_\1_\2Z_\3_\4-(seq).\5.grib2
+</code></pre>
+<h3 id="rap-conus-40-km-rap40-noaaport">RAP CONUS 40 km (RAP40) - NOAAport<a class="headerlink" href="#rap-conus-40-km-rap40-noaaport" title="Permanent link"></a></h3>
+<pre><code>HDS    ^[YZ].W.{1,3} KWBG ......[^!]*!grib/ncep/RUC2/#236/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+       FILE    -edex -log
+       /awips2/data_store/grid/RAP40/noaaport/RR_CONUS_40km_noaaport_\1_\2Z_\3_\4-(seq).grib
+</code></pre>
+<h3 id="rap-conus-40-km-rap40-condiut">RAP CONUS 40 km (RAP40) - CONDIUT<a class="headerlink" href="#rap-conus-40-km-rap40-condiut" title="Permanent link"></a></h3>
+<pre><code>CONDUIT ^data/nccf/com/rap.*awp236.*!grib2/ncep/RUC2/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)/.*! (......)
+        FILE    -edex -log
+        /awips2/data_store/grid/RAP40/conduit/RR_CONUS_40km_conduit_\1_\2Z_\3_\4-(seq).\5.grib2
+</code></pre>
+<h2 id="hrrr">HRRR<a class="headerlink" href="#hrrr" title="Permanent link"></a></h2>
+<h3 id="hrrr-noaaport-1hr">HRRR - NOAAport 1hr<a class="headerlink" href="#hrrr-noaaport-1hr" title="Permanent link"></a></h3>
+<pre><code>NGRID   Y.C.[0-9][0-9] KWBY ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/HRRR/HRRR_CONUS_2p5km_\1_F\2_\3-(seq).grib2
+</code></pre>
+<h3 id="hrrrx-experimental-gsd-hourly-and-sub-hourly">HRRRX - Experimental GSD Hourly and Sub-Hourly<a class="headerlink" href="#hrrrx-experimental-gsd-hourly-and-sub-hourly" title="Permanent link"></a></h3>
+<pre><code>FSL2    ^GRIB2\.FSL\.HRRR\.(.......)_Lambert\.(.*)(Minute|Hour)\.(.*)\.(.*)\.([0-9]{12}).*
+        FILE    -edex -log
+        /awips2/data_store/grid/HRRRX/HRRRX_CONUS_3km_\6-\1_\3\2_\4_\5-(seq).grib2
+</code></pre>
+<h2 id="shef">SHEF<a class="headerlink" href="#shef" title="Permanent link"></a></h2>
+<h3 id="sref-conus-40-km-ensemble-derived-products">SREF CONUS 40 km Ensemble Derived Products<a class="headerlink" href="#sref-conus-40-km-ensemble-derived-products" title="Permanent link"></a></h3>
+<pre><code>NGRID  ^[LM].R... KWBL ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
+       FILE    -edex -log
+       /awips2/data_store/grid/SREF212/noaaport/SREF_CONUS_40km_ensprod_(\1:yyyy)(\1:mm)\1_\2.grib2
+</code></pre>
+<h3 id="sref-conus-40-km-bias-corrected-ensemble-derived-products">SREF CONUS 40 km Bias Corrected Ensemble Derived Products<a class="headerlink" href="#sref-conus-40-km-bias-corrected-ensemble-derived-products" title="Permanent link"></a></h3>
+<pre><code>CONDUIT        ^data/nccf/com/sref/prod/sref\........./../(ensprod_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/(............)(F...)/(.*)/.*! (......)
+       FILE    -edex -log
+       /awips2/data_store/grid/SREF212/conduit/SREF_CONUS_40km_\1_\2_\3_\4_\5-(seq).grib2
+</code></pre>
+<h3 id="sref-conus-40-km-bias-corrected-ensemble-members">SREF CONUS 40 km Bias Corrected Ensemble Members<a class="headerlink" href="#sref-conus-40-km-bias-corrected-ensemble-members" title="Permanent link"></a></h3>
+<pre><code>CONDUIT        ^data/nccf/com/sref/prod/sref\.(........)/(..)/(pgrb_biasc)/.*pgrb212.*!grib2/ncep/.*/#000/............(F...)/(.*)/.*! (......)
+       FILE    -edex -log
+       /awips2/data_store/grid/SREF212/conduit/SREF_CONUS_40km_\3_\1_\200_\4_\5_\6.grib2
+</code></pre>
+<h3 id="sref-alaska-45-km-ensemble-derived-products">SREF Alaska 45 km Ensemble Derived Products<a class="headerlink" href="#sref-alaska-45-km-ensemble-derived-products" title="Permanent link"></a></h3>
+<pre><code>NGRID  ^[LM].V... KWBL .......*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+       FILE    -edex -log
+       /awips2/data_store/grid/AK-SREF45/SREF_Alaska_45km_ensprod_\1\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="sref-pacific-northeast-04-degree-ensemble-derived-products">SREF Pacific Northeast 0.4 degree Ensemble Derived Products<a class="headerlink" href="#sref-pacific-northeast-04-degree-ensemble-derived-products" title="Permanent link"></a></h3>
+<pre><code>NGRID  ^[LM].X... KWBL .......*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+       FILE    -edex -log
+       /awips2/data_store/grid/EPac-SREF/SREF_PacificNE_0p4_ensprod_\1\2_\3_\4-(seq).grib2
+</code></pre>
+<h2 id="fnmoc">FNMOC<a class="headerlink" href="#fnmoc" title="Permanent link"></a></h2>
+<h3 id="navy-coupled-ocean-data-assimilation-ncoda-global-025-degree">Navy Coupled Ocean Data Assimilation (NCODA) - Global 0.25 degree<a class="headerlink" href="#navy-coupled-ocean-data-assimilation-ncoda-global-025-degree" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.*0078_0200_(.*)_(.*)_(.*)-(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-NCODA/fnmoc_NCODA_Global_Ocean_\1_\2_\3_\4.grib
+</code></pre>
+<h3 id="navy-global-environmental-model-navgem-05-degree">NAVy Global Environmental Model (NAVGEM) - 0.5 degree<a class="headerlink" href="#navy-global-environmental-model-navgem-05-degree" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.*0018_0056_(.*)_(.*)_(.*)-(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-NAVGEM/fnmoc_NAVGEM_Global_0p5deg_\1_\2_\3_\4.grib
+</code></pre>
+<h3 id="forecast-of-aerosol-radiative-optical-properties-farop-global-10-degree">Forecast of Aerosol Radiative Optical Properties (FAROP) - Global 1.0 degree<a class="headerlink" href="#forecast-of-aerosol-radiative-optical-properties-farop-global-10-degree" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.*0135_0240_(.*)_(.*)_(.*)-(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-FAROP/fnmoc_FAROP_Global_1p0deg_\1_\2_\3_\4.grib
+</code></pre>
+<h3 id="wavewatch-iii-ww3-global-10-degree">WAVEWATCH III (WW3) - Global 1.0 degree<a class="headerlink" href="#wavewatch-iii-ww3-global-10-degree" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.*0110_0240_(.*)_(.*)_(.*)-(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-WW3-Global_1p0deg/fnmoc_WW3_Global_1p0deg_\1_\2_\3_\4.grib
+</code></pre>
+<h3 id="ww3-europe">WW3 Europe<a class="headerlink" href="#ww3-europe" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.{4}-GR1dyn\.WW3-EURO_EURO-..-.._.{5}.{4}(.{4})(..)(..)(..)(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-WW3-Europe/fnmoc_WW3_Europe_\1\2\3_\400_\5.grib
+</code></pre>
+<h3 id="coupled-oceanatmospheric-mesoscale-prediction-system-coamps-western-atlantic">Coupled Ocean/Atmospheric Mesoscale Prediction System (COAMPS) - Western Atlantic<a class="headerlink" href="#coupled-oceanatmospheric-mesoscale-prediction-system-coamps-western-atlantic" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.{4}-GR1dyn\.COAMPS-NWATL_.{5}-.{2}-.{2}_(.{9})(..........)(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-COAMPS-Western_Atlantic/fnmoc_COAMPS_Western_Atlantic_\1\2\3-(seq).grib
+</code></pre>
+<h3 id="coamps-europe">COAMPS Europe<a class="headerlink" href="#coamps-europe" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.{4}-GR1dyn\.COAMPS-EURO_.{4}-.{2}-.{2}_(.{9})(..........)(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-COAMPS-Europe/fnmoc_COAMPS_Europe_\1\2\3-(seq).grib
+</code></pre>
+<h3 id="coamps-equatorial-america">COAMPS Equatorial America<a class="headerlink" href="#coamps-equatorial-america" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.{4}-GR1dyn\.COAMPS-EQAM_.{4}-.{2}-.{2}_(.{9})(..........)(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-COAMPS-Equatorial_America/fnmoc_COAMPS_Equatorial_America_\1\2\3-(seq).grib
+</code></pre>
+<h3 id="coamps-northeast-pacific">COAMPS Northeast Pacific<a class="headerlink" href="#coamps-northeast-pacific" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.{4}-GR1dyn\.COAMPS-NEPAC_.{5}-.{2}-.{2}_(.{9})(..........)(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-COAMPS-Northeast_Pacific/fnmoc_COAMPS_Northeast_Pacific_\1\2\3-(seq).grib
+</code></pre>
+<h3 id="coamps-southern-california">COAMPS Southern California<a class="headerlink" href="#coamps-southern-california" title="Permanent link"></a></h3>
+<pre><code>FNMOC   ^US058.{4}-GR1dyn\.COAMPS-SOCAL_.{5}-.{2}-.{2}_(.{9})(..........)(.*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FNMOC-COAMPS-Southern_California/fnmoc_COAMPS_Southern_California_\1\2\3-(seq).grib
+</code></pre>
+<h2 id="multi-radar-multi-sensor-mrms-noaaport">Multi-Radar Multi-Sensor (MRMS) - NOAAport<a class="headerlink" href="#multi-radar-multi-sensor-mrms-noaaport" title="Permanent link"></a></h2>
+<h3 id="full-feed">Full Feed<a class="headerlink" href="#full-feed" title="Permanent link"></a></h3>
+<pre><code>NGRID  ^YAU[CDLMPQS].. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+       FILE    -edex -log
+       /awips2/data_store/grid/MRMS/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="mrms-precipitation-products">MRMS Precipitation Products<a class="headerlink" href="#mrms-precipitation-products" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAU[DP].. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-precip/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="mrms-model-parameters-on-different-grid">MRMS Model Parameters (on different grid)<a class="headerlink" href="#mrms-model-parameters-on-different-grid" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAUM.. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-model/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="mrms-lightning-products-from-nldn">MRMS Lightning Products from NLDN<a class="headerlink" href="#mrms-lightning-products-from-nldn" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAUL.. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-lightning/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="mrms-rotation-track-products-on-different-grid">MRMS Rotation Track Products (on different grid)<a class="headerlink" href="#mrms-rotation-track-products-on-different-grid" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAUS0[0-4] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-rotation/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="mrms-mid-level-rotation-track-products-on-different-grid">MRMS Mid-level Rotation Track Products (on different grid)<a class="headerlink" href="#mrms-mid-level-rotation-track-products-on-different-grid" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAUS0[5-9] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-rotation-ml/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="mrms-merged-base-reflectivity">MRMS Merged Base Reflectivity<a class="headerlink" href="#mrms-merged-base-reflectivity" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAUQ.. KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-merged/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h3 id="mrms-radar-products">MRMS Radar Products<a class="headerlink" href="#mrms-radar-products" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAU(C[0-9]|S[1-9])[0-9] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-radar/MRMS_\2_\3_\4_\5.grib2
+</code></pre>
+<h3 id="mrms-anything-else-mainly-future-proofing">MRMS Anything else (mainly future proofing)<a class="headerlink" href="#mrms-anything-else-mainly-future-proofing" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^YAU[ABE-KNORT-Z][0-9][0-9] KWNR ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]..)/([^/]*)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/MRMS-other/MRMS_\1_\2_\3_\4.grib2
+</code></pre>
+<h2 id="ecmwf">ECMWF<a class="headerlink" href="#ecmwf" title="Permanent link"></a></h2>
+<h3 id="ecmf-global-ecmf1ecmf12">ECMF-Global, ECMF1..ECMF12<a class="headerlink" href="#ecmf-global-ecmf1ecmf12" title="Permanent link"></a></h3>
+<pre><code>HDS     ^H..... ECM. ......[^!]*!grib.*/[^/]*/[^/]*/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/ECMWF/ECMWF-\1_\2_\3_\4_\5-(seq).grib
+</code></pre>
+<h2 id="other">Other<a class="headerlink" href="#other" title="Permanent link"></a></h2>
+<h3 id="canadian-gem-regional-model-cmc">Canadian GEM Regional Model (CMC)<a class="headerlink" href="#canadian-gem-regional-model-cmc" title="Permanent link"></a></h3>
+<pre><code>CMC     ^CMC_reg_(.*)km_(..........)_P(...).grib2
+        FILE    -edex -log
+        /awips2/data_store/grid/CMC/CMC_reg_\1km_\2_P\3.grib2
+</code></pre>
+<h3 id="ukmet-global">UKMET Global<a class="headerlink" href="#ukmet-global" title="Permanent link"></a></h3>
+<pre><code>HDS     ^H..... EGRR ......[^!]*!grib/ukmet/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+    FILE    -edex -log
+    /awips2/data_store/grid/UKMET-\1-GRID\2/UKMET-\1-GRID\2_\3\4_\5_\6-(seq).grib1
+</code></pre>
+<h3 id="national-precipitation-verification-unit-npvu-rfc-multisensor-precipitation-estimates-mpe-mpe-local-mpe-mosaic-">National Precipitation Verification Unit (NPVU) - RFC Multisensor Precipitation Estimates (MPE) (MPE-Local-..., MPE-Mosaic-...)<a class="headerlink" href="#national-precipitation-verification-unit-npvu-rfc-multisensor-precipitation-estimates-mpe-mpe-local-mpe-mosaic-" title="Permanent link"></a></h3>
+<pre><code>HDS     ^ZETA98 (....) ([0-3][0-9])([0-2][0-9]).*/m(.......)
+        FILE    -edex -log
+        /awips2/data_store/grid/MPE-\1/MPE-\1_\4_(\2:yyyy)(\2:mm)\2.grib
+</code></pre>
+<h3 id="automated-satellite-precipitation-estimates-from-nesdis-hourly-autospe">Automated Satellite Precipitation Estimates from NESDIS (hourly) (AUTOSPE)<a class="headerlink" href="#automated-satellite-precipitation-estimates-from-nesdis-hourly-autospe" title="Permanent link"></a></h3>
+<pre><code>HDS     ^ZETA98 K[NW][EN][ES] ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})/([^/]*)/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/AUTOSPE/AUTOSPE-\1\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="river-forecast-center-rfc-quantitative-precipitation-estimation-qpe">River Forecast Center (RFC) Quantitative Precipitation Estimation (QPE)<a class="headerlink" href="#river-forecast-center-rfc-quantitative-precipitation-estimation-qpe" title="Permanent link"></a></h3>
+<pre><code>HDS     ^ZETA98 (KTUA|PACR|KSTR|KRSA|KORN|KRHA|KKRF|KMSR|KTAR|KPTR|KTIR|KALR|KFWR) ......[^!]*!(grib|grib2)/[^/]*/([^/]*)/#255/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/QPE-RFC/QPE-RFC-\1_\3_\4_\5_\6_\7-(seq).grib
+</code></pre>
+<h3 id="ocean-sea-surface-temperature-sst-grids-61-64">Ocean Sea Surface Temperature (SST) Grids #61-64<a class="headerlink" href="#ocean-sea-surface-temperature-sst-grids-61-64" title="Permanent link"></a></h3>
+<pre><code>HDS     ^H.[T-W]
+        FILE    -edex -log
+        /awips2/data_store/grid/SST/%Y%m%d%H%M.sst.grib
+</code></pre>
+<h3 id="hpcguide">HPCGuide<a class="headerlink" href="#hpcguide" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^([LM][ABCDFGH]U...) (KWBN) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/HPCGuide/GRID\8/HPCGuide_GRID\8_\(10)Z_\(11)_\(12)-\1_\2_\3\4\5-(seq).grib2
+</code></pre>
+<h3 id="national-convective-weather-forecast-ncwf">National Convective Weather Forecast (NCWF)<a class="headerlink" href="#national-convective-weather-forecast-ncwf" title="Permanent link"></a></h3>
+<pre><code>ANY     ^ZDIA98 (....) ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})/(F[0-9]{3})
+        FILE    -edex -log
+        /awips2/data_store/grid/NCWF/NCWF_\2_\3_\4_\1-(seq).grib
+</code></pre>
+<h3 id="national-operational-hydrologic-remote-sensing-center-snow-analysis-nohrsc-snow">National Operational Hydrologic Remote Sensing Center Snow Analysis (NOHRSC-SNOW)<a class="headerlink" href="#national-operational-hydrologic-remote-sensing-center-snow-analysis-nohrsc-snow" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[YZ][ES]QA88 KMSR ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/NOHRSC-SNOW/NOHRSC-SNOW_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="gfs-mos-based-localized-aviation-mos-program-lamp-guidance-lamp2p5-gfslamp5">GFS MOS-Based Localized Aviation MOS Program (LAMP) guidance - LAMP2p5, GFSLAMP5<a class="headerlink" href="#gfs-mos-based-localized-aviation-mos-program-lamp-guidance-lamp2p5-gfslamp5" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^([LM].[ABDHMNRSTU].{1,3}) (KWNO|KMDL) (..)(..)(..)[^!]*!(grib2)/[^/]*/(LAMP)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/LAMP/\7_\9_\(10)Z_\(11)_\(12)-\1_\2-(seq).grib2
+</code></pre>
+<h3 id="radar-coded-messages-rcm">Radar Coded Messages (RCM)<a class="headerlink" href="#radar-coded-messages-rcm" title="Permanent link"></a></h3>
+<pre><code>HDS     ^HAXA00 KWBC ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/RCM/RCM_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="national-digital-forecast-database-ndfd">National Digital Forecast Database (NDFD)<a class="headerlink" href="#national-digital-forecast-database-ndfd" title="Permanent link"></a></h3>
+<pre><code>CONDUIT grib2/nwstg/NWS_0/..../(........)(....)(F...)/(.*)/.*! (......)
+        FILE    -edex -log
+        /awips2/data_store/grid/NDFD/NDFD_\1\2\3_\4-\5.grib2
+</code></pre>
+<h3 id="ndfd-wpc-quantitative-precipitation-forecast-hpcqpfndfd">NDFD WPC Quantitative Precipitation Forecast (HPCqpfNDFD)<a class="headerlink" href="#ndfd-wpc-quantitative-precipitation-forecast-hpcqpfndfd" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^[LM].[MN].98 KWNH ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/HPCqpf-ngrid/HPCqpf_\1_\2_\3_\4-(seq).grib2
+</code></pre>
+<h3 id="ndfd-wpc-day-1-3-excessive-rainfall-outlook-hpcqpfndfd">NDFD WPC Day 1-3 Excessive Rainfall Outlook (HPCqpfNDFD)<a class="headerlink" href="#ndfd-wpc-day-1-3-excessive-rainfall-outlook-hpcqpfndfd" title="Permanent link"></a></h3>
+<pre><code>HDS     ^[LM].[MN].98 KWNH ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/HPCqpf-hds/HPCqpf_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="mosguidemosguideextendedgmos">MOSGuide/MOSGuideExtended/GMOS<a class="headerlink" href="#mosguidemosguideextendedgmos" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^(Y.UZ9[0-9]) (KWB.) (..)(..)(..)
+        FILE    -edex -log
+        /awips2/data_store/grid/MOSGuide/MOSGuide_\1_\2_\3\4\5-(seq).grib2
+</code></pre>
+<h3 id="flash-flood-guidance-ffg-grids-1hrhpbl-3hr5wavh-6hrcnwat-ffg-ptr">Flash Flood Guidance (FFG) grids - 1HR=HPBL, 3HR=5WAVH, 6HR=CNWAT (FFG-PTR...)<a class="headerlink" href="#flash-flood-guidance-ffg-grids-1hrhpbl-3hr5wavh-6hrcnwat-ffg-ptr" title="Permanent link"></a></h3>
+<pre><code>HDS     ^ZEGZ98 K.{3} .......*/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/FFG/FFG-\1_\2_\3_\4_\5-(seq).grib
+</code></pre>
+<h3 id="prob3hr236">PROB3HR/#236<a class="headerlink" href="#prob3hr236" title="Permanent link"></a></h3>
+<pre><code>HDS     ^Z[DE]W[A-D][89]8 KWNO ...... /m0 !grib.*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/PROB3HR/PROB3HR_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="national-data-buoy-center-ndbc-high-frequency-radar-hfr-total-vector-velocity-tvv">National Data Buoy Center (NDBC) High Frequency Radar (HFR) Total Vector Velocity (TVV)<a class="headerlink" href="#national-data-buoy-center-ndbc-high-frequency-radar-hfr-total-vector-velocity-tvv" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^OUTA98 KWNB (......)[^!]*!grib2
+        FILE    -edex -log
+        /awips2/data_store/grid/HFR/HFR_\1-(seq).grib2
+</code></pre>
+<h3 id="regional-river-forecast-cebter-rfc-quantitative-precipitation-forecast-qpf-rfcqpf">Regional River Forecast Cebter (RFC) Quantitative Precipitation Forecast (QPF) (RFCqpf)<a class="headerlink" href="#regional-river-forecast-cebter-rfc-quantitative-precipitation-forecast-qpf-rfcqpf" title="Permanent link"></a></h3>
+<pre><code>HDS     ^YEI.[89]8 (KALR|KFWR|KKRF|KMSR|KORN|KPTR|KRHA|KRSA|KSTR|KTAR|KTIR|KTUA) .......*/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/[^/]*/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/Regional_RFC_QPF/GRID\2/\3_\4_\5_\6-(seq).grib
+</code></pre>
+<h3 id="grid218-hpcqpf">GRID218 = HPCqpf<a class="headerlink" href="#grid218-hpcqpf" title="Permanent link"></a></h3>
+<pre><code>HDS     ^(ZEX.98) KWNH (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#218/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/HPCqpf/HPCqpf_\9Z_\(10)_\(11)-\1_KWNH_\2\3\4-(seq).grib
+</code></pre>
+<h3 id="regional-river-forecast-cebter-rfc-quantitative-precipitation-forecast-qpf">Regional River Forecast Cebter (RFC) Quantitative Precipitation Forecast (QPF)<a class="headerlink" href="#regional-river-forecast-cebter-rfc-quantitative-precipitation-forecast-qpf" title="Permanent link"></a></h3>
+<pre><code>HDS     ^(YEI.[89]8) KWNH (..)(..)(..)[^!]*!(grib|grib2)/ncep/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/RFC_QPF_GRID\7/\9Z_\(10)_\(11)-\1_KWNH_\2\3\4-(seq).grib
+</code></pre>
+<h2 id="ocean-models">Ocean Models<a class="headerlink" href="#ocean-models" title="Permanent link"></a></h2>
+<h3 id="wave-233-grid-global-noaa-wavewatch-iii-wavewatch">WAVE 233 Grid - Global NOAA WAVEWATCH III (WaveWatch)<a class="headerlink" href="#wave-233-grid-global-noaa-wavewatch-iii-wavewatch" title="Permanent link"></a></h3>
+<pre><code>HDS     ^O.J.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
+        FILE    -edex -log
+        /awips2/data_store/grid/WAVE-HDS-WaveWatch/WaveWatch_\1_F\2_\3_\4_%H%M%S.grib
+</code></pre>
+<h3 id="wave-238-grid-regional-western-north-atlantic-wave-wna">WAVE 238 Grid - Regional Western North Atlantic (WAVE-WNA)<a class="headerlink" href="#wave-238-grid-regional-western-north-atlantic-wave-wna" title="Permanent link"></a></h3>
+<pre><code>HDS     ^O.M.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
+        FILE    -edex -log
+        /awips2/data_store/grid/WAVE-HDS-WNAWAVE238/WNAWAVE238_\1_F\2_\3_\4_%H%M%S.grib
+</code></pre>
+<h3 id="wave-238-grid-regional-western-north-atlantic-hurricane-wave-wna-hurr">WAVE 238 Grid - Regional Western North Atlantic Hurricane (WAVE-WNA-Hurr)<a class="headerlink" href="#wave-238-grid-regional-western-north-atlantic-hurricane-wave-wna-hurr" title="Permanent link"></a></h3>
+<pre><code>HDS     ^O.O.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
+        FILE    -edex -log
+        /awips2/data_store/grid/WAVE-HDS-HurWave238/HurWave238_\1_F\2_\3_\4_%H%M%S.grib
+</code></pre>
+<h3 id="wave-239-grid-regional-alaska-waters-wave-ak">WAVE 239 Grid - Regional Alaska Waters (WAVE-AK)<a class="headerlink" href="#wave-239-grid-regional-alaska-waters-wave-ak" title="Permanent link"></a></h3>
+<pre><code>HDS     ^O.N.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
+        FILE    -edex -log
+        /awips2/data_store/grid/WAVE-HDS-AKWAVE239/AKWAVE239_\1_F\2_\3_\4_%H%M%S.grib
+</code></pre>
+<h3 id="wave-253-grid-regional-eastern-north-pacific-wave-enp">WAVE 253 Grid - Regional Eastern North Pacific (WAVE-ENP)<a class="headerlink" href="#wave-253-grid-regional-eastern-north-pacific-wave-enp" title="Permanent link"></a></h3>
+<pre><code>HDS     ^O.S.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
+        FILE    -edex -log
+        /awips2/data_store/grid/WAVE-HDS-ENPWAVE253/ENPWAVE253_\1_F\2_\3_\4_%H%M%S.grib
+</code></pre>
+<h3 id="wave-253-grid-regional-eastern-north-pacific-hurricane-wave-enp-hurr">WAVE 253 Grid - Regional Eastern North Pacific Hurricane (WAVE-ENP-Hurr)<a class="headerlink" href="#wave-253-grid-regional-eastern-north-pacific-hurricane-wave-enp-hurr" title="Permanent link"></a></h3>
+<pre><code>HDS     ^O.Q.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
+        FILE    -edex -log
+        /awips2/data_store/grid/WAVE-HDS-HurWave253/HurWave253\1_F\2_\3_\4_%H%M%S.grib
+</code></pre>
+<h3 id="ww3-global">WW3 Global<a class="headerlink" href="#ww3-global" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.A.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Global/WW3_Global_\1_\200.grib2
+</code></pre>
+<h3 id="ww3-regional-alaska">WW3 Regional Alaska<a class="headerlink" href="#ww3-regional-alaska" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.E.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Regional_Alaska/WW3_Regional_Alaska_\1_\200.grib2
+</code></pre>
+<h3 id="ww3-coastal-alaska">WW3 Coastal Alaska<a class="headerlink" href="#ww3-coastal-alaska" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.F.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Coastal_Alaska/WW3_Coastal_Alaska_\1_\200.grib2
+</code></pre>
+<h3 id="ww3-eastern-pacific-regional">WW3 Eastern Pacific (Regional)<a class="headerlink" href="#ww3-eastern-pacific-regional" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.D.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Regional_Eastern_Pacific/WW3_Regional_Eastern_Pacific_\1_\200.grib2
+</code></pre>
+<h3 id="ww3-us-east-coast-regional">WW3 US East Coast (Regional)<a class="headerlink" href="#ww3-us-east-coast-regional" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.B.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Regional_US_East_Coast/WW3_Regional_US_East_Coast_\1_\200.grib2
+</code></pre>
+<h3 id="ww3-us-east-coast-coastal">WW3 US East Coast (Coastal)<a class="headerlink" href="#ww3-us-east-coast-coastal" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.H.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Coastal_US_East_Coast/WW3_Coastal_US_East_Coast_\1_\200.grib2
+</code></pre>
+<h3 id="ww3-us-west-coast-regional">WW3 US West Coast (Regional)<a class="headerlink" href="#ww3-us-west-coast-regional" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.C.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Regional_US_West_Coast/WW3_Regional_US_West_Coast_\1_\200.grib2
+</code></pre>
+<h3 id="ww3-us-west-coast-coastal">WW3 US West Coast (Coastal)<a class="headerlink" href="#ww3-us-west-coast-coastal" title="Permanent link"></a></h3>
+<pre><code>NGRID   E.G.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/WW3_Coastal_US_West_Coast/WW3_Coastal_US_West_Coast_\1_\200.grib2
+</code></pre>
+<h3 id="estofs-us">ESTOFS - US<a class="headerlink" href="#estofs-us" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^E[EHC]I[A-Z]88 KWBM ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+    /awips2/data_store/grid/ESTOFS/ESTOFS_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="estofs-puerto-rico">ESTOFS - Puerto Rico<a class="headerlink" href="#estofs-puerto-rico" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^E[EHC]P[A-Z]88 KWBM ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/ESTOFS-PR/ESTOFS-PR_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="estofs-pacific-alaska">ESTOFS Pacific - Alaska<a class="headerlink" href="#estofs-pacific-alaska" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^E[EHC]A[A-Z]88 KWBM ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/ESTOFS-AK/ESTOFS-AK_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="estofs-pacific-conus-west-coast">ESTOFS Pacific - CONUS (West Coast)<a class="headerlink" href="#estofs-pacific-conus-west-coast" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^E[EHC]D[A-Z]88 KWBM ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/ESTOFS-WC/ESTOFS-WC_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="estofs-pacific-hawaii">ESTOFS Pacific - Hawaii<a class="headerlink" href="#estofs-pacific-hawaii" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^E[EHC]H[A-Z]88 KWBM ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+        FILE    -edex -log
+        /awips2/data_store/grid/ESTOFS-HI/ESTOFS-HI_\1_\2_\3_\4-(seq).grib
+</code></pre>
+<h3 id="extra-tropical-storm-surge-etss">Extra-Tropical Storm Surge (ETSS)<a class="headerlink" href="#extra-tropical-storm-surge-etss" title="Permanent link"></a></h3>
+<pre><code>NGRID   ^MHU... KNHC (..)(..)(..)
+        FILE    -edex -log
+        /awips2/data_store/grid/ETSS/ETSS_\1\2\3-(seq).grib2
+</code></pre>
+<h3 id="glerl">GLERL<a class="headerlink" href="#glerl" title="Permanent link"></a></h3>
+<pre><code>HDS     ^O.N.88 KWNB.*!grib/161/([^/]*)/#([^/]*)/(............)/F(...)/.*
+        FILE    -edex -log
+        /awips2/data_store/grid/GLERL/GLERL_\1_F\2_%H%M%S.grib
+</code></pre>
+<h1 id="important-files-and-directories">Important Files and Directories<a class="headerlink" href="#important-files-and-directories" title="Permanent link"></a></h1>
+<p>|---|---|
+| location on disk  | <strong>/awips2/edex/data/hdf5/grid</strong>  |
+| definition files  | <strong>/awips2/edex/data/utility/edex_static/base/grib/models</strong>  |
+| navigation files  | <strong>/awips2/edex/data/utility/edex_static/base/grib/grids</strong>  |
+| grib1 definitions | <strong>/awips2/edex/data/utility/common_static/base/grid</strong> |
+| D2D files  | <strong>/awips2/edex/data/utility/edex_static/base/grib/grids</strong>  |
+| metadata tables | <strong>grid</strong> |
+|                 | <strong>grid_info</strong> |
+|                 | <strong>gridcoverage</strong> |</p>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2020 Unidata Program Center.
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="https://www.unidata.ucar.edu/software/awips2" class="md-footer-social__link fa fa-globe"></a>
+    
+      <a href="https://github.com/Unidata/awips2" class="md-footer-social__link fa fa-github-alt"></a>
+    
+      <a href="https://twitter.com/Unidata" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://facebook.com/Unidata" class="md-footer-social__link fa fa-facebook"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+        <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>

@@ -17,7 +17,7 @@
       
         <link rel="shortcut icon" href="./images/favicon.ico">
       
-      <meta name="generator" content="mkdocs-0.17.5, mkdocs-unidata-1.5.4">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-unidata-1.5.4">
     
     
       
@@ -44,7 +44,7 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-      <link rel="stylesheet" href="./css/extra.css">
+      <link rel="stylesheet" href="css/extra.css">
     
     
   </head>
@@ -74,7 +74,7 @@
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <a href="." title="Unidata AWIPS User Manual" class="md-icon md-icon--home md-header-nav__button">
+          <a href="." title="Unidata AWIPS User Manual" class="md-header-nav__button">
           </a>
         
       </div>
@@ -131,7 +131,7 @@
   
 
 
-  <a href="https://github.com/Unidata/awips2/" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -163,11 +163,11 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="drawer">
-    <div class="md-nav__button md-logo">
+    <a href="http://unidata.github.io/awips2/" title="Unidata AWIPS User Manual" class="md-nav__button md-logo">
       
         <i class="md-icon md-icon--home"></i>
       
-    </div>
+    </a>
     Unidata AWIPS User Manual
   </label>
   
@@ -178,7 +178,7 @@
   
 
 
-  <a href="https://github.com/Unidata/awips2/" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1027,30 +1027,30 @@
 <p><a href="https://www.unidata.ucar.edu/software/awips2">https://www.unidata.ucar.edu/software/awips2</a> </p>
 <hr />
 <p>The Advanced Weather Interactive Processing System (AWIPS) is a meteorological software package.  It is used for decoding, displaying, and analyzing data, and was originally developed for the National Weather Service (NWS) by Raytheon. There is a division here at UCAR called the Unidata Program Center (UCP) which develops and supports a modified non-operational version of AWIPS for use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.  This is released as open source software, free to download and use by anyone.</p>
-<p>AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the <a href="#ldm">LDM</a> client pulling data feeds from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by <a href="./install/install-edex">EDEX</a>, which serves products and data over http.</p>
-<p>Unidata supports two data visualization frameworks: <a href="./install/install-cave">CAVE</a> (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and <a href="./python/overview">python-awips</a> (a python package).</p>
+<p>AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the <a href="#ldm">LDM</a> client pulling data feeds from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by <a href="install/install-edex">EDEX</a>, which serves products and data over http.</p>
+<p>Unidata supports two data visualization frameworks: <a href="install/install-cave">CAVE</a> (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and <a href="python/overview">python-awips</a> (a python package).</p>
 <blockquote>
 <p><strong>Note</strong>: Our version of CAVE is a <strong>non-operational</strong> version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from Unidata's CAVE.  Additional functionality may not be available as well.</p>
 </blockquote>
-<p><img alt="CAVE" src="./images/Unidata_AWIPS2_CAVE.png" /></p>
+<p><img alt="CAVE" src="images/Unidata_AWIPS2_CAVE.png" /></p>
 <hr />
-<h2 id="download-and-install-cave"><a href="./install/install-cave">Download and Install CAVE</a><a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
+<h2 id="download-and-install-cave"><a href="install/install-cave">Download and Install CAVE</a><a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
 <hr />
-<h2 id="download-and-install-edex"><a href="./install/install-edex">Download and Install EDEX</a><a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
+<h2 id="download-and-install-edex"><a href="install/install-edex">Download and Install EDEX</a><a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
 <hr />
-<h2 id="work-with-python-awips"><a href="./python/overview">Work with Python-AWIPS</a><a class="headerlink" href="#work-with-python-awips" title="Permanent link"></a></h2>
+<h2 id="work-with-python-awips"><a href="python/overview">Work with Python-AWIPS</a><a class="headerlink" href="#work-with-python-awips" title="Permanent link"></a></h2>
 <hr />
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
 <p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified). Unidata AWIPS license information can be found <a href="https://github.com/Unidata/awips2/blob/unidata_18.2.1/LICENSE">here</a>.</p>
 <hr />
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
 <p>Unidata and XSEDE Jetstream have partnered to offer an EDEX data server in the cloud, open to the community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
-<p><img alt="EDEX in the cloud" src="./images/boEbFSf28t.gif" /></p>
+<p><img alt="EDEX in the cloud" src="/images/boEbFSf28t.gif" /></p>
 <hr />
 <h2 id="distributed-computing">Distributed Computing<a class="headerlink" href="#distributed-computing" title="Permanent link"></a></h2>
 <p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  Because AWIPS was originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, Unidata modified the package to be more applicable in the University setting.  Because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive (SSD) could handle most of the entire NOAAport data volume.  However, with GOES-R(16) now online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was a need to distribute EDEX data decoding in order to handle this firehose of data.</p>
 <ul>
-<li>Read More: <a href="./edex/distributed-computing">Distributed EDEX</a></li>
+<li>Read More: <a href="edex/distributed-computing">Distributed EDEX</a></li>
 </ul>
 <hr />
 <p><img style="float:right;width:450px;" src="images/awips2_coms.png"></p>
@@ -1068,12 +1068,12 @@
 <h3 id="edex">EDEX<a class="headerlink" href="#edex" title="Permanent link"></a></h3>
 <p>The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
 <ul>
-<li><a href="./install/install-edex">Read More: How to Install EDEX</a></li>
+<li><a href="install/install-edex">Read More: How to Install EDEX</a></li>
 </ul>
 <h3 id="cave">CAVE<a class="headerlink" href="#cave" title="Permanent link"></a></h3>
 <p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
 <ul>
-<li><a href="./install/install-cave">Read More: How to Install CAVE</a></li>
+<li><a href="install/install-cave">Read More: How to Install CAVE</a></li>
 </ul>
 <h3 id="ldm">LDM<a class="headerlink" href="#ldm" title="Permanent link"></a></h3>
 <p><a href="https://www.unidata.ucar.edu/software/ldm/">https://www.unidata.ucar.edu/software/ldm/</a></p>
@@ -1168,7 +1168,7 @@
       <script src="./assets/javascripts/application-0b7df094bf.js"></script>
       <script>app.initialize({url:{base:"."}})</script>
       
-        <script src="./assets/javascripts/application-0b7df094bf.js"></script>
+        <script src="assets/javascripts/application-0b7df094bf.js"></script>
       
     
     
