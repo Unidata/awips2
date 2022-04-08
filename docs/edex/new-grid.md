@@ -38,7 +38,7 @@ Look in the current log file (/awips2/edex/logs/edex-ingestGrib-[YYYYMMDD].log) 
     
     ...
     
-!!! warning "This step may fail if the parameter is not yet defined.  The error will look like:"
+!!! warning "This step will fail for our example because the parameter is not yet defined.  The error will look like:"
 
 <pre>
 INFO  2020-07-20 20:34:17,710 2565 [GribPersist-1] GridDao: EDEX - Discarding record due to missing or unknown parameter mapping: /grid/2018-05-02_00:01:44.0_(0)/GribModel:161:0:97/null/null/403/Missing/FH/500.0/-999999.0
@@ -63,12 +63,11 @@ Though the grib file has been decoded, it has been given a generic name with its
 When a grid is ingested a record is added to the `grid_coverage` table with its navigation information:
 
     psql metadata
-    
-    metadata=# select nx,ny,dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1,latin2 from gridcoverage where id=(select distinct(location_id) from grid_info where datasetid='GribModel:161:0:97');
-    
-    nx  | ny  |  dx   |  dy   | majoraxis | minoraxis |    la1    | lo1 | lov | latin1 | latin2 
-    -----+-----+-------+-------+-----------+-----------+-----------+-----+-----+--------+--------
-    600 | 640 | 0.005 | 0.005 |           |           | 40.799999 | 261 |     |        |       
+  
+    metadata=> select nx,ny,dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1,latin2,spacingunit,lad,la2,latin,lo2,firstgridpointcorner from gridcoverage where id=(select distinct(location_id) from grid_info where datasetid='GribModel:161:0:97');
+     nx  | ny  |  dx   |  dy   | majoraxis | minoraxis |    la1    | lo1 | lov | latin1 | latin2 | spacingunit | lad | la2 | latin | lo2 | firstgridpointcorner 
+    -----+-----+-------+-------+-----------+-----------+-----------+-----+-----+--------+--------+-------------+-----+-----+-------+-----+----------------------
+     600 | 640 | 0.005 | 0.005 |           |           | 40.799999 | 261 |     |        |        | degree      |     |     |       |     | UpperLeft
     (1 row)
   Compare with the projection info returned by wgrib2 on the original file (look at the bolded sections below and make sure they match up with the corresponding entries returned from the database above):
 <!--
@@ -101,6 +100,8 @@ We will need these values for the next step.
     
 ### Projection Types
     
+!!! note "You may not have information for every tag listed, for example it's not required for the latLonGridCoverage to have spacingUnit, la2, lo2."    
+
 Grid projection files are stored in `/awips2/edex/data/utility/common_static/base/grib/grids/` and there are four grid coverage types available:
 
 1. **lambertConformalGridCoverage** (example: `RUCIcing.xml`)
@@ -184,7 +185,7 @@ Grid projection files are stored in `/awips2/edex/data/utility/common_static/bas
 Copy an existing xml file with the same grid projection type (in this case **latLonGridCoverage**) to a new file `cpti.xml`:
 
     cd /awips2/edex/data/utility/common_static/base/grib/grids/
-    cp MRMS-1km.xml cpti.xml
+    cp MRMS-1km-CONUS.xml cpti.xml
   
 And edit the new `cpti.xml` to define the projection values using the [output from wgrib2 or the database](#determine-grid-projection) (example provided):
 
@@ -203,7 +204,7 @@ And edit the new `cpti.xml` to define the projection values using the [output fr
         <spacingUnit>degree</spacingUnit>
     </latLonGridCoverage>
   
-!!! note "Notice the `<name>384000</name>` tag was created by using the number of grid points (600 and 640). This name can be anything as long as it is unique and will be used to match against in the model definition."
+!!! note "Notice the `<name>600640</name>` tag was created by using the number of grid points (600 and 640). This name can be anything as long as it is unique and will be used to match against in the model definition."
 
 ---
 
@@ -242,6 +243,8 @@ Now if you drop `cpti.grib2` into the manual endpoint again, it should ingest wi
 If you ingest a piece of data and the parameter appears as unknown in the metadata database, ensure that the correct parameter tables are in place for the center/subcenter.
 
 The tables are located in **/awips2/edex/data/utility/common_static/base/grib/tables/**.  They are then broken into subdirectories using the following structure: **/[Center]/[Subcenter]/4.2.[Discipine].[Category].table**. 
+
+!!! note "There are also default parameters that all grib products may access located in this directory: **/awips2/edex/data/utility/common_static/base/grib/tables/-1/-1/**"
 
 If you are using a grib2 file, then you can use either the log output or the `-center`, `-subcenter`, and `-full_name` options on `wgrib2` to get the center, subcenter, discipline, category, and parameter information:
 
@@ -328,7 +331,7 @@ After you have confirmed that the grid was ingested with the given name, you can
 
 ## Using wgrib2
 
-Mentioned in this page are a few command parameters for `wgrib2` such as `-center`, `-subcenter`, and `-full_name`.
+Mentioned in this page are a few command parameters for `wgrib2` such as `-grid`, `varX`, `-center`, `-subcenter`, and `-full_name`.
 
 A complete [list of all available parameters can be found here](https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/long_cmd_list.html).
 
