@@ -2,7 +2,7 @@
 
 Unrecognized grids can be decoded by EDEX simply by dropping `*.grib` or `*.grib2` files into `/awips2/data_store/ingest/`
 
-!!! note "This page explains how to ingest `.grib2` products.  To view information about `.grib` products, [please see this page](/awips2/edex/new-grid-grib1-old)."
+!!! note "This page explains how to ingest `.grib2` products.  To view information about `.grib` products, [please see this page](../new-grid-grib1-old)."
 
 To add support for a new grid, two edits must be made:
 
@@ -19,19 +19,17 @@ If the parameters in the grib file haven't been previously specified, another ch
 
 ### Download Test Data
 
-Download an example grib2 file (make sure the extension is `.grib2` or EDEX may not recognize it), and then copy to the manual ingest point `/awips2/data_store/ingest/` 
+Download an example grib2 file (make sure the extension is `.grib2` or the [EDEX distribution file](../data-distribution-files/#editing-an-edex-data-distribution-file) may not recognize it), and then copy to the manual ingest point `/awips2/data_store/ingest/`:
 
     wget https://downloads.unidata.ucar.edu/awips2/current/files/CPTI_00.50_20180502-000144.grib2 -O cpti.grib2
 
     cp cpti.grib2 /awips2/data_store/ingest/
 
-Remember that the data distribution file (`/awips2/edex/data/utility/common_static/base/distribution/grib.xml`) will match filenames which have the `*.grib*` extension.
-
 ### Check Grib Logs
 
-Confirm that the grib file decodes in the grib log file:
+Confirm that the grib file decodes in the grib log file.
     
-    edex log grib
+Look in the current log file (/awips2/edex/logs/edex-ingestGrib-[YYYYMMDD].log) for the following:
 
     INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1200 (sec) Latency: 21.8080 (sec)
     INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1180 (sec) Latency: 21.8140 (sec)
@@ -56,7 +54,7 @@ Check that the hdf5 data directory exists for our unnamed grid
 
         ls -latr /awips2/edex/data/hdf5/grid/GribModel:161:0:97
 
-    Though the grib file has been decoded, it has been given a generic name with its **center, subcenter, and process IDs** (161, 0, 97, respectively). 
+Though the grib file has been decoded, it has been given a generic name with its **center, subcenter, and process IDs** (161, 0, 97, respectively). 
     
 ---
 
