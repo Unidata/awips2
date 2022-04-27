@@ -15,6 +15,7 @@
 	  <entry><key>CF.Y</key><value color="lawngreen" name="Coastal Flood Advisory"></value></entry>
 	  <entry><key>CF.S</key><value color="olivedrab" name="Coastal Flood Statement"></value></entry>
 	  <entry><key>DS.W</key><value color="bisque" name="Dust Storm Warning"></value></entry>
+	  <entry><key>DS.Y</key><value color="darkkhaki" name="Dust Advisory"></value></entry>
 	  <entry><key>DU.Y</key><value color="darkkhaki" name="Blowing Dust Advisory"></value></entry>
 	  <entry><key>EC.A</key><value color="blue" name="Extreme Cold Watch"></value></entry>
 	  <entry><key>EC.W</key><value color="blue" name="Extreme Cold Warning"></value></entry>
