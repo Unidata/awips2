@@ -99,8 +99,8 @@ nav:
 extra_css:
     - css/extra.css
 
-extra_javascript:
-    - assets/javascripts/application-0b7df094bf.js
+#extra_javascript:
+#    - assets/javascripts/application-0b7df094bf.js
 
 markdown_extensions:
     - fontawesome_markdown:
