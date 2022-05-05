@@ -1,0 +1,96 @@
+Scripts and steps for deploying the DEV nightly build 
+
+1.Either backup or remove caveData from your home directory 
+
+	rm -Rf caveData
+
+NOTE:	You must be logged in as 'root' to execute these processed.
+
+
+
+2.Delete existing AWIPS
+
+	yum clean all;export http_proxy=;yum --disablerepo=* remove awips2\*
+
+3.Verify that the /awips2 folder does not exist
+
+	rm -Rf /awips2/*
+	rm -Rf /usr/local/viz/*
+	
+	Note:  The --bind mount will persist
+
+	ll /awips2;ll /usr/local/viz/  -- tobe sure the directory has been removed
+
+Optional: [if /usr/local/viz or /awips2 do not exist]
+**************************************************************
+	mkdir /usr/local/viz
+	mkdir /awips2
+
+	chown awips:fxalpha /usr/local/viz
+	chown awips:fxalpha /awips2
+**************************************************************
+
+	umount /awipsShare-nightly
+	ls /awipsShare-nightly
+
+4.Installation of INT and DEV
+
+	yum clean all;export http_proxy=;yum --disablerepo=* --enablerepo=awips2-dev groupinstall 'AWIPS II Visualize' 'AWIPS II Rehost Server'
+
+5.At this point there should be a new /awips2 folder (specific to your account for your session)
+
+6.Execute the following command in the terminal session in order to set up the symbolic link for EDEX_HOME
+
+	ln -s /data-int/hdf5/ /awips2/edex/data/hdf5;ll /awips2/edex/data/hdf5 
+	mount dx3-oma:/awips-share /awipsShare-nightly
+
+        ln -s /awipsShare-nightly /awips2/edex/data/share
+
+7.Execute the following commands to populate the cave.sh and gfecliet.sh with the HYDRO_APPS_DIR information
+
+	perl -p -i -e "s/HYDRO_APPS_DIR=\"\"/HYDRO_APPS_DIR=\"\/awips2\/awipsShare\/hydroapps\"/g" /awips2/cave/cave.sh
+	perl -p -i -e "s/HYDRO_APPS_DIR=\"\"/HYDRO_APPS_DIR=\"\/awips2\/awipsShare\/hydroapps\"/g" /awips2/GFESuite/bin/gfeclient.sh
+	grep HYDRO /awips2/cave/cave.sh;grep HYDRO /awips2/GFESuite/bin/gfeclient.sh
+
+Or edit /awips2/cave/cave.sh to add Hydro Dir settings
+
+DEV:	Hydro Dir (dev) = /data-dev/hdf5/hydroapps
+
+8.Execute the following command to verify the version of the deployed build
+
+rpm -qa|grep -i awips2-cave |wc -l  -- there should be 32 cave packages
+
+9.Execute the following command to check whether /data-int has been mounted
+
+mount |grep int;cd /data-int;ls;cd			
+                        {this will list out all existing mounts, confirm the /data-int or /data-int are mounted}
+			{ensures that you can access the directory}
+			{ensures that the directory /hdf5 folder exists}
+
+10.If necessary, execute the following command to mount /data-int or /data-dev if the mount does not exist
+
+mount / data-dev
+
+or
+
+mount /data-int
+
+11.Enter 'exit' at the terminal window to close the root session
+
+12.  While localized to LWX the following apply.
+
+The development cluster (dx1-oma, dx3-oma, and dx4-oma) is now localized to LWX. So, before you start CAVE, you will need to:
+Remove your caveData directory (~/caveData) - done in step 1
+
+Then, after you start CAVE, when the Connectivity Preferences dialog opens:
+Set the Localization Server to: http://ts1-oma:9581/services
+Set the Site to: LWX
+Click Validate
+Click OK
+
+Once CAVE starts:
+Go to: CAVE -> Preferences ...
+Click on "Hydro Apps"
+Set the Database Connection String to: jdbc:postgresql://dx1-oma:5432/hd_ob92lwx?user=awips&password=awips
+Click Apply
+Click OK

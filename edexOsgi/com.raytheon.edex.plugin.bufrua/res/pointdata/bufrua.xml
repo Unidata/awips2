@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+  <!-- Observation position -->
+  <dimension name="maxManLevels" length="25"/>
+  <dimension name="maxMaxWinds" length="5"/>
+  <dimension name="maxTropLevels" length="5"/>
+  <dimension name="maxSigWLevels" length="80"/>
+  <dimension name="maxSigTLevels" length="120"/>
+  
+  <parameter name="wmoStaNum" numDims="1" type="INT" />
+  <parameter name="staName" numDims="1" type="STRING" size="10" />
+  <parameter name="sfcPressure" numDims="1" type="FLOAT" unit="Pa" />
+
+  <!-- Mandatory level data -->
+  <parameter name="numMand" numDims="1" type="INT" />
+  <parameter name="prMan" numDims="2" type="FLOAT" unit="Pa" dimension="maxManLevels" />
+  <parameter name="htMan" numDims="2" type="FLOAT" unit="m" dimension="maxManLevels" />
+  <parameter name="tpMan" numDims="2" type="FLOAT" unit="K" dimension="maxManLevels" />
+  <parameter name="tdMan" numDims="2" type="FLOAT" unit="K" dimension="maxManLevels" />
+  <parameter name="wdMan" numDims="2" type="FLOAT" unit="degree" dimension="maxManLevels" />
+  <parameter name="wsMan" numDims="2" type="FLOAT" unit="m/s" dimension="maxManLevels" />
+  <!-- Tropopause level data -->
+  <parameter name="numTrop" numDims="1" type="INT" />
+  <parameter name="prTrop" numDims="2" type="FLOAT" unit="Pa" dimension="maxTropLevels" />
+  <parameter name="tpTrop" numDims="2" type="FLOAT" unit="K" dimension="maxTropLevels" />
+  <parameter name="tdTrop" numDims="2" type="FLOAT" unit="K" dimension="maxTropLevels" />
+  <parameter name="wdTrop" numDims="2" type="FLOAT" unit="degree" dimension="maxTropLevels" />
+  <parameter name="wsTrop" numDims="2" type="FLOAT" unit="m/s" dimension="maxTropLevels" />
+  <!-- Maximum wind level data -->
+  <parameter name="numMwnd" numDims="1" type="INT" />
+  <parameter name="prMaxW" numDims="2" type="FLOAT" unit="Pa" dimension="maxMaxWinds" />
+  <parameter name="wdMaxW" numDims="2" type="FLOAT" unit="degree" dimension="maxMaxWinds" />
+  <parameter name="wsMaxW" numDims="2" type="FLOAT" unit="m/s" dimension="maxMaxWinds" />
+  <!-- Significant level temperature data -->
+  <parameter name="numSigT" numDims="1" type="INT" />
+  <parameter name="prSigT" numDims="2" type="FLOAT" unit="Pa" dimension="maxSigTLevels" />
+  <parameter name="tpSigT" numDims="2" type="FLOAT" unit="K" dimension="maxSigTLevels" />
+  <parameter name="tdSigT" numDims="2" type="FLOAT" unit="K" dimension="maxSigTLevels" />
+  <!-- Significant level wind data -->
+  <parameter name="numSigW" numDims="1" type="INT" />
+  <parameter name="htSigW" numDims="2" type="FLOAT" unit="m" dimension="maxSigWLevels" />
+  <parameter name="prSigW" numDims="2" type="FLOAT" unit="Pa" dimension="maxSigWLevels" />
+  <parameter name="wdSigW" numDims="2" type="FLOAT" unit="degree" dimension="maxSigWLevels" />
+  <parameter name="wsSigW" numDims="2" type="FLOAT" unit="m/s" dimension="maxSigWLevels" />
+</pointDataDescription>

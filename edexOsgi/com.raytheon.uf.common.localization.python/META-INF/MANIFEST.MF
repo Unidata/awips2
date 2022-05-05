@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Python
+Bundle-SymbolicName: com.raytheon.uf.common.localization.python
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.python,
+ com.raytheon.uf.common.python.concurrent,
+ com.raytheon.uf.common.status,
+ org.jep
+Export-Package: com.raytheon.uf.common.localization.python

@@ -1,0 +1,93 @@
+// This file, master_grib1_lookup.txt, is where one can apply
+// arbitrary preingest translations to received GRIB1 variables
+// based on certain decoded GRIB1 parameters.
+// Each line contains two space delimited items, an input hash
+// followed by a translation.
+//
+// The input hash can have one of the following formats:
+//
+//  DDD_MMM-CCC-SSS_NXxNY_AAAAA-P_FFFFF
+//  DDD_MMM-CCC-SSS_NXxNY_AAAAA-P
+//  DDD_MMM-CCC-SSS_AAAAA-P
+//  DDD_AAAAA-P
+//  DDD_MMM-CCC-SSS
+//  DDD
+//
+// where the dashes, underscores, and lower case x are all literal, and
+// DDD is an awips grid data variable (from the first column of 
+// dataFieldTable.txt), MMM is the GRIB process (or model), CCC is the
+// originating center, SSS is the originating subcenter, NX and NY are
+// the dimensions of the grid, AAAAA is the accumulation period in seconds,
+// P is a perturbation index, and FFFFF is the forecast time in seconds.
+// The NX, NY, AAAAA, P, and FFFFF are simple whole numbers, while DDD,
+// MMM, CCC, and SSS are text identifiers.  If the subcenter translates
+// as an empty string or NONE, the -SSS will not be part of the input hash.
+// None of these always necessarily have the same number of characters or
+// digits as in the idealized format descriptions.  The GribDecoder always
+// tries all these possible hashes in the order shown and uses the first
+// match found.
+//
+// The translation can have one of the following formats:
+//
+//  DDD
+//  DDD|LLL
+//  DDD||P
+//  DDD|LLL|P
+//
+// The vertical bars are literal, the DDD is an awips grid data variable 
+// and P is a perturbation index as before.  LLL is a grid plane (level) id.
+// It is totally legal for the DDD of the translation to be the same as
+// that of the input hash, one might do this if one only wanted to
+// assign a specific level or change the perturbation, or prevent a more
+// broadly defined translation from affecting a specific case.
+s2s
+TP_HPC_MPE-NWSO-KHPC TP
+TP_ACR_MPE-NWSO-KACR TP
+TP_ALR_MPE-NWSO-KALR TP
+TP_FWR_MPE-NWSO-KFWR TP
+TP_KRF_MPE-NWSO-KKRF TP
+TP_MSR_MPE-NWSO-KMSR TP
+TP_ORN_MPE-NWSO-KORN TP
+TP_PTR_MPE-NWSO-KPTR TP
+TP_RHA_MPE-NWSO-KRHA TP
+TP_RSA_MPE-NWSO-KRSA TP
+TP_STR_MPE-NWSO-KSTR TP
+TP_TAR_MPE-NWSO-KTAR TP
+TP_TIR_MPE-NWSO-KTIR TP
+TP_TUA_MPE-NWSO-KTUA TP
+// Make 3hr accum at 3 & 6 get thrown on floor for RUC40
+LgSP_RUC2-NCEP_151x113_10800-0_10800 PWS64
+LgSP_RUC2-NCEP_151x113_10800-0_21600 PWS64
+CP_RUC2-NCEP_151x113_10800-0_10800 PWS64
+CP_RUC2-NCEP_151x113_10800-0_21600 PWS64
+
+// Transform tp12hr and cp12hr in the MRF models to tp and cp respectively
+TP_MRF126-NCEP TP
+CP_MRF126-NCEP CP
+TP_T62-NCEP TP
+CP_T62-NCEP CP
+TP_FSSI-NCEP TP
+CP_FSSI-NCEP CP
+TP_T170L42M-NCEP TP
+CP_T170L42M-NCEP CP
+
+TP_HPCQPF-NCEP-HPC_175x175_21600-0 tpHPC
+TP_QPF-NCEP-HPC_175x175_21600-0 tpHPC
+TP_QPF-NCEP-HPC_21600-0 tpHPC
+TP_HPCQPF-NCEP-HPC_21600-0 tpHPC
+
+// RFCqpf 6hr tp parameter
+
+TP_QPF-NWSO-KACR_21600-0 tpACR
+TP_QPF-NWSO-KALR_21600-0 tpALR
+TP_QPF-NWSO-KFWR_21600-0 tpFWR
+TP_QPF-NWSO-KKRF_21600-0 tpKRF
+TP_QPF-NWSO-KMSR_21600-0 tpMSR
+TP_QPF-NWSO-KORN_21600-0 tpORN
+TP_QPF-NWSO-KPTR_21600-0 tpPTR
+TP_QPF-NWSO-KRHA_21600-0 tpRHA
+TP_QPF-NWSO-KRSA_21600-0 tpRSA
+TP_QPF-NWSO-KSTR_21600-0 tpSTR
+TP_QPF-NWSO-KTAR_21600-0 tpTAR
+TP_QPF-NWSO-KTIR_21600-0 tpTIR
+TP_QPF-NWSO-KTUA_21600-0 tpTUA

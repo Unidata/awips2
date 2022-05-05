@@ -1,0 +1,1 @@
+…and then include the method which should expect the arguments shown.  We can then include logic to base our returned value on current data.  We’ll learn more about these arguments and accessing data in later sections.

@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: App Launcher Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.app.launcher;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.viz.core,
+ com.raytheon.viz.ui,
+ javax.xml.bind
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.app.launcher.bundle,
+ com.raytheon.uf.viz.app.launcher.exception,
+ com.raytheon.uf.viz.app.launcher.handlers,
+ com.raytheon.uf.viz.app.launcher.runner,
+ com.raytheon.uf.viz.app.launcher.utilities
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: com.raytheon.uf.common.ohd,
+ com.raytheon.uf.common.util

@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Snow Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.monitor.snow;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.common.monitor,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.viz.alerts,
+ com.raytheon.viz.ui,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.viz.monitor,
+ com.raytheon.uf.viz.monitor.fssobs,
+ javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.monitor.snow.resources
+Bundle-ClassPath: com.raytheon.uf.viz.monitor.snow.jar

@@ -1,0 +1,280 @@
+#------------------------------------------------------------------------ 
+# Domain File
+# Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
+# Alex Gibbs, Pablo Santos,Tony Freeman  
+# File Creation Date: 06/01/2012
+# Date Last Modified: 11/08/14 by alex.gibbs@onaa.gov
+#
+# Version control: 1.33
+#
+# Support Team:
+#
+# Contributors: 
+#
+# ----------------------------------------------------------------------- 
+# ---------------------- Description and Details ------------------------ 
+# ----------------------------------------------------------------------- 
+#
+# File used to setup a geographical domain for SWAN and WW3
+#
+# ----------------------------------------------------------- 
+#========================================================================
+#                                    ALU                                =
+#  GEOGRAPHICAL DOMAIN, GEOGRAFICAL RESOLUTION AND OUTPUT TIME STEP     =
+#========================================================================
+export SITEID="ALU"
+export REGIONID="AR"
+export NELAT="60.2"
+export NELON="-152.40"
+export SWLAT="51.00"
+export SWLON="-177.00"
+export RES="7.5"
+export TSTEP="3"
+#
+#========================================================================
+#                  NESTED GRID CONFIGURATION                            =
+# These nested grids are non-telescopic grids i.e all of them are       =
+# nested in the main grid, and get the boundary conditions only from it =
+#                                                                       =
+#========================================================================
+# NESTGRIDS: Number of nested grids, if = 0, nested grids and 
+# location numbers below will be ignore regardless of input specifications
+#
+# STATN=STA for STATIONARY RUNS, STAT=NON for NON-STATIONARY RUNS
+# The default values is NONstationary for CG1 and STAtionary for the
+# nested grids. Change this only if you know what you are doing.
+# You can choose STA or NON for a particular nested grid.
+#  
+export NESTGRIDS="0"
+# ALU Nest
+export NELATN1=""
+export NELONN1=""
+export SWLATN1=""
+export SWLONN1=""
+export RESN1=".1"
+export TSTEPN1="3"
+export STATN1="NON"
+#
+#========================================================================
+#                    SPECTRA OUTPUT LOCATIONS                           =
+#========================================================================
+# Specta points defined as space delimited list of:
+#   "name1:lat1:lon1 name2:lat2:lon2 name3:lat3:lon3 name4:lat4:lon4 name5:lat5:lon5 ...."
+#
+export SPECPOINTS="46066:52.785:-155.047"
+#
+#========================================================================
+#                    WAVE TRACKING (and WAVE PARTITION) ON/OFF          =
+#   SET: SUBDOMAIN, GEOGRAPH RESOL and TOLERANCE WAVETRACK PARAMETERS   =
+#========================================================================
+# IF WAVE TRACKING IS REQUIRED THEN WVTRCK="ON", OTHER WISE SET IT AS "OFF"
+# IF WVTRCK IS "ON", ADDTIONAL INFORMATION IS REQUIRED, SEE BELOW
+#
+export WVTRCK="ON"
+#
+# IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL 
+# RESOLUTION: SET WVTONCG="1"  
+# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE 
+# ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
+# BE CAREFULL, IF THERE IS ANY SPECTRAL OUTPUT LOCATIONS OUT OF THE NEW (REDUCED) DOMAIN
+# FOR WAVE TRACKING NWPS WILL ABORT. 
+# (This will be change in a new version, the user can get 1d-spectra but not g-h plots).
+export WVTONCG="0"
+export NELATWT="60.2"
+export NELONWT="-152.40"
+export SWLATWT="51.00"
+export SWLONWT="-177.00"
+export GEORESWT="12.0"
+#
+# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ 
+# *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
+# RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
+export WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#
+#========================================================================
+#                   CURRENTS DEFINITION (SEE SWAN MANUAL)               =
+#========================================================================
+#export CURRL1="INPGRID CUR ............................."
+#export CURRL2="READINP CUR ............................."
+#
+#========================================================================
+#                    BOUNDARY CONDITIONS (SEE SWAN MANUAL)              =
+#========================================================================
+# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0; 
+# Setting up BOUNDCOND here to zero will permanently disable BCs. 
+# If you leave it as 1 the user will still have the option to disable 
+# them from the interactive Run_NWPS GUI.
+#
+export BOUNCOND="1"
+export FTPPAT1="multi_1"
+export FTPPAT1B="multi_1"
+export FTPPAT2="NW-ALU"
+export NFTPATTEMPTS="3"
+export WAVECPS="multi_1.NW-ALU51.spec.swan,multi_1.NW-ALU119.spec.swan"
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
+# CONDITIONS (BOUNCOND="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL 
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#
+#$BOUNDARY COMMAND LINES
+#BOUN SEG XY 183.00 51.00 207.60 51.00 VAR FILE 0.00 'multi_1.NW-ALU51.spec.swan'    1 &
+#0.50 'multi_1.NW-ALU52.spec.swan'    1 &
+#1.00 'multi_1.NW-ALU53.spec.swan'    1 &
+#1.50 'multi_1.NW-ALU54.spec.swan'    1 &
+#2.00 'multi_1.NW-ALU55.spec.swan'    1 &
+#2.50 'multi_1.NW-ALU56.spec.swan'    1 &
+#3.00 'multi_1.NW-ALU57.spec.swan'    1 &
+#3.50 'multi_1.NW-ALU58.spec.swan'    1 &
+#4.00 'multi_1.NW-ALU59.spec.swan'    1 &
+#4.50 'multi_1.NW-ALU60.spec.swan'    1 &
+#5.00 'multi_1.NW-ALU61.spec.swan'    1 &
+#5.50 'multi_1.NW-ALU62.spec.swan'    1 &
+#6.00 'multi_1.NW-ALU63.spec.swan'    1 &
+#6.50 'multi_1.NW-ALU64.spec.swan'    1 &
+#7.00 'multi_1.NW-ALU65.spec.swan'    1 &
+#7.50 'multi_1.NW-ALU66.spec.swan'    1 &
+#8.00 'multi_1.NW-ALU67.spec.swan'    1 &
+#8.50 'multi_1.NW-ALU68.spec.swan'    1 &
+#9.00 'multi_1.NW-ALU69.spec.swan'    1 &
+#9.50 'multi_1.NW-ALU70.spec.swan'    1 &
+#10.00 'multi_1.NW-ALU71.spec.swan'    1 &
+#10.50 'multi_1.NW-ALU72.spec.swan'    1 &
+#11.00 'multi_1.NW-ALU73.spec.swan'    1 &
+#11.50 'multi_1.NW-ALU74.spec.swan'    1 &
+#12.00 'multi_1.NW-ALU75.spec.swan'    1 &
+#12.50 'multi_1.NW-ALU76.spec.swan'    1 &
+#13.00 'multi_1.NW-ALU77.spec.swan'    1 &
+#13.50 'multi_1.NW-ALU78.spec.swan'    1 &
+#14.00 'multi_1.NW-ALU79.spec.swan'    1 &
+#14.50 'multi_1.NW-ALU80.spec.swan'    1 &
+#15.00 'multi_1.NW-ALU81.spec.swan'    1 &
+#15.50 'multi_1.NW-ALU82.spec.swan'    1 &
+#16.00 'multi_1.NW-ALU83.spec.swan'    1 &
+#16.50 'multi_1.NW-ALU84.spec.swan'    1 &
+#17.00 'multi_1.NW-ALU85.spec.swan'    1 &
+#17.50 'multi_1.NW-ALU86.spec.swan'    1 &
+#18.00 'multi_1.NW-ALU87.spec.swan'    1 &
+#18.50 'multi_1.NW-ALU88.spec.swan'    1 &
+#19.00 'multi_1.NW-ALU89.spec.swan'    1 &
+#19.50 'multi_1.NW-ALU90.spec.swan'    1 &
+#20.00 'multi_1.NW-ALU91.spec.swan'    1 &
+#20.50 'multi_1.NW-ALU92.spec.swan'    1 &
+#21.00 'multi_1.NW-ALU93.spec.swan'    1 &
+#21.50 'multi_1.NW-ALU94.spec.swan'    1 &
+#22.00 'multi_1.NW-ALU95.spec.swan'    1 &
+#22.50 'multi_1.NW-ALU96.spec.swan'    1 &
+#23.00 'multi_1.NW-ALU97.spec.swan'    1 &
+#23.50 'multi_1.NW-ALU98.spec.swan'    1 &
+#24.00 'multi_1.NW-ALU99.spec.swan'    1 &
+#24.60 'multi_1.NW-ALU100.spec.swan' 1  
+#$
+#BOUN SEG XY 183.00 51.00 183.00 60.20 VAR FILE 0.00 'multi_1.NW-ALU51.spec.swan.cp'    1 &
+#0.50 'multi_1.NW-ALU101.spec.swan'    1 &
+#1.00 'multi_1.NW-ALU102.spec.swan'    1 &
+#1.50 'multi_1.NW-ALU103.spec.swan'    1 &
+#2.00 'multi_1.NW-ALU104.spec.swan'    1 &
+#2.50 'multi_1.NW-ALU105.spec.swan'    1 &
+#3.00 'multi_1.NW-ALU106.spec.swan'    1 &
+#3.50 'multi_1.NW-ALU107.spec.swan'    1 &
+#4.00 'multi_1.NW-ALU108.spec.swan'    1 &
+#4.50 'multi_1.NW-ALU109.spec.swan'    1 &
+#5.00 'multi_1.NW-ALU110.spec.swan'    1 &
+#5.50 'multi_1.NW-ALU111.spec.swan'    1 &
+#6.00 'multi_1.NW-ALU112.spec.swan'    1 &
+#6.50 'multi_1.NW-ALU113.spec.swan'    1 &
+#7.00 'multi_1.NW-ALU114.spec.swan'    1 &
+#7.50 'multi_1.NW-ALU115.spec.swan'    1 &
+#8.00 'multi_1.NW-ALU116.spec.swan'    1 &
+#8.50 'multi_1.NW-ALU117.spec.swan'    1 &
+#9.00 'multi_1.NW-ALU118.spec.swan'    1 &
+#9.20 'multi_1.NW-ALU119.spec.swan'    1
+#$
+#BOUN SEG XY 183.00 60.20 192.50 60.20 VAR FILE 0.00 'multi_1.NW-ALU119.spec.swan.cp'    1 &
+#0.50 'multi_1.NW-ALU120.spec.swan'    1 &
+#1.00 'multi_1.NW-ALU121.spec.swan'    1 &
+#1.50 'multi_1.NW-ALU122.spec.swan'    1 &
+#2.00 'multi_1.NW-ALU123.spec.swan'    1 &
+#2.50 'multi_1.NW-ALU124.spec.swan'    1 &
+#3.00 'multi_1.NW-ALU125.spec.swan'    1 &
+#3.50 'multi_1.NW-ALU126.spec.swan'    1 &
+#4.00 'multi_1.NW-ALU127.spec.swan'    1 &
+#4.50 'multi_1.NW-ALU128.spec.swan'    1 &
+#5.00 'multi_1.NW-ALU129.spec.swan'    1 &
+#5.50 'multi_1.NW-ALU130.spec.swan'    1 &
+#6.00 'multi_1.NW-ALU131.spec.swan'    1 &
+#6.50 'multi_1.NW-ALU132.spec.swan'    1 &
+#7.00 'multi_1.NW-ALU133.spec.swan'    1 &
+#7.50 'multi_1.NW-ALU134.spec.swan'    1 &
+#8.00 'multi_1.NW-ALU135.spec.swan'    1 &
+#8.50 'multi_1.NW-ALU136.spec.swan'    1 &
+#9.00 'multi_1.NW-ALU137.spec.swan'    1 &
+#9.50 'multi_1.NW-ALU138.spec.swan'    1
+#$
+#BOUN SEG XY 207.60 60.20 207.60 51.00 VAR FILE 0.00 'multi_1.NW-ALU139.spec.swan'    1 &
+#0.50 'multi_1.NW-ALU140.spec.swan'    1 &
+#1.00 'multi_1.NW-ALU141.spec.swan'    1 &
+#1.50 'multi_1.NW-ALU142.spec.swan'    1 &
+#3.00 'multi_1.NW-ALU143.spec.swan'    1 &
+#3.50 'multi_1.NW-ALU144.spec.swan'    1 &
+#4.00 'multi_1.NW-ALU145.spec.swan'    1 &
+#4.50 'multi_1.NW-ALU146.spec.swan'    1 &
+#5.00 'multi_1.NW-ALU147.spec.swan'    1 &
+#5.50 'multi_1.NW-ALU148.spec.swan'    1 &
+#6.00 'multi_1.NW-ALU149.spec.swan'    1 &
+#6.50 'multi_1.NW-ALU150.spec.swan'    1 &
+#7.00 'multi_1.NW-ALU151.spec.swan'    1 &
+#7.50 'multi_1.NW-ALU152.spec.swan'    1 &
+#8.00 'multi_1.NW-ALU153.spec.swan'    1 &
+#8.50 'multi_1.NW-ALU154.spec.swan'    1 &
+#9.00 'multi_1.NW-ALU155.spec.swan'    1 &
+#9.20 'multi_1.NW-ALU156.spec.swan'    1
+#NUM DIRimpl cdd=1 cdlim=2
+#$END BOUNSEG
+#
+#========================================================================
+#                    RIP CURRENT PROGRAM (SEE NWPS MANUAL)              =
+#========================================================================
+# IF RIP CURRENT PROGRAM WILL BE RUN, then RIPCONT=1, Otherwise =0;
+# Setting up RIPCONT here to zero will permanently disable RIP program.
+#
+export RIPPROG="0"
+export RIPDOMAIN="CG2"
+export RIPCONT="5m"
+#
+#___________________________________________________________________________
+# RAY Section: Define a pair of rays to drop data out along critical contours
+#              for rip current program.
+#
+# Example: for data output every 2km along a 5m bathy contour
+#
+# RAY 'rayname' xp yp xq yq int xp yp xq yq
+#
+# RAY 'ray1' 282.85 34.628 282.85 34.62 2000 283.00 34.655 283.00 34.62
+#
+# ISOLINE '5mcont' 'ray1' BOTtom 10
+# TABLE '5mcont' HEAD '5mtable' HSIGN TPS PDIR OUTPUT 20110825.1200 3.0 HR
+#_____________________________________________________________________________
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD RIP COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE RIP
+# CURRENTS (RIPCONT="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+# POIN '5mcont' 279.887  25.8725 
+#
+#$RIP LINES
+#$ Ray for 5m and 20m contour data.
+#$
+#RAY 'ray1' 288.80 41.95 289.68 41.95 100 288.80 43.15 289.68 43.15
+#ISOLINE '5mcont' 'ray1' BOTtom 5
+#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT 20141030.0000 1.0 HR
+#$
+#RAY 'ray2' 288.80 41.95 289.68 41.95 100 288.80 43.15 289.68 43.15
+#ISOLINE '20mcont' 'ray1' BOTtom 20
+#TABLE '20mcont' HEAD '20m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT 20141030.0000 1.0 HR
+#$
+#$END RIP
+#

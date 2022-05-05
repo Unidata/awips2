@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<coverageDescriptor><upperLeftX>36.257</upperLeftX><upperLeftY>-115.304</upperLeftY><upperRightX>45.620</upperRightX><upperRightY>-15</upperRightY><lowerRightX>3.389</lowerRightX><lowerRightY>-42.181</lowerRightY><lowerLeftX>.616</lowerLeftX><lowerLeftY>-84.904</lowerLeftY><units>degrees</units><coordinateReferenceSystem>PROJCS["grid_grid 205", &#13;
+  GEOGCS["WGS84", &#13;
+    DATUM["WGS84", &#13;
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], &#13;
+    PRIMEM["Greenwich", 0.0], &#13;
+    UNIT["degree", 0.017453292519943295], &#13;
+    AXIS["Geodetic longitude", EAST], &#13;
+    AXIS["Geodetic latitude", NORTH]], &#13;
+  PROJECTION["Polar Stereographic (variant B)"], &#13;
+  PARAMETER["central_meridian", -60.0], &#13;
+  PARAMETER["false_easting", 0.0], &#13;
+  PARAMETER["false_northing", 0.0], &#13;
+  PARAMETER["Standard_Parallel_1", 90.0], &#13;
+  UNIT["m", 1.0], &#13;
+  AXIS["Easting", EAST], &#13;
+  AXIS["Northing", NORTH]]</coordinateReferenceSystem></coverageDescriptor>

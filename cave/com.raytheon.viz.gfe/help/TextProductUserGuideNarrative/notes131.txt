@@ -1,0 +1,2 @@
+The "embedDescriptor" method uses information stored in the first sub-phrase to embed the descriptor after the direction so that we end up with phrases like "N winds 10 mph" instead of "Winds N 10 mph". It's Trigger Condition is that all sub-phrases have the "words" attribute set. When this is the case, "embedDescriptor" checks to see if the "embedded_descriptor_flag" is set.  If so, it uses the "dirStr" and "phraseDescriptor" attributes of the first non-empty sub-phrase (set by "vector_words") to switch the order.
+

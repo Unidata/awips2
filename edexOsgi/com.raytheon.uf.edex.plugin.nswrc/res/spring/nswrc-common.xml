@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="nswrcRadialPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="nswrc_radial" />
+    </bean>
+
+    <bean id="nswrcRadialProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="nswrcRadialPluginName" />
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.nswrc" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.nswrc.NSWRCDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.nswrc.NSWRCRadialRecord" />
+        <property name="compression" value="LZF"/>
+    </bean>
+
+    <bean id="nswrcRadialRegistered" factory-bean="pluginRegistry" factory-method="register">
+        <constructor-arg ref="nswrcRadialPluginName"/>
+        <constructor-arg ref="nswrcRadialProperties"/>
+    </bean>
+    
+    <bean id="nswrcGriddedPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="nswrc_gridded" />
+    </bean>
+</beans>

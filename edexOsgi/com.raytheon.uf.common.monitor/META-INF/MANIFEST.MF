@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Monitor Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.monitor
+Bundle-Version: 1.18.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.common.monitor,
+ com.raytheon.uf.common.monitor.config,
+ com.raytheon.uf.common.monitor.data,
+ com.raytheon.uf.common.monitor.events,
+ com.raytheon.uf.common.monitor.processing,
+ com.raytheon.uf.common.monitor.scan,
+ com.raytheon.uf.common.monitor.scan.config,
+ com.raytheon.uf.common.monitor.scan.xml,
+ com.raytheon.uf.common.monitor.xml
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ org.geotools,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin.binlightning,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.sounding,
+ com.raytheon.uf.common.dataplugin.bufrua,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.site,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.serialization,
+ org.springframework,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.serialization.comm,
+ javax.xml.bind
+Import-Package: com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.time
+

@@ -1,0 +1,1 @@
+Log in as a new user for setting up products.  When you are satisfied with a product, you will want to move it to the SITE directory.  Create the designated generic edit areas. Some of the core products set-up initially to run with these edit areas as the default

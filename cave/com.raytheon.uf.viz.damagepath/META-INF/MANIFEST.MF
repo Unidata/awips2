@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Damage Path
+Bundle-SymbolicName: com.raytheon.uf.viz.damagepath;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.drawing,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.json,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.awipstools,
+ com.raytheon.viz.radar,
+ javax.measure,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.damagepath,
+ com.raytheon.uf.common.message,
+ org.apache.commons.lang3,
+ javax.xml.bind
+Export-Package: com.raytheon.uf.viz.damagepath
+Bundle-ClassPath: com.raytheon.uf.viz.damagepath.jar

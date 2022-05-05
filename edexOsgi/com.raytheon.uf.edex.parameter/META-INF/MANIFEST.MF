@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Edex Parameter Plugin
+Bundle-SymbolicName: com.raytheon.uf.edex.parameter
+Bundle-Version: 1.19.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.database.dao,
+ com.raytheon.uf.edex.database.plugin,
+ javax.measure,
+ javax.persistence,
+ org.hibernate,
+ org.hibernate.criterion
+Export-Package: com.raytheon.uf.edex.parameter
+Require-Bundle: com.raytheon.uf.common.parameter,
+ com.raytheon.uf.common.serialization

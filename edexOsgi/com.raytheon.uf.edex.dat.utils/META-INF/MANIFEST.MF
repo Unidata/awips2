@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DatUtils Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.dat.utils
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.raytheon.uf.common.dataplugin.ffmp,
+ com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.common.dataplugin.scan.data,
+ com.raytheon.uf.common.gridcoverage,
+ com.raytheon.uf.common.gridcoverage.exception,
+ com.raytheon.uf.common.gridcoverage.subgrid,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.monitor.xml,
+ com.raytheon.uf.common.status
+Export-Package: com.raytheon.uf.edex.dat.utils
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.monitor,
+ com.raytheon.uf.edex.menus,
+ com.raytheon.uf.common.parameter,
+ org.slf4j

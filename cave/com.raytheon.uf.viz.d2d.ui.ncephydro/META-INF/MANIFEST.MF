@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: D2D Ncep Hydro
+Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui.ncephydro;singleton:=true
+Bundle-Version: 1.18.1.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ com.raytheon.uf.viz.d2d.ui,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.grid,
+ com.raytheon.viz.redbook,
+ com.raytheon.viz.pointdata,
+ com.raytheon.viz.warnings,
+ com.raytheon.uf.viz.tcs,
+ com.raytheon.uf.viz.ccfp,
+ com.raytheon.viz.hydrocommon,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.pdc,
+ com.raytheon.uf.common.geospatial,
+ javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: com.raytheon.uf.viz.d2d.ui.ncephydro.jar

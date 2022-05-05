@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Smart Script Class Documentation</title>
+</head>
+<body bgcolor="#ffffff">
+<h1>
+Smart Script Class Library</h1>
+The Smart Script Class has many library methods that are available to
+Smart
+Tools and Procedures. Complete documentation is within the class itself
+(viewable from the Edit Action Dialog Utilities Window) and has been
+duplicated
+here.
+
+<h3>Contents</h3>
+<a href="#Args">General Arguments</a>
+<br>
+<a href="SmartScriptClassGridAccess.html">Grid Access Methods</a>
+<br>
+
+<a href="SmartScriptClassSounding.html">Sounding Methods</a>
+<br>
+
+<a href="SmartScriptClassConversion.html">Conversion Methods</a>
+
+<br>
+<a href="SmartScriptClassErrorHandling.html">Error Handling</a>
+
+<br>
+<a href="SmartScriptClassProcedure.html">Procedure Methods</a>
+
+<br>
+<a href="SmartScriptClassCalls.html">Calling Smart Tools and Procedures</a>
+
+<br>
+<a href="SmartScriptClassOnTheFly.html">Creating On-the-Fly Grids</a>
+
+<br>
+<a href="SmartScriptClassUtilities.html">Utilities</a>
+
+<br>
+<a href="SmartScriptClassNumerics.html">Numeric Library Methods</a>
+
+<br>
+<a href="SmartScriptClassPythonObjectMethods.html">Python Object Methods</a>
+<br>
+<hr width="100%">
+<br>
+<h3><a name="Args"></a>General Arguments</h3>
+The following arguments are used throughout the SmartScript Library
+methods.
+<p>self: When you call a method, use the "self" prefix (see examples
+below)
+</p>
+<p>model: There are various ways to specify the database model from
+which
+you want the values:
+<br>
+&nbsp;&nbsp; -- Simply "Fcst" or "Official" OR
+<br>
+&nbsp;&nbsp; -- siteID_type_model_modeltime
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; where the "type" is an empty string for
+Standard
+GFE data
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; and is "D2D" for D2D data.
+<br>
+&nbsp;&nbsp; Examples:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; BOU__NAM_Mar2912 :gets March 29 12Z NAM run
+created by GFE.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; BOU_D2D_ETA_Mar2912 :gets March 29 12Z
+original
+NAM run from D2D.
+<br>
+&nbsp;&nbsp; If you omit the "modeltime", the most recent model run
+will
+<br>
+&nbsp;&nbsp; be selected. For example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; BOU__NAM : gets the most recent NAM run
+created
+by GFE.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; BOU_D2D_ETA : gets the most recent original
+ETA run from D2D.
+<br>
+&nbsp;&nbsp; -- the result of soliciting a model from the user using
+the "model" or "D2D_model" type of VariableList entry. (See examples
+above.)
+<br>
+&nbsp;&nbsp; -- you may also use a DatabaseID (see getDatabase, below)
+<br>
+&nbsp;&nbsp; -- simple string with no special characters (this will
+be assumed to be a model created "on-the-fly"
+</p>
+<p>element: The element name in quotes: e.g. "QPF", "rh", "tp"
+</p>
+<p>level: The level in quotes: e.g. "SFC", "MB350", "BL030"
+</p>
+<p>x, y: integer coordinates
+</p>
+<p>timeRange: Must be a special time range object such as that passed
+in
+the argument list as GridTimeRange
+</p>
+<p>mode: specifies how to handle the situation if multiple grids are
+found
+within the given time range:
+<br>
+&nbsp;&nbsp; "TimeWtAverage": return time-weighted Average value
+<br>
+&nbsp;&nbsp; "Average" : return Average value
+<br>
+&nbsp;&nbsp; "Max" : return Max value
+<br>
+&nbsp;&nbsp; "Min" : return Min value
+<br>
+&nbsp;&nbsp; "Sum" : return Summed value
+<br>
+&nbsp;&nbsp; "First" : return value from grid with earliest time range
+<br>
+&nbsp;&nbsp; "List" : return list of values
+</p>
+<p>noDataError: If 1, and there is no data, the Smart Tool will abort.
+Otherwise, return None. None is a special variable in Python which can
+be tested as follows:
+<br>
+&nbsp;&nbsp; PoP = self.getValue("Fcst", "PoP", "SFC", x,y,
+GridTimeRange,
+noDataError=0)
+<br>
+&nbsp;&nbsp; if PoP == None:
+<br>
+&nbsp;&nbsp; print "No data found for PoP"
+</p>
+<p>mostRecentModel: Applies only to model data. Will get the most
+recent
+model and ignore any times (if included) in the model argument. (Note
+that
+if a time is not included in the model argument, you will automatically
+get the most recent model no matter how this argument is set.)
+<br>
+</p>
+</body>
+</html>

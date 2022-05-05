@@ -1,0 +1,6 @@
+This file contains a listing of the versions of every applicable package.
+This file SHOULD be updated whenever a newer version of a particular package is checked
+in.
+
+dynamicserialize = RAYTHEON-OWNED (AWIPS II)
+ufpy             = RAYTHEON-OWNED (AWIPS II)

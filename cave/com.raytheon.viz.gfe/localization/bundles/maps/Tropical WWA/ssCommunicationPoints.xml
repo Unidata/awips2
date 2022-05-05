@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	
+<bundle>
+    <displayList>
+        <displays xsi:type="mapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="cyan" />
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="pointCapability" pointStyle="DISC"/>
+                            <capability xsi:type="labelableCapability" labelField="name" />
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false"
+                        isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+                    </properties>
+                    <resourceData xsi:type="dbPointMapResourceData">
+                        <table>mapdata.ss_communication_points</table>
+                        <mapName>Storm Surge Comm pts</mapName>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

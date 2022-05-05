@@ -1,0 +1,1 @@
+Note that, in general, flags in the Site Definition file are commented out and set as the opposite of the Standard file.  

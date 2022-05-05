@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Perciprate Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.preciprate
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Require-Bundle: javax.persistence,
+ com.raytheon.uf.common.serialization,
+ org.geotools,
+ com.raytheon.uf.common.monitor,
+ com.raytheon.uf.common.dataplugin.radar,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.datastorage
+Export-Package: com.raytheon.uf.common.dataplugin.preciprate
+Import-Package: com.raytheon.uf.common.status

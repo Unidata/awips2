@@ -1,0 +1,252 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (X11; U; Linux 2.2.16-3smp i686) [Netscape]">
+   <meta name="Author" content="Mark Mathewson">
+   <title>GFE Configuration Information</title>
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1 CLASS="3Heading">
+GFE Configuration Information</h1>
+
+<div CLASS="3Heading">
+<h2>
+
+<a NAME="TableofContents"></a>Table of Contents</h2>
+<a href="#Overview">Overview</a>
+<br><a href="#modifyGFEConfig">GFE Configuration Modification Options</a>
+<br><a href="#HowtheGFEGetsItsConfiguration">How the GFE Gets Its
+Configuration</a>
+<br><a href="#LocationofFiles">Location of Files</a>
+<br>
+<hr WIDTH="100%"></div>
+
+<h2 CLASS="3Heading">
+<a NAME="Overview"></a>Overview</h2>
+
+<div CLASS="3Heading">The gfe may be started with different configuration
+files.&nbsp; Some of these files may be overridden by the site or by individual
+users.&nbsp; The GFE configuration files define many of the display characteristics
+of weather elements, such as color tables, contour intervals, user interface
+fonts, as well as default modes for many of the tool states.
+<p>By default, the GFE uses a configuration file called gfeConfig.py.
+This is provided as an installed file in BASE, and can be overridden by
+the site or individual users.&nbsp; <b><font color="#FF0000">At no
+time should the files that are sent with the software release or install
+be modified directly.&nbsp; These will be overwritten with the next upgrade.</font></b>
+<p><b><font color="#FF0000">The technique to modify or create new gfe configuration
+files is through the GFE -- not by hand editing.</font></b>
+<p><font color="#000000">Sites will need to create alternative GFE configuration
+files for use with the <a href="ifpIMAGE.html">ifpIMAGE</a> program.&nbsp;
+That program uses the GFE in background mode to generate Portable Network
+Graphics imagery.</font>
+<p><font color="#000000">The format of the <a href="gfeConfig.html">GFE
+configuration file is documented here</a>.</font></div>
+
+<div CLASS="3Heading">
+<hr WIDTH="100%"></div>
+
+<h2 CLASS="3Heading">
+<a NAME="modifyGFEConfig"></a>GFE Configuration Modification Options</h2>
+There are several scenarios for modifying the standard gfe configuration
+option.&nbsp; The recommended option is partial site overrides and user
+overrides from the installed base.&nbsp; You can override all entries in
+the <a href="gfeConfig.html">gfe configuration file</a>.
+The configuration overrides described below describe the actual locations
+of the files.&nbsp; <b><font color="#FF0000">Normally you would define
+a new configuration file by using the GFE GUI</font></b>.
+<p>The technique for the GFE to pick up configuration files uses the standard
+<a href="baseSiteUserConcept.html">BASE,
+SITE, USER concept</a>.&nbsp; With this concept, files can be merged using
+the Python "import statement" since GFE configuration files contain Python
+code.
+<p>The basic rule is that using the same name as an existing file "up the
+tree", e.g., from SITE or USER,&nbsp; will result in a complete override
+of the definitions "up the tree".&nbsp; If your site or user files are
+of a different name, then you can import the symbols from the site or base
+files with the result that your configuration file simply contains overrides.
+<h4 CLASS="3Heading">
+No Changes From Installed Files</h4>
+This is the default case.&nbsp; There is nothing you need to do.
+<br>&nbsp;
+<h4>
+Partial Site Override of Standard GFE Configuration (recommended)</h4>
+Start the Localization perspective from the main menu by selecting
+GFE->Define Config and ifpIMAGE Files. Create a new gfe configuration file
+with just the entries you want to override.&nbsp; The filename must be
+different from the base configuration file since you will be importing
+all of the definitions from the base configuration file. This should be
+a small file.&nbsp; Save the file in SITE, which puts it in the SITE area of the
+server.&nbsp; The advantage of partial overrides is that new BASE files
+can be installed and your overrides will still work. Be sure to include
+the appropriate Python "import" statement.
+<br>&nbsp;
+<h4>
+Partial User Override of Site's or Standard GFE Configuration (recommended)</h4>
+Start the Localization perspective from the main menu by selecting
+GFE->Define Config and ifpIMAGE Files for the user for whom you want to create a 
+new configuration. Create a new gfe configuration file with just
+the entries you want to override, but use a different name. Be sure to
+use the Python import statement to include all of the definitions from
+the SITE or BASE files. (Note: the list of all of the available files are
+presented to you when you start the GFE.) The created file should be a
+small file.&nbsp; Save the file for your user name, which puts it at the user's customized
+location in the server.&nbsp; The advantage of partial overrides is that
+new BASE or SITE&nbsp; files can be installed and your overrides will still
+work.
+<br>
+<h4>
+Complete Site Override of Standard GFE Configuration <b><font color="#FF0000">(not
+recommended)</font></b></h4>
+The GFE will not let you do this directly since when you try to edit the
+original BASE file, it will be displayed as a read-only version.&nbsp;
+In order to completely override the standard GFE configuration, you must
+go into the server directories and copy the gfe configuration file from
+the <a href="#LocationofFiles">original location</a> (leave the original
+one there) to the <a href="#LocationofFiles">site's customized location</a>.&nbsp;
+The filename should remain the same. The disadvantage of this situation
+is that you will need to do a careful comparison between newly upgraded
+files and your modified files after each upgrade, and you will not be able
+to import files of the same name.
+<br>
+<h4>
+Complete User Override of Standard GFE Configuration <font color="#FF0000">(not
+recommended)</font></h4>
+The GFE will not let you do this directly since when you try to edit the
+original BASE file, it will be displayed as a read-only version.&nbsp;
+In order to completely override the standard GFE configuration, you must
+go into the server directories and copy the gfe configuration file&nbsp;
+from the <a href="#LocationofFiles">original location</a> (leave the
+original one there) to the <a href="#LocationofFiles">user's customized
+location</a>. The filename should remain the same. The disadvantage of
+this situation is that you will need to do a careful comparison between
+newly upgraded files and your modified files after each upgrade, and you
+will not be able to import files of the same name.
+<div CLASS="3Heading"></div>
+
+<hr WIDTH="100%">
+
+<h2>
+<a NAME="HowtheGFEGetsItsConfiguration"></a>How the GFE Gets Its Configuration</h2>
+The GFE and ifpIMAGE programs get their configuration through the standard
+<a href="baseSiteUserConcept.html">BASE,
+SITE, USER file access scheme.</a> Only those items that you wish changed
+are necessary to place in the SITE and USER directories since you can refer
+to the files at the higher level using the "import" statement.
+<p>The method you use to place files at the SITE and USER level is to access
+the Localization perspective either through GFE, or directly and save the 
+created files to the SITE/USER levels as desired.
+You then access the define gfe configuration file through the main menu
+entry <a href="GFEMainMenu.html#DefineConfigandifpIMAGEFiles...">GFE->Define
+Config and ifpIMAGE files</a>.&nbsp; <b><font color="#FF0000">Please
+do not modify the files directly in the server directories; instead
+use the GFE.</font></b>
+<p>The illustration shows how the access is performed:
+<br><img SRC="images/gfeConfigRetrieval.jpg" NOSAVE height=540 width=720>
+<p>In the above picture, configuration file "d" imports "c" which imports
+"b".&nbsp; Only a few items need to be overridden in files "c" and "d"
+to result in a gfe configuration file that resembles b+c+d.&nbsp; File
+"a" in the USER imports "b" in the BASE so the result is a+b.&nbsp; Note
+that since there is a file "a" in the USER that it completely hides the
+"a" in BASE.
+<p>The following examples illustrates this merging concept for configration
+file "d".&nbsp; Only portions of the configuration files are shown.
+<h3>
+BASE file (b)</h3>
+The comments have been removed from this example.&nbsp; Only a portion
+of the configuration file is shown.&nbsp; Three entries are shown : the
+default sample set, the default map backgrounds, and the default color
+table for weather element "T".&nbsp; For this example, we are assuming
+that the base gfe configuration file is named BASEgfeConfig.
+<p><font face="Courier New,Courier">.....</font>
+<br><font face="Courier New,Courier">DefaultSamples = ['DefaultSamples']</font>
+<br><font face="Courier New,Courier">MapBackgrounds_default = ['CWA','States']</font>
+<br><font face="Courier New,Courier">T_defaultColorTable="midrange enhanced"</font>
+<br><font face="Courier New,Courier">....</font>
+<br>&nbsp;
+<h3>
+SITE file (c)</h3>
+This is the entire configuration file ( 4 lines).&nbsp; A DefaultSamples
+is shown, as well as a default color table for weather element "Td".
+<p><font face="Courier New,Courier">from b import *</font>
+<br><font face="Courier New,Courier">DefaultSamples = ['CitySamples','ObsSamples']</font>
+<br><font face="Courier New,Courier">Td_defaultColorTable="mid temp enhanced"</font>
+<br>&nbsp;
+<h3>
+USER file (d)</h3>
+This is the entire configuration file (4 lines).&nbsp; The user has defined
+the default map backgrounds and contour font.&nbsp; It is assumed that
+the site configuration file is called SITEgfeConfig.
+<p><font face="Courier New,Courier">from c import *</font>
+<br><font face="Courier New,Courier">MapBackgrounds_default = ['CWA_Zones']</font>
+<br><font face="Courier New,Courier">Contour_font = 4</font>
+<p>The following shows the effective composite configuration file for the
+USER (keeping in mind there are other entries in the BASE file that are
+not shown):
+<p><font face="Courier New,Courier">DefaultSamples = ['DefaultSamples']</font>
+<br><font face="Courier New,Courier">MapBackgrounds_default = ['CWA','States']</font>
+<br><font face="Courier New,Courier">T_defaultColorTable="midrange enhanced"</font>
+<br><font face="Courier New,Courier">DefaultSamples = ['CitySamples','ObsSamples']</font>
+<br><font face="Courier New,Courier">Td_defaultColorTable="mid temp enhanced"</font>
+<br><font face="Courier New,Courier">MapBackgrounds_default = ['CWA_Zones']</font>
+<br><font face="Courier New,Courier">Contour_font = 4</font>
+<p>which simplifies to:
+<p><font face="Courier New,Courier">T_defaultColorTable="midrange enhanced"</font>
+<br><font face="Courier New,Courier">DefaultSamples = ['CitySamples','ObsSamples']</font>
+<br><font face="Courier New,Courier">Td_defaultColorTable="mid temp enhanced"</font>
+<br><font face="Courier New,Courier">MapBackgrounds_default = ['CWA_Zones']</font>
+<br><font face="Courier New,Courier">Contour_font = 4</font>
+<p>
+<hr WIDTH="100%"></div>
+
+<h2 CLASS="3Heading">
+<a NAME="LocationofFiles"></a>Location of Files</h2>
+The gfe configuration files are served out of EDEX. <b><font color="#FF0000">As
+a result, you should NEVER edit these files directly.</font></b>&nbsp;
+The location of the gfe configuration files are shown for your convenience,
+but not for you to edit directly:
+<br>&nbsp;
+<table BORDER WIDTH="100%" NOSAVE >
+<tr>
+<td><b>File Purpose</b></td>
+
+<td><b>Part of Std. Rel.</b></td>
+
+<td><b>AWIPS File Location, directory</b></td>
+</tr>
+
+<tr>
+<td>Base gfe configuration files</td>
+
+<td>
+<center>YES</center>
+</td>
+
+<td>/awips2/cave/etc/gfe/userPython/gfeConfig</td>
+</tr>
+
+<tr>
+<td>Site modified gfe configuration files</td>
+
+<td ALIGN=CENTER>NO</td>
+
+<td>/awips2/edex/data/utility/cave_static/site/SITE_ID/gfe/userPython/gfeConfig</td>
+</tr>
+
+<tr>
+<td>Customized user gfe configuration files</td>
+
+<td ALIGN=CENTER>NO</td>
+
+<td>/awips2/edex/data/utility/cave_static/user/USER/gfe/userPython/gfeConfig</td>
+</tr>
+</table>
+* <b><i>USER</i></b> is the user name
+<p>
+<hr WIDTH="100%">
+<div CLASS="Body">&nbsp;<a href="GFESuite.html">Back To TOC</a></div>
+<br>
+</body>
+</html>

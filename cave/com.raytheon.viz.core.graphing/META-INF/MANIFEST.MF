@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Graphing Plug-in
+Bundle-SymbolicName: com.raytheon.viz.core.graphing
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ javax.measure,
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.viz.core.point,
+ javax.xml.bind
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.core.graphing,
+ com.raytheon.viz.core.graphing.axis,
+ com.raytheon.viz.core.graphing.util,
+ com.raytheon.viz.core.graphing.xy
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: com.raytheon.uf.common.wxmath,
+ com.raytheon.viz.core,
+ com.raytheon.viz.core.interval

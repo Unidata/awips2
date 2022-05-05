@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mpe Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.mpe
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.geotools,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.ohd,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.dataplugin.shef,
+ com.raytheon.uf.common.hydro,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.util
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.common.mpe.constants,
+ com.raytheon.uf.common.mpe.dqcpreprocessor,
+ com.raytheon.uf.common.mpe.fieldgen,
+ com.raytheon.uf.common.mpe.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

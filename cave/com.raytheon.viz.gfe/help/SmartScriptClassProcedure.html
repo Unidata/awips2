@@ -1,0 +1,461 @@
+<html>
+<title>Smart Script Class - Procedure Methods</title>
+<body>
+
+
+<h1><a name="Proc"></a>Procedure Methods</h1>
+<br>
+<a href="#copyCmd">copyCmd</a>
+<br>
+<a href="#copyToCmd">copyToCmd</a>
+<br>
+<a href="#deleteCmd">deleteCmd</a>
+<br>
+<a href="#zeroCmd">zeroCmd</a>
+<br>
+<a href="#interpolateCmd">interpolateCmd</a>
+<br>
+<a href="#createFromScratchCmd">createFromScratchCmd</a>
+<br>
+<a href="#timeShiftCmd">timeShiftCmd</a>
+<br>
+<a href="#splitCmd">splitCmd</a>
+<br>
+<a href="#fragmentCmd">fragmentCmd</a>
+<br>
+<a href="#assignValueCmd">assignValueCmd</a>
+<!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+
+<h2>
+<a name="procArgs"></a>Command Arguments</h2>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # These commands always apply to the
+mutable
+model only.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # name1, name2, name3 is a list of the
+weather element names
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # startHour is the starting hour for
+the command offset from modelbase
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # endHour is the ending hour for the
+command offset from modelbase.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The ending hour is NOT included in
+the processing of the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # command.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # modelbase is the name of the model
+to be used to determine base times
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Note that if this is "", then 0000z
+from today will be
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # used for the base time.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # modelsource is the name of the model
+to be used in the copy command
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # copyOnly is 0 for move and 1 for copy
+only in the time shift command
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # hoursToShift is the number of hours
+to shift the data in time
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # shift command
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # DatabaseID
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Can be obtained in various ways:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # --By calling findDatabase (see below)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # --By calling getDatabase (see below)
+with the result
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # of a VariableList entry of type
+"model"
+or "D2D_model"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # TimeRange.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Can be obtained in various ways:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # --As an argument passed into Smart
+Tool or Procedure,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # --By calling getTimeRange (see below)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # --By calling createTimeRange (see
+below)
+<h2><a name="copyCmd"></a>copyCmd</h2>
+def copyCmd(self, elements, databaseID, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # copyCmd(['name1', 'name2', 'name3'],
+databaseID, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Copies all grids for each weather
+element from the given database
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # into the weather element in the
+mutable
+database that overlaps
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the time range.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; databaseID
+= self.findDatabase("NAM") # Most recent NAM model
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; timeRange
+= self.createTimeRange(0, 49, "Database", databaseID)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+self.copyCmd(['T',
+'Wind'], databaseID, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # will copy the Temperature and Wind
+fields analysis through 48 hours
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # from the latest NAM and place them
+into the forecast.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="copyToCmd"></a>copyToCmd</h2>
+def copyToCmd(self, elements, databaseID, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # copyCmd([('srcName1', 'dstName1),
+('srcName2', 'dstName2')], databaseID, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Copies all grids for each weather
+element from the given database
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # into the weather element in the
+mutable
+database that overlaps
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the time range. Both the source
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # and destination names are given.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; databaseID
+= self.findDatabase("NAM") # Most recent NAM model
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; timeRange
+= self.createTimeRange(0, 49, "Database", databaseID)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+self.copyToCmd([('T',
+'MaxT'), ('MaxT', 'MinT')], databaseID, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # will copy T to MaxT and MaxT to MinT
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # from the latest NAM and place them
+into the forecast.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="deleteCmd"></a>deleteCmd</h2>
+def deleteCmd(self, elements, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # deleteCmd(['name1', 'name2', 'name3'],
+timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Deletes all grids that overlap the
+input time range for element
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # in the mutable database.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; databaseID
+= self.findDatabase("NAM") # Most recent NAM model
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; timeRange
+= self.createTimeRange(0, 49, "Database", databaseID)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.deleteCmd(['T',
+'Wind'], databaseID, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # will delete the Temperature and Wind
+fields analysis up to
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # but not including 48 hours relative
+to the start time of
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the latest NAM model.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="zeroCmd"></a>zeroCmd</h2>
+def zeroCmd(self, elements, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # zeroCmd(['name1', 'name2', 'name3'],
+timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assigns the minimum possible value
+for scalar and vector, and "<nowx>"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # for weather for the parameter in the
+mutable database for all grids
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # that overlap the specified time range.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; databaseID
+= self.findDatabase("NAM") # Most recent NAM model
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; timeRange
+= self.createTimeRange(0, 49, "Database", databaseID)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+self.zeroCmd(['T',
+'Wind'], databaseID, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # will zero the Temperature and Wind
+grids through 48 hours
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # relative to the start time of the
+latest NAM model.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;</nowx>
+<h2><a name="interpolateCmd"></a>interpolateCmd</h2>
+def interpolateCmd(self, elements, timeRange, interpMode="GAPS",
+interpState="SYNC",
+interval=0, duration=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # interpolateCmd(['name1', 'name2',
+'name3'], timeRange,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # interpMode="GAPS", interpState="SYNC",
+interval=0, duration=0)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Interpolates data in the forecast
+for the named weather elements
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # for the given timeRange.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; databaseID
+= self.findDatabase("NAM") # Most recent NAM model
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; timeRange
+= self.createTimeRange(0, 49, "Database", databaseID)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+self.interpolateCmd(['T',
+'Wind'], timeRange, "GAPS","SYNC")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # will interpolate the Temperature and
+Wind grids up to but
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # but not including 48 hours relative
+to the start time of
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #the latest NAM model.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The interpolation will run in SYNC
+mode i.e. completing before
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # continuing with the procedure.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="createFromScratchCmd"></a>createFromScratchCmd</h2>
+def createFromScratchCmd(self, elements, timeRange, repeat=0,
+duration=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # createFromScratchCmd(['name1',
+'name2'],
+timeRange, repeat, duration)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Creates one or more grids from scratch
+over the given timeRange
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # and assigns the default (minimum
+possible
+value for scalar
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # and vector, "<nowx>" for weather).
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The repeat interval and duration (both
+specified in hours) are
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # used to control the number of grids
+created. If 0 is specified for
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # either one, than only 1 grid is
+created
+for the given time range. If
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # valid numbers for duration and repeat
+are given, then grids will
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # be created every "repeat" hours and
+they will have a duration
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # of "duration" hours. If there is not
+enough room remaining to create
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a grid with the full duration, then
+no grid will be created in the space
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # remaining. If you don't get the
+desired
+results, be sure that your input
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # time range starts on a valid time
+constraint for the element. If the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # element's time constraints (not the
+values supplied in this routine) contains
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # gaps (i.e., duration !=
+repeatInterval),
+then the repeat interval and
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # duration will be ignored and grids
+will be created for each possible
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # constraint time.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; databaseID
+= self.findDatabase("NAM") # Most recent NAM model
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; timeRange
+= self.createTimeRange(0, 49, "Database", databaseID)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+self.createFromScratchCmd(['T',
+'Wind'], timeRange, 3, 1)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # will create the 1-hour Temperature
+grids through 48 hours at
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 3 hour intervals relative to the start
+time of the latest NAM model.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;</nowx>
+<h2><a name="timeShiftCmd"></a>timeShiftCmd</h2>
+def timeShiftCmd(self, elements, copyOnly, shiftAmount, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # timeShiftCmd(['name1', 'name2'],
+copyOnly,
+shiftAmount, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Performs a time shift by the
+shiftAmount
+for all elements that
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # overlap the time range.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; databaseID
+= self.findDatabase("NAM") # Most recent NAM model
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeRange
+= self.createTimeRange(0, 49, "Database", databaseID)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.timeShiftCmd(['T',
+'Wind'], 1, 3, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="splitCmd"></a>splitCmd</h2>
+def splitCmd(self, elements, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # splitCmd(elements, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Splits any grid that falls on the
+start time or ending time of the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # specified time range for the given
+parameter in the mutable database.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="fragmentCmd"></a>fragmentCmd</h2>
+def fragmentCmd(self, elements, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # fragmentCmd(elements, timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Fragments any grids that overlap the
+input time range for the parm
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # identified in the mutable database.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="assignValueCmd"></a>assignValueCmd</h2>
+def assignValueCmd(self, elements, timeRange, value):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # assignValueCmd(elements, timeRange,
+value)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assigns the specified value to all
+grids points for the grids that
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # overlap the specified time range,
+for the weather element in the mutable
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # database specified.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # value is:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # an Integer or Float for SCALAR
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a magnitude-direction tuple for
+VECTOR:
+e.g. (55,120)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a text string for Weather which can
+be obtained via the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # WxMethods WxString method
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Scalar
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; value = 60
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+self.assignValue(["T","Td"],
+0, 12, 'NAM', value)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Vector
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; value = (15,
+120)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+self.assignValue(["Wind"],
+0, 12, 'NAM', value)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Weather
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; from WxMethods
+import *
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; value
+= WxString("Sct RW")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.assignValue(["Wx"],
+0, 12, 'NAM', value)
+
+
+

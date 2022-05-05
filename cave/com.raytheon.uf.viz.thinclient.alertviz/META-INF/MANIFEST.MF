@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Thinclient Alertviz
+Bundle-SymbolicName: com.raytheon.uf.viz.thinclient.alertviz;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.application,
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ com.raytheon.uf.viz.thinclient,
+ com.raytheon.uf.viz.product.alertviz,
+ com.raytheon.uf.viz.alertviz.ui,
+ com.raytheon.uf.viz.alertviz,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.common.comm
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

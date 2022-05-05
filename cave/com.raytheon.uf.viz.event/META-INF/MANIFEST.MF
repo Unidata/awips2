@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Event
+Bundle-SymbolicName: com.raytheon.uf.viz.event
+Bundle-Version: 1.14.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.event.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.common.event,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ org.eclipse.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy: com.raytheon.uf.common.event

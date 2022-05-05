@@ -1,0 +1,7 @@
+# PDC Location Shift Configuration File
+# Lines starting with "#" are comment lines
+# Line Format:
+# LID ParamCode xShift yShift (in pixels)
+# FCKN1 HGIRGZ 0 15
+RVRN1 HGIRGZ 0 15
+RVTN1 HGIRGZ 0 -15

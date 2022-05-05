@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Drawing
+Bundle-SymbolicName: com.raytheon.uf.viz.drawing;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.drawing.Activator
+Bundle-Vendor: RAYTHEON
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.viz.core,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.viz.ui,
+ com.raytheon.uf.common.time,
+ javax.xml.bind,
+ javax.annotation
+Import-Package: com.raytheon.viz.core
+Export-Package: com.raytheon.uf.viz.drawing,
+ com.raytheon.uf.viz.drawing.polygon
+Bundle-ClassPath: com.raytheon.uf.viz.drawing.jar
+

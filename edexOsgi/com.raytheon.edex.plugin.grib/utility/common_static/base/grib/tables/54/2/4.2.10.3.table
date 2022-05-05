@@ -1,0 +1,14 @@
+# Product Discipline 10: Oceanographic products, Parameter Category 3: Surface Properties
+#192-254 Reserved for local use
+192:192:Storm Surge:m:SURGE
+193:193:Extra Tropical Storm Surge:m:ETSRG
+194:194:Ocean Surface Elevation Relative to Geoid:m:ELEV
+195:195:Sea Surface Height Relative to Geoid:m:SSHG
+196:196:Ocean Mixed Layer Potential Density (Reference 2000m):kg/m^3:P2OMLT
+197:197:Net Air-Ocean Heat Flux:W/m^2:AOHFLX
+198:198:Assimilative Heat Flux:W/m^2:ASHFL
+199:199:Surface Temperature Trend:degree per day:SSTT
+200:200:Surface Salinity Trend:psu per day:SSST
+201:201:Kinetic Energy:J/kg:KENG
+202:202:Salt Flux:mm*s:SLTFL
+255:255:Missing

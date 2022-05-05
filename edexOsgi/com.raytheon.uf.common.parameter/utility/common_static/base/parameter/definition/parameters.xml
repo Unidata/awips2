@@ -1,0 +1,2448 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- Defines the parameters that are considered well defined. Not all parameters 
+        in the database are guaranteed to be in this file since it is possible for 
+        an ingest plugin to specify new parameters. Defining a parameter here will 
+        cause all data to be stored using the given unit and also makes it possible 
+        to use that parameter in the parameter mapping framework. In the long term, 
+        all new parameters should be added here to avoid conflicts that could occur 
+        if two ingest plugins use the same abbreviation for different parameters. 
+    -->
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+<parameterList>
+    <parameter>
+        <name>5-Wave Geopotential Height</name>
+        <abbreviation>WGH</abbreviation>
+        <unit>gpm</unit>
+    </parameter>
+    <parameter>
+        <name>Absolute Vorticity</name>
+        <abbreviation>AV</abbreviation>
+        <unit>1/s</unit>
+    </parameter>
+    <parameter>
+        <name>Categorical Rain</name>
+        <abbreviation>CRAIN</abbreviation>
+        <unit>bit</unit>
+    </parameter>
+    <parameter>
+        <name>Categorical Freezing Rain</name>
+        <abbreviation>CFRZR</abbreviation>
+        <unit>bit</unit>
+    </parameter>
+    <parameter>
+        <name>Categorical Ice Pellets</name>
+        <abbreviation>CICEP</abbreviation>
+        <unit>bit</unit>
+    </parameter>
+    <parameter>
+        <name>Categorical Snow</name>
+        <abbreviation>CSNOW</abbreviation>
+        <unit>bit</unit>
+    </parameter>
+    <parameter>
+        <name>Cloud Water</name>
+        <abbreviation>CWAT</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Available Potential Energy</name>
+        <abbreviation>CAPE</abbreviation>
+        <unit>J/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Inhibition</name>
+        <abbreviation>CIn</abbreviation>
+        <unit>J/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Cloud Cover</name>
+        <abbreviation>CDCON</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Precipitation</name>
+        <abbreviation>CP</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Precipitation(1 hour)</name>
+        <abbreviation>CP1hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Precipitation(3 hours)</name>
+        <abbreviation>CP3hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Precipitation(6 hours)</name>
+        <abbreviation>CP6hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Precipitation(9 hours)</name>
+        <abbreviation>CP9hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Precipitation(12 hours)</name>
+        <abbreviation>CP12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Precipitation Rate</name>
+        <abbreviation>CPRAT</abbreviation>
+        <unit>mm/s</unit>
+    </parameter>
+    <parameter>
+        <name>Dew Point Depression</name>
+        <abbreviation>DpD</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Dew Point Temperature</name>
+        <abbreviation>DpT</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Dew Point Temperature Error Analysis</name>
+        <abbreviation>DpTerranl</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Direction of Wind Waves</name>
+        <abbreviation>WVDIR</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Direction of Swell Waves</name>
+        <abbreviation>SWDIR</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Equivalent Potential Temperature</name>
+        <abbreviation>EPT</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Evaporation</name>
+        <abbreviation>EVP</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Geometric Height</name>
+        <abbreviation>GeH</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Geopotential Height</name>
+        <abbreviation>GH</abbreviation>
+        <unit>gpm</unit>
+    </parameter>
+    <parameter>
+        <name>Heat Index</name>
+        <abbreviation>HIdx</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>High Cloud Cover</name>
+        <abbreviation>HCDC</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Height of Planetary Boundary Layer</name>
+        <abbreviation>HPBL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Humidity Mixing Ratio</name>
+        <abbreviation>MIXR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Ice Thickness</name>
+        <abbreviation>ICETK</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Lapse Rate</name>
+        <abbreviation>LAPR</abbreviation>
+        <unit>K/m</unit>
+    </parameter>
+    <parameter>
+        <name>Large Scale Precipitation</name>
+        <abbreviation>LgSP</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Large Scale Precipitation(1 hour)</name>
+        <abbreviation>LgSP1hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Large Scale Precipitation(3 hour)</name>
+        <abbreviation>LgSP3hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Latent Heat Flux</name>
+        <abbreviation>LHF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Low Cloud Cover</name>
+        <abbreviation>LCDC</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Minimum Temperature</name>
+        <abbreviation>MnT</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Mean Period of Wind Waves</name>
+        <abbreviation>WVPER</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>Mean Period of Swell Waves</name>
+        <abbreviation>SWPER</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>Medium Cloud Cover</name>
+        <abbreviation>MCDC</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Maximum Temperature</name>
+        <abbreviation>MxT</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Parcel Lifted Index (to 500 mb)</name>
+        <abbreviation>PLI</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Potential Temperature</name>
+        <abbreviation>PoT</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Pressure Anomaly</name>
+        <abbreviation>PRESA</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>Pressure</name>
+        <abbreviation>P</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>Pressure Error Analysis</name>
+        <abbreviation>Perranl</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>Pressure Reduced to MSL</name>
+        <abbreviation>PMSL</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>MSLP (ETA Reduction)</name>
+        <abbreviation>EMSP</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>MSLP (MAPS Reduction)</name>
+        <abbreviation>MMSP</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>Primary Wave Direction</name>
+        <abbreviation>DIRPW</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Primary Wave Mean Period</name>
+        <abbreviation>PERPW</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>Precipitation Rate</name>
+        <abbreviation>PR</abbreviation>
+        <unit>mm/s</unit>
+    </parameter>
+    <parameter>
+        <name>Probability of Frozen Precip</name>
+        <abbreviation>CPOFP</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Probability of Freezing Precip</name>
+        <abbreviation>CPOZP</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Potential Evaporation</name>
+        <abbreviation>PEVAP</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Potential Evaporation Rate</name>
+        <abbreviation>PEVPR</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Potential Vorticity</name>
+        <abbreviation>PVORT</abbreviation>
+        <unit>m^2*kg^-1*s^-1</unit>
+    </parameter>
+    <parameter>
+        <name>Precipitable Water</name>
+        <abbreviation>PW</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Relative Humidity</name>
+        <abbreviation>RH</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Sensible Heat Flux</name>
+        <abbreviation>SHF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Saturation Deficit</name>
+        <abbreviation>SATD</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>Secondary Wave Direction</name>
+        <abbreviation>DIRSW</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Secondary Wave Mean Period</name>
+        <abbreviation>PERSW</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>Significant Height of Wind Waves</name>
+        <abbreviation>WVHGT</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Significant Height of Swell Waves</name>
+        <abbreviation>SWELL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Snow Cover</name>
+        <abbreviation>SCP</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Snow Depth</name>
+        <abbreviation>SnD</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Soil Temperature</name>
+        <abbreviation>TSOIL</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Specific Humidity</name>
+        <abbreviation>SH</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Storm Relative Helicity</name>
+        <abbreviation>Heli</abbreviation>
+        <unit>m^2/s^2</unit>
+    </parameter>
+    <parameter>
+        <name>Surface Lifted Index</name>
+        <abbreviation>SLI</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Temperature</name>
+        <abbreviation>T</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Temperature Error Analysis</name>
+        <abbreviation>Terranl</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Total Cloud Cover</name>
+        <abbreviation>TCC</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Total Cloud Cover Error Analysis</name>
+        <abbreviation>TCCerranl</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Temperature Anomaly</name>
+        <abbreviation>Ta</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Thunderstorm Probability</name>
+        <abbreviation>ThP</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation</name>
+        <abbreviation>TP</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(1 hour)</name>
+        <abbreviation>TP1hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(3 hours)</name>
+        <abbreviation>TP3hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(6 hours)</name>
+        <abbreviation>TP6hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(9 hours)</name>
+        <abbreviation>TP9hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(12 hours)</name>
+        <abbreviation>TP12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(18 hours)</name>
+        <abbreviation>TP18hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(24 hours)</name>
+        <abbreviation>TP24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Total Precipitation(48 hours)</name>
+        <abbreviation>TP48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>U-Component of Storm Motion</name>
+        <abbreviation>USTM</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>V-Component of Storm Motion</name>
+        <abbreviation>VSTM</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>U-Component of Wind</name>
+        <abbreviation>uW</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>V-Component of Wind</name>
+        <abbreviation>vW</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Vapor Pressure</name>
+        <abbreviation>VAPP</abbreviation>
+        <unit>Pa</unit>
+    </parameter>
+    <parameter>
+        <name>Vertical Speed Shear</name>
+        <abbreviation>VWSH</abbreviation>
+        <unit>/s</unit>
+    </parameter>
+    <parameter>
+        <name>Vertical Velocity Pressure</name>
+        <abbreviation>PVV</abbreviation>
+        <unit>Pa/s</unit>
+    </parameter>
+    <parameter>
+        <name>Visibility</name>
+        <abbreviation>Vis</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Visibility Error Analysis</name>
+        <abbreviation>Viserranl</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Virtual Potential Temperature</name>
+        <abbreviation>VPT</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Virtual Temperature</name>
+        <abbreviation>VTMP</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Water Equivalent of Accumulated Snow Depth</name>
+        <abbreviation>WEASD</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Wind Direction (from which blowing)</name>
+        <abbreviation>WD</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Wind Direction Error Analysis</name>
+        <abbreviation>WDerranl</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Wind Mixing Energy</name>
+        <abbreviation>WMIXE</abbreviation>
+        <unit>J</unit>
+    </parameter>
+    <parameter>
+        <name>Wind Speed</name>
+        <abbreviation>WS</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Wind Speed Error Analysis</name>
+        <abbreviation>WSerranl</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Wind Gust Speed</name>
+        <abbreviation>WGS</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Wind Gust Speed Error Analysis</name>
+        <abbreviation>WGSerranl</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Montgomery Stream Function</name>
+        <abbreviation>MSG</abbreviation>
+        <unit>m^2/s^2</unit>
+    </parameter>
+    <parameter>
+        <name>Sigma Coordinate Vertical Velocity</name>
+        <abbreviation>SVV</abbreviation>
+        <unit>/s</unit>
+    </parameter>
+    <parameter>
+        <name>Geometric Vertical Velocity</name>
+        <abbreviation>GVV</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>K Index</name>
+        <abbreviation>KI</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Turbulent Kinetic Energy</name>
+        <abbreviation>TKE</abbreviation>
+        <unit>J/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Geometric Depth Below Sea Surface</name>
+        <abbreviation>WDEPTH</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Deviation Of Sea Level from Mean</name>
+        <abbreviation>DSLM</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Surface Current Speed</name>
+        <abbreviation>SPC</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Surface Current Direction</name>
+        <abbreviation>DIRC</abbreviation>
+        <unit>degree</unit>
+    </parameter>
+    <parameter>
+        <name>Practical Salinity</name>
+        <abbreviation>SALIN</abbreviation>
+        <unit>PSU</unit>
+        <!--
+            Note: PSU isn't really a unit, but is sometimes used to denote a
+            measurement using the Practical Salinity Scale of 1978 (PSS-78). 
+            Measurements using this scale are ratios.
+        -->
+    </parameter>
+    <parameter>
+        <name>Precipitation Probability Index</name>
+        <abbreviation>PPI</abbreviation>
+        <unit>%</unit>
+    </parameter>
+        <parameter>
+        <name>Precipitation Probability Index(1 hour)</name>
+        <abbreviation>PPI1hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+        <parameter>
+        <name>Precipitation Probability Index(6 hour)</name>
+        <abbreviation>PPI6hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Snow Level</name>
+        <abbreviation>SNOWLVL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    
+    <!-- Parameters added for #7381 -->
+    <parameter>
+        <name>Downward Short-Wave Radiation Flux</name>
+        <abbreviation>DSWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Upward Short-Wave Radiation Flux</name>
+        <abbreviation>USWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>UV-B Downward Solar Flux</name>
+        <abbreviation>DUVB</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear sky UV-B Downward Solar Flux</name>
+        <abbreviation>CDUVB</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Downward Solar Flux</name>
+        <abbreviation>CSDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Upward Solar Flux</name>
+        <abbreviation>CSUSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Solar Radiative Heating Rate</name>
+        <abbreviation>SWHR</abbreviation>
+        <unit>K/s</unit>
+    </parameter>
+    <parameter>
+        <name>Visible Beam Downward Solar Flux</name>
+        <abbreviation>VBDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Near IR Beam Downward Solar Flux</name>
+        <abbreviation>NBDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Near IR Diffuse Downward Solar Flux</name>
+        <abbreviation>NDDSF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Downward Long-Wave Rad. Flux</name>
+        <abbreviation>DLWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Upward Long-Wave Rad. Flux</name>
+        <abbreviation>ULWRF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Long-Wave Radiative Heating Rate</name>
+        <abbreviation>LWHR</abbreviation>
+        <unit>K/s</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Upward Long Wave Flux</name>
+        <abbreviation>CSULF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Clear Sky Downward Long Wave Flux</name>
+        <abbreviation>CSDLF</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Maximum Relative Humidity</name>
+        <abbreviation>MAXRH</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Maximum specific humidity at 2m</name>
+        <abbreviation>QMAX</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Minimum Relative Humidity</name>
+        <abbreviation>MINRH</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Minimum specific humidity at 2m</name>
+        <abbreviation>QMIN</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Rime Factor</name>
+        <abbreviation>RIME</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Frozen Rain</name>
+        <abbreviation>FROZR</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Snow</name>
+        <abbreviation>TSNOW</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Sublimation (evaporation from snow)</name>
+        <abbreviation>SBSNO</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Ice Water Mixing Ratio</name>
+        <abbreviation>ICMR</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Rain Mixing Ratio</name>
+        <abbreviation>RWMR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Snow Mixing Ratio</name>
+        <abbreviation>SNMR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Horizontal Moisture Convergence</name>
+        <abbreviation>MCONV</abbreviation>
+        <unit>kg/kg*s^m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>Snow Melt</name>
+        <abbreviation>SNOM</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Snowfall Rate Water Equivalent</name>
+        <abbreviation>TSRWE</abbreviation>
+        <unit>kg/m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>Stream Function</name>
+        <abbreviation>STRM</abbreviation>
+        <unit>m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>Momentum Flux, U-Component</name>
+        <abbreviation>UFLX</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Momentum Flux, V-Component</name>
+        <abbreviation>VFLX</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Drag Coefficient</name>
+        <abbreviation>CD</abbreviation>
+        <unit>Numeric</unit>
+    </parameter>
+    <parameter>
+        <name>Frictional Velocity</name>
+        <abbreviation>FRICV</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>U Component of Hourly Maximum Wind Speed</name>
+        <abbreviation>MAXUW</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>V Component of Hourly Maximum Wind Speed</name>
+        <abbreviation>MAXVW</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Ventilation Rate</name>
+        <abbreviation>VRATE</abbreviation>
+        <unit>m^2/s</unit>
+    </parameter>
+    <parameter>
+        <name>ICAO Standard Atmosphere Reference Height</name>
+        <abbreviation>ICAHT</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Zonal Flux of Gravity Wave Stress</name>
+        <abbreviation>U-GWD</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Meridional Flux of Gravity Wave Stress</name>
+        <abbreviation>V-GWD</abbreviation>
+        <unit>N/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Planetary Boundary Layer Height</name>
+        <abbreviation>HPBL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Cloud Ice</name>
+        <abbreviation>CICE</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Ceiling</name>
+        <abbreviation>CEIL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column-Integrated Cloud Water</name>
+        <abbreviation>TCOLW</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column-Integrated Cloud Ice</name>
+        <abbreviation>TCOLI</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column-Integrated Condensate</name>
+        <abbreviation>TCICON</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Condensate</name>
+        <abbreviation>TCOND</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Cloud Work Function</name>
+        <abbreviation>CWORK</abbreviation>
+        <unit>J/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Convective Cloud Efficiency</name>
+        <abbreviation>CUEFI</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Updraft Helicity</name>
+        <abbreviation>UPHL</abbreviation>
+        <unit>m^2/s^2</unit>
+    </parameter>
+    <parameter>
+        <name>Lightning</name>
+        <abbreviation>LTNG</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Total Ozone</name>
+        <abbreviation>TOZNE</abbreviation>
+        <unit>DU</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Mixing Ratio</name>
+        <abbreviation>O3MR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Concentration</name>
+        <abbreviation>OZCON</abbreviation>
+        <unit>ppb</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Daily Max from 1-hour Average</name>
+        <abbreviation>OZMAX1</abbreviation>
+        <unit>ppbV</unit>
+    </parameter>
+    <parameter>
+        <name>Ozone Daily Max from 8-hour Average</name>
+        <abbreviation>OZMAX8</abbreviation>
+        <unit>ppbV</unit>
+    </parameter>
+    <parameter>
+        <name>Echo Top</name>
+        <abbreviation>RETOP</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Land Cover (0=sea, 1=land)</name>
+        <abbreviation>LAND</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Surface Roughness</name>
+        <abbreviation>SFCR</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Soil Moisture Content</name>
+        <abbreviation>SOILM</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Vegetation</name>
+        <abbreviation>VEG</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Ground Heat Flux</name>
+        <abbreviation>GFLUX</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Blackadar's Mixing Length Scale</name>
+        <abbreviation>BMIXL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Canopy Conductance</name>
+        <abbreviation>CCOND</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Minimal Stomatal Resistance</name>
+        <abbreviation>RSMIN</abbreviation>
+        <unit>s/m</unit>
+    </parameter>
+    <parameter>
+        <name>Wilting Point</name>
+        <abbreviation>WILT</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Solar parameter in canopy conductance</name>
+        <abbreviation>RCS</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Humidity parameter in canopy conductance</name>
+        <abbreviation>RCQ</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Soil moisture parameter in canopy conductance</name>
+        <abbreviation>RCSOL</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Land-sea coverage (nearest neighbor) [land=1,sea=0]</name>
+        <abbreviation>LANDN</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Liquid soil moisture content (non-frozen)</name>
+        <abbreviation>LSOIL</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Soil Type</name>
+        <abbreviation>SOTYP</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Number of Soil Layers in Root Zone</name>
+        <abbreviation>RLYRS</abbreviation>
+        <unit>Numeric</unit>
+    </parameter>
+    <parameter>
+        <name>Transpiration Stress-onset (soil moisture)</name>
+        <abbreviation>SMREF</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Direct Evaporation Cease (soil moisture)</name>
+        <abbreviation>SMDRY</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Soil Porosity</name>
+        <abbreviation>POROS</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Field Capacity</name>
+        <abbreviation>FLDCP</abbreviation>
+        <unit>Fraction</unit>
+    </parameter>
+    <parameter>
+        <name>Surface Slope Type</name>
+        <abbreviation>SLTYP</abbreviation>
+        <unit>Index</unit>
+    </parameter>
+    <parameter>
+        <name>Direct Evaporation from Bare Soil</name>
+        <abbreviation>EVBS</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Baseflow-Groundwater Runoff</name>
+        <abbreviation>BGRUN</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Storm Surface Runoff</name>
+        <abbreviation>SSRUN</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Water Runoff</name>
+        <abbreviation>WATR</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Transpiration</name>
+        <abbreviation>TRANS</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Percent of Frozen Precipitation</name>
+        <abbreviation>CPOFP</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Salinity</name>
+        <abbreviation>SALTY</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Planetary Boundary Layer Regime</name>
+        <abbreviation>PBLREG</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Snow-Free Albedo</name>
+        <abbreviation>SNFALB</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Icing severity</name>
+        <abbreviation>ICSEV</abbreviation>
+        <unit>non-dim</unit>
+    </parameter>
+    <parameter>
+        <name>Latitude (-90 to 90)</name>
+        <abbreviation>NLAT</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>East Longitude (0 to 360)</name>
+        <abbreviation>ELON</abbreviation>
+        <unit>deg</unit>
+    </parameter>
+    <parameter>
+        <name>Extra Tropical Storm Surge</name>
+        <abbreviation>ETSRG</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Extra Tropical Storm Surge Combined Surge and Tide</name>
+        <abbreviation>ETCWL</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Ocean Surface Elevation Relative to Geoid</name>
+        <abbreviation>ELEV</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>Maximum Snow Albedo</name>
+        <abbreviation>MXSALB</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 11, Channel 3</name>
+        <abbreviation>SBT113</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 11, Channel 4</name>
+        <abbreviation>SBT114</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 12, Channel 3</name>
+        <abbreviation>SBT123</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Simulated Brightness Temperature for GOES 12, Channel 4</name>
+        <abbreviation>SBT124</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Volumetric Soil Moisture Content</name>
+        <abbreviation>SOILW</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Sunshine Duration</name>
+        <abbreviation>SUNSD</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>Albedo</name>
+        <abbreviation>ALBDO</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>Vertically Integrated Liquid (VIL)</name>
+        <abbreviation>VILIQ</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Vertical u-component shear</name>
+        <abbreviation>VUCSH</abbreviation>
+        <unit>1/s</unit>
+    </parameter>
+    <parameter>
+        <name>Vertical v-component shear</name>
+        <abbreviation>VVCSH</abbreviation>
+        <unit>1/s</unit>
+    </parameter>
+    <parameter>
+        <name>Haines Index</name>
+        <abbreviation>HI</abbreviation>
+        <unit>Numeric</unit>
+    </parameter>
+    <parameter>
+        <name>Vegetation Type</name>
+        <abbreviation>VGTYP</abbreviation>
+        <unit>Integer (0-13)</unit>
+    </parameter>
+    <parameter>
+        <name>Canopy water evaporation</name>
+        <abbreviation>EVCW</abbreviation>
+        <unit>W/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Aerodynamic conductance</name>
+        <abbreviation>ACOND</abbreviation>
+        <unit>m/s</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Rain</name>
+        <abbreviation>TCOLR</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Snow</name>
+        <abbreviation>TCOLS</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Graupel</name>
+        <abbreviation>TCOLG</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Melting Ice</name>
+        <abbreviation>TCOLM</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Total Column Integrated Supercooled Liquid Water</name>
+        <abbreviation>TCLSW</abbreviation>
+        <unit>kg/m^2</unit>
+    </parameter>
+    <parameter>
+        <name>Brightness Temperature</name>
+        <abbreviation>BRTMP</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Turbulence Potential Forecast Index</name>
+        <abbreviation>TPFI</abbreviation>
+        <unit></unit>
+    </parameter>
+    <parameter>
+        <name>Vertical Shear Speed</name>
+        <abbreviation>VSS</abbreviation>
+        <unit>1/s</unit>
+    </parameter>
+    <parameter>
+        <name>Cloud Mixing Ratio</name>
+        <abbreviation>CLWMR</abbreviation>
+        <unit>kg/kg</unit>
+    </parameter>
+    <parameter>
+        <name>Plant Canopy Surface Water</name>
+        <abbreviation>CNWAT</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>Best (4 layer) Lifted Index</name>
+        <abbreviation>BLI</abbreviation>
+        <unit>K</unit>
+    </parameter>
+    <parameter>
+        <name>Ice Cover</name>
+        <abbreviation>ICEC</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+    <parameter>
+        <name>Derived Radar Composite</name>
+        <abbreviation>ICEC</abbreviation>
+        <unit>Proportion</unit>
+    </parameter>
+<!-- TPCWindProb and TPCWindProb Prelim TOA/TOD Paramters -->
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) AT1</name>
+        <abbreviation>TOA1034ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) AT2</name>
+        <abbreviation>TOA1034ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+    <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) AT3</name>
+        <abbreviation>TOA1034ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) AT4</name>
+        <abbreviation>TOA1034ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) AT5</name>
+        <abbreviation>TOA1034ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) AT1</name>
+        <abbreviation>TOA5034ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) AT2</name>
+        <abbreviation>TOA5034ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) AT3</name>
+        <abbreviation>TOA5034ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) AT4</name>
+        <abbreviation>TOA5034ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) AT5</name>
+        <abbreviation>TOA5034ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) AT1</name>
+        <abbreviation>TOD5034ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) AT2</name>
+        <abbreviation>TOD5034ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) AT3</name>
+        <abbreviation>TOD5034ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) AT4</name>
+        <abbreviation>TOD5034ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) AT5</name>
+        <abbreviation>TOD5034ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) AT1</name>
+        <abbreviation>TOD9034ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) AT2</name>
+        <abbreviation>TOD9034ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) AT3</name>
+        <abbreviation>TOD9034ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) AT4</name>
+        <abbreviation>TOD9034ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) AT5</name>
+        <abbreviation>TOD9034ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) AT1</name>
+        <abbreviation>TOA1050ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) AT2</name>
+        <abbreviation>TOA1050ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) AT3</name>
+        <abbreviation>TOA1050ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) AT4</name>
+        <abbreviation>TOA1050ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) AT5</name>
+        <abbreviation>TOA1050ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) AT1</name>
+        <abbreviation>TOA5050ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) AT2</name>
+        <abbreviation>TOA5050ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) AT3</name>
+        <abbreviation>TOA5050ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) AT4</name>
+        <abbreviation>TOA5050ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) AT5</name>
+        <abbreviation>TOA5050ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) AT1</name>
+        <abbreviation>TOD5050ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) AT2</name>
+        <abbreviation>TOD5050ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) AT3</name>
+        <abbreviation>TOD5050ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) AT4</name>
+        <abbreviation>TOD5050ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) AT5</name>
+        <abbreviation>TOD5050ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) AT1</name>
+        <abbreviation>TOD9050ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) AT2</name>
+        <abbreviation>TOD9050ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) AT3</name>
+        <abbreviation>TOD9050ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) AT4</name>
+        <abbreviation>TOD9050ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) AT5</name>
+        <abbreviation>TOD9050ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) AT1</name>
+        <abbreviation>TOA1064ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) AT2</name>
+        <abbreviation>TOA1064ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) AT3</name>
+        <abbreviation>TOA1064ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) AT4</name>
+        <abbreviation>TOA1064ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) AT5</name>
+        <abbreviation>TOA1064ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) AT1</name>
+        <abbreviation>TOA5064ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) AT2</name>
+        <abbreviation>TOA5064ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) AT3</name>
+        <abbreviation>TOA5064ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) AT4</name>
+        <abbreviation>TOA5064ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) AT5</name>
+        <abbreviation>TOA5064ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) AT1</name>
+        <abbreviation>TOD5064ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) AT2</name>
+        <abbreviation>TOD5064ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) AT3</name>
+        <abbreviation>TOD5064ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) AT4</name>
+        <abbreviation>TOD5064ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) AT5</name>
+        <abbreviation>TOD5064ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) AT1</name>
+        <abbreviation>TOD9064ktAT1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) AT2</name>
+        <abbreviation>TOD9064ktAT2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) AT3</name>
+        <abbreviation>TOD9064ktAT3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) AT4</name>
+        <abbreviation>TOD9064ktAT4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) AT5</name>
+        <abbreviation>TOD9064ktAT5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) EP1</name>
+        <abbreviation>TOA1034ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) EP2</name>
+        <abbreviation>TOA1034ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) EP3</name>
+        <abbreviation>TOA1034ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) EP4</name>
+        <abbreviation>TOA1034ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) EP5</name>
+        <abbreviation>TOA1034ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) EP1</name>
+        <abbreviation>TOA5034ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) EP2</name>
+        <abbreviation>TOA5034ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) EP3</name>
+        <abbreviation>TOA5034ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) EP4</name>
+        <abbreviation>TOA5034ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) EP5</name>
+        <abbreviation>TOA5034ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) EP1</name>
+        <abbreviation>TOD5034ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) EP2</name>
+        <abbreviation>TOD5034ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) EP3</name>
+        <abbreviation>TOD5034ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) EP4</name>
+        <abbreviation>TOD5034ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) EP5</name>
+        <abbreviation>TOD5034ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) EP1</name>
+        <abbreviation>TOD9034ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) EP2</name>
+        <abbreviation>TOD9034ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) EP3</name>
+        <abbreviation>TOD9034ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) EP4</name>
+        <abbreviation>TOD9034ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) EP5</name>
+        <abbreviation>TOD9034ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) EP1</name>
+        <abbreviation>TOA1050ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) EP2</name>
+        <abbreviation>TOA1050ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) EP3</name>
+        <abbreviation>TOA1050ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) EP4</name>
+        <abbreviation>TOA1050ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) EP5</name>
+        <abbreviation>TOA1050ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) EP1</name>
+        <abbreviation>TOA5050ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) EP2</name>
+        <abbreviation>TOA5050ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) EP3</name>
+        <abbreviation>TOA5050ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) EP4</name>
+        <abbreviation>TOA5050ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) EP5</name>
+        <abbreviation>TOA5050ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) EP1</name>
+        <abbreviation>TOD5050ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) EP2</name>
+        <abbreviation>TOD5050ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) EP3</name>
+        <abbreviation>TOD5050ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) EP4</name>
+        <abbreviation>TOD5050ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) EP5</name>
+        <abbreviation>TOD5050ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) EP1</name>
+        <abbreviation>TOD9050ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) EP2</name>
+        <abbreviation>TOD9050ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) EP3</name>
+        <abbreviation>TOD9050ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) EP4</name>
+        <abbreviation>TOD9050ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) EP5</name>
+        <abbreviation>TOD9050ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) EP1</name>
+        <abbreviation>TOA1064ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) EP2</name>
+        <abbreviation>TOA1064ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) EP3</name>
+        <abbreviation>TOA1064ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) EP4</name>
+        <abbreviation>TOA1064ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) EP5</name>
+        <abbreviation>TOA1064ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) EP1</name>
+        <abbreviation>TOA5064ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) EP2</name>
+        <abbreviation>TOA5064ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) EP3</name>
+        <abbreviation>TOA5064ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) EP4</name>
+        <abbreviation>TOA5064ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) EP5</name>
+        <abbreviation>TOA5064ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) EP1</name>
+        <abbreviation>TOD5064ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) EP2</name>
+        <abbreviation>TOD5064ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) EP3</name>
+        <abbreviation>TOD5064ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) EP4</name>
+        <abbreviation>TOD5064ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) EP5</name>
+        <abbreviation>TOD5064ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) EP1</name>
+        <abbreviation>TOD9064ktEP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) EP2</name>
+        <abbreviation>TOD9064ktEP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) EP3</name>
+        <abbreviation>TOD9064ktEP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) EP4</name>
+        <abbreviation>TOD9064ktEP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) EP5</name>
+        <abbreviation>TOD9064ktEP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) CP1</name>
+        <abbreviation>TOA1034ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) CP2</name>
+        <abbreviation>TOA1034ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) CP3</name>
+        <abbreviation>TOA1034ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) CP4</name>
+        <abbreviation>TOA1034ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) CP5</name>
+        <abbreviation>TOA1034ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) CP1</name>
+        <abbreviation>TOA5034ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) CP2</name>
+        <abbreviation>TOA5034ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) CP3</name>
+        <abbreviation>TOA5034ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) CP4</name>
+        <abbreviation>TOA5034ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) CP5</name>
+        <abbreviation>TOA5034ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) CP1</name>
+        <abbreviation>TOD5034ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) CP2</name>
+        <abbreviation>TOD5034ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) CP3</name>
+        <abbreviation>TOD5034ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) CP4</name>
+        <abbreviation>TOD5034ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) CP5</name>
+        <abbreviation>TOD5034ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) CP1</name>
+        <abbreviation>TOD9034ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) CP2</name>
+        <abbreviation>TOD9034ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) CP3</name>
+        <abbreviation>TOD9034ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) CP4</name>
+        <abbreviation>TOD9034ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) CP5</name>
+        <abbreviation>TOD9034ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) CP1</name>
+        <abbreviation>TOA1050ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) CP2</name>
+        <abbreviation>TOA1050ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) CP3</name>
+        <abbreviation>TOA1050ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) CP4</name>
+        <abbreviation>TOA1050ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) CP5</name>
+        <abbreviation>TOA1050ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) CP1</name>
+        <abbreviation>TOA5050ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) CP2</name>
+        <abbreviation>TOA5050ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) CP3</name>
+        <abbreviation>TOA5050ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) CP4</name>
+        <abbreviation>TOA5050ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) CP5</name>
+        <abbreviation>TOA5050ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) CP1</name>
+        <abbreviation>TOD5050ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) CP2</name>
+        <abbreviation>TOD5050ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) CP3</name>
+        <abbreviation>TOD5050ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) CP4</name>
+        <abbreviation>TOD5050ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) CP5</name>
+        <abbreviation>TOD5050ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) CP1</name>
+        <abbreviation>TOD9050ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) CP2</name>
+        <abbreviation>TOD9050ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) CP3</name>
+        <abbreviation>TOD9050ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) CP4</name>
+        <abbreviation>TOD9050ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) CP5</name>
+        <abbreviation>TOD9050ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) CP1</name>
+        <abbreviation>TOA1064ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) CP2</name>
+        <abbreviation>TOA1064ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) CP3</name>
+        <abbreviation>TOA1064ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) CP4</name>
+        <abbreviation>TOA1064ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) CP5</name>
+        <abbreviation>TOA1064ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) CP1</name>
+        <abbreviation>TOA5064ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) CP2</name>
+        <abbreviation>TOA5064ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) CP3</name>
+        <abbreviation>TOA5064ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) CP4</name>
+        <abbreviation>TOA5064ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) CP5</name>
+        <abbreviation>TOA5064ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) CP1</name>
+        <abbreviation>TOD5064ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) CP2</name>
+        <abbreviation>TOD5064ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) CP3</name>
+        <abbreviation>TOD5064ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) CP4</name>
+        <abbreviation>TOD5064ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) CP5</name>
+        <abbreviation>TOD5064ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) CP1</name>
+        <abbreviation>TOD9064ktCP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) CP2</name>
+        <abbreviation>TOD9064ktCP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) CP3</name>
+        <abbreviation>TOD9064ktCP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) CP4</name>
+        <abbreviation>TOD9064ktCP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) CP5</name>
+        <abbreviation>TOD9064ktCP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) WP1</name>
+        <abbreviation>TOA1034ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) WP2</name>
+        <abbreviation>TOA1034ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) WP3</name>
+        <abbreviation>TOA1034ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) WP4</name>
+        <abbreviation>TOA1034ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Earliest Reasonable Arrival Time (10% exceedance) WP5</name>
+        <abbreviation>TOA1034ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) WP1</name>
+        <abbreviation>TOA5034ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) WP2</name>
+        <abbreviation>TOA5034ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) WP3</name>
+        <abbreviation>TOA5034ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) WP4</name>
+        <abbreviation>TOA5034ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Arrival Time (50% exceedance) WP5</name>
+        <abbreviation>TOA5034ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) WP1</name>
+        <abbreviation>TOD5034ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) WP2</name>
+        <abbreviation>TOD5034ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) WP3</name>
+        <abbreviation>TOD5034ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) WP4</name>
+        <abbreviation>TOD5034ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Most Likely Departure Time (50% exceedance) WP5</name>
+        <abbreviation>TOD5034ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) WP1</name>
+        <abbreviation>TOD9034ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) WP2</name>
+        <abbreviation>TOD9034ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) WP3</name>
+        <abbreviation>TOD9034ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) WP4</name>
+        <abbreviation>TOD9034ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>34 kts Latest Reasonable Departure Time (90% exceedance) WP5</name>
+        <abbreviation>TOD9034ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) WP1</name>
+        <abbreviation>TOA1050ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) WP2</name>
+        <abbreviation>TOA1050ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) WP3</name>
+        <abbreviation>TOA1050ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) WP4</name>
+        <abbreviation>TOA1050ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Earliest Reasonable Arrival Time (10% exceedance) WP5</name>
+        <abbreviation>TOA1050ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) WP1</name>
+        <abbreviation>TOA5050ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) WP2</name>
+        <abbreviation>TOA5050ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) WP3</name>
+        <abbreviation>TOA5050ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) WP4</name>
+        <abbreviation>TOA5050ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Arrival Time (50% exceedance) WP5</name>
+        <abbreviation>TOA5050ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) WP1</name>
+        <abbreviation>TOD5050ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) WP2</name>
+        <abbreviation>TOD5050ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) WP3</name>
+        <abbreviation>TOD5050ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) WP4</name>
+        <abbreviation>TOD5050ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Most Likely Departure Time (50% exceedance) WP5</name>
+        <abbreviation>TOD5050ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) WP1</name>
+        <abbreviation>TOD9050ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) WP2</name>
+        <abbreviation>TOD9050ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) WP3</name>
+        <abbreviation>TOD9050ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) WP4</name>
+        <abbreviation>TOD9050ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>50 kts Latest Reasonable Departure Time (90% exceedance) WP5</name>
+        <abbreviation>TOD9050ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) WP1</name>
+        <abbreviation>TOA1064ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) WP2</name>
+        <abbreviation>TOA1064ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) WP3</name>
+        <abbreviation>TOA1064ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) WP4</name>
+        <abbreviation>TOA1064ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Earliest Reasonable Arrival Time (10% exceedance) WP5</name>
+        <abbreviation>TOA1064ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) WP1</name>
+        <abbreviation>TOA5064ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) WP2</name>
+        <abbreviation>TOA5064ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) WP3</name>
+        <abbreviation>TOA5064ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) WP4</name>
+        <abbreviation>TOA5064ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Arrival Time (50% exceedance) WP5</name>
+        <abbreviation>TOA5064ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) WP1</name>
+        <abbreviation>TOD5064ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) WP2</name>
+        <abbreviation>TOD5064ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) WP3</name>
+        <abbreviation>TOD5064ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) WP4</name>
+        <abbreviation>TOD5064ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Most Likely Departure Time (50% exceedance) WP5</name>
+        <abbreviation>TOD5064ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) WP1</name>
+        <abbreviation>TOD9064ktWP1</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) WP2</name>
+        <abbreviation>TOD9064ktWP2</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) WP3</name>
+        <abbreviation>TOD9064ktWP3</abbreviation>
+        <unit>s</unit>
+    </parameter>
+    <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) WP4</name>
+        <abbreviation>TOD9064ktWP4</abbreviation>
+        <unit>s</unit>
+    </parameter>
+        <parameter>
+        <name>64 kts Latest Reasonable Departure Time (90% exceedance) WP5</name>
+        <abbreviation>TOD9064ktWP5</abbreviation>
+        <unit>s</unit>
+    </parameter>
+</parameterList>

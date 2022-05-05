@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Looping Plug-in
+Bundle-SymbolicName: com.raytheon.viz.ui.tools.looping;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: com.raytheon.viz.ui,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

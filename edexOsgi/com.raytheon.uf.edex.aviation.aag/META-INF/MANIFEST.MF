@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EDEX AAG plugin
+Bundle-SymbolicName: com.raytheon.uf.edex.aviation.aag
+Bundle-Version: 1.19.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.raytheon.uf.common.auth,
+ com.raytheon.uf.common.dataaccess,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.bufrmos,
+ com.raytheon.uf.common.dataplugin.text,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.dissemination,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.python,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.site,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.edex.plugin.text,
+ org.slf4j,
+ javax.measure

@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>Server Configuration Information</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="3Heading">Server Configuration Information</h1>
+
+<div class="3Heading">September 25, 2012<br></div>
+<div class="3Heading"><br>
+
+<a name="TableofContents"></a>Table of Contents<br>
+
+<a href="#Overview">Overview</a><br>
+
+<a href="#ServerDatabaseConfigurationModificationOptions">
+Server Database Configuration Modification Options</a><br>
+
+<a href="#ServerMapConfigurationModificationOptions">
+Server Map Configuration Modification Options</a><br>
+
+<a href="#LocationofFiles">Location of Files</a><br>
+
+<hr width="100%"></div>
+
+<h2 class="3Heading"><a name="Overview"></a>Overview</h2>
+
+<div class="3Heading">GFE uses several configuration files:</div>
+<ul>
+  <li class="3Heading"><a href="siteConfig.html">siteConfig.py</a> - 
+    Defines directory and site variables</li>
+  <li class="3Heading"><a href="serverConfig.html">serverConfig.py</a> - 
+    Contains main database definitions</li>
+  <li class="3Heading"><a href="localConfig.html">localConfig.py</a> - 
+    Overrides for the serverConfig.py (Site-level file)</li>
+  <li class="3Heading"><a href="localWxConfig.html">localWxConfig.py</a> - 
+    Overrides for the weather definition in serverConfig.py (Site-level file)</li>
+  <li class="3Heading"><a href="mapConfig.html">Maps.py</a> - 
+    Defines the automatically generated edit areas that are available.</li>
+  <li class="3Heading"><a href="localMapsConfig.html">localMaps.py</a> - 
+    Overrides for the Maps.py file (Site-level file).</li>
+  <li class="3Heading"><a href="MapFiles.html">Map Files - overview</a> - 
+    Explains how database tables are populated for use in the map and edit area generation.</li>
+  <li class="3Heading"><a href="VTECPartners.html">VTECPartners.py</a>
+- Defines the VTEC coordination and filtering by site.</li>
+  <li class="3Heading"><a href="localVTECPartners.html">localVTECPartners.py</a>
+- Overrides for the VTECPartners.py entries (Site-level file).</li>
+</ul>
+<div class="3Heading">The <a href="localConfig.html">localConfig.py</a>
+and <a href="localWxConfig.html">localWxConfig.py</a> files are
+optional and are only used to override the standard database definition defaults
+shipped with the system.<br>
+<br>
+</div>
+<div class="3Heading">There are several different options a site has
+for making modifications to these files. <b><font color="#ff0000">At
+no time should the files that are sent with the software release or
+install be modified since these will be overwritten with the next upgrade.</font></b>&nbsp;
+See the section on <a href="#LocationofFiles">file locations</a> for
+information on where the configuration files should be located.
+<br>
+&nbsp;</div>
+<div class="3Heading">The <a href="serverConfig.html">serverConfig.py</a>
+is used to define the following items:</div>
+<ul>
+  <li class="3Heading">the set of weather elements,</li>
+  <li class="3Heading">the weather configuration (e.g., possible coverages, weather types,
+     intensities),
+  </li>
+  <li class="3Heading">the set of map projections,</li>
+  <li class="3Heading">office grid domains and resolution,</li>
+  <li class="3Heading">grid time constraint information; and</li>
+  <li class="3Heading">database model configuration.</li>
+</ul>
+<div class="3Heading">The <a href="localConfig.html">localConfig.py</a>
+file is used:</div>
+<ul>
+  <li class="3Heading">to add or redefine items in the serverConfig.py file for site use.</li>
+</ul>
+<div class="3Heading">The <a href="localWxConfig.html">localWxConfig.py</a>
+file is used:
+<ul>
+  <li>to add or modify the weather definition in serverConfig.py</li>
+</ul>
+</div>
+<div class="3Heading">The <a href="siteConfig.html">siteConfig.py</a>
+file is used:</div>
+<ul>
+  <li class="3Heading">to identify the main directories</li>
+  <li class="3Heading">to identify the server network information</li>
+  <li class="3Heading">to identify the site identifier</li>
+</ul>
+The <a href="VTECPartners.html">VTECPartners.py</a> file is used:<br>
+<ul>
+  <li>to configure the site filtering for the Merge VTEC and VTEC Decoder processes</li>
+  <li>to configure the interval of active table synchronization with adjacent sites</li>
+  <li>to specify the adjacent sites used for active table synchronization</li>
+</ul>
+The <a href="localVTECPartners.html">localVTECPartners.py</a> file is used:<br>
+<ul>
+  <li>to override the entries in <a href="VTECPartners.html">VTECPartners.py</a>.<br>
+  </li>
+</ul>
+
+<div class="3Heading">The <a href="localMapsConfig.html">localMaps.py</a> file is optional
+and is only used to override the standard edit area definitions shipped with the
+system. There are several different options a site has for making modifications
+to this file. 
+<b><font color="#ff0000">
+At no time should the files that are sent with the software release or install be 
+modified since these will be overwritten with the next upgrade.
+</font></b>
+See the section on <a href="#LocationofFiles">file locations</a> for information on
+where the configuration files should be located.</div>
+<br>
+The <a href="mapConfig.html">Maps.py</a> file is used to define:</div>
+<ul>
+  <li class="3Heading">the set of edit areas that are automatically generated 
+     from the map backgrounds.
+  </li>
+</ul>
+<div class="3Heading">The <a href="localMapsConfig.html">localMaps.py</a>
+file is used:</div>
+<ul>
+  <li class="3Heading">
+to add, remove, or redefine items in the Maps.py file for site use.</li>
+</ul>
+
+<div class="3Heading">
+<hr width="100%"></div>
+<h2 class="3Heading">
+<a name="ServerDatabaseConfigurationModificationOptions"></a>Server
+Database
+Configuration Modification Options</h2>
+There are three scenarios for modifying the server database
+configuration:&nbsp;
+no changes from installed files, complete override of map backgrounds
+and
+partial orerride of map backgrounds.
+<h4 class="3Heading">No Changes From Installed Files</h4>
+This is the default case. There is nothing you need to do.
+<h4 class="3Heading">Complete Override of Server Configuration <i><font
+ color="#ff0000">(not
+recommended)</font></i></h4>
+Copy the serverConfig.py from the <a href="#LocationofFiles">original
+location</a>
+(leave the original one there) to the <a href="#LocationofFiles">customized
+location</a>.&nbsp; Modify it in accordance with the <a
+ href="serverConfig.html">serverConfig.py</a>
+manual.&nbsp; The disadvantage of this situation is that you will need
+to do a careful comparison between newly upgraded files and your
+modified
+files after each upgrade.&nbsp; There are certain features that cannot
+be overridden using the <a href="localConfig.html">localConfig.py</a>
+file.&nbsp;
+For those cases, you will be forced to completely override the
+serverConfig.py
+file. See the <a href="localConfig.html">localConfig.py</a> file for
+ href="VTECPartners.html">VTECPartners.py</a> from the <a
+ href="#locationofFiles">original location</a> (leaving the original
+one there) to the <a href="#locationofFiles">customized location</a>.<br>
+<h4 class="3Heading">
+Partial Override of Server Configuration</h4>
+<div class="3Heading">This option works best for most sites who require
+just a few changes and/or additions to the server configuration.&nbsp;
+It involves creating a local configuration file (<a
+ href="localConfig.html">localConfig.py</a>)
+and overriding certain features. Not all features in
+serverConfig.py
+may be redefined or overridden in this manner.&nbsp; See the <a
+ href="localConfig.html">localConfig.py
+documentation</a> for details. Weather definitions are overridden
+using the <a href="localWxConfig.html">localWxConfig.py</a>
+file.&nbsp; VTEC coordination information is overridden using the <a
+ href="localVTECPartners.html">localVTECPartners.py</a> file.<br>
+</div>
+<hr width="100%"></div>
+
+<h2 class="3Heading">
+<a name="ServerMapConfigurationModificationOptions"></a>
+Server Map Configuration Modification Options</h2>
+
+Edit area generation is handled somewhat differently from the server
+database configuration and is defined in a different file.
+
+<h4 class="3Heading">No Changes From Installed Files</h4>
+This option should be chosen if the <a href="mapConfig.html">Maps.py</a>
+file is satisfactory and no changes are required.
+
+<h4 class="3Heading">Partial Override of Map Backgrounds</h4>
+<div class="3Heading">This option provides the site control over the
+set of generated edit areas. If you want to change any item in the 
+<a href="mapConfig.html">Maps.py</a> file, you use the 
+<a href="localMapsConfig.html">localMaps.py</a> 
+file to add, modify, and/or remove edit areas. 
+</div>
+
+<h4 class="3Heading">
+Complete Override of Map Backgrounds <i><font color="#ff0000">(not
+recommended)</font></i></h4>
+There should be no reason to completely override the Maps.py file since
+<a href="localMapsConfig.html">localMaps.py</a>
+provides all of the override capability. But if you insist, you can copy the <a
+ href="mapConfig.html">Maps.py</a>
+file from the <a href="#LocationofFiles">original location</a> (leave
+the
+original one there) to the <a href="#LocationofFiles">customized
+location</a>.&nbsp;
+Modify it in accordance with the <a href="mapConfig.html">map
+configuration
+manual</a>.&nbsp; Since Maps.py doesn't change frequently, all you
+should
+need to do is a comparison between the newly upgraded files and your
+modified
+files after each upgrade.
+<div class="3Heading">&nbsp;</div>
+<div class="3Heading">
+<hr width="100%"></div>
+
+<h2 class="3Heading"><a name="LocationofFiles"></a>Location of Files</h2>
+The location of the server configuration files are shown in the table below:
+<br>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>File Purpose</b></td>
+      <td><b>Part of Standard</b>
+      <br>
+      <b>Release</b></td>
+      <td><b>File Location</b>
+      <br>
+      <b>(relative to installation directory)</b></td>
+    </tr>
+    <tr>
+      <td>Original <a href="serverConfig.html">serverConfig.py</a></td>
+      <td>
+      <center>yes</center>
+      </td>
+      <td>/awips2/edex/data/utility/edex_static/base/config/gfe</td>
+    </tr>
+    <tr>
+      <td>Customized <a href="serverConfig.html">serverConfig.py</a></td>
+      <td>
+      <center>no</center>
+      </td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe</td>
+    </tr>
+    <tr>
+      <td><a href="localConfig.html">localConfig.py</a></td>
+      <td>
+      <center>no</center>
+      </td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe</td>
+    </tr>
+    <tr>
+      <td><a href="localWxConfig.html">localWxConfig.py</a></td>
+      <td>
+      <center>no</center>
+      </td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe</td>
+    </tr>
+    <tr>
+      <td>Original <a href="mapConfig.html">Maps.py</a></td>
+      <td>
+      <center>yes</center>
+      </td>
+      <td>/awips2/edex/data/utility/edex_static/base/config/gfe/Maps.py</td>
+    </tr>
+    <tr>
+      <td>Customized <a href="mapConfig.html">Maps.py</a></td>
+      <td>
+      <center>no</center>
+      </td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe/Maps.py</td>
+    </tr>
+    <tr>
+      <td><a href="localMapsConfig.html">localMaps.py</a></td>
+      <td>
+      <center>no</center>
+      </td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe/localMaps.py</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Original <a
+ href="VTECPartners.html">VTECPartners.py</a><br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">yes<br>
+      </td>
+      <td style="vertical-align: top;">/awips2/edex/data/utility/common_static/base/vtec<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Customized <a
+ href="localVTECPartners.html">localVTECPartners.py</a><br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">no<br>
+      </td>
+      <td style="vertical-align: top;">/awips2/edex/data/utility/common_static/site/SITE_ID/vtec<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+</p>
+<hr width="100%"><br>
+<div class="Body">&nbsp;<a href="#Overview">Back To Top</a>
+<br>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</body>
+</html>

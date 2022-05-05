@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Map Tools Plug-in
+Bundle-SymbolicName: com.raytheon.viz.ui.tools.map;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.core
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.ui.tools.map
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

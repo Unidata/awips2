@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cloudheight Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.cloudheight;singleton:=true
+Bundle-Version: 1.19.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.sounding,
+ com.raytheon.uf.common.dataplugin.satellite,
+ com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.viz.core,
+ javax.measure,
+ javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.cloudheight.data,
+ com.raytheon.uf.viz.cloudheight.rsc
+Import-Package: com.raytheon.viz.core.map,
+ com.raytheon.uf.common.units
+Bundle-ClassPath: com.raytheon.uf.viz.cloudheight.jar

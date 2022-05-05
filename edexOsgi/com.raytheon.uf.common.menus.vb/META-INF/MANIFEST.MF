@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Volume Browser
+Bundle-SymbolicName: com.raytheon.uf.common.menus.vb
+Bundle-Version: 1.18.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.common.menus,
+ com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ javax.xml.bind
+Export-Package: com.raytheon.uf.common.menus.vb

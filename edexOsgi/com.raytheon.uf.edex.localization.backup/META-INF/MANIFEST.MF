@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Localization Backup Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.localization.backup
+Bundle-Version: 1.17.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.raytheon.uf.common.status,
+ com.raytheon.uf.common.serialization.comm,
+ org.apache.commons.io,
+ com.raytheon.uf.common.localization.backup,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.backupsvc,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.common.time,
+ org.slf4j,
+ com.raytheon.uf.common.util

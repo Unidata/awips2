@@ -1,0 +1,11 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="subscriptionRequestHandler" class="com.raytheon.uf.edex.plugin.text.subscription.services.SubscriptionRequestHandler" />
+    <bean id="sendFaxRequestHandler" class="com.raytheon.uf.edex.plugin.text.subscription.handler.SendFaxRequestHandler" />
+    <bean id="autoFaxRequestHandler" class="com.raytheon.uf.edex.plugin.text.subscription.handler.AutoFaxRequestHandler" />
+    <bean id="getAutoFaxRecordsRequestHandler" class="com.raytheon.uf.edex.plugin.text.subscription.handler.GetAutoFaxRecordsRequestHandler" />
+
+</beans>

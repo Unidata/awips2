@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="wxDescriptionProvider" class="com.raytheon.uf.edex.aviation.aag.WxDescriptionConfigFileProvider" />
+
+    <bean id="aagStationProvider" class="com.raytheon.uf.edex.aviation.aag.AAGConfigFileStationProvider" />
+
+    <bean id="aagDataRetriever" class="com.raytheon.uf.edex.aviation.aag.AAGDataRetriever" />
+
+    <bean id="aagForecastGenerator" class="com.raytheon.uf.edex.aviation.aag.AAGForecastGenerator">
+        <constructor-arg ref="wxDescriptionProvider" />
+    </bean>
+
+    <bean id="aagSender" class="com.raytheon.uf.edex.aviation.aag.AAGSender" />
+
+    <camelContext id="aagRoutes"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="aagLauncher" uri="quartz://aagTimer/?cron=${aviation.aag.cron}"/>
+
+        <route id="aagCreateAndSendForecasts">
+            <from uri="aagLauncher" />
+            <doTry>
+                <pipeline>
+                    <filter>
+                        <simple>${sys.aviation.aag.enabled} != "true"</simple>
+                        <stop />
+                    </filter>
+                    <bean ref="aagStationProvider" method="getStationIds" />
+                    <bean ref="aagDataRetriever" method="getAAGData" />
+                    <bean ref="aagForecastGenerator" method="generateForecasts" />
+                    <bean ref="aagSender" method="sendAAGs" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:aagLog?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="aagRoutes" />
+    </bean>
+</beans>

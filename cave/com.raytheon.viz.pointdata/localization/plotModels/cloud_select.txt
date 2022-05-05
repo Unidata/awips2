@@ -1,0 +1,9 @@
+s2n
+OVC 1
+BKN 2
+SCT 3
+FEW 4
+VV 5
+SKC 5
+CLR 5
+BLNK 5

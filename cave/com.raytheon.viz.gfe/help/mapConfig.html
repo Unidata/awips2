@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <meta content="Mark Mathewson" name="Author">
+  <title>Map Background Configuration</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="3Heading"><a name="maps.py"></a>Maps.py - Map Background
+Configuration</h1>
+<div class="3Heading">September 25, 2012<br>
+</div>
+<h2><a name="Organization"></a><b>Organization</b></h2>
+<a href="#Maps.pyFormat">Maps.py Format</a> <br>
+&nbsp;&nbsp;&nbsp;<a href="#SiteInformation">Site Information</a> <br>
+&nbsp;&nbsp;&nbsp;<a href="#MapDefinitions">Map Definitions</a> <br>
+&nbsp;&nbsp;&nbsp;<a href="#PuttingitallTogetherwiththemaplist">Putting it all togetherwith the maps list</a> <br>
+&nbsp;&nbsp;&nbsp;<a href="#ImportinglocalMaps">Importing localMaps</a><br>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+The Maps.py file defines how edit areas are generated for each map. 
+When activated, the server processes the list of maps defined in the Maps.py file
+and generates edit areas. 
+<p>The edit area generation software uses the maps database tables as input. 
+These tables are populated by importing shape files provided by the National Weather Service. 
+These tables are filtered by domain (based on the site) and attributes.
+There are different attributes available for each table.
+Refer to the AWIPS Map Background Database provided by the National Weather Service 
+for details on the available shapefiles and the attributes contained within each
+shapefile.
+This information will be needed in order to tailor edit area generation for your site.
+</p>
+<p>The user can select which polygons will be converted into edit areas and 
+to which edit area groups they will be assigned.
+</p>
+<p><b><font color="#ff0000">This information is provided for you to
+help
+you understand the format of Maps.py. You should NEVER change the
+original Maps.py since your changes will be overwritten with the next
+upgrade.
+See the 
+<a href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server configuration overview</a> 
+for information on how to make changes that are supported to the map backgrounds.</font></b>
+</p>
+<p><b><font color="#ff0000">To override definitions in Maps.py, use the <a
+ href="localMapsConfig.html">localMaps.py</a>
+technique. </font></b>
+</p>
+<p><b><font color="#ff0000">To update the maps database, refer to the <a
+ href="MapFiles.html">MapFiles</a>
+documentation, specifically the section on <a
+ href="MapFiles.html#Updating">Updating
+Shapefiles</a>.
+</font></b></p>
+<p>
+Software releases after Jan 1, 2006 separate the map shapefile from the
+CORE GFE.&nbsp;&nbsp; In some applications, such as AWIPS, the map
+shapefile configuration becomes the responsibility of the site since
+the map shapefiles will no longer be shipped with the GFE
+software. A separate install is available for non-AWIPS
+purposes and is posted with the software releases. If the
+associated Map Shapefile is not installed at your site, then
+sites will be responsible for:<br>
+<ul>
+  <li>Downloading updated shapefiles from the NOAA1 web server</li>
+  <li>Importing the downloaded shapefiles into the maps database</li>
+  <li>Creating/modifying the localMaps.py file to reference the appropriate database tables</li>
+</ul>
+</p>
+<hr width="100%">
+<h2><a name="Maps.pyFormat"></a><b>Maps.py Format</b></h2>
+<h3>
+<a name="SiteInformation"></a><b>Site Information</b></h3>
+Maps.py imports the <a href="siteConfig.html">siteConfig</a> file which
+provides the site identifier and the <a href="serverConfig.html#GridDomainConfiguration">site's
+specific grid domain</a>. 
+<pre>
+CWA = siteConfig.GFESUITE_SITEID
+</pre>
+<h3><a name="MapDefinitions"></a><b>Map Definitions</b></h3>
+The map definition section defines each map for which edit area generation is desired.
+Only a small portion of the Maps.py is shown here. Numerous examples with differing
+capabilities are shown.
+<h4>Basic Map with Automatically Generated Edit Areas</h4>
+This definition is for a basic map, with no filtering of attributes and automatic creation 
+of edit areas. The edit areas will be included in the 'Misc' edit area group by default since
+no edit area group is specified.
+The ShapeTable object is created in the first line. The name of the maps database table 
+is passed as a parameter to the ShapeTable constructor.  
+  
+<pre>
+CWAzones = ShapeTable('zone')
+CWAzones.name = CWA + '_zones'
+CWAzones.editAreaName = ['state','zone']
+</pre>
+The ifpServer can automatically generate edit areas based on the
+information in the shapefiles. The user specifies the "editAreaName" in
+the Maps.py or localMaps.py files, and the ifpServer uses that
+information to determine the name of each edit area.&nbsp;&nbsp; There
+are three forms to the editAreaName line as shown:<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">mapVariable.editAreaName =
+"string"<br>
+      </td>
+      <td style="vertical-align: top;">Single String Format<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">mapVariable.editAreaName =
+["string1", "string2", "string3"]<br>
+      </td>
+      <td style="vertical-align: top;">List of Strings Format<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">mapVariable.editAreaName =
+functionName<br>
+      </td>
+      <td style="vertical-align: top;">Function Format<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h5>Single String Format</h5>
+In the example below, the name of each generated edit area is obtained
+from the attribute <b>zone</b> specified in the field editAreaName. The program looks
+up the value for the attribute <b>zone</b> in the database record for each polygon
+and creates an edit area with that name. The example below uses the simple
+format for the editAreaName, in which only one attribute is specified.
+<pre>
+CWAzones = ShapeTable('zone')
+CWAzones.name = CWA + '_zones'
+CWAzones.editAreaName = 'zone'
+</pre>
+<p>Examples of the names of the edit areas generated from the above
+snippet
+is shown in the following table:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>zone value from shapefile</td>
+      <td>state (not used in this example)</td>
+      <td>Name of Edit Area</td>
+    </tr>
+    <tr>
+      <td>034</td>
+      <td>CO</td>
+      <td>zone034</td>
+    </tr>
+    <tr>
+      <td>041</td>
+      <td>CO</td>
+      <td>zone041</td>
+    </tr>
+    <tr>
+      <td>041</td>
+      <td>NE</td>
+      <td>zone041</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>Note that if a site's domain covers more than one state, this simple form of generating
+edit area names will not work. The "NE" example above illustrates
+that the same edit area name was generated even though the zones were
+from different states. Also note that the naming of the edit area includes
+the name "zone" only because the value of the zone value begins with a
+number.
+</p>
+<p><span style="font-weight: bold; color: rgb(255, 0, 0);">NOTE:
+Changing the default set of edit area names as supplied in the baseline
+may render your text formatters and VTEC inoperable. The text
+formatters and VTEC assume standard UGC-named edit areas, such as
+COZ023 and UTC013.</span><br>
+</p>
+<h5>List of Strings Format</h5>
+<p>A second, more complex form of the editAreaName involves using
+a Python list. The naming of an edit area is determined by
+using more than one attribute. This example uses the more complex
+form for the editAreaName, in which two attributes are specified.
+</p>
+<pre>
+CWAzones = ShapeTable('zone')
+CWAzones.name = CWA + '_zones'
+CWAzones.editAreaName = ['state','zone']
+</pre>
+<p>Examples of the names of the edit areas generated from the above
+snippet
+is shown in the following table:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>zone value from shapefile</td>
+      <td>state (not used in this example)</td>
+      <td>Name of Edit Area</td>
+    </tr>
+    <tr>
+      <td>034</td>
+      <td>CO</td>
+      <td>CO_034</td>
+    </tr>
+    <tr>
+      <td>041</td>
+      <td>CO</td>
+      <td>CO_041</td>
+    </tr>
+    <tr>
+      <td>041</td>
+      <td>NE</td>
+      <td>NE_041</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>The edit area name is determined from the value of the <b>state</b>
+attribute,
+followed by an underscore character, and then the value of the <b>zone</b>
+attribute.
+</p>
+<p>Here is the software algorithm for naming of edit areas:
+</p>
+<ul>
+<li>the value for each of the attributes is extracted from the
+shapefiles.
+All spaces and non-alphanumeric characters are removed from the
+value.<br>
+Example: "Washington Meadows" would be changed to "WashingtonMeadows"
+</li>
+<li>if any of the values results in an empty string, then the edit area is not generated.
+</li>
+<li>the values are put together with an underscore separator for each of the attributes.<br>
+Example: Attribute <b>state</b> has a value of "CO", Attribute <b>zone</b> has a value of "034". 
+Result is CO_034.
+</li>
+<li>if the leading character of the result begins with a number, then the name
+of the first attribute is prefixed to the string.<br>
+Example: If the preceding string was 034 and its attribute was <b>zone</b>, then the resulting
+edit area name becomes zone034.
+</li>
+</ul>
+The ordering of the list of attributes can change the naming as shown
+in
+the following table, which assumes <b>zone</b>=034, <b>state</b>=CO, <b>wfo</b>=BOU,
+<b>name</b>=Summit County/Mosquito Range/Indian Peaks:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>editAreaName string</td>
+      <td>Name of Edit Area</td>
+    </tr>
+    <tr>
+      <td>'zone'</td>
+      <td>zone034</td>
+    </tr>
+    <tr>
+      <td>['zone','state']</td>
+      <td>zone034_CO</td>
+    </tr>
+    <tr>
+      <td>['state','zone']</td>
+      <td>CO_034</td>
+    </tr>
+    <tr>
+      <td>['wfo','name']</td>
+      <td>BOU_SummitCountyMosquitoRangeIndianPeaks</td>
+    </tr>
+    <tr>
+      <td>['zone','name','state']</td>
+      <td>zone034_SummitCountyMosquitoRangeIndianPeaks_CO</td>
+    </tr>
+  </tbody>
+</table>
+<p>Note that specification of an attribute that doesn't exist will simply
+use the name in the string. For example, if you are creating edit
+areas and you want them of the form ISC_xxx, where xxx is the value of the <b>wfo</b>
+attribute.
+The editAreaName string would be the following:
+<pre>
+ISCareas.editAreaName = ['ISC', 'wfo'] 
+</pre>
+</p>
+<p>
+<span style="font-weight: bold; color: rgb(255, 0, 0);">
+NOTE: Changing the default set of edit area names as supplied in the baseline may
+render your text formatters and VTEC inoperable. The text formatters
+and VTEC assume standard UGC-named edit areas, such as COZ023 and UTC013.
+</span>
+</p>
+<h5>Function Format<br>
+</h5>
+<p>
+Occasionally there is a need to calculate a special edit area name and
+the single or list of strings methods are not sufficient. The
+function format requires the user to name a function and then define a
+function. The function has one argument, which receives a
+dictionary of attribute names and their values. The return
+value of the function is a string which becomes the edit area name.
+</p>
+<p>
+For example, lets say that we want edit area names based on the county
+FIPS code. The desired format is stateCfips, such as COC013, for
+Colorado County #13. The county shapefile has a 'STATE'
+attribute, such as "CO", and it has a 'FIPS' attribute, such as 08013
+for Colorado County #13.&nbsp;&nbsp; Using the list of strings format,
+['STATE', 'C', 'FIPS'], you would end up with CO_C_08013, when we
+really want COC013. 
+</p>
+This is how the code would be implemented:
+<pre>
+def cwaEAN(atts):
+    fips = atts['fips'][-3:]        #take the last three characters from the FIPS code
+    s = atts['state'] + "C" + fips  #assemble the name
+    return s                        #return the complete edit area name
+    
+CWAcounties = ShapeTable('county')
+CWAcounties.name = CWA + '_counties'
+CWAcounties.editAreaName = cwaEAN
+</pre>
+The "atts" dictionary looks simlilar to the following:
+<pre>
+{'countyname': 'Delta', 
+ 'cwa': 'MQT'
+ 'fe_area': 'sr', 
+ 'fips': '26041', 
+ 'lat': 45.82085, 
+ 'lon': -86.909679999999994, 
+ 'state': 'MI', 
+ 'time_zone': 'E',
+}
+</pre>
+and the final string is: MIC041<br>
+<h4>Basic Map with Automatically Generated Edit Areas with group
+definition</h4>
+An example of a basic map with automatically generated edit areas with
+group definition:
+This is identical to the Basic Map with Automatically Generated Edit
+Areas case except that the user has specified a group name. All of
+the generated edit areas will be placed in the edit area group called
+'Zones'.
+<pre>
+CWAzones = ShapeTable('zone')
+CWAzones.name = CWA + '_zones'
+CWAzones.editAreaName = 'zone'
+CWAzones.groupName = 'Zones'
+</pre>
+<h4>Filtered Map with Automatically Generated Edit Areas</h4>
+This definition is for a filtered map with no automatic creation of edit
+areas. The filter line performs the filtering. The basic format
+of this line is as follows:
+<pre>
+pythonMapName.filter(lambda x : x['ATTRIBUTENAME'] = AttributeValue)
+</pre>
+<p>where ATTRIBUTENAME is one of the <a href="#Attributes">attributes</a>
+in the shapefile, and AttributeValue is the value that must match in
+the
+shapefile for this shape to be kept in the map. Attributes for the NWS
+shapefiles can be obtained from the AWIPS Map Catalog <a
+ href="http://www.nws.noaa.gov/geodata/">AWIPS
+Map Background Database</a>.
+</p>
+<pre>
+CWAzones = ShapeTable('Zone')
+CWAzones.name = CWA + '_zones'
+CWAzones.filter(lambda x : x['cwa'] == CWA)
+CWAzones.editAreaName = cwazones
+</pre>
+<p>The "lambda" function is a shortcut method of writing a function,
+the code snippet below performs the identical function:
+</p>
+<pre>
+def cwaZoneFilt(x):
+    return x['cwa'] == CWA
+
+CWAzones = ShapeTable('zone')
+CWAzones.name = CWA + '_zones'
+CWAzones.filter(cwaZoneFilt)
+CWAzones.editAreaName = cwazones
+</pre>
+<p>Since this is all Python code, there is another technique you can
+use to write a filter function which is complex. Here is an example
+of writing a filter that selects certain counties (Summit, Sandusky,
+Huron, and Medina) from the county database table for a particular state (Ohio) and
+cwa (Cleveland):
+</p>
+<pre>
+def exampleFilt(x):
+    myCounties = ['Summit', 'Sandusky', 'Huron', 'Medina']
+    return x['countyname'] in myCounties and x['st'] == "OH" and x['cwa'] = 'CLE'
+
+OHcounties = ShapeTable('county')
+OHcounties.name = 'ExampleOHCounties'
+OHcounties.filter(exampleFilt)
+OHcounties.editAreaName = 'countyname'
+</pre>
+<h4>Filtered Map with Automatically Generated Edit Areas with group
+definition</h4>
+This is identical to the Filtered Map with Automatically Generated Edit
+Areas case except that the user has specified a group name. All
+of the generated edit areas will be placed in the edit area group called 'Zones'.
+<pre>
+CWAzones = ShapeTable('zone')
+CWAzones.name = CWA + '_zones'
+CWAzones.filter(lambda x : x['cwa'] == CWA)
+CWAzones.editAreaName = ['state','zone']
+CWAzones.groupName = 'Zones'
+</pre>
+<h2><a name="PuttingitallTogetherwiththemaplist"></a>Putting it all
+Together with the map list</h2>
+In order for the system to recognize the list of defined maps, they
+must be put all together in a list. The list MUST be called
+maps. This example list, shows that there are three maps defined. The
+entries within the list are the Python variable names (name to the left of the
+equal sign on the ShapeTable line).
+<pre>
+maps = [ CWAcounties, Counties, CWAzones ]
+</pre>
+<h2><a name="ImportinglocalMaps"></a>Importing localMaps</h2>
+The final section of the Maps.py file is the software that checks for a
+localMaps configuration and uses it if it exists. Do not change
+this
+section of the file.
+<pre>
+# import the local maps file</tt>
+try:
+    import localMaps
+except:
+    pass
+</pre>
+<hr width="100%">
+<div class="Body"><tt>&nbsp;<a href="#Overview">Back To Top</a></tt>
+<br>
+<tt>&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></tt></div>
+</body>
+</html>

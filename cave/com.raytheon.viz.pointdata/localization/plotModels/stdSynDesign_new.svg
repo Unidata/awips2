@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+<?xml-stylesheet type='text/css' href='newplots.css'?>
+<svg height="100" overflow="visible" plugin="sfcobs" style="stroke: rgb(255,255,255);" viewBox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <style type="text/css">
+        <![CDATA[
+                @font-face { font-family: "WindSymbolFont";
+                        src: url(WindSymbols.svg#WindSymbols); }
+                @font-face { font-family: "WxSymbolFont";
+                        src: url(WxSymbols.svg#WxSymbols); }
+                @font-face { font-family: "SpecialSymbolFont";
+                        src: url(SpecialSymbols.svg#SpecialSymbols); }
+                @font-face { font-family: "LargeSpecialSymbolFont";
+                        src: url(LargeSpecialSymbols.svg#LrgSpecialSymbols); }
+                text.large
+                    {
+                        fill: none;
+                        font-size: 1.5em;
+                        stroke-width: 1px;
+                        font-size: 1.5em;
+                        font-family: LargeSpecialSymbolFont;
+                    }
+            @font-face { font-family: "MarkerSymbolFont";
+              src: url(MarkerSymbols.svg#MarkerSymbols); }
+]]>
+        </style>
+        <symbol class="info" id="plotData" overflow="visible">
+            <text id="sampleText" plotMode="SAMPLE" plotParam="rawReport" x="0" y="0">0</text>
+            <text id="cloudCoverText" plotParam="totCloudAmount" x="0" y="0">0</text>
+            <text id="presentWxText" plotParam="wx_present" style="text-anchor: end" x="-10" y="0">0</text>
+            <text id="pressure" plotParam="seaLevelPress (daPa)" style="text-anchor: start;" x="10px" y="-10px">018</text>
+            <text id="tempText" plotParam="temperature (°F)" style="text-anchor: end;" x="-10px" y="-10px">75</text>
+            <text id="dewText" plotParam="dewpoint (°F)" style="text-anchor: end;" x="-10px" y="10px">59</text>
+            <text id="pressChngText" plotParam="pressChange3Hour (daPa)" style="text-anchor: start;" x="10px" y="0">018</text>
+            <text id="chngCharText" plotParam="pressChangeChar" style="text-anchor: start;" x="35px" y="0">KOAX</text>
+            <text id="peakWind" plotParam="peakWindSpeed (kts)" style="text-anchor: end;" x="-10px" y="20px">59</text>
+            <g id="windVaneText" plotParam="windSpeed,windDir,windGust (kts)" transform="rotate(0,0,0)" x="0" y="0">
+                <text class="arrow" id="windVaneText" x="0" y="0">0
+                </text>
+                <text class="barb" id="windArrowText" x="0" y="0">arrow
+                </text>
+                <text class="text" id="windGustText" style="text-anchor: middle" x="0" y="32">0</text>
+            </g>
+            <text class="marker" id="marker" plotParam="Marker" x="-20px" y="-20px"> </text>
+       </symbol>
+    </defs>
+    <use height="100" id="wind" visibility="visible" width="100" x="50" y="50" xlink:href="#plotData" />
+</svg>

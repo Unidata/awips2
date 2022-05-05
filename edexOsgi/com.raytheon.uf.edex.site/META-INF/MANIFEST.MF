@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Site Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.site
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.site;visibility:=reexport,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.edex.site,
+ com.raytheon.uf.edex.site.notify

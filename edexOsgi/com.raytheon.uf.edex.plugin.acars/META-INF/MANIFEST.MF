@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Acars Decoder Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.acars
+Bundle-Version: 1.14.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.dataplugin.acars,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
+ org.geotools,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.edex.pointdata
+Export-Package: com.raytheon.uf.edex.plugin.acars,
+ com.raytheon.uf.edex.plugin.acars.common,
+ com.raytheon.uf.edex.plugin.acars.dao
+Import-Package: com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets

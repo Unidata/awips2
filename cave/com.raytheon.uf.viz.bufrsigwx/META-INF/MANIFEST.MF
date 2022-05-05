@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrsigwx Displays
+Bundle-SymbolicName: com.raytheon.uf.viz.bufrsigwx;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.bufrsigwx.common,
+ com.raytheon.uf.viz.bufrsigwx.rsc,
+ com.raytheon.uf.viz.bufrsigwx.util
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.dataplugin.bufrsigwx,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.viz.pointdata,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.viz.core.point,
+ org.eclipse.swt,
+ javax.measure,
+ javax.xml.bind
+Bundle-ClassPath: com.raytheon.uf.viz.bufrsigwx.jar

@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AlertViz Plugin
+Bundle-SymbolicName: com.raytheon.uf.viz.alertviz;singleton:=true
+Bundle-Version: 1.18.3.qualifier
+Bundle-Activator: com.raytheon.uf.viz.alertviz.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.apache.activemq,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.viz.core;visibility:=reexport,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.message,
+ javax.jms,
+ ch.qos.logback,
+ org.slf4j,
+ org.apache.derby,
+ com.raytheon.uf.common.logback,
+ com.raytheon.uf.common.time,
+ org.jep,
+ com.raytheon.uf.common.python,
+ com.raytheon.uf.common.python.concurrent,
+ com.raytheon.uf.common.util,
+ org.apache.commons.lang3,
+ javax.xml.bind
+Export-Package: com.raytheon.uf.viz.alertviz,
+ com.raytheon.uf.viz.alertviz.config
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: com.raytheon.uf.common.time
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy: ch.qos.logback, com.raytheon.uf.common.logback
+Bundle-ClassPath: com.raytheon.uf.viz.alertviz.jar,.

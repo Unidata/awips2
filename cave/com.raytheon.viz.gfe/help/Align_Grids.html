@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>Align_Grids</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>Align_Grids</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Overview</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">This procedure will align the time 
+breaks of selected weather elements to match the time breaks of the individual grids of a "source" 
+element. The main idea is to help minimize manual splitting and stretching of grids in the Grid 
+Manager.  If a grid to align does not exist, then it will be created from scratch. Therefore one 
+use of this procedure could be to create default SnowAmt grids that match the time breaks of QPF 
+grids. In general, you will want to edit the source element first creating the desired time breaks 
+and then run this procedure to align other elements before editing them. For example, edit Wx, 
+then run Align_Grids to line up the floating PoP grids with the Wx grids, then edit PoP. 
+<br><br>
+The data from an element's original time breaks are transformed to the new time breaks using the 
+following methods:
+<ul>
+  <li><b>Wx:</b> "MaxTime" - uses original grid with the dominant temporal coverage in the new 
+  aligned time range.</li>
+  <li><b>PoP:</b> "Max" - Maximum value of all original grids in the new time range of the 
+  aligned grid.</li>
+  <li><b>Sky:</b> "Max" - Maximum value of all original grids in the new time range of the 
+  aligned grid.</li>
+  <li><b>WindGust:</b> "Max" - Maximum value of all original grids in the new time range of the 
+  aligned grid. NOTE: WindGust is always aligned to Wind grids.</li>
+  <li><b>Wind:</b> "TimeWtAverage" - Time weighted average value</li>
+  <li><b>QPF:</b> "Sum" - Summation of all grids</li>
+  <li><b>SnowAmt:</b> "Sum" - Summation of all grids</li>
+  <li>IceAccum: "Sum, - Summation of all grids</li>
+</ul><br>
+The logic for the procedure is as follows:<br>
+<ol>
+  <li>The procedure first copies the element to align to a temporary element.</li>
+  <li>New grids for the element to align are created from scratch to match the 
+  time breaks of the source element's grids.</li>
+  <li>The grids in the temporary element are either fragmented (for rate based elements) 
+  or split to match the time breaks of the source element.</li>
+  <li>Finally, the values in the temporary grids are assigned back to the aligned grids '
+  using the getGrids method with the appropriate setting of the getGrids "mode" argument.</li>
+</ol></body>
+</html>

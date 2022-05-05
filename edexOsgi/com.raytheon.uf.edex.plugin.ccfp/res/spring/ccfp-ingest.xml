@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="ccfpDecoder" class="com.raytheon.uf.edex.plugin.ccfp.CcfpDecoder" />
+    <bean id="ccfpSeparator" class="com.raytheon.uf.edex.plugin.ccfp.CcfpSeparator" />
+
+    <bean id="ccfpDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="ccfp" />
+        <constructor-arg value="jms-durable:queue:Ingest.ccfp" />
+    </bean>
+
+    <camelContext id="ccfp-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Begin ccfp routes -->
+        <route id="ccfpIngestRoute">
+            <from uri="jms-durable:queue:Ingest.ccfp"/>
+            <setHeader name="pluginName">
+                <constant>ccfp</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <split streaming="true">
+                        <method ref="ccfpSeparator" method="separate" />
+                        <doTry>
+                            <pipeline>
+                                <bean ref="ccfpDecoder" method="decode" />
+                                <to uri="direct-vm:indexAlert" />
+                            </pipeline>
+                            <doCatch>
+                                <exception>java.lang.Throwable</exception>
+                                <to uri="log:ccfp?level=ERROR"/>
+                            </doCatch>
+                        </doTry>
+                    </split>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:ccfp?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

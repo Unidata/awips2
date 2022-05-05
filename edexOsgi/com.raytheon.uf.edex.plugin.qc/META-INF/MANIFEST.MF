@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Qc Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.qc
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.common.dataplugin.qc,
+ com.raytheon.uf.common.localization,
+ ucar.nc2
+Import-Package: com.raytheon.uf.common.status

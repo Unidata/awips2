@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Data Listing
+Bundle-SymbolicName: com.raytheon.uf.common.datalisting
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization.comm
+Export-Package: com.raytheon.uf.common.datalisting,
+ com.raytheon.uf.common.datalisting.impl

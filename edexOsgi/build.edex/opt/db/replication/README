@@ -1,0 +1,62 @@
+POSTGRESQL REPLICATION
+----------------------
+
+This file contains the procedure for setting up PostgreSQL replication with
+a single master and one or more standby servers.
+
+
+SETUP - ALL SERVERS
+-------------------
+
+On each server you must add lines to pg_hba.conf to allow remote replication
+connections:
+
+    host replication replication 12.34.56.0/24 cert clientcert=1
+
+Replace "12.34.56.0/24" with the standby server IP address (or block).
+Every server should have one line for every server in the replication setup,
+including itself--thus all servers should have the same lines. This enables
+quickly changing which server is the master without extra configuration.
+
+Also you need to add a SSL certificate and key for the "replication" DB role.
+You have to create these files yourself, except for root.crt which is the
+root certificate for the database--you can copy that one straight from
+/awips2/database/ssl. Put them here:
+
+/awips2/database/ssl/replication/${hostname -s}/replication.crt
+/awips2/database/ssl/replication/${hostname -s}/replication.key
+/awips2/database/ssl/replication/${hostname -s}/root.crt
+
+
+SETTING UP STANDBYS
+-------------------
+
+You must run "setup-standby.sh" on each server to turn it into a standby.
+
+Before you run it, open the script in a text editor, and verify
+the value of each variable in the Configuration section at the top of the
+script.
+
+When you run it, specify the master server as the first argument, e.g.:
+
+  $ ./setup-standby.sh dds1-ancf
+
+The existing PostgreSQL data directory on the new standby server will be
+destroyed, and it will become a replica of the master. pg_hba.conf will
+be retained (i.e., will not be replaced with the copy from master).
+
+Note that a standby can replicate from another standby--it does not have to
+replicate directly from the master. This is useful for reducing WAN traffic.
+
+
+FAILOVER
+--------
+
+To promote a standby to master:
+
+  1. Stop PostgreSQL on the master if it is running.
+  2. On the standby, create the file "/awips2/database/data/promote". The
+     standby will stop replication and recognize itself as the new master.
+  3. On the old master and the other standbys, run setup-standby.sh with the
+     hostname of the new master, to re-initialize them and start replicating
+     from the new master.

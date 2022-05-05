@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VIIRS Edex Plugin
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.npp.viirs
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.geotools,
+ javax.measure,
+ javax.persistence,
+ com.raytheon.uf.common.dataplugin.npp.viirs,
+ ucar.nc2,
+ org.apache.commons.lang3,
+ com.raytheon.uf.edex.plugin.npp,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.numeric,
+ org.slf4j,
+ javax.xml.bind

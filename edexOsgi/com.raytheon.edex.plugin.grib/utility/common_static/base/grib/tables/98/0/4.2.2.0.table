@@ -1,0 +1,20 @@
+# Product Discipline 2: Land surface products, Parameter Category 0: Vegetation/Biomass
+#192-254 Reserved for local use
+192:192:Volumetric soil moisture content:Proportion:SOILW
+193:193:Ground heat flux:W/m^2:GFLUX
+194:194:Moisture availability:%:MSTAV
+195:195:Exchange coefficient:kg*m^-2*s^-1:SFEXC
+196:196:Plant canopy surface water:mm:CNWAT
+197:197:Blackadars mixing length scale:m:BMIXL
+198:198:Vegetation Type:Integer 0-13:VGTYP
+199:199:Canopy conductance:m/s:CCOND
+200:200:Minimal stomatal resistance:s/m:RSMIN
+201:201:Wilting point:Proportion:WILT
+202:202:Solar parameter in canopy conductance:Fraction:RCS
+203:203:Temperature parameter in canopy conductance:Fraction:RCT
+204:204:Humidity parameterin canopy conductance:Fraction:RCQ
+205:205:Soil moisture parameter in canopy conductance:Fraction:RCSOL
+206:206:Rate of water dropping from canopy to:RDRIP:ground
+207:207:Ice-free water:ICWAT:surface
+255:255:Missing
+

@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<!-- This file configures the Jetty Server used by the ebxml registry. This 
+    file is read in by the class com.raytheon.uf.edex.registry.ebxml.web.RegistryWebServer -->
+
+<Configure id="RegistryWebServer" class="org.eclipse.jetty.server.Server">
+
+    <New id="httpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
+      <Set name="securePort">
+        <SystemProperty name="ebxml.registry.webserver.port" default="8082" />
+      </Set>
+      <Set name="persistentConnectionsEnabled" type="boolean">true</Set>
+    </New>
+    
+    <!-- =========================================================== -->
+    <!-- Create a TLS specific HttpConfiguration based on the        -->
+    <!-- common HttpConfiguration defined in jetty.xml               -->
+    <!-- Add a SecureRequestCustomizer to extract certificate and    -->
+    <!-- session information                                         -->
+    <!-- =========================================================== -->
+    <New id="sslHttpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
+        <Arg><Ref refid="httpConfig"/></Arg>
+        <Call name="addCustomizer">
+        <Arg>
+            <New class="org.eclipse.jetty.server.SecureRequestCustomizer" />
+        </Arg>
+        </Call>
+    </New>
+    
+    <Call name="addConnector">
+     <Arg>
+        <New id="sslConnector" class="org.eclipse.jetty.server.ServerConnector">
+             <Arg name="server"><Ref refid="RegistryWebServer" /></Arg>
+             <Arg name="factories">
+                <Array type="org.eclipse.jetty.server.ConnectionFactory">
+                    <Item>
+                        <New class="org.eclipse.jetty.server.SslConnectionFactory">
+                            <Arg name="next">http/1.1</Arg>
+                            <Arg name="sslContextFactory">
+                                <New class="com.raytheon.uf.edex.registry.ebxml.web.security.RegistrySSLContextFactory">
+                                    <Set name="keyStorePath">
+                                        <SystemProperty name="edex.security.keystore.path" />
+                                    </Set>
+                                    <Set name="keyStorePassword">
+                                        <SystemProperty name="edex.security.keystore.password" />
+                                    </Set>
+                                    <Set name="keyManagerPassword">
+                                        <SystemProperty name="edex.security.keystore.password" />
+                                    </Set>
+                                    <Set name="trustStorePath">
+                                        <SystemProperty name="edex.security.truststore.path" />
+                                    </Set>
+                                    <Set name="trustStorePassword">
+                                        <SystemProperty name="edex.security.truststore.password" />
+                                    </Set>
+                                </New>
+                            </Arg>
+                        </New>
+                    </Item>
+                    <Item>
+                        <New class="org.eclipse.jetty.server.HttpConnectionFactory">
+                            <Arg name="config"><Ref refid="sslHttpConfig" /></Arg>
+                        </New>
+                    </Item>
+                </Array>
+                 
+             </Arg>
+ 
+             <Set name="port">
+                <SystemProperty name="ebxml.registry.webserver.port" default="8082" />
+             </Set>
+             <Set name="idleTimeout" type="long">60000</Set>
+         </New>
+     </Arg>
+    </Call>
+    
+    <Set name="handler">
+        <New
+            class="com.raytheon.uf.edex.registry.ebxml.web.security.RegistryIPAccessHandler">
+            <Call name="setIPAccessControl" />
+            <Set name="handler">
+                <New class="org.eclipse.jetty.server.handler.HandlerList">
+                    <Set name="handlers">
+                        <Array type="org.eclipse.jetty.server.Handler">
+                            <Item>
+                                <New class="org.eclipse.jetty.webapp.WebAppContext">
+                                    <Set name="securityHandler">
+                                        <New class="org.eclipse.jetty.security.ConstraintSecurityHandler">
+                                            <Set name="loginService">
+                                                <New class="org.eclipse.jetty.jaas.JAASLoginService">
+                                                    <Set name="name"><SystemProperty name="edex.security.auth.loginService.name" /></Set>
+                                                    <Set name="loginModuleName"><SystemProperty name="edex.security.auth.loginService.realm" /></Set>
+                                                </New>
+                                            </Set>
+                                        </New>
+                                    </Set>
+                                    <Set name="descriptor">WEB-INF/web.xml</Set>
+                                    <Set name="resourceBase">
+                                        <SystemProperty name="ebxml.registry.webserver.home" />
+                                    </Set>
+                                    <Set name="contextPath">/</Set>
+                                    <Set name="parentLoaderPriority">true</Set>
+                                    <Set name="war">
+                                        <SystemProperty name="ebxml.registry.webserver.home" />
+                                    </Set>
+                                    <Set name="systemClasses">
+                                        <Array type="java.lang.String">
+                                            <Item>java.</Item>
+                                            <Item>javax.</Item>
+                                            <Item>org.</Item>
+                                            <Item>com.</Item>
+                                            <Item>gov.</Item>
+                                            <Item>ch.</Item>
+                                            <Item>net.</Item>
+                                            <Item>edu.</Item>
+                                        </Array>
+                                    </Set>
+                                </New>
+                            </Item>
+                            <Item>
+                                <New class="org.eclipse.jetty.server.handler.DefaultHandler">
+                                </New>
+                            </Item>
+                        </Array>
+                    </Set>
+                </New>
+            </Set>
+        </New>
+    </Set>
+</Configure>

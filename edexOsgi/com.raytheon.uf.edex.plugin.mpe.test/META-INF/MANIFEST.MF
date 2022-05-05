@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MPE Test & Verification Plugin
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.mpe.test
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.edex.database,
+ com.raytheon.uf.common.mpe,
+ com.raytheon.uf.common.ohd,
+ com.raytheon.uf.common.dataplugin.shef,
+ org.slf4j,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.edex.plugin.mpe,
+ org.apache.commons.io,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.mpe.gribit2,
+ javax.xml.bind

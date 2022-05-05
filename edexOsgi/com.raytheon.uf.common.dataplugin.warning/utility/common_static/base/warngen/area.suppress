@@ -1,0 +1,13 @@
+# NOTE: both number sign, # and the space ahead of UGC code need to be removed
+# in the following examples to make it work. Each site should copy this file 
+# to SITE-LEVEL area.suppress and append appropriate UGC code and direction to it
+# if there's a need to suppress direction in the first bullet for certain counties.
+
+# The following example suppresses east west direction for MTC087 at BYZ
+# MTC087 ew
+
+# The following example suppresses north south direction for ORC051 at PQR
+# ORC051 ns
+
+# The following example suppresses all directions for ORC051 at PQR
+# ORC051

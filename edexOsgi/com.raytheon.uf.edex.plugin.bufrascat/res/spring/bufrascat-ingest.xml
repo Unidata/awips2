@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufrascatDecoder" class="com.raytheon.uf.edex.plugin.bufrascat.AScatDecoder">
+        <constructor-arg ref="bufrascatPluginName" />
+    </bean>
+
+   <!-- Filter out all southern hemisphere data -->
+   <bean id="ascatSHFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+        <constructor-arg type="java.lang.String" value="ascat_filters.xml" />
+   </bean>
+
+    <bean id="bufrascatDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="bufrascat" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrascat" />
+    </bean>
+
+    <camelContext id="bufrascat-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Begin bufrascat routes -->
+        <route id="bufrascatIngestRoute">
+            <from uri="jms-durable:queue:Ingest.bufrascat"/>
+            <setHeader name="pluginName">
+                <constant>bufrascat</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="bufrascatDecoder" method="decode" />
+                    <bean ref="ascatSHFilter" method="filter" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrascat?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

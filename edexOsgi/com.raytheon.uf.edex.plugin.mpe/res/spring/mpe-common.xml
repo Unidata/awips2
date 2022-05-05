@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="precipPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="mpe_precip" />
+    </bean>
+
+    <bean id="precipProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="precipPluginName" />
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.mpe" />
+        <property name="dao"
+            value="com.raytheon.uf.edex.plugin.mpe.dao.metadata.impl.PrecipDao" />
+        <property name="record"
+            value="com.raytheon.uf.common.dataplugin.mpe.PrecipRecord" />
+    </bean>
+
+    <bean id="precipRegistered" factory-bean="pluginRegistry"
+        factory-method="register">
+        <constructor-arg ref="precipPluginName" />
+        <constructor-arg ref="precipProperties" />
+    </bean>
+
+</beans>

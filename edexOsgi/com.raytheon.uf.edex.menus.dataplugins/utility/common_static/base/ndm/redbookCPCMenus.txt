@@ -1,0 +1,27 @@
+# Release 
+submenu: "Hazards Charts"
+#productButton: 5292 # PYIA88 drought monitor
+#productButton: 5286 # PMNV88 Drought Outlook
+# title: "3-10 Day Threats Assessment"
+# productButton: 5289 # PEIY50 Precipitation Fcst
+# productButton: 5290 # PTIY98 Temp/Wind Fcst
+# productButton: 5291 # PYIY88 Soil/Wildfire Fcst
+ title: "3-7 Day Hazards Outlook"
+ productButton: 5432 # PEIY97 3-7 day Precipitation Fcst
+ productButton: 5434 # PTIY97 3-7 day Temperature/Wind Fcst
+ productButton: 5436 # PYIY97 3-7 day Soil/Wildfire Fcst
+ title: "8-14 Day Hazards Outlook"
+ productButton: 5433 # PEIY96 8-14 day Precipitation Fcst
+ productButton: 5435 # PTIY96 8-14 day Temperature/Wind Fcst
+ productButton: 5437 # PYIY96 8-14 day Soil/Wildfire Fcst
+ title: "6-10 Day Heat Index Fcst"
+ productButton: 5298 # PTAS90 >=85F for 3 days of 5
+ productButton: 5299 # PTAS95 >=90F for 2 days of 5
+ productButton: 5300 # PTAS00 >=95F for 1 day of 5
+ productButton: 5383 # PTNR98 Max Heat Index Outlook
+ title: "8-14 Day Heat Index Fcst"
+ productButton: 5301 # PTAT90 >=85F for 3 days of 7
+ productButton: 5302 # PTAT95 >=90F for 2 days of 7
+ productButton: 5303 # PTAT00 >=95F for 1 day of 7
+ productButton: 5247 # PTNT98 Max Heat Index Outlook
+endSubmenu

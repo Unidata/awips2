@@ -1,0 +1,2 @@
+Secondary elements are never split off when consolidating.  For example, the "Period" element which appears in the Swell phrase may have a constant value throughout the phrase.
+

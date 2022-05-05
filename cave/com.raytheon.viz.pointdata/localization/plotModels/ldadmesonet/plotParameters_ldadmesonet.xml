@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<plotParameterDefinitions>
+   <plugin>ldadmesonet</plugin>
+
+   <plotParameterDefinition displayName="stationId,observationTime" displayType="TEXT" param="stationId,observationTime" sampleValue="0,1" svgClass="text" />
+   
+   <plotParameterDefinition displayName="temperature,dewpoint,relHumidity,wetBulbTemperature" displayType="TEXT" param="temperature,dewpoint,relHumidity,wetBulbTemperature" sampleValue="0,1,2,3" svgClass="text" />
+
+   <plotParameterDefinition displayName="windDir,windSpeed,windGust" displayType="TEXT" param="windDir,windSpeed,windGust" sampleValue="0,1,2" svgClass="text" />
+
+   <plotParameterDefinition displayName="pressure,stationPressure,altimeter,seaLevelPressure,pressChangeChar,pressChange3Hour" displayType="TEXT" param="pressure,stationPressure,altimeter,seaLevelPressure,pressChangeChar,pressChange3Hour" sampleValue="0,1,2,3,4,5" svgClass="text" />
+
+   <plotParameterDefinition displayName="precipAccum,precipIntensity,precipType" displayType="TEXT" param="precipAccum,precipIntensity,precipType" sampleValue="0,1,2" svgClass="text" />
+
+   <plotParameterDefinition displayName="totalCloudCover,skyCover,skyLayerBase,cloudBaseHeight,visibility,visibilityStatus,presWeather" displayType="TEXT" param="totalCloudCover,skyCover,skyLayerBase,cloudBaseHeight,visibility,visibilityStatus,presWeather" sampleValue="0,1,2,3,4,5,6" svgClass="text" />
+   
+   <plotParameterDefinition displayName="temperature (°F)" displayType="TEXT" format="%3.0f" param="temperature" sampleValue="75" unit="°F" />
+
+   <plotParameterDefinition displayName="DpT (°F)" displayType="TEXT" format="%3.0f" param="DpT" sampleValue="59" unit="°F" />
+
+   <plotParameterDefinition displayName="seaLevelPressure (daPa)" displayType="TEXT" format="%5.0f" param="seaLevelPressure" sampleValue="018" trim="2" unit="daPa" />
+
+   <plotParameterDefinition displayName="windSpeed,windDir,windGust (kts)" displayType="BARB" param="windSpeed,windDir,windGust" sampleValue="0,1,2" unit="kts" />
+
+   <plotParameterDefinition displayName="windBarb" displayType="BARB" param="windSpeed,windDir" sampleValue="16,17" unit="kts" />
+
+   <plotParameterDefinition displayName="windDir" displayType="ARROWUV" param="windSpeed,windDir" sampleValue="16,17" unit="kts" />
+
+   <plotParameterDefinition displayName="windGust (kts)" displayType="TEXT" param="windGust" sampleValue="8" unit="kts" />
+
+   <plotParameterDefinition displayName="Marker" displayType="MARKER" param="Marker" sampleValue=" " svgClass="marker" />
+
+   <plotParameterDefinition displayName="HIWC (°F)" displayType="TEXT" format="%3.0f" param="HIWC" sampleValue="75" unit="°F" />
+</plotParameterDefinitions>

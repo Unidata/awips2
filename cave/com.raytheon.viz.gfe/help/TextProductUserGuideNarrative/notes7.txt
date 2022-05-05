@@ -1,0 +1,2 @@
+Here's the ExtendedNarrative definition which refers to the Extended component.  You may remember the "narrativeDef" entry from earlier sessions.
+

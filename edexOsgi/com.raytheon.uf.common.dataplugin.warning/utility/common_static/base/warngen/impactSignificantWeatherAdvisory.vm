@@ -1,0 +1,549 @@
+######################################################################################
+## SPS - SIGNIFICANT WEATHER ADVISORY                                               ##
+## WRITTEN BY:                                                                      ##
+## TOM BIRCHARD WFO HFO/EVAN BOOKBINDER WFO PBZ                                     ##
+## Modified by:                                                                     ##
+##    Phil Kurimski 9/16/2013  OB13.5.2-4 MAJOR RELEASE                             ## 
+##    Evan Bookbinder 9/18/2013 Implemented config.vm                               ##
+##    Mike Dangelo   6/24/2014  Made inclusion of both watches dependent on GUI     ##
+##                              bullet choices                                      ##
+##             Mike Dangelo 26 Mar 2015 Mixed Case edits                            ##
+##    Evan Bookbinder 6/15/15   Fixed horrible grammar on line-based selections     ##
+##    Evan Bookbinder 9/4/15    Replaced flash flooding with localized flooding in  ##
+##                              torrentainRain CTA so as not to imply need for FFW  ##
+##    Phil Kurimski 10/20/2015  Fixed line of storms wording/added campers CTA      ##
+##    Phil Kurimski  7/20/2017  Added Generic CTA for Thunderstorms                 ##
+##    Phil Kurimski  03/19/2018 Changed Dime to Penny size hail to match SVR prods  ##
+##    Phil Kurimski  04/25/2020 SPS IBW Format for SWIP and to add landspouts       ##
+##    Phil Kurimski  05/06/2020 Added landspouts to AT... bullet/rearranged Impacts ##
+##    Phil Kurimski  05/07/2020 Added waterspouts as a threat                       ##
+##    Phil Kurimski  05/08/2020 Added Broadcast media as a source DCS 22061         ##
+######################################################################################
+##
+##SET SOME INITIAL VARIABLES
+#parse("config.vm")
+#set($SPS = true)
+#set($hazard = "")
+#set($source = "!** YOU FAILED TO SELECT A SOURCE. PLEASE TYPE ONE OR REGENERATE THIS PRODUCT **!")
+#set($spsimpact = "")
+#set($spoutTag = "")
+#if(${stormType} == "line")
+  #set($report = "strong thunderstorms were reported")
+  #set($reportType1 = "strong thunderstorms")
+  #set($reportType2 = "These storms were")
+  #set($headline = "Strong thunderstorms")
+#else
+  #set($report = "a strong thunderstorm was reported")
+  #set($reportType1 = "a strong thunderstorm")
+  #set($reportType2 = "This storm was")
+  #set($headline = "A strong thunderstorm")
+#end
+#set($windThreat = "")
+#set($hailThreat = "")
+#set($hailTrail = "")
+#set($spoutReport = "")
+#############################################################
+#### CREATE BASIS WORDING ###################################
+#############################################################
+#if(${list.contains(${bullets}, "doppler")})
+  #set($report = "Doppler radar was tracking ${reportType1}")
+  #set($reportAuthSVR = "capable of producing")
+  #set($source = "Radar indicated.")
+#end
+#if(${list.contains(${bullets}, "stormSpotters")})
+  #set($report = "trained weather spotters reported ${reportType1}")
+  #set($reportAuthSVR = "producing") 
+  #set($source = "Trained weather spotters.")
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($report = "local law enforcement reported ${reportType1}")
+  #set($reportAuthSVR = "producing") 
+  #set($source = "Law enforcement.")
+#end
+#if(${list.contains(${bullets}, "emergencyMgmt")})
+  #set($report = "emergency management reported ${reportType1}")
+  #set($reportAuthSVR = "producing") 
+  #set($source = "Emergency management.")
+#end
+#if(${list.contains(${bullets}, "broadcastMedia")})
+  #set($report = "broadcast media reported ${reportType1}")
+  #set($reportAuthSVR = "producing") 
+  #set($source = "Broadcast media.")
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set($report = "the public reported ${reportType1}")
+  #set($reportAuthSVR = "producing") 
+  #set($source = "Public.")
+#end
+#if(${list.contains(${bullets}, "amateurRadio")})
+  #set($report = "amateur radio operators reported ${reportType1}")
+  #set($reportAuthSVR = "producing") 
+  #set($source = "Amateur radio.")
+#end
+###################################################
+## HANDLE WIND POSSIBILITIES ######################
+###################################################
+#set($windSpeed = 0)
+#set($windTag = "<30 MPH")
+#set($windImpact = "")
+#if(${list.contains(${bullets}, "wind30")})
+  #set($windThreat = "winds in excess of 30 mph") 
+  #set($windSpeed = 30)
+  #set($windTag = "30 MPH")
+  #set($windHazard = "winds in excess of 30 mph")
+  #set($windImpact = "Gusty winds could knock down tree limbs and blow around unsecured objects.")
+#end
+#if(${list.contains(${bullets}, "wind40")})
+  #set($windThreat = "winds in excess of 40 mph") 
+  #set($windSpeed = 40)
+  #set($windTag = "40 MPH")
+  #set($windHazard = "winds in excess of 40 mph")
+  #set($windImpact = "Gusty winds could knock down tree limbs and blow around unsecured objects.")
+#end
+#if(${list.contains(${bullets}, "wind50")})
+  #set($windThreat = "wind gusts up to 50 mph") 
+  #set($windSpeed = 50)
+  #set($windTag = "50 MPH")
+  #set($windHazard = "wind gusts up to 50 mph")
+  #set($windImpact = "Gusty winds could knock down tree limbs and blow around unsecured objects.")
+#end
+#if(${list.contains(${bullets}, "wind55")})
+  #set($windThreat = "wind gusts of 50 to 55 mph") 
+  #set($windSpeed = 50)
+  #set($windTag = "55 MPH")
+  #set($windHazard = "wind gusts of 50 to 55 mph")
+  #set($windImpact = "Gusty winds could knock down tree limbs and blow around unsecured objects.")
+#end
+###################################################
+## HANDLE HAIL POSSIBILITIES ######################
+###################################################
+#set($hailSize = 0)
+#set($smallHail = "")
+#set($hailCTA = "")
+#set($hailTag = "0.00 IN")
+#set($hailImpact = "")
+#if(${list.contains(${bullets}, "peaHail")})
+  #set($hailSize = 0.25)
+  #set($hailThreat = "Pea size") 
+  #set($hailTrail = " hail") 
+  #set($hailCTA = "hail and ")
+  #set($hailTag = "0.25 IN")
+  #set($hailHazard = "pea size hail")
+  #set($hailImpact = "Minor damage to outdoor objects is possible.") 
+#end
+#if(${list.contains(${bullets}, "halfHail")})
+  #set($hailSize = 0.50)
+  #set($hailThreat = "Half inch") 
+  #set($hailTrail = " hail") 
+  #set($hailCTA = "hail and ")
+  #set($hailTag = "0.50 IN")
+  #set($hailHazard = "half inch hail")
+  #set($hailImpact = "Minor damage to outdoor objects is possible.")
+#end
+#if(${list.contains(${bullets}, "pennyHail")})
+  #set($hailSize = 0.75)
+  #set($hailThreat = "Penny size") 
+  #set($hailTrail = " hail") 
+  #set($hailCTA = "hail and ")
+  #set($hailTag = "0.75 IN")
+  #set($hailHazard = "penny size hail")
+  #set($hailImpact = "Minor damage to outdoor objects is possible.")
+#end
+#if(${list.contains(${bullets}, "nickelHail")})
+  #set($hailSize = 0.88)
+  #set($hailThreat = "Nickel size") 
+  #set($hailTrail = " hail") 
+  #set($hailCTA = "hail and ")
+  #set($hailTag = "0.88 IN")
+  #set($hailHazard = "nickel size hail")
+  #set($hailImpact = "Minor damage to outdoor objects is possible.")
+#end
+##############################################################
+## HANDLE LANDSPOUT/WATERSPOUT POSSIBILITIES #################
+##############################################################
+#if(${list.contains(${bullets}, "sightedSpout")})
+	#set($spoutTag = "LANDSPOUT...OBSERVED")
+	#set($spoutHazard = "landspouts")
+	#set($spoutImpact = "Minor damage to outdoor objects is possible.")
+	#set($spoutReport = " producing a landspout")
+#end
+#if(${list.contains(${bullets}, "possibleSpout")})
+	#set($spoutTag = "LANDSPOUT...POSSIBLE")
+	#set($spoutHazard = "landspouts")
+	#set($capable = "capable of ")
+	#set($spoutImpact = "Minor damage to outdoor objects is possible.")
+	#set($spoutReport = " ${capable}producing a landspout")
+#end
+#if(${list.contains(${bullets}, "sightedWSpout")})
+	#set($spoutTag = "WATERSPOUT...OBSERVED")
+	#set($spoutHazard = "waterspouts")
+	#set($Wspout = "yes")
+	#set($spoutImpact = "Waterspouts can easily overturn boats and create locally hazardous waters.")
+	#set($spoutReport = " producing a waterspout over Lake !**NAME**!")
+#end
+#if(${list.contains(${bullets}, "possibleWSpout")})
+	#set($spoutTag = "WATERSPOUT...POSSIBLE")
+	#set($spoutHazard = "waterspouts")
+	#set($capable = "capable of ")
+	#set($Wspout = "yes")
+	#set($spoutImpact = "Waterspouts can easily overturn boats and create locally hazardous waters.")
+	#set($spoutReport = " ${capable}producing a waterspout over Lake !**NAME**!")
+#end
+##################################################################################
+## Logic to put together the threats based on Wind...Hail and Landspout sections.
+##################################################################################
+#if(${spoutHazard} && ${windHazard} && ${hailHazard})
+	#set($threat = "${spoutHazard}, ${windHazard}, and ${hailHazard}")
+	#if($Wspout.length() > 0)
+		#set($spsimpact = "${spoutImpact} ${windImpact} ${hailImpact}")
+	#else
+		#set($spsimpact = "${spoutImpact} ${windImpact}")
+	#end
+#elseif(${spoutHazard} && ${hailHazard})
+	#set($threat = "${spoutHazard} and ${hailHazard}")
+	#if($Wspout.length() > 0)
+		#set($spsimpact = "${spoutImpact} ${hailImpact}")
+	#else
+		#set($spsimpact = "${spoutImpact}")
+	#end
+#elseif(${spoutHazard} && ${windHazard})
+	#set($threat = "${spoutHazard} and ${windHazard}")
+	#set($spsimpact = "${spoutImpact} ${windImpact}")
+#elseif(${windHazard} && ${hailHazard})
+	#set($threat = "${windHazard} and ${hailHazard}")
+	#set($spsimpact = "${windImpact} ${hailImpact}")
+#elseif(${spoutHazard})
+	#if(${list.contains(${bullets}, "possibleSpout")})
+		#set($threat = "!**YOU SELECTED A POSSIBLE LANDSPOUT AS THE ONLY THREAT. PLEASE SELECT A WIND/HAIL THREAT AS WELL AND RE-GENERATE THIS PRODUCT!**!")
+		#set($spsimpact = "!**YOU SELECTED A POSSIBLE LANDSPOUT AS THE ONLY THREAT. PLEASE SELECT A WIND/HAIL THREAT AS WELL AND RE-GENERATE THIS PRODUCT!**!")
+	#elseif (${list.contains(${bullets}, "possibleWSpout")})
+		#set($threat = "!**YOU SELECTED A POSSIBLE WATERSPOUT AS THE ONLY THREAT. PLEASE SELECT A WIND/HAIL THREAT AS WELL AND RE-GENERATE THIS PRODUCT!**!")
+		#set($spsimpact = "!**YOU SELECTED A POSSIBLE WATERSPOUT AS THE ONLY THREAT. PLEASE SELECT A WIND/HAIL THREAT AS WELL AND RE-GENERATE THIS PRODUCT!**!")
+	#else
+		#set($threat = "${spoutHazard}")
+		#set($spsimpact = "${spoutImpact}")
+	#end
+#elseif(${windHazard})
+	#set($threat = "${windHazard}")
+	#set($spsimpact = "${windImpact}")
+#elseif(${hailHazard})
+	#set($threat = "${hailHazard}")
+	#set($spsimpact = "${hailImpact}")
+#else
+	#set($threat = "!**YOU DID NOT SELECT ANY THREATS. PLEASE RE-GENERATE THIS PRODUCT!**!")
+	#set($spsimpact = "!**YOU DID NOT SELECT ANY THREATS. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS PRODUCT!**!")
+#end
+#*
+#if(${hailSize} < 0.25 && ${windSpeed} < 30)
+  #set($hailwind = "!**YOU DID NOT SELECT ANY WIND OR HAIL THREATS. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS PRODUCT!**!")
+  #set($spsimpact = "!**YOU DID NOT SELECT ANY WIND OR HAIL THREATS. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS PRODUCT!**!")
+  #set($hazard = "!**YOU DID NOT SELECT ANY WIND OR HAIL THREATS. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS PRODUCT!**!")
+#elseif(${hailSize} > 0 && ${windSpeed} > 0)
+    #set($hazard = "${windHazard} and ${hailHazard}.")
+    #set($spsimpact = "${windImpact} ${hailImpact}")
+#elseif(${hailSize} > 0)
+  #set($hazard = "${hailHazard}.")
+  #set($spsimpact = "${hailImpact}")
+#elseif(${windSpeed} > 0)
+  #set($hazard = "${windHazard}.")
+  #set($spsimpact = "${windImpact}")
+#end
+*#
+#########################################################################
+## Set the threat to the hazard variable for IBW Initiative and
+## capitalize the first letter of the sentence for mixed case.
+#########################################################################
+#set($hazard = "${threat}.")
+#set($hazard = "#capitalize(${hazard} 'FIRST')")
+################################################################
+######### ~*~*~*~*~*~* BEGIN OUTPUT ~*~*~*~*~*~*~ ##############
+################################################################
+
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+${productId}${siteId}
+#if(${productClass}=="T")
+TEST...Special Weather Statement...TEST##
+#else
+Special Weather Statement##
+#end
+
+National Weather Service ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+ 
+#if(${productClass}=="T")
+
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+ 
+#end
+
+${ugcline}
+#foreach (${area} in ${areas})
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+
+THIS IS A TEST MESSAGE. ##
+#end
+...${headline} will impact portions of ##
+#headlineLocList(${affectedCounties} true true true false "AS IS" "COMMA") 
+ through #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+...
+######################################################
+###### Storm current location description   ##########
+######################################################
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+, ${report}${spoutReport} ##
+##Many of the variables passed below are controlled by config.vm
+#if(${stormType} == "line")
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#else
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+. #capitalize(${reportType2} "FIRSTONLY") nearly stationary. ${smallHail}
+#else
+#if(${stormType} == "line")
+. Movement was ## 
+#else
+, moving ##
+#end
+#direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ${smallHail}
+#end
+
+###########################################################
+## Previous hazard section - Do not need with IBW format ##
+###########################################################
+#*
+#if(${stormType} == "line")
+#if(${hailThreat} != "" && ${windThreat} != "")
+${hailThreat}${hailTrail} and #capitalize(${windThreat} "NONE") will be possible with these storms.
+#elseif(${hailThreat}=="" && ${windThreat}!="")
+${windThreat} will be possible with these storms.
+#elseif(${hailThreat}!="" && ${windThreat}=="")
+${hailThreat}${hailTrail} will be possible with these storms.
+#end
+#else
+#if(${hailThreat} != "" && ${windThreat} != "")
+${hailThreat}${hailTrail} and #capitalize(${windThreat} "NONE") will be possible with this storm.
+#elseif(${hailThreat}=="" && ${windThreat}!="")
+${windThreat} will be possible with this storm.
+#elseif(${hailThreat}!="" && ${windThreat}=="")
+${hailThreat}${hailTrail} will be possible with this storm.
+#end
+#end
+*#
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+
+#######################################
+## Section to include the IBW Format ##
+#######################################
+
+#wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 0 9)
+
+#wrapText("SOURCE...#capitalize(${source} 'FIRST')" 0 9)
+
+#wrapText("IMPACT...${spsimpact}" 0 9)
+
+###################################################
+######## GENERATE PATHCAST OR CITIES LIST #########
+###################################################
+#if(${stormType} == "line")
+#set($pathcastLead = "Strong thunderstorms")
+#set($otherLead = "These storms")
+#else 
+#set($pathcastLead = "This strong thunderstorm")
+#set($otherLead = "This storm")
+#end
+#if(${list.contains(${bullets}, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("${pathcastLead} will be near..." ${otherLead} ${pathCast} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0) 
+
+#elseif(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("Locations impacted include..." ${otherLead} 0 ${cityList} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0)
+
+#end
+##############################################
+##############################################
+###### SPECIAL VENUE/EVENT CASE ##############
+##############################################
+#if(${list.contains(${bullets}, "specialEvent")})
+#if(${stormType} == "line")
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. 
+
+#else
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. 
+
+#end
+#end
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+
+## Comment out #parse command below to pull in Dynamic DSS Event Info
+## If this feature is utilized, the "specialEvent" bullet (output above) can
+## likely be commented out from the impactSevereThunderstormWarning.xml file
+#parse("dssEvents.vm")
+## parse file command here is to pull in mile marker info
+#parse("mileMarkers.vm")
+## parse file command here is to pull in extra points (venues) info
+##parse("pointMarkers.vm")
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+## Uncomment below pull in point marker info
+## #parse("pointMarkers.vm")
+
+##################################
+######### CALLS TO ACTION ########
+##################################
+#set($torWatchPhrase = "#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
+#set($svrWatchPhrase = "#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
+#if(${list.contains(${includedWatches}, "TO.A")} && ${torWatchPhrase.length()} > 10)
+#set($ctaSelected = "YES")
+#elseif(${list.contains(${includedWatches}, "SV.A")} && ${torWatchPhrase.length()} > 10)
+#set($ctaSelected = "YES")
+#else
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+ 
+#if(${list.contains(${bullets}, "genericCTA")}) 
+If outdoors, consider seeking shelter inside a building. 
+
+#end
+##
+
+#if(${list.contains(${bullets}, "coldAirFunnelCTA")}) 
+Conditions are favorable for the development of weak, brief funnel clouds. Theis type of funnel cloud is harmless, but on rare occasions they can briefly touch down, producing wind gusts over 50 mph. If a funnel cloud is spotted move indoors and report your sighting to the National Weather Service. 
+
+#end
+##
+ 
+#if(${list.contains(${bullets}, "torrentialRainfallCTA")})
+#if(${stormType} == "line")
+Torrential rainfall is also occurring with these storms and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
+
+#else
+Torrential rainfall is also occurring with this storm and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
+
+#end
+#end
+
+#if(${list.contains(${bullets}, "lightningCTA")})
+#if(${stormType} == "line")
+Frequent cloud to ground lightning is occurring with these storms. Lightning can strike 10 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
+
+#else
+Frequent cloud to ground lightning is occurring with this storm. Lightning can strike 10 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
+
+#end
+#end
+##
+
+#if(${list.contains(${bullets}, "stormIntensifyCTA")})
+#if(${stormType} == "line")
+These storms may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
+
+#else
+This storm may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
+
+#end
+#end
+##
+
+#if(${list.contains(${bullets}, "lawEnforcementCTA")})
+To report severe weather, contact your nearest law enforcement agency. They will relay your report to the National Weather Service office in ${officeLoc}.
+
+#end
+##
+
+#if(${list.contains(${bullets}, "boatersCTA")})
+If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 10 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
+
+#end
+
+##
+
+#if(${list.contains(${bullets}, "camperCTA")})
+#if(${stormType} == "line")
+Persons in campgrounds should consider seeking sturdy shelter until these storms pass.
+
+#else
+Persons in campgrounds should consider seeking sturdy shelter until this storm passes.
+
+#end
+#end
+##
+#############
+## WATCHES ##
+#############
+#if(${list.contains(${includedWatches}, "TO.A")})
+${torWatchPhrase}
+
+#end
+#if(${list.contains(${includedWatches}, "SV.A")})
+${svrWatchPhrase}
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+
+####################################
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+####################################
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
+###########################################################
+## CODE FOR HAIL/WIND TAGS FOR THE IMPACT BASED SPS
+## TEMPLATE EXPERIMENT
+###########################################################
+
+#if($spoutTag.length() > 0)
+<L>${spoutTag}</L>
+#end
+<L>MAX HAIL SIZE...${hailTag}</L>
+<L>MAX WIND GUST...${windTag}</L>
+
+$$
+
+
+#parse("forecasterName.vm")

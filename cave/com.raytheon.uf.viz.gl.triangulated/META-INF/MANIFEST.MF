@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenGL Triangulated Image Rendering
+Bundle-SymbolicName: com.raytheon.uf.viz.gl.triangulated;singleton:=true
+Bundle-Version: 1.19.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.raytheon.uf.viz.drawables.triangulated,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.viz.core.gl,
+ javax.measure
+Import-Package: org.locationtech.jts.algorithm,
+ org.locationtech.jts.geom

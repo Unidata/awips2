@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Text Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.text
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: 
+ org.apache.commons.lang3,
+ com.raytheon.edex.common,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.site,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.dataplugin.text,
+ org.slf4j,
+ com.google.guava;bundle-version="30.0.0",
+ javax.xml.bind
+Export-Package: com.raytheon.uf.edex.plugin.text,
+ com.raytheon.uf.edex.plugin.text.dao,
+ com.raytheon.uf.edex.plugin.text.db,
+ com.raytheon.uf.edex.plugin.text.impl
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: com.raytheon.uf.common.wmo

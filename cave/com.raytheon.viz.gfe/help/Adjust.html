@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>Adjust</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>Adjust</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Introduction</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Adjust is a GFE SmartTool 
+that performs basic math functions like add, subtract, multiply and divide on a grid.  
+However, as is often useful with GFE, it allows options related to elevation (i.e., 
+adding mostly at higher elevations, or subtracting mostly at lower elevations), and 
+related to edit areas (i.e., adding most in the center of the edit area, or adding 
+nearly the same amount everywhere – but ‘ramping down’ to no change at the edge of 
+the edit area).  You can combine these options in a variety of ways.  This tool 
+really takes the place of many other tools previously on the SmartTool Repository 
+like UpMtn and DownValley, but it also provides many more combinations due to the 
+ability to specify the edge effect and elevation effect options ‘on-the-fly’.</font>
+<br>
+<br>
+<br>
+<big><big><font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">How
+the Procedure Works</font><span style="font-weight: bold;">
+</span></big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The basic function of the tool 
+is to take the specified value and perform the specified action of Add, Subtract, Multiply 
+or Divide:<br><br>
+<img alt="Adjust" src="images/Adjust.jpg"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The value can be any number, 
+either an integer or floating-point number, and can be negative (multiplying by negative 
+one is especially useful for changing the sign of a grid). The final grid values, 
+however, will not be allowed to lie outside the range of valid values for that particular 
+grid parameter.  Dividing by zero is, of course, not allowed.
+<br><br>
+Adding and Subtracting is useful for most parameters, such as adding or subtracting a 
+few degrees from temperatures, or adding or subtracting a few percent from PoPs.  
+Multiply and Divide are most useful with certain parameters, such as increasing QPF 
+by multiplying by 1.5, or dividing by 2 to cut PoPs in half.</font>
+<br>
+<br>
+<br>
+<big><big><font face="New Century Schoolbook, Times New Roman, serif"><b>Vector Option</b></font>
+</big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">For vector parameters, the 
+setting of the GFE Vector Editing Mode is ignored, but instead is controlled by the 
+vector setting on the tool itself (see graphic above).
+<br><br>
+If the vector setting is “Both” and the value is set to 10.0, then performing an 
+Addition operation will add 10 knots to the magnitude of a wind, and add 10 degrees 
+to the direction (veer the wind by 10 degrees).  This is only rarely what you want, 
+so the Both option is rarely used.  More typically you only operate on the vector 
+Magnitude, and that is why it is selected by default when you start the tool.</font>
+<br>
+<br>
+<br>
+<big><big><font face="New Century Schoolbook, Times New Roman, serif"><b>Edge Option</b></font>
+</big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The tool works either on an 
+edit area or the entire grid.  When working on an edit area, the edge options can be 
+useful to “blend” your changes into the rest of the grid.
+<br><br>
+The Flat option, makes no attempt to “blend” your changes into the edges of your edit 
+area.  For example, if you start with a constant grid of 1 (let’s say it is a PoP grid) 
+and define an edit area.<br>
+<img alt="Adjust" src="images/Adjust1.png"><br><br>
+If you then add a value of 50, with an edge option of flat, you will get:<br>
+<img alt="Adjust" src="images/Adjust2.png"><br><br>
+Note that inside the edit areas, the value is now 51 (50 + 1), and there has been no 
+attempt to “blend” these values into the rest of the grid. If, however, the edge option 
+is chosen then the result would be:<br>
+<img alt="Adjust" src="images/Adjust3.png"><br><br>
+Note that most of the edit area still contains the value of 51 (50+1), but near the 
+edges of the edit area, the adjustment is “scaled back” down to zero along the edge, 
+so that it “blends in” with the rest of the grid. The width of the edge effect is 
+controlled by the Edge Width slider which defaults to 5, meaning the values are 
+blended in over 5 pixels, or gridboxes. If, however, the taper option is chosen 
+then the result of adding 50 will be:<br>
+<img alt="Adjust" src="images/Adjust4.png"><br><br>
+Note that only one pixel, furthest from the edge of the edit area, receives the full 
+adjustment of adding 50 and reaching a final value of 51.  Everywhere else receives 
+a lesser amount of adjustment such that the value blends in across the entire edit area.
+<br><br>
+Note, however, that the taper function has an error if the edit area includes the edge 
+of the GFE grid.  In this example, the grid includes the corner of the GFE grid and 
+the taper function produces an incorrect adjustment:<br>
+<img alt="Adjust" src="images/Adjust5.png"><br><br>
+It is worth pointing out that for addition and subtraction, the edge and taper options 
+trend  to “zero” or “no-change” at the edge of the edit area.  However, for 
+multiplication and division, the edge and taper options trend to “one” at the edge of 
+the edit area, because multiplying or dividing by 1.0 gives the “no-change” 
+effect.</font>
+<br>
+<br>
+<br>
+<big><big><font face="New Century Schoolbook, Times New Roman, serif"><b>Elevation Option</b></font>
+</big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The elevation option 
+allows you to perform your operation (add, subtract, multiply or divide) mostly 
+in areas of similar elevation. If the None option (the default) is chosen, then 
+elevation does not influence the operation.
+<br><br>
+However, if the Mountain option is chosen, then the full adjustment will take 
+place at the highest elevation in the edit area, and zero adjustment will take 
+place at the lowest elevation in the edit area.  For example, with topography 
+like this:<br>
+<img alt="Adjust" src="images/Adjust6.png"><br><br>
+The highest elevation is along the extreme right edge of the edit area.  
+The lowest elevation is in the upper center of the edit area.  The result 
+of adding 50 to our constant grid of 1, gives:<br>
+<img alt="Adjust" src="images/Adjust7.png"><br><br>
+Note how only one pixel gets the final value of 51, and it is the point inside 
+the edit area with the highest elevation. Likewise, if the Valley option is chosen
+Then the effect is just the opposite, the full adjustment is made at the lowest 
+elevation inside the edit area, and zero adjustment is made at the highest 
+elevation:<br>
+<img alt="Adjust" src="images/Adjust8.png"><br><br>
+If the Specific option is chosen Then the full adjustment will take place at the 
+specific elevation. The effect will then taper down to zero adjustment at both 
+the highest and lowest elevation inside the edit area:<br>
+<img alt="Adjust" src="images/Adjust9.png"><br><br>
+Note that if the elevation specified is above the highest elevation inside the 
+edit area, then the effect will be exactly the same as choosing the “Mountain” 
+option.  Likewise, if the elevation specified is below the lowest elevation 
+inside the edit area, then the effect will be exactly the same as choosing 
+the “Valley” option.</font>
+<br>
+<br>
+<big><big><font face="New Century Schoolbook, Times New Roman, serif"><b>Combined 
+Elevation and Edge Options</b></font>
+</big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Any of the options 
+can be combined.  As the examples above show, when using the elevation options 
+of Mountain, Valley, or Specific, there will likely be harsh gradients produced 
+at the edge of the edit area.  If, for example, the Edge option is also chosen 
+along with the Mountain option, with an addition of 50, the result is:<br>
+<img alt="Adjust" src="images/Adjust10.png"><br><br>
+Note that the adjustment now blends in well with the rest of the grid, because 
+the edge effect is trending the adjustment back toward zero at the edges of the 
+edit area.  However, also note that the adjustment is also putting most of the 
+adjustment at the higher elevations. It is worth pointing out that, in this case, 
+the gridbox that receives the full adjustment is not the gridbox with the highest 
+elevation (because that point is also on the edge of the edit area).  
+Instead, a point further inside the edit area, which has a high elevation, 
+receives the full adjustment:<br>
+<img alt="Adjust" src="images/Adjust11.png"><br><br>
+Mathematically, the two adjustment function are simply multiplied together, and 
+re-scaled, so that at least one gridbox receives the full adjustment.
+<br><br>
+Similarly, the combination of the Mountain option with the Taper option yields:<br>
+<img alt="Adjust" src="images/Adjust12.png"><br><br>
+Here, the taper option would like to put the most adjustment in the middle of the 
+edit area, but the lowest elevations are also in that area, so the combination 
+puts the maximum adjustment at a relatively high elevation, but as close to the 
+center of the edit area as possible:<br>
+<img alt="Adjust" src="images/Adjust13.png"><br><br>
+Old tools on the SmartTool repository were hard-coded combinations of some of these 
+options.  For example, the UpMtn tool is essentially a combination of Add, Mountain 
+and Edge, with an edge width of 5 gridboxes.  The DownValley tool is essentially a 
+combination of Subtract, Valley and Edge, with and edge width of 5 gridboxes.  
+The MultiplyDivide tool provided a combination of Multiply, None, Flat as well as 
+Divide, None, Flat options.  Putting all these options into a single tool means 
+fewer tools on the GFE tool list, and provide some new combinations.</font>
+</body>
+</html>

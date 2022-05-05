@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Backup Service Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.backupsvc
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Import-Package: javax.persistence
+Require-Bundle: com.raytheon.uf.edex.database,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.backupsvc,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.time,
+ org.slf4j,
+ javax.xml.bind

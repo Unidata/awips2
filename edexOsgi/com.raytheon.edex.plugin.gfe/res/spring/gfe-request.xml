@@ -1,0 +1,372 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
+        depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized, dataStorageAuditerContainer">
+        <constructor-arg ref="iscProvider" />
+    </bean>
+
+    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register"
+        depends-on="gfeActivationAsyncRequest">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+
+    <bean id="gfeActivationAsyncRequest" factory-bean="contextManager" factory-method="registerAsyncStartupBean">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+
+    <bean id="commitGridsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.CommitGridsHandler"/>
+    <bean id="activeSitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetActiveSitesHandler"/>
+    <bean id="activeTableHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetActiveTableHandler"/>
+    <bean id="GetASCIIGridsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetASCIIGridsHandler"/>
+    <bean id="SaveASCIIGridsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SaveASCIIGridsHandler"/>
+    <bean id="brokerRestProvider" class="com.raytheon.uf.common.jms.qpid.QpidBrokerRestImpl">
+        <constructor-arg value="${BROKER_HOST}"/>
+        <constructor-arg value="${JMS_VIRTUALHOST}"/>
+        <constructor-arg value="${BROKER_HTTP}"/>
+    </bean>
+    <bean id="clientsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetClientsHandler">
+        <constructor-arg ref="brokerRestProvider"/>
+    </bean>
+    <bean id="gfeClientController" class = "com.raytheon.edex.plugin.gfe.server.GfeClientController">
+        <constructor-arg ref="brokerRestProvider"/>
+        <!-- maximum number of GfeClientServer processes that may be simultaneously active -->
+        <constructor-arg value="${gfeClientServer.maxProcesses}"/>
+    </bean>
+    <bean id="gfeClientControllerSiteActivation" factory-bean="siteAwareRegistry" factory-method="register">
+        <constructor-arg ref="gfeClientController"/>
+    </bean>
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="gfe-request-camel"/>
+        <constructor-arg ref="gfeClientController"/>
+    </bean>
+    <bean id="gfeClientHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GfeClientHandler">
+        <constructor-arg ref="gfeClientController"/>
+    </bean>
+    <bean id="dbInventoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetDbInventoryHandler"/>
+    <bean id="executeIscMosaicHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIscMosaicRequestHandler">
+        <constructor-arg ref="iscMosaicJobManager"/>
+    </bean>
+    <bean id="iscMosaicJobManager" class="com.raytheon.edex.plugin.gfe.isc.IscMosaicJobManager"
+        depends-on="gfeDbRegistered">
+        <constructor-arg ref="iscMosaicPythonThreadPool"/>
+        <constructor-arg value="${iscMosaicJob.threads}"/>
+    </bean>
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="gfe-request-camel"/>
+        <constructor-arg ref="iscMosaicJobManager"/>
+    </bean>
+    <bean id="discreteDefinitionHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetDiscreteDefinitionHandler"/>
+    <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler">
+        <property name="byteLimitInMB" value="${thrift.stream.maxsize}" />
+    </bean>
+    <bean id="gridInventoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridInventoryHandler"/>
+    <bean id="gridHistoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridHistoryHandler"/>
+    <bean id="gridParmInfoHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridParmInfoHandler"/>
+    <bean id="knownOfficeTypesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetKnownOfficeTypesHandler"/>
+    <bean id="iscSendStatusHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetIscSendStatusHandler"/>
+    <bean id="knownSitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetKnownSitesHandler"/>
+    <bean id="lockTablesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLockTablesHandler"/>
+    <bean id="netCDFHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIfpNetCDFGridRequestHandler">
+        <constructor-arg ref="ifpnetCDFPythonThreadPool"/>
+    </bean>
+    <bean id="purgeGfeGridsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.PurgeGfeGridsRequestHandler"/>
+    <bean id="officeTypeHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetOfficeTypeHandler"/>
+    <bean id="officialDbNameHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetOfficialDbNameHandler"/>
+    <bean id="parmListHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetParmListHandler"/>
+    <bean id="gfePointHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetPointDataHandler"/>
+    <bean id="wxDefinitionHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetWXDefinitionHandler"/>
+    <bean id="gridLocHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GridLocHandler"/>
+    <bean id="iscCreateDomainDictHandler" class="com.raytheon.edex.plugin.gfe.server.handler.IscCreateDomainDictHandler"/>
+    <bean id="iscDataRecHandler" class="com.raytheon.edex.plugin.gfe.server.handler.IscDataRecRequestHandler"/>
+    <bean id="iscGetRequestXmlHandler" class="com.raytheon.edex.plugin.gfe.server.handler.IscGetRequestXmlHandler"/>
+    <bean id="iscMakeRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.IscMakeRequestHandler"/>
+    <bean id="iscRequestQueryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.IscRequestQueryHandler"/>
+    <bean id="lockChangeHandler" class="com.raytheon.edex.plugin.gfe.server.handler.LockChangeHandler"/>
+    <bean id="saveGfeGridHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SaveGfeGridHandler"/>
+    <bean id="sendIscGridHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SendIscGridHandler"/>
+    <bean id="sendWFOMessageHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SendWFOMessageHandler"/>
+    <bean id="singletonDbIdsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSingletonDbIdsRequestHandler"/>
+    <bean id="siteTimeZoneHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSiteTimeZoneInfoRequestHandler"/>
+    <bean id="smartInitHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SmartInitRequestHandler"/>
+    <bean id="configureTextProductsHandler" class="com.raytheon.edex.plugin.gfe.textproducts.ConfigureTextProductsHandler"/>
+    <bean id="GetSelectTRHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSelectTimeRangeHandler"/>
+    <bean id="createNewDbHandler" class="com.raytheon.edex.plugin.gfe.server.handler.CreateNewDbHandler"/>
+    <bean id="getLatestDbInsertTimeHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestDbTimeHandler"/>
+    <bean id="getLatestDbIdHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler"/>
+    <bean id="getTopoDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetTopoDataHandler"/>
+    <bean id="rsyncGridsToCWFHandler" class="com.raytheon.edex.plugin.gfe.server.handler.RsyncGridsToCWFHandler"/>
+    <bean id="ClearGfeOrphanedLocks" class="com.raytheon.edex.plugin.gfe.server.lock.ClearGfeOrphanedLocks">
+        <property name="provider" ref="brokerRestProvider" />
+    </bean>
+    <bean id="getProjectionsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetProjectionsHandler"/>
+    <bean id="clearPracticeGridsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ClearPracticeGridsHandler"/>
+
+    <!-- Service Backup Handlers -->
+
+    <bean id="GetServiceBackupServerRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupServerRequestHandler"/>
+    <bean id="AbortOperationRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.AbortOperationRequestHandler"/>
+    <bean id="GetSvcBuJobStatusHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupJobStatusHandler" />
+    <bean id="CleanupSvcBuRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuRequestHandler"/>
+    <bean id="CheckPrimarySiteHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CheckServiceBackupPrimarySiteHandler"/>
+    <bean id="GetServiceBackupPrimarySitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupPrimarySiteHandler"/>
+    <bean id="ExportConfRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportConfRequestHandler"/>
+    <bean id="ExportDataToFailedSiteRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportDataToFailedSiteRequestHandler"/>
+    <bean id="ExportFailedSiteDataToCCRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportFailedSiteDataToCCRequestHandler"/>
+    <bean id="ExportGridsRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportGridsRequestHandler"/>
+    <bean id="ImportConfRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ImportConfRequestHandler"/>
+    <bean id="ImportDigitalDataRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ImportDigitalDataRequestHandler"/>
+    <bean id="ProcessReceivedConfRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ProcessReceivedConfRequestHandler"/>
+    <bean id="ProcessReceivedDigitalDataRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ProcessReceivedDigitalDataRequestHandler"/>
+    <bean id="GetGfeStartCmdRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetGfeStartCmdRequestHandler"/>
+    <!-- End Service Backup Handlers -->
+
+    <!-- ISC Send Beans -->
+
+    <bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue" factory-method="getInstance"/>
+    <bean id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv" depends-on="gfeDbRegistered, gfeSitesActiveRequest">
+        <property name="runningTimeOutMillis" value="300000"/>
+        <property name="threadSleepInterval" value="5000"/>
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="gfe-request-camel"/>
+        <constructor-arg ref="sendIscSrv"/>
+    </bean>
+    <!-- End ISC Send Beans -->
+
+    <!-- ISC Receive Beans -->
+
+    <bean id="iscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv"/>
+
+    <!-- End ISC Receive Beans -->
+
+    <!-- Additional ISC Beans -->
+
+    <bean id="ifpnetCDFFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+        <constructor-arg value="ifpnetCDF"/>
+    </bean>
+    <bean id="ifpnetCDFPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
+        <constructor-arg value="2" />
+        <constructor-arg value="ifpnetCDF" />
+        <constructor-arg ref="ifpnetCDFFactory"/>
+    </bean>
+
+    <bean id="iscMosaicFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+        <constructor-arg value="iscMosaic"/>
+    </bean>
+    <bean id="iscMosaicPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
+        <constructor-arg value="${iscMosaicJob.threads}" />
+        <constructor-arg value="iscMosaic" />
+        <constructor-arg ref="iscMosaicFactory" />
+    </bean>
+
+    <!-- End Additional ISC Beans -->
+
+    <bean id="logPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger">
+        <property name="topDir" value="/awips2/GFESuite/logs" />
+        <property name="searchDepth" value="2" />
+        <property name="retainCompressedDays" value="${purge.gfe.logs.retention}" />
+    </bean>
+
+    <bean id="svcBuLogPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger">
+        <property name="topDir" value="/awips2/GFESuite/ServiceBackup/logs" />
+        <property name="searchDepth" value="2" />
+        <property name="retainCompressedDays" value="${purge.svcbu.logs.retention}" />
+    </bean>
+
+    <bean id="productIscPurger" class="com.raytheon.uf.edex.maintenance.FilePurger">
+        <constructor-arg value="/awips2/GFESuite/products/ISC"/> <!--  directory to be purged -->
+        <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
+    </bean>
+
+    <bean id="productAtblPurger" class="com.raytheon.uf.edex.maintenance.FilePurger">
+        <constructor-arg value="/awips2/GFESuite/products/ATBL"/> <!--  directory to be purged -->
+        <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
+    </bean>
+
+    <camelContext id="gfe-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
+        <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
+        <endpoint id="gfeProductIscPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsIsc/?cron=${purge.gfe.products.isc.cron}"/>
+        <endpoint id="gfeProductAtblPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsAtbl/?cron=${purge.gfe.products.atbl.cron}"/>
+        <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
+        <endpoint id="gfeClearOrphanedLocksCron" uri="clusteredquartz://gfe/clearGfeOrhpanedLocks/?cron=${clear.gfe.orphaned.locks.cron}"/>
+        <endpoint id="iscDataRecEndpoint" uri="jms-durable:queue:gfeIscDataReceive?concurrentConsumers=${iscDataRec.threads}"/>
+
+        <route id="exportDigitalData">
+            <from uri="exportDigitalDataCron"/>
+            <to uri="jms-generic:queue:exportDigitalDataWork"/>
+        </route>
+        <route id="exportDigitalDataWork">
+            <from uri="jms-generic:queue:exportDigitalDataWork"/>
+            <doTry>
+                <bean ref="ExportGridsRequestHandler" method="exportGridsCron"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:svcBackup?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="purgeGfeLogs">
+            <from uri="gfeLogPurgeCron"/>
+            <to uri="jms-generic:queue:purgeGfeLogWork"/>
+        </route>
+        <route id="purgeGfeLogWork">
+            <from uri="jms-generic:queue:purgeGfeLogWork"/>
+            <doTry>
+                <bean ref="logPurger" method="purge"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:svcBackup?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="purgeGfeProductsIsc">
+            <from uri="gfeProductIscPurgeCron"/>
+            <to uri="jms-generic:queue:purgeGfeProductIscWork"/>
+        </route>
+        <route id="purgeGfeProductIscWork">
+            <from uri="jms-generic:queue:purgeGfeProductIscWork"/>
+            <doTry>
+                <bean ref="productIscPurger" method="purge"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to 
+                        uri="log:svcBackup?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="purgeGfeProductsAtbl">
+            <from uri="gfeProductAtblPurgeCron"/>
+            <to uri="jms-generic:queue:purgeGfeProductAtblWork"/>
+        </route>
+        <route id="purgeGfeProductAtblWork">
+            <from uri="jms-generic:queue:purgeGfeProductAtblWork"/>
+            <doTry>
+                <bean ref="productAtblPurger" method="purge"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to 
+                        uri="log:svcBackup?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="purgeSvcbuLogs">
+            <from uri="svcbuLogPurgeCron"/>
+            <to uri="jms-generic:queue:purgeSvcbuLogWork"/>
+        </route>
+        <route id="purgeSvcbuLogWork">
+            <from uri="jms-generic:queue:purgeSvcbuLogWork"/>
+            <doTry>
+                <bean ref="svcBuLogPurger" method="purge"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:svcBackup?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="clearGfeOrphanedLocks">
+            <from uri="gfeClearOrphanedLocksCron"/>
+            <to uri="jms-generic:queue:clearOrphanedLocksWork"/>
+        </route>
+        <route id="clearOrphanedLocksWork">
+            <from uri="jms-generic:queue:clearOrphanedLocksWork"/>
+            <doTry>
+                <bean ref="ClearGfeOrphanedLocks" method="clearLocksCron"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:svcBackup?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- ISC Data Receive route -->
+        <route id="iscReceiveRoute">
+            <from uri="iscDataRecEndpoint" />
+            <doTry>
+                <pipeline>
+                    <bean ref="serializationUtil" method="transformFromThrift"/>
+                    <bean ref="iscReceiveSrv" method="processRequest"/>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:iscDataRec?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- ISC Mosaic job manager notification route -->
+        <route id="iscMosaicStatusNotifyRoute">
+            <from uri="jms-generic:topic:iscMosaicStatusNotify"/>
+            <bean ref="serializationUtil" method="transformFromThrift"/>
+            <to uri="bean:iscMosaicJobManager?method=handleStatusMessage(${body})"/>
+        </route>
+    </camelContext>
+
+    <!-- ISC Send Routes -->
+    <camelContext id="clusteredGfeIscRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <route id="iscSendJobQueueAggr">
+            <from uri="jms-durable:queue:iscSendNotification" />
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift"/>
+                <bean ref="iscSendQueue" method="addSendJobs"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:iscSendQueue?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="iscSendTrigger">
+            <from uri="timer://iscSendTimer?fixedRate=true&amp;period=5000"/>
+            <bean ref="iscSendQueue" method="fireSendJobs"/>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredGfeIscRoutes"/>
+    </bean>
+
+    <!-- ISC Services Beans -->
+    <bean id="iscProvider" class="com.raytheon.edex.plugin.gfe.isc.IscServiceProvider" />
+
+    <bean id="fetchATSrv" class="com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv" />
+    <bean factory-bean="iscProvider" factory-method="addISCService">
+        <constructor-arg ref="fetchATSrv"/>
+    </bean>
+
+    <bean id="requestTCVSrv" class="com.raytheon.edex.plugin.gfe.isc.RequestTCVSrv" />
+    <bean factory-bean="iscProvider" factory-method="addISCService">
+        <constructor-arg ref="requestTCVSrv"/>
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredIscBeans" />
+        <constructor-arg ref="iscProvider" />
+    </bean>
+
+    <camelContext id="clusteredIscBeans" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <route id="activateISC">
+            <from uri="timer://activateISCServices?repeatCount=1"/>
+            <bean ref="iscProvider" method="activateInstance"/>
+        </route>
+    </camelContext>
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredIscBeans"/>
+    </bean>
+</beans>

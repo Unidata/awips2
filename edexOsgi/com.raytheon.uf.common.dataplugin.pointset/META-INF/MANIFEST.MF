@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common PointSet Objects
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.pointset
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.dataplugin.level;visibility:=reexport,
+ com.raytheon.uf.common.parameter;visibility:=reexport,
+ com.raytheon.uf.common.datastorage,
+ org.geotools,
+ javax.measure
+Export-Package: com.raytheon.uf.common.dataplugin.pointset,
+ com.raytheon.uf.common.dataplugin.pointset.triangulate

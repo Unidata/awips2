@@ -1,0 +1,1 @@
+This is an example of a method that returns the Local Effect specification.  It tells what edit areas to compare, gives labels for each of them, and a threshold difference. In this case a wind magnitude difference greater than 10 will trigger Local Effect wording.  Finally, we can specify connector wording for the Local Effect phrase.

@@ -1,0 +1,2 @@
+Virtually any part of the Local Effects definition can be expressed as a method instead of a constant value.
+

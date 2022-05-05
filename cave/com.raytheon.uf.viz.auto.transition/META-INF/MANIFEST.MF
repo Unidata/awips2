@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Automatic Transition
+Bundle-SymbolicName: com.raytheon.uf.viz.auto.transition;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.viz.ui,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core.rsc,
+ javax.measure,
+ com.raytheon.uf.common.colormap,
+ javax.xml.bind

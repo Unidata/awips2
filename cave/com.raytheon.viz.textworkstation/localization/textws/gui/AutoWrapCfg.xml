@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!--
+        This is an incremental override file, indicating that the files at
+        different localization levels will be combined. 
+        See notes below for more information on how files are combined.
+    -->
+    
+<autoWrapCfg>
+    <!-- RangeStart/RangeEnd define the valid range for WrapCol
+    
+        if rangeStart or rangeEnd are present they will replace values from 
+        a lower level file 
+    -->
+    <RangeStart>69</RangeStart>
+    <RangeEnd>80</RangeEnd>
+    
+	<!-- if any buttons are present they will replace all buttons from a lower 
+		level file. Off and Other are automatically generated and cannot be overridden.
+	-->
+	<WrapButtonCfg>
+	    <!-- LabelName is optional, if not present "nn chars" will be used -->
+	    <!-- 
+		<LabelName>xxxxx</LabelName>
+		 -->
+		<WrapCol>69</WrapCol>
+		<Selected>true</Selected>
+	</WrapButtonCfg>
+
+	<WrapButtonCfg>
+		<WrapCol>72</WrapCol>
+	</WrapButtonCfg>
+
+	<WrapButtonCfg>
+		<WrapCol>80</WrapCol>
+	</WrapButtonCfg>
+
+	<!-- NonWrapPils will be merged with those from lower level files -->
+	<NonWrapPil>AFM</NonWrapPil>
+	<NonWrapPil>PFM</NonWrapPil>
+	<NonWrapPil>FWF</NonWrapPil>
+	<NonWrapPil>SFT</NonWrapPil>
+	<NonWrapPil>WCN</NonWrapPil>
+	<NonWrapPil>FWS</NonWrapPil>
+	<NonWrapPil>TCV</NonWrapPil>
+	<NonWrapPil>HLS</NonWrapPil>
+	
+	<!-- WrapPil can be used to remove NonWrapPils from lower level files -->
+	<!-- 
+	<WrapPil>XXX</WrapPil>
+	 -->
+	
+</autoWrapCfg>

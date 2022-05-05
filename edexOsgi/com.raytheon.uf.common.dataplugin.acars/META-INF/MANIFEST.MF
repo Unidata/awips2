@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Acars Common Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.acars
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataaccess,
+ javax.persistence,
+ javax.xml.bind,
+ org.hibernate,
+ javax.measure
+Export-Package: com.raytheon.uf.common.dataplugin.acars

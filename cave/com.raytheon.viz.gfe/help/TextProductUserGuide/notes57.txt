@@ -1,0 +1,1 @@
+Within the Standard file, there are various arguments and objects with which we deal.  They are listed here with a basic description.  For more detailed information on these objects, see: Arguments in the Standard Product File  section of the Text Product Reference Guide.

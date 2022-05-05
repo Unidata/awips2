@@ -1,0 +1,12 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  <bean id="dqcPreProcessorExecuteHandler" class="com.raytheon.uf.edex.plugin.mpe.dqcpreprocessor.DQCPreProcessorExecuteHandler"/>
+  
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.mpe.dqcpreprocessor.DQCPreProcessorExecuteRequest" />
+        <constructor-arg ref="dqcPreProcessorExecuteHandler" />
+    </bean>
+</beans>

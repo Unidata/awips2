@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="Author" content="Mark Mathewson">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>ifpBreakAllLocks</title>
+</head>
+<body text="#000000" bgcolor="#ffffff" link="#0000ee" vlink="#551a8b"
+ alink="#ff0000">
+<h1>
+ifpBreakAllLocks User's Guide</h1>
+January 4, 2012
+<hr width="100%"><br>
+The ifpBreakAllLocks program is part of the GFESuite software.
+It can be used to break all the locks on all the Weather Elements in
+the identified GFE.
+<font color="#ff0000">WARNING: This operation may result in the loss of
+data so the program should be used with caution.</font>
+<br>
+<hr width="100%">
+<h2>Running the program</h2>
+<h3>
+Command Line Switches</h3>
+The command line syntax is:
+<p><b><tt>ifpBreakAllLocks -h hostname -p rpcPortNumber -s siteID [-a] [-d
+databaseID] </tt></b><br>
+<br>
+<table border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Command Switch</td>
+      <td>Optional or Mandatory?</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td>-h</td>
+      <td>Mandatory (see Note)</td>
+      <td>Host name upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-p</td>
+      <td>Mandatory (see Note)</td>
+      <td>RPC port upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-s</td>
+      <td>Mandatory</td>
+      <td>Site id for which GFE is running</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-a<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Specifies that all databases
+will have their locks removed. Either the -a or -d switch is
+required.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-d databaseID<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the database that will
+have the locks removed. There may be more than one -d switch
+present. Either the -a or -d switch is required.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><b>Note:</b> The -h and -p switches are predefined
+when running in an installed GFESuite environment. They are defined
+to the values specified when installing the software. If you wish
+to connect to a different EDEX, then the switches will need to be
+specified.</font>
+</p>
+<hr width="100%">
+<h3>Sample Output</h3>
+<tt></tt>
+<p><br>
+<tt>17:01:04 ifpBreakAllLocks.py INFO:  Break All Locks starting<br>
+17:01:12 ifpBreakAllLocks.py INFO:  No locks found<br>
+17:01:12 ifpBreakAllLocks.py INFO:  Break All Locks Finished</tt>
+<br>
+</p>
+<p></p>
+<hr width="100%"><br>
+<a href="GFESuite.html">Return to TOC</a>
+</body>
+</html>

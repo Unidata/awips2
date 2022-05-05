@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Popup Skewt
+Bundle-SymbolicName: com.raytheon.uf.viz.ui.popupskewt;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.ui.popupskewt.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ com.raytheon.uf.common.sounding,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.viz.core,
+ com.raytheon.viz.ui,
+ com.raytheon.uf.viz.sounding,
+ com.raytheon.viz.core.graphing,
+ javax.measure,
+ javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.ui.popupskewt.rsc,
+ com.raytheon.uf.viz.ui.popupskewt.ui
+Bundle-ClassPath: com.raytheon.uf.viz.ui.popupskewt.jar
+Import-Package: com.raytheon.uf.common.units

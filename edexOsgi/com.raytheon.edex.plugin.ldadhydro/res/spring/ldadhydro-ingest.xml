@@ -1,0 +1,45 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="hydroDecoder" class="com.raytheon.edex.plugin.ldad.LdadDecoder">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.ldadhydro.HydroLdadRecord" />
+        <constructor-arg value="hydro" />
+    </bean>
+
+    <bean id="hydroDatabase" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="metadata" />
+    </bean>
+
+    <bean id="ldadhydroDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="ldadhydro" />
+        <constructor-arg value="jms-durable:queue:Ingest.ldadhydro" />
+    </bean>
+
+    <bean id="ldadhydroPointData" class="com.raytheon.edex.plugin.ldadhydro.dao.LdadhydroPointDataTransform"/>
+
+    <camelContext id="ldadhydro-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <route id="ldadhydroIngestRoute">
+            <from uri="jms-durable:queue:Ingest.ldadhydro"/>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="hydroDecoder" method="decode" />
+                    <bean ref="dupElim" />
+                    <bean ref="ldadhydroPointData" method="toPointData" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:ldadhydro?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

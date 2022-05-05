@@ -1,0 +1,28 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="getAfosIdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.GetAfosIdHandler" />
+
+    <bean id="getPartialAfosIdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.GetPartialAfosIdHandler" />
+
+    <bean id="getWmoIdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.GetWmoIdHandler" />
+
+    <!-- textdb -->
+
+    <bean id="executeAfosCmdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.ExecuteAfosCmdHandler" />
+
+    <bean id="executeAwipsCmdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.ExecuteAwipsCmdHandler" />
+
+    <bean id="executeWmoCmdHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.ExecuteWmoCmdHandler" />
+
+    <bean id="remoteRetrievalHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.handler.RemoteRetrievalHandler"/>
+    
+    <bean id="textdbRequestHandler" class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBRequestHandler">
+        <constructor-arg ref="textdbsrv" />
+     </bean>
+
+</beans>

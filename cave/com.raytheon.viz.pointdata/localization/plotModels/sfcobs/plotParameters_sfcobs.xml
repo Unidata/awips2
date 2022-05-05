@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+    
+<plotParameterDefinitions>
+   <plugin>sfcobs</plugin>
+
+   <plotParameterDefinition displayName="rawReport" displayType="TEXT" param="rawReport" sampleValue="0" svgClass="text" />
+
+   <plotParameterDefinition displayName="totCloudAmount" displayType="RANGE" lookupTable="maritime_cloud_chars.txt" param="totCloudAmount" sampleValue="0" svgClass="special" />
+
+   <plotParameterDefinition displayName="seaLevelPress (daPa)" displayType="TEXT" format="%5.0f" param="seaLevelPress" sampleValue="018" trim="2" unit="daPa" />
+
+   <plotParameterDefinition displayName="pressChange3Hour (daPa)" displayType="TEXT" format="%02.0f" param="pressChange3Hour" sampleValue="018" unit="daPa" />
+
+   <plotParameterDefinition displayName="pressChangeChar" displayType="TABLE" lookupTable="press_change_char_lookup.txt" param="pressChangeChar" sampleValue="KOAX" svgClass="weather" />
+
+   <plotParameterDefinition displayName="temperature (°F)" displayType="TEXT" format="%3.0f" param="temperature" sampleValue="75" unit="°F" />
+
+   <plotParameterDefinition displayName="dewpoint (°F)" displayType="TEXT" format="%3.0f" param="dewpoint" sampleValue="59" unit="°F" />
+
+   <plotParameterDefinition displayName="peakWindSpeed (kts)" displayType="TEXT" format="PK%2.0f" param="peakWindSpeed" sampleValue="59" unit="kts" />
+
+   <plotParameterDefinition displayName="seaSurfaceTemp (°F)" displayType="TEXT" format="%3.0f" param="seaSurfaceTemp" sampleValue="75" unit="°F" />
+
+   <plotParameterDefinition displayName="presWeather" displayType="TABLE" lookupTable="wx_symbol_trans.txt" param="presWeather" recursiveLookup="true" sampleValue="0" svgClass="weather" />
+
+   <plotParameterDefinition displayName="windSpeed,windDir,windGust (kts)" displayType="BARB" param="windSpeed,windDir,windGust" sampleValue="0,1,2" unit="kts" />
+
+   <plotParameterDefinition displayName="windBarb" displayType="BARB" param="windSpeed,windDir" sampleValue="16,17" unit="kts" />
+
+   <plotParameterDefinition displayName="windDir" displayType="ARROWUV" param="windSpeed,windDir" sampleValue="16,17" unit="kts" />
+
+   <plotParameterDefinition displayName="windGust (kts)" displayType="TEXT" param="windGust" sampleValue="8" unit="kts" />
+
+   <plotParameterDefinition displayName="Marker" displayType="MARKER" param="Marker" sampleValue=" " svgClass="marker" />
+
+   <plotParameterDefinition displayName="wx_present" displayType="TABLE" lookupTable="pres_wx_symbols.txt" param="wx_present" sampleValue="0" svgClass="weather" />
+
+   <plotParameterDefinition displayName="wvType" displayType="TABLE" lookupTable="waveTypeLookup.txt" param="wvType" sampleValue="1" svgClass="text" />
+
+   <plotParameterDefinition displayName="wvPeriod" displayType="TEXT" format="%1.0f" param="wvPeriod" sampleValue="1" />
+
+   <plotParameterDefinition displayName="wvHeight (ft)" displayType="TEXT" format="%1.0f" param="wvHeight" sampleValue="018" unit="ft" />
+
+   <plotParameterDefinition displayName="primarySwellWavePeriod" displayType="TEXT" format="%1.0f" param="primarySwellWavePeriod" sampleValue="1" />
+
+   <plotParameterDefinition displayName="primarySwellWaveHeight (ft)" displayType="TEXT" format="%1.0f" param="primarySwellWaveHeight" sampleValue="018" unit="ft" />
+
+   <plotParameterDefinition displayName="secondarySwellWavePeriod" displayType="TEXT" format="%1.0f" param="secondarySwellWavePeriod" sampleValue="018" />
+
+   <plotParameterDefinition displayName="secondarySwellWaveHeight (ft)" displayType="TEXT" format="%1.0f" param="secondarySwellWaveHeight" sampleValue="1" unit="ft" />
+
+   <plotParameterDefinition displayName="ONE,primarySwellWaveDir,ONE" displayType="ARROWUV" param="ONE,primarySwellWaveDir,ONE" sampleValue="0,1,2" />
+
+   <plotParameterDefinition displayName="TWO,secondarySwellWaveDir,TWO" displayType="ARROWUV" param="TWO,secondarySwellWaveDir,TWO" sampleValue="0,1,2" />
+
+   <plotParameterDefinition displayName="lowCloudHeight" displayType="TABLE" lookupTable="maritime_base_lookup.txt" param="lowCloudHeight" sampleValue="0" svgClass="text" />
+
+   <plotParameterDefinition displayName="visibility (mi)" displayType="RANGE" format="%3.5f" lookupTable="fractions_lookup.txt" param="visibility" sampleValue="59" svgClass="text" unit="mi" />
+
+   <plotParameterDefinition displayName="stationId" displayType="TEXT" param="stationId" sampleValue="00000" svgClass="text" />
+
+   <plotParameterDefinition displayName="precip6Hour (in)" displayType="RANGE" format="%3.5f" lookupTable="synoptic_prcp_formats.txt" param="precip6Hour" sampleValue="2" svgClass="text" unit="in" />
+
+   <plotParameterDefinition displayName="SynPrecip24Hr (in)" displayType="RANGE" format="%3.5f" lookupTable="synoptic_prcp_formats.txt" param="SynPrecip24Hr" sampleValue="2" svgClass="text" unit="in" />
+</plotParameterDefinitions>

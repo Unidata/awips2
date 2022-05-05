@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AlertView
+Bundle-SymbolicName: com.raytheon.uf.viz.alertview;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.raytheon.uf.viz.alertview
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.ui.console,
+ org.slf4j,
+ javax.xml.bind
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: com.raytheon.uf.viz.alertview.jar
+Service-Component: OSGI-INF/*.xml
+Bundle-Activator: com.raytheon.uf.viz.alertview.AlertViewActivator
+

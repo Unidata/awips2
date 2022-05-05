@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VTEC Utilities
+Bundle-SymbolicName: com.raytheon.uf.viz.vtec
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.viz.core,
+ com.raytheon.uf.common.activetable,
+ com.raytheon.uf.common.time,
+ org.eclipse.core.runtime,
+ org.eclipse.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.vtec
