@@ -1,0 +1,8 @@
+[awips2repo]
+name=AWIPS II Repository
+#baseurl=http://www.unidata.ucar.edu/repos/yum/18.2.1-ade
+baseurl=file:///home/awips/dev/build/rpmbuild/RPMS
+enabled=1
+protect=0
+gpgcheck=0
+proxy=_none_

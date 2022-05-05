@@ -1,0 +1,23 @@
+FROM tiffanym13/awips-devel-20.3.2-1:el7
+ENV VERSION 20.3.2
+ENV RELEASE 1
+MAINTAINER Tiffany Meyer<tiffanym@ucar.edu>
+
+USER root
+
+COPY el7-dev.repo /etc/yum.repos.d/awips2.repo
+
+RUN groupadd fxalpha && useradd -G fxalpha awips
+
+RUN mkdir -p /home/awips/dev/build/rpmbuild/RPMS/
+ADD RPMS /home/awips/dev/build/rpmbuild/RPMS
+
+RUN yum -y clean all
+
+RUN yum install awips2-ant awips2-eclipse awips2-hdf5-devel awips2-maven awips2-python-cheroot awips2-python-contextlib2 awips2-python-cython awips2-python-jaraco.functools awips2-python-more-itertools awips2-python-pkgconfig awips2-python-portend awips2-python-pycairo awips2-python-pygobject awips2-python-setuptools_scm_git_archive awips2-python-setuptools_scm awips2-python-tempora awips2-python-zc.lockfile awips2-python-numpy awips2-python-dateutil awips2-python-pyparsing awips2-python-pbr awips2-python-mock awips2-python-numexpr awips2-python-thrift awips2-python-setuptools awips2-hdf5 awips2-python-six awips2-python-pytz awips2-netcdf-devel awips2-qpid-proton -y
+
+RUN mkdir -p /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline && mkdir -p /awips2/jenkins/buildspace/workspace/tmp
+RUN mkdir -p /awips2/jenkins/build/rpms/awips2_latest/{x86_64,noarch}/
+RUN chown -R awips:fxalpha /awips2/jenkins/
+
+ENTRYPOINT ["/bin/bash"]
