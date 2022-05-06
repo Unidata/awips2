@@ -163,7 +163,7 @@ function build_server(){
 #  buildRPM "awips2-tools
    buildRPM "awips2-gfesuite"
    build_pypies
-   buildLocalization
+   buildLocalizationRPMs
    
    buildRPM "awips2-alertviz"
    buildRPM "awips2-aviation-shared"

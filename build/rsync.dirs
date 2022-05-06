@@ -1,8 +1,8 @@
-edexOsgi/* cave/* localization
+edexOsgi/* cave/* localization/*
 javaUtilities/* rpms pythonPackages 
-deploy.edex
-deploy.edex.awips2
-deploy.ignite.awips2
+build/deploy.edex
+build/deploy.edex.awips2
+build/deploy.ignite.awips2
 ../awips2-nativelib/*
 ../awips2-cimss/edex/*
 ../awips2-cimss/features/*
