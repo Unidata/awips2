@@ -388,13 +388,13 @@ function cave_prep {
 
 function cleanup {
   sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
-  if $1; then
+  if $alterReg; then
     sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
   fi
-  if $2; then
+  if $disableNDM; then
     disable_ndm_update
   fi
-  echo "$3 has finished installing, the install log can be found in /tmp/awips-install.log"
+  echo "$k has finished installing, the install log can be found in /tmp/awips-install.log"
 }
 
 if [ $# -eq 0 ]; then
@@ -402,6 +402,10 @@ if [ $# -eq 0 ]; then
 else
   key="$1"
 fi
+
+disableNDM=true
+alterReg=true
+
 case $key in
     --cave)
         cave_prep
@@ -413,22 +417,17 @@ case $key in
     --server|--edex)
         server_prep
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
-        alterReg=true
         disableNDM=false
         k="EDEX server"
         ;;
     --database)
         server_prep
         yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
-        alterReg=true
-        disableNDM=true
         k="EDEX database"
         ;;
     --ingest)
         server_prep
         yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
-        alterReg=true
-        disableNDM=true
         k="EDEX ingest"
         ;;
     -h|--help)
