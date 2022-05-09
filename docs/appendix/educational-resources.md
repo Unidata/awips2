@@ -131,8 +131,10 @@ A full list of all released blogs can be found below:
 - [Plot New GOES Products From Unidata's Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
 - [Load Map Resources and Topography using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-load-map-resources)
 - [Create a Colored Surface Temperature Plot](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-a-colored)
+- [View WWA Polygons with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-view-wwa-polygons)
 
 #### EDEX
 
 - [Get to Know EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-get-to-know)
 - [EDEX Data Retention](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-edex-data-retention)
+- [Adding ECMWF Data to EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-ecmwf-data)
