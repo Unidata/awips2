@@ -386,6 +386,17 @@ function cave_prep {
  rm -rf /home/awips/caveData 
 }
 
+function cleanup {
+  sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
+  if $1; then
+    sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+  fi
+  if $2; then
+    disable_ndm_update
+  fi
+  echo "$3 has finished installing, the install log can be found in /tmp/awips-install.log"
+}
+
 if [ $# -eq 0 ]; then
   key="-h"
 else
@@ -395,31 +406,30 @@ case $key in
     --cave)
         cave_prep
         yum groupinstall awips2-cave -y 2>&1 | tee -a /tmp/awips-install.log
-        sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
-        echo "CAVE has finished installing, the install log can be found in /tmp/awips-install.log"
+        alterReg=false
+        disableNDM=false
+        k="CAVE"
         ;;
     --server|--edex)
         server_prep
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
-        sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
-        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
-        echo "EDEX server has finished installing, the install log can be found in /tmp/awips-install.log"
+        alterReg=true
+        disableNDM=false
+        k="EDEX server"
         ;;
     --database)
         server_prep
         yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
-        disable_ndm_update
-        sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
-        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
-        echo "EDEX database has finished installing, the install log can be found in /tmp/awips-install.log"
+        alterReg=true
+        disableNDM=true
+        k="EDEX database"
         ;;
     --ingest)
         server_prep
         yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
-        disable_ndm_update
-        sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
-        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
-        echo "EDEX ingest has finished installing, the install log can be found in /tmp/awips-install.log"
+        alterReg=true
+        disableNDM=true
+        k="EDEX ingest"
         ;;
     -h|--help)
         echo -e $usage
@@ -427,6 +437,7 @@ case $key in
         ;;
 esac
 
+cleanup $alterReg $disableNDM $k
 PATH=$PATH:/awips2/edex/bin/
 exit
 
