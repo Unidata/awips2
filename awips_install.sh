@@ -436,7 +436,8 @@ case $key in
         ;;
 esac
 
-cleanup $alterReg $disableNDM $k
+cleanup
+
 PATH=$PATH:/awips2/edex/bin/
 exit
 
