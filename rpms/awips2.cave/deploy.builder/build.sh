@@ -243,7 +243,7 @@ buildCAVEProduct ${awips_product} "awips2-cave"
 
 buildRPMExec "Installer.cave-wrapper" ""
 
-buildCAVEProduct ${ncep_product} "awips2-cave-ncep"
+#buildCAVEProduct ${ncep_product} "awips2-cave-ncep"
 
 buildCAVEProduct ${gfeclient_product} "awips2-cave-gfeclient"
 
