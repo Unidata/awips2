@@ -32,7 +32,7 @@ nav:
   - Home: index.md
   - Install CAVE: install/install-cave.md
   - Install EDEX: install/install-edex.md
-  - Common Problems: install/common-problems.md
+  - Common Problems: appendix/common-problems.md
   - CAVE User Manual:
       - D2D Perspective: cave/d2d-perspective.md
       - Maps, Views, Projections: cave/maps-views-projections.md

@@ -124,6 +124,7 @@ A full list of all released blogs can be found below:
 - [Explore the CAVE Volume Browser: Model Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave3)
 - [NUCAPS Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-nucaps-soundings)
 - [Import Shapefiles in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-import-shapefiles-in)
+- [Create Objective Analysis Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-objective-analysis)
 
 #### Python-AWIPS
 

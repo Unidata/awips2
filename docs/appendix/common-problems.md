@@ -25,6 +25,22 @@ For Mac users, the easiest way is to open a new terminal and run the following c
 
 ---
 
+## Disappearing Configurations
+
+If you ever notice some of the following settings you've configured/saved disappear from CAVE:
+
+- Saved Displays or Procedures
+- NSHARP settings (line thickness, etc)
+- Colormap settings
+- StyleRule settings
+
+!!! note "This is not a fully exhaustive list, so if something else has dissappeared it might be the same underlying issue still."
+
+Then it is likely we have recently changed our production EDEX server.
+There is a good chance we can recover your settings.  To do so, please send a short email to [support-awips@unidata.ucar.edu](mailto:support-awips@unidata.ucar.edu) with the topic "Missing Configurations", and include the username(s) of the computer(s) you use to run CAVE.
+
+---
+
 ## Monterey CAVE Warning
 
 If you are running MacOS Monterey, you may see the following message when starting CAVE:
