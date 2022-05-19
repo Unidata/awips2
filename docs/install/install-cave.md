@@ -78,7 +78,16 @@ This method is recommended for beginners, or those with less computer knowledge 
 
 #### System Requirements
 
-- [VMWare Workstation Player](https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html) must be installed (free software)
+- [VMWare Workstation Player](https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html) must be installed (free software):
+- For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player
+     1. Create a desktop shortcut for VMWare Workstation Player
+     1. Right-click the shortcut and select Properties
+     1. Open the Compatability Tab
+     1. Select the "Change high DPI settings" button
+     1. Check the "High DPI scaling ovveride" checkbox and choose "Application" in the enabled dropdown
+     
+      ![VMWare Workstation Player DPI Setting](../images/vmwareplayer-update-dpi.png)
+
 
 #### Download and Installation Instructions
 
