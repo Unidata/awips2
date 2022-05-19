@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/install/common-problems/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/appendix/common-problems/">
       
       
         <meta name="author" content="support-awips@unidata.ucar.edu">
@@ -213,7 +213,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../install-cave/" title="Install CAVE" class="md-nav__link">
+    <a href="../../install/install-cave/" title="Install CAVE" class="md-nav__link">
       Install CAVE
     </a>
   </li>
@@ -225,7 +225,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../install-edex/" title="Install EDEX" class="md-nav__link">
+    <a href="../../install/install-edex/" title="Install EDEX" class="md-nav__link">
       Install EDEX
     </a>
   </li>
@@ -294,6 +294,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disappearing-configurations" title="Disappearing Configurations" class="md-nav__link">
+    Disappearing Configurations
+  </a>
   
 </li>
       
@@ -558,7 +565,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../start-edex/" title="EDEX Basic Commands" class="md-nav__link">
+    <a href="../../install/start-edex/" title="EDEX Basic Commands" class="md-nav__link">
       EDEX Basic Commands
     </a>
   </li>
@@ -707,7 +714,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/educational-resources/" title="Educational Resources" class="md-nav__link">
+    <a href="../educational-resources/" title="Educational Resources" class="md-nav__link">
       Educational Resources
     </a>
   </li>
@@ -750,7 +757,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+    <a href="../appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
       AWIPS Grid Parameters
     </a>
   </li>
@@ -774,7 +781,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+    <a href="../appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
       Acronyms and Abbreviations
     </a>
   </li>
@@ -786,7 +793,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+    <a href="../appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
       WSR-88D Product Table
     </a>
   </li>
@@ -888,6 +895,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#disappearing-configurations" title="Disappearing Configurations" class="md-nav__link">
+    Disappearing Configurations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#monterey-cave-warning" title="Monterey CAVE Warning" class="md-nav__link">
     Monterey CAVE Warning
   </a>
@@ -936,7 +950,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/install/common-problems.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/appendix/common-problems.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
                 <h1 id="common-problems">Common Problems<a class="headerlink" href="#common-problems" title="Permanent link"></a></h1>
@@ -954,6 +968,20 @@
 <pre><code>rm -rf ~/Library/caveData
 </code></pre>
 <hr />
+<h2 id="disappearing-configurations">Disappearing Configurations<a class="headerlink" href="#disappearing-configurations" title="Permanent link"></a></h2>
+<p>If you ever notice some of the following settings you've configured/saved disappear from CAVE:</p>
+<ul>
+<li>Saved Displays or Procedures</li>
+<li>NSHARP settings (line thickness, etc)</li>
+<li>Colormap settings</li>
+<li>StyleRule settings</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">This is not a fully exhaustive list, so if something else has disappeared it might be the same underlying issue still.</p>
+</div>
+<p>Then it is likely we have recently changed our production EDEX server.
+There is a good chance we can recover your settings.  To do so, please send a short email to <a href="mailto:support-awips@unidata.ucar.edu">support-awips@unidata.ucar.edu</a> with the topic "Missing Configurations", and include the username(s) of the computer(s) you use to run CAVE.</p>
+<hr />
 <h2 id="monterey-cave-warning">Monterey CAVE Warning<a class="headerlink" href="#monterey-cave-warning" title="Permanent link"></a></h2>
 <p>If you are running MacOS Monterey, you may see the following message when starting CAVE:</p>
 <p><img alt="Monterey warning" src="../../images/monterey-warning.png" /></p>
@@ -961,7 +989,7 @@
 <hr />
 <h2 id="remotely-connecting-to-cave">Remotely Connecting to CAVE<a class="headerlink" href="#remotely-connecting-to-cave" title="Permanent link"></a></h2>
 <p>Since the pandemic began, many users have asked if they can use X11 forwarding or ssh tunneling to remotely connect to CAVE machines.  <strong>This is not recommended or supported</strong>, and CAVE crashes in many different ways and expresses strange behavior as well.</p>
-<p>We highly recommend you <a href="../install-cave/">download the appropriate CAVE installer</a> on your local machine, if that is an option.</p>
+<p>We highly recommend you <a href="install-cave.md">download the appropriate CAVE installer</a> on your local machine, if that is an option.</p>
 <p>If that is not an option, then the only remote access we recommend is using some type of VNC.
 <a href="https://www.realvnc.com/en/"><strong>RealVNC</strong></a> and <a href="https://www.nomachine.com"><strong>nomachine</strong></a> are two options that are in use with positive outcomes.  <a href="https://www.uvnc.com"><strong>UltraVNC</strong></a> may be another option, but may have quite a delay.  There <em>may</em> also be other free or paid software available that we are not aware of.</p>
 <div class="admonition warning">
@@ -1004,7 +1032,7 @@
 <hr />
 <h2 id="products-not-loading-properly">Products Not Loading Properly<a class="headerlink" href="#products-not-loading-properly" title="Permanent link"></a></h2>
 <p>This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation, and the root of the problem is not having Python installed properly for CAVE to use the packages.</p>
-<p>If the <a href="../install-cave/#download-and-installation-instructions_2">Windows installation</a> was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.</p>
+<p>If the <a href="install-cave.md#download-and-installation-instructions_2">Windows installation</a> was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.</p>
 <p>The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
 <img alt="failed load" src="../../images/failedJepMetarLoad.png" /></p>
 <p>You may see an error that mentions the python package, <strong>jep</strong>.</p>
@@ -1018,7 +1046,7 @@
 <p>To correct this issue on Windows:</p>
 <ul>
 <li>Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)</li>
-<li>Redo all necessary <a href="../install-cave/#download-and-installation-instructions_2">installation instructions in <strong>steps 1 through 6</strong></a></li>
+<li>Redo all necessary <a href="install-cave.md#download-and-installation-instructions_2">installation instructions in <strong>steps 1 through 6</strong></a></li>
 </ul>
 <p>To correct this issue on Mac:</p>
 <ul>

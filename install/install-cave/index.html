@@ -457,7 +457,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../common-problems/" title="Common Problems" class="md-nav__link">
+    <a href="../../appendix/common-problems/" title="Common Problems" class="md-nav__link">
       Common Problems
     </a>
   </li>
@@ -1200,7 +1200,7 @@
 <li>
 <p>Local machine</p>
 <div class="admonition error">
-<p class="admonition-title">Running CAVE via X11 forwarding or ssh tunneling is <strong>not</strong> supported. Using a <a href="../common-problems/#remotely-connecting-to-cave">VNC connection is the only remote option</a>, and may result in worse performance than running locally.</p>
+<p class="admonition-title">Running CAVE via X11 forwarding or ssh tunneling is <strong>not</strong> supported. Using a <a href="common-problems.md#remotely-connecting-to-cave">VNC connection is the only remote option</a>, and may result in worse performance than running locally.</p>
 </div>
 </li>
 <li>
@@ -1256,7 +1256,18 @@
 <p>This method is recommended for beginners, or those with less computer knowledge as it is a very simple installation, however at this time, some CAVE functionality may be missing (ex: rendering RGB satellite images).</p>
 <h4 id="system-requirements_1">System Requirements<a class="headerlink" href="#system-requirements_1" title="Permanent link"></a></h4>
 <ul>
-<li><a href="https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html">VMWare Workstation Player</a> must be installed (free software)</li>
+<li><a href="https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html">VMWare Workstation Player</a> must be installed (free software):</li>
+<li>
+<p>For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player</p>
+<ol>
+<li>Create a desktop shortcut for VMWare Workstation Player</li>
+<li>Right-click the shortcut and select Properties</li>
+<li>Open the Compatability Tab</li>
+<li>Select the "Change high DPI settings" button</li>
+<li>Check the "High DPI scaling ovveride" checkbox and choose "Application" in the enabled dropdown</li>
+</ol>
+<p><img alt="VMWare Workstation Player DPI Setting" src="../../images/vmwareplayer-update-dpi.png" /></p>
+</li>
 </ul>
 <h4 id="download-and-installation-instructions_1">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_1" title="Permanent link"></a></h4>
 <ol>
@@ -1445,7 +1456,7 @@ For additional assistance we have created an <a href="https://youtu.be/QAuBSsSp9
 sudo yum groupremove &quot;AWIPS CAVE&quot;
 </code></pre>
 <div class="admonition note">
-<p class="admonition-title">If you are having trouble removing a group, see the <a href="../common-problems/#troubleshooting-uninstalling-edex">troubleshooting</a> section.</p>
+<p class="admonition-title">If you are having trouble removing a group, see the <a href="common-problems.md#troubleshooting-uninstalling-edex">troubleshooting</a> section.</p>
 </div>
 <p><strong>3. Check to make sure all awips rpms have been removed</strong></p>
 <pre><code>rpm -qa | grep awips2
