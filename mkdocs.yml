@@ -27,6 +27,7 @@ extra:
       link: https://twitter.com/Unidata
     - type: facebook
       link: https://facebook.com/Unidata
+  logo: 'images/home.png'
 
 nav:
   - Home: index.md
