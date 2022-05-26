@@ -27,12 +27,13 @@ extra:
       link: https://twitter.com/Unidata
     - type: facebook
       link: https://facebook.com/Unidata
+  logo: 'images/home.png'
 
 nav:
   - Home: index.md
   - Install CAVE: install/install-cave.md
   - Install EDEX: install/install-edex.md
-  - Common Problems: install/common-problems.md
+  - Common Problems: appendix/common-problems.md
   - CAVE User Manual:
       - D2D Perspective: cave/d2d-perspective.md
       - Maps, Views, Projections: cave/maps-views-projections.md
@@ -108,4 +109,4 @@ markdown_extensions:
         permalink: 
     - admonition:
 
-copyright: Copyright &copy; 2020 Unidata Program Center.
+copyright: Copyright &copy; 2022 Unidata Program Center.
