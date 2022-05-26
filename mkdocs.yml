@@ -27,6 +27,7 @@ extra:
       link: https://twitter.com/Unidata
     - type: facebook
       link: https://facebook.com/Unidata
+  logo: 'images/home.png'
 
 nav:
   - Home: index.md
@@ -99,13 +100,10 @@ nav:
 extra_css:
     - css/extra.css
 
-extra_javascript:
-    - assets/javascripts/application-0b7df094bf.js
-
 markdown_extensions:
     - fontawesome_markdown:
     - toc:
         permalink: 
     - admonition:
 
-copyright: Copyright &copy; 2020 Unidata Program Center.
+copyright: Copyright &copy; 2022 Unidata Program Center.
