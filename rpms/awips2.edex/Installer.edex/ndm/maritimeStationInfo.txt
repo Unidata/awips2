@@ -45,7 +45,9 @@
 0000000000|41047| 27.47 | -71.49 |    0|NE of Bahamas                       |US|BOY
 0000000000|41048| 31.98 | -69.65 |    0|W of Bermuda                        |US|BOY
 0000000000|41049| 27.5  | -62.94 |    0|Atlantic (South)                    |US|BOY
+0000000000|41065| 32.802| -79.619|    0|CAP2WAVE, Capers Nearshore Waves    |US|BOY
 0000000000|41066| 32.536| -79.660|    0|19 NM SE Charleston, SC Harbor CORMP|US|BOY
+0000000000|41076| 32.536| -79.659|    0|CHR60WAVE                           |US|BOY
 0000000000|41108| 33.721| -78.015|    0|Wilmington Harbor NC Scripps        |US|BOY
 0000000000|41110| 34.141| -77.709|   -0|Masonboro Inlet, NC CORMP           |US|BOY
 0000000000|41112| 30.72 | -81.29 |    0|Kings Bay, GA(132)                  |US|BOY
