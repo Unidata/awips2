@@ -76,7 +76,10 @@ One common error some users are seeing manifests itself just after selecting an 
 These errors are actually happening because the Windows machine is using IPv6, which is not compatible with AWIPS at this time.
 
 **To fix the issue simply follow these steps:**
->**Note**: These screenshots may vary from your system.
+!!! note  "These screenshots may vary from your system."
+
+!!! warning "These instructions are <i>per connection</i>, so if you use multiple connections or switch between wired and wireless connections, you'll need to do the following for each of those connections so that CAVE will always run properly."
+
 
 **1. Close all error windows and any open windows associated with CAVE.**
 
