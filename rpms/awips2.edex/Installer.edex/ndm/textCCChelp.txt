@@ -214,7 +214,6 @@
 0E4 Payson, AZ
 0F2 Bowie Muni, Bowie, TX
 0J4 Florala Muni, AL
-0J6 Headland Muni Airport, Headland, AL
 0K2 Pocahontas, IA
 0R0 Columbia-Marion Cnty AP, Columbia, MS
 0R3 Abbeville, LA (chg to IYA)
@@ -282,6 +281,7 @@
 13G Niagara CGS, NY
 13K Eureka Muni, Eureka, KS
 14Y Todd Field AP, Long Prairie, MN
+15M Iuka Airport, Iuka, MS
 17J Donalsonville Muni Airport, Donalsonville, GA
 17W Wadena Muni, MN
 18A 18-Hour WINTEM; K-Franklin Cnty AP, Canon, GA
@@ -2006,6 +2006,7 @@ HCR Heber City Minicipal Airport, Heber, UT
 HDC Hammond Muni, LA
 HDE Holdrege, NE
 HDG FOUS Header
+HDL Headland Muni Airport, Headland, AL
 HDN Hayden, CO
 HDO Hondo, TX
 HEB P-Pacific Tsunami Warning Ctr (PTWC)
@@ -2114,7 +2115,6 @@ HST Homestead AFB, Homestead, FL
 HSV Huntsville, AL
 HTH Hawthorne, NV
 HTL Houghton Lake, MI
-HTO K-East Hampton, NY; P-Hilo/Lyman Field, HI
 HTS Huntington, WV
 HTX Huntsville, AL WSR-88D
 HUA Redstone AAF, Huntsville, AL
@@ -2529,6 +2529,7 @@ JON Johnston Island
 JOT Joliet, IL
 JPD Powder River Pass, Ten Sleep, WY
 JPS Ponce/Mercedita, PU
+JPX East Hampton Town Airport, NY
 JQF Concord Rgnl, NC
 JRB Manhattan/Wallstreet Heliport, New York, NY
 JRF P-Kalaeloa AP, Kapolei, HI
