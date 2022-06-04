@@ -967,6 +967,7 @@
 0000000000|K0V4 | 37.1417| -79.0164| 182|Brookn/Campbell AP, Brookneal, VA  |US|MTR
 0000000000|K0VG | 36.6541| -83.2178| 430|Lee Cnty AP, Jonesville, VA        |US|MTR
 0000000000|K0W8 | 37.94 | -75.39 |    2|CHINCOTEAGUE, VA                    |US|MTR
+0000000000|K10G | 40.53670|-81.95594| 374|Holmes Cnty AP, Millersburg, OH   |US|MTR
 0000000000|K11R | 30.219| -96.374|   94|Brenham Muni, TX                    |US|MTR
 0000000000|K12N | 41.01 | -74.74 |  178|Andover/Aeroflex-Andover, NJ        |US|MTR
 0000000000|K13G | 43.27 | -79.07 |   82|NIAGARA (CGS), NY                   |US|MTR
