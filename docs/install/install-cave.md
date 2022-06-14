@@ -20,7 +20,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 - Local machine
 
-    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
+    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](../appendix/common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
   
 - Java 1.8
 - OpenGL 2.0 Compatible Devices
@@ -258,7 +258,7 @@ sudo yum clean all
 sudo yum groupremove "AWIPS CAVE"
 ```
 
-!!! note "If you are having trouble removing a group, see the [troubleshooting](common-problems.md#troubleshooting-uninstalling-edex) section."
+!!! note "If you are having trouble removing a group, see the [troubleshooting](../appendix/common-problems.md#troubleshooting-uninstalling-edex) section."
 
 **3. Check to make sure all awips rpms have been removed**
 ```
