@@ -973,7 +973,7 @@
 0000000000|K13G | 43.27 | -79.07 |   82|NIAGARA (CGS), NY                   |US|MTR
 0000000000|K13K | 37.85161|-96.29203| 368|Eureka Muni, Eureka, KS           |US|MTR
 0000000000|K14Y | 45.899| -94.874|  406|Todd Field AP, Long Prairie, MN     |US|MTR
-0000000000|K15M | 32.77333|-88.16608| 191|Iuka Airport, Iuka, MS            |US|MTR
+0000000000|K15M | 34.77333|-88.16608| 191|Iuka Airport, Iuka, MS            |US|MTR
 0000000000|K17J | 31.00697|-84.87761| 45|Donalsonville AP, Donalsonville, GA|US|MTR
 0000000000|K17W | 46.45 | -95.21 |  418|Wadena Muni, MN                     |US|MTR
 0000000000|K18A | 34.3404| -83.1308| 271|Franklin Cnty AP, Canon, GA        |US|MTR
