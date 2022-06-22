@@ -56,10 +56,6 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
-/bin/mkdir -p %{_build_root}/etc/logrotate.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 /bin/mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -114,10 +110,6 @@ done
 
 # copy environment scripts to their destination
 /bin/cp ld.so.conf.d/* %{_build_root}/etc/ld.so.conf.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/cp logrotate.d/* %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -262,4 +254,3 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(600,awips,fxalpha) /var/spool/cron/awips
 #%attr(755,awips,fxalpha) /awips2/edex/bin/edexBridge
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
-%attr(755,root,root) /etc/logrotate.d/ldm.log
