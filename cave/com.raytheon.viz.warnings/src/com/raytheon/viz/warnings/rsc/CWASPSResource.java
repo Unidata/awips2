@@ -36,15 +36,15 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
+import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler.PointStyle;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTReader;
 
@@ -63,6 +63,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Aug 01, 2014 3471       mapeters    Updated deprecated createShadedShape() calls.
  * Aug 22, 2016 5842       dgilling    Remove dependency on viz.texteditor plugin.
  * Sep 14, 2016 3241       bsteffen    Update deprecated JTSCompiler method calls
+ * Jun 24, 2022			   srcarter@ucar  Always create outline (wireshapes) and fill (shadedshapes)
  * </pre>
  *
  * @author rjpeter
@@ -187,82 +188,47 @@ public class CWASPSResource extends WatchesResource {
             entry.record = record;
             entryMap.put(record.getDataURI(), entry);
         }
-
-        // default to a wireframe shape
-        boolean isShaded = false;
-
-        if (entry.shadedShape != null) {
-            // if the shape was in the shadedShape map then create a shaded
-            // shape
-            isShaded = true;
-        } else if ((entry.wireframeShape == null)
-                && (record.getGeometry() == null)) {
-            // if it is not in the wireframeShape map and the geometry is null
-            // then create a shaded shape
-            isShaded = true;
-        }
-
-        if (isShaded) {
-            if (!record.getUgcZones().isEmpty()) {
-                // if the geometry is null get a geometry based on the county
-                // list
-                if (record.getGeometry() == null) {
-                    record.setGeometry(getGeometry(record));
-                }
-                if (record.getGeometry() != null) {
-
-                    // dispose old shape
-                    if (entry.shadedShape != null) {
-                        entry.shadedShape.dispose();
-                    }
-
-                    entry.shadedShape = target.createShadedShape(false,
-                            descriptor.getGridGeometry());
-                    try {
-                        geo = wktr.read(record.getGeometry().toString());
-
-                        JTSCompiler jtsCompiler = new JTSCompiler(
-                                entry.shadedShape, null, this.descriptor);
-                        JTSGeometryData jtsData = jtsCompiler
-                                .createGeometryData();
-                        jtsData.setPointStyle(PointStyle.CROSS);
-                        jtsData.setGeometryColor(color);
-                        try {
-                            jtsCompiler.handle(geo, jtsData);
-                        } catch (VizException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                            entryMap.remove(entry.record.getDataURI());
-                            return;
-                        }
-                        entry.shadedShape.setFillPattern(FillPatterns
-                                .getGLPattern("VERTICAL_DOTTED"));
-                        entry.shadedShape.compile();
-                    } catch (ParseException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    }
-                }
+        
+        if (!record.getUgcZones().isEmpty()) {
+            // if the geometry is null get a geometry based on the county
+            // list
+            if (record.getGeometry() == null) {
+                record.setGeometry(getGeometry(record));
             }
-        } else {
+            if (record.getGeometry() != null) {
+                try {
+                	//give every entry a fill and outline
+                    //add fill (shadedshape)
+                	IShadedShape ss = target.createShadedShape(false, descriptor.getGridGeometry());
+                	geo = wktr.read(record.getGeometry().toString());
+                    JTSCompiler jtsCompiler = new JTSCompiler(ss, null, this.descriptor);
+                    JTSGeometryData geoData = jtsCompiler.createGeometryData();
+                    geoData.setGeometryColor(color);
+                    geoData.setPointStyle(PointStyle.CROSS);
+                    jtsCompiler.handle(geo, geoData);
+                    ss.setFillPattern(FillPatterns.getGLPattern("VERTICAL_DOTTED"));
+                    ss.compile();
 
-            try {
-                // dispose old shape
-                if (entry.wireframeShape != null) {
-                    entry.wireframeShape.dispose();
+                    entry.shadedShape = ss;
+                	
+                    //add outline (wireshape)
+                    IWireframeShape wfs = entry.wireframeShape;
+
+                    if (wfs != null) {
+                        wfs.dispose();
+                    }
+
+                    wfs = target.createWireframeShape(false, descriptor);
+
+                    jtsCompiler = new JTSCompiler(null, wfs, descriptor);
+                    jtsCompiler.handle(geo);
+                    wfs.compile();
+                    entry.wireframeShape = wfs;
+                	
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.ERROR,
+                            "Error creating wireframe", e);
                 }
-
-                entry.wireframeShape = target.createWireframeShape(false,
-                        descriptor);
-                geo = wktr.read(record.getGeometry().toString());
-
-                JTSCompiler jtsCompiler = new JTSCompiler(null,
-                        entry.wireframeShape, descriptor);
-                jtsCompiler.handle(geo);
-                entry.wireframeShape.compile();
-            } catch (Exception e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Error creating wireframe", e);
             }
         }
     }
