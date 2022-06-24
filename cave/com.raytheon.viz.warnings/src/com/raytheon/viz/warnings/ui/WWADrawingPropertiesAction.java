@@ -22,6 +22,7 @@ import com.raytheon.viz.warnings.rsc.WatchesResource;
  * ------------ ---------- ----------------  --------------------------
  * Mar 15, 2022            srcarter@ucar     Initial creation
  * Mar 17, 2022 		   srcarter@ucar	 Small change to isHidden to only display for proper resources
+ * Jun 24, 2022			   srcarter@ucar	 Enable for CWASPSResources as well
  * 
  * </pre>
  * 
@@ -65,7 +66,7 @@ public class WWADrawingPropertiesAction extends AbstractRightClickAction {
 	public boolean isHidden(){
 	 	AbstractVizResource rsc = getSelectedRsc();
 	 	
-	 	if((rsc instanceof WatchesResource || rsc instanceof WarningsResource) && !(rsc instanceof CWASPSResource)){
+	 	if(rsc instanceof WatchesResource || rsc instanceof WarningsResource){
 	 		return false;
 	 	}
 	 	return true;
