@@ -302,15 +302,18 @@ public abstract class AbstractWWAResource extends
                     AbstractWarningRecord record = entry.record;
                     String sig = record.getSig();
                     boolean samplingOn = false;
-                    if(sig.equals(WATCH_SIG)){
-                    	if(showWatchSampling())
-                    		samplingOn = true;
-                    }else if(sig.equals(WARN_SIG)){
-                    	if(showWarnSampling())
-                    		samplingOn = true;
-                    }else if(sig.equals(ADVISORY_SIG)){
-                    	if(showAdvisorySampling())
-                    		samplingOn = true;
+                    if(sig !=null){ 
+	                    if(sig.equals(WATCH_SIG) && showWatchSampling()){
+	                    	samplingOn = true;
+	                    }else if(sig.equals(WARN_SIG) && showWarnSampling()){
+	                    	samplingOn = true;
+	                    }else if(sig.equals(ADVISORY_SIG) && showAdvisorySampling()){
+	                    	samplingOn = true;
+	                    }else{
+	                    	if(showOtherSampling()){
+	                    		samplingOn = true;
+	                    	}
+	                    }
                     }else{
                     	if(showOtherSampling())
                     		samplingOn = true;
