@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <phensigColors>
 	<map>
-	  <entry><key>AF.W</key><value color="gray" name="Ashfall Warning"></value></entry>
-	  <entry><key>AF.Y</key><value color="gray" name="Ashfall Advisory"></value></entry>
 	  <entry><key>AQ.Y</key><value color="gray" name="Air Quality Alert"></value></entry>
 	  <entry><key>AS.O</key><value color="gray" name="Air Stagnation Outlook"></value></entry>
 	  <entry><key>AS.Y</key><value color="gray" name="Air Stagnation Advisory"></value></entry>
