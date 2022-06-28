@@ -17,13 +17,14 @@
 					<resourceData xsi:type="wwaResourceData" 						
 						isUpdatingOnMetadataOnly="false"
 						retrieveData="false"
-						isRequeryNecessaryOnTimeMatch="true" name="Wind Watches, Warnings, Advisories">
+						isRequeryNecessaryOnTimeMatch="true" name="Other Watches, Warnings, Advisories">
 						<metadataMap>							
 							<mapping key="act">
 								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
 							</mapping>
 							<mapping key="phensig">
-								<constraint constraintValue="BW.Y,EW.W,HF.A,HF.W,HW.A,HW.W,LW.Y,SI.Y,GL.A,GL.W,WC.A,WC.W,WC.Y,WI.Y,DS.W,DU.Y,SM.Y" constraintType="IN" />
+                                <constraint constraintValue="AQ.Y,AS.O,AS.Y,DS.W,DU.Y,EC.A,EC.W,EH.A,EH.W,FG.Y,FW.A,FW.W,HT.Y,MF.Y,MH.W,MH.Y,MS.Y,SM.Y,WC.A,WC.W,WC.Y,ZF.Y,ZR.Y" constraintType="IN" />
+                                
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />

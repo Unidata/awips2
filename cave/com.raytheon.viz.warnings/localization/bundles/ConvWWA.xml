@@ -1,0 +1,60 @@
+<bundle>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="4" />
+                            <capability xsi:type="colorableCapability" colorAsString="#ffffff" />
+                        </capabilities>
+                    </loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false" 
+						isVisible="true" />
+					<resourceData xsi:type="wwaResourceData" 						
+						isUpdatingOnMetadataOnly="false"
+						retrieveData="false"
+						isRequeryNecessaryOnTimeMatch="true" name="Convective Watches, Warnings and Advisories">
+						<metadataMap>							
+							<mapping key="act">
+								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
+							</mapping>
+							<mapping key="phensig">
+								<constraint constraintValue="TO.A,SV.A,TO.W,SV.W,EW.W,SV.S" constraintType="IN" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="warning" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="cwaspsResourceData" name="Sig Wx Advisories (SPS)" hideSampling="false" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="warning"/>
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintType="IN" constraintValue="SPS"/>
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>
