@@ -27,6 +27,7 @@ import com.raytheon.viz.warnings.rsc.AbstractWWAResource;
  * Mar 15, 2022            srcarter@ucar     Initial creation
  * Mar 21, 2022			   srcarter@ucar	 Set the current values every time initializeComponents is called (also called from .Open)
  * Jun 24, 2022			   srcarter@ucar	 Move Watches to top, add section for Other/Statement, add 'enabled' functionality
+ * Jun 28, 2022			   srcarter@ucar	 Add 'Sampling' options
  * 
  * </pre>
  * 
@@ -40,18 +41,22 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 	private Button warnFillChk;
 	private Button warnTextChk;
 	private Button warnTimeChk;
+	private Button warnSampleChk;
 	private Button watchOutlineChk;
 	private Button watchFillChk;
 	private Button watchTextChk;
 	private Button watchTimeChk;
+	private Button watchSampleChk;
 	private Button advOutlineChk;
 	private Button advFillChk;
 	private Button advTextChk;
 	private Button advTimeChk;
+	private Button advSampleChk;
 	private Button otherOutlineChk;
 	private Button otherFillChk;
 	private Button otherTextChk;
 	private Button otherTimeChk;
+	private Button otherSampleChk;
 	
 	/**
 	 * The WWA Resource associated with this properties dialog
@@ -96,6 +101,9 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		watchTextChk = createButton(watchComp, "Show Text");
 		watchTimeChk = createButton(watchComp, "Show Time");
 		
+		//sample
+		watchSampleChk = createButton(watchComp, "Show Sampling");
+		
 	// --- end Watches ---	
 		
 	// --- Warnings ---
@@ -110,6 +118,8 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		//text and time
 		warnTextChk = createButton(warnComp, "Show Text");
 		warnTimeChk = createButton(warnComp, "Show Time");
+		//sample
+		warnSampleChk = createButton(warnComp, "Show Sampling");
 		
 	// --- end Warnings ---	
 		
@@ -127,6 +137,9 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		advTextChk = createButton(advComp, "Show Text");
 		advTimeChk = createButton(advComp, "Show Time");
 		
+		//sample
+		advSampleChk = createButton(advComp, "Show Sampling");
+		
 	// --- end Advisories ---	
 		
 	// --- Other ---
@@ -142,6 +155,9 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		//text and time
 		otherTextChk = createButton(otherComp, "Show Text");
 		otherTimeChk = createButton(otherComp, "Show Time");
+		
+		//sample
+		otherSampleChk = createButton(otherComp, "Show Sampling");
 		
 	// --- end Other ---	
 		
@@ -192,6 +208,7 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		warnFillChk.setEnabled(isEnabled);
 		warnTextChk.setEnabled(isEnabled);
 		warnTimeChk.setEnabled(isEnabled);
+		warnSampleChk.setEnabled(isEnabled);
 	}
 	
 	private void setWatchControlsEnabled(boolean isEnabled){
@@ -199,6 +216,7 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		watchFillChk.setEnabled(isEnabled);
 		watchTextChk.setEnabled(isEnabled);
 		watchTimeChk.setEnabled(isEnabled);
+		watchSampleChk.setEnabled(isEnabled);
 	}
 	
 	private void setAdvisoryControlsEnabled(boolean isEnabled){
@@ -206,6 +224,7 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		advFillChk.setEnabled(isEnabled);
 		advTextChk.setEnabled(isEnabled);
 		advTimeChk.setEnabled(isEnabled);
+		advSampleChk.setEnabled(isEnabled);
 	}
 	
 	private void setOtherControlsEnabled(boolean isEnabled){
@@ -213,6 +232,7 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		otherFillChk.setEnabled(isEnabled);
 		otherTextChk.setEnabled(isEnabled);
 		otherTimeChk.setEnabled(isEnabled);
+		otherSampleChk.setEnabled(isEnabled);
 	}
 	
 	/**
@@ -252,21 +272,25 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		myResource.setWarnFillDisplay(warnFillChk.getSelection());
 		myResource.setWarnTextDisplay(warnTextChk.getSelection());
 		myResource.setWarnTimeDisplay(warnTimeChk.getSelection());
+		myResource.setWarnSampleDisplay(warnSampleChk.getSelection());
 		
 		myResource.setWatchOutlineDisplay(watchOutlineChk.getSelection());
 		myResource.setWatchFillDisplay(watchFillChk.getSelection());
 		myResource.setWatchTextDisplay(watchTextChk.getSelection());
 		myResource.setWatchTimeDisplay(watchTimeChk.getSelection());
+		myResource.setWatchSampleDisplay(watchSampleChk.getSelection());
 		
 		myResource.setAdvisoryOutlineDisplay(advOutlineChk.getSelection());
 		myResource.setAdvisoryFillDisplay(advFillChk.getSelection());
 		myResource.setAdvisoryTextDisplay(advTextChk.getSelection());
 		myResource.setAdvisoryTimeDisplay(advTimeChk.getSelection());
+		myResource.setAdvisorySampleDisplay(advSampleChk.getSelection());
 		
 		myResource.setOtherOutlineDisplay(otherOutlineChk.getSelection());
 		myResource.setOtherFillDisplay(otherFillChk.getSelection());
 		myResource.setOtherTextDisplay(otherTextChk.getSelection());
-		myResource.setOtherTimeDisplay(otherTimeChk.getSelection());		
+		myResource.setOtherTimeDisplay(otherTimeChk.getSelection());	
+		myResource.setOtherSampleDisplay(otherSampleChk.getSelection());
 
 		myResource.issueRefresh();
 	}
@@ -280,22 +304,27 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		warnFillChk.setSelection(AbstractWWAResource.WARN_FILL_DEFAULT);
 		warnTextChk.setSelection(AbstractWWAResource.WARN_TEXT_DEFAULT);
 		warnTimeChk.setSelection(AbstractWWAResource.WARN_TIME_DEFAULT);
+		warnSampleChk.setSelection(true);
 		
 		watchOutlineChk.setSelection(AbstractWWAResource.WATCH_OUTLINE_DEFAULT);
 		watchFillChk.setSelection(AbstractWWAResource.WATCH_FILL_DEFAULT);
 		watchTextChk.setSelection(AbstractWWAResource.WATCH_TEXT_DEFAULT);
 		watchTimeChk.setSelection(AbstractWWAResource.WATCH_TIME_DEFAULT);
+		watchSampleChk.setSelection(true);
 		
 		advOutlineChk.setSelection(AbstractWWAResource.ADV_OUTLINE_DEFAULT);
 		advFillChk.setSelection(AbstractWWAResource.ADV_FILL_DEFAULT);
 		advTextChk.setSelection(AbstractWWAResource.ADV_TEXT_DEFAULT);
 		advTimeChk.setSelection(AbstractWWAResource.ADV_TIME_DEFAULT);
+		advSampleChk.setSelection(true);
 		
 		otherOutlineChk.setSelection(AbstractWWAResource.OTHER_OUTLINE_DEFAULT);
 		otherFillChk.setSelection(AbstractWWAResource.OTHER_FILL_DEFAULT);
 		otherTextChk.setSelection(AbstractWWAResource.OTHER_TEXT_DEFAULT);
-		otherTimeChk.setSelection(AbstractWWAResource.OTHER_TIME_DEFAULT);	}
-	
+		otherTimeChk.setSelection(AbstractWWAResource.OTHER_TIME_DEFAULT);	
+		otherSampleChk.setSelection(true);
+	}
+		
 	/**
 	 * Set all the GUI checkboxes to the current boolean values from 
 	 * the associated resource
@@ -305,20 +334,24 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		warnFillChk.setSelection(myResource.showWarnFill());
 		warnTextChk.setSelection(myResource.showWarnText());
 		warnTimeChk.setSelection(myResource.showWarnTime());
+		warnSampleChk.setSelection(myResource.showWarnSampling());
 		
 		watchOutlineChk.setSelection(myResource.showWatchOutline());
 		watchFillChk.setSelection(myResource.showWatchFill());
 		watchTextChk.setSelection(myResource.showWatchText());
 		watchTimeChk.setSelection(myResource.showWatchTime());
+		watchSampleChk.setSelection(myResource.showWatchSampling());
 		
 		advOutlineChk.setSelection(myResource.showAdvisoryOutline());
 		advFillChk.setSelection(myResource.showAdvisoryFill());
 		advTextChk.setSelection(myResource.showAdvisoryText());
 		advTimeChk.setSelection(myResource.showAdvisoryTime());
+		advSampleChk.setSelection(myResource.showAdvisorySampling());
 		
 		otherOutlineChk.setSelection(myResource.showOtherOutline());
 		otherFillChk.setSelection(myResource.showOtherFill());
 		otherTextChk.setSelection(myResource.showOtherText());
 		otherTimeChk.setSelection(myResource.showOtherTime());
+		otherSampleChk.setSelection(myResource.showOtherSampling());
 	}
 }

@@ -97,6 +97,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Dec 19, 2018   ----     mjames@ucar Added phensig color table lookup.
  * Mar 15, 2022			 srcarter@ucar Add support for display settings for outline, fill, text and time displays
  * Jun 24, 2022			 srcarter@ucar Add 'statement/other' display settings, set enabled for only relevant WWA types
+ * Jun 28, 2022			 srcarter@ucar Display sampling based on new 'sampling' settings
  *
  * </pre>
  *
@@ -175,18 +176,22 @@ public abstract class AbstractWWAResource extends
     private boolean warnFill = WARN_FILL_DEFAULT;
     private boolean warnText = WARN_TEXT_DEFAULT;
     private boolean warnTime = WARN_TIME_DEFAULT;
+    private boolean warnSample = true;
     private boolean watchOutline = WATCH_OUTLINE_DEFAULT;
     private boolean watchFill = WATCH_FILL_DEFAULT;
     private boolean watchText = WATCH_TEXT_DEFAULT;
     private boolean watchTime = WATCH_TIME_DEFAULT;
+    private boolean watchSample = true;
     private boolean advOutline = ADV_OUTLINE_DEFAULT;
     private boolean advFill = ADV_FILL_DEFAULT;
     private boolean advText = ADV_TEXT_DEFAULT;
     private boolean advTime = ADV_TIME_DEFAULT;
+    private boolean advSample = true;
     private boolean otherOutline = OTHER_OUTLINE_DEFAULT;
     private boolean otherFill = OTHER_FILL_DEFAULT;
     private boolean otherText = OTHER_TEXT_DEFAULT;
     private boolean otherTime = OTHER_TIME_DEFAULT;
+    private boolean otherSample = true;
     private boolean enableWarnDisplay = false;
     private boolean enableWatchDisplay = false;
     private boolean enableAdvisoryDisplay = false;
@@ -295,7 +300,22 @@ public abstract class AbstractWWAResource extends
 
                     WarningEntry entry = entryMap.get(key);
                     AbstractWarningRecord record = entry.record;
-                    if (matchesFrame(entry, time, framePeriod, lastFrame)
+                    String sig = record.getSig();
+                    boolean samplingOn = false;
+                    if(sig.equals(WATCH_SIG)){
+                    	if(showWatchSampling())
+                    		samplingOn = true;
+                    }else if(sig.equals(WARN_SIG)){
+                    	if(showWarnSampling())
+                    		samplingOn = true;
+                    }else if(sig.equals(ADVISORY_SIG)){
+                    	if(showAdvisorySampling())
+                    		samplingOn = true;
+                    }else{
+                    	if(showOtherSampling())
+                    		samplingOn = true;
+                    }
+                    if (samplingOn && matchesFrame(entry, time, framePeriod, lastFrame)
                             && record.getGeometry() != null) {
 
                         Geometry recordGeom = record.getGeometry();
@@ -920,6 +940,15 @@ public abstract class AbstractWWAResource extends
 	public void setWarnTimeDisplay(boolean warnTime) {
 		this.warnTime = warnTime;
 	}
+	
+	/**
+	 * Set whether or not to display the sampling for warnings
+	 * @param warnSample  If true, will show the sampling output
+	 * for warnings, when sampling is enabled
+	 */
+	public void setWarnSampleDisplay(boolean warnSample) {
+		this.warnSample = warnSample;
+	}
 
 	/**
 	 * Set whether or not to display the outline for watches
@@ -951,6 +980,15 @@ public abstract class AbstractWWAResource extends
 	 */
 	public void setWatchTimeDisplay(boolean watchTime) {
 		this.watchTime = watchTime;
+	}
+	
+	/**
+	 * Set whether or not to display the sampling for watches
+	 * @param watchSample  If true, will show the sampling output
+	 * for watches, when sampling is enabled
+	 */
+	public void setWatchSampleDisplay(boolean watchSample) {
+		this.watchSample = watchSample;
 	}
 
 	/**
@@ -985,6 +1023,16 @@ public abstract class AbstractWWAResource extends
 	public void setAdvisoryTimeDisplay(boolean advTime) {
 		this.advTime = advTime;
 	}
+	
+	/**
+	 * Set whether or not to display the sampling for advisories
+	 * @param advSample  If true, will show the sampling output
+	 * for advisories, when sampling is enabled
+	 */
+	public void setAdvisorySampleDisplay(boolean advSample) {
+		this.advSample = advSample;
+	}
+	
 	/**
 	 * Set whether or not to display the outline for statements
 	 * and other records
@@ -1022,6 +1070,16 @@ public abstract class AbstractWWAResource extends
 	}
 	
 	/**
+	 * Set whether or not to display the sampling for statements/
+	 * other records
+	 * @param otherSample  If true, will show the sampling output
+	 * for statements/other records, when sampling is enabled
+	 */
+	public void setOtherSampleDisplay(boolean otherSample) {
+		this.otherSample = otherSample;
+	}
+	
+	/**
 	 * @return  True if the warning outline is displayed
 	 */
 	public boolean showWarnOutline(){
@@ -1047,6 +1105,13 @@ public abstract class AbstractWWAResource extends
 	 */
 	public boolean showWarnTime(){
 		return warnTime;
+	}
+	
+	/**
+	 * @return  True if the warning sampling is to be displayed
+	 */
+	public boolean showWarnSampling(){
+		return warnSample;
 	}
 	
 	/**
@@ -1078,6 +1143,13 @@ public abstract class AbstractWWAResource extends
 	}
 	
 	/**
+	 * @return  True if the watch sampling is to be displayed
+	 */
+	public boolean showWatchSampling(){
+		return watchSample;
+	}
+	
+	/**
 	 * @return  True if the advisory outline is displayed
 	 */
 	public boolean showAdvisoryOutline(){
@@ -1106,6 +1178,13 @@ public abstract class AbstractWWAResource extends
 	}
 	
 	/**
+	 * @return  True if the advisory sampling is to be displayed
+	 */
+	public boolean showAdvisorySampling(){
+		return advSample;
+	}
+	
+	/**
 	 * @return  True if the statement/other outline is displayed
 	 */
 	public boolean showOtherOutline(){
@@ -1131,6 +1210,13 @@ public abstract class AbstractWWAResource extends
 	 */
 	public boolean showOtherTime(){
 		return otherTime;
+	}
+	
+	/**
+	 * @return  True if the other/statement sampling is to be displayed
+	 */
+	public boolean showOtherSampling(){
+		return otherSample;
 	}
 	
 	/**
