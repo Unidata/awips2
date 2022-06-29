@@ -302,22 +302,35 @@ public abstract class AbstractWWAResource extends
                     AbstractWarningRecord record = entry.record;
                     String sig = record.getSig();
                     boolean samplingOn = false;
+                    System.out.println("start: "+samplingOn+" "+sig);
                     if(sig !=null){ 
-	                    if(sig.equals(WATCH_SIG) && showWatchSampling()){
-	                    	samplingOn = true;
-	                    }else if(sig.equals(WARN_SIG) && showWarnSampling()){
-	                    	samplingOn = true;
-	                    }else if(sig.equals(ADVISORY_SIG) && showAdvisorySampling()){
-	                    	samplingOn = true;
+	                    if(sig.equals(WATCH_SIG)){
+	                    	if(showWatchSampling()){
+		                    	samplingOn = true;
+	                    	}
+	                    }else if(sig.equals(WARN_SIG)){
+	                    	if(showWarnSampling()){
+	                    		samplingOn = true;
+	                    	}
+	                    }else if(sig.equals(ADVISORY_SIG)){
+	                    	if(showAdvisorySampling()){
+	                    		samplingOn = true;
+	                    	}
 	                    }else{
 	                    	if(showOtherSampling()){
+	                    		System.out.println("here4");
 	                    		samplingOn = true;
 	                    	}
 	                    }
                     }else{
-                    	if(showOtherSampling())
+                    	if(showOtherSampling()){
+                    		System.out.println("here5");
                     		samplingOn = true;
+                    	}
                     }
+                    
+                    System.out.println("sampling: "+samplingOn);
+                    
                     if (samplingOn && matchesFrame(entry, time, framePeriod, lastFrame)
                             && record.getGeometry() != null) {
 
@@ -713,6 +726,11 @@ public abstract class AbstractWWAResource extends
 	                    if(sig == null || !sigRecognized){
 	                    	enableOtherDisplay = true;
 	                    }
+                    }
+                    
+                    //update display if it already exists
+                    if(drawingDialog != null){
+                    	drawingDialog.updateControlsEnabled(enableWatchDisplay, enableWarnDisplay, enableAdvisoryDisplay, enableOtherDisplay);
                     }
                 }
             }
