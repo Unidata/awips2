@@ -43,7 +43,7 @@
                     <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
                         <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                     </properties>
-                    <resourceData xsi:type="cwaspsResourceData" name="Sig Wx Advisories (SPS)" hideSampling="false" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                    <resourceData xsi:type="cwaspsResourceData" name="Special Weather Statements" hideSampling="false" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
                         <metadataMap>
                             <mapping key="pluginName">
                                 <constraint constraintType="EQUALS" constraintValue="warning"/>
