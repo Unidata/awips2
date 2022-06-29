@@ -302,7 +302,6 @@ public abstract class AbstractWWAResource extends
                     AbstractWarningRecord record = entry.record;
                     String sig = record.getSig();
                     boolean samplingOn = false;
-                    System.out.println("start: "+samplingOn+" "+sig);
                     if(sig !=null){ 
 	                    if(sig.equals(WATCH_SIG)){
 	                    	if(showWatchSampling()){
@@ -318,18 +317,14 @@ public abstract class AbstractWWAResource extends
 	                    	}
 	                    }else{
 	                    	if(showOtherSampling()){
-	                    		System.out.println("here4");
 	                    		samplingOn = true;
 	                    	}
 	                    }
                     }else{
                     	if(showOtherSampling()){
-                    		System.out.println("here5");
                     		samplingOn = true;
                     	}
                     }
-                    
-                    System.out.println("sampling: "+samplingOn);
                     
                     if (samplingOn && matchesFrame(entry, time, framePeriod, lastFrame)
                             && record.getGeometry() != null) {
