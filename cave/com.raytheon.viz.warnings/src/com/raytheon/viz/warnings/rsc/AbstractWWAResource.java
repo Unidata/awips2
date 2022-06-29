@@ -724,7 +724,7 @@ public abstract class AbstractWWAResource extends
                     }
                     
                     //update display if it already exists
-                    if(drawingDialog != null){
+                    if(drawingDialog != null && !drawingDialog.isDisposed()){
                     	drawingDialog.updateControlsEnabled(enableWatchDisplay, enableWarnDisplay, enableAdvisoryDisplay, enableOtherDisplay);
                     }
                 }
