@@ -203,6 +203,13 @@ public class DrawingPropertiesDialog extends CaveSWTDialog {
 		setOtherControlsEnabled(myResource.enableOtherDisplay());
 	}
 	
+	public void updateControlsEnabled(boolean enableWatch, boolean enableWarn, boolean enableAdv, boolean enableOther){
+		setWatchControlsEnabled(enableWatch);
+		setWarningControlsEnabled(enableWarn);
+		setAdvisoryControlsEnabled(enableAdv);
+		setOtherControlsEnabled(enableOther);
+	}
+	
 	private void setWarningControlsEnabled(boolean isEnabled){
 		warnOutlineChk.setEnabled(isEnabled);
 		warnFillChk.setEnabled(isEnabled);

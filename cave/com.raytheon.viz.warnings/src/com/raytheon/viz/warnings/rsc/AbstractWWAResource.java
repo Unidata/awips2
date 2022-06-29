@@ -303,21 +303,29 @@ public abstract class AbstractWWAResource extends
                     String sig = record.getSig();
                     boolean samplingOn = false;
                     if(sig !=null){ 
-	                    if(sig.equals(WATCH_SIG) && showWatchSampling()){
-	                    	samplingOn = true;
-	                    }else if(sig.equals(WARN_SIG) && showWarnSampling()){
-	                    	samplingOn = true;
-	                    }else if(sig.equals(ADVISORY_SIG) && showAdvisorySampling()){
-	                    	samplingOn = true;
+	                    if(sig.equals(WATCH_SIG)){
+	                    	if(showWatchSampling()){
+		                    	samplingOn = true;
+	                    	}
+	                    }else if(sig.equals(WARN_SIG)){
+	                    	if(showWarnSampling()){
+	                    		samplingOn = true;
+	                    	}
+	                    }else if(sig.equals(ADVISORY_SIG)){
+	                    	if(showAdvisorySampling()){
+	                    		samplingOn = true;
+	                    	}
 	                    }else{
 	                    	if(showOtherSampling()){
 	                    		samplingOn = true;
 	                    	}
 	                    }
                     }else{
-                    	if(showOtherSampling())
+                    	if(showOtherSampling()){
                     		samplingOn = true;
+                    	}
                     }
+                    
                     if (samplingOn && matchesFrame(entry, time, framePeriod, lastFrame)
                             && record.getGeometry() != null) {
 
@@ -713,6 +721,11 @@ public abstract class AbstractWWAResource extends
 	                    if(sig == null || !sigRecognized){
 	                    	enableOtherDisplay = true;
 	                    }
+                    }
+                    
+                    //update display if it already exists
+                    if(drawingDialog != null && !drawingDialog.isDisposed()){
+                    	drawingDialog.updateControlsEnabled(enableWatchDisplay, enableWarnDisplay, enableAdvisoryDisplay, enableOtherDisplay);
                     }
                 }
             }
