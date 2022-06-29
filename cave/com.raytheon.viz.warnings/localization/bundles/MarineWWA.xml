@@ -17,7 +17,7 @@
 					<resourceData xsi:type="wwaResourceData" 						
 						isUpdatingOnMetadataOnly="false"
 						retrieveData="false"
-						isRequeryNecessaryOnTimeMatch="true" name="Marine Watches, Warnings, Advisories">
+						isRequeryNecessaryOnTimeMatch="true" name="Tropical/Marine Watches, Warnings, Advisories">
 						<metadataMap>							
 							<mapping key="act">
 								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
