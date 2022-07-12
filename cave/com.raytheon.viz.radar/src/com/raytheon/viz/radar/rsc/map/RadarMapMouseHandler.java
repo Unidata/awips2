@@ -156,7 +156,7 @@ public class RadarMapMouseHandler extends InputAdapter {
 	                        Map<String, String> variableSubstitutions = new HashMap<>();
 	                        // TODO: dynamically select this from some control
 	                        variableSubstitutions.put("product1", "153,94,19,20");
-	                        variableSubstitutions.put("product2", "154");
+	                        variableSubstitutions.put("product2", "154,99,27,25");
 	                        
 	                        new LoadBundleHandler("bundles/site/Radar_" + pt.getName().toLowerCase() + ".xml", 
 	                        		variableSubstitutions, null, true).execute(null);
