@@ -37,6 +37,9 @@
 	<contribute xsi:type="bundleItem" file="bundles/grid/CeilingHeight.xml"
 			menuText="Ceiling Height" id="" useReferenceTime="true">
 	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/Visibility.xml"
+			menuText="Visibility" id="" useReferenceTime="true">
+	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/grid/LightningPotential.xml"
 			menuText="2hr Lightning Potential" id="" useReferenceTime="true">
 	</contribute>

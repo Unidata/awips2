@@ -21,7 +21,7 @@
                             <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                                 <metadataMap>
                                     <mapping key="productCode">
-                                        <constraint constraintType="EQUALS" constraintValue="${product1}"/>
+                                        <constraint constraintType="IN" constraintValue="${product1}"/>
                                     </mapping>
                                     <mapping key="icao">
                                         <constraint constraintType="EQUALS" constraintValue="kcle"/>
@@ -161,7 +161,7 @@
                             <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                                 <metadataMap>
                                     <mapping key="productCode">
-                                        <constraint constraintType="EQUALS" constraintValue="${product2}"/>
+                                        <constraint constraintType="IN" constraintValue="${product2}"/>
                                     </mapping>
                                     <mapping key="icao">
                                         <constraint constraintType="EQUALS" constraintValue="kcle"/>
