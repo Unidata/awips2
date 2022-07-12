@@ -211,6 +211,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Dec 20, 2021           srcarter@ucar Check for null before setting layout data on tabs. Make all other components have false
  *                                       for vertical expansion so the resizing only resizes the bullet list  
  *  Mar 15, 2022		   srcarter@ucar Set the proper number of columns in the layout for the bottom buttons to be centered                                   
+ *  Jun 28, 2022		   srcarter@ucar Small change to disable the "UPDATE LIST" combobox (not used in Unidata version)
  * </pre>
  *
  * @author chammack
@@ -652,6 +653,8 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
             gd.horizontalIndent = 30;
             updateListCbo = new Combo(productType, SWT.READ_ONLY
                     | SWT.DROP_DOWN);
+            //disable the update list since we disable sending of warnings
+            updateListCbo.setEnabled(false);
             updateListCbo.setLayoutData(gd);
             recreateUpdates();
 

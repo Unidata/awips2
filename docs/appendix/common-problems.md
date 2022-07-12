@@ -25,6 +25,22 @@ For Mac users, the easiest way is to open a new terminal and run the following c
 
 ---
 
+## Disappearing Configurations
+
+If you ever notice some of the following settings you've configured/saved disappear from CAVE:
+
+- Saved Displays or Procedures
+- NSHARP settings (line thickness, etc)
+- Colormap settings
+- StyleRule settings
+
+!!! note "This is not a fully exhaustive list, so if something else has disappeared it might be the same underlying issue still."
+
+Then it is likely we have recently changed our production EDEX server.
+There is a good chance we can recover your settings.  To do so, please send a short email to [support-awips@unidata.ucar.edu](mailto:support-awips@unidata.ucar.edu) with the topic "Missing Configurations", and include the username(s) of the computer(s) you use to run CAVE.
+
+---
+
 ## Monterey CAVE Warning
 
 If you are running MacOS Monterey, you may see the following message when starting CAVE:
@@ -60,7 +76,10 @@ One common error some users are seeing manifests itself just after selecting an 
 These errors are actually happening because the Windows machine is using IPv6, which is not compatible with AWIPS at this time.
 
 **To fix the issue simply follow these steps:**
->**Note**: These screenshots may vary from your system.
+!!! note  "These screenshots may vary from your system."
+
+!!! warning "These instructions are <i>per connection</i>, so if you use multiple connections or switch between wired and wireless connections, you'll need to do the following for each of those connections so that CAVE will always run properly."
+
 
 **1. Close all error windows and any open windows associated with CAVE.**
 

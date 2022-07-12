@@ -36,7 +36,9 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTimeComparator;
 import com.raytheon.uf.common.time.DataTime.FLAG;
+import com.raytheon.uf.common.time.DataTimeComparator.SortKey;
 import com.raytheon.uf.viz.core.comm.PerspectiveSpecificLoadProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
@@ -54,6 +56,8 @@ import com.raytheon.uf.viz.d2d.ui.time.formatter.TimeFormatter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2009            bgonzale     Initial creation
+ * Apr 26, 2022       srcarter@unidata  Changed the order "valid" times are sorted.
+ *                                      Changed the resize behavior of the dialog.
  * 
  * </pre>
  * 
@@ -74,6 +78,8 @@ public class ValidTimeAndTimeResolutionDialog extends
     private List vTimeList;
 
     private List tResolutionList;
+    
+    private ArrayList<DataTime> sortedTimes;
 
     /*
      * Time resolutions in seconds calculated from the intrinsic period for the
@@ -121,6 +127,7 @@ public class ValidTimeAndTimeResolutionDialog extends
     protected void initializeComponents(Shell shell) {
         Composite mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(new GridLayout(2, false));
+        mainComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         Label vTimeLabel = new Label(mainComp, SWT.NONE);
         vTimeLabel.setText("Valid Time:");
@@ -226,7 +233,7 @@ public class ValidTimeAndTimeResolutionDialog extends
         config.setForecast(new Long(dt.getFcstTime()));
         config.setDelta(getSelectedMillisecondsResolution());
 
-        if (cachedAvailableTimes != null && cachedAvailableTimes.length > 0) {
+        if (cachedAvailableTimes != null && cachedAvailableTimes.length > 0 && sortedTimes==null) {
             DataTime[] dataTimesArray = TimeMatcher.makeEmptyLoadList(
                     cachedAvailableTimes, calculatePreferredLatestTime(),
                     frameCount, loadMode, config.getForecast(),
@@ -246,19 +253,30 @@ public class ValidTimeAndTimeResolutionDialog extends
             vTimeList.removeAll();
             vTimeList.add("Default");
 
-            for (int i = cachedAvailableTimes.length - 1; i >= 0; --i) {
-                DataTime dataTime = cachedAvailableTimes[i];
+            //create a sorted list based on the ref time and then forecast hour
+            sortedTimes = new ArrayList<DataTime>();
+            for(DataTime dtime : cachedAvailableTimes){
+            	sortedTimes.add(dtime);
+            }
+            //use reverse forecast hour because we're going to display these in reverse order
+            // where the ref time is newest to oldest, and forecast is 
+            DataTimeComparator timeComp = new DataTimeComparator(SortKey.INITIAL_TIME, SortKey.REV_FORECAST_TIME, false);
+            Collections.sort(sortedTimes, timeComp);
+            
+            for(int i=sortedTimes.size()-1; i>-1; i--){
+            	DataTime dataTime = sortedTimes.get(i);
                 StringBuilder sb = new StringBuilder();
 
-                if (Collections.binarySearch(dataTimesList, dataTime) < 0) {
+                String hourStr = timeFormatter.getDayTimeForecastHRString(dataTime);
+                
+                //for all entries but the 0HR runs, add a preceeding "..."
+                if(!hourStr.contains(" 0HR")){
                     sb.append("...");
                 }
                 if (dataTime.getUtilityFlags().contains(FLAG.FCST_USED)) {
-                    sb.append(timeFormatter
-                            .getDayHourForecastHRString(dataTime));
+                    sb.append(timeFormatter.getDayHourForecastHRString(dataTime));
                 } else {
-                    sb.append(timeFormatter
-                            .getDayTimeForecastHRString(dataTime));
+                    sb.append(hourStr);
                 }
                 vTimeList.add(sb.toString());
             }

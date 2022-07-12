@@ -26,5 +26,6 @@
     <include installTo="menu:upperAir?before=RADAR" fileName="menus/upperair/baseUpperAir.xml" />
     <include installTo="menu:upperAir?after=RADAR" fileName="menus/upperair/baseRadar.xml" />
     <include subMenu="MDCRS plots" installTo="menu:upperAir?before=AircraftMenuEnd" fileName="menus/upperair/baseMDCRS.xml" />
+    <include subMenu="PIREP plots" installTo="menu:upperAir?before=AircraftMenuEnd" fileName="menus/upperair/basePirep.xml" />
     <include installTo="menu:upperAir?before=AircraftMenuEnd" fileName="menus/upperair/baseAviation.xml" />
 </menuContributionFile>

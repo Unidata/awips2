@@ -1,4 +1,4 @@
-#!/bin/bash -f
+#!/bin/bash
 # about:  AWIPS install manager
 # devorg: Unidata Program Center
 # author: Michael James
@@ -403,53 +403,157 @@ function check_remove_edex {
   done
 }
 
-function remove_edex {
-  while true; do
-    read -p "`echo $'\n'`We want to back up some configuration files. What location do you want your files backed up to?
-        If you choose not to back up files (you will lose all your configurations) type \"no\"`echo $'\n> '`" backup_dir
+function calcLogSpace {
+  a=("$@")
+  logDiskspace=0
+  for path in "${a[@]}" ; do
+    if [ -d $path ] || [ -f $path ]; then
+      out=`du -sk $path | cut -f1`
+      logDiskspace=$((logDiskspace + $out))
+    fi
+  done
+  logDiskspace=$(echo "scale=8;$logDiskspace*.000000953674316" | bc)
+}
 
-    backup_dir=$(echo $backup_dir | tr '[:upper:]' '[:lower:]')
-    if [ $backup_dir = "no" ] || [ $backup_dir = "n" ]; then
+function calcConfigSpace {
+  a=("$@")
+  configDiskspace=0
+  for path in "${a[@]}" ; do
+    if [ -d $path ] || [ -f $path ]; then
+      out=`du -sk $path | cut -f1`
+      configDiskspace=$((configDiskspace + $out))
+    fi
+  done
+  configDiskspace=$(echo "scale=8;$configDiskspace*.000000953674316" | bc)
+}
+
+function backupLogs {
+  a=("$@")
+  log_backup_dir=${backup_dir}/awips2_backup_${ver}_${date}/logs
+
+  if [[ ! -d ${log_backup_dir} ]]; then
+    mkdir -p ${log_backup_dir}
+  fi
+  echo "Backing up to $log_backup_dir"
+  for path in "${a[@]}" ; do
+    if [ -d $path ] || [ -f $path ]; then
+      rsync -apR $path $log_backup_dir
+    fi
+  done
+}
+
+function backupConfigs {
+
+  a=("$@")
+  config_backup_dir=${backup_dir}/awips2_backup_${ver}_${date}/configs
+
+  if [[ ! -d $config_backup_dir ]]; then
+        mkdir -p $config_backup_dir
+      fi
+  echo "Backing up to $config_backup_dir"
+  for path in "${a[@]}" ; do
+    if [ -d $path ] || [ -f $path ]; then
+      rsync -apR $path $config_backup_dir
+    fi
+  done
+}
+
+function remove_edex {
+  logPaths=("/awips2/edex/logs" "/awips2/httpd_pypies/var/log/httpd/" "/awips2/database/data/pg_log/" "/awips2/qpid/log/" "/awips2/ldm/logs/")
+  configPaths=("/awips2/database/data/pg_hba*conf" "/awips2/edex/data/utility" "/awips2/edex/bin" "/awips2/ldm/etc" "/awips2/ldm/dev" "/awips2/edex/conf" "/awips2/edex/etc" "/usr/bin/edex" "/etc/init*d/edexServiceList" "/var/spool/cron/awips")
+
+  while true; do
+    read -p "`echo $'\n'`Please make a selction for what you would like backed up. If you choose not to back up files you will lose all your configurations:
+1. logs
+2. configs
+3. both logs and configs
+4. none
+`echo $'\n> '`" backup_ans
+
+#User chooses to back of files
+    if [[ $backup_ans =~ [1-3] ]]; then
+      echo "ANSWER: $backup_ans"
+      while true; do 
+        read -p "`echo $'\n'`What location do you want your files backed up to? `echo $'\n> '`" backup_dir
+
+        if [ ! -d $backup_dir ]; then
+          echo "$backup_dir does not exist, enter a path that exists"
+        else
+          #Check to see if user has enough space to backup
+          backupspace=`df -k --output=avail "$backup_dir" | tail -n1`
+          backupspace=$(echo "scale=8;$backupspace*.000000953674316" | bc)
+          date=$(date +'%Y%m%d-%H:%M:%S')
+       
+          echo "Checking to see which version of AWIPS is installed..."   
+          rpm=`rpm -qa | grep awips2-[12]`
+          IFS='-' str=(${rpm})
+          IFS=. str2=(${str[2]})
+          vers="${str[1]}-${str2[0]}"
+          ver="${vers//[.]/-}"
+
+          if [ $backup_ans = 1 ]; then
+            calcLogSpace "${logPaths[@]}"
+            #Don't let user backup data if there isn't enough space
+            if (( $(echo "$logDiskspace > $backupspace" | bc ) )); then
+              printf "You do not have enough disk space to backup this data to $backup_dir. You only have %.2f GB free and need %.2f GB.\n" $backupspace $logDiskspace
+            #Backup logs
+            else 
+              backupLogs "${logPaths[@]}"
+              printf "%.2f GB of logs were backed up to $backup_dir \n" "$logDiskspace"
+            fi
+          elif [ $backup_ans = 2 ]; then
+            calcConfigSpace "${configPaths[@]}"
+            #Don't let user backup data if there isn't enough space
+            if (( $(echo "$configDiskspace > $backupspace" | bc ) )); then
+              printf "You do not have enough disk space to backup this data to $backup_dir. You only have %.2f GB free and need %.2f GB.\n" $backupspace $configDiskspace
+            #Backup logs
+            else
+              backupConfigs "${configPaths[@]}"
+              printf "%.2f GB of configs were backed up to $backup_dir \n" "$configDiskspace"
+            fi
+          elif [ $backup_ans = 3 ]; then
+            calcLogSpace "${logPaths[@]}"
+            calcConfigSpace "${configPaths[@]}"
+            configLogDiskspace=$( echo "$logDiskspace+$configDiskspace" | bc)
+            #Don't let user backup data if there isn't enough space
+            if (( $(echo "$configLogDiskspace > $backupspace" | bc ) )); then
+               printf "You do not have enough disk space to backup this data to $backup_dir . You only have %.2f GB free and need %.2f GB.\n" $backupspace $configLogDiskspace
+            #Backup logs
+            else
+              backupLogs "${logPaths[@]}"
+              backupConfigs "${configPaths[@]}"
+              printf "%.2f GB of logs and configs were backed up to $backup_dir \n" "$configLogDiskspace"
+            fi
+          fi 
+          break
+        fi
+      done
+      break
+#User chooses not to back up any files
+    elif [ $backup_ans = 4 ]; then
         while true; do
-          read -p "`echo $'\n'`Are you sure you don't want to back up any AWIPS configuraiton files? Type \"yes\" to confirm or \"quit\" to exit` echo $'\n> '`" answer
+          read -p "`echo $'\n'`Are you sure you don't want to back up any AWIPS configuration or log files? Type \"yes\" to confirm, \"no\" to select a different backup option, or \"quit\" to exit` echo $'\n> '`" answer
           answer=$(echo $answer | tr '[:upper:]' '[:lower:]')
           if [ $answer = yes ] || [ $answer = y ]; then
             break 2 ;
           elif [ $answer = quit ] || [ $answer = q ]; then
             exit;
-          else
-            echo "Please answer \"yes\" to confirm you don't want to back up any AWIPS configuraiton files or type \"quit\" to exit"
+          elif [ $answer = no ] || [ $answer = n ]; then
+            break
           fi
         done
-    elif [ ! -d $backup_dir ]; then
-      echo "$backup_dir does not exist, enter a path that exists"
-
-    else
-      date=$(date +'%Y%m%d-%H:%M:%S')
-      backup_dir=${backup_dir}/awips2_backup_${date}
-      echo "Backing up to $backup_dir"
-
-      if [ ! -d $backup_dir ]; then 
-        mkdir -p $backup_dir
-      fi    
-      rsync -aP /awips2/database/data/pg_hba.conf $backup_dir/
-      rsync -aP /awips2/edex/data/utility $backup_dir/
-      rsync -aP /awips2/edex/bin $backup_dir/
-      if [ ! -d $backup_dir/ldm ]; then
-        mkdir -p $backup_dir/ldm
-      fi
-      rsync -aP /awips2/ldm/etc $backup_dir/ldm/
-      rsync -aP /awips2/ldm/dev $backup_dir/ldm/
-      rsync -aP /awips2/dev $backup_dir/
-      rsync -aP /awips2/edex/conf $backup_dir/
-      rsync -aP /awips2/edex/etc $backup_dir/
-      rsync -aP /awips2/edex/logs $backup_dir/
-      rsync -aP /usr/bin/edex $backup_dir/
-      rsync -aP /etc/init.d/edexServiceList $backup_dir/init.d/
-      rsync -aP /var/spool/cron/awips $backup_dir/
-      break;
+#User did not make a valid selection
+    else 
+      echo "Please make a valid selection (1, 2, 3, or 4)"
     fi
   done
+
+  FILE="/opt/bin/logarchival/edex_upgrade.pl"
+
+  if test -f "$FILE"; then
+    echo "Running /opt/bin/logarchival/edex_upgrade.pl and logging to /home/awips/crons/logarchival/general"
+    /opt/bin/logarchival/edex_upgrade.pl >> /home/awips/crons/logarchival/general
+  fi
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "CAVE is also installed, now removing EDEX and CAVE"
@@ -479,7 +583,8 @@ function remove_edex {
        ex. yum groups mark remove 'AWIPS EDEX Server'"
      exit
   else
-    for dir in $(ls /awips2/); do
+    awips2_dirs=("data" "database" "data_store" "edex" "hdf5" "httpd_pypies" "java" "ldm" "postgres" "psql" "pypies" "python" "qpid" "tmp" "tools" "yajsw")
+    for dir in ${awips2_dirs[@]}; do
       if [ $dir != dev ] && [ $dir != cave ] ; then
         echo "Removing /awips2/$dir"
         rm -rf /awips2/$dir
@@ -525,42 +630,57 @@ function cave_prep {
  rm -rf /home/awips/caveData 
 }
 
+function cleanup {
+  sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
+  if $alterReg; then
+    sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+  fi
+  if $disableNDM; then
+    disable_ndm_update
+  fi
+  echo "$k has finished installing, the install log can be found in /tmp/awips-install.log"
+}
+
 if [ $# -eq 0 ]; then
   key="-h"
 else
   key="$1"
 fi
+
+disableNDM=true
+alterReg=true
+
 case $key in
     --cave)
         cave_prep
         yum groupinstall awips2-cave -y 2>&1 | tee -a /tmp/awips-install.log
-        echo "CAVE has finished installing, the install log can be found in /tmp/awips-install.log"
+        alterReg=false
+        disableNDM=false
+        k="CAVE"
         ;;
     --server|--edex)
         server_prep
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
-        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
-        echo "EDEX server has finished installing, the install log can be found in /tmp/awips-install.log"
+        disableNDM=false
+        k="EDEX server"
         ;;
     --database)
         server_prep
         yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
-        disable_ndm_update
-        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
-        echo "EDEX database has finished installing, the install log can be found in /tmp/awips-install.log"
+        k="EDEX database"
         ;;
     --ingest)
         server_prep
         yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
-        disable_ndm_update
-        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
-        echo "EDEX ingest has finished installing, the install log can be found in /tmp/awips-install.log"
+        k="EDEX ingest"
         ;;
     -h|--help)
         echo -e $usage
         exit
         ;;
 esac
+
+cleanup
 
 PATH=$PATH:/awips2/edex/bin/
 exit
