@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 18.2.1-4**](#linux)
-- [**Windows: 18.2.1-3**](#windows)
-- [**Mac: 18.2.1-3**](#macos)
+- [**Linux: 18.2.1-5**](#linux)
+- [**Windows: 18.2.1-5**](#windows)
+- [**Mac: 18.2.1-5**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -20,7 +20,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 - Local machine
 
-    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
+    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](../appendix/common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
   
 - Java 1.8
 - OpenGL 2.0 Compatible Devices
@@ -35,7 +35,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 18.2.1-4**
+**Latest Version: 18.2.1-5**
 
 ### System Requirements
 
@@ -62,7 +62,7 @@ To run CAVE either:
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 18.2.1-3**
+**Latest Version: 18.2.1-5**
 
 For Windows, Unidata offers two installation options: a [**Linux Virtual Machine**](#method-1-linux-virtual-machine), or a [**Direct Windows Installation**](#method-2-direct-windows-install).
 
@@ -78,13 +78,22 @@ This method is recommended for beginners, or those with less computer knowledge 
 
 #### System Requirements
 
-- [VMWare Workstation Player](https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html) must be installed (free software)
+- [VMWare Workstation Player](https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html) must be installed (free software):
+- For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player
+     1. Create a desktop shortcut for VMWare Workstation Player
+     1. Right-click the shortcut and select Properties
+     1. Open the Compatability Tab
+     1. Select the "Change high DPI settings" button
+     1. Check the "High DPI scaling ovveride" checkbox and choose "Application" in the enabled dropdown
+     
+      ![VMWare Workstation Player DPI Setting](../images/vmwareplayer-update-dpi.png)
+
 
 #### Download and Installation Instructions
 
 1. Download the zipped file containing the virtual machine: [**unidata_cave.zip** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
 2. Unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into a new folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 18-2-1-3.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 18-2-1-5.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
@@ -163,9 +172,11 @@ To run CAVE, either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 18.2.1-3**
+**Latest Version: 18.2.1-5**
 
 ### System Requirements
+
+!!! error "MacOS Monterey version 12.3 and above no longer supports Python2.  This will cause several visualization aspects to fail in CAVE.  If you update to MacOS 12.3 CAVE will not be fully functional.  A potential workaround is to run a Virtual Machine with a different OS (older Mac or possibly CentOS7) and run CAVE inside of that."
 
 - Will need admin privileges to install `awips-python.pkg`
 - NVIDIA Graphics card is recommended, however some Intel Graphics cards will support a majority of the functionality
@@ -247,7 +258,7 @@ sudo yum clean all
 sudo yum groupremove "AWIPS CAVE"
 ```
 
-!!! note "If you are having trouble removing a group, see the [troubleshooting](common-problems.md#troubleshooting-uninstalling-edex) section."
+!!! note "If you are having trouble removing a group, see the [troubleshooting](../appendix/common-problems.md#troubleshooting-uninstalling-edex) section."
 
 **3. Check to make sure all awips rpms have been removed**
 ```

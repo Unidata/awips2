@@ -6,7 +6,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Latest Version
 
-**18.2.1-4**
+**18.2.1-5**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -388,7 +388,7 @@ sudo yum clean all
 sudo yum groupremove "AWIPS EDEX Server"
 ```
 
-!!! note "If you are having trouble removing a group, see the [troubleshooting](common-problems.md#troubleshooting-uninstalling-edex) section."
+!!! note "If you are having trouble removing a group, see the [troubleshooting](../appendix/common-problems.md#troubleshooting-uninstalling-edex) section."
 
 **5. Check to make sure all awips rpms have been removed**
 ```

@@ -10,30 +10,41 @@
     
   <!--   <contribute xsi:type="bundleItem" file="bundles/AllWarnings.xml" 
           menuText="All Warnings" id="warnings">
-    </contribute> --> 
+    </contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
              menuText="Convective Watches" id="convectiveWatches">
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/ConvWarn.xml" 
           menuText="Convective Warnings" id="convWarnings">
-    </contribute>
+    </contribute>--> 
 
 	<contribute xsi:type="separator" id="separator4"/>
+	<contribute xsi:type="bundleItem" file="bundles/ConvWWA.xml" 
+          menuText="Convective Watches, Warnings, Advisories" id="ConvWarnings">
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/FireWWA.xml" 
+          menuText="Fire Watches, Warnings, Advisories" id="fireWarnings">
+    </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/FloodWWA.xml" 
           menuText="Flood Watches, Warnings, Advisories" id="FloodWarnings">
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/MarineWWA.xml" 
+              menuText="Tropical/Marine Watches, Warnings, Advisories" id="marineWarnings">
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/WindWWA.xml" 
           menuText="Wind Watches, Warnings, Advisories" id="windWarnings">
     </contribute>
-	<contribute xsi:type="bundleItem" file="bundles/MarineWWA.xml" 
-              menuText="Marine Watches, Warnings, Advisories" id="marineWarnings">
-    </contribute>
     <contribute xsi:type="bundleItem" file="bundles/WinterWWA.xml" 
           menuText="Winter Watches, Warnings, Advisories" id="winterWarnings">
     </contribute>
-	<contribute xsi:type="bundleItem" file="bundles/SPS.xml" 
-              menuText="SPS / Sig Wx Advisories" id="SPS">
+    <contribute xsi:type="bundleItem" file="bundles/OtherWWA.xml" 
+          menuText="Other Watches, Warnings, Advisories" id="otherWarnings">
     </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/SPS.xml" 
+              menuText="Special Weather Statements" id="SPS">
+    </contribute>
+    <contribute xsi:type="separator" id="separator4"/>
+    
 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SvrWxPlot.xml" 
                menuText="SPC Svr Wx Plot" id="spcWxPlot">
 	</contribute>

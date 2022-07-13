@@ -17,7 +17,7 @@
 					<resourceData xsi:type="cwaspsResourceData" 						
 						isUpdatingOnMetadataOnly="false"
 						retrieveData="true"
-						isRequeryNecessaryOnTimeMatch="false" name="Sig Wx Advisories (SPS)">
+						isRequeryNecessaryOnTimeMatch="false" name="Special Weather Statements">
 						<metadataMap>							
 							<mapping key="pil">
 								<constraint constraintValue="SPS" constraintType="IN" />

@@ -128,9 +128,9 @@ NGRID	^[LM].Q... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{2})(
 #
 # NAM CONUS 12 km (NAM12) - NOAAport
 #
-#NGRID	^[LM].B... KWBE ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-#	FILE	-edex -close
-#	/awips2/data_store/grid/NAM12/noaaport/NAM_CONUS_12km_noaaport_\1_\3_\4Z_\5_\6-(seq).grib2
+NGRID	^[LM].B... KWBE ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-edex -close
+	/awips2/data_store/grid/NAM12/noaaport/NAM_CONUS_12km_noaaport_\1_\3_\4Z_\5_\6-(seq).grib2
 #
 # NAM Alaska 11 km (AK-NAM11)
 #
