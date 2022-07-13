@@ -2,6 +2,8 @@
 
 Unrecognized grids can be decoded by EDEX simply by dropping `*.grib` or `*.grib2` files into `/awips2/data_store/ingest/`
 
+!!! note "This page explains how to ingest `.grib2` products.  To view information about `.grib` products, [please see this page](../new-grid-grib1-old)."
+
 To add support for a new grid, two edits must be made:
 
 * **Geospatial projection** must be defined in a [***grid navigation file***](#create-grid-projection-file)
@@ -15,113 +17,57 @@ If the parameters in the grib file haven't been previously specified, another ch
 
 ## Ingest an Unsupported Grid
 
-### Grib Products
+### Download Test Data
 
-1. Download an example grib1 file and rename to a `*.grib` extension, then copy to the manual ingest point `/awips2/data_store/ingest/` 
+Download an example grib2 file (make sure the extension is `.grib2` or the [EDEX distribution file](../data-distribution-files/#editing-an-edex-data-distribution-file) may not recognize it), and then copy to the manual ingest point `/awips2/data_store/ingest/`:
 
-        wget https://downloads.unidata.ucar.edu/awips2/current/files/14102318_nmm_d01.GrbF00600 -O wrf.grib
+    wget https://downloads.unidata.ucar.edu/awips2/current/files/CPTI_00.50_20180502-000144.grib2 -O cpti.grib2
+
+    cp cpti.grib2 /awips2/data_store/ingest/
+
+### Check Grib Logs
+
+Confirm that the grib file decodes in the grib log file.
     
-        cp wrf.grib /awips2/data_store/ingest/
+Look in the current log file (/awips2/edex/logs/edex-ingestGrib-[YYYYMMDD].log) for the following:
+
+    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1200 (sec) Latency: 21.8080 (sec)
+    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1180 (sec) Latency: 21.8140 (sec)
+    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.4230 (sec) Latency: 21.8360 (sec)
+    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.2240 (sec) Latency: 21.9140 (sec)
     
-    Remember that the data distribution file (`/awips2/edex/data/utility/common_static/base/distribution/grib.xml`) will match filenames which have the `*.grib*` extension.
-
-2. Confirm that the grib file decodes in the grib log file:
+    ...
     
-        edex log grib
+!!! warning "This step will fail for our example because the parameter is not yet defined.  The error will look like:"
+
+<pre>
+INFO  2020-07-20 20:34:17,710 2565 [GribPersist-1] GridDao: EDEX - Discarding record due to missing or unknown parameter mapping: /grid/2018-05-02_00:01:44.0_(0)/GribModel:161:0:97/null/null/403/Missing/FH/500.0/-999999.0
+INFO  2020-07-20 20:34:17,710 2566 [GribPersist-1] Ingest: EDEX: Ingest - grib2:: /awips2/data_store/ingest/CPTI_00.50_20180502-000144.grib2 processed in: 2.3550 (sec)
+INFO  2020-07-20 20:34:17,827 2567 [Ingest.GribDecode-6] grib: EDEX - No parameter information for center[161], subcenter[0], tableName[4.2.209.3], parameter value[61]
+</pre>
     
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.1200 (sec) Latency: 21.8080 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.1180 (sec) Latency: 21.8140 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.4230 (sec) Latency: 21.8360 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.2240 (sec) Latency: 21.9140 (sec)
-        
-        ...
+In order to successfully ingest the example file, you must [**define the appropriate table**](#adding-a-table).
 
-3. Check that the hdf5 data directory exists for our unnamed grid
+### Check HDF5 Data
 
-        ls -latr /awips2/edex/data/hdf5/grid/GribModel:7:0:89
-
-    Though the grib file has been decoded, it has been given a generic name with its center, subcenter, and process IDs (7, 0, 89, respectively). 
-    
-### Grib2 Products
-
-1. Download an example grib2 file and rename to a `*.grib2` extension, then copy to the manual ingest point `/awips2/data_store/ingest/` 
-
-        wget https://downloads.unidata.ucar.edu/awips2/current/files/CPTI_00.50_20180502-000144.grib2 -O cpti.grib2
-    
-        cp cpti.grib2 /awips2/data_store/ingest/
-    
-    Remember that the data distribution file (`/awips2/edex/data/utility/common_static/base/distribution/grib.xml`) will match filenames which have the `*.grib*` extension.
-
-2. Confirm that the grib file decodes in the grib log file:
-    
-        edex log grib
-    
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1200 (sec) Latency: 21.8080 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1180 (sec) Latency: 21.8140 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.4230 (sec) Latency: 21.8360 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.2240 (sec) Latency: 21.9140 (sec)
-        
-        ...
-        
-    **Note:** This step will likely fail, because the parameter is not yet defined.  The error will look like:
-
-        INFO  2020-07-20 20:34:17,710 2565 [GribPersist-1] GridDao: EDEX - Discarding record due to missing or unknown parameter mapping: /grid/2018-05-02_00:01:44.0_(0)/GribModel:161:0:97/null/null/403/Missing/FH/500.0/-999999.0
-        INFO  2020-07-20 20:34:17,710 2566 [GribPersist-1] Ingest: EDEX: Ingest - grib2:: /awips2/data_store/ingest/CPTI_00.50_20180502-000144.grib2 processed in: 2.3550 (sec)
-        INFO  2020-07-20 20:34:17,827 2567 [Ingest.GribDecode-6] grib: EDEX - No parameter information for center[161], subcenter[0], tableName[4.2.209.3], parameter value[61]
-        
-    In order to successfully ingest the example file, [**define the appropriate table**](#grib2-products_4).
-
-3. Check that the hdf5 data directory exists for our unnamed grid
+Check that the hdf5 data directory exists for our unnamed grid
 
         ls -latr /awips2/edex/data/hdf5/grid/GribModel:161:0:97
 
-    Though the grib file has been decoded, it has been given a generic name with its center, subcenter, and process IDs (161, 0, 97, respectively). 
+Though the grib file has been decoded, it has been given a generic name with its **center, subcenter, and process IDs** (161, 0, 97, respectively). 
     
 ---
 
 ## Determine Grid Projection
 
-### Grib Products
-
-When the grid was ingested a record was added to the `grid_coverage` table with its navigation information:
+When a grid is ingested a record is added to the `grid_coverage` table with its navigation information:
 
     psql metadata
-    
-    metadata=# select nx,ny,dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1,latin2 from gridcoverage where id=(select distinct(location_id) from grid_info where datasetid='GribModel:7:0:89');
-     nx  | ny  |        dx        |        dy        | majoraxis | minoraxis |       la1        |        lo1        |        lov        |      latin1      |      latin2      
-    -----+-----+------------------+------------------+-----------+-----------+------------------+-------------------+-------------------+------------------+------------------
-     201 | 155 | 4.29699993133545 | 4.29699993133545 |   6378160 |   6356775 | 42.2830009460449 | -72.3610000610352 | -67.0770034790039 | 45.3680000305176 | 45.3680000305176
-    (1 row)
-
-Compare with the projection info returned by wgrib on the original file (look at the bolded sections below and make sure they match up with the corresponding entries returned from the database above):
-<!--
-Using html for this code block so that certain sections within the code can be emphasized (bolded)
--->
-<pre>
-wgrib -V wrf.grib  
-rec 799:27785754:date 2014102318 ALBDO kpds5=84 kpds6=1 kpds7=0 levels=(0,0) grid=255 sfc 6hr fcst: bitmap: 736 undef
-  ALBDO=Albedo [%]
-  timerange 0 P1 6 P2 0 TimeU 1  <b>nx 201 ny 155</b> GDS grid 3 num_in_ave 0 missing 0
-  center 7 subcenter 0 process 89 Table 2 scan: WE:SN winds(grid) 
-  <b>Lambert Conf: Lat1 42.283000 Lon1 -72.361000 Lov -67.077000</b>
-      <b>Latin1 45.368000 Latin2 45.368000</b> LatSP 0.000000 LonSP 0.000000
-      North Pole (201 x 155) <b>Dx 4.297000 Dy 4.297000</b> scan 64 mode 8
-  min/max data 5 21.9  num bits 8  BDS_Ref 50  DecScale 1 BinScale 0
-</pre>
-
-Notice that our grib file has a **Lambert Conformal** projection.  We will need these values for the next step. Note that **there is a tolerance of +/- 0.1 degrees** to keep in mind when defining your coverage area.
-
-### Grib2 Products
-
-When the grid was ingested a record was added to the `grid_coverage` table with its navigation information:
-
-    psql metadata
-    
-    metadata=# select nx,ny,dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1,latin2 from gridcoverage where id=(select distinct(location_id) from grid_info where datasetid='GribModel:161:0:97');
-    
-    nx  | ny  |  dx   |  dy   | majoraxis | minoraxis |    la1    | lo1 | lov | latin1 | latin2 
-    -----+-----+-------+-------+-----------+-----------+-----------+-----+-----+--------+--------
-    600 | 640 | 0.005 | 0.005 |           |           | 40.799999 | 261 |     |        |       
+  
+    metadata=> select nx,ny,dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1,latin2,spacingunit,lad,la2,latin,lo2,firstgridpointcorner from gridcoverage where id=(select distinct(location_id) from grid_info where datasetid='GribModel:161:0:97');
+     nx  | ny  |  dx   |  dy   | majoraxis | minoraxis |    la1    | lo1 | lov | latin1 | latin2 | spacingunit | lad | la2 | latin | lo2 | firstgridpointcorner 
+    -----+-----+-------+-------+-----------+-----------+-----------+-----+-----+--------+--------+-------------+-----+-----+-------+-----+----------------------
+     600 | 640 | 0.005 | 0.005 |           |           | 40.799999 | 261 |     |        |        | degree      |     |     |       |     | UpperLeft
     (1 row)
   Compare with the projection info returned by wgrib2 on the original file (look at the bolded sections below and make sure they match up with the corresponding entries returned from the database above):
 <!--
@@ -130,12 +76,12 @@ When the grid was ingested a record was added to the `grid_coverage` table with 
 <pre>
 wgrib2 -grid -nxny cpti.grib2
 1:0:grid_template=0:winds(N/S):
-	<b>lat-lon grid:(600 x 640)</b> units 1e-06 input WE:NS output WE:SN res 48
+	<b>lat-lon grid:(600 x 640)</b> units 1e-06 <b>input WE:NS</b> output WE:SN res 48
 	lat <b>40.799999</b> to 37.599999 by <b>0.005000</b>
 	lon <b>260.999999</b> to 263.999999 by <b>0.005000</b> #points=384000:(600 x 640)
   ...
 </pre>
-Notice that our grib2 file has a **Lat/lon Grid** projection.  Where:
+Notice that our grib2 file has a **Lat/lon Grid** projection, that starts in the **UpperLeft** corner (as defined by input West to East, North to South).  Where:
 
 * **nx** is **600**
 * **ny** is **640**
@@ -144,12 +90,18 @@ Notice that our grib2 file has a **Lat/lon Grid** projection.  Where:
 * **la1** is **40.799999**
 * **lo1** is **261**
 
-We will need these values for the next step. Note that **there is a tolerance of +/- 0.1 degrees** to keep in mind when defining your coverage (la1 and lo1) area.
+We will need these values for the next step. 
+
+!!! note "**There is a tolerance of +/- 0.1 degrees** to keep in mind when defining your coverage (la1 and lo1) area."
 
 ---
 
 ## Create Grid Projection File
     
+### Projection Types
+    
+!!! note "You may not have information for every tag listed, for example it's not required for the latLonGridCoverage to have spacingUnit, la2, lo2."    
+
 Grid projection files are stored in `/awips2/edex/data/utility/common_static/base/grib/grids/` and there are four grid coverage types available:
 
 1. **lambertConformalGridCoverage** (example: `RUCIcing.xml`)
@@ -228,45 +180,14 @@ Grid projection files are stored in `/awips2/edex/data/utility/common_static/bas
             <majorAxis>6371200</majorAxis>
         </mercatorGridCoverage>
 
-### Grib Products
-
-Copy an existing xml file with the same grid projection type (in this case **lambertConformalGridCoverage**) to a new file `wrf.xml`:
-
-    cd /awips2/edex/data/utility/common_static/base/grib/grids/
-    cp RUCIcing.xml wrf.xml
-
-And edit the new `wrf.xml` to define the projection values using the [output from wgrib or the database](#determine-grid-projection) (example provided):
-
-    vi wrf.xml
-    
-    <lambertConformalGridCoverage>
-        <name>201155</name>
-        <description>Regional - CONUS (Lambert Conformal)</description>
-        <la1>42.2830009460449</la1>
-        <lo1>-72.3610000610352</lo1>
-        <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-        <nx>201</nx>
-        <ny>155</ny>
-        <dx>4.29699993133545</dx>
-        <dy>4.29699993133545</dy>
-        <spacingUnit>km</spacingUnit>
-        <minorAxis>6356775.0</minorAxis>
-        <majorAxis>6378160.0</majorAxis>
-        <lov>-67.0770034790039</lov>
-        <latin1>45.3680000305176</latin1>
-        <latin2>45.3680000305176</latin2>
-    </lambertConformalGridCoverage>
-
-> **Note**: Notice the `<name>201155</name>` tag was defined from the number of grid points (201 and 155). This value will be matched against an entry in our models file (below) to set the name of the model (e.g. WRF).
-
-### Grib2 Products
+### Creating a New Projection File
 
 Copy an existing xml file with the same grid projection type (in this case **latLonGridCoverage**) to a new file `cpti.xml`:
 
     cd /awips2/edex/data/utility/common_static/base/grib/grids/
-    cp MRMS-1km.xml cpti.xml
+    cp MRMS-1km-CONUS.xml cpti.xml
   
-And edit the new `cpti.xml` to define the projection values using the [output from wgrib2 or the database](#grib2-products_1) (example provided):
+And edit the new `cpti.xml` to define the projection values using the [output from wgrib2 or the database](#determine-grid-projection) (example provided):
 
     vi cpti.xml
   
@@ -283,47 +204,13 @@ And edit the new `cpti.xml` to define the projection values using the [output fr
         <spacingUnit>degree</spacingUnit>
     </latLonGridCoverage>
   
-> **Note**: Notice the `<name>384000</name>` tag was defined from the number of grid points (600 and 640). This value will be matched against an entry in our models file (below) to set the name of the model (e.g. CPTI).
+!!! note "Notice the `<name>600640</name>` tag was created by using the number of grid points (600 and 640). This name can be anything as long as it is unique and will be used to match against in the model definition."
 
 ---
 
 ## Create Model Definition 
 
 Model definition XML files are found in **/awips2/edex/data/utility/common_static/base/grib/models/**. 
-
-### Grid Prodcuts
-
-Since our grib file has a center ID of 7 (NCEP) we will edit the **gribModels_NCEP-7.xml** file.
-
-    cd /awips2/edex/data/utility/common_static/base/grib/models/
-
-    vi gribModels_NCEP-7.xml
-
-In `<gribModelSet>` add an entry:
-
-        <model>
-            <name>WRF</name>
-            <center>7</center>
-            <subcenter>0</subcenter>
-            <grid>201155</grid>
-            <process>
-                <id>89</id>
-            </process>
-        </model>
-
-Save the file and restart EDEX for the changes to take effect:
-
-    sudo service edex_camel restart ingestGrib
-
-Now copy the `wrf.grib` file *again* to **/awips2/data_store/ingest/**.  If everything is correct we will not see any persistence errors since the grid is now named **WRF** and not **GribModel:7:0:89**.
-
-    cp wrf.grib /awips2/data_store/ingest/
-
-    edex log grib
-
-After you have confirmed that the grid was ingested with the given name, you can [edit the D2D product menus to display the new grid](../cave/d2d-edit-menus.md).
-
-### Grib2 Products
 
 Since our grib2 file has a center of 161 (NOAA) we will edit the **gribModels_NOAA-161.xml** file.
 
@@ -357,52 +244,14 @@ If you ingest a piece of data and the parameter appears as unknown in the metada
 
 The tables are located in **/awips2/edex/data/utility/common_static/base/grib/tables/**.  They are then broken into subdirectories using the following structure: **/[Center]/[Subcenter]/4.2.[Discipine].[Category].table**. 
 
-### Grib products
-
-The center and subcenter have been identified previously [here](#grib-products) and [here](#grib-products_1), as 7 and 0, respectively.  So, the corresponding directory is:
-
-    /awips2/edex/data/utility/common_static/base/grib/tables/7/0/
-
-To find the **discipline** of a grib product, you need the **process** and **table** values from the grib file.  These are output with the `wgrib -V` command:
-
-<pre>
-wgrib -V wrf.grib  
-rec 799:27785754:date 2014102318 ALBDO kpds5=84 kpds6=1 kpds7=0 levels=(0,0) grid=255 sfc 6hr fcst: bitmap: 736 undef
-  ALBDO=Albedo [%]
-  timerange 0 P1 6 P2 0 TimeU 1  nx 201 ny 155 GDS grid 3 num_in_ave 0 missing 0
-  center 7 subcenter 0 <b>process 89 Table 2</b> scan: WE:SN winds(grid) 
-  Lambert Conf: Lat1 42.283000 Lon1 -72.361000 Lov -67.077000
-      Latin1 45.368000 Latin2 45.368000< LatSP 0.000000 LonSP 0.000000
-      North Pole (201 x 155) Dx 4.297000 Dy 4.297000 scan 64 mode 8
-  min/max data 5 21.9  num bits 8  BDS_Ref 50  DecScale 1 BinScale 0
-</pre>
-
-For our example, the process is **89** and table is **2**.  Next, take a look in:
-
-     /awips2/edex/data/utility/common_static/base/grid/grib1ParameterConvTable.xml
-     
-And find the entry that has grib1 data with TableVersion 2 and Value 89:
-
-    <grib1Parameter>
-        <center>7</center>
-        <grib1TableVersion>2</grib1TableVersion>
-        <grib1Value>89</grib1Value>
-        <grib2discipline>0</grib2discipline>
-        <grib2category>3</grib2category>
-        <grib2Value>10</grib2Value>
-      </grib1Parameter>
-
-Here, we can see the discipline and category values (referred to as x above) are 0 and 3, respectively.
-
-So, the table needed for our example file is:
-
-    /awips2/edex/data/utility/common_static/base/grib/tables/7/0/4.2.0.3.table
-
-### Grib2 Products 
+!!! note "There are also default parameters that all grib products may access located in this directory: **/awips2/edex/data/utility/common_static/base/grib/tables/-1/-1/**"
 
 If you are using a grib2 file, then you can use either the log output or the `-center`, `-subcenter`, and `-full_name` options on `wgrib2` to get the center, subcenter, discipline, category, and parameter information:
 
-The table would be found in the directory structure using this file's center and subcenter.  The center can be found by either:
+The table would be found in the directory structure using this file's center and subcenter.  
+
+### Finding Center
+The center can be found by either:
 
  * Running the following command:
     
@@ -415,12 +264,14 @@ The table would be found in the directory structure using this file's center and
 **OR:**
 
 * Running the following command:
-<pre>
+  <pre>
 wgrib2 -varX cpti.grib2
- 1:0:var209_255_1_<b>161</b>_3_61
-...
-</pre>
+1:0:var209_255_1_<b>161</b>_3_61
+...</pre>
+  
     Where the 4th argument after "var" is the center id, in this case **161**.
+
+### Finding Subcenter
 
 To get the subcenter, simply run:
 <pre>
@@ -430,9 +281,11 @@ wgrib2 -subcenter cpti.grib2
 </pre>
 The subcenter of this file is **0**.
 
-So based on the center and subcenter, the corresponding directory is:
+Based on the center and subcenter, the corresponding directory is:
 
     /awips2/edex/data/utility/common_static/base/grib/tables/161/0/
+
+### Finding Discipline and Category
 
 To find the exact table, we need the discipline and category:
 
@@ -445,8 +298,10 @@ wgrib2 -full_name cpti.grib2
 In this case the **discipline is 209** and **category is 3**, so the corresponding table is:
 
     4.2.209.3.table
-      
-So, the full path to the corresponding table would be:
+
+### Corresponding Table      
+
+The full path to the corresponding table would be:
 
     /awips2/edex/data/utility/common_static/base/grib/tables/161/0/4.2.209.3.table
 
@@ -464,8 +319,22 @@ You will have to restart ingestGrib for the changes to take place:
 
       sudo service edex_camel restart ingestGrib
       
-Now you can try [re-ingesting the grib2 file](#grib2-products).
+Now you can try [re-ingesting the grib2 file](#download-test-data).
       
+---
+
+## Creating Menu Items
+
+After you have confirmed that the grid was ingested with the given name, you can [edit the D2D product menus to display the new grid](../cave/d2d-edit-menus.md).
+
+---
+
+## Using wgrib2
+
+Mentioned in this page are a few command parameters for `wgrib2` such as `-grid`, `varX`, `-center`, `-subcenter`, and `-full_name`.
+
+A complete [list of all available parameters can be found here](https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/long_cmd_list.html).
+
 ---
 
 ## Troubleshooting Grib Ingest

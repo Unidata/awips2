@@ -107,6 +107,8 @@ A full list of all released blogs can be found below:
 - [Announcing AWIPS eLearning](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course)
 - [AWIPS 18.2.1-3 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-3)
 - [Access Learn AWIPS CAVE from Unidata eLearning](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-learn-awips)
+- [AWIPS 18.2.1-5 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-5)
+- [GLM DATA IDD/LDM Feed Updates](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-glm-data-idd)
 
 #### CAVE
 
@@ -122,6 +124,9 @@ A full list of all released blogs can be found below:
 - [Getting Started With the NSHARP Display Tool](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-nsharp)
 - [Explore the CAVE Volume Browser: Model Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-explore-the-cave3)
 - [NUCAPS Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-nucaps-soundings)
+- [Import Shapefiles in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-import-shapefiles-in)
+- [Create Objective Analysis Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-objective-analysis)
+- [Use Warngen to Draw Convective Warnings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-use-warngen-to)
 
 #### Python-AWIPS
 
@@ -129,8 +134,11 @@ A full list of all released blogs can be found below:
 - [Plot New GOES Products From Unidata's Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
 - [Load Map Resources and Topography using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-load-map-resources)
 - [Create a Colored Surface Temperature Plot](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-a-colored)
+- [View WWA Polygons with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-view-wwa-polygons)
+- [Creating METAR Station Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-metar-station)
 
 #### EDEX
 
 - [Get to Know EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-get-to-know)
 - [EDEX Data Retention](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-edex-data-retention)
+- [Adding ECMWF Data to EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-ecmwf-data)

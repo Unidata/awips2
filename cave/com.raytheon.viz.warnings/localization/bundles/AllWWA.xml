@@ -18,7 +18,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Flood Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="FA.A,FL.A,FF.A,LS.A,CF.A,CF.W,CF.Y,CF.S,FA.W,FA.Y,FF.S,FF.W,FL.W,HY.S,FL.S,FL.Y,LS.S,LS.W,LS.Y"/>
+                                        <constraint constraintType="IN" constraintValue="FA.A,FL.A,FF.A,FA.W,FA.Y,FF.S,FF.W,FL.W,HY.S,FL.S,FL.Y"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>
@@ -44,7 +44,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Wind Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="BW.Y,EW.W,HF.A,HF.W,HW.A,HW.W,LW.Y,SI.Y,WC.A,WC.W,WC.Y,WI.Y,DS.W,DU.Y,SM.Y"/>
+                                        <constraint constraintType="IN" constraintValue="EW.W,HW.A,HW.W,SI.Y,WI.Y"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>
@@ -70,7 +70,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Convective Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="TO.W,SV.W,EW.W,TO.A,SV.A"/>
+                                        <constraint constraintType="IN" constraintValue="TO.W,SV.W,TO.A,SV.A,SV.S"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>
@@ -96,7 +96,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Winter Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="WS.A,WS.W,WW.Y,SQ.W"/>
+                                        <constraint constraintType="IN" constraintValue="BZ.A,BZ.W,WS.A,WS.W,WW.Y,SQ.W,EC.A,EC.W,FR.Y,FZ.A,FZ.W,HZ.A,HZ.W,IS.W,WC.A,WC.W,WC.Y,ZF.Y,ZR.Y"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>
@@ -120,10 +120,37 @@
                             <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
                                 <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                             </properties>
-                            <resourceData xsi:type="wwaResourceData" name="Marine Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
+                            <resourceData xsi:type="wwaResourceData" name="Tropical/Marine Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="MA.W,CF.A,CF.W,CF.Y,CF.S,LS.A,LS.S,LS.W,LS.Y,LW.Y,MA.A,MA.S,MA.W,MF.Y,MH.W,MH.Y,MS.Y,RB.Y,RP.S,SC.Y,SE.A,SE.W,SI.Y,SS.A,SS.W,SU.W,SU.Y,SW.Y,TS.A,TS.W,TS.Y,TY.A,TY.W"/>
+                                        <constraint constraintType="IN" constraintValue="BH.S,BW.Y,CF.A,CF.S,CF.W,CF.Y,GL.A,GL.W,HF.A,HF.W,HU.A,HU.S,HU.W,LE.A,LE.W,LE.Y,LO.Y,LS.A,LS.S,LS.W,LS.Y,LW.Y,RB.Y,RP.S,SC.Y,SE.A,SE.W,SR.A,SR.W,SS.A,SS.W,SU.W,SU.Y,SW.Y,TR.A,TR.W,TS.A,TS.W,TS.Y,TY.A,TY.W,UP.A,UP.W,UP.Y"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="warning"/>
+                                    </mapping>
+                                    <mapping key="act">
+                                        <constraint constraintType="IN" constraintValue="NEW,CON,CAN,EXP"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="wwaResourceData" name="Other Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
+                                <metadataMap>
+                                    <mapping key="phensig">
+                                        <constraint constraintType="IN" constraintValue="AQ.Y,AS.O,AS.Y,DS.W,DU.Y,EH.A,EH.W,FG.Y,FW.A,FW.W,HT.Y,MF.Y,MH.W,MH.Y,MS.Y,SM.Y"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>
@@ -146,7 +173,7 @@
                             <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
                                 <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                             </properties>
-                            <resourceData xsi:type="cwaspsResourceData" name="Sig Wx Advisories (SPS)" hideSampling="true" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                            <resourceData xsi:type="cwaspsResourceData" name="Special Weather Statements" hideSampling="false" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
                                 <metadataMap>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>

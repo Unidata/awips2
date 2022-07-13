@@ -440,7 +440,7 @@
                                 <metadataMap>
                                     <mapping key="productCode">
                                         <constraint
-                                            constraintValue="155,28,29,30"
+                                            constraintValue="155,28,29,30,161,160"
                                             constraintType="IN" />
                                     </mapping>
                                     <mapping key="icao">
