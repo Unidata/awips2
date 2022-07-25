@@ -22,6 +22,11 @@
     <period>07-00:00:00</period>
   </defaultRule>
   <rule>
+    <keyValue>RAP13</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-00:15:00</modTimeToWait>
+  </rule>
+  <rule>
     <keyValue>LAPS</keyValue>
     <versionsToKeep>30</versionsToKeep>
   </rule>
