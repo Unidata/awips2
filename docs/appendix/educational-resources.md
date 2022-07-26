@@ -142,3 +142,4 @@ A full list of all released blogs can be found below:
 - [Get to Know EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-get-to-know)
 - [EDEX Data Retention](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-edex-data-retention)
 - [Adding ECMWF Data to EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-ecmwf-data)
+- [Ingesting GOES Satellite Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ingesting-goes-satellite)
