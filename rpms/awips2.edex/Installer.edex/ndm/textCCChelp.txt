@@ -2567,6 +2567,7 @@ K59 Amelia Earhart AP, Atchison, KS
 K61 Moritz Mem AP, Beloit, KS
 K62 Gene Synder Airport, Falmouth, KY
 K68 Garnett Muni AP, Garnett, KS
+K70 Ocean Reef Club Airport, Key Largo, FL
 K78 Abilene Muni AP, Abilene, KS
 K82 Smith Ctr Muni, KS
 K83 Sabetha Muni AP, Sabetha, KS

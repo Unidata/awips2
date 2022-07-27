@@ -2444,6 +2444,7 @@
 0000000000|KK61 | 39.471| -98.129|  432|Moritz Mem AP, Beloit, KS           |US|MTR
 0000000000|KK62 | 38.70408|-84.39183| 274|Gene Synder AP, Falmouth, KY      |US|MTR
 0000000000|KK68 | 38.27736|-95.21523| 301|Garnett Muni AP, Garnett, KS      |US|MTR
+0000000000|KK70 | 25.32432|-80.27573| 2|Ocean Reef Club Airport, Key Largo, FL|US|MTR
 0000000000|KK78 | 38.90406|-97.23586| 351|Abilene Muni AP, Abilene, KS      |US|MTR
 0000000000|KK82 | 39.761| -98.793|  548|Smith Center Muni, KS               |US|MTR
 0000000000|KK83 | 39.90417|-95.77943| 405|Sabetha Muni AP, Sabetha, KS      |US|MTR
