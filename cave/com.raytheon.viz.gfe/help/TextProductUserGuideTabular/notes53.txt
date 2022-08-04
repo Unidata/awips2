@@ -1,0 +1,2 @@
+The FWFTable exercises will help you become more familiar with a Smart Tabular Product and how the helper methods fit together to produce the desired result.  You will also learn how to use the "makeRow" capability to extend the product capability.
+

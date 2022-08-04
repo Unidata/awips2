@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VAA Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.vaa;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.vaa,
+ com.raytheon.uf.viz.vaa.rsc,
+ com.raytheon.uf.viz.vaa.util
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.core.point,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin.vaa,
+ com.raytheon.uf.common.dataplugin,
+ org.eclipse.swt,
+ javax.xml.bind
+Bundle-ClassPath: com.raytheon.uf.viz.vaa.jar

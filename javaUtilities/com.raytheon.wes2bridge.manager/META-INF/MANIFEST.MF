@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Wes2Bridge Manager
+Bundle-SymbolicName: com.raytheon.wes2bridge.manager
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.wes2bridge.common,
+ org.apache.commons.lang3,
+ com.fasterxml.jackson,
+ javax.xml.bind

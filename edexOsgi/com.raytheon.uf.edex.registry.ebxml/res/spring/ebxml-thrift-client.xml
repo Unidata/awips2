@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- EBXML does not include edex.xml spring where handlerRegistry is defined -->
+    <bean id="handlerRegistry" class="com.raytheon.uf.edex.requestsrv.HandlerRegistry" factory-method="getInstance"/>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.registry.IRegistryRequest"/>
+        <constructor-arg ref="edexRegistryManager"/>
+    </bean>
+
+    <!-- Auto detect entries for the handlerRegistry -->
+    <bean class="com.raytheon.uf.edex.requestsrv.RequestHandlerAutoDetector">
+        <constructor-arg ref="handlerRegistry" />
+    </bean>
+
+</beans>

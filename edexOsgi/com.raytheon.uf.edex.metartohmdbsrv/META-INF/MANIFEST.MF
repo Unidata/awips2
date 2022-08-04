@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Metartohmdb Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.metartohmdbsrv
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools,
+ org.geotools,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.status,
+ org.slf4j,
+ javax.xml.bind
+Import-Package: com.raytheon.edex.plugin.obs.metar,
+ com.raytheon.uf.common.dataplugin.obs.metar,
+ com.raytheon.uf.common.wmo

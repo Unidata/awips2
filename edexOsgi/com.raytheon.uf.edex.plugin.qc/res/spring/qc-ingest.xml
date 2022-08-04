@@ -1,0 +1,61 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="qcScanner" class="com.raytheon.uf.edex.plugin.qc.QCScanner" depends-on="qcProperties">
+        <property name="maxRecordsInChunk" value="1000" />
+    </bean>
+
+    <camelContext id="qcScan-camel"
+                  xmlns="http://camel.apache.org/schema/spring"
+                  errorHandlerRef="errorHandler">
+
+        <endpoint id="scheduledQCCron" uri="clusteredquartz://qc/scanQC/?cron=${qc.cron}"/>
+
+        <route id="scheduledQCScan">
+            <from uri="scheduledQCCron" />
+              <setHeader name="pluginName">
+                <constant>qc</constant>
+              </setHeader>
+              <split streaming="true">
+                <method ref="qcScanner" method="split" />
+                <doTry>
+                   <to uri="jms-generic:queue:qcDecodeQueue" />
+                <doCatch>
+                  <exception>java.lang.Throwable</exception>
+                  <to uri="log:qc?level=ERROR" />
+                </doCatch>  
+                </doTry>
+            </split>
+        </route>
+
+    </camelContext>
+    
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="qcScan-camel"/>
+    </bean>
+    
+    <camelContext id="qcDecode-camel"
+                  xmlns="http://camel.apache.org/schema/spring"
+                  errorHandlerRef="errorHandler">
+
+        <route id="qcDecodeRoute">
+          <from uri="jms-generic:queue:qcDecodeQueue" />
+            <doTry>
+              <pipeline>
+                  <bean ref="qcScanner" method="scanFile" />
+                  <to uri="direct-vm:persistIndexAlert" />
+              </pipeline>
+            <doCatch>
+                <exception>java.lang.Throwable</exception>
+                <to uri="log:qc?level=ERROR" />
+            </doCatch>  
+            </doTry>
+        </route>
+
+    </camelContext>
+    
+</beans>

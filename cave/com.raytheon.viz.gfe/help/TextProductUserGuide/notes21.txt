@@ -1,0 +1,1 @@
+From the table in the Quick Start Product Set-up section of the Text Product Reference Guide, choose a core product to set-up.  It is best to start with a Tabular-type product and then advance to Narrative-type products. From the Main Menu select GFE-->Define Text Products Dialog.  

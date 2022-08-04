@@ -1,0 +1,134 @@
+####################################################################################
+## AIRPORT WEATHER WARNING TEMPLATE                                               ##
+## EXAMPLE TEMPLATE USING HUNTSVILLE PRODUCT                                      ##
+## CREATED BY PHIL KURIMSKI - WFO DTX                                             ##
+##     UPDATED EVAN BOOKBINDER 9-18-2013 Implemented config.vm                    ##
+##     MIKE DANGELO 06-25-2014 removed bullet format/went to free form text       ##
+##                 per request of local offices, moved ugcline per local examples ##
+##     Mike Dangelo   26 March 2015   Mixed Case Changes                          ##
+##     Evan Bookbinder 10-21-2015 Cleaned up blank spaces and phrasing            ##
+##     Evan Bookbinder 1-30-2017  Modified example below to work with static      ##
+##                                polygon examples in XML file; DCS20237          ##
+##     Ron Anderson   10-05-2017 Updates to AWW templates to generate correct PIL ##
+##     Mike Dangelo 03-19-2018 Changes for TO.A/SV.A inclusion DR 19650           ##
+####################################################################################
+##    This is an absolute override file, indicating that a higher priority        ##
+##    version of the file will completely replace a lower priority version        ##
+##    of the file.                                                                ##
+####################################################################################
+#parse("config.vm")
+#######################################################################
+## Set initial variables for initial issuance
+#######################################################################
+#set ($cancel = "")
+#set ($issue = "issued an")
+#######################################################################
+## Override initial variables if a cancellation is selected
+#######################################################################
+#if(${list.contains(${bullets}, "cancelAWW")})
+#set ($cancel = " CANCELLED")
+#set ($issue = "cancelled the")
+#end
+#######################################################################
+## Set the airport based on selection in template
+## Sites can use different airports by modifying the code below
+#######################################################################
+#set ($site = "!** YOU DIDN'T SELECT AN AIRPORT **!")
+#if(${list.contains(${bullets}, "SUM")})
+  #set ($site = "Some Airport /SUM/.")
+  #set ($awwId = "SUM")
+#end
+#if(${list.contains(${bullets}, "ANT")})
+  #set ($site = "Another Airport /ANT/.")
+  #set ($awwId = "ANT")
+#end
+#if(${list.contains(${bullets}, "TST")})
+  #set ($site = "Test Airport /TST/.")
+  #set ($awwId = "TST")
+#end
+
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+${productId}${awwId}
+${ugcline}
+
+#if(${productClass}=="T")
+TEST...Airport Weather Warning...TEST##
+#else
+Airport Weather Warning
+#end
+National Weather Service ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+ 
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+#end
+
+#######################################################
+###### Storm current location description   ##########
+######################################################
+...AIRPORT WEATHER WARNING${cancel}...
+
+The National Weather Service in ${officeLoc} has ${issue} Airport Weather Warning for...
+
+${site}
+
+####################################################
+############# SECOND BULLET ########################
+####################################################
+## If cancelling the AWW do not output any text
+####################################################
+#if(${list.contains(${bullets}, "cancelAWW")})
+!** GIVE REASON FOR CANCELLATION **!
+#else
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+
+The following weather hazards are expected:
+
+###################################################################
+## Create threats based on selections in the xml file
+## Sites can add or modify threats by changing the code below
+###################################################################
+#if(${list.contains(${bullets}, "wind")})
+Wind gusts 30 knots or higher.
+#end
+#if(${list.contains(${bullets}, "lightning")})
+Cloud to ground lightning within 5 nm of the airport.
+#end
+#if(${list.contains(${bullets}, "hail")})
+Hail of 1/2 inch or greater.
+#end
+#if(${list.contains(${bullets}, "freezingRain")})
+The onset of freezing rain.
+#end
+#if(${list.contains(${bullets}, "sleetSnow")})
+The onset of accumulating sleet or snow.
+#end
+
+
+#end
+#############
+## WATCHES ##
+#############
+#######################################################################
+## If sites do not want watches in their AWW product comment out the
+## section below
+#######################################################################
+#if(${list.contains(${includedWatches}, "TO.A")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})
+
+#end
+#if(${list.contains(${includedWatches}, "SV.A")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})
+
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+$$
+
+#parse("forecasterName.vm")

@@ -1,0 +1,2 @@
+Here the descriptor for a Local Effect area is given as a method.
+

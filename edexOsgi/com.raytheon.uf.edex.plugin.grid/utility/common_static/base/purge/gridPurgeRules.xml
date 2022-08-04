@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+
+        Incremental overrides can also be achieved by creating a new file with
+        a suffix inserted between the original filename and extension.
+    -->
+<purgeRuleSet>
+  <key>info.datasetId</key>
+  <!-- Default rule for data not covered by any rules, 2 versions up to 7 days.
+      Rules are made up of the following tags:
+        keyValue is the name of model (required)
+        versionsToKeep is the number of versions you'd like to keep (must have this and/or period)
+        period is the amount of time to keep file (must have this and/or versionsToKeep)
+        modTimeToWait will increase the versionsToKeep by 1 if data matching this rule has been stored within modTimeToWait (optional, should only be specified with versionsToKeep)
+        ruleDescription is the description of this rule (optional)
+    -->
+  <defaultRule>
+    <versionsToKeep>2</versionsToKeep>
+    <period>07-00:00:00</period>
+  </defaultRule>
+  <!-- Purge rule for the LAPS model -->
+  <rule>
+    <keyValue>LAPS</keyValue>
+    <versionsToKeep>30</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the MSAS model -->
+  <rule>
+    <keyValue>MSAS</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the NAM40 (mesoEta212) model -->
+  <!-- Purge rule for the NAM20 (mesoEta215) model -->
+  <rule regex="true">
+    <keyValue>mesoEta21[25]</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the NAMWX (ETA212) model -->
+  <rule>
+    <keyValue>ETA212</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the GWW (GWW233) model -->
+  <rule>
+    <keyValue>GWW233</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the RFCqpf (RFCqpf) model -->
+  <rule>
+    <keyValue>RFCqpf</keyValue>
+    <versionsToKeep>5</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the RUC40 (RUC236) model -->
+  <rule>
+    <keyValue>RUC236</keyValue>
+    <versionsToKeep>8</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the GFS75 (AVN225) model -->
+  <rule>
+    <keyValue>AVN225</keyValue>
+    <versionsToKeep>3</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the WNAwave (WNAWAVE238) model -->
+  <rule>
+    <keyValue>WNAWAVE238</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the AK-NAM40 (mesoEta216) model -->
+  <!-- Purge rule for the AK-NAM20 (mesoEta217) model -->
+  <rule regex="true">
+    <keyValue>mesoEta21[67]</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the NAM12 (ETA218) model -->
+  <!-- Purge rule for the AK-NAM12 (ETA242) model -->
+  <rule regex="true">
+    <keyValue>ETA2(?:18|42)</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the HPCqpf (HPCqpf) model -->
+  <rule>
+    <keyValue>HPCqpf</keyValue>
+    <versionsToKeep>5</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the ENPwave (ENPWAVE253) model -->
+  <rule>
+    <keyValue>ENPWAVE253</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the DGEX (DGEX185) model -->
+  <rule>
+    <keyValue>DGEX185</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the HPCGuide (HPCGuide) model -->
+  <rule>
+    <keyValue>HPCGuide</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the GFSGuide (GFSGuide) model -->
+  <rule>
+    <keyValue>GFSGuide</keyValue>
+    <versionsToKeep>8</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the GFS40 (GFS212) model -->
+  <!-- Purge rule for the AK-GFS (GFS160) model -->
+  <!-- Purge rule for the PR-GFS (GFS254) model -->
+  <!-- Purge rule for the SJU-GFS (GFS161) model -->
+  <rule regex="true">
+    <keyValue>GFS(?:212|160|254|161)</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the MPE (MPE-Local) model -->
+  <rule>
+    <keyValue>MPE-Local</keyValue>
+    <versionsToKeep>72</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the TPCWindProb (TPCWindProb) model -->
+  <rule>
+    <keyValue>TPCWindProb.*</keyValue>
+    <versionsToKeep>8</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the GriddedMOS (MOSGuide) model -->
+  <rule>
+    <keyValue>MOSGuide</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the QPE models -->
+  <rule regex="true">
+    <keyValue>QPE-(?:ACR|STR|RSA|PTR|TUA|ORN|RHA|KRF|MSR|TAR|TIR|ALR|FWR)
+    </keyValue>
+    <versionsToKeep>72</versionsToKeep>
+  </rule>
+    <!-- Purge rule for the OPCWave-W-ATL (OPCWave180) model -->
+    <!-- Purge rule for the OPCWave-NE-PAC (OPCWave181) model -->
+    <!-- Purge rule for the OPCWave-TE-PAC (OPCWave182) model -->
+  <rule regex="true">
+    <keyValue>OPCWave.*</keyValue>
+    <versionsToKeep>8</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the GlobalWave (GlobalWave) model -->
+  <!-- Purge rule for the AKwave10 (AKwave10) model -->
+  <!-- Purge rule for the EPwave10 (EPwave10) model -->
+  <!-- Purge rule for the WCwave10 (WCwave10) model -->
+  <!-- Purge rule for the WNAwave10 (WNAwave10) model -->
+  <!-- Purge rule for the AKwave4 (AKwave4) model -->
+  <!-- Purge rule for the WCwave4 (WCwave4) model -->
+  <!-- Purge rule for the WNAwave4 (WNAwave4) model -->
+  <!-- Purge rule for the GRLKwave (GRLKwave) model -->
+  <!-- Purge rules for the Multi-grid Hurricane Wave Models -->
+  <rule regex="true">
+    <keyValue>.*[Ww]ave.*</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the RTMA (RTMA) model -->
+  <rule>
+    <keyValue>RTMA</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <rule>
+    <keyValue>RTMA25</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <rule>
+    <keyValue>URMA25</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <rule>
+    <keyValue>URMA25-EP</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-00:15:00</modTimeToWait>
+  </rule>
+    <rule>
+    <keyValue>URMA25-SJU</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-00:15:00</modTimeToWait>
+  </rule>
+  <rule>
+    <keyValue>AK-RTMA</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for AK-RTMA-3KM analysis -->
+  <rule>
+    <keyValue>AK-RTMA3</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <rule>
+    <keyValue>HI-RTMA</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <rule>
+    <keyValue>PR-RTMA</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <rule>
+    <keyValue>Guam-RTMA</keyValue>
+    <versionsToKeep>8</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the SREF (SREF212) model -->
+  <rule>
+    <keyValue>SREF212</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the GFSLAMPGrid model -->
+  <rule>
+    <keyValue>GFSLAMPGrid</keyValue>
+    <versionsToKeep>24</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the ECMWF-HiRes (ECMWF-HiRes) model -->
+  <rule>
+    <keyValue>ECMWF-HiRes</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the HPC (HPCqpfNDFD) model -->
+  <rule>
+    <keyValue>HPCqpfNDFD</keyValue>
+    <versionsToKeep>42</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the NamDNG5 (NamDNG5) model -->
+  <rule>
+    <keyValue>NamDNG5</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the TPCSurgeProb (TPCSurgeProb) model -->
+  <rule>
+    <keyValue>TPCSurgeProb</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the P-ETSS (P-ETSS) model -->
+  <rule>
+    <keyValue>P-ETSS</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the HPE (HPE) model -->
+  <rule>
+    <keyValue>HPE</keyValue>
+    <period>00-12:00:00</period>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the BiasHPE (BHPE) model -->
+  <rule>
+    <keyValue>BHPE</keyValue>
+    <period>00-12:00:00</period>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the AK-GriddedMOS (MOSGuide-AK) model -->
+  <!-- Purge rule for the Hawaii 2.5km MOSGuide model -->
+  <rule regex="true">
+    <keyValue>MOSGuide-(?:AK|HI)</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the HiResW-ARW-East (HiResW-ARW-East) model -->
+  <rule>
+    <keyValue>HiResW-ARW-East</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the HiResW-ARW-West (HiResW-ARW-West) model -->
+    <!-- Purge rule for the HiResW-ARW-AK (HiResW-ARW-AK) model -->
+    <!-- Purge rule for the HiResW-ARW-SJU (HiResW-ARW-SJU) model -->
+  <rule regex="true">
+    <keyValue>HiResW-ARW-(?:West|AK|SJU)</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the HiResW-ARW-HI (HiResW-ARW-HI) model -->
+  <rule>
+    <keyValue>HiResW-ARW-HI</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the HiResW-NMM-East (HiResW-NMM-East) model -->
+  <rule>
+    <keyValue>HiResW-NMM-East</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the HiResW-NMM-West (HiResW-NMM-West) model -->
+    <!-- Purge rule for the HiResW-NMM-AK (HiResW-NMM-AK) model -->
+    <!-- Purge rule for the HiResW-NMM-SJU (HiResW-NMM-SJU) model -->
+  <rule regex="true">
+    <keyValue>HiResW-NMM-(?:West|AK|SJU)</keyValue>
+    <versionsToKeep>1</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rule for the HiResW-NMM-HI (HiResW-NMM-HI) model -->
+  <rule>
+    <keyValue>HiResW-NMM-HI</keyValue>
+    <versionsToKeep>2</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the SPCGuide (SPCGuide) model -->
+  <rule>
+    <keyValue>SPCGuide</keyValue>
+    <versionsToKeep>20</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+  <!-- Purge rule for the HRRR model -->
+  <rule>
+    <keyValue>HRRR</keyValue>
+    <versionsToKeep>4</versionsToKeep>
+  </rule>
+  <!-- Purge rule for the GFS199 (Guam-GFSDNG) model -->
+  <rule>
+    <keyValue>GFS199</keyValue>
+    <versionsToKeep>4</versionsToKeep>
+    <modTimeToWait>00-01:00:00</modTimeToWait>
+  </rule>
+    <!-- Purge rules for MRMS CONUS and OCONUS -->
+    <rule regex="true">
+        <keyValue>MRMS_(?:05|10|50)00</keyValue>
+        <period>00-08:00:00</period>
+    </rule>
+    <rule regex="true">
+        <keyValue>MRMS_(?:AK|HI|CA|GU)_(?:05|10|50)00</keyValue>
+        <period>00-08:00:00</period>
+    </rule>
+    <!-- Purge rules for NARR -->
+  <rule>
+    <keyValue>NARR</keyValue>
+    <period>40-00:00:00</period>
+  </rule>
+</purgeRuleSet>

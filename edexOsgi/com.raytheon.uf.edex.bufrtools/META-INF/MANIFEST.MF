@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrtools Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.bufrtools
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.edex.decodertools,
+ javax.measure,
+ org.slf4j
+Export-Package: com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.uf.common.units,
+ com.raytheon.uf.common.wmo

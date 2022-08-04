@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.d2d.core;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.core.rsc,
+ com.raytheon.uf.viz.core.maps,
+ com.raytheon.viz.ui,
+ org.apache.commons.lang3,
+ javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.d2d.core,
+ com.raytheon.uf.viz.d2d.core.legend,
+ com.raytheon.uf.viz.d2d.core.map,
+ com.raytheon.uf.viz.d2d.core.procedures,
+ com.raytheon.uf.viz.d2d.core.sampling,
+ com.raytheon.uf.viz.d2d.core.time

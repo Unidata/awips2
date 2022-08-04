@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>siteConfig.py</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<h1><a name="siteConfig.py"></a>siteConfig.py</h1>
+January 3, 2012<br>
+<hr style="width: 100%; height: 2px;">&nbsp;
+<div class="Body"><a name="Overview"></a>The siteConfig.py file is one
+of three configuration files for GFE.
+The siteConfig.py file defines the site identifier, server hostname,
+server
+port number, and a series of directories that comprise the
+GFESuite
+software.</div>
+<p><br>
+<tt>import os, socket<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+GFESUITE_HOME = os.environ['EDEX_HOME']+"/../GFESuite"<br>
+GFESUITE_SERVER = "dx3"<br>
+GFESUITE_PORT  = '98000000'<br>
+GFESUITE_SITEID = 'OAX'<br>
+GFESUITE_PRDDIR = GFESUITE_HOME+"/products"<br>
+GFESUITE_MHSID  = 'OAX'<br>
+GFESUITE_LOGDIR = GFESUITE_HOME+"/logs/"+GFESUITE_SITEID</tt><br>
+</p>
+<p>&nbsp;
+</p>
+<hr width="100%"></div>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a>
+</body>
+</html>

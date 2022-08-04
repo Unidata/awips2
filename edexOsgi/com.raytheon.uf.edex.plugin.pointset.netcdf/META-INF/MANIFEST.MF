@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PointSet NetCDF Decoder
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.pointset.netcdf
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.common.dataplugin.pointset,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.localization,
+ ucar.nc2,
+ org.slf4j,
+ org.geotools,
+ com.raytheon.uf.edex.netcdf,
+ com.raytheon.uf.common.serialization,
+ org.apache.commons.beanutils,
+ javax.xml.bind

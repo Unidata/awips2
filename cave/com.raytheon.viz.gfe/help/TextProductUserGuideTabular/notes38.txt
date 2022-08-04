@@ -1,0 +1,2 @@
+Now we'll look at a Smart Tabular product that lists weather elements down the rows and time periods across the columns for one edit area. At first glance, this would seem to meet the criteria for a Simple Table. However, it requires special headers, a narrative product extension, and additional information about weather elements that require the flexibility of Smart Text Products. We will examine some of the helper methods used in the FWFTable product. We will look first at the time periods reported for each weather element.
+

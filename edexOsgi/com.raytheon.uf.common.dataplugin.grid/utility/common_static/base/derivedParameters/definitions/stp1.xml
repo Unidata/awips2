@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<!--
+STP1 | | |Sig. Tornado Parameter (>1 Sig Tor) ||CONTOUR,IMAGE,OTHER|Layer|\
+      *Difference|2000.|MLLCL,ML
+-->
+<DerivedParameter name="Sig. Tornado Parameter (&gt;1 Sig Tor)" abbreviation="STP1">
+    <Method name="Difference">
+        <ConstantField value="2000.0" />
+        <Field level="ML" abbreviation="MLLCL" />
+    </Method>
+</DerivedParameter>

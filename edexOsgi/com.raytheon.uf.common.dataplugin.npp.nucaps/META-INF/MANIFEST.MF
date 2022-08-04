@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NUCAPS Common Plugin
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.npp.nucaps
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.npp.sounding;visibility:=reexport,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.time,
+ javax.persistence
+Export-Package: com.raytheon.uf.common.dataplugin.npp.nucaps

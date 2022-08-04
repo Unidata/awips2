@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NetCDF Bufr
+Bundle-SymbolicName: com.raytheon.uf.common.nc.bufr
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: ucar.nc2,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.numeric,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.util,
+ org.jdom2,
+ javax.xml.bind
+Export-Package: com.raytheon.uf.common.nc.bufr,
+ com.raytheon.uf.common.nc.bufr.tables,
+ com.raytheon.uf.common.nc.bufr.util
+Bundle-ClassPath: .,
+ res/

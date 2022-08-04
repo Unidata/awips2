@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!--
+        This is an absolute override file, indicating that a higher priority version
+        of the file will completely replace a lower priority version of the file.
+    -->
+<menuTemplate>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:type="subMenu" menuText="Marine Guidance" id="ncepHydro.mpc.marineGuidance">
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Tropical Sfc Analysis"
+            timeQuery="true" id="tropicalSfcAnalysis">
+            <substitute value="PYNA98" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="24hr Dense Fog Fcst"
+            timeQuery="true" id="denseFogFcst">
+            <substitute value="PGNE88" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="24hr Freezing Spray Fcst"
+            timeQuery="true" id="freezingSprayFcst">
+            <substitute value="PGNE98" key="wmo" />
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ West Atlantic ------"
+            id="WestAtlanticLine" />
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Atl 850MB Strmlines/Wind Analysis"
+            timeQuery="true" id="atl850MBWindAnalysis">
+            <substitute value="PWAA85" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Atl 200MB Strmlines/Wind Anal"
+            timeQuery="true" id="atl200MBWindAnal">
+            <substitute value="PWAA20" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Atl Deep Layer Mean Cir 1000-100mb"
+            timeQuery="true" id="atlDeepLayerMeanCir">
+            <substitute value="PWAA00" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Atl 850-200mb Winds/Shear Analysis"
+            timeQuery="true" id="atlWindsShearAnalysis">
+            <substitute value="PWAA65" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Caribbean Wind/Seas Fcst"
+            timeQuery="true" id="CaribbeanWindSeasFcstLine">
+            <substitute value="PWEA88, PWEC88, PWEE88, PWEG88"
+                key="wmo" />
+        </contribute>
+        <contribute xsi:type="separator" visible="true" id="separator2" />
+        <contribute xsi:type="titleItem" titleText="------ East Pacific ------"
+            id="EastPacificLine" />
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="E. Pacific Wind/Seas Analysis"
+            timeQuery="true" id="easternPacWindSeas">
+            <substitute value="PWBA88" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Pac Deep Layer Mean Cir 1000-100mb"
+            timeQuery="true" id="pacDeepLayerMeanCir">
+            <substitute value="PWDA00" key="wmo" />
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true"
+            file="bundles/Redbook.xml" menuText="Pac 850-200mb Winds/Shear Analysis"
+            timeQuery="true" id="pacWindsShearAnalysis">
+            <substitute value="PWDA65" key="wmo" />
+        </contribute>
+    </contribute>
+</menuTemplate>

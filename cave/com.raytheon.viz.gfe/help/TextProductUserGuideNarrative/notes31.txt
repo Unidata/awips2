@@ -1,0 +1,2 @@
+We can simulate holographic processing by making multiple passes through the tree, traversing it top-down and executing the methods at each node until no changes are made to the tree.  Each method may return a "DONE" flag to indicate it's job is done and it should not be executed again.  This introduces the potential for infinite loops -- what if methods are not well-coordinated and we continue to make passes which alter the tree? For this, we provide a safety net. 
+

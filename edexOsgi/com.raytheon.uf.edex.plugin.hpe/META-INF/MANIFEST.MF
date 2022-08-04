@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hpe Grib Preprocessor
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.hpe
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.common.time,
+ com.google.guava;bundle-version="30.0.0",
+ com.raytheon.uf.common.util,
+ org.apache.camel,
+ com.raytheon.uf.common.plugin.hpe,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.edex.common,
+ com.raytheon.uf.edex.plugin.mpe

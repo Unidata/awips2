@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.localization.perspective.localizationpath">
+      <path
+            application="EDEX"
+            localizationType="COMMON_STATIC"
+            name="Grib"
+            value="grib"
+            recursive="true"
+            localizationAdapter="com.raytheon.uf.viz.grib.GribLocalizationPerspectiveAdapter">
+      </path>
+   </extension>
+
+</plugin>

@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SPI Plug-in
+Bundle-SymbolicName: com.raytheon.viz.spi;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Activator: com.raytheon.viz.spi.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.util,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.pointdata,
+ com.raytheon.uf.viz.core.maps,
+ javax.xml.bind
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.spi
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ClassPath: com.raytheon.viz.spi.jar

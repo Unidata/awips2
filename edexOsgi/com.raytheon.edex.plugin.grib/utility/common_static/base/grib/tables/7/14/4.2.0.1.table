@@ -1,0 +1,11 @@
+ # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
+#192-254 Reserved for local use
+220:220:SnowRatio::SNOWRATIO
+228:228:Flat Ice Accumulation (FRAM):kg m-2:FICEAC
+231:231:Precipitation Potential Index (PPI):%:PPI
+232:232:Probability Cloud Ice Present:%:PRBCLDICE
+233:233:Snow Liquid ratio:kg kg-1:SNOWRATIO
+234:234:Precipitation Duration:hour:PCPDUR
+242:242:Probability of Cloud Ice Present:%:PRBCLDICE
+243:243:Precipitation Potential Index (PPI):%:PPI
+255:255:Missing

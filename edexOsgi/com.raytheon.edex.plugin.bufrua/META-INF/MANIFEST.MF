@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrua Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.bufrua
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.raytheon.edex.plugin.bufrua.dao
+Require-Bundle: com.raytheon.uf.common.dataplugin.bufrua,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata,
+ ucar.nc2,
+ com.raytheon.uf.common.wmo,
+ org.slf4j,
+ javax.xml.bind

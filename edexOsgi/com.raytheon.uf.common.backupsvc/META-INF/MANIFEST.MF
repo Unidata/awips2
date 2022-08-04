@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Backup Service Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.backupsvc
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: com.raytheon.uf.common.backupsvc.request,
+ com.raytheon.uf.common.backupsvc.response,
+ com.raytheon.uf.common.backupsvc
+Require-Bundle: com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.serialization,
+ org.slf4j,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.common.util,
+ javax.xml.bind

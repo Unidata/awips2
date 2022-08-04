@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NPP Sounding
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.npp.sounding
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.edex.plugin.npp,
+ com.raytheon.uf.common.dataplugin.npp.sounding;visibility:=reexport,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.common.status
+Export-Package: com.raytheon.uf.edex.plugin.npp.sounding

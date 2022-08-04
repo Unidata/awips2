@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>PlotSPCWatches</title>
+</head>
+<body>
+<div style="text-align: center;">
+<h1>PlotSPCWatches</h1>
+<h2>Procedure for adding SPC Watches into your Hazards Grid</h2>
+March 9, 2012<br>
+<br>
+<div style="text-align: left;"><br>
+<a href="#methodology">Methodology</a><br>
+<a href="#howitworks">How it works</a><br>
+</div>
+</div>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="methodology"></a>Methodology</h2>
+<small>The PlotSPCWatches procedure is used to automatically take the
+official watch outline (WOU) product, decode the counties, watch times,
+and watch numbers, and plot this into the Hazards grid. Note: to run
+this
+procedure, the Hazards grid cannot be separated into temporary grids as
+done by <a href="SeparateHazards.html">SeparateHazards</a>. If it is
+separated, use the&nbsp;<a href="MergeHazards.html">MergeHazards</a>
+tool to recombine the temporary grids.<br>
+<br>
+When a WOU arrives from SPC, it is decoded internally, and a
+notification appears on all GFEs.<br>
+<br>
+<img style="width: 1019px; height: 98px;" alt="WOU Notification"
+ src="images/WOU_Notify.png"> <br>
+<br>
+Next, the forecast will select <span
+ style="font-weight: bold; font-style: italic;">PlotSPCWatches</span>
+from the <span style="font-weight: bold; font-style: italic;">Hazards</span>
+menu.<br>
+<br>
+<img style="width: 297px; height: 266px;" alt="PlotSPC Menu"
+ src="images/PlotSPCWatchesMenu.png"><br>
+<br>
+The tool then plots all active watches into the Hazards grid.<br>
+<br>
+<img style="width: 852px; height: 714px;" alt="Plotted Watches"
+ src="images/PlottedWatches.png"><br>
+<br>
+If the latest WOU cancels an existing watch, you will see the watch
+removed. If the latest WOU replaces a portion of an existing watch, the
+watch will be
+overwritten in the grid. <br>
+<br>
+</small>If for some reason a cancellation VTEC code does not arrive for
+an
+existing watch, you may need to run <a href="SeparateHazards.html">SeparateHazards</a>,
+delete the canceled watch grid, then run <a href="MergeHazards.html">MergeHazards</a>
+. To create your WCN, save your Hazard grid in GFE, publish it to
+official,
+the run the Hazard_WCN formatter in <a href="FormatterLauncher.html">Formatter
+Launcher.</a><big style="color: rgb(51, 51, 255);"><big><big><big><small><small><span
+ style="color: rgb(0, 0, 0);"><small><br>
+<br>
+</small></span></small></small></big></big></big></big>
+<hr style="width: 100%; height: 2px;">
+<h2><big><big style="color: rgb(51, 51, 255);"><a name="howitworks"></a></big></big>How
+It Works</h2>
+The PlotSPCWatches procedure analyzes the <a href="VTEC.html">VTEC
+active table</a> and filters records.<br>
+<ul>
+  <li>Records currently valid (not ones from the past) from the WOU and
+WCN products are separated into those originating from SPC (with action
+codes of NEW CON EXT EXA and EXB), and those from non-SPC (all actions
+including EXP and CAN). <br>
+  </li>
+  <li>Records are then compared. Records are eliminated from the
+SPC list that are also in the non-SPC list. Comparisons are based
+on the Event Tracking Number, Geographical Zone, Phen and
+Sig. After this step, the SPC list should only have records
+that contain the NEW watch.</li>
+  <li>Records containing EXP and CAN codes are now eliminated from the
+non-SPC list.</li>
+  <li>The two data sets are combined and then overlapping watches are
+eliminated. <br>
+  </li>
+  <li>All existing watches are eliminated from the Hazards grid and
+then the calculated watches are added to the Hazards grid.</li>
+</ul>
+Note: The PlotSPCWatches tool only plots events that are compatible
+with the current GFE mode. If the GFE mode is operational, then
+only "X", "O", and "E" WOU/WCN events will be considered. If the
+GFE mode is "TEST", then only "T" WOU/WCN events will be considered.<br>
+<br>
+</body>
+</html>

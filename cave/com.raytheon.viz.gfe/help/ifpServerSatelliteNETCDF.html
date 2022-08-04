@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>ifpServer Satellite netCDF Format</title>
+</head>
+<body text="#000000" bgcolor="#ffffff" link="#0000ee" vlink="#551a8b"
+ alink="#ff0000">
+<h1>
+ifpServer D2D Satellite netCDF File Format</h1>
+November 12, 2003<br>
+<hr width="100%">
+<br>
+This document describes the format of the netCDF file that is:
+<ul>
+  <li>read by the ifpServer as a D2D satellite database.<br>
+  </li>
+</ul>
+<p>Table of Contents
+<br>
+<a href="#dimensions">netCDF Required Dimensions</a>
+<br>
+<a href="#netCDFVariableNames">netCDF Variable Names</a>
+<br>
+<a href="#attributes">netCDF Variable Attributes</a>
+<br>
+<a href="#attributes">netCDF Global Attributes</a>
+<br>
+<a href="#DiagnosingModelProblems">Diagnosing Access Problems</a>
+<br>
+<a href="#ncdump">Example of ncdump</a>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="dimensions"></a>netCDF Required Dimensions</h2>
+Each netCDF file is required to contain the following set of
+dimensions:
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td><b>Dimension</b></td>
+      <td><b>Description</b></td>
+      <td><b>Required by GFESuite?</b></td>
+    </tr>
+    <tr>
+      <td>x</td>
+      <td>X-dimension of the satellite image<br>
+      </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>y</td>
+      <td>Y-dimension of thje <br>
+      </td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+</p>
+<hr width="100%"><br>
+&nbsp;
+<h2><a name="netCDFVariableNames"></a>netCDF Variable Names</h2>
+Each netCDF variable name represents a set of grids, plus additional
+information:
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <caption>&nbsp;</caption> <tbody>
+    <tr nosave="">
+      <td nosave=""><b>Variable Name<br>
+      </b></td>
+      <td><b>Data Type</b></td>
+      <td><b>Dimensions</b></td>
+      <td><b>Description</b></td>
+      <td><b>Required by GFESuite?</b></td>
+    </tr>
+    <tr>
+      <td>image<br>
+      </td>
+      <td>2-D array of bytes<br>
+      </td>
+      <td>(y,x)</td>
+      <td>Contains the satellite data, ranged from 0-255 (might be seen
+as -127 to +127)<br>
+      </td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+<hr width="100%">
+<h2><a name="attributes"></a>netCDF variable Attributes</h2>
+<div style="margin-bottom: 0in;">There are no variable attributes that
+are used by GFESuite in the D2D satellite data files.<br>
+</div>
+<span style="font-weight: bold;"></span><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="global"></a>netCDF Global Attributes</h2>
+<div style="margin-bottom: 0in;">&nbsp;
+<br>
+The following netCDF global attributes are required in order for the
+ifpServer to recognize the netCDF file as valid:
+<table border="1" width="100%" nosave="">
+  <caption>&nbsp;</caption> <tbody>
+    <tr>
+      <td><b>Attribute</b></td>
+      <td><b>Description</b></td>
+      <td><b>Required by GFESuite?</b></td>
+    </tr>
+    <tr>
+      <td>projName</td>
+      <td>Contains the projection name.&nbsp; Must be one of the
+following: LAMBERT_CONFORMAL,
+MERCATOR, STEREOGRAPHIC, LATLON, CYLINDRICAL_EQUIDISTANT</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>lon00</td>
+      <td>Longitude in degrees of lower-left grid point (0, 0)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>lat00</td>
+      <td>Latitude in degrees of lower-left grid point (0, 0)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>latNxNy</td>
+      <td>Latitude in degrees of upper-right grid point (maxX, maxY)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>lonNxNy</td>
+      <td>Longitude in degrees of upper-right grid point (maxX, maxY)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>centralLon</td>
+      <td>Center longitude for the mercator projection, where the
+mercator projection
+is parallel to the Earth's surface. Center longitude for the polar
+stereographic
+and Lambert Conformal projections, where the projection has north as
+straight
+up.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>centralLat</td>
+      <td>Center latitude for the polar stereographic and Lambert
+Conformal projections,
+where the plane intersects the Earth's surface.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+<hr width="100%">
+<br>
+&nbsp;
+<h2><a name="DiagnosingModelProblems"></a>Diagnosing Access Problems</h2>
+If you point the ifpServer to a D2D satellite directory and the data is
+not
+appearing,
+verify that:
+<ul>
+  <li>the file name is in the standard format of yyyymmdd_hhmm, which
+is the image valid time</li>
+  <li>that the file contains all of the required variables, dimensions,
+and
+attributes
+as outlined above</li>
+  <li>that there isn't more than ONE directory in the <a
+ href="localConfig.html#SATDIRS">SATDIRS</a>
+configuration containing files that have an variable called "model"
+with
+the same name</li>
+</ul>
+If all else fails, you can turn on the debugging logging option in the
+ifpServer.&nbsp; In this mode the ifpServer will log all problems it
+finds
+with model data files.&nbsp; To turn on this feature, perform the
+following
+steps:
+<ol>
+  <li>Edit the file <i>release</i>/etc/BASE/logPref/ifpServer.logPref, where <i>release</i>
+is the installation directory. On AWIPS-baseline equipment this file is
+located at /awips/GFESuite/primary/etc/BASE/logPref/ifpServer.logPref.&nbsp; Add the
+following
+line in the middle of the file (before the prefix section).&nbsp; Refer
+to the <a href="logFiles.html">log files document</a> for details. Add
+an entry:&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp; D2DFile.C&nbsp; file debug
+= on</li>
+  <li>Stop and restart the ifpServer.</li>
+  <li>Look in the server log files.&nbsp; It will show the problems for
+all
+files
+it finds.&nbsp; If it doesn't identify your file or directory, recheck
+your <a href="localConfig.html#SATDIRS">SATDIRS</a>
+to be sure you have set it up correctly.</li>
+</ol>
+<p><br>
+</p>
+<hr width="100%">
+<h2><a name="ncdump"></a>Example of ncdump</h2>
+<p>This is an example ncdump from a water vapor D2D file; each directory
+contains one band (wavelength), each file contains one image:<br>
+<br>
+<span style="font-family: monospace;">netcdf 20031112_2130 {</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">dimensions:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+y = 640 ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+x = 550 ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">variables:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+byte image(y, x) ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+double validTime ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+validTime:units = "seconds since 1970-1-1 00:00:00.00 0:00" ;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+validTime:long_name = "Valid Time" ;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+byte valid100thSecs ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+valid100thSecs:units = "centiseconds" ;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+valid100thSecs:long_name = "Valid 100th of a second" ;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">// global attributes:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:channel = "6.7 micron" ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:depictorName = "westConus@17659725" ;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:projIndex = 3 ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:projName = "LAMBERT_CONFORMAL" ;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:centralLat = 25.f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:centralLon = -95.f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:rotation = 25.f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:xMin = -0.2556496f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:xMax = 0.01474848f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:yMin = -0.8768771f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:yMax = -0.5622397f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:lat00 = 54.53548f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:lon00 = -152.8565f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:latNxNy = 17.51429f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:lonNxNy = -92.71996f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:dxKm = 7.871384f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:dyKm = 7.869175f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:latDxDy = 39.25658f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:lonDxDy = -117.4858f ;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">}</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">data:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;image =</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; 0, -70, -70, -71, -70,
+-70, -70, -70, -71, -71, -71, -70, -70,
+-70, -69, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -70, -71, -70,
+-70, -71, -71, -71, -71, -70, -69,
+-70, -71, -71, -72, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -71, -71, -71,
+-71, -72, -72, -71, -71, -71, -72,
+-72, -71, -71, -70, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -71, -72, -72,
+-72, -73, -73, -72, -72, -71, -70,
+-71, -71, -71, -70, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -70, -70, -69,
+-69, -69, -69, -69, -69, -69, -69,
+-69, -69, -69, -69, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -68, -68, -67,
+-69, -69, -68, -68, -67, -67, -67,
+-67, -67, -67, -67, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -67, -66, -66,
+-67, -67, -67, -68, -68, -68, -68,
+-68, -68, -68, -68, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -68, -68, -68,
+-68, -68, -68, -68, -68, -68, -67,
+-67, -66, -67, -66, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -65, -64, -64,
+-63, -63, -62, -63, -62, -60, -61,
+-61, -61, -61, -61, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -60, -61, -61,
+-61, -61, -61, -60, -61, -61, -60,
+-61, -62, -61, -60, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -60, -60, -60,
+-60, -60, -59, -60, -61, -61, -61,
+-60, -60, -60, -60, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -60, -59, -59,
+-59, -59, -58, -58, -58, -59, -58,
+-58, -57, -56, -57, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -57, -57, -57,
+-56, -56, -56, -55, -55, -55, -55,
+-55, -55, -55, -56, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -55, -55, -56,
+-56, -56, -56, -57, -57, -57, -57,
+-58, -58, -59, -59, </span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; -59, -59, -59,
+-60, -60, -61, -61, -61, -61, -61,
+-61, -61, -61, -61, </span><br style="font-family: monospace;">
+<br>
+</body>
+</html>

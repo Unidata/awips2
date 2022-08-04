@@ -1,0 +1,7 @@
+s2s
+right VC
+//default : 5
+1 : 15
+4 : 19
+7 : 2
+//5 : 5 (turn on if Missing Data 'M' is to be plotted)

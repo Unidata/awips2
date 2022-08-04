@@ -1,0 +1,12 @@
+accum
+clear
+load
+loadawips
+readdb
+readdbawips
+repeat
+run
+wait
+writedb
+writedbawips
+

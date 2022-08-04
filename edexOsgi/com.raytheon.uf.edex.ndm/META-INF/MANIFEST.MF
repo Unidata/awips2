@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ndm
+Bundle-SymbolicName: com.raytheon.uf.edex.ndm
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.site,
+ com.raytheon.uf.edex.core
+Export-Package: com.raytheon.uf.edex.ndm.ingest

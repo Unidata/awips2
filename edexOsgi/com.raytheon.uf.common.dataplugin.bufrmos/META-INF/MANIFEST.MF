@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrmos
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrmos
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.hibernate,
+ javax.persistence,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.common.dataplugin.bufrmos.common

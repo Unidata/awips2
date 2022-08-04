@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Radar In Grid
+Bundle-SymbolicName: com.raytheon.uf.viz.grid.radar;singleton:=true
+Bundle-Version: 1.18.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.core.grid,
+ com.raytheon.viz.grid,
+ com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.common.derivparam,
+ com.raytheon.uf.common.inventory,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.viz.radar,
+ com.raytheon.uf.common.dataplugin.grid.derivparam,
+ javax.measure,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.viz.alerts,
+ com.raytheon.uf.viz.datacube,
+ com.raytheon.uf.common.numeric,
+ javax.xml.bind
+Export-Package: com.raytheon.uf.viz.grid.radar

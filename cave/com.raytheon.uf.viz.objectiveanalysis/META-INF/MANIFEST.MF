@@ -1,0 +1,35 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Objectiveanalysis Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.objectiveanalysis;singleton:=true
+Bundle-Version: 1.18.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.swt,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.pointdata,
+ javax.measure,
+ com.raytheon.uf.viz.core.grid,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.wxmath,
+ com.raytheon.uf.common.inventory,
+ com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.viz.grid,
+ com.raytheon.viz.core.contours,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.common.numeric,
+ com.raytheon.uf.common.derivparam,
+ com.raytheon.uf.viz.datacube,
+ com.raytheon.uf.viz.core.point,
+ com.raytheon.uf.viz.core.grid,
+ com.raytheon.uf.viz.grid.radar,
+ org.apache.commons.lang3,
+ javax.xml.bind
+Export-Package: com.raytheon.uf.viz.objectiveanalysis.rsc
+

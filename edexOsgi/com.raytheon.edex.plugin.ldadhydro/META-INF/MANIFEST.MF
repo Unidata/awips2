@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ldadhydro Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.ldadhydro
+Bundle-Version: 1.18.1.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.common.dataplugin.ldad,
+ com.raytheon.uf.common.dataplugin.ldadhydro,
+ com.raytheon.edex.common,
+ com.raytheon.uf.edex.pointdata,
+ javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.raytheon.edex.plugin.ldadhydro.dao
+Import-Package: com.raytheon.uf.common.status

@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Geotiff Plug-in
+Bundle-SymbolicName: com.raytheon.viz.geotiff;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.time,
+ com.raytheon.viz.ui,
+ com.raytheon.uf.viz.core.maps,
+ com.raytheon.uf.common.colormap,
+ javax.xml.bind
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.raytheon.viz.geotiff.rsc

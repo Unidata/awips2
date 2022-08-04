@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="localizationFileSaveHandler" class="com.raytheon.uf.edex.localization.backup.handlers.LocalizationFileSaveHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.localization.backup.request.LocalizationFileSaveRequest"/>
+        <constructor-arg ref="localizationFileSaveHandler"/>
+    </bean>
+
+    <bean id="localizationFileDeleteHandler" class="com.raytheon.uf.edex.localization.backup.handlers.LocalizationFileDeleteHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.localization.backup.request.LocalizationFileDeleteRequest"/>
+        <constructor-arg ref="localizationFileDeleteHandler"/>
+    </bean>
+
+    <bean id="localizationBackupService" class="com.raytheon.uf.edex.localization.backup.service.LocalizationBackupService" />
+
+    <camelContext id="clusteredLocalizationBackupContext"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <endpoint id="localizationBackupReloadCron"
+         uri="quartz://localizationBackupReloadScheduled/?cron=0+0/5+*+*+*+?)"/>
+
+        <route id="localizationBackupReloadScheduled">
+            <from uri="localizationBackupReloadCron" />
+            <doTry>
+                <bean ref="localizationBackupService" method="reloadConfig" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:localizationBackupService?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredLocalizationBackupContext" />
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredLocalizationBackupContext"/>
+        <constructor-arg ref="localizationBackupService"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,2 @@
+Simple Table products offer a lot of flexibility, but are restricted to tables with homogeneous rows and columns and certain formats.  For more sophisitcated products, tabular and narrative, we have the Smart Text Product framework.  
+

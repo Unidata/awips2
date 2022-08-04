@@ -1,0 +1,2 @@
+The Translator capability allows you to create Tabular and Narrative products in different languages.   The concept is simple in that the product is generated first and then the Translator is called to convert the words from one language to another.  This concept works because the phrasing in weather forecasts is relatively simple. 
+

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Product Browser Data Listing
+Bundle-SymbolicName: com.raytheon.uf.viz.productbrowser.datalisting
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.productbrowser;visibility:=reexport,
+ com.raytheon.uf.common.datalisting;visibility:=reexport,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.viz.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core.maps
+Export-Package: com.raytheon.uf.viz.productbrowser.datalisting

@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sounding Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.sounding
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.localization,
+ javax.measure,
+ com.raytheon.uf.common.wxmath,
+ javax.xml.bind
+Export-Package: com.raytheon.uf.common.sounding,
+ com.raytheon.uf.common.sounding.adapter,
+ com.raytheon.uf.common.sounding.util

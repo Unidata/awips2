@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="fssObsPointData" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsDataTransform"/>
+
+    <bean id="fssObsGenerator" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsGenerator"/>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="fssobs-camel" />
+        <constructor-arg ref="fssObsGenerator" />
+    </bean>
+
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+        <constructor-arg ref="fssObsGenerator"/>
+    </bean>
+    
+    <bean id ="fssObsAlertMonitorInitializer" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsAlertMonitorInitializer" />
+
+    <camelContext id="fssobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="FSSObsGenerate">
+            <from uri="jms-durable:queue:fssobsGenerate"/>
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift" />
+                <bean ref="fssObsGenerator" method="generate" />
+                <to uri="direct-vm:persistIndexAlert" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:fssobs?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+        
+        <route id="FSSObsInitializeAlertMonitors">
+            <from uri="jms-generic:topic:initializeAlertMonitors?timeToLive=60000"/>
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift" />
+                <bean ref="fssObsAlertMonitorInitializer" method="initializeAlertMonitors" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:fssobs?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+</beans>

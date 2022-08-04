@@ -1,0 +1,49 @@
+#!/bin/sh
+################################################################################
+#
+# Run a GFE formatter using the EDEX GfeClient Service
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 07, 2017  6092     randerso  Updated to use new GfeClient service
+#
+##
+
+# get path to script directory
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname $path_to_script`
+
+source ${RUN_FROM_DIR}/setup.env
+
+# execute the runIFPText module
+_MODULE="${RUN_FROM_DIR}/src/runifptext/runIFPText.py"
+
+# Check to see if override set in setup.env to use old GfeClient
+if [ -z "${USE_OLD_GFECLIENT}" ]
+then
+    #
+    # run using GfeClient service
+    #
+    /awips2/python/bin/python ${RUN_FROM_DIR}/src/gfeClient/gfeClient.py $_MODULE "$@"
+    
+else
+    #
+    # run using old GfeClient.sh
+    #
+
+	# cave directory
+    CAVE_DIR=/awips2/cave
+    
+    _GFECLI="${RUN_FROM_DIR}/gfeclient.sh"
+    
+    # quoting of '$@' is used to prevent command line interpretation
+    if [ ! -f $_GFECLI ] || [ ! -d $CAVE_DIR ]
+    then
+        echo "CAVE and/or gfeclient not installed on this workstation ..exiting"
+        exit 1
+    else
+        $_GFECLI $_MODULE "$@"
+    fi
+fi

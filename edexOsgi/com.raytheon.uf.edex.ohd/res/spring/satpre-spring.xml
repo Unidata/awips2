@@ -1,0 +1,52 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="satPreDataGenerator" class="com.raytheon.uf.edex.ohd.pproc.SatPreDataGenerator">
+    </bean>
+
+    <camelContext id="satPreDataGenerator-context"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="satPreIngestRoute">
+            <!-- Fed via notification -->
+            <from uri="jms-durable:queue:satGridAutospeFilter" />
+            <doTry>
+                <pipeline>
+                    <bean ref="serializationUtil" method="transformFromThrift" />
+                    <bean ref="satPreDataGenerator" method="process" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:satPre?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+        <route id="satGoes16RRQPEIngestRoute">
+            <!-- Fed via notification -->
+            <from uri="jms-durable:queue:satGoes16RRQPEFilter" />
+            <doTry>
+                <pipeline>
+                    <setHeader name="pluginName">
+                        <constant>precip</constant>
+                    </setHeader>
+                    <setHeader name="dequeueTime">
+                        <method ref="satPreDataGenerator" method="getQueueTime" />
+                    </setHeader>
+                    <bean ref="serializationUtil" method="transformFromThrift" />
+                    <bean ref="satPreDataGenerator" method="process" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:satPre?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="satPreDataGenerator-context" />
+    </bean>
+</beans>

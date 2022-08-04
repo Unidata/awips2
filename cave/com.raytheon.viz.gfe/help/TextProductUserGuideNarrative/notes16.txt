@@ -1,0 +1,2 @@
+We can represent the narrative product in TREE structure which follows this hierarchy in the computer's memory.  This representation allows examination and manipulation of the tree at all levels.  Each node can see and/or change the entire tree prior to final output.  Words for each node are stored instead of output so they are available for examination and manipulation by other nodes. 
+

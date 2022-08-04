@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+    
+<plotParameterDefinitions>
+   <plugin>obs</plugin>
+
+   <plotParameterDefinition displayName="rawMETAR" displayType="TEXT" param="rawMETAR" sampleValue="R" />
+
+   <plotParameterDefinition displayName="windSpeed,windDir,windGust (kts)" displayType="BARB" param="windSpeed,windDir,windGust" sampleValue="6,7,8" unit="kts" />
+
+   <plotParameterDefinition displayName="windBarb" displayType="BARB" param="windSpeed,windDir" sampleValue="16,17" unit="kts" />
+
+   <plotParameterDefinition displayName="windDir" displayType="ARROWUV" param="windSpeed,windDir" sampleValue="16,17"  />
+
+   <plotParameterDefinition displayName="windGust (kts)" displayType="TEXT" param="windGust" sampleValue="8" unit="kts" />
+
+   <plotParameterDefinition displayName="pressChangeChar" displayType="TABLE" lookupTable="press_change_char_lookup.txt" param="pressChangeChar" sampleValue="5" svgClass="weather" />
+
+   <plotParameterDefinition displayName="visibility (mi)" displayType="RANGE" format="%3.5f" lookupTable="fractions_lookup.txt" param="visibility" sampleValue="0" svgClass="text" unit="mi" />
+
+   <plotParameterDefinition displayName="pressChange3Hour (Pa)" displayType="TEXT" format="%02.0f" param="pressChange3Hour" sampleValue="4.3" unit="Pa" />
+
+   <plotParameterDefinition displayName="DpT (°F)" displayType="TEXT" format="%3.0f" param="DpT" sampleValue="43" unit="°F" />
+
+   <plotParameterDefinition displayName="T (°F)" displayType="TEXT" format="%3.0f" param="T" sampleValue="76" unit="°F" />
+
+   <plotParameterDefinition displayName="seaLevelPress (daPa)" displayType="TEXT" format="%5.0f" param="seaLevelPress" sampleValue="13" trim="2" unit="daPa" />
+
+   <plotParameterDefinition displayName="skyCover" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars.txt" param="skyCover" sampleValue="SCT" svgClass="special" />
+
+   <plotParameterDefinition displayName="skyCover-0" index="0" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars2.txt" param="skyCover" sampleValue="SCT" svgClass="special" />
+
+   <plotParameterDefinition displayName="skyCover-1" index="1" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars2.txt" param="skyCover" sampleValue="SCT" svgClass="special" />
+
+   <plotParameterDefinition displayName="skyCover-2" index="2" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars2.txt" param="skyCover" sampleValue="SCT" svgClass="special" />
+
+   <plotParameterDefinition displayName="skyCover-3" index="3" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars2.txt" param="skyCover" sampleValue="SCT" svgClass="special" />
+
+   <plotParameterDefinition displayName="skyCover-4" index="4" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars2.txt" param="skyCover" sampleValue="SCT" svgClass="special" />
+
+   <plotParameterDefinition displayName="presWeather" displayType="TABLE" lookupTable="wx_symbol_trans.txt" param="presWeather" recursiveLookup="true" sampleValue="0" svgClass="weather" />
+
+   <plotParameterDefinition displayName="pkwndSpeed (kts)" displayType="TEXT" format="PK%.0f" param="pkwndSpeed" sampleValue="17" unit="kts" />
+
+   <plotParameterDefinition displayName="Marker" displayType="MARKER" param="Marker" sampleValue=" " svgClass="marker" />
+
+   <plotParameterDefinition displayName="rawMETAR24Chg" displayType="TEXT" param="rawMETAR24Chg" sampleValue="0" svgClass="text" />
+
+   <plotParameterDefinition displayName="T24Chg (°F)" displayType="TEXT" format="%3.0f" param="T24Chg" sampleValue="75" unit="°F" />
+
+   <plotParameterDefinition displayName="Dp24Chg (°F)" displayType="TEXT" format="%3.0f" param="Dp24Chg" sampleValue="59" unit="°F" />
+
+   <plotParameterDefinition displayName="Alt24Chg (daPa)" displayType="TEXT" format="%3.0f" param="Alt24Chg" sampleValue="018" unit="daPa" />
+
+   <plotParameterDefinition displayName="Spd24Chg,Dir24Chg (kts)" displayType="ARROWUV" param="Spd24Chg,Dir24Chg" sampleValue="0,1" unit="kts" />
+
+   <plotParameterDefinition displayName="skyLayerBase-0 (hft)" displayType="TEXT" format="%2.0f" index="0" param="skyLayerBase" sampleValue="0" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="skyLayerBase-1 (hft)" displayType="TEXT" format="%2.0f" index="1" param="skyLayerBase" sampleValue="1" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="skyLayerBase-2 (hft)" displayType="TEXT" format="%2.0f" index="2" param="skyLayerBase" sampleValue="2" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="skyLayerBase-3 (hft)" displayType="TEXT" format="%2.0f" index="3" param="skyLayerBase" sampleValue="3" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="skyLayerBase-4 (hft)" displayType="TEXT" format="%2.0f" index="4" param="skyLayerBase" sampleValue="4" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="MSL1 (hft)" displayType="TEXT" format="%2.0f" param="MSL1" sampleValue="0" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="MSL2 (hft)" displayType="TEXT" format="%2.0f" param="MSL2" sampleValue="0" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="MSL3 (hft)" displayType="TEXT" format="%2.0f" param="MSL3" sampleValue="0" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="MSL4 (hft)" displayType="TEXT" format="%2.0f" param="MSL4" sampleValue="0" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="MSL5 (hft)" displayType="TEXT" format="%2.0f" param="MSL5" sampleValue="0" svgClass="text" unit="hft" />
+
+   <plotParameterDefinition displayName="stationName" displayType="TEXT" param="stationName" sampleValue="0" svgClass="text" />
+
+   <plotParameterDefinition displayName="HIWC (°F)" displayType="TEXT" format="%3.0f" param="HIWC" sampleValue="75" unit="°F" />
+</plotParameterDefinitions>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+<svg width="80" height="80" viewBox="0 0 80 80" overflow="visible"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <font id="MarkerSymbols" horiz-adv-x="7">
+            <font-face font-family="MarkerSymbolsFont"
+                units-per-em="12" alphabetic="0" />
+            <missing-glyph horiz-adv-x="878"
+                d="M128 0V1238H896V0H128ZM276 148H748V1090H276V148Z" />                
+            <glyph unicode="Plus Sign" glyph-name="Plus Sign"
+                d="M-3,0 H3 M0,-3 V3"/>
+            <glyph unicode="Octagon" glyph-name="Octagon">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-1,-3 L1,-3 L3,-1 L3,1 L1,3 L-1,3 L-3,1 L-3,-1 L-1,-3"/>
+            </glyph>                                                                           
+            <glyph unicode="Triangle" glyph-name="Triangle">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-3,-3 H3 L0,3 Z"/>
+            </glyph>
+            <glyph unicode="Box" glyph-name="Box">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-3,-3 H3 V3 H-3 Z"/>
+            </glyph>
+            <glyph unicode="Small X" glyph-name="Small X">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-2,-2 L2,2 M2,-2 L-2,2"/>
+            </glyph>
+            <glyph unicode="Diamond" glyph-name="Diamond">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M0,-3 L-3,0 L0,3 L3,0 L0,-3"/>
+            </glyph>
+            <glyph unicode="Up Arrow" glyph-name="Up Arrow">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M0,-3 L0,0 L-3,0 L0,3 L3,0 L0,0"/>
+            </glyph>
+            <glyph unicode="Bar X" glyph-name="Bar X">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-3,-3 L3,3 L-3,3 L3,-3"/>
+            </glyph>
+            <glyph unicode="Letter Z" glyph-name="Letter Z">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-3,3 L3,3 L-3,-3 L3,-3 M-1,0 L2,0"/>
+            </glyph>
+            <glyph unicode="Letter Y" glyph-name="Letter Y">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-3,3 L0,0 L0,-3 M0,0 L3,3"/>
+            </glyph>
+            <glyph unicode="Box X" glyph-name="Box X">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-1,-1 L1,-1 L1,1 L-1,1 L-1,-1 L-3,-3 M1,-1 L3,-3 M1,1 L3,3 M-1,1 L-3,3"/>
+            </glyph>
+            <glyph unicode="Asterisk" glyph-name="Asterisk">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-2,-2 L2,2 M2,-2 L-2,2 M-3,0 L3,0 M0,-3 L0,3"/>
+            </glyph>
+           <glyph unicode="Hourglass" glyph-name="Hourglass">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-3,-3 L3,3 L-3,3 L3,-3 L-3,-3"/>
+            </glyph>
+            <glyph unicode="Star" glyph-name="Star">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M0,3 L-1,1 L-3,1 L-1,0 L-2,-2 L0,-1 L2,-2 L1,0 L3,1 L1,1 L0,3"/>
+            </glyph>
+           <glyph unicode="Dot" glyph-name="Dot">
+                <path stroke-width="1px"
+                    d="M.5,0 L.35,.35 L0,.5 L-.35,.35 L-.5,0 L-.35,-.35 L0,-.5 L.35,-.35 L.5,0"/>
+            </glyph>                       
+             <glyph unicode="Large X" glyph-name="Large X">
+                <path fill-opacity="0.0" stroke-width="1px"
+                    d="M-3,-3 L3,3 M3,-3 L-3,3"/>
+            </glyph>
+            <glyph unicode="Filled Octagon" glyph-name="Filled Octagon">
+                <path  stroke-width="1px"
+                    d="M-1,-3 L1,-3 M3,-1 L3,1 L1,3 L-1,3 L-3,1 L-3,-1 L-1,-3 "/>
+            </glyph>
+            <glyph unicode="Filled Triangle" glyph-name="Filled Triangle" stroke-width="1px"
+                d="M-3,-3 H3 L0,3 Z"/>
+            <glyph unicode="Filled Box" glyph-name="Filled Box" stroke-width="1px"
+                d="M-3,-3 L3,-3 L3,3 L-3,3 L-3,-3"/>     
+             <glyph unicode="Filled Diamond" glyph-name="Filled Diamond" stroke-width="1px"
+                d="M0,-3 L-3,0 L0,3 L3,0 L0,-3"/>       
+             <glyph unicode="Filled Star" glyph-name="Filled Star" stroke-width="1px"
+                d="M0,3 L-1,1 L-3,1 L-1,0 L-2,-2 L0,-1 L2,-2 L1,0 L3,1 L1,1 L0,3"/>               
+             <glyph unicode="Minus Sign" glyph-name="Minus Sign" stroke-width="1px" fill-opacity="0.0"
+                d="M3,0 L-3,0 "/>
+        </font>
+    </defs>
+</svg>

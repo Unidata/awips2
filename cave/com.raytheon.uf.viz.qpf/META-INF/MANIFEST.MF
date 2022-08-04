@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: QPF Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.qpf;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ javax.measure,
+ com.raytheon.uf.viz.core.grid,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.dataplugin.qpf,
+ com.raytheon.uf.viz.productbrowser,
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.common.numeric,
+ com.raytheon.uf.viz.datacube,
+ com.raytheon.uf.viz.core.rsc,
+ javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.qpf
+Import-Package: com.raytheon.uf.common.colormap.prefs,
+ com.raytheon.uf.common.inventory.exception

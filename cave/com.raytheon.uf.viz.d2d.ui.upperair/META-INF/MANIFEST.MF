@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: D2D Upper Air
+Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui.upperair;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.viz.d2d.ui,
+ com.raytheon.viz.pointdata,
+ com.raytheon.viz.radar,
+ com.raytheon.viz.grid,
+ com.raytheon.uf.viz.ncwf,
+ com.raytheon.viz.lpi,
+ com.raytheon.viz.spi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

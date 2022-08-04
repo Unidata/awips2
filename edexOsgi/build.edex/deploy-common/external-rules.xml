@@ -1,0 +1,63 @@
+<project default="enact.external-rules">
+    <!-- external deployment rules -->
+    <!--
+        TODO: if necessary, these could be read from a properties file.
+        1) utility -> /awips2/edex/data/utility
+        2) resources -> /awips2/edex/conf/resources
+        3) modes -> /awips2/edex/conf/modes
+    -->
+    <target name="enact.external-rules">
+        <!-- parameters -->
+        <property name="plugin._directory" value="" />
+        <property name="deployment._root" value="" />
+        <!--
+            * plugin._directory = the full directory path to the plugin
+            * deployment._root  = the directory to deploy the files to
+        -->
+        <if>
+            <and>
+                <equals arg1="${deploy.data}" arg2="true" />
+                <available file="${plugin._directory}/utility" type="dir" />
+            </and>
+            <then>
+                <mkdir dir="${deployment._root}/data/utility" />
+                <copy todir="${deployment._root}/data/utility" overwrite="true">
+                    <fileset dir="${plugin._directory}/utility" />
+                </copy>
+            </then>
+        </if>
+
+        <if>
+            <and>
+                <equals arg1="${deploy.resources}" arg2="true" />
+                <available file="${plugin._directory}/resources" type="dir" />
+            </and>
+            <then>
+                <mkdir dir="${deployment._root}/conf/resources" />
+                <copy todir="${deployment._root}/conf/resources" overwrite="true" verbose="true">
+                    <fileset dir="${plugin._directory}/resources" />
+                </copy>
+            </then>
+        </if>
+
+        <if>
+            <available file="${plugin._directory}/modes" type="dir" />
+            <then>
+                <mkdir dir="${deployment._root}/conf/modes" />
+                <copy todir="${deployment._root}/conf/modes" overwrite="true" verbose="true">
+                    <fileset dir="${plugin._directory}/modes" />
+                </copy>
+            </then>
+        </if>
+
+        <if>
+            <available file="${plugin._directory}/esb/etc" type="dir" />
+            <then>
+                <mkdir dir="${deployment._root}/etc/" />
+                <copy todir="${deployment._root}/etc/" overwrite="true" verbose="true">
+                    <fileset dir="${plugin._directory}/esb/etc" />
+                </copy>
+            </then>
+        </if>
+    </target>
+</project>

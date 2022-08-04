@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    This is an absolute override file, indicating that a higher priority version
+    of the file will completely replace a lower priority version of the file.
+-->
+<WEGroup name="NWPS">
+    <WEItem parmID="NWPSwind_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="WaveHeight_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="Period_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="SwanSwell_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="PeakWaveDir_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="RipProb_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="ErosionProb_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="OverwashProb_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="TwlWaves_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="RunUp_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="SetUp_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="Swash_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="TwlDT_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="TwlDC_SFC:XXX_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="WaveHeight_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="Period_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="RipProb_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="ErosionProb_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="OverwashProb_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="PeakWaveDir_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="SwanSwell_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="TwlWaves_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="RunUp_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="SetUp_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="Swash_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="TwlDT_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+    <WEItem parmID="TwlDC_SFC:XXX_GRID__nwpsCG1XXX_00000000_0000" relativeCycleNumber="0"/>
+</WEGroup>

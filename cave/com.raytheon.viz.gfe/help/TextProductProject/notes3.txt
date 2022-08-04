@@ -1,0 +1,3 @@
+The task of automatically generating text products from the GFESuite forecast grids has is the purpose of the GFESuite Text Product Project. 
+
+

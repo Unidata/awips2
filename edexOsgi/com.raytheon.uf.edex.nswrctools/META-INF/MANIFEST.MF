@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NSWRCtools
+Bundle-SymbolicName: com.raytheon.uf.edex.nswrctools
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: ucar.nc2,
+ javax.measure,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core
+Export-Package: com.raytheon.uf.edex.nswrctools

@@ -1,0 +1,255 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties" lazy-init="true">
+        <property name="address" value="${PYPIES_SERVER}" />
+    </bean>
+    <bean id="pypiesDataStoreFactory" class="com.raytheon.uf.common.pypies.PyPiesDataStoreFactory"
+        depends-on="httpClient" lazy-init="true">
+        <constructor-arg ref="pypiesStoreProps" />
+    </bean>
+
+    <bean id="sslConfig" class="com.raytheon.uf.common.datastore.ignite.IgniteSslConfiguration">
+        <constructor-arg value="guest"/>
+    </bean>
+
+    <bean id="igniteKeyStorePath" factory-bean="sslConfig" factory-method="getJavaKeyStorePath" />
+    <bean id="igniteTrustStorePath" factory-bean="sslConfig" factory-method="getJavaTrustStorePath" />
+
+    <bean id="igniteKeyStorePassword" class="com.raytheon.uf.common.datastore.ignite.IgnitePasswordUtils"
+        factory-method="getIgniteKeyStorePassword" />
+    <bean id="igniteTrustStorePassword" class="com.raytheon.uf.common.datastore.ignite.IgnitePasswordUtils"
+        factory-method="getIgniteTrustStorePassword" />
+
+    <bean id="igniteCommSpiTemplate" class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi"
+        abstract="true" lazy-init="true">
+        <property name="messageQueueLimit" value="1024"/>
+        <!-- This causes clients to keep the last x messages up to this
+             threshold per connection in heap memory in case a connection
+             fails to resend the messages. Limiting this will cause more
+             acknowledgements to be sent but also reduce client heap
+             footprint. Default value is 32. -->
+        <property name="ackSendThreshold" value="2"/>
+        <property name="socketWriteTimeout" value="30000"/>
+        <property name="usePairedConnections" value="true"/>
+        <property name="connectionsPerNode" value="4"/>
+        <property name="localPortRange" value="0"/>
+    </bean>
+
+    <!-- Must have prototype scope so a fully new instance can be created when node fails and needs restarting -->
+    <bean id="igniteConfig1" class="org.apache.ignite.configuration.IgniteConfiguration"
+        scope="prototype" lazy-init="true">
+        <property name="igniteInstanceName" value="cluster1" />
+        <property name="localHost" value="${LOCAL_ADDRESS}"/>
+        <property name="clientMode" value="true" />
+        <property name="metricsLogFrequency" value="0" />
+        <property name="workDirectory" value="${AWIPS2_TEMP}/edex/ignite_work"/>
+        <property name="failureHandler">
+            <bean class="com.raytheon.uf.common.datastore.ignite.IgniteClientFailureHandler" />
+        </property>
+        <property name="gridLogger">
+            <bean class="org.apache.ignite.logger.slf4j.Slf4jLogger" />
+        </property>
+        <property name="sslContextFactory">
+            <bean class="org.apache.ignite.ssl.SslContextFactory">
+                <property name="keyStoreFilePath" ref="igniteKeyStorePath"/>
+                <property name="keyStorePassword" ref="igniteKeyStorePassword" />
+                <property name="trustStoreFilePath" ref="igniteTrustStorePath"/>
+                <property name="trustStorePassword" ref="igniteTrustStorePassword"/>
+                <property name="protocol" value="TLSv1.3"/>
+            </bean>
+        </property>
+        <property name="communicationSpi">
+            <bean parent="igniteCommSpiTemplate">
+                <property name="localPort" value="${IGNITE_CLUSTER_1_COMM_PORT}"/>
+            </bean>
+        </property>
+        <property name="transactionConfiguration">
+            <bean class="org.apache.ignite.configuration.TransactionConfiguration">
+                <property name="txTimeoutOnPartitionMapExchange" value="${a2.ignite.txTimeoutOnPartitionMapExchange}"/>
+                <property name="defaultTxTimeout" value="${a2.ignite.defaultTxTimeout}"/>
+            </bean>
+        </property>
+        <property name="discoverySpi">
+            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                <property name="localPort" value="${IGNITE_CLUSTER_1_DISCO_PORT}"/>
+                <property name="localPortRange" value="0"/>
+                <property name="ipFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
+                        <property name="addresses" value="#{'${IGNITE_CLUSTER_1_SERVERS}'.split(',')}" />
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="igniteConfig2" class="org.apache.ignite.configuration.IgniteConfiguration" scope="prototype" lazy-init="true">
+        <constructor-arg ref="igniteConfig1" />
+        <property name="igniteInstanceName" value="cluster2" />
+        <property name="communicationSpi">
+            <bean parent="igniteCommSpiTemplate">
+                <property name="localPort" value="${IGNITE_CLUSTER_2_COMM_PORT}"/>
+            </bean>
+        </property>
+        <property name="discoverySpi">
+            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                <property name="localPort" value="${IGNITE_CLUSTER_2_DISCO_PORT}"/>
+                <property name="localPortRange" value="0"/>
+                <property name="ipFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
+                        <property name="addresses" value="#{'${IGNITE_CLUSTER_2_SERVERS}'.split(',')}" />
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="igniteClusterManager" class="com.raytheon.uf.common.datastore.ignite.IgniteClusterManager" lazy-init="true">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.common.datastore.ignite.IgniteConfigSpringGenerator">
+                <constructor-arg ref="igniteConfig1" />
+                <constructor-arg value="igniteConfig1" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.raytheon.uf.common.datastore.ignite.IgniteConfigSpringGenerator">
+                <constructor-arg ref="igniteConfig2" />
+                <constructor-arg value="igniteConfig2" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <!-- If any cache configuration is changed, all ignite and edex nodes need
+        to be shutdown to clear knowledge of the previous configuration before
+        any changes will take effect. Nodes can only be started up again after
+        all nodes are shutdown.  -->
+    <bean id="defaultCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" scope="prototype" lazy-init="true">
+        <property name="name" value="defaultDataStore" />
+        <property name="cacheMode" value="PARTITIONED" />
+        <property name="backups" value="${IGNITE_CACHE_BACKUPS:0}" />
+        <!-- Rebalancing is unnecessary, missing entries will read
+            from the underlying datastore instead of being copied
+            preemptively. Attempting to rebalance will load the entire
+            cache in the heap and results in OOM.
+        -->
+        <property name="rebalanceMode" value="NONE" />
+        <property name="readThrough" value="true" />
+        <property name="writeThrough" value="true" />
+        <property name="writeBehindEnabled" value="true" />
+        <property name="writeBehindFlushFrequency" value="5000" />
+        <property name="writeBehindFlushThreadCount" value="4" />
+        <property name="writeBehindBatchSize" value="10" />
+        <property name="writeBehindFlushSize" value="40" />
+        <property name="sqlIndexMaxInlineSize" value="350" />
+        <property name="cacheStoreFactory">
+            <bean
+                class="com.raytheon.uf.common.datastore.ignite.store.DataStoreCacheStoreFactory">
+                <constructor-arg>
+                    <bean
+                        class="com.raytheon.uf.common.datastore.ignite.pypies.SerializablePyPiesDataStoreFactory" lazy-init="true">
+                        <constructor-arg name="address" value="${PYPIES_SERVER}" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="indexedTypes">
+            <list>
+                <value>com.raytheon.uf.common.datastore.ignite.DataStoreKey</value>
+                <value>com.raytheon.uf.common.datastore.ignite.DataStoreValue</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="gridCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" lazy-init="true">
+        <constructor-arg ref="defaultCacheConfig" />
+        <property name="name" value="gridDataStore" />
+        <property name="writeBehindFlushFrequency" value="1000" />
+        <property name="writeBehindFlushThreadCount" value="6" />
+        <property name="writeBehindBatchSize" value="5" />
+        <property name="writeBehindFlushSize" value="30" />
+    </bean>
+    <bean id="satelliteCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" lazy-init="true">
+        <constructor-arg ref="defaultCacheConfig" />
+        <property name="name" value="satelliteDataStore" />
+        <property name="writeBehindFlushFrequency" value="5000" />
+        <property name="writeBehindFlushThreadCount" value="4" />
+        <property name="writeBehindBatchSize" value="5" />
+        <property name="writeBehindFlushSize" value="20" />
+    </bean>
+    <bean id="radarCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" lazy-init="true">
+        <constructor-arg ref="defaultCacheConfig" />
+        <property name="name" value="radarDataStore" />
+        <property name="writeBehindFlushFrequency" value="5000" />
+        <property name="writeBehindFlushThreadCount" value="4" />
+        <property name="writeBehindBatchSize" value="5" />
+        <property name="writeBehindFlushSize" value="20" />
+    </bean>
+    <bean id="pointCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" lazy-init="true">
+        <constructor-arg ref="defaultCacheConfig" />
+        <property name="name" value="pointDataStore" />
+        <!-- Do NOT enable write behind for point data. It must currently be
+            disabled, or else the postgres metadata and hdf5 data can get out
+            of sync and cause significant issues. -->
+        <property name="writeBehindEnabled" value="false" />
+    </bean>
+
+    <bean id="defaultCacheRegistered" factory-bean="igniteClusterManager" factory-method="addCache" lazy-init="true">
+        <constructor-arg ref="defaultCacheConfig" />
+        <constructor-arg value="1" />
+    </bean>
+    <bean id="gridCacheRegistered" factory-bean="igniteClusterManager" factory-method="addCache" lazy-init="true">
+        <constructor-arg ref="gridCacheConfig" />
+        <constructor-arg value="2" />
+    </bean>
+    <bean id="satelliteCacheRegistered" factory-bean="igniteClusterManager" factory-method="addCache" lazy-init="true">
+        <constructor-arg ref="satelliteCacheConfig" />
+        <constructor-arg value="1" />
+    </bean>
+    <bean id="radarCacheRegistered" factory-bean="igniteClusterManager" factory-method="addCache" lazy-init="true">
+        <constructor-arg ref="radarCacheConfig" />
+        <constructor-arg value="1" />
+    </bean>
+    <bean id="pointCacheRegistered" factory-bean="igniteClusterManager" factory-method="addCache" lazy-init="true">
+        <constructor-arg ref="pointCacheConfig" />
+        <constructor-arg value="1" />
+    </bean>
+    <bean id="pluginMapCacheRegistered" factory-bean="igniteClusterManager" factory-method="setPluginMapCacheCluster" lazy-init="true">
+        <!-- This needs to match the cluster that the cache config is set on in awips2-config.xml -->
+        <constructor-arg value="1" />
+    </bean>
+
+    <bean id="ignitePluginRegistry"
+        class="com.raytheon.uf.common.datastore.ignite.plugin.CachePluginRegistry" lazy-init="true" />
+
+    <!-- The full topo dataset is too large to efficiently cache the entire
+        record so do not cache topo. -->
+    <bean factory-bean="ignitePluginRegistry" factory-method="registerPluginCacheName">
+        <constructor-arg value="topo" />
+        <constructor-arg value="none" />
+    </bean>
+
+    <bean id="igniteDataStoreFactory" class="com.raytheon.uf.common.datastore.ignite.IgniteDataStoreFactory" lazy-init="true"
+        depends-on="defaultCacheRegistered,gridCacheRegistered,satelliteCacheRegistered,radarCacheRegistered,pointCacheRegistered,pluginMapCacheRegistered">
+        <constructor-arg ref="igniteClusterManager" />
+        <constructor-arg ref="ignitePluginRegistry" />
+    </bean>
+
+    <bean id="dataStoreFactory" class="com.raytheon.uf.common.datastorage.DataStoreFactory"
+        factory-method="getInstance">
+        <property name="underlyingFactory" ref="${DATASTORE_PROVIDER}DataStoreFactory" />
+    </bean>
+
+    <bean id="dataStorageAuditerContainer" class="com.raytheon.uf.common.datastorage.audit.DataStorageAuditerContainer" factory-method="getInstance">
+        <property name="auditer">
+            <bean class="com.raytheon.uf.edex.database.health.EdexDataStorageAuditerProxy">
+                <constructor-arg ref="messageProducer"/>
+            </bean>
+        </property>
+    </bean>
+
+</beans>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<!--
+    COMMENT:
+    //
+    // Convective Fields 
+    //  
+    
+    
+    AWIPS 1 format
+    vTOT | |N |Vertical Totals | |CONTOUR,IMAGE,OTHER|Layer|*Difference,Layer|T,850MB|T,500MB
+    
+    
+    abbreviation: |vTOT| 
+    Notused1: | | 
+    Notused2: |N | 
+    name: |Vertical Totals | 
+    FIELD: || 
+    FIELD: |CONTOUR,IMAGE,OTHER| 
+    FIELD: |Layer| 
+    FIELD: |T,850MB| 
+    FIELD: |T,500MB| 
+    
+    
+    NEW FILE - vTOT.xml
+    -->
+<DerivedParameter name="Vertical Totals" abbreviation="vTOT">
+    <Method levels="Layer" name="Difference">
+        <Field level="850MB" abbreviation="T" />
+        <Field level="500MB" abbreviation="T" />
+    </Method>
+</DerivedParameter>

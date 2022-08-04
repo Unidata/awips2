@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="backupSvcDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.edex.backupsvc"/>
+        <property name="database" value="metadata"/>
+    </bean>
+
+    <bean id="backupSvcDbRegistered" factory-bean="dbPluginRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.edex.backupsvc"/>
+        <constructor-arg ref="backupSvcDbPluginProperties"/>
+    </bean>
+
+    <bean id="backupServiceCapabilityManager" class="com.raytheon.uf.edex.backupsvc.service.BackupServiceCapabilityManager"
+        factory-method="getInstance" />
+
+    <bean id="getBackupHostCapabilitiesMapHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetBackupHostCapabilitiesMapHandler" />
+
+    <bean id="getBackupHostVersionMapHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetBackupHostVersionMapHandler" />
+
+    <bean id="getEdexVersionHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetEDEXVersionHandler" />
+
+    <bean id="getBackupServiceCapabilitiesHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetBackupServiceCapabilitiesHandler" />
+
+    <bean id="backupEnqueueHandler" class="com.raytheon.uf.edex.backupsvc.handlers.BackupEnqueueHandler" />
+
+    <bean id="backupSvc" class="com.raytheon.uf.edex.backupsvc.service.BackupService" depends-on="backupSvcDbRegistered" />
+
+    <camelContext id="clusteredBackupSvcContext"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <endpoint id="backupSvcStatsCron"
+         uri="quartz://backupSvcStatsScheduled/?cron=0+7+*+*+*+?)"/>
+
+        <route id="backupSvcStatsScheduled">
+            <from uri="backupSvcStatsCron" />
+            <doTry>
+                <bean ref="backupSvc" method="reportStats" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:backupSvc?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredBackupSvcContext" />
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredBackupSvcContext"/>
+        <constructor-arg ref="backupSvc"/>
+    </bean>
+
+</beans>

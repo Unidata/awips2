@@ -1,0 +1,254 @@
+#------------------------------------------------------------------------ 
+# Domain File
+# Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
+# Alex Gibbs, Pablo Santos,Tony Freeman  
+# File Creation Date: 06/01/2012
+# Date Last Modified: 06/15/15    andre.vanderwesthuysen@noaa.gov
+#
+# Version control: 1.33
+#
+# Support Team:
+#
+# Contributors: 
+#
+# ----------------------------------------------------------------------- 
+# ---------------------- Description and Details ------------------------ 
+# ----------------------------------------------------------------------- 
+#
+# File used to setup a geographical domain for SWAN and WW3
+#
+# ----------------------------------------------------------- 
+#========================================================================
+#                                    OKX                                =
+#  GEOGRAPHICAL DOMAIN, GEOGRAFICAL RESOLUTION AND OUTPUT TIME STEP     =
+#========================================================================
+export SITEID="OKX"
+export REGIONID="ER"
+export NELAT="41.40"
+export NELON="-71.05"
+export SWLAT="39.75"
+export SWLON="-74.45"
+export RES="1.8"
+export TSTEP="3"
+#
+#========================================================================
+#                  NESTED GRID CONFIGURATION                            =
+# These nested grids are non-telescopic grids i.e all of them are       =
+# nested in the main grid, and get the boundary conditions only from it =
+#                                                                       =
+#========================================================================
+# NESTGRIDS: Number of nested grids, if = 0, nested grids and 
+# location numbers below will be ignore regardless of input specifications
+#
+# STATN=STA for STATIONARY RUNS, STAT=NON for NON-STATIONARY RUNS
+# The default values is NONstationary for CG1 and STAtionary for the
+# nested grids. Change this only if you know what you are doing.
+# You can choose STA or NON for a particular nested grid.
+#  
+export NESTGRIDS="3"
+export NESTINCG1="YES"
+#
+export NELATN1="40.73"
+export NELONN1="-73.82"
+export SWLATN1="40.40"
+export SWLONN1="-74.30"
+export RESN1="0.5"
+export TSTEPN1="3"
+export STATN1="NON"
+#
+export NELATN2="40.80"
+export NELONN2="-72.78"
+export SWLATN2="40.54"
+export SWLONN2="-73.78"
+export RESN2="1.0"
+export TSTEPN2="3"
+export STATN2="NON"
+#
+export NELATN3="41.37"
+export NELONN3="-71.69"
+export SWLATN3="40.83"
+export SWLONN3="-72.75"
+export RESN3="1.0"
+export TSTEPN3="3"
+export STATN3="NON"
+#
+#export NESTGRIDS="3"
+#export NELATN1="40.79"
+#export NELONN1="-73.67"
+#export SWLATN1="40.36"
+#export SWLONN1="-74.41"
+#export RESN1="1.0"
+#export TSTEPN1="3"
+#export STATN1="NON"
+#
+#export NELATN2="40.89"
+#export NELONN2="-72.43"
+#export SWLATN2="40.46"
+#export SWLONN2="-73.78"
+#export RESN2="1.0"
+#export TSTEPN2="3"
+#export STATN2="NON"
+#
+#export NELATN3="41.37"
+#export NELONN3="-71.69"
+#export SWLATN3="40.83"
+#export SWLONN3="-72.75"
+#export RESN3="1.0"
+#export TSTEPN3="3"
+#export STATN3="NON"
+#
+#========================================================================
+#                    SPECTRA OUTPUT LOCATIONS                           =
+#========================================================================
+# Specta points defined as space delimited list of:
+#   "name1:lat1:lon1 name2:lat2:lon2 name3:lat3:lon3 name4:lat4:lon4 name5:lat5:lon5 ...."
+#
+export SPECPOINTS="44065:40.369:-73.703 44094:40.585:-73.106 44025:40.251:-73.164 44017:40.694:-72.048 44040:40.956:-73.580 44039:41.138:-72.655 44060:41.263:-72.067 44069:40.693:-73.086 E_GKSI:40.523:-74.021 S_HH:40.920:-72.050"
+#
+#========================================================================
+#                    WAVE TRACKING (and WAVE PARTITION) ON/OFF          =
+#   SET: SUBDOOKXN, GEOGRAPH RESOL and TOLERANCE WAVETRACK PARAMETERS   =
+#========================================================================
+# IF WAVE TRACKING IS REQUIRED THEN WVTRCK="ON", OTHER WISE SET IT AS "OFF"
+# IF WVTRCK IS "ON", ADDTIONAL INFORMATION IS REQUIRED, SEE BELOW
+#
+export WVTRCK="ON"
+#
+# IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL 
+# RESOLUTION: SET WVTONCG="1"  
+# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE 
+# ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
+# BE CAREFULL, IF THERE IS ANY SPECTRAL OUTPUT LOCATIONS OUT OF THE NEW (REDUCED) DOMAIN
+# FOR WAVE TRACKING NWPS WILL ABORT. 
+# (This will be change in a new version, the user can get 1d-spectra but not g-h plots).
+export WVTONCG="0"
+export NELATWT="41.40"
+export NELONWT="-71.05"
+export SWLATWT="39.75"
+export SWLONWT="-74.45"
+export GEORESWT="3.0"
+#
+# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ 
+# *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
+# RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
+export WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#
+#========================================================================
+#                   CURRENTS DEFINITION (SEE SWAN MANUAL)               =
+#========================================================================
+#export CURRL1="INPGRID CUR ............................."
+#export CURRL2="READINP CUR ............................."
+#
+#========================================================================
+#                    BOUNDARY CONDITIONS (SEE SWAN MANUAL)              =
+#========================================================================
+# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0; 
+# Setting up BOUNDCOND here to zero will permanently disable BCs. 
+# If you leave it as 1 the user will still have the option to disable 
+# them from the interactive Run_NWPS GUI.
+#
+export BOUNCOND="1"
+export FTPPAT1="multi_1"
+export FTPPAT1B="multi_1"
+export FTPPAT2="NW-NYC"
+export NFTPATTEMPTS="3"
+export WAVECPS="multi_1.NW-NYC57.spec.swan"
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
+# CONDITIONS (BOUNCOND="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL 
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#
+#$BOUNDARY COMMAND LINES
+#BOUN SEG XY 285.95 39.75 288.95 39.75 VAR FILE 0.00 'multi_1.NW-NYC56.spec.swan'    1 &
+#0.50 'multi_1.NW-NYC55.spec.swan'    1 &
+#1.00 'multi_1.NW-NYC54.spec.swan'    1 &
+#1.50 'multi_1.NW-NYC53.spec.swan'    1 &
+#2.00 'multi_1.NW-NYC52.spec.swan'    1 &
+#2.50 'multi_1.NW-NYC51.spec.swan'    1 &
+#3.00 'multi_1.NW-NYC57.spec.swan.cp' 1 
+#$
+#BOUN SEG XY 288.95 39.75 288.95 41.38 VAR FILE 0.00 'multi_1.NW-NYC57.spec.swan'    1 &
+#0.50 'multi_1.NW-NYC58.spec.swan'    1 &
+#1.00 'multi_1.NW-NYC59.spec.swan'    1 &
+#1.50 'multi_1.NW-NYC60.spec.swan'    1 &
+#1.63 'multi_1.NW-NYC61.spec.swan'    1 
+#$END BOUNSEG
+#
+#========================================================================
+#                    OBSTACLES (SEE SWAN MANUAL)              =
+#========================================================================
+# IF OBSTACLES WILL BE USED, then USEOBSTA=1, Otherwise =0;
+# Setting up OBSTACLE here to zero will permanently disable OBSTACLES.
+#
+export USEOBSTA="1"
+export OBSTADOMAIN="CG3"
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD OBSTACLES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE
+# OBSTACLES (USEOBSTA="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# IT NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#
+#$OBSTACLES LINES
+#$
+#OBSTacle TRANSm trcoef=0.0 LINe &
+285.9029,39.7666 &
+285.9129,39.8225 &
+285.9204,39.9016 &
+285.9354,39.9841 &
+285.9628,40.0958 &
+285.9893,40.1833 &
+286.0046,40.2291 &
+286.0237,40.3058 &
+286.0288,40.3374 &
+286.0287,40.3691 &
+286.0196,40.4441 &
+286.0062,40.4625 &
+285.9938,40.4737 &
+285.9840,40.4799
+#$
+#OBSTacle TRANSm trcoef=0.0 LINe &
+286.0608,40.5446 &
+286.1125,40.5604 &
+286.1666,40.5788 &
+286.2192,40.5913 &
+286.2558,40.5963 &
+286.3117,40.5937
+#$
+#OBSTacle TRANSm trcoef=0.0 LINe &
+286.2492 40.5842 &
+286.2918 40.5795 &
+286.3406 40.5790 &
+286.4300 40.5900
+#$
+#OBSTacle TRANSm trcoef=0.0 LINe &
+286.4300 40.5800 &
+286.4559 40.5886 &
+286.4926 40.5962 &
+286.5280 40.6020 &
+286.5714 40.6105 &
+286.6063 40.6195 &
+286.6506 40.6328 &
+286.6864 40.6401 &
+286.7500 40.6401
+#$
+#OBSTacle TRANSm trcoef=0.0 LINe &
+286.7242 40.6184 &
+286.7661 40.6229 &
+286.8289 40.6393 &
+286.8843 40.6498 &
+286.9501 40.6677 &
+287.0294 40.6962 &
+287.1206 40.7261 &
+287.2367 40.7569 &
+287.3355,40.7878 &
+287.4167,40.8088 &
+287.5183,40.8379 &
+287.5953,40.8634 &
+287.6658,40.8879
+#$
+#$END OBSTACLES
+#

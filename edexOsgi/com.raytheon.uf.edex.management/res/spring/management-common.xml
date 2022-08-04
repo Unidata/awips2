@@ -1,0 +1,32 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="mgmtInit" class="com.raytheon.uf.edex.management.MgmtInitializer" />
+
+    <bean id="changeContextHandler"
+        class="com.raytheon.uf.edex.management.handler.ChangeContextHandler" />
+    <bean id="getContextsHandler"
+        class="com.raytheon.uf.edex.management.handler.diagnostic.GetContextsHandler" />
+    <bean id="statusHandler"
+        class="com.raytheon.uf.edex.management.handler.diagnostic.StatusHandler" />
+
+    <camelContext id="management"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="true">
+
+        <endpoint id="managementEndpoint"
+            uri="jetty:http://0.0.0.0:${MGMT_PORT}/services/edexMgmt?disableStreamCache=true" />
+
+        <route id="managementService">
+            <from uri="managementEndpoint" />
+            <bean ref="routeWrapper" method="executeThrift"/>
+        </route>
+
+     </camelContext>
+
+</beans>

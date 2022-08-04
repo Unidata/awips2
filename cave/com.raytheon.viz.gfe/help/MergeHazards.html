@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>MergeHazards Procedure</title>
+</head>
+<body>
+<h1 style="text-align: center;">MergeHazards</h1>
+<div style="text-align: center;">
+<h2>A Procedure for Merging Separated Hazard Grids Together</h2>
+<div style="text-align: left;"><a href="#methodology">Methodology</a><br>
+<a href="#Checking_for_Invalid_Combinations">Checking for Invalid
+Combinations</a><br>
+<a href="#Configuring_Invalid_Combinations">Configuring Invalid
+Combinations</a><span style="text-decoration: underline;"></span><br>
+<a href="#howitworks">How It Works</a><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="methodology"></a>Methodology</h2>
+</div>
+</div>
+<br>
+<big>The MergeHazards procedure is used to recombine temporary hazard
+grids (created by <a href="SeparateHazards.html">SeparateHazards</a>)
+back
+into the actual Hazards grid. In the example below, the Hazard grid has
+been broken into two temporary
+hazards:<br>
+<br>
+<img style="width: 444px; height: 663px;" alt="Temp Hazards"
+ src="images/SeparateHazardsTemp2.png"><br>
+</big><br>
+<big>To recombine these, select the menu <span
+ style="font-weight: bold; font-style: italic;">Hazards</span>, then <span
+ style="font-weight: bold; font-style: italic;">MergeHazards</span>.<br>
+<br>
+<img style="width: 282px; height: 294px;" alt="MergeHazards menu"
+ src="images/MergeHazardsMenu.png"><br>
+<br>
+This tool simply combines temporary hazards into
+the Hazards grid of the forecast database and exits. <span
+ style="font-style: italic;">To
+completely remove an existing hazard, delete its </span><span
+ style="font-style: italic;">grid while it is separated into a
+temporary grid, the run MergeHazards.<br>
+<br>
+</span></big>
+<h2><a name="Checking_for_Invalid_Combinations"></a>Checking for
+Invalid Combinations</h2>
+There are certain hazard combinations that are considered
+invalid. For example, BZ.W (BLIZZARD WARNING) and WS.W (WINTER
+STORM WARNING) should never be combined at the same grid point since
+they are both forecasts for the same type of hazard but of different
+severity.<br>
+<br>
+The MergeHazards tool includes the capability of checking for these
+invalid combinations and notifying you when they occur. If an
+invalid combination is detected by the tool, a dialog appears informing
+you of the time period and hazard grids that are imporperly
+combined. The dialog looks like this:<br>
+<br>
+<img alt="MergeHazards Dialog" title="MergeHazards Dialog"
+ src="images/MergeHazardsDialog.png"
+ style="width: 413px; height: 257px;"><br>
+<br>
+Note that the dialog informs you of the start time and the end time of
+the overlap and the temporary weather elements that are in violation.<br>
+<br>
+At this point you have two choices:<br>
+<br>
+<ul>
+  <li><big><big>Cancel the Merge</big></big></li>
+</ul>
+<big><big><small>If you select <span style="font-weight: bold;">Cancel
+Merge</span>, all of the grids will be left as they were before you
+executed the MergeHazards tool. You then have a chance to adjust
+the temporary hazards grids in space and/or time to remove the invalid
+combination. If you successfully remove the invalid combination
+and run the MergeHazards tool again, the grids will be properly merged
+into the Hazards weather element.</small><br>
+</big></big>
+<ul>
+  <li><big><big>Continue with the Merge</big></big></li>
+</ul>
+If you select <span style="font-weight: bold;">Continue Merge</span> ,
+the tool will merge the grids anyway, despite the invalid
+combination. The tool is designed this way to avoid any
+frustration you may encounter if you truly believe that these hazards
+should be combined.<br>
+<br>
+Note that you may define your hazard grids such that you have more than
+one invalid combination. The MergeHazards tool displays the
+warning dialog as soon as it detects the <span
+ style="font-weight: bold;">first</span> invalid combination. If you
+fix the first combination and attempt to merge again, the tool will
+detect the next invalid combination. You may then cancel, adjust
+your grids, and attempt to merge again. This interative process
+will continue until no invalid combinations exist in your temporary
+hazard grids.<br>
+<h2><a name="Configuring_Invalid_Combinations"></a>Configuring Invalid
+Combinations</h2>
+The MergeHazards tool includes a rather large Python dictionary that
+defines the invalid combinations for every VTEC code. Here is a
+small snipet of this dictionary...<br>
+<br>
+<span
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">HazardsConflictDict
+= {</span><br
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">
+<span
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">&nbsp;&nbsp;
+"AF.Y" : [],</span><br
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">
+<span
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">&nbsp;&nbsp;
+"AS.Y" : [],</span><br
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">
+<span
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">&nbsp;&nbsp;
+"BS.Y" : ["BZ.A", "LE.A", "WS.A", "BZ.W", "HS.W",</span><br
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">
+<span
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"IS.W", "IP.W", "WS.W", "LE.W", "SN.Y",</span><br
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204); font-weight: bold;">
+<span
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204);"><span
+ style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"WW.Y", "LE.Y", "LB.Y", "ZR.Y"],&nbsp; ...</span><br>
+</span><br>
+This small snipet of the dictionary defines the VTEC codes "AF.Y" and
+"AS.Y" as having no invalid combinations. In other words, these
+hazards may be combined with any other hazard. The "BS.Y" hazard,
+on the other hand, may not be combined with 14 other winter
+hazards. If you wish, your local office may choose to edit the
+MergeHazards tool and modify this dictionary. However, we
+strongly recommend that you restrict any editing to just this
+dictionary. Any other modifications may result in the
+MergeHazards tool malfunctioning.<br>
+<span
+ style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204);"><br>
+</span><big><span style="font-style: italic;">
+</span></big>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="howitworks"></a>How It Works</h2>
+The MergeHazards procedure follows these steps:<br>
+<ul>
+  <li>It first looks for any temporary weather elements that begin with
+the letters "haz*"
+which were created by the Separate Hazards or Make Hazard
+procedures.<br>
+  </li>
+  <li>It ensures that there are no conflicting locks on the Hazards
+weather element.</li>
+  <li>It checks to make sure there are no invalid hazard combinations.<br>
+  </li>
+  <li>It removes all existing Hazard grids.</li>
+  <li>It creates the merged set of Hazard grids.</li>
+  <li>It deletes the set of temporary hazard grids.<br>
+  </li>
+</ul>
+</body>
+</html>

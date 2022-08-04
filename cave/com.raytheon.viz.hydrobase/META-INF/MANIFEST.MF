@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hydrobase Plug-in
+Bundle-SymbolicName: com.raytheon.viz.hydrobase;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.viz.ui,
+ com.raytheon.uf.viz.app.launcher,
+ com.raytheon.viz.hydrocommon,
+ com.raytheon.uf.common.hydro,
+ com.raytheon.uf.viz.localization.perspective,
+ com.raytheon.uf.common.xmrg,
+ org.apache.commons.lang3,
+ com.raytheon.uf.common.message,
+ javax.xml.bind
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.raytheon.uf.common.ohd
+Bundle-ClassPath: com.raytheon.viz.hydrobase.jar

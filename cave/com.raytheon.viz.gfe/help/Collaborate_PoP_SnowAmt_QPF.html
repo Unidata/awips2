@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>Collaborate_PoP_SnowAmt_QPF</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>Collaborate_PoP_SnowAmt_QPF</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Introduction</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">With the introduction of IFPS 11, the PoP, 
+SnowAmt, and QPF grids are now floating, i.e., they are no longer fixed to specific 6 or 12 hour intervals.
+While this change allows for more flexibility in forecast preparation, it also creates two key problems 
+for forecasters. First, the duration of the PoP, SnowAmt, and QPF grids now varies considerably from 
+office to office, making the intersite coordination of these elements much more difficult. Second, the 
+NDFD Integrated Work Team has recommended that the graphics for these elements still need to be valid 
+for fixed durations (12 hours for the PoP graphics and 6 hours for the SnowAmt and QPF graphics). 
+<br><br>
+The Collaborate_PoP_SnowAmt_QPF procedure addresses both of these forecast issues by creating fixed 12-hour 
+PoP (PoP12hr), 6-hour SnowAmt (SnowAmt6hr), and 6-hour QPF (QPF6hr) grids based on the values contained in 
+the floating PoP, SnowAmt, and QPF grids. These new grids may then be used for the purposes of intersite 
+coordination as well as web graphic generation.		
+<br><br>
+In accordance with the NDFD, PoP12hr grids are created at 12-hour intervals through 7 days, QPF6hr grids 
+are created at 6-hour intervals through 72 hours, and the SnowAmt6hr grids are created at 6-hour intervals 
+through 36 hours.
+<br><br>
+The procedure calls several Smart Tools which populate the PoP12hr, SnowAmt6hr, and QPF6hr grids with 
+data from the floating PoP, SnowAmt, and QPF grids. The getMaxGrid Smart Tool reads the floating PoP 
+grids and assigns the maximum PoP value for each 12-hr period to the PoP12hr grids. The getSumGrids Smart 
+Tool is used to sum the SnowAmt and QPF grids into the SnowAmt6hr and QPF6hr grids. Note that these two 
+Smart Tools are designed to be called from a procedure and will generate an error if run interactively from 
+the Edit Actions dialog. A third SmartTool, MakeTmpGrid, is a generic SmartTool for creating a temporary 
+grid from the active grid. This is used in this procedure to copy and fragment the QPF and SnowAmt grids. 
+The procedure deletes these temporary grids when they are no longer needed within the tool.</font>
+<br>
+<br>
+<br>
+<big><big><font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">How
+the Procedure Works</font><span style="font-weight: bold;">
+</span></big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">All of the floating PoP, SnowAmt, and QPF 
+grids have been created before running the procedure/tools. The PoP12hr, SnowAmt6hr, and QPF6hr elements 
+exist in GFE. <br><br>
+After creating and saving the floating PoP, SnowAmt, and QPF grids, the forecaster need only run the 
+Collaborate_PoP_SnowAmt_QPF procedure once to generate the PoP12hr, SnowAmt6hr, and QPF6hr grids needed 
+for intersite coordination.	
+<br><br>
+When the forecaster runs the procedure, he/she is presented with a dialog box that allows a choice of 
+"All" or "Selected Time".  If All is chosen, the procedure will generate the collaboration grids over 
+preset time ranges. These time ranges begin with the current time and extend out to 192 hours for the 
+PoP12hr grids, 60 hours for the SnowAmt6hr grids, and 96 hours for the QPF6hr grids.  These ranges are 
+longer than the required minimum collaboration times to account for the different times during the day 
+when new grids may be added on to the end of the forecast database. If Selected Time is chosen, only 
+grids that intersect the active time selection in the grid manager will be used to compute PoP12hr, 
+SnowAmt6hr, and QPF6hr grids. Regardless of which option is selected, the procedure checks for the 
+existence of the source grids so errors will not be generated if grids are missing from the end of the 
+time range. Errors are generated if the floating grids are missing within a selected time range.
+<br><br>
+<b>Notable Methodology/Assumptions Used</b><br>
+When the Collaborate_PoP_SnowAmt_QPF procedure is run by the forecaster, the floating SnowAmt and QPF 
+grids are first copied to two temporary elements, tmpSnowAmt and tmpQPF. The tmpSnowAmt and tmpQPF grids 
+are then automatically fragmented before being used by the getSumGrids Smart Tool to create the SnowAmt6hr 
+and QPF6hr grids. The usage of the temporary elements in this process allows the original floating SnowAmt 
+and QPF grids to be preserved; the fragmenting ensures that no tmpSnowAmt grid overlaps multiple SnowAmt6hr 
+grids/no tmpQPF grid overlaps multiple QPF6hr grids prior to running the getSumGrids tool. This latter 
+condition is important because such overlapping grids would cause the tool to produce inaccurate SnowAmt6hr 
+and QPF6hr grids. Once the getSumGrids Smart Tool has executed and the SnowAmt6hr and QPF6hr grids have been 
+produced, the temporary elements are automatically deleted.
+<br><br>
+To better illustrate the significance of fragmenting the tmpSnowAmt and tmpQPF grids, let=s consider a 
+simple example utilizing 3 forecast tmpSnowAmt grids. For the sake of simplicity, we will assume that the 
+default duration for the tmpSnowAmt grids is 3 hours, and that both the tmpSnowAmt and SnowAmt6hr grids are 
+based on Greenwich Mean Time (GMT). Note that the following also applies to tmpQPF even though it is not 
+discussed here. The forecast tmpSnowAmt grids are as follows:<br><br> 
+<i>Grid 1 - Valid 12-15 GMT, amount = 0" throughout<br> 
+Grid 2 - Valid 15-21 GMT, amount = 4" throughout<br> 
+Grid 3 - Valid 21-24 GMT, amount = 0" throughout</i>
+<br><br>
+If these grids are not fragmented before running the getSumGrids Smart Tool, the tool will see a 
+tmpSnowAmt grid with 4" accumulations that overlaps both the corresponding 12-18 GMT and 18- 24 GMT 
+SnowAmt6hr grids - and will therefore assign 4" accumulations to both SnowAmt6hr grids. This in turn 
+would imply an event total of 8" - not exactly what had been intended by the forecaster. 
+<br><br>
+On the other hand, fragmenting the tmpSnowAmt grids before running the getSumGrids Smart Tool results 
+in the following grids as input to the tool:<br><br>
+<i>Grid 1 - Valid 12-15 GMT, amount = 0" throughout<br>
+Grid 2 - Valid 15-18 GMT, amount = 2" throughout<br>
+Grid 3 - Valid 18-21 GMT, amount = 2" throughout<br>
+Grid 4 - Valid 21-24 GMT, amount = 0" throughout</i><br><br>
+Note that the 4" tmpSnowAmt grid valid from 15-21 GMT has been split into two three-hour grids containing 
+values of 2" throughout. This is because GFE assumes a constant snowfall rate when fragmenting the grids. 
+Naturally, this isn't always a valid assumption, but its currently the only one available for the software 
+to work with.
+<br><br>
+Executing the getSumGrids Smart Tool after fragmenting results in 2" accumulations in the corresponding 
+12-18 GMT and 18-24 GMT SnowAmt6hr grids, which would imply an event total of 4" - thereby matching the 
+original intent of the forecaster.
+</font>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NPP Common EDEX
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.npp
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;visibility:=reexport,
+ ucar.nc2;visibility:=reexport,
+ org.geotools
+Export-Package: com.raytheon.uf.edex.plugin.npp

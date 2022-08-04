@@ -1,0 +1,110 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="radar" />
+        <constructor-arg value="Ingest.Radar.*" />
+    </bean>
+
+    <bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
+    <bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
+
+    <bean id="radarDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="radar" />
+        <constructor-arg value="jms-durable:queue:Ingest.Radar" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
+    </bean>
+
+    <bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
+        factory-method="register">
+        <constructor-arg value="radar" />
+        <constructor-arg value="jms-durable:queue:Ingest.RadarRadarServer" />
+    </bean>
+    
+    <bean id="gsmNotifier" class="com.raytheon.edex.plugin.radar.GSMNotifier"/>
+
+    <camelContext id="radar-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <endpoint id="radarJmsEndpoint" uri="jms-durable:queue:Ingest.Radar?concurrentConsumers=${radar-decode.sbn.threads}"/>
+        <endpoint id="radarRadarServerJmsEndpoint" uri="jms-durable:queue:Ingest.RadarRadarServer?concurrentConsumers=${radar-decode.local.threads}"/>
+        <endpoint id="fsiRadarEndpoint" uri="jms-generic:queue:fsiRadar?timeToLive=${fsiRadar.timeToLive}"/>
+
+        <!-- Begin Radar routes -->
+        <route id="radarIngestRoute">
+            <from uri="radarJmsEndpoint"/>
+             <setHeader name="dataType">
+                 <constant>radar-sbn</constant>
+            </setHeader>
+            <to uri="direct:radarcommon" />
+        </route>
+
+        <route id="radarRadarServerIngestRoute">
+            <from uri="radarRadarServerJmsEndpoint"/>
+            <setHeader name="dataType">
+                <constant>radar-local</constant>
+            </setHeader>
+            <to uri="direct:radarcommon" />
+        </route>
+
+        <route id="radarCommonIngestRoute">
+            <from uri="direct:radarcommon" />
+            <setHeader name="pluginName">
+                <constant>radar</constant>
+            </setHeader>
+            <doTry>
+                <multicast>
+                    <pipeline>
+                        <bean ref="stringToFile" />
+                        <bean ref="radarDecompressor" method="decompress" />
+                        <bean ref="radarDecoder" method="decode" />
+                        <to uri="direct-vm:persistIndexAlert" />
+                    </pipeline>
+                    <pipeline>
+	                    <filter>
+	                        <simple>"false" != ${sys.fsiRadar.fsiEnabled}</simple>
+	                        <to uri="fsiRadarEndpoint" />
+	                    </filter>
+                    </pipeline>
+                </multicast>
+                <doCatch>
+                    <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
+                    <to uri="direct-vm:logFailureAsInfo" />
+                </doCatch>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="direct-vm:logFailedData" />
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="radarTextProductRoute">
+            <from uri="vm:storeRadarTextProduct" />
+            <to uri="direct-vm:textDirectDecodedIngestRoute" />
+        </route>
+    
+    </camelContext>
+
+    <camelContext id="radar-gsmNotify"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <route id="gsmNotify">
+            <from uri="vm:radar.gsmNotify"/>
+            <doTry>
+                <bean ref="gsmNotifier" method="handleGeneralStatusMessage"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:gsmNotify?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+</beans>

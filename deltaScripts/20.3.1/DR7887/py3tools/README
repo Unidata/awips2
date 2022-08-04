@@ -1,0 +1,45 @@
+This directory contains documentation and tools that help with migrating code
+from Python 2 to Python 3.
+
+Before using any tools in this directory, you should apply 2to3 to all of your
+Python code. Review the output of 2to3 carefully before you invoke it as
+'2to3 -w' to actually write out its proposed changes to your Python files.
+More info on 2to3 here: https://docs.python.org/3.6/library/2to3.html
+
+Files in this directory:
+
+* find_division_operators.py: A script that checks all Python files in a
+  specified directory for division operators. This is helpful for identifying
+  places where division operators may need to be changed to floor division
+  operators to preserve the correct behavior under Python 3. Run the script
+  without arguments to see how to use it. Complete documentation on the
+  division operator change can be found here:
+  https://www.python.org/dev/peps/pep-0238/
+
+* py2to3checker.sh: A Bash script that checks files for possible Python 3
+  compatibility issues. This will flag many--but not all--issues that Python's
+  built-in "2to3" tool will not. Review the output of this script carefully
+  as it flags many lines that may not be problematic (e.g. any line containing
+  a division operator is flagged.) The script does not make any changes to
+  files. You have to review the output, determine which lines in your code need
+  to be changed, and make the appropriate changes yourself. Run the script
+  without arguments to see how to use it.
+
+* py3_remove_unnecessary_list_calls.sh: A script that changes some Python
+  statements that test membership of an object in dictionary keys, values, or
+  items, to be more efficient. You can run it with a single Python file as an
+  argument; it will update the file and create a .bak copy of the original
+  file. WARNING: In rare cases, this script may make breaking changes to your
+  code. You should carefully review this script's changes to your Python files
+  before you delete the corresponding .bak files. See the comments at the top
+  of the script file for more information.
+
+* py3_migration_guide.txt.rst: A guide to many of the incompatibilities between
+  Python 2 and 3 that may be relevant to migrating your Python code.
+
+* reindent.py: This script comes from the official Python 3 distribution. Use
+  it to fix the indentation in your Python files. Mixing tabs and spaces in
+  a Python source file will cause the file to be rejected by the Python 3
+  interpreter, so you may have to run this script on some files to make them
+  compatible with Python 3. Run this script with the '--help' command line
+  option to see how to use it.

@@ -1,0 +1,2 @@
+There are some helpful infrastructure methods used by wordMethods.  First, the "getStatDict" method returns the "statDict" for the node.  This is just like the statistics dictionary created for Tabular products and covers the statistics for a sub-phrase timeRange and edit area.
+

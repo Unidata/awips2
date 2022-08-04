@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="clearTableHandler" class="com.raytheon.uf.edex.activetable.handler.ClearPracticeVTECTableHandler"/>
+    <bean id="getActiveTableHandler" class="com.raytheon.uf.edex.activetable.GetActiveTableHandler"/>
+    <bean id="getActiveTableDictHandler" class="com.raytheon.uf.edex.activetable.GetActiveTableDictHandler"/>
+    <bean id="getFourCharSitesHandler" class="com.raytheon.uf.edex.activetable.GetFourCharSitesHandler"/>
+    <bean id="getVtecAttributeHandler" class="com.raytheon.uf.edex.activetable.GetVtecAttributeHandler"/>
+    <bean id="dumpActiveTableHandler" class="com.raytheon.uf.edex.activetable.DumpActiveTableHandler"/>
+    <bean id="practiceVtecHandler" class="com.raytheon.uf.edex.activetable.handler.SendPracticeProductHandler"/>
+    <bean id="getNextEtnHandler" class="com.raytheon.uf.edex.activetable.GetNextEtnHandler"/>
+    <bean id="requestATHandler" class="com.raytheon.uf.edex.activetable.handler.RetrieveRemoteActiveTableHandler"/>
+    <bean id="sendATHandler" class="com.raytheon.uf.edex.activetable.handler.SendActiveTableHandler"/>
+    <bean id="ingestATHandler" class="com.raytheon.uf.edex.activetable.handler.MergeActiveTableHandler"/>
+    <bean id="lockAndGetEtnHandler" class="com.raytheon.uf.edex.activetable.handler.LockAndGetNextEtnHandler"/>
+    <bean id="setAndUnlockEtnHandler" class="com.raytheon.uf.edex.activetable.handler.UnlockActiveTablePhenSigHandler"/>
+    <bean id="restoreLastEtnHandler" class="com.raytheon.uf.edex.activetable.RestoreLastEtnHandler"/>
+</beans>

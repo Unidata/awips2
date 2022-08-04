@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PointSet Visualization
+Bundle-SymbolicName: com.raytheon.uf.viz.pointset;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.common.dataplugin.pointset,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.viz.productbrowser.datalisting,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.colormap,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.drawables.triangulated,
+ com.raytheon.uf.common.style,
+ javax.measure,
+ com.raytheon.uf.common.numeric,
+ com.raytheon.uf.common.util,
+ javax.xml.bind
+Import-Package: com.raytheon.uf.common.units

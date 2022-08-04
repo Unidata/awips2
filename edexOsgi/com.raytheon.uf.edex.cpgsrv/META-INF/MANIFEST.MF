@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Composite Product Generator (CPG) Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.cpgsrv
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.monitor.cpg,
+ com.raytheon.uf.common.stats,
+ com.raytheon.uf.edex.event,
+ com.raytheon.uf.common.event,
+ org.slf4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.edex.cpgsrv
+Import-Package: com.raytheon.uf.common.monitor.cpg

@@ -1,0 +1,340 @@
+###########################################################################################
+## DUST STORM WARNING TEMPLATE                                                           ##
+############################################################################################
+## BASED OFF TEMPLATE FROM  KEN WATERS/MARK OMALLEY - WFO PSR                             ##
+## VERSION HISTORY                                                                        ##  
+##        Ken Waters/Mark OMalley Draft 1-26-17                                           ##
+##        WG TEAM (Tomalak/Birchard/Dangelo) 1-31-2017  Initial Implementation;  DCS20066 ##   
+##        Bookbinder   9-12-2017 Modified to segmented format per directive req.          ##
+##        Rivera       05-09-2018 DR20701 Dust Storm Warning cannot be sent in WarnGen    ##
+##                                Practice mode                                           ##
+##        E.Bookbinder 01-30-2019 DR20914 Fix format error caused when no highway         ##
+##                                mile markers are found                                  ##
+############################################################################################
+##
+#parse("config.vm")
+##########################################
+##  SET SOME INITIAL VARIABLES
+##########################################
+#if(${stormType} == "line")  
+  #set($reportB3 = "a wall of dust was")
+#else
+  #set($reportB3 = "a dust channel was")
+#end
+#set($source = "Doppler radar.")
+#set($reportAuthDSW = "capable of producing")
+#############################################################
+#### CREATE BASIS WORDING ###################################
+#############################################################
+#if(${list.contains(${bullets}, "meteorologists")})
+  #set($reportAuthDSW = "capable of producing")
+  #set($source = "Detected by National Weather Service meteorologists.")
+#end
+#if(${list.contains(${bullets}, "doppler")})
+  #set($reportAuthDSW = "capable of producing")
+  #set($source = "Doppler radar.")
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Trained weather spotters.")
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Law enforcement.")
+#end
+#if(${list.contains(${bullets}, "emergencyMgmt")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Emergency Management.")
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Public.")
+#end
+###################################################
+########## HANDLE VISIBILITY POSSIBILITIES ########
+###################################################
+#set($vsbyHazard = "Less than a quarter mile visibility")
+#set($vsbyDist = 100)
+#if(${list.contains(${bullets}, "qtrVis")})
+  #set($vsbyThreat = "Less than a quarter mile") 
+  #set($vsbyTrail = "visibility") 
+  #set($vsbyLead = "")
+  #set($vsbyDist = 0.25) 
+  #set($vsbyTag = "0.25MI")
+  #set($vsbyHazard = "Less than a quarter mile visibility")
+#end
+#if(${list.contains(${bullets}, "zeroVis")})
+  #set($vsbyThreat = "Near zero") 
+  #set($vsbyTrail = "visibility") 
+  #set($vsbyLead = "")
+  #set($vsbyDist = 0.0) 
+  #set($vsbyTag = "0.0MI")
+  #set($vsbyHazard = "Near zero visibility")
+#end
+###################################################
+########### HANDLE WIND POSSIBILITIES #############
+###################################################
+#set($windHazard = "")
+#set($windSpeed = 0)
+#if(${list.contains(${bullets}, "40mphWind")})
+  #set($windSpeed = 40)
+  #set($windTag = "40MPH")
+  #set($windHazard = " with strong wind in excess of 40 mph")
+#end
+#if(${list.contains(${bullets}, "50mphWind")})
+  #set($windSpeed = 50)
+  #set($windTag = "50MPH")
+  #set($windHazard = " with strong wind in excess of 50 mph")  
+#end
+#if(${list.contains(${bullets}, "60mphWind")})
+  #set($windSpeed = 60)
+  #set($windTag = "60MPH")
+  #set($windHazard = " with damaging wind in excess of 60 mph")
+#end
+#set($hazard = "${vsbyHazard}${windHazard}.") 
+
+################################################################
+######### ~*~*~*~*~*~* BEGIN OUTPUT ~*~*~*~*~*~*~ ##############
+################################################################
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+DSW${siteId}
+
+BULLETIN - EAS ACTIVATION REQUESTED
+#if(${productClass}=="T")
+TEST...Dust Storm Warning...TEST
+#else
+Dust Storm Warning
+#end
+National Weather Service ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.DS.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+#foreach (${area} in ${areas}) 
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+
+##############################################
+#### ATTRIBUTION LINE
+##############################################
+#headline(${officeLoc}, ${backupSite})
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+Dust Storm Warning for...
+#firstBullet(${areas})
+
+####################################################
+############# SECOND BULLET ########################
+####################################################
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone},${duration})
+
+
+####################################################
+############# THIRD BULLET (Initial position) ######
+####################################################
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. #### Uncomment below pull in mile marker info
+#end
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+, ${reportB3} ##
+##Many of the variables passed below are controlled by config.vm
+#if(${stormType} == "line")
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#else
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+, and is nearly stationary. 
+#else
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.
+#end
+
+#set ($duststormimpact = "Dangerous life-threatening travel.")
+##########################################################################
+## Section to include IMPACT LIST                                       ##
+##########################################################################
+
+#wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 2 11)
+
+#wrapText("SOURCE...#capitalize(${source} 'FIRST')" 2 11)
+
+#wrapText("IMPACT...${duststormimpact}" 2 11)
+
+#######################################
+########## BEGIN 4TH BULLET ###########
+#######################################
+#set($mileMarkers = "")
+#set($mileMarkers = "#parse('mileMarkers.vm')")
+#if(${mileMarkers.length()} <= 10) 
+* !**ENTER IN ANY AFFECTED ROAD/HIGHWAY INFORMATION**!
+
+#else
+* $mileMarkers
+
+#end
+
+##
+###################################################
+######## GENERATE PATHCAST OR CITIES LIST #########
+###################################################
+#if(${stormType} == "line")
+#set($pathcastLead = "This wall of dust")
+#set($otherLead = "This wall of dust")
+#else 
+#set($pathcastLead = "This dust channel")
+#set($otherLead = "This dust channel")
+#end
+#if(${list.contains(${bullets}, "pathcast")})
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("${pathcastLead} will be near..."${otherLead} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#elseif(${list.contains(${bullets}, "listofcities")})
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+###################################################################################################
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+###################################################################################################
+#locationsList("Locations impacted include..." ${otherLead} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+Locations impacted include...  
+  !** YOU DID NOT SELECT PATHCAST OR LIST OF CITIES BULLET. 
+  PLEASE ENTER LOCATIONS IMPACTED OR REGENERATE THE WARNING WITH 
+  THE CORRECT LOCATIONS BULLET SELECTED **!.
+
+#end
+
+##############################################
+## Uncomment below pull in point marker info
+## #parse("pointMarkers.vm")
+##############################################
+
+##
+##############################################
+###### SPECIAL VENUE/EVENT CASE ##############
+##############################################
+#if(${list.contains(${bullets}, "specialEvent")})
+#if(${stormType} == "line")
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this wall of dust and should prepare for imminent dangerous weather conditions. Seek shelter now!
+
+#else
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this dust channel and should prepare for imminent dangerous weather conditions. Seek shelter now!
+
+#end
+#end
+
+##################################
+######### CALLS TO ACTION ########
+##################################
+##Check to see if we've selected any calls to action. In our .xml file
+##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+
+#if(${stormType} == "line")
+  #set($reportType4 = "this wall of dust")
+#else
+  #set($reportType4 = "this dust channel")
+#end
+
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+##
+#if(${list.contains(${bullets}, "healthCTA")})
+Dust storms are unhealthy and have been known to lead to Valley Fever. Avoid outdoor exposure.
+
+#end
+##
+#if(${list.contains(${bullets}, "genericCTA")})
+Dust storms lead to dangerous driving conditions with visibility reduced to near zero. If driving, avoid dust storms if possible. If caught in one, pull off the road, turn off your lights and keep your foot off the brake.
+
+#end
+##
+#if(${list.contains(${bullets}, "motoristCTA")})
+Motorists should not drive into a dust storm. PULL ASIDE STAY ALIVE!
+
+#end
+##
+#if(${list.contains(${bullets}, "lawEnforcementCTA")})
+To report severe weather, contact the National Weather Service, or your nearest law enforcement agency, who will relay your report to the National Weather Service office in ${officeLoc}.
+
+#end
+##
+#if(${list.contains($bullets, "dangerousTravelCTA")})
+There is no safe place on a highway when a dust storm hits. Visibility can be lost immediately, making it difficult or impossible to slow down and avoid stopped vehicles. Delay travel, or safely exit the highway before the dust storm arrives.
+
+#end
+##
+#if(${list.contains(${bullets}, "boatersCTA")})
+If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 15 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
+
+#end
+##
+#if(${list.contains(${bullets}, "ThunderstormCTA")})
+Strong to severe thunderstorms are also possible behind ${reportType4}. Keep updated with this quickly evolving situation.
+
+#end
+##
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+#############
+## WATCHES ##
+#############
+
+#if(${list.contains(${includedWatches}, "TO.A")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains(${includedWatches}, "SV.A")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
+
+$$
+
+
+#parse("forecasterName.vm")

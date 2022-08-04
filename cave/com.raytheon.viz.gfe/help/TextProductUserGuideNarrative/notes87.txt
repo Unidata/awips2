@@ -1,0 +1,2 @@
+There is no limit on the number of Local Effect areas to be compared. The system is able to compare all combinations of multiple areas, group them according to whether they are similar or dissimilar and report accordingly.
+

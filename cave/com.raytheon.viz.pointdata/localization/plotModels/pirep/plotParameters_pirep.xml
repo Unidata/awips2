@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<plotParameterDefinitions>
+   <plugin>pirep</plugin>
+
+   <plotParameterDefinition displayName="obsText" displayType="TEXT" param="obsText" sampleValue="O" />
+   
+   <plotParameterDefinition displayName="iceType" displayType="TABLE" lookupTable="icing_type_trans.txt" param="iceType" sampleValue="0" svgClass="weather" />
+   
+   <plotParameterDefinition displayName="iceInten" displayType="TABLE" lookupTable="icing_intens_trans.txt" param="iceInten" sampleValue="0" svgClass="weather" />
+
+   <plotParameterDefinition displayName="flightLevel (hft)" displayType="TEXT" format="%3.0f" param="flightLevel" sampleValue="75" unit="hft" />
+
+   <plotParameterDefinition displayName="Marker" displayType="MARKER" param="Marker" sampleValue=" " svgClass="marker" />
+
+   <plotParameterDefinition displayName="obsText,stationId,longitude,latitude,timeObs,flightLevel" displayType="TEXT" param="obsText,stationId,longitude,latitude,timeObs,flightLevel" sampleValue="0,1,2,3,4,5" />
+
+   <plotParameterDefinition displayName="temperature,windDir,windSpeed,turbInten,turbFreq,turbType,iceInten,iceType" displayType="TEXT" param="temperature,windDir,windSpeed,turbInten,turbFreq,turbType,iceInten,iceType" sampleValue="0,1,2,3,4,5,6,7" />
+
+   <plotParameterDefinition displayName="obsText,turbInten,iceInten" displayType="TEXT" param="obsText,turbInten,iceInten" sampleValue="0,1,2" svgClass="text" />
+
+   <plotParameterDefinition displayName="temperature" displayType="TEXT" format="%3.0f" param="temperature" sampleValue="75" />
+
+   <plotParameterDefinition displayName="windSpeed,windDir (kts)" displayType="BARB" param="windSpeed,windDir" sampleValue="0,1" unit="kts" />
+   
+   <plotParameterDefinition displayName="windDir" displayType="ARROWUV" param="windSpeed,windDir" sampleValue="0,1" unit="kts" />
+
+   <plotParameterDefinition displayName="turbInten" displayType="TABLE" lookupTable="turb_intens_trans.txt" param="turbInten" sampleValue="0" svgClass="weather" />
+
+   <plotParameterDefinition displayName="turbFreq" displayType="TABLE" lookupTable="turb_freq_trans.txt" param="turbFreq" sampleValue="0" svgClass="weather" />
+</plotParameterDefinitions>

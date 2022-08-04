@@ -1,0 +1,21 @@
+<!-- This file is intended to setup the classpath needed to run the
+includegen taskdef in deploy-install.xml 
+-->
+<project>
+    <target name="define_includegen">
+        <path id="ant.classpath">
+            <fileset dir="${basedir}/lib/ant">
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="${git.directory}/${core-foss.repo}/lib/javax.xml.bind">
+                <include name="*.jar" />
+                <exclude name="*-sources.jar" />
+            </fileset>
+            <fileset dir="${git.directory}/${core-foss.repo}/lib/javax.activation">
+                <include name="*.jar" />
+                <exclude name="*-sources.jar" />
+            </fileset>
+        </path>
+        <taskdef name="includegen" classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature" classpathref="ant.classpath" />	
+    </target>
+</project>

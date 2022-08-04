@@ -1,0 +1,93 @@
+<project name="deploy.esb" default="main">
+    <!-- <import file="deploy-web.xml" /> -->
+
+    <target name="main">
+        <!-- on a developer machine, the following directories should
+             already exist. -->
+        <property name="ignite.root.directory" location="${edex.root.directory}" />
+        <property name="ignite.src.directory" location="${repo.dir}/../ufcore/ignite/com.raytheon.uf.ignite.core" />
+
+        <property name="ignite.config.directory" location="${ignite.root.directory}/config" />
+        <property name="ignite.tls.directory" location="${ignite.root.directory}/tls" />
+        <property name="ignite.bin.directory" location="${ignite.root.directory}/bin" />
+        <property name="ignite.lib.directory" location="${ignite.root.directory}/lib" />
+        <property name="ignite.conf.directory" location="${ignite.root.directory}/conf" />
+        <mkdir dir="${ignite.config.directory}" />
+        <mkdir dir="${ignite.tls.directory}" />
+        <mkdir dir="${ignite.bin.directory}" />
+        <mkdir dir="${ignite.lib.directory}" />
+        <mkdir dir="${ignite.conf.directory}" />
+
+        <antcall target="cleanup" />
+        <antcall target="deploy.esb" />
+    </target>
+
+    <target name="cleanup">
+        <!-- delete all files under lib directory -->
+        <echo message="Cleaning target directory: ${ignite.lib.directory}/" />
+        <delete includeemptydirs="true">
+            <fileset dir="${ignite.lib.directory}/" />
+        </delete>
+
+        <!-- delete the shell scripts from bin directory -->
+        <echo message="Cleaning target directory: ${ignite.bin.directory}/" />
+        <delete includeemptydirs="true">
+            <fileset dir="${ignite.bin.directory}/">
+                <exclude name="**/setup.env"/>
+            </fileset>
+        </delete>
+
+        <!-- delete all files under conf directory (preserve site overrides) -->
+        <echo message="Cleaning target directory: ${ignite.conf.directory}" />
+        <delete>
+            <fileset dir="${ignite.conf.directory}">
+                <exclude name="**/site/**"/>
+                <exclude name="**/auth/**"/>
+            </fileset>
+        </delete>
+
+        <!-- delete all files from config directory -->
+        <echo message="Cleaning target directory: ${ignite.config.directory}/" />
+        <delete includeemptydirs="true">
+            <fileset dir="${ignite.config.directory}/" />
+        </delete>
+    </target>
+
+    <target name="deploy.esb">
+        <copy todir="${ignite.bin.directory}"
+        overwrite="${esb.overwrite}">
+            <fileset dir="${ignite.src.directory}/scripts" />
+        </copy>
+
+        <!-- set executable permissions - a2_ignite.sh. -->
+        <chmod file="${ignite.bin.directory}/a2_ignite.sh" perm="ugo+rx" />
+
+        <copy todir="${ignite.config.directory}"
+        overwrite="${esb.overwrite}">
+            <fileset dir="${ignite.src.directory}/config" />
+        </copy>
+
+        <copy todir="${ignite.tls.directory}"
+        overwrite="${esb.overwrite}">
+            <fileset dir="${ignite.src.directory}/tls" />
+        </copy>
+        <chmod perm="o-rwx">
+            <fileset dir="${ignite.tls.directory}" />
+        </chmod>
+
+        <!-- conf/jms/auth -->
+        <copy todir="${ignite.conf.directory}"
+        overwrite="${esb.overwrite}">
+            <fileset dir="${esb.directory}/conf">
+                <include name="**/jms/auth/*" />
+            </fileset>
+        </copy>
+
+        <!-- set executable permissions - private keys -->
+        <chmod file="${ignite.conf.directory}/jms/auth/*.key" perm="go-rwx" />
+        <chmod file="${ignite.conf.directory}/jms/auth/*.pk8" perm="go-rwx" />
+    </target>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml"
+        classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+</project>

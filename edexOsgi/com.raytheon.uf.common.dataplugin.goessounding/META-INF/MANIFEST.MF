@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Goessounding
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.goessounding
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.common.dataplugin.goessounding
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.pointdata,
+ javax.persistence,
+ org.hibernate

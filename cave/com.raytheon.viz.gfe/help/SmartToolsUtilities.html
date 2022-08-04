@@ -1,0 +1,89 @@
+<html>
+<title>GFESuite Documentation - Smart Tools</title>
+<body>
+<h1 align=center>Smart Tools Utilities</h1>
+<a href="#EAWin">Edit Action Windows</a> <br>
+<a href="#Ex11">Exercise Utility-1 -- Making a Utility to Share
+Among Smart Tools and Procedures</a>
+<!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+<h1 class="1Heading">
+<a name="Util"></a><u>Utilities</u></h1>
+<img width="487" height="5" src="images/SmartTools-1.gif">
+<h2 class="2Heading"><a name="EAWin"></a>Edit Action Windows</h2>
+<div class="Body">So far, we have modified Smart Tools and Procedures.
+We will look at Utilities.</div>
+<div class="Step-First">
+<ol>
+  <li>From the Localization perspective, choose GFE--&gt;Utilities.</li>
+</ol>
+</div>
+You will see some utilities listed including the SmartScript library
+which
+you can view from the MB3 popup over the window. You can add Python
+modules
+here which might contain methods you wish to share among the Smart
+Tools
+and Procedures you've created.</li>
+</ul>
+<br>
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<h3 class="3Heading"><a name="Ex11"></a>Exercise Utility-1 -- Making a
+Utility to Share Among
+Smart Tools and Procedures</h3>
+<div class="Body">Suppose that you would like to create your own
+library
+methods to share among your smart tools and procedures. In this
+exercise,
+we will create a Utility that can be imported and accessed from any
+Smart
+Tool or Procedure.
+<ol>
+  <li>In Localization perspective under the GFE section,
+  on the Utility folder, select MB3--&gt;New.</li>
+  <li>Name your Utility and select OK.</li>
+  <li>A Python window will appear. Enter some utility method
+within the
+utility class. For example, you could simply copy the
+"convertFtToM"
+method from the SmartScript module. To follow the naming
+conventions, precede the name of your method with an
+underscore.
+For example, _convertFtToM.</li>
+  <li>Now, modify your Smart Tool from the previous Exercise to call
+this method.
+To do this, you must do several things:</li>
+  <br>
+  <ul>
+    <li>First, at the beginning of your Smart Tool, insert the
+statement:</li>
+    <br>
+  </ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+import MyUtility
+  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; where
+"MyUtility"
+is the name of your Utility.<br></p>
+  <ul>
+    <li>Create an instance of your Utility as follows:</li>
+    <br>
+    <p>&nbsp;&nbsp;&nbsp; class Tool (SmartScript.SmartScript): <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def __init__(self, dbss): <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._dbss = dbss <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self, dbss) </p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def preProcessTool(self): <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._myUtility = MyUtility.MyUtility(self._dbss, self.eaMgr()) <br>
+&nbsp; </p>
+    <li>Next, call your method as follows:</li>
+    <br>
+  </ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_F
+= self._myUtility._convertFtToM(T_K) <br>
+&nbsp; <li>Run and test your tool to make sure it works.</li>
+</ol>
+<a href="SmartToolsExerciseAnswers.html#AnswerUtil1">Click here for Answer to Exercise Utility-1.</a></div>

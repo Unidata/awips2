@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Daylight Transition
+Bundle-SymbolicName: com.raytheon.uf.viz.daylight.transition;singleton:=true
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.viz.ui,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core.rsc,
+ javax.measure,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.viz.satellite,
+ com.raytheon.uf.common.dataplugin.satellite,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.numeric,
+ com.raytheon.viz.awipstools,
+ javax.xml.bind

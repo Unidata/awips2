@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter name="Wind Wave Direction" abbreviation="WVdir">
+    <Method name="Vector">
+        <ConstantField value="20" />
+        <Field abbreviation="WVDIR" unit="deg" />
+        <ConstantField value="1" />
+    </Method>
+</DerivedParameter>

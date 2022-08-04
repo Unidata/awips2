@@ -1,0 +1,10 @@
+root.crt is the root CA certificate used to sign client and server certificates
+used with Ignite.
+
+guest.crt and guest.key are the client certificate and private key.
+
+passwords.properties contains the passwords for the keystore and truststore,
+this file is read by EDEX on startup.
+
+The baseline versions of these files are for testing purposes only and NOT to
+be used in an operational environment!

@@ -1,0 +1,408 @@
+<project name="Build EDEX" default="main">
+    <property name="uframe.eclipse"
+        value="/awips2/eclipse" />
+    <property name="build.version"
+        value="1.0.0" />
+    <property name="build.os"
+        value="linux" />
+    <property name="build.ws"
+        value="gtk" />
+    <property name="build.arch"
+        value="x86_64" />
+    <property name="build.product"
+        value="edex" />
+    <property name="lightning"
+        value="false" />
+
+        <target name="init">
+            <property file="${basedir}/${build.product}/deploy.properties" />
+
+                <exec executable="/usr/bin/find"
+                outputproperty="eclipse.launcher.jar">
+                        <arg value="${uframe.eclipse}/plugins" />
+                        <arg value="-name" />
+                        <arg value="org.eclipse.equinox.launcher_*.jar" />
+                </exec>
+
+                <exec executable="/usr/bin/find"
+                outputproperty="pde.dir">
+                        <arg value="${uframe.eclipse}/plugins" />
+                        <arg value="-name" />
+                        <arg value="org.eclipse.pde.build_*" />
+                </exec>
+        </target>
+
+    <target name="main-build" depends="clean, init">
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.common.java.extensions.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.common.base.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.com.mchange.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.net.sf.ehcache.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.commons.management.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.camel.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.dom4j.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.eclipse.jetty.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.shiro.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.javax.servlet.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.javax.activation.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.javax.mail.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.javax.media.opengl.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.activemq.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.commons.validator.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.objectweb.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.itadaki.bzip2.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.com.sun.jna.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.commons.cli.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.commons.ssl.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.opensaml.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.joda.time.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.xalan.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.xml.serializer.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.xml.resolver.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.ws.commons.schema.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.xml.security.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.commons.net.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.jfreechart.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.jasypt.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.ws.security.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.edu.mit.ll.netcdf.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.com.beust.jcommander.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.com.google.protobuf.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.ucar.nc2.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.net.opengis.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.net.opengis_v2.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.w3.xmlschema.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.ogc.tools.gml.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.net.dods.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.apache.commons.compress.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.base.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.common.core.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.core.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.dataplugins.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.alertviz.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.bufr.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.grid.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.archive.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.warning.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.text.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.aviation.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.satellite.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.gfe.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.radar.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.hydro.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.mpe.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.dat.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.config.auto.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.ncep.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.ncep.nco.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.ost.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.npp.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.registry.client.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.registry.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.menus.vb.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.remote.script.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.nswrc.radar.feature" />
+        </antcall>
+        <!-- SPECIAL CASE -->
+        <if>
+            <equals arg1="${lightning}" arg2="true" />
+            <then>
+                <antcall target="build">
+                    <param name="feature"
+                        value="com.raytheon.uf.edex.binlightning.feature" />
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <!--
+       In the work assignment's edexOsgi/build.edex directory, create a file named similar to the following:
+       edexOsgi/build.edex/5-Data_Delivery-wa-build.properties
+
+       In the file, there should be one line such as:
+       wa.features=feature1,feature2
+    -->
+    <target name="wa-build" depends="main-build" description="Builds work assignment specific features after the main build">
+        <if>
+            <available file="${basedir}/features.txt" type="file" />
+            <then>
+                <loadfile property="wa.features"
+                    srcfile="${basedir}/features.txt" />
+                <for param="line" list="${wa.features}"
+                delimiter="${line.separator}">
+                    <sequential>
+                        <antcall target="build">
+                            <param name="feature" value="@{line}" />
+                        </antcall>
+                    </sequential>
+                </for>
+            </then>
+        </if>
+
+        <antcall target="clean" />
+    </target>
+
+    <target name="main" depends="clean, init, main-build, wa-build" />
+
+    <target name="build" depends="init">
+        <!-- Execute the eclipse pde build script. -->
+        <echo message="feature=${feature}" />
+        <java
+            classname="org.eclipse.core.launcher.Main"
+            fork="true"
+            failonerror="true">
+
+            <arg value="-application" />
+            <arg value="org.eclipse.ant.core.antRunner" />
+            <arg value="-buildfile" />
+            <arg value="${pde.dir}/scripts/build.xml" />
+            <arg value="-DbaseLocation=${uframe.eclipse}" />
+            <arg value="-Dbuilder=${basedir}/${build.product}" />
+            <arg value="-DbuildDirectory=${basedir}/${build.product}/tmp" />
+            <arg value="-DtopLevelElementId=${feature}" />
+            <arg value="-Dbase=${basedir}/${build.product}" />
+            <arg value="-Dconfigs=${build.os},${build.ws},${build.arch}" />
+            <arg value="-Dbuild.product=${build.product}" />
+            <arg value="-Ddeploy.data=${deploy.data}" />
+            <arg value="-Ddeploy.resources=${deploy.resources}" />
+
+            <classpath>
+                <pathelement
+                    location="${eclipse.launcher.jar}" />
+            </classpath>
+        </java>
+    </target>
+
+    <target name="clean">
+        <if>
+            <available file="${basedir}/${build.product}/includes"
+                type="dir" />
+            <then>
+                <delete includeemptydirs="true">
+                    <fileset dir="${basedir}/${build.product}"
+                    includes ="includes/**" />
+                </delete>
+            </then>
+        </if>
+
+        <if>
+            <available file="${basedir}/${build.product}/tmp"
+                type="dir" />
+            <then>
+                <delete includeemptydirs="true">
+                    <fileset dir="${basedir}/${build.product}"
+                    includes ="tmp/**" />
+                </delete>
+            </then>
+        </if>
+    </target>
+
+        <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+</project>

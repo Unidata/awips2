@@ -1,0 +1,46 @@
+#!/bin/bash
+##
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Jul 15, 2019  7896     randerso  Verify a filename is passed in.
+#                                  Don't move the file to ${GFESUITE_HOME}.
+#                                  Code cleanup.
+#
+##
+
+if [ -z "${AWIPS_HOME}" ]
+then
+    path_to_script=`readlink -f $0`
+    export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+# Retrieve the name of the site from the tar file.
+ndfd_msg=${1}
+if [ -z "${ndfd_msg}" ]
+then
+    echo "No input file specified, terminating!"
+    exit 1
+fi
+
+if [ -f "${ndfd_msg}" ]
+then
+    echo "Received NDFD banner message"
+    msg=`cat ${ndfd_msg}`
+
+    # Generate a GFE message saying an alert was received from NDFD.
+    ${GFESUITE_BIN}/sendGfeMessage -h ${SVCBU_HOST} -p ${CDSPORT} -c NDFD -m "$msg" -s
+else
+    echo "Unable to read the NDFD banner message from ${ndfd_msg}"
+    exit 1
+fi
+
+#clean-up.
+rm -f ${ndfd_msg}
+
+#ALL well, send a msg and get out of here
+echo "$msg successfully sent to GFE."
+exit 0

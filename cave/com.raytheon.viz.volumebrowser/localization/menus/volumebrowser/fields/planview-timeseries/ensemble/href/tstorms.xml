@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <contribute xsi:type="toolbarSubMenu" menuText="Storm Scale">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/stormscale.xml" />
+    </contribute>
+    <contribute xsi:type="menuItem" menuText="Mean Precipitable Water"
+        key="PWmean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean CAPE" key="CAPEmean"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean CIn" key="CInmean"
+        indentText="false" />
+
+
+    <contribute xsi:type="menuItem" menuText="Prob Precipitable Water &gt; 1 in"
+        key="ProbPW25" indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Precipitable Water &gt; 1.5 in" key="ProbPW37p5"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Precipitable Water &gt; 2 in"
+        key="ProbPW50" indentText="false" />
+
+    <contribute xsi:type="menuItem" menuText="Prob BL CAPE &gt; 500 J/kg"
+        key="CAPEc1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob BL CAPE &gt; 1000 J/kg"
+        key="CAPEc2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob BL CAPE &gt; 1500 J/kg"
+        key="CAPEc6" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob BL CAPE &gt; 2000 J/kg"
+        key="CAPEc3" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob BL CAPE &gt; 3000 J/kg"
+        key="CAPEc4" indentText="false" />
+
+    <contribute xsi:type="menuItem" menuText="Prob BL CIn &lt; 0 J/kg"
+        key="ProbCIn0" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob BL CIn &lt; -50 J/kg"
+        key="ProbCIn-50" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob BL CIn &lt; -100 J/kg"
+        key="ProbCIn-100" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob BL CIn &lt; -400 J/kg"
+        key="ProbCIn-400" indentText="false" />
+
+    <contribute xsi:type="menuItem" menuText="Prob Helicity &gt; 100 J/kg"
+        key="ProbHeli100" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Helicity &gt; 200 J/kg"
+        key="ProbHeli200" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Helicity &gt; 400 J/kg"
+        key="ProbHeli400" indentText="false" />
+
+</menuTemplate>

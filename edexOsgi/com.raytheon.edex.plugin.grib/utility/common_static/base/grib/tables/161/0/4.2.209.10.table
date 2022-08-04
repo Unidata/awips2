@@ -1,0 +1,9 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 10: Composite Products 
+0:0:Composite Reflectivity:dBZ:MergedReflectivityQCComposite
+1:1:Composite Reflectivity Height:m:HeightCompositeReflectivity
+2:2:Low-Level Composite Reflectivity:dBZ:LLCompositeReflectivity
+3:3:Low-Level Composite Reflectivity Height:m:HeightLLCompositeReflectivity
+4:4:Low Layer Composite Reflectivity (0-24 kft):dBZ:LowLayerCompositeReflectivity
+5:5:High Layer Composite Reflectivity (24-60 kft):dBZ:HighLayerCompositeReflectivity
+6:6:Super Layer Composite Reflectivity (33-60 kft):dBZ:SuperLayerCompositeReflectivity
+7:7:Hourly Composite Reflectivity Maximum:dBZ:CompositeReflectivityMaxHourly

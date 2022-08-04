@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+    <camelContext id="ebxml-federation" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <endpoint id="replicationMonitor"
+            uri="quartz://registry/replicationMonitor/?cron=0+0+0/1+*+*+?"/>
+            
+        <endpoint id="DDProcessObjectsJmsEndpoint" uri="jms-durable:queue:DDProcessObjects"/>
+       
+
+        <route id="updateUptimeRoute">
+            <from uri="timer://updateUptimeTimer?fixedRate=true&amp;period=1h" />
+            <bean ref="RegistryFederationManager" method="updateUpTime" />
+        </route>
+
+        <route id="purgeExpiredReplicationEventsRoute">
+            <from uri="timer://purgeReplicationEventsTimer?fixedRate=true&amp;period=1h&amp;delay=30m"/>
+            <bean ref="RegistryFederationManager" method="deleteExpiredEvents"/>
+        </route>
+        
+        <route id="DDProcessObjectsRoute">
+            <from uri="DDProcessObjectsJmsEndpoint" />
+            <bean ref="serializationUtil" method="transformFromThrift" />
+            <bean ref="ebxmlDDQueueDelegate" method="processObjectsQueued" />          
+        </route>
+        
+        
+    </camelContext>
+
+</beans>

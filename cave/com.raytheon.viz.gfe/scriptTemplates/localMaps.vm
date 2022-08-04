@@ -1,0 +1,17 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# $itemName
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+
+# You must include the following line
+from Maps import * 
+
+# The localMaps.py file is used to configure edit areas for your site
+# For additional guidance refer to the 
+#    Configuration Guides->Server Configuration->Map Background Configuration
+# section of the GFE Online Help

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KML PointData Graphics Extension
+Bundle-SymbolicName: com.raytheon.uf.viz.kml.export.point;singleton:=true
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.viz.kml.export,
+ com.raytheon.uf.viz.core,
+ de.micromata.opengis.kml,
+ com.raytheon.uf.common.geospatial,
+ org.eclipse.swt,
+ com.raytheon.uf.viz.core.point

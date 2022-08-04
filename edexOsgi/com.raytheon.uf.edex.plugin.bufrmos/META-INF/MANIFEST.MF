@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrmos Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrmos
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Export-Package: com.raytheon.uf.edex.plugin.bufrmos
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.dataplugin.bufrmos,
+ org.slf4j,
+ javax.xml.bind
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.edex.exception,
+ com.raytheon.edex.plugin,
+ com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets

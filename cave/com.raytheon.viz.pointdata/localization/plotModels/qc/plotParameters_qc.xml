@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<plotParameterDefinitions>
+   <plugin>qc</plugin>
+
+   <plotParameterDefinition displayName="potentialTemp (mb)" displayType="TEXT" format="%3.0f" param="potentialTemp" sampleValue="75" unit="mb" />
+
+   <plotParameterDefinition displayName="Marker" displayType="MARKER" param="Marker" sampleValue=" " svgClass="marker" />
+
+   <plotParameterDefinition displayName="potentialTemp (K)" displayType="TEXT" format="%3.0f" param="potentialTemp" sampleValue="75" unit="K" />
+
+   <plotParameterDefinition displayName="MAPSseaLevelPress (mb*0.1)" displayType="TEXT" format="%5.0f" param="MAPSseaLevelPress" sampleValue="11" trim="2" unit="mb*0.1" />
+
+   <plotParameterDefinition displayName="dewpoint (F)" displayType="TEXT" format="%5.0f" param="dewpoint" sampleValue="75" unit="F" />
+
+   <plotParameterDefinition displayName="dewpointDepression (°R)" displayType="TEXT" format="%5.0f" param="dewpointDepression" sampleValue="75" unit="°R" />
+
+   <plotParameterDefinition displayName="altimeter (mb*0.1)" displayType="TEXT" format="%5.0f" param="altimeter" sampleValue="7588" trim="2" unit="mb*0.1" />
+
+   <plotParameterDefinition displayName="pressChange3Hour ((mb*0.1)/s))" displayType="TEXT" format="%5.0f" param="pressChange3Hour" sampleValue="777" trim="2" unit="(mb*0.1)/s)" />
+
+   <plotParameterDefinition displayName="wSp,WD (kts)" displayType="BARB" param="wSp,WD" sampleValue="0,1" unit="kts" />
+   
+   <plotParameterDefinition displayName="WD" displayType="ARROWUV" param="wSp,WD" sampleValue="0,1" unit="kts" />
+
+   <plotParameterDefinition displayName="seaLevelPress (mb*0.1)" displayType="TEXT" format="%5.0f" param="seaLevelPress" sampleValue="22" trim="2" unit="mb*0.1" />
+
+   <plotParameterDefinition displayName="temperature (°F)" displayType="TEXT" format="%3.0f" param="temperature" sampleValue="75" unit="°F" />
+
+   <plotParameterDefinition displayName="dewpoint (°F)" displayType="TEXT" format="%3.0f" param="dewpoint" sampleValue="59" unit="°F" />
+
+   <plotParameterDefinition displayName="seaLevelPressure (dPa)" displayType="TEXT" format="%5.0f" param="seaLevelPressure" sampleValue="018" trim="2" unit="dPa" />
+
+   <plotParameterDefinition displayName="windSpeed,windDir,windGust (kts)" displayType="BARB" param="windSpeed,windDir,windGust" sampleValue="0,1,2" unit="kts" />
+
+   <plotParameterDefinition displayName="windBarb" displayType="BARB" param="windSpeed,windDir" sampleValue="16,17" unit="kts" />
+
+   <plotParameterDefinition displayName="windDir" displayType="ARROWUV" param="windSpeed,windDir" sampleValue="16,17" unit="kts" />
+
+   <plotParameterDefinition displayName="windGust (kts)" displayType="TEXT" param="windGust" sampleValue="8" unit="kts" />
+</plotParameterDefinitions>

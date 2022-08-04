@@ -1,0 +1,84 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <!-- define the bean that handles automatic faxing of products. -->
+    <bean id="autoFaxManager" class="com.raytheon.uf.edex.plugin.text.subscription.AutoFaxManager" />
+
+    <!-- define the bean that handles Quartz scheduled script running -->
+    <bean id="timerScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner" >
+        <property name="type" value="timer" />
+    </bean>
+
+    <bean id="textTriggerFilePurger" class="com.raytheon.uf.edex.maintenance.FilePurger">
+        <constructor-arg value="#{T(com.raytheon.uf.edex.plugin.text.subscription.services.TextTriggerHandler).TRIGGER_DIR}" />
+        <constructor-arg value="${purge.text.trigger.files.ageMillis}" />
+    </bean>
+
+    <camelContext id="text-subscription-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Refer to edex.xml for name/location of properties file -->
+        <endpoint id="runnerCron" uri="quartz://runner/runnerScheduled/?cron=${subscription.cron}"/>
+
+        <endpoint id="purgeTextTriggerFilesCron" uri="clusteredquartz://textSubscription/purgeTextTriggerFiles/?cron=${purge.text.trigger.files.cron}"/>
+
+        <route id="purgeTextTriggerFiles">
+            <from uri="purgeTextTriggerFilesCron"/>
+            <doTry>
+                <bean ref="textTriggerFilePurger" method="purge"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- AutoFax route -->
+        <route id="autoFaxRoute">
+            <from uri="vm:autoFaxRoute" />
+            <doTry>
+                <bean ref="autoFaxManager" method="processEvent" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:autoFax?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- Quartz Timer triggered script runner -->
+        <route id="runnerScheduled">
+            <from uri="runnerCron" />
+            <doTry>
+                <bean ref="timerScriptRunner" method="runScripts" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="textToWatchWarnRoute">
+            <from uri="direct-vm:textToWatchWarn" />
+            <bean ref="textDecoder" method="transformToProductIds" />
+            <to uri="jms-durable:queue:watchwarn" />
+        </route>
+
+        <!-- Watch/Warn triggered script runner -->
+        <route id="watchWarn">
+           <from uri="jms-durable:queue:watchwarn"/>
+           <doTry>
+               <bean ref="textScriptRunner" method="runScripts" />
+               <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+               </doCatch>
+           </doTry>
+        </route>
+    </camelContext>
+
+</beans>

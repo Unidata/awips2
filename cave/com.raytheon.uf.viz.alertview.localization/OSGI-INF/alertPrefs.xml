@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="com.raytheon.uf.viz.alertview.localization.AlertViewLocalizationPrefStore" enabled="true" xmlns="http://www.osgi.org/xmlns/scr/v1.1.0">
+  <implementation class="com.raytheon.uf.viz.alertview.localization.AlertViewLocalizationPrefStore" />
+  <service>
+    <provide interface="com.raytheon.uf.viz.alertview.AlertViewPrefStore" />
+  </service>
+  <property name="service.ranking" type="Integer" value="100"/>
+  <reference name="PathManager" 
+             bind="setPathManager" 
+             unbind="unsetPathManager"
+             interface="com.raytheon.uf.common.localization.IPathManager"
+             cardinality="1..1"
+             policy="static" />
+  
+</component>

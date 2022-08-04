@@ -1,0 +1,5 @@
+The scripts in this directory must be run in the following order:
+
+6184_1_move_db_ssl.sh
+6184_2_generate_replication_certs.sh
+

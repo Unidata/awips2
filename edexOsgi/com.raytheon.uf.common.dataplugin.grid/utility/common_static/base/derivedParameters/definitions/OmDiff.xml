@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<!-- 
+    COMMENT:
+    //
+    // OB6 additions
+    //
+    // MaxOmega versus -15C Omega level calc
+    //
+    
+    
+    AWIPS 1 format
+    OmDiff| |N|mb between -15C Omega and MaxOmega|mb|CONTOUR,IMAGE,ICON|Layer|  *Difference|P,-15C|P,MaxOmega
+    
+    
+    abbreviation: |OmDiff| 
+    Notused1: | | 
+    Notused2: |N| 
+    name: |mb between -15C Omega and MaxOmega| 
+    FIELD: |mb| 
+    FIELD: |CONTOUR,IMAGE,ICON| 
+    FIELD: |Layer| 
+    FIELD: |P,-15C| 
+    FIELD: |P,MaxOmega| 
+    
+    
+    NEW FILE - OmDiff.xml
+-->
+<DerivedParameter unit="hPa" name="mb between -15C Omega and MaxOmega" abbreviation="OmDiff">
+    <Method name="Difference">
+        <Field level="-15C" abbreviation="P" />
+        <Field level="MaxOmega" abbreviation="P" />
+    </Method>
+</DerivedParameter>

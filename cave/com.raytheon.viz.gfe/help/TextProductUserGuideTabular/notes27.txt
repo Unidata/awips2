@@ -1,0 +1,2 @@
+The "_getAnalysisMethod" is specific to each Tabular Product and specifies the weather elements and corresponding analysis methods that will needed to produce the table.  
+

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization..
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+   <!--
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined.
+    -->
+<styleRuleset>
+   <!-- Blended Hydro products -->
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_TPW</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>in</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>3</maxValue> 
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 .5 1 1.5 2 2.5 3</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_TPW_Obs_age</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="hr">*1</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>12</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 2 4 6 8 10</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_TPW_Sat_Number</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="">*1</displayUnits>
+      <range>
+        <minValue>-100</minValue>
+        <maxValue>1100</maxValue> 
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+      <dataMapping>
+                <entry pixelValue='19'   displayValue='19'   label="NOAA-19" />
+                <entry pixelValue='20'   displayValue='20'   label="NOAA-20" />
+                <entry pixelValue='101'  displayValue='101'  label="Metop-A" />
+                <entry pixelValue='102'  displayValue='102'  label="Metop-B" />
+                <entry pixelValue='301'  displayValue='301'  label="S-NPP" />
+                <entry pixelValue='401'  displayValue='401'  label="GCOM" />
+                <entry pixelValue='501'  displayValue='501'  label="GPM" />
+                <entry pixelValue='1001' displayValue='1001' label="GPS" />
+      </dataMapping>
+    </imageStyle>
+    </styleRule>
+
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_RR</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>in/h</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>3</maxValue>
+      </range>
+       <defaultColormap>Sat/MW/nrlmicrorain_swaths</defaultColormap>
+       <colorbarLabeling>
+        <values>0 0.25 0.5 0.75 1.0 1.25 1.50 1.75 2.0 2.25 2.50 2.75 3.0</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_RR_Obs_age</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="hr">*1</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>12</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 2 4 6 8 10</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_RR_Sat_Number</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="">*1</displayUnits>
+      <range>
+        <minValue>-100</minValue>
+        <maxValue>1100</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+      <dataMapping>
+                <entry pixelValue='19'  displayValue='19'    label="NOAA-19" />
+                <entry pixelValue='20'  displayValue='20'    label="NOAA-20" />
+                <entry pixelValue='101' displayValue='101'   label="Metop-A" />
+                <entry pixelValue='102' displayValue='102'   label="Metop-B" />
+                <entry pixelValue='217' displayValue='217'   label="SSMIS-F17" />
+                <entry pixelValue='218' displayValue='218'   label="SSMIS-F18" />
+                <entry pixelValue='301' displayValue='301'   label="S-NPP" />
+                <entry pixelValue='401' displayValue='401'   label="GCOM" />
+                <entry pixelValue='501' displayValue='501'   label="GPM" />
+                <entry pixelValue='1001' displayValue='1001' label="GPS" />
+      </dataMapping>
+    </imageStyle>
+    </styleRule>
+
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_PCT</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>%</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>200</maxValue>
+      </range>
+       <defaultColormap>Sat/Precip Water/Percent of Normal TPW</defaultColormap>
+       <colorbarLabeling>
+        <values>50 100 150 200</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_PCT_Obs_age</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="hr">*1</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>12</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 2 4 6 8 10</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+</styleRuleset>

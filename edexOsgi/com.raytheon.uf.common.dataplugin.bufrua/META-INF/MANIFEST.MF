@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrua Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrua
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.raytheon.uf.common.dataplugin.bufrua,
+ com.raytheon.uf.common.dataplugin.bufrua.dao
+Require-Bundle: com.raytheon.uf.common.sounding,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata,
+ javax.persistence,
+ org.hibernate,
+ com.raytheon.uf.common.dataaccess,
+ javax.xml.bind
+Import-Package: com.raytheon.uf.common.status

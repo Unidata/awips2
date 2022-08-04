@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Crimss
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.npp.crimss
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.edex.plugin.npp,
+ com.raytheon.uf.edex.plugin.npp.sounding,
+ com.raytheon.uf.common.dataplugin.npp.crimss;visibility:=reexport,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.pointdata

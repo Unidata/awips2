@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="toolbarSubMenu" menuText="Aviation">
+        <contribute xsi:type="menuItem" menuText="Cloud Base" key="CC" />
+        <contribute xsi:type="menuItem" menuText="LLWS Height" key="LLWSHgt" />
+        <contribute xsi:type="menuItem" menuText="LLWS Wind" key="LLWSWind" />
+        <contribute xsi:type="menuItem" menuText="Simulated Maximum Reflectivity" key="MAXREFmax1hr" />
+        <contribute xsi:type="menuItem" menuText="Total Cloud Cover" key="TCC" />
+        <contribute xsi:type="menuItem" menuText="Visibility" key="Vis" />
+    </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="FireWx">
+        <contribute xsi:type="menuItem" menuText="Haines Index" key="HINDEX6hr" />
+        <contribute xsi:type="menuItem" menuText="Mixing Height" key="MIXHT" />
+        <contribute xsi:type="menuItem" menuText="Transport Wind" key="TransWind" />
+    </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="Winter Wx">
+        <contribute xsi:type="menuItem" menuText="1-h Ice Accumulation" key="FICEAC1hr" />
+        <contribute xsi:type="menuItem" menuText="6-h Ice Accumulation" key="FICEAC6hr" />
+        <contribute xsi:type="menuItem" menuText="Max Wet Bulb Temp" key="MaxTW" />
+        <contribute xsi:type="menuItem" menuText="Negative Energy Low-level" key="NBE" />
+        <contribute xsi:type="menuItem" menuText="Positive Energy Aloft" key="PBE" />
+        <contribute xsi:type="menuItem" menuText="Predominant Weather" key="PWTHER" />
+        <contribute xsi:type="menuItem" menuText="Prob Cloud Ice" key="PrbCldIce" />
+        <contribute xsi:type="menuItem" menuText="Prob Freezing Rain" key="PTypFreezingRain" />
+        <contribute xsi:type="menuItem" menuText="Prob Ice Pellets" key="PTypIcePellets" />
+        <contribute xsi:type="menuItem" menuText="Prob Rain" key="PTypRain" />
+        <contribute xsi:type="menuItem" menuText="Prob Refreeze Ice Plts" key="PTypeRefIP" />
+        <contribute xsi:type="menuItem" menuText="Prob Snow" key="PTypSnow" />
+        <contribute xsi:type="menuItem" menuText="1-h Snow Accumulation" key="TOTSN1hr" />
+        <contribute xsi:type="menuItem" menuText="6-h Snow Accumulation" key="TOTSN6hr" />
+        <contribute xsi:type="menuItem" menuText="Snow-Liquid Ratio" key="SNOWRATIO" />
+        <contribute xsi:type="menuItem" menuText="Snow Level" key="SNOWLVL" />
+        <contribute xsi:type="toolbarSubMenu" menuText="ProbIce">
+            <contribute xsi:type="menuItem" menuText="5th percentile 24hr Flat Ice Accumulation" key="FICEAC5pct24hr" />
+            <contribute xsi:type="menuItem" menuText="10th percentile 24hr Flat Ice Accumulation" key="FICEAC10pct24hr" />
+            <contribute xsi:type="menuItem" menuText="25th percentile 24hr Flat Ice Accumulation" key="FICEAC25pct24hr" />
+            <contribute xsi:type="menuItem" menuText="50th percentile 24hr Flat Ice Accumulation" key="FICEAC50pct24hr" />
+            <contribute xsi:type="menuItem" menuText="75th percentile 24hr Flat Ice Accumulation" key="FICEAC75pct24hr" />
+            <contribute xsi:type="menuItem" menuText="90th percentile 24hr Flat Ice Accumulation" key="FICEAC90pct24hr" />
+            <contribute xsi:type="menuItem" menuText="95th percentile 24hr Flat Ice Accumulation" key="FICEAC95pct24hr" />
+            <contribute xsi:type="menuItem" menuText="5th percentile 48hr Flat Ice Accumulation" key="FICEAC5pct48hr" />
+            <contribute xsi:type="menuItem" menuText="10th percentile 48hr Flat Ice Accumulation" key="FICEAC10pct48hr" />
+            <contribute xsi:type="menuItem" menuText="25th percentile 48hr Flat Ice Accumulation" key="FICEAC25pct48hr" />
+            <contribute xsi:type="menuItem" menuText="50th percentile 48hr Flat Ice Accumulation" key="FICEAC50pct48hr" />
+            <contribute xsi:type="menuItem" menuText="75th percentile 48hr Flat Ice Accumulation" key="FICEAC75pct48hr" />
+            <contribute xsi:type="menuItem" menuText="90th percentile 48hr Flat Ice Accumulation" key="FICEAC90pct48hr" />
+            <contribute xsi:type="menuItem" menuText="95th percentile 48hr Flat Ice Accumulation" key="FICEAC95pct48hr" />
+            <contribute xsi:type="menuItem" menuText="5th percentile 72hr Flat Ice Accumulation" key="FICEAC5pct72hr" />
+            <contribute xsi:type="menuItem" menuText="10th percentile 72hr Flat Ice Accumulation" key="FICEAC10pct72hr" />
+            <contribute xsi:type="menuItem" menuText="25th percentile 72hr Flat Ice Accumulation" key="FICEAC25pct72hr" />
+            <contribute xsi:type="menuItem" menuText="50th percentile 72hr Flat Ice Accumulation" key="FICEAC50pct72hr" />
+            <contribute xsi:type="menuItem" menuText="75th percentile 72hr Flat Ice Accumulation" key="FICEAC75pct72hr" />
+            <contribute xsi:type="menuItem" menuText="90th percentile 72hr Flat Ice Accumulation" key="FICEAC90pct72hr" />
+            <contribute xsi:type="menuItem" menuText="95th percentile 72hr Flat Ice Accumulation" key="FICEAC95pct72hr" />
+        </contribute>
+        <contribute xsi:type="toolbarSubMenu" menuText="ProbSnow">
+            <contribute xsi:type="menuItem" menuText="5th percentile 24hr Total snowfall" key="TOTSN5pct24hr" />
+            <contribute xsi:type="menuItem" menuText="10th percentile 24hr Total snowfall" key="TOTSN10pct24hr" />
+            <contribute xsi:type="menuItem" menuText="25th percentile 24hr Total snowfall" key="TOTSN25pct24hr" />
+            <contribute xsi:type="menuItem" menuText="50th percentile 24hr Total snowfall" key="TOTSN50pct24hr" />
+            <contribute xsi:type="menuItem" menuText="75th percentile 24hr Total snowfall" key="TOTSN75pct24hr" />
+            <contribute xsi:type="menuItem" menuText="90th percentile 24hr Total snowfall" key="TOTSN90pct24hr" />
+            <contribute xsi:type="menuItem" menuText="95th percentile 24hr Total snowfall" key="TOTSN95pct24hr" />
+            <contribute xsi:type="menuItem" menuText="5th percentile 48hr Total snowfall" key="TOTSN5pct48hr" />
+            <contribute xsi:type="menuItem" menuText="10th percentile 48hr Total snowfall" key="TOTSN10pct48hr" />
+            <contribute xsi:type="menuItem" menuText="25th percentile 48hr Total snowfall" key="TOTSN25pct48hr" />
+            <contribute xsi:type="menuItem" menuText="50th percentile 48hr Total snowfall" key="TOTSN50pct48hr" />
+            <contribute xsi:type="menuItem" menuText="75th percentile 48hr Total snowfall" key="TOTSN75pct48hr" />
+            <contribute xsi:type="menuItem" menuText="90th percentile 48hr Total snowfall" key="TOTSN90pct48hr" />
+            <contribute xsi:type="menuItem" menuText="95th percentile 48hr Total snowfall" key="TOTSN95pct48hr" />
+            <contribute xsi:type="menuItem" menuText="5th percentile 72hr Total snowfall" key="TOTSN5pct72hr" />
+            <contribute xsi:type="menuItem" menuText="10th percentile 72hr Total snowfall" key="TOTSN10pct72hr" />
+            <contribute xsi:type="menuItem" menuText="25th percentile 72hr Total snowfall" key="TOTSN25pct72hr" />
+            <contribute xsi:type="menuItem" menuText="50th percentile 72hr Total snowfall" key="TOTSN50pct72hr" />
+            <contribute xsi:type="menuItem" menuText="75th percentile 72hr Total snowfall" key="TOTSN75pct72hr" />
+            <contribute xsi:type="menuItem" menuText="90th percentile 72hr Total snowfall" key="TOTSN90pct72hr" />
+            <contribute xsi:type="menuItem" menuText="95th percentile 72hr Total snowfall" key="TOTSN95pct72hr" />
+        </contribute>
+    </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="Tstorm">
+        <contribute xsi:type="menuItem" menuText="12-h Prob. of a Thunderstorm" key="ThP12hr" />
+        <contribute xsi:type="menuItem" menuText="3-h SREF-based Prob. of a Dry Thunderstorm" key="DRYTPPROB3hr" />
+        <contribute xsi:type="menuItem" menuText="1-h SREF-based Prob. of a Thunderstorm" key="ThP1hr" />
+        <contribute xsi:type="menuItem" menuText="Tstorm Prob 3hr" key="ThP3hr" />
+        <contribute xsi:type="menuItem" menuText="Tropical Wind" key="TropWind" />
+        <contribute xsi:type="menuItem" menuText="Precipitation Duration 12 hr" key="PCPDUR12hr" />
+        <contribute xsi:type="menuItem" menuText="POP 1hr" key="POP1hr" />
+        <contribute xsi:type="menuItem" menuText="6hr Thunderstorm probability" key="ThP6hr" />
+        <contribute xsi:type="menuItem" menuText="10th percentile 24hr Total precipitation" key="TP10pct24hr" />
+        <contribute xsi:type="menuItem" menuText="50th percentile 24hr Total precipitation" key="TP50pct24hr" />
+        <contribute xsi:type="menuItem" menuText="90th percentile 24hr Total precipitation" key="TP90pct24hr" />
+    </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="Oceanic">
+        <contribute xsi:type="menuItem" menuText="50th Percentile Air temperature" key="T50pct" />
+        <contribute xsi:type="menuItem" menuText="10th Percentile Mean Sea Level Pressure" key="PMSL10pct" />
+        <contribute xsi:type="menuItem" menuText="50th Percentile Mean Sea Level Pressure" key="PMSL50pct" />
+        <contribute xsi:type="menuItem" menuText="90th Percentile Mean Sea Level Pressure" key="PMSL90pct" />
+        <contribute xsi:type="menuItem" menuText="10-m Wind Gust" key="WGS50pct" />
+        <contribute xsi:type="menuItem" menuText="30-m/80-m Wind Speed" key="WS50pct" />
+    </contribute>
+
+    <contribute xsi:type="menuItem" menuText="Dew point temperature" key="DpT" />
+    <contribute xsi:type="menuItem" menuText="Downward short-wave radiation flux" key="DSWRF" />
+    <contribute xsi:type="menuItem" menuText="Freezing Spray" key="FRZSPR" />
+    <contribute xsi:type="menuItem" menuText="Max Rel Humidity" key="MAXRH12hr" />
+    <contribute xsi:type="menuItem" menuText="Max Temp" key="MxT12hr" />
+    <contribute xsi:type="menuItem" menuText="Min Rel Humidity" key="MINRH12hr" />
+    <contribute xsi:type="menuItem" menuText="Min Temp" key="MnT12hr" />
+    <contribute xsi:type="menuItem" menuText="10th percentile 6-h Quant" key="TP10pct6hr" />
+    <contribute xsi:type="menuItem" menuText="50th percentile 6-h Quant" key="TP50pct6hr" />
+    <contribute xsi:type="menuItem" menuText="90th percentile 6-h Quant" key="TP90pct6hr" />
+    <contribute xsi:type="menuItem" menuText="POP 12hr" key="POP12hr" />
+    <contribute xsi:type="menuItem" menuText="1hr Precip Accum" key="TP1hr" />
+    <contribute xsi:type="menuItem" menuText="6hr Precip Accum" key="TP6hr" />
+    <contribute xsi:type="menuItem" menuText="6-h Prob. of Precipitation" key="POP6hr" />
+    <contribute xsi:type="menuItem" menuText="Significant Wave Height" key="HTSGW" />
+</menuTemplate>

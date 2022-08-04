@@ -1,0 +1,2 @@
+The "makeRow" method constructs the row of a table given a title, a column width, a series of time ranges over which to report values, a corresponding statistics list -- a statDict for each time range -- and a user-supplied method for producing one column entry.   The result is text string representing a row of the table.  There are additional optional arguments to the "makeRow" method which are found in its description in the TableBuilder module.
+

@@ -1,0 +1,10 @@
+com.raytheon.uf.common.dataplugin.text.db.AfosToAwips
+com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct
+com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct
+com.raytheon.uf.common.dataplugin.text.db.StateMatch
+com.raytheon.uf.common.dataplugin.text.db.StateMatchPK
+com.raytheon.uf.common.dataplugin.text.db.StdTextProduct
+com.raytheon.uf.common.dataplugin.text.db.StdTextProductId
+com.raytheon.uf.common.dataplugin.text.db.TextProductInfo
+com.raytheon.uf.common.dataplugin.text.db.SubscriptionRecord
+com.raytheon.uf.common.dataplugin.text.db.ReplacementRecord

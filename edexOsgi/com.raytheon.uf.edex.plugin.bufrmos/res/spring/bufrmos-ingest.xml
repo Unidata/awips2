@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufrmosDecoder" class="com.raytheon.uf.edex.plugin.bufrmos.BufrMosDecoder" />
+
+    <bean id="bufrmosDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="bufrmos" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrmos" />
+    </bean>
+
+    <camelContext id="bufrmos-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Begin bufrmos routes -->
+        <route id="bufrmosIngestRoute">
+            <from uri="jms-durable:queue:Ingest.bufrmos" />
+            <setHeader name="pluginName">
+                <constant>bufrmos</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="bufrmosDecoder" method="decode"/>
+                    <to uri="direct-vm:persistIndexAlert"/>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrmos?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

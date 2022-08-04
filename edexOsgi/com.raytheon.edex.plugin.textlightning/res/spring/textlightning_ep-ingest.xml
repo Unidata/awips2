@@ -1,0 +1,40 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="textlightningDecoder"
+        class="com.raytheon.edex.plugin.textlightning.TextLightningDecoder" />
+
+    <bean id="textlightningDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="textlightning" />
+        <constructor-arg value="jms-durable:queue:Ingest.textlightning"/>
+    </bean>
+
+    <camelContext id="textlightning-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Begin textlightning routes -->
+        <route id="textlightningIngestRoute">
+            <from uri="jms-durable:queue:Ingest.textlightning"/>
+            <setHeader name="pluginName">
+                <constant>textlightning</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="textlightningDecoder" method="decode" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:textlightning?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

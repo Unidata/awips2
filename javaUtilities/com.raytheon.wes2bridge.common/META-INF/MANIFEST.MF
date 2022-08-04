@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Wes2Bridge Utility Common
+Bundle-SymbolicName: com.raytheon.wes2bridge.common
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.raytheon.wes2bridge.common.configuration,
+ com.raytheon.wes2bridge.configuration.jaxb
+Require-Bundle: javax.xml.bind

@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<contribute xsi:type="toolbarSubMenu" menuText="Prob Wind Speed">
+    <contribute xsi:type="menuItem" menuText="Cumulative Prob Wind Speed &gt; 34 knots" key="Prob34" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Cumulative Prob Wind Speed &gt; 50 knots" key="Prob50" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Cumulative Prob Wind Speed &gt; 64 knots" key="Prob64" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Incremental Prob Wind Speed &gt; 34 knots" key="PWS34" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Incremental Prob Wind Speed &gt; 50 knots" key="PWS50" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Incremental Prob Wind Speed &gt; 64 knots" key="PWS64" indentText="false" />
+</contribute>
+
+<contribute xsi:type="toolbarSubMenu" menuText="WSP Arrival &amp; Departure Time">
+<contribute xsi:type="toolbarSubMenu" menuText="34 kts -> Atlantic">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - AT">
+       <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - AT1" key="TOA1034ktAT1" indentText="false"/>
+       <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - AT2" key="TOA1034ktAT2" indentText="false"/>
+       <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - AT3" key="TOA1034ktAT3" indentText="false"/>
+       <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - AT4" key="TOA1034ktAT4" indentText="false"/>
+       <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - AT5" key="TOA1034ktAT5" indentText="false"/>
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - AT">
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - AT1" key="TOA5034ktAT1" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - AT2" key="TOA5034ktAT2" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - AT3" key="TOA5034ktAT3" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - AT4" key="TOA5034ktAT4" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - AT5" key="TOA5034ktAT5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - AT">
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - AT1" key="TOD5034ktAT1" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - AT2" key="TOD5034ktAT2" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - AT3" key="TOD5034ktAT3" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - AT4" key="TOD5034ktAT4" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - AT5" key="TOD5034ktAT5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - AT">
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - AT1" key="TOD9034ktAT1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - AT2" key="TOD9034ktAT2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - AT3" key="TOD9034ktAT3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - AT4" key="TOD9034ktAT4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - AT5" key="TOD9034ktAT5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="50 kts -> Atlantic">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - AT">
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - AT1" key="TOA1050ktAT1" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - AT2" key="TOA1050ktAT2" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - AT3" key="TOA1050ktAT3" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - AT4" key="TOA1050ktAT4" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - AT5" key="TOA1050ktAT5" indentText="false"/>
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - AT">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - AT1" key="TOA5050ktAT1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - AT2" key="TOA5050ktAT2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - AT3" key="TOA5050ktAT3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - AT4" key="TOA5050ktAT4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - AT5" key="TOA5050ktAT5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - AT">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - AT1" key="TOD5050ktAT1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - AT2" key="TOD5050ktAT2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - AT3" key="TOD5050ktAT3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - AT4" key="TOD5050ktAT4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - AT5" key="TOD5050ktAT5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - AT">
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - AT1" key="TOD9050ktAT1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - AT2" key="TOD9050ktAT2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - AT3" key="TOD9050ktAT3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - AT4" key="TOD9050ktAT4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - AT5" key="TOD9050ktAT5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="64 kts -> Atlantic">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - AT">
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - AT1" key="TOA1064ktAT1" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - AT2" key="TOA1064ktAT2" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - AT3" key="TOA1064ktAT3" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - AT4" key="TOA1064ktAT4" indentText="false"/>
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - AT5" key="TOA1064ktAT5" indentText="false"/>
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - AT">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - AT1" key="TOA5064ktAT1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - AT2" key="TOA5064ktAT2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - AT3" key="TOA5064ktAT3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - AT4" key="TOA5064ktAT4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - AT5" key="TOA5064ktAT5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - AT">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - AT1" key="TOD5064ktAT1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - AT2" key="TOD5064ktAT2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - AT3" key="TOD5064ktAT3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - AT4" key="TOD5064ktAT4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - AT5" key="TOD5064ktAT5" indentText="false" />   
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - AT">
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - AT1" key="TOD9064ktAT1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - AT2" key="TOD9064ktAT2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - AT3" key="TOD9064ktAT3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - AT4" key="TOD9064ktAT4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - AT5" key="TOD9064ktAT5" indentText="false" />         
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="34 kts -> Eastern Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - EP">
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - EP1" key="TOA1034ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - EP2" key="TOA1034ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - EP3" key="TOA1034ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - EP4" key="TOA1034ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - EP5" key="TOA1034ktEP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - EP">
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - EP1" key="TOA5034ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - EP2" key="TOA5034ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - EP3" key="TOA5034ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - EP4" key="TOA5034ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - EP5" key="TOA5034ktEP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - EP">
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - EP1" key="TOD5034ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - EP2" key="TOD5034ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - EP3" key="TOD5034ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - EP4" key="TOD5034ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - EP5" key="TOD5034ktEP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - EP">
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - EP1" key="TOD9034ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - EP2" key="TOD9034ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - EP3" key="TOD9034ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - EP4" key="TOD9034ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - EP5" key="TOD9034ktEP5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="50 kts -> Eastern Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - EP">
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - EP1" key="TOA1050ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - EP2" key="TOA1050ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - EP3" key="TOA1050ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - EP4" key="TOA1050ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - EP5" key="TOA1050ktEP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - EP">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - EP1" key="TOA5050ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - EP2" key="TOA5050ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - EP3" key="TOA5050ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - EP4" key="TOA5050ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - EP5" key="TOA5050ktEP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - EP">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - EP1" key="TOD5050ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - EP2" key="TOD5050ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - EP3" key="TOD5050ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - EP4" key="TOD5050ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - EP5" key="TOD5050ktEP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - EP">
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - EP1" key="TOD9050ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - EP2" key="TOD9050ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - EP3" key="TOD9050ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - EP4" key="TOD9050ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - EP5" key="TOD9050ktEP5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="64 kts -> Eastern Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - EP">
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - EP1" key="TOA1064ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - EP2" key="TOA1064ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - EP3" key="TOA1064ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - EP4" key="TOA1064ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - EP5" key="TOA1064ktEP5" indentText="false" />       
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - EP">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - EP1" key="TOA5064ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - EP2" key="TOA5064ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - EP3" key="TOA5064ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - EP4" key="TOA5064ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - EP5" key="TOA5064ktEP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - EP">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - EP1" key="TOD5064ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - EP2" key="TOD5064ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - EP3" key="TOD5064ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - EP4" key="TOD5064ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - EP5" key="TOD5064ktEP5" indentText="false" />   
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - EP">
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - EP1" key="TOD9064ktEP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - EP2" key="TOD9064ktEP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - EP3" key="TOD9064ktEP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - EP4" key="TOD9064ktEP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - EP5" key="TOD9064ktEP5" indentText="false" />         
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="34 kts -> Central Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - CP">
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - CP1" key="TOA1034ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - CP2" key="TOA1034ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - CP3" key="TOA1034ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - CP4" key="TOA1034ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - CP5" key="TOA1034ktCP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - CP">
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - CP1" key="TOA5034ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - CP2" key="TOA5034ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - CP3" key="TOA5034ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - CP4" key="TOA5034ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - CP5" key="TOA5034ktCP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - CP">
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - CP1" key="TOD5034ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - CP2" key="TOD5034ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - CP3" key="TOD5034ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - CP4" key="TOD5034ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - CP5" key="TOD5034ktCP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - CP">
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - CP1" key="TOD9034ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - CP2" key="TOD9034ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - CP3" key="TOD9034ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - CP4" key="TOD9034ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - CP5" key="TOD9034ktCP5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="50 kts -> Central Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - CP">
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - CP1" key="TOA1050ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - CP2" key="TOA1050ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - CP3" key="TOA1050ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - CP4" key="TOA1050ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - CP5" key="TOA1050ktCP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - CP">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - CP1" key="TOA5050ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - CP2" key="TOA5050ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - CP3" key="TOA5050ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - CP4" key="TOA5050ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - CP5" key="TOA5050ktCP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - CP">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - CP1" key="TOD5050ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - CP2" key="TOD5050ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - CP3" key="TOD5050ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - CP4" key="TOD5050ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - CP5" key="TOD5050ktCP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - CP">
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - CP1" key="TOD9050ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - CP2" key="TOD9050ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - CP3" key="TOD9050ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - CP4" key="TOD9050ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - CP5" key="TOD9050ktCP5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="64 kts -> Central Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - CP">
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - CP1" key="TOA1064ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - CP2" key="TOA1064ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - CP3" key="TOA1064ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - CP4" key="TOA1064ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - CP5" key="TOA1064ktCP5" indentText="false" />       
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - CP">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - CP1" key="TOA5064ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - CP2" key="TOA5064ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - CP3" key="TOA5064ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - CP4" key="TOA5064ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - CP5" key="TOA5064ktCP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - CP">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - CP1" key="TOD5064ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - CP2" key="TOD5064ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - CP3" key="TOD5064ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - CP4" key="TOD5064ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - CP5" key="TOD5064ktCP5" indentText="false" />   
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - CP">
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - CP1" key="TOD9064ktCP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - CP2" key="TOD9064ktCP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - CP3" key="TOD9064ktCP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - CP4" key="TOD9064ktCP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - CP5" key="TOD9064ktCP5" indentText="false" />           
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="34 kts -> Western Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - PQ">
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - PQ1" key="TOA1034ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - PQ2" key="TOA1034ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - PQ3" key="TOA1034ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - PQ4" key="TOA1034ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Earliest Reasonable Arrival Time - PQ5" key="TOA1034ktWP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - PQ">
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - PQ1" key="TOA5034ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - PQ2" key="TOA5034ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - PQ3" key="TOA5034ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - PQ4" key="TOA5034ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Arrival Time - PQ5" key="TOA5034ktWP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - PQ">
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - PQ1" key="TOD5034ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - PQ2" key="TOD5034ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - PQ3" key="TOD5034ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - PQ4" key="TOD5034ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Most Likely Departure Time - PQ5" key="TOD5034ktWP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - PQ">
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - PQ1" key="TOD9034ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - PQ2" key="TOD9034ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - PQ3" key="TOD9034ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - PQ4" key="TOD9034ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="34 kts Latest Reasonable Departure Time - PQ5" key="TOD9034ktWP5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="50 kts -> Western Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - PQ">
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - PQ1" key="TOA1050ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - PQ2" key="TOA1050ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - PQ3" key="TOA1050ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - PQ4" key="TOA1050ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Earliest Reasonable Arrival Time - PQ5" key="TOA1050ktWP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - PQ">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - PQ1" key="TOA5050ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - PQ2" key="TOA5050ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - PQ3" key="TOA5050ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - PQ4" key="TOA5050ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Arrival Time - PQ5" key="TOA5050ktWP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - PQ">
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - PQ1" key="TOD5050ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - PQ2" key="TOD5050ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - PQ3" key="TOD5050ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - PQ4" key="TOD5050ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Most Likely Departure Time - PQ5" key="TOD5050ktWP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - PQ">
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - PQ1" key="TOD9050ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - PQ2" key="TOD9050ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - PQ3" key="TOD9050ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - PQ4" key="TOD9050ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="50 kts Latest Reasonable Departure Time - PQ5" key="TOD9050ktWP5" indentText="false" />
+    </contribute>
+</contribute>
+<contribute xsi:type="toolbarSubMenu" menuText="64 kts -> Western Pacific">
+    <contribute xsi:type="toolbarSubMenu" menuText="Earliest Reasonable Arrival Time - PQ">
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - PQ1" key="TOA1064ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - PQ2" key="TOA1064ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - PQ3" key="TOA1064ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - PQ4" key="TOA1064ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Earliest Reasonable Arrival Time - PQ5" key="TOA1064ktWP5" indentText="false" />       
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Arrival Time - PQ">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - PQ1" key="TOA5064ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - PQ2" key="TOA5064ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - PQ3" key="TOA5064ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - PQ4" key="TOA5064ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Arrival Time - PQ5" key="TOA5064ktWP5" indentText="false" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Most Likely Departure Time - PQ">
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - PQ1" key="TOD5064ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - PQ2" key="TOD5064ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - PQ3" key="TOD5064ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - PQ4" key="TOD5064ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Most Likely Departure Time - PQ5" key="TOD5064ktWP5" indentText="false" />   
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Latest Reasonable Departure Time - PQ">
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - PQ1" key="TOD9064ktWP1" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - PQ2" key="TOD9064ktWP2" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - PQ3" key="TOD9064ktWP3" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - PQ4" key="TOD9064ktWP4" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="64 kts Latest Reasonable Departure Time - PQ5" key="TOD9064ktWP5" indentText="false" />
+    </contribute>
+</contribute>
+</contribute>
+</menuTemplate>

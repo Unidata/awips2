@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cwa Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.cwa
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Export-Package: com.raytheon.uf.common.dataplugin.cwa
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata,
+ org.geotools,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

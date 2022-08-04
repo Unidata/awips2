@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cpg Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.monitor.cpg
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.common.monitor.cpg
+Require-Bundle: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ javax.xml.bind

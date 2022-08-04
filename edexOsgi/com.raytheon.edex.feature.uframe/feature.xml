@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<feature
+      id="com.raytheon.edex.feature.uframe"
+      label="Uframe Feature"
+      version="1.0.0"
+      provider-name="RAYTHEON">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <includes
+         id="com.raytheon.uf.common.base.feature"
+         version="0.0.0"/>
+  
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.commons.management.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.camel.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.dom4j.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.eclipse.jetty.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.javax.servlet.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.shiro.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.javax.mail.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.javax.media.opengl.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.activemq.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.commons.validator.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.objectweb.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.itadaki.bzip2.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.com.sun.jna.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.commons.cli.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.commons.ssl.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.opensaml.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.joda.time.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.xalan.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.xml.serializer.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.ws.commons.schema.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.xml.security.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.commons.net.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.jfreechart.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.jasypt.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.ws.security.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.edu.mit.ll.netcdf.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.com.beust.jcommander.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.com.google.protobuf.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.ucar.nc2.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.net.opengis.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.net.opengis_v2.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.w3.xmlschema.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.ogc.tools.gml.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.net.dods.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.org.apache.commons.compress.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.foss.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.base.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.common.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.dataplugins.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.alertviz.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.bufr.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.grid.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.archive.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.warning.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.text.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.aviation.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.satellite.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.gfe.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.hydro.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.radar.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.dat.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.ncep.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.npp.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.registry.client.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.registry.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.remote.script.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.config.auto.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.mpe.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.menus.vb.feature"
+         version="0.0.0"/>
+
+</feature>

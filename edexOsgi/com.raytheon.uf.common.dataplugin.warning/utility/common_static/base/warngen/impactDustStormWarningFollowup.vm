@@ -1,0 +1,474 @@
+###########################################################################################
+## DUST STORM WARNING FOLLOWUP                                                           ##
+###########################################################################################
+## BASED OFF SNOW SQUALL FOLLOW UP - EVAN B.                                             ##
+## PRODUCT HISTORY                                                                       ##
+##    WG TEAM (Tomalak/Bookbinder/Birchard/Dangelo  2-1-2017  First Go Around; DCS20066  ##
+##    E. Bookbinder   01-30-2019 DR20914 Fix format error caused when no highway         ##
+##                               mile markers are found                                  ##
+###########################################################################################
+##
+##
+#parse("config.vm")
+#############################################################
+## SET INITIAL VARIABLES
+#############################################################
+#set($source = "Doppler radar.")
+#set($reportAuthDSW = "capable of producing")
+
+#############################################################
+#### CREATE BASIS WORDING ###################################
+#############################################################
+#if(${list.contains(${bullets}, "meteorologists")})
+  #set($reportAuthDSW = "capable of producing")
+  #set($source = "Detected by National Weather Service meteorologists.")
+#end
+#if(${list.contains(${bullets}, "doppler")})
+  #set($reportAuthDSW = "capable of producing")
+  #set($source = "Doppler radar.")
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Trained weather spotters.")
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Law enforcement.")
+#end
+#if(${list.contains(${bullets}, "emergencyMgmt")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Emergency Management.")
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set($reportAuthDSW = "producing") 
+  #set($source = "Public.")
+#end
+###################################################
+## SET INITIAL WORDING        #####################
+###################################################
+#set($hazard = "!** You did not select a hazard from the WarnGen GUI. Please regenerate this warning **!")
+#set($impact = "Dangerous life-threatening travel.") 
+#set($duststormimpact = "Dangerous life-threatening travel.")
+#set($expcanHLTag = "")
+#set($expcanBODYTag = "")
+###################################################
+## HANDLE VISIBILITY POSSIBILITIES ################
+###################################################
+#set($vsbyLead = "")
+#set($vsbyDist = 0) 
+#set($vsbyTag = "")
+#set($vsbyHazard = "Less than one quarter mile")
+#set($vsbyDist = 100)
+#if(${list.contains(${bullets}, "qtrVis")})
+  #set($vsbyLead = "")
+  #set($vsbyDist = 0.25) 
+  #set($vsbyTag = "0.25MI")
+  #set($vsbyHazard = "Less than one quarter mile visibility")
+#end
+#if(${list.contains(${bullets}, "zeroVis")})
+  #set($vsbyLead = "")
+  #set($vsbyDist = 0.0) 
+  #set($vsbyTag = "0.0MI")
+  #set($vsbyHazard = "Near zero visibility")
+#end
+###################################################
+########### HANDLE WIND POSSIBILITIES #############
+###################################################
+#set($windSpeed = 0)
+#set($windTag = "")
+#set($windHazard = "")
+#if(${list.contains(${bullets}, "40mphWind")})
+  #set($windSpeed = 40)
+  #set($windTag = "40MPH")
+  #set($windHazard = " with strong wind in excess of 40 mph")
+#end
+#if(${list.contains(${bullets}, "50mphWind")})
+  #set($windSpeed = 50)
+  #set($windTag = "50MPH")
+  #set($windHazard = " with strong wind in excess of 50 mph")  
+#end
+#if(${list.contains(${bullets}, "60mphWind")})
+  #set($windSpeed = 60)
+  #set($windTag = "60MPH")
+  #set($windHazard = " with damaging wind in excess of 60 mph")
+#end
+#set($hazard = "${vsbyHazard}${windHazard}.") 
+
+
+######################################
+### CREATE WMO/MND HEADER ############
+######################################
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+${productId}${siteId}
+
+#if(${productClass}=="T")
+TEST...Dust Storm Warning...TEST
+#else
+Dust Storm Warning
+#end
+National Weather Service ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${action}=="COR" && ${cancelareas})
+#set($CORCAN = "true")
+#else
+#set($CORCAN = "false")
+#end
+#if(${action}=="CANCON")
+${ugclinecan}
+/${productClass}.CAN.${vtecOffice}.DS.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
+#foreach (${area} in ${cancelareas})
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+#elseif(${CORCAN}=="true")
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.DS.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
+#foreach (${area} in ${cancelareas})
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+#else
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.DS.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
+#foreach (${area} in ${areas})
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#######################################
+###### END CREATE HEADER ##############
+#######################################
+
+#################################################################
+#################################################################
+## LETS START WITH EXPIRATION AND CANCELLATION SEGMENTS     #####
+#################################################################
+#################################################################
+### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
+#if(${now.compareTo(${expire})} >= 0 && ${action}=="EXP" )
+  #set($expcanHLTag = "HAS EXPIRED")
+  #set($expcanBODYTag = "has been allowed to expire")
+#elseif(${action}=="EXP")
+  #set($expcanHLTag = "WILL EXPIRE AT #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})")
+  #set($expcanBODYTag = "will be allowed to expire")
+#elseif(${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
+  #set($expcanHLTag = "IS CANCELLED")
+  #set($expcanBODYTag = "has been cancelled")
+#end
+################################
+#### CREATE HEADLINES ##########
+################################
+##
+#if(${action}=="EXP" || ${action}=="CAN")
+...THE DUST STORM WARNING FOR ##
+#headlineLocList(${areas} true true true false "ALL") ${expcanHLTag}...
+## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
+#elseif(${action}=="CANCON" || ${CORCAN}=="true")
+...THE DUST STORM WARNING FOR ##
+#headlineLocList(${cancelareas} true true true false "ALL") ${expcanHLTag}...
+###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
+###headlineLocList(${cancelaffectedCounties} true true true false "ALL") ${expcanHLTag}...
+#end
+#########################################
+## END CAN/EXP HEADLINE #################
+#########################################
+## NOW LETS FORGE OUR CAN/EXP STATEMENTS#
+#########################################
+#if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
+#### SET A DEFAULT STATEMENT IN CASE NO BULLET WAS SELECTED OR AVAILABLE
+#set($expcanPhrase = "The dust storm which prompted the warning has !** weakened. moved out of the warned area.**! Therefore, the dust storm warning ${expcanBODYTag}.")
+#### WEAKENED BELOW SEVERE LIMITS
+#if(${list.contains(${bullets}, "weakened")})
+  #set($expcanPhrase = "The dust storm which prompted the warning has weakened. Therefore, the dust storm warning ${expcanBODYTag}.")
+#end
+#### MOVED OUT OF THE WARNED AREA
+#if(${list.contains(${bullets}, "movedout")})
+  #set($expcanPhrase = "The dust storm which prompted the warning has exited the area. Therefore, the dust storm warning ${expcanBODYTag}.")
+#end
+#### WEAKENED AND MOVED OUT OF THE AREA
+#if(${list.contains(${bullets}, "wkndandmoved")})
+  #set($expcanPhrase = "The dust storm which prompted the warning has weakened and exited the area. Therefore, the dust storm warning ${expcanBODYTag}.")
+#end
+########################################
+## END OF WARNING THREATS SECTION ######
+########################################
+### SET INITIAL VARIABLES ####
+##Blowing Dust/Sand still a threat
+#set($blowingdustcheck = 0)
+#set($lowvsbycheck = 0)
+#if(${list.contains(${bullets}, "stillblowingdust")})
+ #set($blowingdustcheck = 1)
+#end
+##Low Visibilities still a threat
+#if(${list.contains(${bullets}, "stilllowvsby")})
+ #set($lowvsbycheck = 1)
+#end
+
+#########################################
+## FORMULATE PHRASEOLOGY
+#########################################
+#set($addthreat = "")
+#if(${blowingdustcheck} == "1" && ${lowvsbycheck} == "0")
+ #set($addthreat = "Areas of blowing dust will continue to make travel difficult.")
+#elseif(${blowingdustcheck} == "0" && ${lowvsbycheck} == "1")
+ #set($addthreat = "Areas of blowing dust may continue to produce low visibility at times.")
+#elseif(${blowingdustcheck} == "1" && ${lowvsbycheck} == "1" )
+ #set($addthreat = "Areas of blowing dust with low visibility will continue at times.")
+#end
+
+${expcanPhrase} ${addthreat}
+
+#printcoords(${areaPoly}, ${list})
+
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
+
+$$
+##
+#end
+##
+###################################################
+##### END CANCELLATION/EXPIRATION SECTION #########
+###################################################
+
+#################################################
+##################################################
+## NOW LET'S DO OUR CONTINUATION SEGMENT     #####
+##################################################
+##################################################
+####
+#### IF PARTIAL CANCELLATION, INSERT $$ AND 2ND UGC/MND SECTION PRIOR TO CON PORTION
+####
+#if(${action}=="CANCON")
+
+
+${ugcline}
+/${productClass}.CON.${vtecOffice}.DS.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
+#foreach (${area} in ${areas}) 
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#elseif(${CORCAN}=="true")
+
+
+${ugcline}
+/${productClass}.COR.${vtecOffice}.DS.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
+#foreach (${area} in ${areas}) 
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#end
+#if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
+...A DUST STORM WARNING REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#headlineLocList(${areas} true true true false "ALL")...
+
+####################################################
+############# THIRD BULLET (Initial position) ######
+####################################################
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#if(${stormType} == "line")
+  #set($reportType3 = "a wall of dust was")
+#else
+  #set($reportType3 = "a dust channel was")
+#end
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+, ${reportType3} ##
+##Many of the variables passed below are controlled by config.vm
+#if(${stormType} == "line")
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#else
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+, and is nearly stationary. 
+#else
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.
+#end
+
+##########################################################################
+## Section to include the IBW info                                      ##
+##########################################################################
+
+#wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 2 11)
+
+#wrapText("SOURCE...#capitalize(${source} 'FIRST')" 2 11)
+
+#wrapText("IMPACT...${duststormimpact}" 2 11)
+
+#######################################
+########## BEGIN 4TH BULLET ###########
+#######################################
+#set($mileMarkers = "")
+#set($mileMarkers = "#parse('mileMarkers.vm')")
+#if(${mileMarkers.length()} <= 10) 
+!**ENTER IN ANY AFFECTED ROAD/HIGHWAY INFORMATION**!
+
+#else
+$mileMarkers
+
+#end
+
+###################################################
+######## GENERATE PATHCAST OR CITIES LIST #########
+###################################################
+#if(${stormType} == "line")
+#set($pathcastLead = "This dust channel")
+#set($otherLead = "this dust channel")
+#else 
+#set($pathcastLead = "This dust channel")
+#set($otherLead = "this dust channel")
+#end
+#if(${list.contains(${bullets}, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("#capitalize(${pathcastLead} 'FIRSTONLY') will be near..." ${otherLead} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#elseif(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+##################################################################################################
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+##################################################################################################
+#locationsList("Locations impacted include..." ${otherLead} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+Locations impacted include... 
+  !** YOU DID NOT SELECT A PATHCAST OR LIST OF CITIES BULLET. PLEASE ENTER LOCATIONS IMPACTED **!.
+
+#end
+
+##############################################
+###### SPECIAL VENUE/EVENT CASE ##############
+##############################################
+#if(${list.contains(${bullets}, "specialEvent")})
+#if(${stormType} == "line")
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this wall of dust and should prepare for hazardous weather conditions.
+
+#else
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this dust channel and should prepare for hazardous weather conditions.
+
+#end
+#end
+
+############################################################################
+############################# CALLS TO ACTION ##############################
+############################################################################
+##Check to see if we've selected any calls to action. In our .xml file
+##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+
+#if(${stormType} == "line")
+  #set($reportType4 = "this wall of dust")
+#else
+  #set($reportType4 = "this dust channel")
+#end
+
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+###############################################################################
+################################### CTAs ######################################
+###############################################################################
+#if(${list.contains(${bullets}, "healthCTA")})
+Dust storms are unhealthy and have been known to lead to Valley Fever. Avoid outdoor exposure.
+
+#end
+##
+#if(${list.contains(${bullets}, "genericCTA")})
+Dust storms lead to dangerous driving conditions with visibility reduced to near zero. If driving, avoid dust storms if possible. If caught in one, then pull off the road, turn off your lights and keep your foot off the brake.
+
+#end
+##
+#if(${list.contains(${bullets}, "motoristCTA")})
+Motorists should not drive into a dust storm. PULL ASIDE STAY ALIVE!
+
+#end
+##
+#if(${list.contains(${bullets}, "lawEnforcementCTA")})
+To report severe weather, contact the National Weather Service, or your nearest law enforcement agency, who will relay your report to the National Weather Service office in ${officeLoc}.
+
+#end
+##
+#if(${list.contains($bullets, "dangerousTravelCTA")})
+There is no safe place on a highway when a dust storm hits. Visibility can be lost immediately, making it difficult or impossible to slow down and avoid stopped vehicles. Delay travel, or safely exit the highway before the dust storm arrives.
+
+#end
+##
+#if(${list.contains(${bullets}, "boatersCTA")})
+If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 15 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
+
+#end
+##
+#if(${list.contains(${bullets}, "ThunderstormCTA")})
+Strong to severe thunderstorms are also possible behind ${reportType4}. Keep updated with this quickly evolving situation.
+
+#end
+##
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
+
+$$
+#end
+
+#parse("forecasterName.vm")
