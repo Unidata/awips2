@@ -1046,6 +1046,7 @@
 0000000000|K1V6 | 38.4284|-105.106| 1659|Fremont Cnty AP, Canon City, CO    |US|MTR
 0000074004|K1Y7 | 32.85 |-114.40 |   98|Yuma Proving Ground, AZ             |US|MTR
 0000000000|K1YT | 46.6667|-120.45| 438|Vagabond Army Airfield, Yakima, WA   |US|MTR
+0000000000|K2G2 | 40.36061|-80.70169| 365|Jefferson Cnty AP, Steubenville, OH|US|MTR
 0000000000|K2G9 | 40.03887|-79.01500| 693|Somerset Cnty AP, Somerset, PA    |US|MTR
 0000000000|K2J3 | 32.98594|-82.38481| 100|Louisville Muni AP, Louisville, GA|US|MTR
 0000000000|K2J5 | 32.89303|-81.96522| 73|Millen AP, Millen, GA              |US|MTR

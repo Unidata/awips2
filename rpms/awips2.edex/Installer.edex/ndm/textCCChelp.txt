@@ -398,6 +398,7 @@
 2C8 Cavalier Muni, Cavalier, ND
 2D5 Oakes Muni, Oakes, ND
 2DP Stumpy Point, NC
+2G2 Jefferson Cnty AP, Steubenville, OH
 2G9 Somerset Cnty AP, Somerset, PA
 2G4 Garrett Cnty AP, Oakland, MD
 2G6 Meadville, PA
