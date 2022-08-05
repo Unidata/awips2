@@ -111,6 +111,10 @@
         </antcall>
         <antcall target="build">
             <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.owasp.esapi.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
                 value="com.raytheon.uf.edex.foss.org.apache.commons.ssl.feature" />
         </antcall>
         <antcall target="build">
@@ -311,7 +315,7 @@
         </antcall>
         <!-- SPECIAL CASE -->
         <if>
-            <equals arg1="${lightning}" arg2="true" />
+            <equals arg1="${lightning}" arg2="false" />
             <then>
                 <antcall target="build">
                     <param name="feature"
