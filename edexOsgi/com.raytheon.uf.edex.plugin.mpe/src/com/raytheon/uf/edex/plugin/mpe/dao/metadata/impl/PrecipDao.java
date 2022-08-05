@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------ ---------- ----------- --------------------------
  * Sep 19, 2017 6407       bkowal      Initial creation
  * Sep 23, 2021 8608       mapeters    Add metadata id handling
+ * Jun 22, 2022 8865       mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -66,15 +67,16 @@ public class PrecipDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         PrecipRecord precipRecord = (PrecipRecord) obj;
         IDataRecord dataRecord = (IDataRecord) precipRecord.getMessageData();
         if (dataRecord != null) {
             dataStore.addDataRecord(dataRecord,
                     new DataUriMetadataIdentifier(precipRecord));
+            return true;
         }
-        return dataStore;
+        return false;
     }
 
     public List<Date> getPrecipInventory(final PrecipField precipField)

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 # ----------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 # May 23, 2013  1759     dgilling  Remove unnecessary imports.
 # Jun 13, 2013  2044     randerso  Updated for changes to TopoDatabaseManager
 # Jul 25, 2013  2233     randerso  Improved memory utilization and performance
-# Aug 09, 2013  1571     randerso  Changed projections to use the Java             
+# Aug 09, 2013  1571     randerso  Changed projections to use the Java
 #                                  ProjectionType enumeration
 # Sep 20, 2013  2405     dgilling  Clip grids before inserting into cache.
 # Oct 22, 2013  2405     rjpeter   Remove WECache and store directly to cube.
@@ -44,27 +44,32 @@
 # Aug 06, 2015  4718     dgilling  Optimize casting when using where with
 #                                  NumPy 1.9.
 # Apr 07, 2016  5539     randerso  Reversed order of parameters/return value in
-#                                  collapseKey 
-#                                  to match order of Wx/Discrete tuple 
+#                                  collapseKey
+#                                  to match order of Wx/Discrete tuple
 # May 27, 2016  19014    ryu       Fix rounding issue causing Td to be greater
 #                                  than T in output netCDF file.
 # Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
 #                                  which was largely redundant with IFPServer.
 # Oct 31, 2016  5979     njensen   Cast to primitives for compatibility
 # Nov 21, 2016  5959     njensen   Removed unused imports and made more pythonic
-# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls
 # Jul 31, 2017  6342     randerso  Removed unused imports. Fixed long standing
 #                                  bug in extremaOfSetBits when mask does not overlap grid
 # Jan 15, 2018  6867     dgilling  Add exception handler to ensure no NetCDFFile objects
 #                                  are left open.
 # Feb 15, 2018  6659     dgilling  Allow user level sampling definition files to be used.
-# Jan 10, 2019  21059    ryu       Convert boolean variable attribute to int type (Jep 
+# Jan 10, 2019  21059    ryu       Convert boolean variable attribute to int type (Jep
 #                                  returned Java booean as int to python prior to v3.7.)
 # May 03, 2019  7842     dgilling  Update to use library netcdf4-python.
-# Sep 05, 2019  7842     randerso  Fix error handling issue exposed by not having netcdf4 
+# Sep 05, 2019  7842     randerso  Fix error handling issue exposed by not having netcdf4
 #                                  in sharedmodules.txt
-# Jan 20, 2022  8749     dgilling  Optimize attribute storage, 
-#                                  add additional logging to track performance. 
+# Jan 20, 2022  8749     dgilling  Optimize attribute storage,
+#                                  add additional logging to track performance.
+# Apr 27, 2022  8852     dgilling  Fix store*WE functions to ensure WE inventory and grid
+#                                  cube sizes remain in sync.
+# May 19, 2022  8749     randerso  Add projection attributes back in for Topo
+#                                  and lat/lon grids. Renamed storeProjectionAttributes
+#                                  to getProjectionAttributes since it no longer stores.
 #
 ##
 
@@ -72,55 +77,58 @@
 # This is a base file that is not intended to be overridden.
 ##
 
-
 import calendar
 from collections import OrderedDict
 import gzip
 import itertools
 import logging
-import numpy
-import netCDF4
 import os
 import shutil
 import stat
 import time
 import traceback
 
-import iscUtil
+import netCDF4
+import numpy
+
 import JUtil
-
-from java.util import ArrayList
-from org.locationtech.jts.geom import Coordinate
-from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
-ProjectionType = ProjectionData.ProjectionType
-from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
 from com.raytheon.edex.plugin.gfe.server import IFPServer
+from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
+from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
+from com.raytheon.uf.common.localization import LocalizationContext
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext 
-LocalizationType = LocalizationContext.LocalizationType 
-LocalizationLevel = LocalizationContext.LocalizationLevel
+import iscUtil
+from org.locationtech.jts.geom import Coordinate
 
+ProjectionType = ProjectionData.ProjectionType
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 
 # Original A1 BATCH WRITE COUNT was 10, we found doubling that
 # lead to a significant performance increase.
-BATCH_WRITE_COUNT = 20 
+BATCH_WRITE_COUNT = 20
 BATCH_DELAY = 0.0
-ifpNetcdfLogger=None
+ifpNetcdfLogger = None
+
 
 ## Logging methods ##
 def initLogger(logFile=None):
     global ifpNetcdfLogger
     ifpNetcdfLogger = iscUtil.getLogger("ifpnetCDF", logFile, logLevel=logging.INFO)
 
+
 def logEvent(*msg):
     ifpNetcdfLogger.info(iscUtil.tupleToString(*msg))
+
 
 def logProblem(*msg):
     ifpNetcdfLogger.error(iscUtil.tupleToString(*msg))
 
+
 def logException(*msg):
-    ifpNetcdfLogger.exception(iscUtil.tupleToString(*msg))    
+    ifpNetcdfLogger.exception(iscUtil.tupleToString(*msg))
+
 
 def logVerbose(*msg):
     ifpNetcdfLogger.debug(iscUtil.tupleToString(*msg))
@@ -130,7 +138,7 @@ def logDebug(*msg):
 
 
 def retrieveData(we, inv, clipArea):
-    lst = list(inv)
+    lst = list(inv.keys())
     histDict = OrderedDict()
     cube = None
     keyList = None
@@ -140,27 +148,23 @@ def retrieveData(we, inv, clipArea):
     clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
     gridCount = len(inv)
     logDebug(f"retrieveData(): ParmID [{we.getParmid().getParmId()}], gridCount {gridCount}")
-    
     t0 = time.perf_counter()
     if gridType == "SCALAR":
         cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
     elif gridType == "VECTOR":
-        magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
-        dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+        magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
+        dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
         cube = (magCube, dirCube)
     elif gridType == "WEATHER" or gridType == "DISCRETE":
         cube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.int8)
         keyList = []
     t1 = time.perf_counter()
     logDebug(f"retrieveData(): Time to create cube: {t1-t0}")
-    
     t0 = time.perf_counter()
     cubeIdx = 0
     while len(lst):
         i = lst[:BATCH_WRITE_COUNT]
-        javaTRs = ArrayList()
-        for tr in i:
-            javaTRs.add(iscUtil.toJavaTimeRange(tr))
+        javaTRs = [iscUtil.toJavaTimeRange(tr) for tr in i]
         t1 = time.perf_counter()
         gridsAndHist = we.get(javaTRs, True)
         t2 = time.perf_counter()
@@ -182,9 +186,12 @@ def retrieveData(we, inv, clipArea):
 
     if len(histDict) != gridCount:
         t0 = time.perf_counter()
-    
+
         # retrieved less grids than originally expected, purge ran?
         gridCount = len(histDict)
+        timesToRemove = set(inv.keys()) - set(histDict.keys())
+        for tr in timesToRemove:
+            del inv[tr]
 
         if gridType == "SCALAR":
             oldCube = cube
@@ -193,9 +200,9 @@ def retrieveData(we, inv, clipArea):
                 cube[idx] = oldCube[idx]
         elif gridType == "VECTOR":
             oldMagCube = magCube
-            magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+            magCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
             oldDirCube = dirCube
-            dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]),dtype=numpy.float32)
+            dirCube = numpy.empty(shape=(gridCount, clipSize[1], clipSize[0]), dtype=numpy.float32)
             cube = (magCube, dirCube)
             for idx in range(gridCount):
                 magCube[idx] = oldMagCube[idx]
@@ -209,9 +216,10 @@ def retrieveData(we, inv, clipArea):
         logDebug(f"retrieveData(): Time to resolve purged grids: {t1-t0}")
     return (cube, histDict, keyList)
 
+
 ###-------------------------------------------------------------------------###
 ### cube and keyList are out parameters to be filled by this method, idx is the index into cube to use
-def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):    
+def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):
     if gridType == "SCALAR":
         cube[idx] = clipToExtrema(grid.getNDArray(), clipArea)
     elif gridType == "VECTOR":
@@ -225,7 +233,8 @@ def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):
         for theKey in keys:
             gridKeys.append(str(theKey))
         keyList.append(gridKeys)
-        cube[idx]= clipToExtrema(grid.getNDArray(), clipArea)
+        cube[idx] = clipToExtrema(grid.getNDArray(), clipArea)
+
 
 def encodeGridHistory(histories):
     retVal = []
@@ -295,7 +304,7 @@ def getIntTime(timeStr):
         timeTuple = time.strptime(timeStr, "%Y%m%d_%H%M")
     except:
         logProblem(timeStr, \
-          "is not a valid time string.  Use YYYYMMDD_HHMM",traceback.format_exc())
+          "is not a valid time string.  Use YYYYMMDD_HHMM", traceback.format_exc())
         s = timeStr + " is not a valid time string.  Use YYYYMMDD_HHMM"
         raise SyntaxError(s)
     return calendar.timegm(timeTuple)
@@ -317,26 +326,28 @@ def makeTimeRange(startString, endString):
 def timeRangeAsString(tr):
     "Prints timeRange in YYYYMMDD_HHMM format"
     return time.strftime("%Y%m%d_%H%M", time.gmtime(tr[0])) + " --- " \
- + time.strftime("%Y%m%d_%H%M", time.gmtime(tr[1]))
+ +time.strftime("%Y%m%d_%H%M", time.gmtime(tr[1]))
+
 
 ###-------------------------------------------------------------------------###
 def extremaOfSetBits(mask):
     "Returns tuple of extrema of set bits (minx,maxx, miny,maxy)"
     nz = numpy.nonzero(mask)
-    
+
     minx = miny = 0
     maxx = mask.shape[1] - 1
     maxy = mask.shape[0] - 1
-    
+
     if nz[1].any():
        minx = nz[1].min()
        maxx = nz[1].max()
-    
+
     if nz[0].any():
        miny = nz[0].min()
        maxy = nz[0].max()
-        
+
     return (minx, maxx, miny, maxy)
+
 
 ###------------------------------------------------------------------------###
 def clipToExtrema(grid, clipArea):
@@ -361,7 +372,6 @@ def getDims(cdfFile, dimSizes, dimNames):
     dimNames = list(dimNames)
     actDimNames = []
     existingDimList = list(cdfFile.dimensions.keys())
-    
     for x in range(len(dimList)):
         dimName = "DIM_" + str(dimSizes[x])
         actDimNames.append(dimName)
@@ -377,18 +387,19 @@ def getMaskGrid(ifpServer, editAreaName, dbId):
     domain = ifpServer.getConfig().dbDomain()
     mask = numpy.ones((int(domain.getNy()), int(domain.getNx())), dtype=numpy.bool)
 
-    if editAreaName == "": 
+    if editAreaName == "":
         return mask
-    
+
     # get the edit area
     try:
         mask = iscUtil.getEditArea(editAreaName, DatabaseID(dbId).getSiteId())
         mask.setGloc(domain)
         mask = mask.getGrid().getNDArray().astype(numpy.bool)
     except:
-        logProblem("Edit area:", editAreaName, "not found. Storing entire grid.",traceback.format_exc())
+        logProblem("Edit area:", editAreaName, "not found. Storing entire grid.", traceback.format_exc())
 
     return mask
+
 
 ###-------------------------------------------------------------------------###
 def storeLatLonGrids(ifpServer, cdfFile, krunch, clipArea):
@@ -397,7 +408,6 @@ def storeLatLonGrids(ifpServer, cdfFile, krunch, clipArea):
     pDict = gridLoc.getProjection()
 
     latLonGrid = gridLoc.getLatLonGrid()
-    
     latLonGrid = numpy.reshape(latLonGrid, (2, int(gridLoc.getNy()), int(gridLoc.getNx())), order='F')
 
     # clip them
@@ -417,71 +427,87 @@ def storeLatLonGrids(ifpServer, cdfFile, krunch, clipArea):
 
     dims = getDims(cdfFile, latGrid.shape, ("y", "x"))
 
-
     # store latitude grid
+    attrs = {}
     if krunch:
         latVar = cdfFile.createVariable("latitude", 'h', dims)
         latGrid = (latGrid * 100).astype(numpy.int16)
         latVar[:] = latGrid
-        latVar.dataMultiplier = 0.01
-        latVar.dataOffset = 0
+        attrs["dataMultiplier"] = 0.01
+        attrs["dataOffset"] = 0
     else:
         latVar = cdfFile.createVariable("latitude", 'f', dims)
         latVar[:] = latGrid
- 
+
     # make the netCDF attributes
     # Descriptive Name
-    latVar.descriptiveName = "latitude"
+    attrs["descriptiveName"] = "latitude"
 
     # coordinate information
     origGridSize = Coordinate(float(gridLoc.getNx()), float(gridLoc.getNy()))
     origOrigin = gridLoc.getOrigin()
     origExtent = gridLoc.getExtent()
-    
     cellSize = (origExtent.x / (origGridSize.x - 1),
                 origExtent.y / (origGridSize.y - 1))
     clippedExtent = (cellSize[0] * (clipSize[0] - 1),
       cellSize[1] * (clipSize[1] - 1))
-    domainOffset = (clipArea[0] * cellSize[0], (origGridSize.y - clipArea[3]-1) * cellSize[1])
-    
+    domainOffset = (clipArea[0] * cellSize[0], (origGridSize.y - clipArea[3] - 1) * cellSize[1])
+
     clippedOrigin = (origOrigin.x + domainOffset[0] ,
                      origOrigin.y + domainOffset[1])
 
     # gridSize, domain origin/extent
-    latVar.gridSize = clipSize
-    latVar.domainOrigin = clippedOrigin
-    latVar.domainExtent = clippedExtent
+    attrs["gridSize"] = clipSize
+    attrs["domainOrigin"] = clippedOrigin
+    attrs["domainExtent"] = clippedExtent
 
     #units
-    latVar.units = "degrees"
+    attrs["units"] = "degrees"
     # projection info - store whatever is in the dictionary
-    storeProjectionAttributes(latVar, pDict)
+    t0 = time.perf_counter()
+    projectionAttrs = getProjectionAttributes(pDict)
+    t1 = time.perf_counter()
+    logDebug(f"storeLatLonGrids(): calc projection attributes: {t1-t0}")
+
+    attrs.update(projectionAttrs)
+    t0 = time.perf_counter()
+    latVar.setncatts(attrs)
+    t1 = time.perf_counter()
+    logDebug(f"storeLatLonGrids(): call Variable.setncatts(): {t1-t0}")
 
     #  store longitude grid
+    attrs = {}
     if krunch:
         lonVar = cdfFile.createVariable("longitude", 'h', dims)
         lonGrid = (lonGrid * 100).astype(numpy.int16)
         lonVar[:] = lonGrid
-        lonVar.dataMultiplier = 0.01
-        lonVar.dataOffset = 0
+        attrs["dataMultiplier"] = 0.01
+        attrs["dataOffset"] = 0
     else:
         lonVar = cdfFile.createVariable("longitude", 'f', dims)
         lonVar[:] = lonGrid
 
     # Descriptive Name
-    lonVar.descriptiveName = "longitude"
+    attrs["descriptiveName"] = "longitude"
 
     # gridSize, domain origin/extent
-    lonVar.gridSize = clipSize
-    lonVar.domainOrigin = clippedOrigin
-    lonVar.domainExtent = clippedExtent 
+    attrs["gridSize"] = clipSize
+    attrs["domainOrigin"] = clippedOrigin
+    attrs["domainExtent"] = clippedExtent
 
     #units
-    lonVar.units = "degrees"
+    attrs["units"] = "degrees"
+
     # projection info - store whatever is in the dictionary
-    storeProjectionAttributes(lonVar, pDict)
+    attrs.update(projectionAttrs)
+
+    t0 = time.perf_counter()
+    lonVar.setncatts(attrs)
+    t1 = time.perf_counter()
+    logDebug(f"storeLatLonGrids(): call Variable.setncatts(): {t1-t0}")
 
     logEvent("Saved Latitude/Longitude Grid")
+
 
 ###-------------------------------------------------------------------------###
 def storeTopoGrid(ifpServer, cdfFile, clipArea):
@@ -495,7 +521,6 @@ def storeTopoGrid(ifpServer, cdfFile, clipArea):
     topoGrid = ifpServer.getTopoData(gridLoc).getPayload().getNDArray()
     topoGrid = clipToExtrema(topoGrid, clipArea)
     topoGrid = numpy.flipud(topoGrid)
-    
     # clipped size
     clipGridSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
 
@@ -514,59 +539,68 @@ def storeTopoGrid(ifpServer, cdfFile, clipArea):
 
     # make the netCDF attributes
     # Descriptive Name
-    var.descriptiveName = "Topography"
+    attrs = {}
+    attrs["descriptiveName"] = "Topography"
 
     # coordinate information
     origGridSize = Coordinate(float(str(gridLoc.getNx())), float(str(gridLoc.getNy())))
     origOrigin = gridLoc.getOrigin()
     origExtent = gridLoc.getExtent()
-    
     cellSize = (origExtent.x / (origGridSize.x - 1),
                 origExtent.y / (origGridSize.y - 1))
     clippedExtent = (cellSize[0] * (clipGridSize[0] - 1),
       cellSize[1] * (clipGridSize[1] - 1))
-    domainOffset = (clipArea[0] * cellSize[0], (origGridSize.y - clipArea[3]-1) * cellSize[1])
-    
+    domainOffset = (clipArea[0] * cellSize[0], (origGridSize.y - clipArea[3] - 1) * cellSize[1])
+
     clippedOrigin = (origOrigin.x + domainOffset[0] ,
                      origOrigin.y + domainOffset[1])
 
     # gridSize
-    var.gridSize = clipGridSize
+    attrs["gridSize"] = clipGridSize
 
     # Domain origin
-    var.domainOrigin = clippedOrigin
+    attrs["domainOrigin"] = clippedOrigin
     # Domain extent
-    var.domainExtent = clippedExtent
+    attrs["domainExtent"] = clippedExtent
     #units
-    var.units = "ft"
+    attrs["units"] = "ft"
     # projection info - store whatever is in the dictionary
-    storeProjectionAttributes(var, pDict)
+    t0 = time.perf_counter()
+    projectionAttrs = getProjectionAttributes(pDict)
+    t1 = time.perf_counter()
+    logDebug(f"storeTopoGrid(): calc projection attributes: {t1-t0}")
+
+    attrs.update(projectionAttrs)
+    t0 = time.perf_counter()
+    var.setncatts(attrs)
+    t1 = time.perf_counter()
+    logDebug(f"storeTopoGrid(): call Variable.setncatts(): {t1-t0}")
 
     logEvent("Saved Topo Grid")
+
 
 ###-------------------------------------------------------------------------###
 ###
 def storeGridDataHistory(cdfFile, we, histDict):
     "Stores the Grid Data history string for each grid in we."
-    
-    # get the maximum size of the history string 
+
+    # get the maximum size of the history string
     maxHistSize = 0
     histList = []
     for (tr, his) in histDict.items():
         hisString = ''
-        for i,h in enumerate(his):
+        for i, h in enumerate(his):
             hisString = hisString + str(h)
             if i != len(his) - 1:
                 hisString = hisString + " ^"
         histList.append(hisString)
-        maxHistSize = max(maxHistSize,len(hisString))
-        
+        maxHistSize = max(maxHistSize, len(hisString))
+
     # Make the history variable and fill it
     histShape = (len(histList), maxHistSize + 1)
     histCube = numpy.zeros(histShape, 'c')
     for slot, hisString in enumerate(histList):
         histCube[slot] = netCDF4.stringtoarr(hisString, histShape[1])
-    
     # make the history variable anyway.  iscMosaic needs it.
     elemName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
     dimNames = ["ngrids_" + elemName, "histLen_" + elemName]
@@ -632,7 +666,7 @@ def calcKrunchValues(we):
 
 
 ###-------------------------------------------------------------------------###
-def storeProjectionAttributes(var, projectionData):
+def getProjectionAttributes(projectionData):
     projectionAttrs = {}
     # store the attributes common to all projections
     projectionAttrs["latLonLL"] = (projectionData.getLatLonLL().x, projectionData.getLatLonLL().y)
@@ -656,16 +690,17 @@ def storeProjectionAttributes(var, projectionData):
 
     return projectionAttrs
 
+
 ###-------------------------------------------------------------------------###
 def storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, extraAttrs):
     "Stores attributes in the netCDF file for any weather element"
-    
+
     attrs = {}
-    
+
     # Note that geo information is modified based on the clip info.
 
     # TimeRanges
-    attrs["validTimes"] = list(itertools.chain.from_iterable(timeList)) 
+    attrs["validTimes"] = list(itertools.chain.from_iterable(timeList))
 
     # Descriptive Name
     attrs["descriptiveName"] = we.getGpi().getDescriptiveName()
@@ -679,16 +714,15 @@ def storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, e
     origGridSize = Coordinate(float(str(gridLoc.getNx())), float(str(gridLoc.getNy())))
     origOrigin = gridLoc.getOrigin()
     origExtent = gridLoc.getExtent()
-    
-    
+
     cellSize = (origExtent.x / (origGridSize.x - 1),
                 origExtent.y / (origGridSize.y - 1))
-    
+
     clippedExtent = (cellSize[0] * (clipGridSize[0] - 1),
       cellSize[1] * (clipGridSize[1] - 1))
-    
-    domainOffset = (clipArea[0] * cellSize[0], (origGridSize.y - clipArea[3]-1) * cellSize[1])
-    
+
+    domainOffset = (clipArea[0] * cellSize[0], (origGridSize.y - clipArea[3] - 1) * cellSize[1])
+
     clippedOrigin = (origOrigin.x + domainOffset[0] ,
                      origOrigin.y + domainOffset[1])
 
@@ -697,7 +731,6 @@ def storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, e
 
     # Min/Max allowable values
     attrs["minMaxAllowedValues"] = (we.getGpi().getMinValue(), we.getGpi().getMaxValue())
-    
     # determine correct siteID to write to netCDF file
     # we needed this siteIdOverride incase we're exporting grids from a subdomain
     srcSiteId = we.getParmid().getDbId().getSiteId()
@@ -726,10 +759,10 @@ def storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, e
 
     # projection info - store whatever is in the dictionary
     t0 = time.perf_counter()
-    projectionAttrs = storeProjectionAttributes(var, gridLoc.getProjection())
+    projectionAttrs = getProjectionAttributes(gridLoc.getProjection())
     t1 = time.perf_counter()
     logDebug(f"storeWEAttributes(): calc projection attributes: {t1-t0}")
-    
+
     attrs.update(projectionAttrs)
     attrs.update(extraAttrs)
     t0 = time.perf_counter()
@@ -741,15 +774,9 @@ def storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, e
 
 
 def findOverlappingTimes(trList, timeRange):
-    timeList = []
-    overlappingTimes = []
-    for t in trList:
-        interTR = intersection(t, timeRange)
-        if interTR is not None:
-            overlappingTimes.append(t)
-            timeList.append(interTR)
+   items = [(tr, interTr) for tr, interTr in ((t, intersection(t, timeRange)) for t in trList) if interTr is not None]
+   return OrderedDict(items)
 
-    return timeList, overlappingTimes
 
 ###-------------------------------------------------------------------------###
 ### Stores the specified Scalar WE in the netCDF file whose grids fall within
@@ -760,21 +787,19 @@ def storeScalarWE(we, trList, cdfFile, timeRange, databaseID,
 
     # get the data and store it in a Numeric array.
     t0 = time.perf_counter()
-    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
+    overlappingTimes = findOverlappingTimes(trList, timeRange)
     t1 = time.perf_counter()
     logDebug(f"storeScalarWE(): Time to calculate overlapping times: {t1-t0}")
 
     (cube, histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
     gridCount = len(cube)
-    for i in range(len(overlappingTimes) -1, -1, -1):
-        ot = overlappingTimes[i]
-        if not ot in histDict:
-            del overlappingTimes[i]
-            del timeList[i]
-        elif we.getGpi().isRateParm():
-            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((ot[1]-ot[0]))
-            cube[i] *= durRatio
-    
+
+    if we.getGpi().isRateParm():
+        for (i, (ot, it)) in enumerate(overlappingTimes.items()):
+            if ot != it:
+                durRatio = (it[1] - it[0]) / (ot[1] - ot[0])
+                cube[i] *= durRatio
+
     ### Make sure we found some grids
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -799,7 +824,7 @@ def storeScalarWE(we, trList, cdfFile, timeRange, databaseID,
         if multiplier is not None:
             cube -= offset
             cube *= multiplier
-            numpy.floor(cube+0.5, out=cube)
+            numpy.floor(cube + 0.5, out=cube)
         # normal trim
         else:
             digits = we.getGpi().getPrecision()
@@ -811,17 +836,17 @@ def storeScalarWE(we, trList, cdfFile, timeRange, databaseID,
          ('f', None, None, -30000.0, numpy.float32)
 
     # mask the data
-    cube[:,invMask] = fillValue
-    
+    cube[:, invMask] = fillValue
+
     # create the variable
     var = cdfFile.createVariable(varName, dataType, dims)
-    extraAttrs = {"fillValue" : fillValue,}
+    extraAttrs = {"fillValue": fillValue, }
     if multiplier is not None:
         extraAttrs["dataMultiplier"] = 1.0 / multiplier
         extraAttrs["dataOffset"] = offset
     # Store the attributes
     t0 = time.perf_counter()
-    storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, extraAttrs)
+    storeWEAttributes(var, we, list(overlappingTimes.values()), databaseID, clipArea, siteIdOverride, extraAttrs)
     t1 = time.perf_counter()
     logDebug(f"storeScalarWE(): Time to store WE attributes for parm [{varName}]: {t1-t0}")
 
@@ -831,7 +856,6 @@ def storeScalarWE(we, trList, cdfFile, timeRange, databaseID,
         var[i] = numpy.flipud(cube[i])
     t1 = time.perf_counter()
     logDebug(f"storeScalarWE(): Time to store inventory for parm [{varName}]: {t1-t0}")
-
 
     ## Extract the GridDataHistory info and save it
     t0 = time.perf_counter()
@@ -852,23 +876,21 @@ def storeVectorWE(we, trList, cdfFile, timeRange,
 
     # get the data and store it in a Numeric array.
     t0 = time.perf_counter()
-    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
+    overlappingTimes = findOverlappingTimes(trList, timeRange)
     t1 = time.perf_counter()
     logDebug(f"storeVectorWE(): Time to find overlapping times: {t1-t0}")
 
     ((magCube, dirCube), histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
     gridCount = len(magCube)
-    for i in range(len(overlappingTimes) -1, -1, -1):
-        ot = overlappingTimes[i]
-        if not ot in histDict:
-            del overlappingTimes[i]
-            del timeList[i]
-        elif we.getGpi().isRateParm():
-            durRatio = (float(timeList[i][1]-timeList[i][0]))/float((ot[1]-ot[0]))
-            magCube[i] *= durRatio
+
+    if we.getGpi().isRateParm():
+        for (i, (ot, it)) in enumerate(overlappingTimes.items()):
+            if ot != it:
+                durRatio = (it[1] - it[0]) / (ot[1] - ot[0])
+                cube[i] *= durRatio
 
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
-    
+
     ### Make sure we found some grids
     if len(magCube) == 0:
         logVerbose("No", varName, "grids found")
@@ -898,8 +920,8 @@ def storeVectorWE(we, trList, cdfFile, timeRange,
         if mmultiplier is not None:
             magCube -= moffset
             magCube *= mmultiplier
-            numpy.around(magCube,out=magCube)
-            
+            numpy.around(magCube, out=magCube)
+
         # normal trim for magnitude
         else:
             digits = we.getGpi().getPrecision()
@@ -910,7 +932,7 @@ def storeVectorWE(we, trList, cdfFile, timeRange,
         if dmultiplier is not None:
             dirCube -= doffset
             dirCube *= dmultiplier
-            numpy.around(dirCube,out=dirCube)
+            numpy.around(dirCube, out=dirCube)
 
         # normal trim for direction
         else:
@@ -924,28 +946,28 @@ def storeVectorWE(we, trList, cdfFile, timeRange,
         dformat, dmultiplier, doffset, dfillValue, dpythonType = \
           ('f', None, None, -30000.0, numpy.float32)
 
-    magCube[:,invMask] = mfillValue
-    dirCube[:,invMask] = dfillValue
+    magCube[:, invMask] = mfillValue
+    dirCube[:, invMask] = dfillValue
 
     # create the variable
     magVar = cdfFile.createVariable(magVarName, mformat, dims)
-    magExtraAttrs = {"descriptiveName" : f"{we.getGpi().getDescriptiveName()} Magnitude",
-                     "fillValue" : mfillValue,
+    magExtraAttrs = {"descriptiveName": f"{we.getGpi().getDescriptiveName()} Magnitude",
+                     "fillValue": mfillValue,
                      }
     if mmultiplier is not None:
         magExtraAttrs["dataMultiplier"] = 1.0 / mmultiplier
         magExtraAttrs["dataOffset"] = moffset
     t0 = time.perf_counter()
-    storeWEAttributes(magVar, we, timeList, databaseID, clipArea, siteIdOverride, magExtraAttrs)    
+    storeWEAttributes(magVar, we, list(overlappingTimes.values()), databaseID, clipArea, siteIdOverride, magExtraAttrs)
     t1 = time.perf_counter()
     logDebug(f"storeVectorWE(): Time to store WE attributes for parm [{magVarName}]: {t1-t0}")
-    
+
     dirVar = cdfFile.createVariable(dirVarName, dformat, dims)
-    dirExtraAttrs = {"descriptiveName" : f"{we.getGpi().getDescriptiveName()} Direction",
-                     "fillValue" : dfillValue,
-                     "minMaxAllowedValues" : (0.0, 360.0),
-                     "units" : "degrees",
-                     
+    dirExtraAttrs = {"descriptiveName": f"{we.getGpi().getDescriptiveName()} Direction",
+                     "fillValue": dfillValue,
+                     "minMaxAllowedValues": (0.0, 360.0),
+                     "units": "degrees",
+
                      }
     if dmultiplier is not None:
         dirExtraAttrs["dataMultiplier"] = 1.0 / dmultiplier
@@ -956,7 +978,7 @@ def storeVectorWE(we, trList, cdfFile, timeRange,
         dirPrecision = 0
     dirExtraAttrs["precision"] = dirPrecision
     t0 = time.perf_counter()
-    storeWEAttributes(dirVar, we, timeList, databaseID, clipArea, siteIdOverride, dirExtraAttrs)
+    storeWEAttributes(dirVar, we, list(overlappingTimes.values()), databaseID, clipArea, siteIdOverride, dirExtraAttrs)
     t1 = time.perf_counter()
     logDebug(f"storeVectorWE(): Time to store WE attributes for parm [{dirVarName}]: {t1-t0}")
 
@@ -1017,17 +1039,12 @@ def storeWeatherWE(we, trList, cdfFile, timeRange, databaseID, invMask, clipArea
 
     # get the data and store it in a Numeric array.
     t0 = time.perf_counter()
-    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
+    overlappingTimes = findOverlappingTimes(trList, timeRange)
     t1 = time.perf_counter()
     logDebug(f"storeWeatherWE(): Time to find overlapping times: {t1-t0}")
 
     (byteCube, histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
     gridCount = len(histDict)
-    for i in range(len(overlappingTimes) -1, -1, -1):
-        ot = overlappingTimes[i]
-        if not ot in histDict:
-            del overlappingTimes[i]
-            del timeList[i]
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -1039,25 +1056,24 @@ def storeWeatherWE(we, trList, cdfFile, timeRange, databaseID, invMask, clipArea
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
     dims = getDims(cdfFile, byteCube.shape, dimNames)
-    
+
     # create the netCDF variable - 'b' for byte type
     var = cdfFile.createVariable(varName, 'b', dims)
-    
+
     # Store the attributes
     fillValue = -127
-    extraAttrs = {"fillValue" : fillValue,}
+    extraAttrs = {"fillValue": fillValue, }
     t0 = time.perf_counter()
-    storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, extraAttrs)
+    storeWEAttributes(var, we, list(overlappingTimes.values()), databaseID, clipArea, siteIdOverride, extraAttrs)
     t1 = time.perf_counter()
     logDebug(f"storeWeatherWE(): Time to store WE attributes for parm [{varName}]: {t1-t0}")
 
     #  Process the weather keys so we store only what is necessary
-    
     for g in range(byteCube.shape[0]):
         (byteCube[g], keyList[g]) = collapseKey(byteCube[g], keyList[g])
 
     # Mask the values
-    byteCube[:,invMask] =fillValue
+    byteCube[:, invMask] = fillValue
 
     # Save the grids to the netCDF cdfFile
     t0 = time.perf_counter()
@@ -1070,15 +1086,15 @@ def storeWeatherWE(we, trList, cdfFile, timeRange, databaseID, invMask, clipArea
     # Find the max number of keys and max length for all keys
     maxKeyCount = 1
     maxKeySize = 0
-    
+
     for k in keyList:
         if len(k) > maxKeyCount:
             maxKeyCount = len(k)
-    
+
         for s in k:
             if len(s) > maxKeySize:
                 maxKeySize = len(s)
-    
+
     # create a new netCDF variable to hold the weather keys
     wxShape = (gridCount, maxKeyCount, maxKeySize + 1) # zero byte at
                                                        # the end
@@ -1086,7 +1102,6 @@ def storeWeatherWE(we, trList, cdfFile, timeRange, databaseID, invMask, clipArea
     dims = getDims(cdfFile, wxShape, dimNames)
     keyVarName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel() + "_wxKeys"
     keyVar = cdfFile.createVariable(keyVarName, 'c', dims)
-    
     chars = numpy.zeros(wxShape, 'c')
 
     # now save the weather keys in the netCDF cdfFile
@@ -1117,17 +1132,12 @@ def storeDiscreteWE(we, trList, cdfFile, timeRange, databaseID, invMask, clipAre
 
     # get the data and store it in a Numeric array.
     t0 = time.perf_counter()
-    timeList, overlappingTimes = findOverlappingTimes(trList, timeRange)
+    overlappingTimes = findOverlappingTimes(trList, timeRange)
     t1 = time.perf_counter()
     logDebug(f"storeDiscreteWE(): Time to find overlapping times: {t1-t0}")
 
     (byteCube, histDict, keyList) = retrieveData(we, overlappingTimes, clipArea)
     gridCount = len(histDict)
-    for i in range(len(overlappingTimes) -1, -1, -1):
-        ot = overlappingTimes[i]
-        if not ot in histDict:
-            del overlappingTimes[i]
-            del timeList[i]
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
@@ -1142,22 +1152,22 @@ def storeDiscreteWE(we, trList, cdfFile, timeRange, databaseID, invMask, clipAre
 
     # create the netCDF variable - 'b' for byte type
     var = cdfFile.createVariable(varName, 'b', dims)
-    
+
     # Store the attributes
     fillValue = -127
-    extraAttrs = {"fillValue" : fillValue,}
+    extraAttrs = {"fillValue": fillValue, }
     t0 = time.perf_counter()
-    storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride, extraAttrs)
+    storeWEAttributes(var, we, list(overlappingTimes.values()), databaseID, clipArea, siteIdOverride, extraAttrs)
     t1 = time.perf_counter()
     logDebug(f"storeDiscreteWE(): Time to store WE attributes for parm [{varName}]: {t1-t0}")
-    
+
     #  Process the discrete keys so we store only what is necessary
 
     for g in range(byteCube.shape[0]):
         (byteCube[g], keyList[g]) = collapseKey(byteCube[g], keyList[g])
 
     # Mask the values
-    byteCube[:,invMask] = fillValue
+    byteCube[:, invMask] = fillValue
 
     # Save the grids to the netCDF cdfFile
     t0 = time.perf_counter()
@@ -1224,14 +1234,14 @@ def storeGlobalAtts(cdfFile, argDict):
     cdfFile.setncatts(globalAttrs)
     return
 
+
 ###-------------------------------------------------------------------------###
 ### Compresses the cdfFile using the gzip library
-def compressFile(filename, factor): 
+def compressFile(filename, factor):
     if factor < 1:
         factor = 1
     elif factor > 9:
         factor = 9
-        
     with open(filename, "rb") as fp:
         with gzip.open(filename + ".gz", "wb", factor) as fpout:
             shutil.copyfileobj(fp, fpout)
@@ -1245,24 +1255,24 @@ def compressFile(filename, factor):
 def getSamplingDefinition(configName, userId, siteId):
     if not configName:
         return None
-    
+
     locFile = None
     fileName = "isc/utilities/" + configName + ".py"
     pathManager = PathManagerFactory.getPathManager()
-    
+
     if userId not in ['SITE', 'BASE']:
         context = pathManager.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.USER)
         context.setContextName(userId)
         locFile = pathManager.getFile(context, fileName)
-        
+
     if userId != 'BASE' and (locFile is None or not locFile.exists()):
         context = pathManager.getContextForSite(LocalizationType.COMMON_STATIC, siteId)
         locFile = pathManager.getFile(context, fileName)
-        
+
     if locFile is None or not locFile.exists():
         context = pathManager.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.BASE)
         locFile = pathManager.getFile(context, fileName)
-    
+
     if locFile is None or not locFile.exists():
         s = "Sampling Definition " + configName + " not found, using all grids."
         logProblem(s)
@@ -1276,7 +1286,7 @@ def getSamplingDefinition(configName, userId, siteId):
     except:
         s = "Bad Sampling Definition found [" + configName + \
           "], using all grids."
-        logProblem(s,traceback.format_exc())
+        logProblem(s, traceback.format_exc())
         return None
 
 
@@ -1287,7 +1297,6 @@ def determineSamplingValues(samplingDef, parmName, inventory, currentTime):
     # we're going to get inventory as a PyJObject (List<TimeRange>, actually),
     # but to best match AWIPS-1 will return a list of their tuple-based
     # time range objects, regardless if we have a valid sample definition or not
-    
     if samplingDef is None or inventory.size() == 0:
         newInv = []
         for i in range(0, inventory.size()):
@@ -1296,7 +1305,7 @@ def determineSamplingValues(samplingDef, parmName, inventory, currentTime):
 
     basetimeDef, offsetDef = samplingDef.get(parmName, samplingDef['default'])
 
-    lastInvT = iscUtil.transformTime(inventory.get(inventory.size()-1))[1]  #ending time for last grid
+    lastInvT = iscUtil.transformTime(inventory.get(inventory.size() - 1))[1]  #ending time for last grid
     firstInvT = iscUtil.transformTime(inventory.get(0))[0]  #starting time for first grid
 
     # determine basetime
@@ -1314,7 +1323,6 @@ def determineSamplingValues(samplingDef, parmName, inventory, currentTime):
             basetime = bt
         else:
             break
-    
     # now determine the set of possible times
     checkTimes = []
     # lastInvT = inventory[ -1][1]  #ending time for last grid
@@ -1353,11 +1361,10 @@ def determineSamplingValues(samplingDef, parmName, inventory, currentTime):
 ###-------------------------------------------------------------------------###
 ### Main program
 def main(outputFilename, parmList, databaseID, startTime,
-         endTime, mask, geoInfo, compressFileFlag, configFileName, 
+         endTime, mask, geoInfo, compressFileFlag, configFileName,
          compressFileFactor, trim, krunch, userID, logFileName, siteIdOverride):
     initLogger(logFileName)
-    
-    
+
 #    LogStream.ttyLogOn()
     logEvent("ifpnetCDF Starting")
 #    LogStream.logEvent(AFPS.DBSubsystem_getBuildDate(),
@@ -1366,21 +1373,21 @@ def main(outputFilename, parmList, databaseID, startTime,
 
     if hasattr(parmList, 'java_name'):
         parmList = JUtil.javaObjToPyVal(parmList)
-        
-    argDict = {"outputFilename": outputFilename, 
+
+    argDict = {"outputFilename": outputFilename,
                "parmList": parmList,
-               "databaseID": databaseID, 
+               "databaseID": databaseID,
                "startTime": startTime,
-               "endTime": endTime, 
-               "mask": mask, 
-               "geoInfo": bool(geoInfo), 
-               "compressFile": bool(compressFileFlag), 
-               "configFileName": configFileName, 
-               "compressFileFactor": int(compressFileFactor), 
-               "trim": bool(trim), 
-               "krunch": bool(krunch), 
+               "endTime": endTime,
+               "mask": mask,
+               "geoInfo": bool(geoInfo),
+               "compressFile": bool(compressFileFlag),
+               "configFileName": configFileName,
+               "compressFileFactor": int(compressFileFactor),
+               "trim": bool(trim),
+               "krunch": bool(krunch),
                "userID": userID,
-               "siteIdOverride" : siteIdOverride, }
+               "siteIdOverride": siteIdOverride, }
     logEvent("Command: ", argDict)
 
     start = time.perf_counter()
@@ -1394,7 +1401,6 @@ def main(outputFilename, parmList, databaseID, startTime,
     except:
         logException("Unable to create TimeRange from arguments: startTime= " + str(argDict['startTime']) + ", endTime= " + argDict['endTime'])
         return
-    
     # See if the databaseID is valid.  An exception will be tossed
     db = IFPDB(argDict['databaseID'])
 
@@ -1405,7 +1411,6 @@ def main(outputFilename, parmList, databaseID, startTime,
     maskGrid = getMaskGrid(ifpServer, argDict['mask'], argDict['databaseID'])
     origGridSize = maskGrid.shape
     clipArea = extremaOfSetBits(maskGrid)
-    
     maskGrid = clipToExtrema(maskGrid, clipArea)
     clippedGridSize = maskGrid.shape
     validPointCount = float(numpy.count_nonzero(maskGrid))
@@ -1422,25 +1427,21 @@ def main(outputFilename, parmList, databaseID, startTime,
     try:
         # Open the netCDF file
         with netCDF4.Dataset(argDict['outputFilename'], 'w', format='NETCDF3_CLASSIC', diskless=True, persist=True) as cdfFile:
-    
             totalGrids = 0
             for p in argDict['parmList']:
                 try:
                     we = db.getItem(p)
-                    
                     #determine inventory that we want to keep
                     t0 = time.perf_counter()
                     parmTimes = we.getKeys()
                     t1 = time.perf_counter()
                     logDebug(f"main(): Time to retrieve inventory for ParmID [{p}]: {t1-t0}")
                     logDebug(f"main(): ParmID [{p}], len(parmTimes): {len(parmTimes)}")
-                    
                     t0 = time.perf_counter()
                     weInv = determineSamplingValues(samplingDef, p, parmTimes, time.time())
                     t1 = time.perf_counter()
                     logDebug(f"main(): Time to call determineSamplingValues for ParmID [{p}]: {t1-t0}")
                     logDebug(f"main(): ParmID [{p}], len(weInv): {len(weInv)}")
-                    
                     t0 = time.perf_counter()
                     gridType = str(we.getGpi().getGridType())
                     if gridType == "SCALAR":
@@ -1462,24 +1463,22 @@ def main(outputFilename, parmList, databaseID, startTime,
                           "parm=" + p
                         logProblem(s)
                         raise Exception(s)
-                    
                     t1 = time.perf_counter()
                     logDebug(f"main(): Time to store grids for ParmID [{p}]: {t1-t0}")
                     totalGrids = totalGrids + nGrids
                 except:
                     logException("Could not process parm [" + p + "]: ")
                     partial_complete = True
-        
             # store the topo and lat, lon grids if the -g was present
             if argDict["geoInfo"]:
                 storeTopoGrid(ifpServer, cdfFile, clipArea)
                 storeLatLonGrids(ifpServer, cdfFile, argDict['krunch'], clipArea)
                 totalGrids += 3
-        
+
             storeGlobalAtts(cdfFile, argDict)
     except:
         logException("Error creating cdfFile: %s " % argDict['outputFilename'])
-        
+
     if partial_complete:
         os.remove(argDict['outputFilename'])
         return -1
@@ -1527,13 +1526,11 @@ def main(outputFilename, parmList, databaseID, startTime,
               "%-.2f" % (bitsPerPointCompressed))
 
     stop = time.perf_counter()
-    logEvent("Elapsed/CPU time: ", 
-      f"{stop1 - start:-.2f} processing,", 
+    logEvent("Elapsed/CPU time: ",
+      f"{stop1 - start:-.2f} processing,",
       f"{stop - stop1:-.2f} compress,",
       f"{stop - start:-.2f} total")
     logEvent("ifpnetCDF Finished")
-
-
 
 #if __name__ == "__main__":
 #    main()

@@ -96,6 +96,8 @@
 # ------------- -------- --------- --------------------------------------------
 # Mar 10, 2022  8808     randerso  Update ConfigParser to better work with
 #                                  Java commons.configuration
+# Apr 18, 2022  8808     randerso  Change Rule to use default value, if present,
+#                                  when config file contains empty value
 #
 ##
 # This is a base file that is not intended to be overridden.
@@ -280,8 +282,14 @@ class Rule(object):
             for k, v in args.items():
                 if ',' in v:
                     args[k] = [_f for _f in [x.strip() for x in v.split(',')] if _f]
-                else:
+                elif v:
                     args[k] = _guess(v)
+                else:
+                    # v is empty
+                    # use default from self.args if present
+                    if k in self.args:
+                        args[k] = self.args[k]
+
             self.args = args
         else:
             self.args = {}

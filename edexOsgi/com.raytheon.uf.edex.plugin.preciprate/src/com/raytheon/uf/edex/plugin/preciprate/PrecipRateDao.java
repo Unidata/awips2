@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ----------  ----------- --------------------------
  * 01/27/10     4236        dhladky     Initial Creation
  * Sep 23, 2021 8608        mapeters    Add metadata id handling
+ * Jun 22, 2022 8865        mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -57,8 +58,10 @@ public class PrecipRateDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
+        boolean populated = false;
+
         PrecipRateRecord prRec = (PrecipRateRecord) obj;
 
         IMetadataIdentifier metaId = new DataUriMetadataIdentifier(prRec);
@@ -68,6 +71,7 @@ public class PrecipRateDao extends PluginDao {
                     new long[] { prRec.getNumRadials(), prRec.getNumBins() });
             rec.setCorrelationObject(prRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (prRec.getAngleData() != null) {
@@ -76,6 +80,7 @@ public class PrecipRateDao extends PluginDao {
                     new long[] { prRec.getNumRadials() });
             rec.setCorrelationObject(prRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (prRec.getDhrMap() != null) {
@@ -85,11 +90,12 @@ public class PrecipRateDao extends PluginDao {
             ByteDataRecord bdr = new ByteDataRecord("DHRMap",
                     prRec.getDataURI(), data);
             dataStore.addDataRecord(bdr, metaId);
+            populated = true;
         }
 
         logger.debug("PrecipRateDao: writing " + prRec.toString());
 
-        return dataStore;
+        return populated;
     }
 
     @Override

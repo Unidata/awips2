@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jul 11, 2013            ekladstrup  Initial creation
  * Apr 22, 2014  3048      mweeks      Updates for peer review and 13.5.4 baseline.
  * Sep 23, 2021  8608      mapeters    Add metadata id handling
+ * Jun 22, 2022  8865      mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -70,8 +71,10 @@ public class NSWRCDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
+        boolean populated = false;
+
         NSWRCRadialRecord radarRec = (NSWRCRadialRecord) obj;
         StorageProperties sp = null;
         String compression = PluginRegistry.getInstance()
@@ -90,6 +93,7 @@ public class NSWRCDao extends PluginDao {
                             radarRec.getNumRadials(), radarRec.getNumBins() });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getAngleData() != null) {
@@ -98,6 +102,7 @@ public class NSWRCDao extends PluginDao {
                     new long[] { radarRec.getNumRadials() });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getSignal_to_noise() != null) {
@@ -107,6 +112,7 @@ public class NSWRCDao extends PluginDao {
                             radarRec.getNumBins() });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getNormalized_coherent_power() != null) {
@@ -116,9 +122,10 @@ public class NSWRCDao extends PluginDao {
                             radarRec.getNumRadials(), radarRec.getNumBins() });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
-        return dataStore;
+        return populated;
     }
 
     @Override

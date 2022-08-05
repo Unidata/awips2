@@ -29,6 +29,7 @@
 # Jul 11, 2016  5774     randerso  Change to send WFO message to all active
 #                                  IFP servers, not just "best"
 # Dec 14, 2020  8303     randerso  Fixed Python 3 issue writing message to file
+# Apr 19, 2022  8850     randerso  Fix bug in exception handling.
 #
 ##
 
@@ -36,16 +37,14 @@
 # This is a base file that is not intended to be overridden.
 ##
 
-
-
 import os
 import tempfile
 from xml.etree import ElementTree
 
 import IrtAccess
 
-
 logger = None
+
 
 def init_logging():
     import iscUtil
@@ -57,30 +56,28 @@ def init_logging():
 def runFromJava(siteID, config, destSites, message):
     import siteConfig
 
-    host      = str(config.getServerHost())
-    port      = str(config.getRpcPort())
-    protocol  = str(config.getProtocolVersion())
-    mhsid     = str(config.getMhsid())
-    ancf      = str(config.iscRoutingTableAddress().get("ANCF"))
-    bncf      = str(config.iscRoutingTableAddress().get("BNCF"))
+    host = str(config.getServerHost())
+    port = str(config.getRpcPort())
+    protocol = str(config.getProtocolVersion())
+    mhsid = str(config.getMhsid())
+    ancf = str(config.iscRoutingTableAddress().get("ANCF"))
+    bncf = str(config.iscRoutingTableAddress().get("BNCF"))
     xmtScript = str(config.transmitScript())
 
     init_logging()
 
     iscProductsDir = os.path.join(siteConfig.GFESUITE_HOME, "products", "ISC")
 
-
     # get temporary file name for WFO message
     with tempfile.NamedTemporaryFile(suffix='.sendWFOMessage', dir=iscProductsDir, delete=False) as fp:
         fp.write(message.encode())
         fname = fp.name
 
-
-    sourceServer = {'mhsid'   : mhsid,
-                    'host'    : host,
-                    'port'    : port,
+    sourceServer = {'mhsid': mhsid,
+                    'host': host,
+                    'port': port,
                     'protocol': protocol,
-                    'site'    : siteID}
+                    'site': siteID}
 
     try:
         if not destSites:
@@ -99,7 +96,7 @@ def runFromJava(siteID, config, destSites, message):
 
         if len(msgSendDest) > 0:
             # Now send the message
-            logger.debug("msgSendDest: "+ str(msgSendDest))
+            logger.debug("msgSendDest: %s", str(msgSendDest))
             irt.transmitFiles("SEND_WFO_MESSAGE", msgSendDest, mhsid, [fname, fnameXML], xmtScript)
     except:
-        logger.exception('Error sending WFO message to sites:' + destSites + "\n" + message)
+        logger.exception('Error sending WFO message to sites: %s\n%s', str(destSites), message)

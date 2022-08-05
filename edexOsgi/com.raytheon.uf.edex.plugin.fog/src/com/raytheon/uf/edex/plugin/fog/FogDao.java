@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ----------  ----------- --------------------------
  * 12/12/09     2037        dhladky     Initial Creation
  * Sep 23, 2021 8608        mapeters    Add metadata id handling
+ * Jun 22, 2022 8865        mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -55,11 +56,12 @@ public class FogDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         FogRecord fogRec = (FogRecord) obj;
-
         String group = fogRec.getDataURI();
+
+        boolean populated = false;
         IMetadataIdentifier metaId = new DataUriMetadataIdentifier(fogRec);
         if (fogRec.getVisArray() != null) {
             IDataRecord rec = new IntegerDataRecord(
@@ -68,6 +70,7 @@ public class FogDao extends PluginDao {
                     new long[] { fogRec.getNx(), fogRec.getNy() });
             rec.setCorrelationObject(fogRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (fogRec.getIR_3_9Array() != null) {
@@ -77,6 +80,7 @@ public class FogDao extends PluginDao {
                     new long[] { fogRec.getNx(), fogRec.getNy() });
             rec.setCorrelationObject(fogRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (fogRec.getIR_10_7Array() != null) {
@@ -86,9 +90,10 @@ public class FogDao extends PluginDao {
                     new long[] { fogRec.getNx(), fogRec.getNy() });
             rec.setCorrelationObject(fogRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
-        return dataStore;
+        return populated;
     }
 
     @Override

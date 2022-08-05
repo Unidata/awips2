@@ -39,6 +39,7 @@
 #    May 22, 2019    7847          bsteffen      Always return NONE for compression type of requested data.
 #    Jun 25, 2019    7885          tgurney       Python 3 fixes
 #    Jan 28, 2020    7985          ksunil        Removed the compression changes introduced in 7435
+#    Jun 08, 2022    8866          mapeters      Set max sizes on record in createStorageRecord()
 #
 
 import numpy
@@ -89,13 +90,15 @@ def createStorageRecord(rawData, ds, req):
     inst.setGroup(parentName)
     inst.putDataObject(rawData)
     inst.setDimension(len(ds.shape))
-    sizes = []
+
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("rawData.shape " + str(rawData.shape))
-    for x in rawData.shape:
-        sizes.append(int(x))
-    sizes.reverse()
+    sizes = [int(x) for x in reversed(rawData.shape)]
     inst.setSizes(sizes)
+
+    if ds.maxshape:
+        maxSizes = [int(x) if x else 0 for x in reversed(ds.maxshape)]
+        inst.setMaxSizes(maxSizes)
 
     fillValue = None
     if (ds._dcpl.get_fill_time() != h5d.FILL_TIME_NEVER and

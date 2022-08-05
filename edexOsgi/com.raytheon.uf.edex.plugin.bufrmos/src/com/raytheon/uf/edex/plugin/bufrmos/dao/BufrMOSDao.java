@@ -20,10 +20,10 @@
 package com.raytheon.uf.edex.plugin.bufrmos.dao;
 
 import java.io.InputStream;
-import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosAvnData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosData;
@@ -33,32 +33,24 @@ import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosGfsData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosHpcData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosLampData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosMrfData;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
  * Set of DAO methods for BUFR Model Output Statistics.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2008 862        jkorman     Initial Coding.
  * Feb 09, 2016 5283       nabowle     Remove NGM MOS support.
+ * Jun 22, 2022 8865       mapeters    Remove populateDataStore override and unused methods
  * </pre>
- * 
+ *
  * @author jkorman
- * @version 1.0
  */
-
 public class BufrMOSDao extends PointDataPluginDao<BufrMosData> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(BufrMOSDao.class);
 
     /**
      * Creates a new BufrMOSDao object.
@@ -67,33 +59,6 @@ public class BufrMOSDao extends PointDataPluginDao<BufrMosData> {
      */
     public BufrMOSDao(String pluginName) throws PluginException {
         super(pluginName);
-    }
-
-    @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
-        return dataStore;
-    }
-
-    /**
-     * Retrieves an MOS report using the datauri .
-     *
-     * @param dataURI
-     *            The dataURI to match against.
-     * @return The report record if it exists.
-     */
-    public BufrMosData queryByDataURI(String dataURI) {
-        BufrMosData report = null;
-        List<?> obs = null;
-        try {
-            obs = queryBySingleCriteria("dataURI", dataURI);
-        } catch (DataAccessLayerException e) {
-            e.printStackTrace();
-        }
-        if ((obs != null) && (obs.size() > 0)) {
-            report = (BufrMosData) obs.get(0);
-        }
-        return report;
     }
 
     @Override
@@ -107,7 +72,7 @@ public class BufrMOSDao extends PointDataPluginDao<BufrMosData> {
 
     @Override
     public String[] getKeysRequiredForFileName() {
-        return new String[] { "dataTime.refTime" };
+        return new String[] { PluginDataObject.REFTIME_ID };
     }
 
     @Override
@@ -140,8 +105,8 @@ public class BufrMOSDao extends PointDataPluginDao<BufrMosData> {
     @Override
     public PointDataDbDescription getPointDataDbDescription() {
         if (dbDataDescription == null) {
-            InputStream stream = this.getClass().getResourceAsStream(
-                    "/res/pointdata/bufrmosdb.xml");
+            InputStream stream = this.getClass()
+                    .getResourceAsStream("/res/pointdata/bufrmosdb.xml");
             if (stream != null) {
                 try {
                     dbDataDescription = PointDataDbDescription

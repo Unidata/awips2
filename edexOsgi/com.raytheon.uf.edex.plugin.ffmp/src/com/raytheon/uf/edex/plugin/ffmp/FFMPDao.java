@@ -44,7 +44,6 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.Sour
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
@@ -63,6 +62,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Jul 23, 2018  6642     randerso  Code cleanup.
  * Aug 14, 2018  6720     njensen   Use simplified enums
  * Sep 23, 2021  8608     mapeters  Add metadata id handling
+ * Jun 22, 2022  8865     mapeters  Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -89,11 +89,11 @@ public class FFMPDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
 
         FFMPRecord record = (FFMPRecord) obj;
-
+        boolean populated = false;
         if (fscm.getSource(record.getSourceName())
                 .getSourceType() == SourceType.GAGE) {
 
@@ -104,7 +104,7 @@ public class FFMPDao extends PluginDao {
                                 domain.getCwa());
 
                 // ignore data outside of domain
-                if (vmap.size() > 0) {
+                if (!vmap.isEmpty()) {
 
                     FFMPBasinData fbd = record.getBasinData();
                     int size = 0;
@@ -145,9 +145,10 @@ public class FFMPDao extends PluginDao {
                     IMetadataIdentifier metaId = new DataUriMetadataIdentifier(
                             record);
                     dataStore.addDataRecord(rec, metaId);
+                    populated = true;
                 } else {
-                    statusHandler.handle(Priority.DEBUG,
-                            "No VGB's in domain: " + domain.getCwa());
+                    statusHandler
+                            .debug("No VGB's in domain: " + domain.getCwa());
 
                 }
             }
@@ -168,8 +169,10 @@ public class FFMPDao extends PluginDao {
 
                         float[] dataRec = new float[size];
                         int i = 0;
-                        // write individual basins, use template, preserves
-                        // ordering
+                        /*
+                         * write individual basins, use template, preserves
+                         * ordering
+                         */
                         for (Long pfaf : map.keySet()) {
                             FFMPBasin bd = fbd.get(pfaf);
                             if (bd != null) {
@@ -195,17 +198,18 @@ public class FFMPDao extends PluginDao {
                             IMetadataIdentifier metaId = new DataUriMetadataIdentifier(
                                     record);
                             dataStore.addDataRecord(rec, metaId);
+                            populated = true;
                         }
                     } else {
-                        statusHandler.handle(Priority.DEBUG,
+                        statusHandler.debug(
                                 "Data outside of domain: " + domain.getCwa());
                     }
                 }
             }
         }
 
-        statusHandler.handle(Priority.DEBUG, "writing " + record.toString());
-        return dataStore;
+        statusHandler.debug("writing " + record.toString());
+        return populated;
     }
 
     @Override

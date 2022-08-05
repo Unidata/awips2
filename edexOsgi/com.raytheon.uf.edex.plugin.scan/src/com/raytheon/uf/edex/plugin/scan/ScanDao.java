@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Feb 01, 2013  1649     dhladky   removed XML where not needed, compression
  * Jul 31, 2018  6685     randerso  Added getLatestTime(). Code cleanup.
  * Sep 23, 2021  8608     mapeters  Add metadata id handling
+ * Jun 22, 2022  8865     mapeters  Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -83,8 +84,9 @@ public class ScanDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
+        boolean populated = false;
 
         ScanRecord scanRec = (ScanRecord) obj;
         String table = null;
@@ -110,6 +112,7 @@ public class ScanDao extends PluginDao {
                 ByteDataRecord bdr = new ByteDataRecord(table + "/model",
                         scanRec.getDataURI(), data);
                 dataStore.addDataRecord(bdr, metaId, sp);
+                populated = true;
             }
 
             if (scanRec.getSoundingData() != null) {
@@ -120,6 +123,7 @@ public class ScanDao extends PluginDao {
                 ByteDataRecord bdr = new ByteDataRecord(table + "/sounding",
                         scanRec.getDataURI(), data);
                 dataStore.addDataRecord(bdr, metaId, sp);
+                populated = true;
             }
 
         } else if (scanRec.getType().equals(ScanTables.DMD.name())) {
@@ -141,9 +145,10 @@ public class ScanDao extends PluginDao {
             ByteDataRecord bdr = new ByteDataRecord(table, scanRec.getDataURI(),
                     data);
             dataStore.addDataRecord(bdr, metaId);
+            populated = true;
         }
 
-        return dataStore;
+        return populated;
     }
 
     @Override

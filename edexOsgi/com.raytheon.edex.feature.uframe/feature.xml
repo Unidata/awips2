@@ -97,10 +97,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.foss.org.owasp.esapi.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.edex.foss.org.apache.commons.ssl.feature"
          version="0.0.0"/>
 

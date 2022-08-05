@@ -31,8 +31,6 @@ import javax.measure.UnitConverter;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -90,6 +88,7 @@ import tec.uom.se.AbstractConverter;
  * Nov 11, 2020  8278     rjpeter     Updated orphaned grid_info and gridcoverage logic
  *                                    and logging.
  * Sep 23, 2021  8608     mapeters    Add metadata id handling
+ * Jun 22, 2022  8865     mapeters    Update populateDataStore to return boolean
  * </pre>
  *
  * @author bphillip
@@ -116,12 +115,12 @@ public class GridDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         GridRecord gridRec = (GridRecord) obj;
         Object messageData = gridRec.getMessageData();
         GridCoverage location = gridRec.getLocation();
-        if ((location != null) && (messageData instanceof float[])) {
+        if (location != null && messageData instanceof float[]) {
             long[] sizes = new long[] { location.getNx(), location.getNy() };
             String abbrev = gridRec.getParameter().getAbbreviation();
             String group = gridRec.getDataURI();
@@ -161,11 +160,11 @@ public class GridDao extends PluginDao {
             }
             sp.setChunked(true);
             dataStore.addDataRecord(storageRecord, metaId, sp);
+            return true;
         } else {
             throw new Exception("Cannot create data record, spatialData = "
                     + location + " and messageData = " + messageData);
         }
-        return dataStore;
     }
 
     @Override
@@ -293,11 +292,8 @@ public class GridDao extends PluginDao {
     private boolean validateParameter(GridRecord record) {
         Parameter parameter = record.getParameter();
         boolean result = true;
-        if (parameter == null) {
-            result = false;
-        } else if (parameter.getName() == null) {
-            result = false;
-        } else if ("Missing".equals(parameter.getName())) {
+        if (parameter == null || parameter.getName() == null
+                || "Missing".equals(parameter.getName())) {
             result = false;
         } else {
             Parameter dbParameter = ParameterLookup.getInstance()
@@ -408,152 +404,144 @@ public class GridDao extends PluginDao {
         super.delete(objs);
 
         try {
-            txTemplate.execute(new TransactionCallback<Integer>() {
-                @Override
-                public Integer doInTransaction(TransactionStatus status) {
-                    Map<Integer, GridInfoRecord> orphanedInfos = new HashMap<>(
-                            objs.size());
-                    for (PluginDataObject pdo : objs) {
-                        if (pdo instanceof GridRecord) {
-                            GridInfoRecord info = ((GridRecord) pdo).getInfo();
-                            orphanedInfos.put(info.getId(), info);
-                        }
+            txTemplate.execute(status -> {
+                Map<Integer, GridInfoRecord> orphanedInfos = new HashMap<>(
+                        objs.size());
+                for (PluginDataObject pdo : objs) {
+                    if (pdo instanceof GridRecord) {
+                        GridInfoRecord info = ((GridRecord) pdo).getInfo();
+                        orphanedInfos.put(info.getId(), info);
+                    }
+                }
+
+                int rowsDeleted = 0;
+                if (!orphanedInfos.isEmpty()) {
+                    /**
+                     * get list of all unreferenced grid_info records and purge
+                     * them
+                     */
+                    Session sess = getCurrentSession();
+                    Query query = sess.createQuery(
+                            "select distinct rec.info.id from GridRecord rec where rec.info.id in (:ids)");
+                    Set<Integer> orphanedInfoIds = orphanedInfos.keySet();
+                    query.setParameterList("ids", orphanedInfoIds);
+                    List<?> idsToKeep = query.list();
+                    if (idsToKeep != null) {
+                        orphanedInfoIds.removeAll(idsToKeep);
                     }
 
-                    int rowsDeleted = 0;
+                    /*
+                     * TODO: This only handles purge use case, doesn't handle
+                     * manual use case
+                     */
                     if (!orphanedInfos.isEmpty()) {
-                        /**
-                         * get list of all unreferenced grid_info records and
-                         * purge them
-                         */
-                        Session sess = getCurrentSession();
-                        Query query = sess.createQuery(
-                                "select distinct rec.info.id from GridRecord rec where rec.info.id in (:ids)");
-                        Set<Integer> orphanedInfoIds = orphanedInfos.keySet();
-                        query.setParameterList("ids", orphanedInfoIds);
-                        List<?> idsToKeep = query.list();
-                        if (idsToKeep != null) {
-                            orphanedInfoIds.removeAll(idsToKeep);
-                        }
+                        if (purgeInfoCacheTopic != null) {
+                            Map<Integer, GridCoverage> orphanedCoverages = new HashMap<>(
+                                    objs.size());
+                            StringBuilder msg = new StringBuilder(160);
+                            msg.append("Purging grid_info entries for ");
 
-                        /*
-                         * TODO: This only handles purge use case, doesn't
-                         * handle manual use case
-                         */
-                        if (!orphanedInfos.isEmpty()) {
-                            if (purgeInfoCacheTopic != null) {
-                                Map<Integer, GridCoverage> orphanedCoverages = new HashMap<>(
-                                        objs.size());
-                                StringBuilder msg = new StringBuilder(160);
-                                msg.append("Purging grid_info entries for ");
-
-                                /*
-                                 * build log message and track possible orphan
-                                 * coverages
-                                 */
-                                for (GridInfoRecord val : orphanedInfos
-                                        .values()) {
-                                    msg.append("[Id: ").append(val.getId())
-                                            .append(", info:")
-                                            .append(val.toString())
-                                            .append("], ");
-                                    GridCoverage coverage = val.getLocation();
-                                    orphanedCoverages.put(coverage.getId(),
-                                            coverage);
-                                }
-
-                                msg.setLength(msg.length() - 2);
-                                logger.info(msg.toString());
-
-                                query = sess.createQuery(
-                                        "delete from GridInfoRecord where id in (:ids)");
-                                query.setParameterList("ids", orphanedInfoIds);
-                                rowsDeleted = query.executeUpdate();
-
-                                try {
-                                    EDEXUtil.getMessageProducer().sendAsyncUri(
-                                            purgeInfoCacheTopic,
-                                            new ArrayList<>(orphanedInfoIds));
-                                } catch (EdexException e) {
-                                    logger.error(
-                                            "Error sending message to purge grid info topic",
-                                            e);
-                                }
-
-                                /**
-                                 * Now get list of all unreferenced gridcoverage
-                                 * records and purge them also, ideally we
-                                 * wouldn't purge static entries, but no good
-                                 * way to tell that. Loading GribSpatialCache
-                                 * would create dependency. Alternative of
-                                 * forcing delete from GribSpatialCache.
-                                 */
-                                query = sess.createQuery(
-                                        "select distinct info.location.id from GridInfoRecord info where info.location.id"
-                                                + " in (:ids)");
-                                Set<Integer> orphanedCoveragesIds = orphanedCoverages
-                                        .keySet();
-                                query.setParameterList("ids",
-                                        orphanedCoveragesIds);
-                                List<?> idsInUse = query.list();
-                                if (idsInUse != null) {
-                                    orphanedCoveragesIds.removeAll(idsInUse);
-                                }
-                                if (!orphanedCoverages.isEmpty()) {
-                                    if (purgeCoverageCacheTopic != null) {
-                                        msg.setLength(0);
-                                        msg.append(
-                                                "Purging gridcoverage entries for ");
-
-                                        for (GridCoverage val : orphanedCoverages
-                                                .values()) {
-                                            msg.append("[Id: ")
-                                                    .append(val.getId())
-                                                    .append(", Name: ")
-                                                    .append(val.getName())
-                                                    .append("], ");
-                                        }
-
-                                        msg.setLength(msg.length() - 2);
-                                        logger.info(msg.toString());
-
-                                        query = sess.createQuery(
-                                                "delete from GridCoverage where id in (:ids)");
-                                        query.setParameterList("ids",
-                                                orphanedCoveragesIds);
-                                        rowsDeleted += query.executeUpdate();
-
-                                        try {
-                                            EDEXUtil.getMessageProducer()
-                                                    .sendAsyncUri(
-                                                            purgeCoverageCacheTopic,
-                                                            new ArrayList<>(
-                                                                    orphanedCoveragesIds));
-                                        } catch (EdexException e) {
-                                            logger.error(
-                                                    "Error sending message to purge grid coverage topic",
-                                                    e);
-                                        }
-                                    } else {
-                                        GridCoverageLookup.getInstance()
-                                                .purgeCaches(
-                                                        orphanedCoveragesIds);
-                                        logger.warn(
-                                                "Unable to purge grid coverage caches of clustered edices");
-                                    }
-                                }
+                            /*
+                             * build log message and track possible orphan
+                             * coverages
+                             */
+                            for (GridInfoRecord val : orphanedInfos.values()) {
+                                msg.append("[Id: ").append(val.getId())
+                                        .append(", info:")
+                                        .append(val.toString()).append("], ");
+                                GridCoverage coverage = val.getLocation();
+                                orphanedCoverages.put(coverage.getId(),
+                                        coverage);
                             }
 
-                        } else {
-                            GridInfoCache.getInstance().purgeCache(
-                                    new ArrayList<>(orphanedInfoIds));
-                            logger.warn(
-                                    "Unable to purge grid info cache of clustered edices");
-                        }
-                    }
+                            msg.setLength(msg.length() - 2);
+                            logger.info(msg.toString());
 
-                    return rowsDeleted;
+                            query = sess.createQuery(
+                                    "delete from GridInfoRecord where id in (:ids)");
+                            query.setParameterList("ids", orphanedInfoIds);
+                            rowsDeleted = query.executeUpdate();
+
+                            try {
+                                EDEXUtil.getMessageProducer().sendAsyncUri(
+                                        purgeInfoCacheTopic,
+                                        new ArrayList<>(orphanedInfoIds));
+                            } catch (EdexException e) {
+                                logger.error(
+                                        "Error sending message to purge grid info topic",
+                                        e);
+                            }
+
+                            /**
+                             * Now get list of all unreferenced gridcoverage
+                             * records and purge them also, ideally we wouldn't
+                             * purge static entries, but no good way to tell
+                             * that. Loading GribSpatialCache would create
+                             * dependency. Alternative of forcing delete from
+                             * GribSpatialCache.
+                             */
+                            query = sess.createQuery(
+                                    "select distinct info.location.id from GridInfoRecord info where info.location.id"
+                                            + " in (:ids)");
+                            Set<Integer> orphanedCoveragesIds = orphanedCoverages
+                                    .keySet();
+                            query.setParameterList("ids", orphanedCoveragesIds);
+                            List<?> idsInUse = query.list();
+                            if (idsInUse != null) {
+                                orphanedCoveragesIds.removeAll(idsInUse);
+                            }
+                            if (!orphanedCoverages.isEmpty()) {
+                                if (purgeCoverageCacheTopic != null) {
+                                    msg.setLength(0);
+                                    msg.append(
+                                            "Purging gridcoverage entries for ");
+
+                                    for (GridCoverage val : orphanedCoverages
+                                            .values()) {
+                                        msg.append("[Id: ").append(val.getId())
+                                                .append(", Name: ")
+                                                .append(val.getName())
+                                                .append("], ");
+                                    }
+
+                                    msg.setLength(msg.length() - 2);
+                                    logger.info(msg.toString());
+
+                                    query = sess.createQuery(
+                                            "delete from GridCoverage where id in (:ids)");
+                                    query.setParameterList("ids",
+                                            orphanedCoveragesIds);
+                                    rowsDeleted += query.executeUpdate();
+
+                                    try {
+                                        EDEXUtil.getMessageProducer()
+                                                .sendAsyncUri(
+                                                        purgeCoverageCacheTopic,
+                                                        new ArrayList<>(
+                                                                orphanedCoveragesIds));
+                                    } catch (EdexException e) {
+                                        logger.error(
+                                                "Error sending message to purge grid coverage topic",
+                                                e);
+                                    }
+                                } else {
+                                    GridCoverageLookup.getInstance()
+                                            .purgeCaches(orphanedCoveragesIds);
+                                    logger.warn(
+                                            "Unable to purge grid coverage caches of clustered edices");
+                                }
+                            }
+                        }
+
+                    } else {
+                        GridInfoCache.getInstance()
+                                .purgeCache(new ArrayList<>(orphanedInfoIds));
+                        logger.warn(
+                                "Unable to purge grid info cache of clustered edices");
+                    }
                 }
+
+                return rowsDeleted;
             });
         } catch (Exception e) {
             logger.error(

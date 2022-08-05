@@ -403,7 +403,7 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         sampleInfo = [(elementList, periods, areas)]
         self.__sampler = self.getSampler(argDict, sampleInfo)
         return TableVariables(constVal, rowList, colList,
-                              setPeriod, setArea, setElement)
+                              setElement, setPeriod, setArea)
 
     def __getElements(self, weList):
         # Make a list of label, element tuples using the element list

@@ -37,7 +37,7 @@ import com.raytheon.uf.common.datastorage.records.IMetadataIdentifier;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
- * Data access object for access binlightning data
+ * Data access object for accessing binlightning data
  *
  * <pre>
  * SOFTWARE HISTORY
@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 1/08/09      1674       bphillip    Initial creation
  * Jun 05, 2014 3226       bclement    record now contains maps for data arrays
  * Sep 23, 2021 8608       mapeters    Add metadata id handling
+ * Jun 22, 2022 8865       mapeters    Update populateDataStore to return boolean
  * </pre>
  *
  * @author bphillip
@@ -62,48 +63,47 @@ public class BinLightningDao extends PluginDao {
         super(pluginName);
     }
 
-    /**
-     * Copy data from a Persistable object into a given DataStore container.
-     *
-     * @param dataStore
-     *            DataStore instance to receive the Persistable data.
-     * @param obj
-     *            The Persistable object to be stored.
-     * @throws Exception
-     *             Any general exception thrown in this method.
-     */
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
+        boolean populated = false;
+
         BinLightningRecord binLightningRec = (BinLightningRecord) obj;
         Map<String, Object> strikeDataArrays = binLightningRec
                 .getStrikeDataArrays();
-        populateFromMap(dataStore, binLightningRec,
-                binLightningRec.getDataURI(), strikeDataArrays);
+        if (populateFromMap(dataStore, binLightningRec,
+                binLightningRec.getDataURI(), strikeDataArrays)) {
+            populated = true;
+        }
         Map<String, Object> pulseDataArrays = binLightningRec
                 .getPulseDataArrays();
         String pulseGroup = binLightningRec.getDataURI() + DataURI.SEPARATOR
                 + LightningConstants.PULSE_HDF5_GROUP_SUFFIX;
-        populateFromMap(dataStore, binLightningRec, pulseGroup,
-                pulseDataArrays);
-        return dataStore;
+        if (populateFromMap(dataStore, binLightningRec, pulseGroup,
+                pulseDataArrays)) {
+            populated = true;
+        }
+        return populated;
     }
 
     /**
-     * Adds each primitive data array object in map to the datastore using the
+     * Adds each primitive data array object in map to the data store using the
      * provided group and the key of the map entry as the name
      *
      * @param dataStore
      * @param obj
      * @param group
      * @param data
+     * @return true if any data was added to the data store, false otherwise
      * @throws StorageException
      */
-    private void populateFromMap(IDataStore dataStore,
+    private boolean populateFromMap(IDataStore dataStore,
             BinLightningRecord binLightningRec, String group,
             Map<String, Object> data) throws StorageException {
         IMetadataIdentifier metaId = new DataUriMetadataIdentifier(
                 binLightningRec);
+
+        boolean populated = false;
         for (Entry<String, Object> e : data.entrySet()) {
             String name = e.getKey();
             Object dataArray = e.getValue();
@@ -111,6 +111,8 @@ public class BinLightningDao extends PluginDao {
                     group, dataArray);
             record.setCorrelationObject(binLightningRec);
             dataStore.addDataRecord(record, metaId);
+            populated = true;
         }
+        return populated;
     }
 }

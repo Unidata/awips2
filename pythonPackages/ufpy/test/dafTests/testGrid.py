@@ -48,6 +48,7 @@ import unittest
 #    12/07/16        5981          tgurney        Parameterize
 #    01/06/17        5981          tgurney        Skip envelope test when no
 #                                                 data is available
+#    04/14/22        8845          njensen        Added testGetDataAtPoint
 #
 
 
@@ -276,3 +277,11 @@ class GridTestCase(baseDafTestCase.DafTestCase):
             self.runGridDataTest(req)
         self.assertIn('IncompatibleRequestException', str(cm.exception))
         self.assertIn('info.level.masterLevel.name', str(cm.exception))
+
+    def testGetDataAtPoint(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier('info.datasetId', self.model)
+        req.setLevels('2FHAG')
+        req.setParameters('T')
+        req.setEnvelope(params.POINT)
+        self.runGeometryDataTest(req)

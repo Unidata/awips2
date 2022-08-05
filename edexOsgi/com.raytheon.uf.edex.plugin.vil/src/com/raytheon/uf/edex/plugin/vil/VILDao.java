@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ----------  ----------- --------------------------
  * 11/11/09     2027        dhladky     Initial Creation
  * Sep 23, 2021 8608        mapeters    Add metadata id handling
+ * Jun 22, 2022 8865        mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -58,9 +59,10 @@ public class VILDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(final IDataStore dataStore,
+    protected boolean populateDataStore(final IDataStore dataStore,
             final IPersistable obj) throws Exception {
         VILRecord VILRec = (VILRecord) obj;
+        boolean populated = false;
 
         String compression = PluginRegistry.getInstance()
                 .getRegisteredObject(pluginName).getCompression();
@@ -80,6 +82,7 @@ public class VILDao extends PluginDao {
                     new long[] { VILRec.getNx(), VILRec.getNy() });
             rec.setCorrelationObject(VILRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if ((VILRec.getDataArray() != null)
@@ -89,6 +92,7 @@ public class VILDao extends PluginDao {
                     new long[] { VILRec.getNx(), VILRec.getNy() });
             rec.setCorrelationObject(VILRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if ((VILRec.getDataArray() != null)
@@ -98,11 +102,12 @@ public class VILDao extends PluginDao {
                     new long[] { VILRec.getNx(), VILRec.getNy() });
             rec.setCorrelationObject(VILRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         logger.debug("VILDao: writing " + VILRec.toString());
 
-        return dataStore;
+        return populated;
     }
 
     @Override

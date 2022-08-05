@@ -120,6 +120,7 @@ import org.locationtech.jts.geom.GeometryFactory;
  * Nov 17, 2016  6000     bsteffen  Do not bother calculating availability when
  *                                  source is time agnostic.
  * Mar 06, 2017  6142     bsteffen  Support dataURI queries
+ * Apr 13, 2022  8845     njensen   Fix POINT requests
  * 
  * </pre>
  * 
@@ -363,7 +364,14 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
         if (obj instanceof IDataRecord) {
             IDataRecord dataRecord = (IDataRecord) obj;
             long[] sizes = dataRecord.getSizes();
-            if (sizes.length == 1 && sizes[0] == 1) {
+            boolean onlyOneValue = true;
+            for (long size: sizes) {
+                if (size != 1) {
+                    onlyOneValue = false;
+                    break;
+                }
+            }
+            if (onlyOneValue) {
                 BufferWrapper source = BufferWrapper
                         .wrapArray(dataRecord.getDataObject(), 1, 1);
                 final double value = source.getDataValue(0, 0);

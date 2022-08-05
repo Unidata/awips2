@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.plugin.npp.viirs.VIIRSMessageData;
  *                                    plugin.
  * Apr 02, 2020  8075     bsteffen    Store interpolated levels together.
  * Sep 23, 2021  8608     mapeters    Add metadata id handling
+ * Jun 22, 2022  8865     mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -127,8 +128,8 @@ public class VIIRSDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         final VIIRSDataRecord record = (VIIRSDataRecord) obj;
         VIIRSSpatialCoverage spatialRecord = record.getCoverage();
         int nx = spatialRecord.getNx();
@@ -216,7 +217,7 @@ public class VIIRSDao extends PluginDao {
 
         DownscaleStoreUtil.storeInterpolated(dataStore, downscaler, ds, creator,
                 metaId);
-        return dataStore;
+        return true;
     }
 
     @Override

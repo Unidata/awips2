@@ -28,16 +28,18 @@
 #    ------------    ----------    -----------    --------------------------
 #    12/07/16        5981          tgurney        Initial creation
 #    12/15/16        5981          tgurney        Add ENVELOPE
+#    04/14/22        8845          njensen        Add POINT
 #
 #
 
-from shapely.geometry import box
+from shapely.geometry import box, Point
 
 AIRPORT = 'OMA'
 OBS_STATION = 'KOMA'
 SITE_ID = 'OAX'
 STATION_ID = '72558'
 RADAR = 'KOAX'
+POINT = Point(-96.25, 41.16)
 SAMPLE_AREA = (-97.0, 41.0, -96.0, 42.0)
 
 ENVELOPE = box(*SAMPLE_AREA)

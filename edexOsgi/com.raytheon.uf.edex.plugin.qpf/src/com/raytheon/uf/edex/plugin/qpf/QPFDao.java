@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ----------  ----------- --------------------------
  * 02/24/09     2027        dhladky     Initial Creation
  * Sep 23, 2021 8608        mapeters    Add metadata id handling
+ * Jun 22, 2022 8865        mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -56,8 +57,9 @@ public class QPFDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
+        boolean populated = false;
         QPFRecord qpfRec = (QPFRecord) obj;
 
         IMetadataIdentifier metaId = new DataUriMetadataIdentifier(qpfRec);
@@ -69,6 +71,7 @@ public class QPFDao extends PluginDao {
                     new long[] { qpfRec.getNx(), qpfRec.getNy() });
             rec.setCorrelationObject(qpfRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (qpfRec.getDataArray() != null
@@ -78,6 +81,7 @@ public class QPFDao extends PluginDao {
                     new long[] { qpfRec.getNx(), qpfRec.getNy() });
             rec.setCorrelationObject(qpfRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (qpfRec.getDataArray() != null
@@ -87,6 +91,7 @@ public class QPFDao extends PluginDao {
                     new long[] { qpfRec.getNx(), qpfRec.getNy() });
             rec.setCorrelationObject(qpfRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (qpfRec.getDataArray() != null
@@ -96,6 +101,7 @@ public class QPFDao extends PluginDao {
                     new long[] { qpfRec.getNx(), qpfRec.getNy() });
             rec.setCorrelationObject(qpfRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (qpfRec.getDataArray() != null
@@ -105,6 +111,7 @@ public class QPFDao extends PluginDao {
                     new long[] { qpfRec.getNx(), qpfRec.getNy() });
             rec.setCorrelationObject(qpfRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (qpfRec.getDataArray() != null
@@ -114,11 +121,12 @@ public class QPFDao extends PluginDao {
                     new long[] { qpfRec.getNx(), qpfRec.getNy() });
             rec.setCorrelationObject(qpfRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         logger.debug("QPFDao: writing " + qpfRec.toString());
 
-        return dataStore;
+        return populated;
     }
 
     @Override

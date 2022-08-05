@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Jan 21, 2016  5208     bsteffen  Store scale and offset
  * Sep 23, 2021  8608     mapeters  Add metadata id handling
+ * Jun 22, 2022  8865     mapeters  Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -95,11 +96,8 @@ public class PointSetDao extends PluginDao {
     protected boolean validateParameter(PointSetRecord record) {
         Parameter parameter = record.getParameter();
         boolean result = true;
-        if (parameter == null) {
-            result = false;
-        } else if (parameter.getName() == null) {
-            result = false;
-        } else if ("Missing".equals(parameter.getName())) {
+        if (parameter == null || parameter.getName() == null
+                || "Missing".equals(parameter.getName())) {
             result = false;
         } else {
             Parameter dbParameter = ParameterLookup.getInstance()
@@ -120,8 +118,8 @@ public class PointSetDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         if (obj instanceof PointSetRecord) {
             PointSetRecord points = (PointSetRecord) obj;
             PointSetData data = points.getData();
@@ -143,11 +141,13 @@ public class PointSetDao extends PluginDao {
             }
             dataStore.addDataRecord(dataRecord,
                     new DataUriMetadataIdentifier(points));
+            return true;
         } else if (obj != null) {
             throw new IllegalArgumentException(
                     "Cannot handle " + obj.getClass().getSimpleName());
+        } else {
+            return false;
         }
-        return dataStore;
     }
 
 }

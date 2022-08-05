@@ -10,26 +10,32 @@
 #
 # SOFTWARE HISTORY
 #
-# Date          Ticket#  Engineer        Description
-# ------------- -------- --------------- --------------------------
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
 # May 15, 2019  20693    mgamazaychikov  Initial Creation
 # Aug 27, 2019  21545    mgamazaychikov  Minor bugs in XmlTafEncoder.encode()
-# Sep 30, 2019  21615    mgamazaychikov  Fixed incorrect dictionary key in XmlTafEncoder.write()
+# Sep 30, 2019  21615    mgamazaychikov  Fixed incorrect dictionary key in
+#                                        XmlTafEncoder.write()
 # Jan 29, 2020  21611    mgamazaychikov  Upgrade to version 3.4;
-#                                        change write method to return command line option-argument
-#                                        pairs for msg_send command
+#                                        change write method to return command
+#                                        line option-argument pairs for
+#                                        msg_send command
+# Apr 11, 2022  8846     randerso        Fix Python 3 issue and correct bug in
+#                                        XmlTafEncoder.write()
+# Apr 14, 2022  8846     randerso        Additional changes to ensure the xml
+#                                        declaration is written to the file.
 #
+import io
+import logging
 import os
 import re
-import stat
-import tempfile
 import time
 import uuid
-import xml.etree.ElementTree as ET
-import logging
+
 import TafDecoder as TD
-import XmlTafConfig as des
 import UFStatusHandler
+import XmlTafConfig as des
+import xml.etree.ElementTree as ET
 
 logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.uf.edex.aviation", "EDEX")
 _Logger = logging.getLogger("XmlTafEncoder")
@@ -41,7 +47,7 @@ class Encoder:
     according to the IWXXM/IWXXM-US 3.0 TAF schemas.
     """
 
-    def __init__(self,codesFile=des.CodesFilePath):
+    def __init__(self, codesFile=des.CodesFilePath):
 
         self._program_name = 'IWXXM TAF Encoder'
         self._description = 'To encode Terminal Aerodrome Forecast information in IWXXM %s format.' % des._iwxxm
@@ -104,10 +110,10 @@ class Encoder:
             self.XMLDocument.set('xmlns:%s' % 'iwxxm-us', des.IWXXM_US_URI)
 
         if self.iwxxmUSPrefix:
-            self.XMLDocument.set('xsi:schemaLocation','%s %s %s %s' %
+            self.XMLDocument.set('xsi:schemaLocation', '%s %s %s %s' %
                 (des.IWXXM_URI, des.IWXXM_URL, des.IWXXM_US_URI, des.IWXXM_US_URL))
         else:
-            self.XMLDocument.set('xsi:schemaLocation','%s %s' % (des.IWXXM_URI, des.IWXXM_URL))
+            self.XMLDocument.set('xsi:schemaLocation', '%s %s' % (des.IWXXM_URI, des.IWXXM_URL))
 
         self.XMLDocument.set('reportStatus', self._bbbCodes.get(self.decodedTaf['bbb'][0], 'NORMAL'))
         self.XMLDocument.set('permissibleUsage', 'OPERATIONAL')
@@ -131,7 +137,7 @@ class Encoder:
         self.aerodrome(self.XMLDocument, self.decodedTaf['ident'])
         #
         try:
-            self.vtime(ET.SubElement(self.XMLDocument,'validPeriod'),
+            self.vtime(ET.SubElement(self.XMLDocument, 'validPeriod'),
                        self.decodedTaf['vtime'])
             if self.decodingFailure:
                 return
@@ -214,9 +220,9 @@ class Encoder:
         indent4 = ET.SubElement(indent3, 'aixm:interpretation')
         indent4.text = 'SNAPSHOT'
 
-        indent4 = ET.SubElement(indent3,'aixm:designator')
+        indent4 = ET.SubElement(indent3, 'aixm:designator')
         indent4.text = token['str']
-        
+
         try:
             indent4 = ET.Element('aixm:name')
             indent4.text = token['name'].strip().upper()
@@ -226,7 +232,7 @@ class Encoder:
         except KeyError:
             pass
         #
-        indent4 = ET.SubElement(indent3,'aixm:locationIndicatorICAO')
+        indent4 = ET.SubElement(indent3, 'aixm:locationIndicatorICAO')
         indent4.text = token['str']
 
         try:
@@ -416,7 +422,7 @@ class Encoder:
                     indent1 = ET.SubElement(indent, 'AerodromeCloudForecast')
                     indent1.set('gml:id', 'uuid.%s' % uuid.uuid4())
 
-                    height = int(layer[2:])*100
+                    height = int(layer[2:]) * 100
                     indent2 = ET.Element('verticalVisibility')
                     indent2.text = str(height)
                     indent2.set('uom', '[ft_i]')
@@ -424,7 +430,6 @@ class Encoder:
 
                 except ValueError:
                     parent.remove(indent)
-                    pass
 
             elif layer == 'NSC':
                 indent.set('nilReason', des.NIL_NOOPRSIG_URL)
@@ -457,11 +462,11 @@ class Encoder:
         indent2.set('uom', '[ft_i]')
 
         try:
-            height = int(desc.group('HGT'))*100
+            height = int(desc.group('HGT')) * 100
             indent2.text = str(height)
 
         except TypeError:
-            if amount in ['CLR','SKC']:
+            if amount in ['CLR', 'SKC']:
                 indent2.set('uom', 'N/A')
                 indent2.set('xsi:nil', 'true')
                 indent2.set('nilReason', des.NIL_NA_URL)
@@ -481,7 +486,7 @@ class Encoder:
 
         LLWSDir = ET.SubElement(NonConvectiveLLWS, 'iwxxm-us:windDirection')
         LLWSSpd = ET.SubElement(NonConvectiveLLWS, 'iwxxm-us:windSpeed')
-        self.layerAboveAerodrome(NonConvectiveLLWS, str(token['hgt']*100), '0', '[ft_i]')
+        self.layerAboveAerodrome(NonConvectiveLLWS, str(token['hgt'] * 100), '0', '[ft_i]')
         LLWSDir.set('uom', 'deg')
         LLWSSpd.set('uom', '[kn_i]')
         LLWSDir.text = str(token['dd'])
@@ -517,12 +522,12 @@ class Encoder:
             #
             # (AFT|TIL) DDHHMM clause
             if m.group(4) or m.group(11):
-                    
-                tms[2:6] = int(timestr[:2]),int(timestr[2:4]),int(timestr[-2:]), 0
+
+                tms[2:6] = int(timestr[:2]), int(timestr[2:4]), int(timestr[-2:]), 0
                 self.fix_date(tms)
 
                 if (m.group(3) or m.group(10)) == 'TIL':
-                    limits['time'] = {'from': self.decodedTaf['itime']['value'],'to': time.mktime(tuple(tms))}
+                    limits['time'] = {'from': self.decodedTaf['itime']['value'], 'to': time.mktime(tuple(tms))}
                 elif (m.group(3) or m.group(10)) == 'AFT':
                     limits['time'] = {'from': time.mktime(
                         tuple(tms)), 'to': self.decodedTaf['vtime']['to']}
@@ -602,7 +607,7 @@ class Encoder:
             for concept in container.iter(Concept):
                 try:
                     uri = concept.get(about)
-                    key = uri[uri.rfind('/')+1:]
+                    key = uri[uri.rfind('/') + 1:]
                     text = ''
                     try:
                         text = concept.find(label).text
@@ -620,10 +625,15 @@ class Encoder:
     def checkVisibility(self, value, uom='m'):
 
         if type(value) == type(''):
-            def function(x): return str(x)
+
+            def function(x):
+                return str(x)
+
             value = float(value)
         else:
-            def function(x): return int(x)
+
+            def function(x):
+                return int(x)
 
         if uom == '[mi_i]':
             value *= 1609.34
@@ -641,20 +651,20 @@ class Encoder:
         else:
             value = 10000
 
-        return function(value-(value % mod))
+        return function(value - (value % mod))
 
     def fix_date(self, tms):
 
         now = time.time()
         t = time.mktime(tuple(tms))
-        if t > now + 86400.0:       # previous month
+        if t > now + 86400.0: # previous month
             if tms[1] > 1:
                 tms[1] -= 1
             else:
                 tms[1] = 12
                 tms[0] -= 1
 
-        elif t < now - 25*86400.0:  # next month
+        elif t < now - 25 * 86400.0: # next month
             if tms[1] < 12:
                 tms[1] += 1
             else:
@@ -706,7 +716,6 @@ class XmlTafEncoder():
                 #
                 # Remove the underscore BBB code from the key
                 ahl = ' '.join(ahl.split(' ')[:3])
-                
         except IndexError:
             bbb = ' '
 
@@ -719,13 +728,12 @@ class XmlTafEncoder():
         #
         # If decoding the TAF failed (should never happen)
         except KeyError:
-            _Logger.exception('Unable to decode TAF:\n%s' % tac)
+            _Logger.exception('Unable to decode TAF:\n%s', tac)
         #
         # Build the XML TAF document and place into the cache.
         self.docs.setdefault(ahl, []).append(self.encoder(tafDictionary, tac))
 
     def write(self):
-    
         """
         Return <MeteorologicalBulletin> documents until cache of unique 'AHL'
         codes is exhausted.
@@ -753,26 +761,28 @@ class XmlTafEncoder():
         keys = list(self.docs.keys())
         try:
             self.ahl = keys.pop()
-           
         except IndexError:
             return None
         #
         # Construct the WMO AHL Line
         try:
-            ttaaii,cccc,yygg,bbb = self.ahl.split(' ')            
+            ttaaii, cccc, yygg, bbb = self.ahl.split(' ')
 
         except ValueError:
-            ttaaii,cccc,yygg = self.ahl.strip().split(' ')
+            ttaaii, cccc, yygg = self.ahl.strip().split(' ')
             bbb = ''
-           
+
         if bbb == '':
-            _Logger.info('Sending %d routinely issued TAFs in a MeteorologicalBulletin.' % len(self.docs[self.ahl]))
+            _Logger.info('Sending %d routinely issued TAFs in a MeteorologicalBulletin.', len(self.docs[self.ahl]))
         else:
-            _Logger.info('Sending %d %s (%s) TAFs in a MeteorologicalBulletin' % (len(self.docs[self.ahl]),
-                                                                                       {'A': 'amended',
-                                                                                        'C': 'corrected',
-                                                                                        'R': 'routinely delayed'}.get(bbb[0]),
-                                                                                  bbb))
+            _Logger.info('Sending %d %s (%s) TAFs in a MeteorologicalBulletin',
+                             len(self.docs[self.ahl]),
+                             { 'A': 'amended',
+                               'C': 'corrected',
+                               'R': 'routinely delayed'
+                             }.get(bbb[0]),
+                             bbb
+                         )
         #
         while True:
             try:
@@ -788,30 +798,32 @@ class XmlTafEncoder():
         child = ET.SubElement(bulletin, 'bulletinIdentifier')
         #
         # Construct the name of the bulletin
-        child.text = 'A_%s%s%s%s_C_%s_%s.xml' % (ttaaii,cccc,yygg,bbb,cccc,time.strftime('%Y%m%d%H%M%S'))
+        child.text = 'A_%s%s%s%s_C_%s_%s.xml' % (ttaaii, cccc, yygg, bbb, cccc, time.strftime('%Y%m%d%H%M%S'))
         #
         # Serialize
-        xmlstring = ET.tostring(bulletin, encoding="UTF-8", method="xml")
-        xmlstring.replace(' />', '/>')
+        tree = ET.ElementTree(element=bulletin)
+        xmlBytes = io.BytesIO()
+        tree.write(xmlBytes, encoding="UTF-8", xml_declaration=True, method="xml", short_empty_elements=True)
+        xmlBytes = xmlBytes.getvalue().replace(' />'.encode("UTF-8"), '/>'.encode("UTF-8"))
         #
         # Write XML document to AWIPS outgoing directory
-        filename = '%s/%s' % (des.MHS_OUTPUT_FULL_PATH_DIR,child.text)
+        filename = os.path.join(des.MHS_OUTPUT_FULL_PATH_DIR, child.text)
         try:
-            _fh = open(filename,'w')
-            _fh.write('%s\n%s' % (self.ahl,xmlstring))
-            _fh.close()
-            
+            with open(filename, 'wb') as _fh:
+                _fh.write(f"{self.ahl}\n".encode("UTF-8"))
+                _fh.write(xmlBytes)
+
         except OSError:
+            _Logger.exception("Error writing XML TAF document to %s", filename)
             return None
 
         mhsI = "-i%s" % (self.ahl)
         mhsE = "-e%s" % (filename)
-        mhsArgs = [des.MHS_CODE,des.MHS_SUBJECT,des.MHS_ADDRESSEE,des.MHS_PRIORITY,mhsI,mhsE]
+        mhsArgs = [des.MHS_CODE, des.MHS_SUBJECT, des.MHS_ADDRESSEE, des.MHS_PRIORITY, mhsI, mhsE]
         return JUtil.pyValToJavaObj(mhsArgs)
-    
+
     def getAHL(self):
 
         """Return the unique AHL line"""
 
         return self.ahl
-    

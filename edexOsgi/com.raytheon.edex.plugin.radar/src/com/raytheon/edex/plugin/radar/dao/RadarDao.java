@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * May 09, 2016  18795    jdynina   Added CPM
  * Mar 26, 2018  6711     randerso  Code cleanup.
  * Sep 23, 2021  8608     mapeters  Add metadata id handling
+ * Jun 22, 2022  8865     mapeters  Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -93,8 +94,10 @@ public class RadarDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
+        boolean populated = false;
+
         RadarRecord radarRec = (RadarRecord) obj;
         StorageProperties sp = null;
         String compression = PluginRegistry.getInstance()
@@ -113,6 +116,7 @@ public class RadarDao extends PluginDao {
                             radarRec.getNumBins() });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getRawShortData() != null) {
@@ -122,6 +126,7 @@ public class RadarDao extends PluginDao {
                             radarRec.getNumBins() });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getAngleData() != null) {
@@ -130,6 +135,7 @@ public class RadarDao extends PluginDao {
                     new long[] { radarRec.getNumRadials() });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if ((radarRec.getThresholds() != null)
@@ -139,6 +145,7 @@ public class RadarDao extends PluginDao {
                     new long[] { 16 });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getSymbologyBlock() != null) {
@@ -149,6 +156,7 @@ public class RadarDao extends PluginDao {
                     RadarStoredData.SYM_BLOCK_ID, radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         Map<RadarDataKey, RadarDataPoint> symData = radarRec.getSymbologyData();
@@ -159,6 +167,7 @@ public class RadarDao extends PluginDao {
                     radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getGraphicBlock() != null) {
@@ -170,6 +179,7 @@ public class RadarDao extends PluginDao {
                     data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         Map<MapValues, Map<String, Map<MapValues, String>>> mapProdVals = radarRec
@@ -183,6 +193,7 @@ public class RadarDao extends PluginDao {
                     data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getTabularBlock() != null) {
@@ -193,6 +204,7 @@ public class RadarDao extends PluginDao {
                     radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getProductDependentValues() != null) {
@@ -202,6 +214,7 @@ public class RadarDao extends PluginDao {
                     new long[] { radarRec.getProductDependentValues().length });
             rec.setCorrelationObject(radarRec);
             dataStore.addDataRecord(rec, metaId, sp);
+            populated = true;
         }
 
         Map<MapValues, Map<MapValues, String>> mapRecVals = radarRec
@@ -214,6 +227,7 @@ public class RadarDao extends PluginDao {
                     data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         Map<String, RadarDataKey> stormIds = radarRec.getStormIDs();
@@ -224,6 +238,7 @@ public class RadarDao extends PluginDao {
                     RadarStoredData.STORM_IDS_ID, radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getGsmMessage() != null) {
@@ -234,6 +249,7 @@ public class RadarDao extends PluginDao {
                     radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
         if (radarRec.getCpmMessage() != null) {
@@ -245,9 +261,10 @@ public class RadarDao extends PluginDao {
                     radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, metaId, sp);
+            populated = true;
         }
 
-        return dataStore;
+        return populated;
     }
 
     @Override

@@ -44,6 +44,7 @@ import traceback
 #    May 14, 2020   8144         tgurney       Change delivery strategy for
 #                                              local-delivery messages
 #    Jun 19, 2020   8184         tgurney       Fix broken -d option
+#    May 25, 2022   DR 23144     aghanava      Modify workstation filter to use the short name.
 #
 
 from ufpy import NotificationMessage
@@ -146,7 +147,7 @@ def main():
             print("Failed to resolve the hostname " + fqdn)
             traceback.print_exc()
             sys.exit(1)
-        filters['WORKSTATION'] = fqdn
+        filters['WORKSTATION'] = fqdn.split('.')[0]
 
     try:
         kwargs = {

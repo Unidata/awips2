@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.database.query.SpatialDatabaseQuery;
  * Jun 06, 2018  7310     mapeters    Get only distinct times in getSatelliteInventory() methods
  * Jun 15, 2018  7310     mapeters    Add spatial constraint to queries
  * Sep 23, 2021  8608     mapeters    Add metadata id handling
+ * Jun 22, 2022  8865     mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -107,79 +108,78 @@ public class SatelliteDao extends PluginDao {
      * @return The populated data storage object.
      */
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
+    protected boolean populateDataStore(IDataStore dataStore,
             IPersistable record) throws StorageException {
         final SatelliteRecord satRecord = (SatelliteRecord) record;
 
         IDataRecord storageRecord = (IDataRecord) satRecord.getMessageData();
-        if (storageRecord != null) {
-            final StorageProperties props = new StorageProperties();
-            String compression = PluginRegistry.getInstance()
-                    .getRegisteredObject(pluginName).getCompression();
-            if (compression != null) {
-                props.setCompression(
-                        StorageProperties.Compression.valueOf(compression));
-            }
-            storageRecord.setProperties(props);
-            storageRecord.setCorrelationObject(satRecord);
-            final Map<String, Object> attributes = storageRecord
-                    .getDataAttributes();
-            if (storageRecord.getFillValue() == null) {
-                Number fillValue = getAttribute(attributes,
-                        SatelliteRecord.SAT_FILL_VALUE, 0.0f);
-                storageRecord.setFillValue(fillValue);
-            }
-            final Number fillValue = storageRecord.getFillValue();
-
-            IMetadataIdentifier metaId = new DataUriMetadataIdentifier(
-                    satRecord);
-
-            // Store the base record.
-            dataStore.addDataRecord(storageRecord, metaId);
-
-            SatMapCoverage coverage = satRecord.getCoverage();
-
-            GridDownscaler downScaler = new GridDownscaler(
-                    coverage.getGridGeometry());
-
-            Rectangle fullScale = downScaler.getDownscaleSize(0);
-            BufferWrapper dataSource = BufferWrapper.wrapArray(
-                    storageRecord.getDataObject(), fullScale.width,
-                    fullScale.height);
-
-            int levels = DownscaleStoreUtil.storeInterpolated(dataStore,
-                    downScaler, dataSource, new IDataRecordCreator() {
-
-                        @Override
-                        public IDataRecord create(Object data,
-                                int downScaleLevel, Rectangle size)
-                                throws StorageException {
-                            IDataRecord dr = createDataRecord(satRecord, data,
-                                    downScaleLevel, size);
-                            // Set the attributes and properties from the parent
-                            // data.
-                            dr.setDataAttributes(attributes);
-                            dr.setProperties(props);
-                            dr.setFillValue(fillValue);
-                            return dr;
-                        }
-
-                        @Override
-                        public double getFillValue() {
-                            // always the same fill value
-                            return fillValue.doubleValue();
-                        }
-
-                        @Override
-                        public boolean isSigned() {
-                            return false;
-                        }
-
-                    }, metaId);
-            // set the number of levels in the 'parent' satellite data.
-            satRecord.setInterpolationLevels(levels);
+        if (storageRecord == null) {
+            return false;
         }
-        return dataStore;
+        final StorageProperties props = new StorageProperties();
+        String compression = PluginRegistry.getInstance()
+                .getRegisteredObject(pluginName).getCompression();
+        if (compression != null) {
+            props.setCompression(
+                    StorageProperties.Compression.valueOf(compression));
+        }
+        storageRecord.setProperties(props);
+        storageRecord.setCorrelationObject(satRecord);
+        final Map<String, Object> attributes = storageRecord
+                .getDataAttributes();
+        if (storageRecord.getFillValue() == null) {
+            Number fillValue = getAttribute(attributes,
+                    SatelliteRecord.SAT_FILL_VALUE, 0.0f);
+            storageRecord.setFillValue(fillValue);
+        }
+        final Number fillValue = storageRecord.getFillValue();
+
+        IMetadataIdentifier metaId = new DataUriMetadataIdentifier(satRecord);
+
+        // Store the base record.
+        dataStore.addDataRecord(storageRecord, metaId);
+
+        SatMapCoverage coverage = satRecord.getCoverage();
+
+        GridDownscaler downScaler = new GridDownscaler(
+                coverage.getGridGeometry());
+
+        Rectangle fullScale = downScaler.getDownscaleSize(0);
+        BufferWrapper dataSource = BufferWrapper.wrapArray(
+                storageRecord.getDataObject(), fullScale.width,
+                fullScale.height);
+
+        int levels = DownscaleStoreUtil.storeInterpolated(dataStore, downScaler,
+                dataSource, new IDataRecordCreator() {
+
+                    @Override
+                    public IDataRecord create(Object data, int downScaleLevel,
+                            Rectangle size) throws StorageException {
+                        IDataRecord dr = createDataRecord(satRecord, data,
+                                downScaleLevel, size);
+                        // Set the attributes and properties from the parent
+                        // data.
+                        dr.setDataAttributes(attributes);
+                        dr.setProperties(props);
+                        dr.setFillValue(fillValue);
+                        return dr;
+                    }
+
+                    @Override
+                    public double getFillValue() {
+                        // always the same fill value
+                        return fillValue.doubleValue();
+                    }
+
+                    @Override
+                    public boolean isSigned() {
+                        return false;
+                    }
+
+                }, metaId);
+        // set the number of levels in the 'parent' satellite data.
+        satRecord.setInterpolationLevels(levels);
+        return true;
     }
 
     /**

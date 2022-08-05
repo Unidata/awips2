@@ -55,6 +55,8 @@ from ufpy.localization.LocalizationFileManager import LocalizationFileVersionCon
 #    07/17/17         #6285        randerso       Change to use new Roles/Permissions framework.
 #    02/19/18         #6602        dgilling       Update for new text utility
 #                                                 location.
+#    06/06/22         #8871        dgilling       Fix "-m domain" option broken by Python
+#                                                 3 updates.
 #
 #
 
@@ -736,14 +738,12 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             if (serverResponse.isOkay()):
                 domain = serverResponse.getPayload()
                 proj = domain.getProjection()
-                txt = "ProjectionID: " + proj.getProjectionID() + "\n"
-                txt = txt + "Grid Size: " + \
-                    repr((domain.getNx(), domain.getNy())) + "\n"
-                txt = txt + "Grid Domain: " + \
-                    repr((domain.getOrigin(), domain.getExtent())) + "\n"
+                txt = f"ProjectionID: {proj.getProjectionID()}\n"
+                txt += f"Grid Size: ({domain.getNx()}, {domain.getNy()})\n"
+                txt += f"Grid Domain: ({domain.getOrigin()!r}, {domain.getExtent()!r})\n"
 
-                for k in proj:
-                    txt += k + ': ' + str(getattr(proj, k)) + "\n"
+                for k in proj.keys():
+                    txt += f"{k}: {getattr(proj, k)}\n"
             else:
                 raise Exception(serverResponse.message())
         if self.__filename is None:

@@ -134,6 +134,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Sep 23, 2021  8608     mapeters  Audit metadata storage status
  * Jan 18, 2022  8740     randerso  Improve exception handling
  * Feb 16, 2022  8608     mapeters  Use DataStorageAuditUtils
+ * Jun 22, 2022  8865     mapeters  Update populateDataStore to return boolean
  *
  * </pre>
  */
@@ -1181,14 +1182,14 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         /*
          * Override to prevent auditing that is done in the super method and is
          * intended for database-only records. GFE records aren't database-only;
          * the HDF5 storage is just handled differently.
          */
-        return null;
+        return false;
     }
 
     /**

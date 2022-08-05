@@ -5,20 +5,15 @@
 # Shell Used: BASH shell
 # Original Author(s): Joseph.Maloney@noaa.gov
 # File Creation Date: 01/27/2009
-# Date Last Modified: 09/23/2016 - For 17.1.1
-# Date Last Modified: 09/11/2018 - Fix stormnumber,name
-# Date Last Modified: 09/29/2020 - Added error checking after KML generation
-# Date Last Modified: 11/04/2020 - Inversed kml/png generation for faster grids check 
 #
 # Contributors:
-# Joe Maloney (MFL), Pablo Santos (MFL)
+# Joe Maloney (MRX), Pablo Santos (MFL), Jonathan Lamb (CHS)
 # ----------------------------------------------------------- 
 # ------------- Program Description and Details ------------- 
 # ----------------------------------------------------------- 
 #
-# This script uses ifpImage to create PNG graphics of tropical threat
-# grids, then runProcedure to create KML of the same grids.  Finally,
-# the output files are rsync'd to LDAD and finally the webfarm.
+# This script creates the KML legend, runs the TCImpactGraphics_KML procedure to
+# create KML files for the HTI grids, and sends everything to the webfarm.
 #
 # To execute:
 #    ./make_hti.sh wfo
@@ -34,31 +29,35 @@
 #                                 it is missing.
 #
 # History:
-# 20 OCT 2014 - jcm - created from make_ghls.sh, broke out of webapps
-#                     package.  Renamed make_hti.sh.
-# 20 FEB 2015 - jcm - modified ifpIMAGE line to use ssh -x px2f; fixed
-#                     LOG_FILE at end of script; corrected $site variable
-#                     for kml rsync.
-# 10 JUN 2016 - jcm - brought back ghls_active.txt because apparently
-#                     NIDS is using this file in their KML mosiacking
-#                     code instead of just looking at the timestamps
-#                     of the KML files themselves.
-# 22 SEP 2016 - jcm - clean out $PRODUCTdir every time you run
-# 23 AUG 2018 - jcm - changed ghls_active.txt to always have stormname
-#                     DUMMY and stormnumber 99
-# 29 SEP 2020 - jcm - added error checking after KML procedure.  If a
-#                     KML file is missing or only 0 bytes, a GFE banner
-#                     will alert the forecasters and nothing will be 
-#                     sync'd to the web.
-#
-# 04 NOV 2020 - ps/jcm - reversed order running kml check first for faster
+# 20 OCT 2014 - jcm      created from make_ghls.sh, broke out of webapps
+#                        package.  Renamed make_hti.sh.
+# 20 FEB 2015 - jcm      modified ifpIMAGE line to use ssh -x px2f; fixed
+#                        LOG_FILE at end of script; corrected $site variable
+#                        for kml rsync.
+# 10 JUN 2016 - jcm      brought back ghls_active.txt because apparently
+#                        NIDS is using this file in their KML mosiacking
+#                        code instead of just looking at the timestamps
+#                        of the KML files themselves.
+# 22 SEP 2016 - jcm      clean out $PRODUCTdir every time you run
+# 23 AUG 2018 - jcm      changed ghls_active.txt to always have stormname
+#                        DUMMY and stormnumber 99
+# 29 SEP 2020 - jcm      added error checking after KML procedure.  If a
+#                        KML file is missing or only 0 bytes, a GFE banner
+#                        will alert the forecasters and nothing will be 
+#                        sync'd to the web.
+# 4 NOV 2020 - ps/jcm    reversed order running kml check first for faster
 #                        feedback.
+# 7 JUL 2022  J. Lamb    Override sitevars to ensure PRODUCTdir is set correctly
+#                        Merged kml_legend.sh content into make_hti.sh
+#                        Added check to automatically determine PX/PV server name
+#                        Disabled generation of legacy ifpImage files
 #
 ########################################################################
 #  CHECK TO SEE IF SITE ID WAS PASSED AS ARGUMENT
 #  IF NOT THEN EXIT FROM THE SCRIPT
 ########################################################################
-if [ $# -lt 1 ] ;then
+if [ $# -lt 1 ]
+then
    echo Invalid number of arguments.
    echo Script stopped.
    echo ./make_hti.sh wfo
@@ -74,7 +73,8 @@ fi
 GFESUITE_HOME="/awips2/GFESuite"
 HTI_HOME="${GFESUITE_HOME}/hti"
 
-if [ ! -f ${HTI_HOME}/etc/sitevars.${site} ]; then
+if [ ! -f ${HTI_HOME}/etc/sitevars.${site} ]
+then
    cp ${HTI_HOME}/etc/sitevars.ccc ${HTI_HOME}/etc/sitevars.${site}
 fi
 
@@ -85,17 +85,30 @@ fi
 #  BEGIN MAIN SCRIPT
 ########################################################################
 
+# Force PRODUCTdir proper path, regardless of sitevars content
+PRODUCTdir="${HTI_HOME}/data/${site}"
+
+# Determine server name
+if [[ $(grep -c pv <<< "$PX_SERVERS") -gt 0 ]]
+then
+  serverId="pv2"
+else
+  serverId="px2f"
+fi
+
 # set current data and log file name
 currdate=$(date -u +%Y%m%d)
 export LOG_FILE="${HTI_HOME}/logs/${currdate}/make_hti.log"
 
 # check to see if log directory structure exists.
-if [ ! -d  ${HTI_HOME}/logs ] ;then
+if [ ! -d  ${HTI_HOME}/logs ]
+then
    mkdir -p ${HTI_HOME}/logs
    chmod 777 ${HTI_HOME}/logs
    chown awips:fxalpha ${HTI_HOME}/logs
 fi
-if [ ! -d  ${HTI_HOME}/logs/${currdate} ] ;then
+if [ ! -d  ${HTI_HOME}/logs/${currdate} ]
+then
    mkdir -p ${HTI_HOME}/logs/${currdate}
    chmod 777 ${HTI_HOME}/logs/${currdate}
    chown awips:fxalpha ${HTI_HOME}/logs/${currdate}
@@ -104,13 +117,14 @@ fi
 # Log file header
 echo " " >> $LOG_FILE
 echo "####################################################################################" >> $LOG_FILE
-echo "# Starting Make_HTI Script....                                                     #" >> $LOG_FILE
+echo "# Starting Make_HTI Script at $(date)...." >> $LOG_FILE
 echo "####################################################################################" >> $LOG_FILE
 chmod 666 $LOG_FILE
 
 # Check to see if ${PRODUCTdir} exists.  If not, create.
-echo "Making sure that ${PRODUCTdir} exists at $(date)" >> $LOG_FILE
-if [ ! -d ${PRODUCTdir} ]; then
+echo "Making sure that ${PRODUCTdir} exists." >> $LOG_FILE
+if [ ! -d ${PRODUCTdir} ]
+then
    echo " **** ${PRODUCTdir} directory not found." >> $LOG_FILE
    echo " **** Creating ${PRODUCTdir} directory..." >> $LOG_FILE
    mkdir -p $PRODUCTdir
@@ -134,7 +148,7 @@ PARMS="StormSurgeThreat WindThreat FloodingRainThreat TornadoThreat"
     
 # Generate KML automatically via runProcedure
 echo "Running KML procedure." >> $LOG_FILE
-ssh -x pv2 "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig"
+ssh -x "${serverId}" "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig"
 
 # 2020-09-29 VERIFY KMLs were actually generated before proceeding
 for PARM in $PARMS
@@ -153,24 +167,136 @@ do
 
    # Or we end up here...send a banner and quit
    echo "Error detected in generation of $PARM kml file." >> $LOG_FILE
-   /awips2/GFESuite/bin/sendGfeMessage -u -m "Error detected in generation of $PARM kml file.  Please check the threat grids and rerun the HTI script again."
+   /awips2/GFESuite/bin/sendGfeMessage -u -m "Error detected in generation of $PARM kml file. Ensure HTI grids are saved/published and re-run the HTI script."
    exit
 
 done
 
-# Create legends for KML
-${HTI_HOME}/bin/kml_legend.sh
 
-echo "Starting ifpIMAGE loop." >> $LOG_FILE
-for PARM in $PARMS
+##########################################################################
+# BEGIN kml_legend content
+##########################################################################
+
+echo "Generating KML legends..." >> $LOG_FILE
+
+# Create legends for KML
+#${HTI_HOME}/bin/kml_legend.sh ${site}
+
+cd ${PRODUCTdir}
+
+for element in wind surge flood tornado
 do
-     # NOTE: cannot run ifpIMAGE on dv3/dv4 - must ssh to a pv
-     echo "Creating ${PARM} image..." >> $LOG_FILE
-     ssh -x pv2 "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}"
-     convert ${PRODUCTdir}/${SITE}${PARM}.png -resize 104x148 ${PRODUCTdir}/${SITE}${PARM}_sm.png
+
+# create canvases
+if [ $element = "surge" ]
+then
+convert -size 500x500 xc:black temp.png
+else # tornado, wind, flood
+convert -size 400x500 xc:black temp.png
+fi
+
+# make the image transparent
+convert temp.png null: -matte -compose Clear -composite -compose Over transparent.png
+
+# insert the logos at the bottom
+composite -gravity south -geometry +0+0 ${HTI_HOME}/bin/logos.png transparent.png trans2.png
+
+# write the date onto the image
+DATE=$(date +"Issued %F %H%MZ")
+convert trans2.png -font Century-Schoolbook-Bold -pointsize 16 -fill black -annotate +0+400 "${DATE}" trans2a.png
+
+if [ $element = "wind" ]
+then
+
+text1="Wind < 39 mph"
+text2="Potential for Wind 39-57 mph"
+text3="Potential for Wind 58-73 mph"
+text4="Potential for Wind 74-110 mph"
+text5="Potential for Wind > 110 mph"
+
+title="Wind Threat"
+outputFn="windthreatlegend.png"
+
+elif [ $element = "surge" ]
+then
+
+text1="Little to no storm surge flooding"
+text2="Potential for storm surge flooding > 1 ft above ground"
+text3="Potential for storm surge flooding > 3 ft above ground"
+text4="Potential for storm surge flooding > 6 ft above ground"
+text5="Potential for storm surge flooding > 9 ft above ground"
+
+title="Storm Surge Threat"
+outputFn="stormsurgethreatlegend.png"
+
+elif [ $element = "flood" ]
+then
+
+text1="Little to no potential for flooding rain"
+text2="Potential for localized flooding rain"
+text3="Potential for moderate flooding rain"
+text4="Potential for major flooding rain"
+text5="Potential for extreme flooding rain"
+
+title="Flooding Rain Threat"
+outputFn="floodingrainthreatlegend.png"
+
+# Tornado
+else
+
+text1="Tornadoes not expected"
+text2="Potential for a few tornadoes"
+text3="Potential for several tornadoes"
+text4="Potential for many tornadoes"
+text5="Potential for outbreak of tornadoes"
+
+title="Tornado Threat"
+outputFn="tornadothreatlegend.png"
+
+fi
+
+convert trans2a.png -fill black -draw 'rectangle 5,340 25,360' \
+                    -fill "#E5E5E5" -draw 'rectangle 6,341 24,359' \
+                    -font Century-Schoolbook-Bold -pointsize 16 -fill black -annotate +30+355 "${text1}" \
+                    -fill black -draw 'rectangle 5,320 25,340' \
+                    -fill "#FFFF00" -draw 'rectangle 6,321 24,339' \
+                    -font Century-Schoolbook-Bold -pointsize 16 -fill black -annotate +30+335 "${text2}" \
+                    -fill black -draw 'rectangle 5,300 25,320' \
+                    -fill "#FFA70F" -draw 'rectangle 6,301 24,319' \
+                    -font Century-Schoolbook-Bold -pointsize 16 -fill black -annotate +30+315 "${text3}" \
+                    -fill black -draw 'rectangle 5,280 25,300' \
+                    -fill "#FF0000" -draw 'rectangle 6,281 24,299' \
+                    -font Century-Schoolbook-Bold -pointsize 16 -fill black -annotate +30+295 "${text4}" \
+                    -fill black -draw 'rectangle 5,260 25,280' \
+                    -fill "#CC00CC" -draw 'rectangle 6,261 24,279' \
+                    -font Century-Schoolbook-Bold -pointsize 16 -fill black -annotate +30+275 "${text5}" \
+                    trans2b.png
+
+convert trans2b.png -font Century-Schoolbook-Bold -pointsize 20 -fill black -annotate +5+250 "${title}" $outputFn
+
+# clean up scraps
+rm temp.png transparent.png trans2.png trans2a.png trans2b.png
+
 done
+
+chmod 666 *legend.png
+#mv *legend.png ${PRODUCTdir}/
+
+##########################################################################
+# END kml_legend content
+##########################################################################
+
+# Disabled ifpImage generation 15 June 2022
+#echo "Starting ifpIMAGE loop." >> $LOG_FILE
+#for PARM in $PARMS
+#do
+#     # NOTE: cannot run ifpIMAGE on dv3/dv4 - must ssh to a PX/PV
+#     echo "Creating ${PARM} image..." >> $LOG_FILE
+#     ssh -x "${serverId}" "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}"
+#     convert ${PRODUCTdir}/${SITE}${PARM}.png -resize 104x148 ${PRODUCTdir}/${SITE}${PARM}_sm.png
+#done
     
-rm -f ${PRODUCTdir}/*.info
+#rm -f ${PRODUCTdir}/*.info
 
 ########################################################################
 # 2016-06-10  Because it is too challenging for NIDS / IDG to modify 
@@ -188,7 +314,7 @@ rm -f ${PRODUCTdir}/*.info
 # get storm name from header in TCV
 ##stormname=`grep LOCAL /awips2/edex/data/fxa/trigger/*TCV${SITE} | head -1 | sed -e "s/ LOCAL .*//"`
 # get two-digit year
-stormyr=`date +%y`
+stormyr=$(date +%y)
 
 ## TEST
 #echo "STORM NAME IS:  $stormname"
@@ -218,7 +344,7 @@ echo "Copying image and kml files to LDAD for WEB processing" >> $LOG_FILE
 echo "Done copying image and text files to LDAD" >> $LOG_FILE
 
 # NOTE: The lines below are for SR and ER sites to upload images to the National Website
-# NOTE: This can be ran as any AWIPS user so we must SSH as ldad@ls1 and run the commands via an SSH tunnel
+# NOTE: This can be run as any AWIPS user so we must SSH as ldad@ls1 and run the commands via an SSH tunnel
 echo "Copying graphics to NWSHQ Web farm ${NWSHQ_RSYNCSERVER}" >> $LOG_FILE
 CMD="/usr/bin/rsync -av --force --progress --stats ${LDAD_DATA}/*.png ${NWSHQ_RSYNCSERVER}::ghls_images/${site}"
 echo "/usr/bin/ssh -o stricthostkeychecking=no -x ${LDADuser}@${LDADserver} ${CMD}" >> $LOG_FILE
@@ -236,7 +362,10 @@ echo "Copy to ${NWSHQ_RSYNCSERVER} complete" >> $LOG_FILE
 # NOTE: If you want local lw processing on for all scripts add the following line to the 
 # NOTE: /awips2/GFESuite/hti/etc/sitevars.ccc (where ccc is your siteid).
 # NOTE: LOCALlw_PROCESSING="TRUE"
-if [ "${LOCALlw_PROCESSING}" == "" ]; then LOCALlw_PROCESSING="FALSE"; fi
+if [ "${LOCALlw_PROCESSING}" == "" ]
+then
+  LOCALlw_PROCESSING="FALSE"
+fi
 
 if [ "${LOCALlw_PROCESSING}" == "TRUE" ] 
     then
@@ -253,7 +382,8 @@ if [ "${ARCHIVE}" == "YES" ]
 then
     echo "Begin archiving process..." >> $LOG_FILE
     echo "Making sure ${PRODUCTdir}/archive exists at $(date)" >> $LOG_FILE
-    if [ ! -d ${PRODUCTdir}/archive ]; then 
+    if [ ! -d ${PRODUCTdir}/archive ]
+    then 
        echo "  ${PRODUCTdir}/archive directory not found!" >> $LOG_FILE
        echo "  Creating archive directory..." >> $LOG_FILE
        mkdir -p ${PRODUCTdir}/archive 
@@ -265,10 +395,13 @@ then
        chmod 770 ${PRODUCTdir}/archive 
        echo "  ${PRODUCTdir}/archive directory exists!" >> $LOG_FILE
     fi
-    DATESTAMP=`date +%Y%m%d_%H%M`
-    if [ ! -d ${PRODUCTdir}/archive/${DATESTAMP} ]; then mkdir -p ${PRODUCTdir}/archive/${DATESTAMP} ; fi
+    DATESTAMP=$(date +"%Y%m%d_%H%M")
+    if [ ! -d ${PRODUCTdir}/archive/${DATESTAMP} ]
+    then
+      mkdir -p ${PRODUCTdir}/archive/${DATESTAMP}
+    fi
 
-    ARCHFILES=`cd ${PRODUCTdir}; ls *Threat.png *kml.txt` 
+    ARCHFILES=$(cd ${PRODUCTdir}; ls *Threat.png *kml.txt)
     echo "Copying files to ${PRODUCTdir}/archive/${DATESTAMP} " >> $LOG_FILE
     for ARCHFILE in $ARCHFILES
     do

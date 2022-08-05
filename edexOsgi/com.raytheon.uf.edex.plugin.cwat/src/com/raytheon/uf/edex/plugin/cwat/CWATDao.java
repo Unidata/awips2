@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ----------  ----------- --------------------------
  * 06/03/09     2037        dhladky     Initial Creation
  * Sep 23, 2021 8608        mapeters    Add metadata id handling
+ * Jun 22, 2022 8865        mapeters    Update populateDataStore to return boolean
  *
  * </pre>
  *
@@ -59,10 +60,11 @@ public class CWATDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         CWATRecord cwatRec = (CWATRecord) obj;
 
+        boolean populated = false;
         IMetadataIdentifier metaId = new DataUriMetadataIdentifier(cwatRec);
         if (cwatRec.getDataArray() != null
                 && cwatRec.getFieldName().equals(DATA_TYPE.CWAT.name())) {
@@ -72,6 +74,7 @@ public class CWATDao extends PluginDao {
                     new long[] { cwatRec.getNx(), cwatRec.getNy() });
             rec.setCorrelationObject(cwatRec);
             dataStore.addDataRecord(rec, metaId);
+            populated = true;
         }
 
         if (cwatRec.getThreats() != null) {
@@ -81,11 +84,12 @@ public class CWATDao extends PluginDao {
             ByteDataRecord bdr = new ByteDataRecord(CWATRecord.THREATS,
                     cwatRec.getDataURI(), data);
             dataStore.addDataRecord(bdr, metaId);
+            populated = true;
         }
 
         logger.debug("CWATDao: writing " + cwatRec.toString());
 
-        return dataStore;
+        return populated;
     }
 
     @Override

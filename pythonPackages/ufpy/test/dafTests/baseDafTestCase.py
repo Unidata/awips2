@@ -24,6 +24,7 @@ from ufpy.dataaccess import DataAccessLayer as DAL
 from ufpy.ThriftClient import ThriftRequestException
 
 import os
+import numpy
 import unittest
 
 #
@@ -52,6 +53,8 @@ import unittest
 #                                                 time-agnostic data
 #    03/13/17        5981          tgurney        Do not check valid period on
 #                                                 data time
+#    04/14/22        8845          njensen        Add checks for NaNs in geometry
+#                                                 data tests
 #
 #
 
@@ -179,6 +182,8 @@ class DafTestCase(unittest.TestCase):
             print("geometry=" + str(record.getGeometry()), end="")
             for p in req.getParameters():
                 print(" " + p + "=" + record.getString(p), end="")
+                if record.getType(p) in ['FLOAT', 'DOUBLE']:
+                    self.assertFalse(numpy.isnan(record.getNumber(p)))
             print()
         return geomData
 
@@ -199,6 +204,8 @@ class DafTestCase(unittest.TestCase):
             print("geometry=" + str(record.getGeometry()), end="")
             for p in req.getParameters():
                 print(" " + p + "=" + record.getString(p), end="")
+                if record.getType(p) in ['FLOAT', 'DOUBLE']:
+                    self.assertFalse(numpy.isnan(record.getNumber(p)))
             print()
         return geomData
 

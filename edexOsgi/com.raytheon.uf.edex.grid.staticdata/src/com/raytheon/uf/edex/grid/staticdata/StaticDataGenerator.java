@@ -53,7 +53,7 @@ import com.raytheon.uf.common.datastorage.audit.DataStatus;
 import com.raytheon.uf.common.datastorage.audit.DataStorageAuditEvent;
 import com.raytheon.uf.common.datastorage.audit.DataStorageAuditUtils;
 import com.raytheon.uf.common.datastorage.audit.DataStorageAuditerContainer;
-import com.raytheon.uf.common.datastorage.audit.Hdf5DataIdentifer;
+import com.raytheon.uf.common.datastorage.audit.Hdf5DataIdentifier;
 import com.raytheon.uf.common.datastorage.audit.IDataIdentifier;
 import com.raytheon.uf.common.datastorage.audit.IDataStorageAuditer;
 import com.raytheon.uf.common.datastorage.audit.MetadataAndDataId;
@@ -366,7 +366,7 @@ public class StaticDataGenerator {
 
                 String dataPath = HDF5Util.findHDF5Location(gr).getPath();
 
-                IDataIdentifier dataId = new Hdf5DataIdentifer(gr.getTraceId(),
+                IDataIdentifier dataId = new Hdf5DataIdentifier(gr.getTraceId(),
                         dataPath, group, datasets);
                 IMetadataIdentifier metaId = new DataUriMetadataIdentifier(gr,
                         MetadataSpecificity.DATASET);

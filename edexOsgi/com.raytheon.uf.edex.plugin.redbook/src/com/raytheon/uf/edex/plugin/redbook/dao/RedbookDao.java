@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.plugin.redbook.dao;
 
 import java.io.FileNotFoundException;
-import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -32,7 +31,6 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.DataUriMetadataIdentifier;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
@@ -48,6 +46,8 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
  * Sep 23, 2021 8608       mapeters    Add metadata id handling
+ * Jun 22, 2022 8865       mapeters    Update populateDataStore to return boolean,
+ *                                     remove unused methods
  * </pre>
  *
  * @author jkorman
@@ -64,8 +64,8 @@ public class RedbookDao extends PluginDao {
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected boolean populateDataStore(IDataStore dataStore, IPersistable obj)
+            throws Exception {
         RedbookRecord redBookRec = (RedbookRecord) obj;
         if (dataStore != null) {
             IDataRecord rec = DataStoreFactory.createStorageRecord(
@@ -74,48 +74,9 @@ public class RedbookDao extends PluginDao {
             rec.setCorrelationObject(this);
             dataStore.addDataRecord(rec,
                     new DataUriMetadataIdentifier(redBookRec));
+            return true;
         }
-        return dataStore;
-    }
-
-    /**
-     * Retrieves an sfcobs report using the datauri .
-     *
-     * @param dataURI
-     *            The dataURI to match against.
-     * @return The report record if it exists.
-     */
-    public RedbookRecord queryByDataURI(String dataURI) {
-        RedbookRecord report = null;
-        List<?> obs = null;
-        try {
-            obs = queryBySingleCriteria("dataURI", dataURI);
-        } catch (DataAccessLayerException e) {
-            logger.error(
-                    "Error getting redbook record for data URI: " + dataURI, e);
-        }
-        if (obs != null && !obs.isEmpty()) {
-            report = (RedbookRecord) obs.get(0);
-        }
-        return report;
-    }
-
-    /**
-     * Queries for to determine if a given data uri exists on the redbook table.
-     *
-     * @param dataUri
-     *            The DataURI to find.
-     * @return An array of objects. If not null, there should only be a single
-     *         element.
-     */
-    public Object[] queryDataUriColumn(final String dataUri) {
-
-        String sql = "select datauri from awips.redbook where datauri='"
-                + dataUri + "';";
-
-        Object[] results = executeSQLQuery(sql);
-
-        return results;
+        return false;
     }
 
     public RedbookRecord getFullRecord(RedbookRecord record)
