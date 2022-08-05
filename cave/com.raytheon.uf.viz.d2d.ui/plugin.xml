@@ -55,7 +55,6 @@
             </iterate>
          </with>
       </definition>
-      
       <definition id="com.raytheon.uf.viz.d2d.ui.inD2DPerspective">
             <with variable="activeWorkbenchWindow.activePerspective">
                 <equals value="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
@@ -81,6 +80,16 @@
                    name="top"
                    visible="false">
              </separator>
+                          <command
+                   commandId="org.eclipse.ui.window.newEditor"
+                   label="New Map"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.maps.createProjection"
+                   label="New Projection"
+                   style="push">
+             </command>
              <menu
                    label="Procedures">
             <command
@@ -109,14 +118,54 @@
                    label="History List..."
                    style="push">
              </command>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
-                   label="Print..."
+             <menu
+                   id="import"
+                   label="Import">
+             </menu>
+             <menu
+                   id="export"
+                   label="Export">
+             </menu>
+             <separator
+                   name="saveSeparator"
+                   visible="true">
+             </separator>
+			 <command
+                   commandId="com.raytheon.viz.ui.loadSerialized"
+                   label="Load Display"
                    style="push">
              </command>
              <command
+				   commandId="com.raytheon.viz.ui.saveProcedure"
+				   label="Save Display"
+				   style="push">
+             </command>
+             <command
+				   commandId="com.raytheon.viz.ui.saveBundle"
+				   label="Save Display Locally"
+				   style="push">
+             </command>
+			 <command
+                   commandId="com.raytheon.viz.ui.deleteAWIPSBundle"
+                   label="Delete Displays"
+                   style="push">
+             </command>
+             <separator
+                   name="exportSeparator"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.uf.viz.image.export.print"
+                   label="Print Screen"
+                   style="push">
+                <parameter
+                      name="frameSelection"
+                      value="current">
+                </parameter>
+             </command>
+             <command
                    commandId="com.raytheon.uf.viz.image.export.save"
-                   label="Capture Window..."
+                   label="Save Image"
                    style="push">
              </command>
           </menu>
@@ -199,18 +248,18 @@
              </separator>
              <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="Default Pane Layout">
+                   label="1 Pane Layout">
                 <parameter
                       name="sideViews"
-                      value="4">
+                      value="1">
                 </parameter>
              </command>
              <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="Three Pane Layout">
+                   label="5 Pane Layout">
                 <parameter
                       name="sideViews"
-                      value="2">
+                      value="4">
                 </parameter>
              </command>
              <separator
@@ -313,8 +362,8 @@
              <separator name="tools.Z" visible="false" />
           </menu>
           <menu
-                id="volume"
-                label="Volume"
+                id="models"
+                label="Models"
                 mnemonic="V">
              <visibleWhen>
                 <reference
@@ -325,7 +374,6 @@
           </menu>
           <separator name="d2d.obsMenu" visible="false"/>
           <separator name="d2d.ncepHydroMenu" visible="false"/>
-          <separator name="d2d.localMenu" visible="false"/>
           <separator name="d2d.upperAirMenu" visible="false"/>
           <menu
                id="satellite"
@@ -357,13 +405,6 @@
              </visibleWhen>
             <separator name="RADAR_MENU_START" visible="false"/>
          </menu>
-         <menu id="scan" mnemonic="C" label="SCAN">
-            <visibleWhen>
-                <reference definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet"></reference></visibleWhen>
-            <separator name="SCAN_MENU_START" visible="false"></separator>
-            <separator name="SCAN_MENU_MIDDLE" visible="false"></separator>
-            </menu>            
-
          <menu
                id="D2Dmaps"
                label="Maps"
@@ -381,21 +422,6 @@
        </menuContribution>
          <menuContribution
                locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-            <toolbar
-                  id="d2d-1">
-                <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
-                   id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
-                   label="Load Mode"
-                   style="pulldown"
-                   tooltip="Load Mode">
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-                </command>
-            </toolbar>
              <toolbar
                   id="mapControls">
                <command
@@ -420,6 +446,32 @@
                     </reference>
                   </visibleWhen>
                </command>
+               <command
+                     commandId="com.raytheon.viz.ui.imageProperties"
+                     icon="icons/adjust.png"
+                     label="Image Properties"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+            </toolbar>
+            <toolbar
+                  id="d2d-1">
+                <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+                   id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
+                   label="Load Mode"
+                   style="pulldown"
+                   tooltip="Load Mode">
+                <visibleWhen>
+                   <reference
+                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                   </reference>
+                </visibleWhen>
+                </command>
             </toolbar>
             <toolbar
                   id="loopControls">
@@ -527,78 +579,6 @@
                   </reference>
                </visibleWhen>
             </command>
-            </toolbar>
-         <toolbar
-               id="d2d-2">
-            <command
-                  commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
-                  icon="icons/nocombine.gif"
-                  label="Toggle Image Combination"
-                  tooltip="Toggle Image Combination"
-                  style="toggle">
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-            </command>
-            <command
-                  commandId="com.raytheon.viz.ui.imageProperties"
-                  icon="icons/imageprop.gif"
-                  label="Image Properties">
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-            </command>
-            <command
-                  commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
-                  icon="icons/print.gif"
-                  label="Print"
-                  tooltip="Print">
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-            </command>
-            <separator
-                  name="tools.toolbar" visible="false">
-            </separator>
-            <command
-                  commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                  icon="icons/5-pane.gif"
-                  label="Default Pane Layout"
-                  tooltip="Default Pane Layout">
-               <parameter
-                     name="sideViews"
-                     value="4">
-               </parameter>
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-            </command>
-            <command
-                  commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                  icon="icons/3-pane.gif"
-                  label="Three Pane Layout"
-                  tooltip="Three Pane Layout">
-               <parameter
-                     name="sideViews"
-                     value="2">
-               </parameter>
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-            </command>
-         </toolbar>
-         <toolbar
-               id="d2d-3">
             <command
                   commandId="com.raytheon.viz.ui.actions.framesbutton"
                   id="com.raytheon.viz.ui.actions.frames"
@@ -621,18 +601,39 @@
                   </reference>
                </visibleWhen>
             </command>
+        </toolbar>
+         <toolbar
+               id="warngenbutton">
             <command
-                  commandId="com.raytheon.viz.ui.actions.densitybutton"
-                  id="com.raytheon.viz.ui.actions.density"
-                  label="Density: ?.??"
-                  style="pulldown">
-               <visibleWhen>
-                  <reference
-                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                  </reference>
-               </visibleWhen>
-            </command>
+					commandId="com.raytheon.viz.warngen.gui.WarngenAction"
+					icon="icons/warngen.gif"
+					label="Warngen">
+	
+					<visibleWhen>
+ 
+                     <reference
+                           definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                     </reference>
+
+					</visibleWhen>
+				</command>
          </toolbar>
+        <toolbar
+               id="applications">
+            <command
+                  commandId="com.raytheon.uf.viz.productbrowser.productBrowser"
+				  icon="icons/plus.png"
+                  label="Browser"
+				  mode="FORCE_TEXT"
+                  style="push">
+			      <visibleWhen>
+			         <reference
+			               definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+			         </reference>
+			      </visibleWhen>
+            </command>
+        </toolbar>
+
          </menuContribution>
          <menuContribution
                locationURI="menu:com.raytheon.uf.viz.d2d.ui.actions.loadmode">
@@ -1231,13 +1232,6 @@
 				<dynamic
           			class="com.raytheon.uf.viz.d2d.ui.MagnificationPopulator"
           			id="com.raytheon.uf.viz.d2d.ui.magnificationPopulator">
-				</dynamic>
-         </menuContribution>
-         <menuContribution
-               locationURI="menu:com.raytheon.viz.ui.actions.density">
-            	<dynamic
-          			class="com.raytheon.uf.viz.d2d.ui.DensityPopulator"
-          			id="com.raytheon.uf.viz.d2d.ui.densityPopulator">
 				</dynamic>
          </menuContribution>
        </extension>
