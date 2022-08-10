@@ -83,7 +83,7 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 **1. Close all error windows and any open windows associated with CAVE.**
 
-**2. In the Windows 10 search field, search for "control panel".**
+**2. In the Windows search field, search for "control panel".**
 
 ![](../images/ipv6ProblemStep2.png)
 

@@ -86,7 +86,7 @@ Our python-awips Notebooks span a wide range of topics, but generally cover the 
 
 ---
 
-<img src="../../images/awipsTips.png" alt="GeeksforGeeks logo" align="right">
+<img src="../../images/awipsTips.png" alt="AWIPS Tips logo" align="right">
 
 ## AWIPS Tips Blog Series
 
@@ -144,3 +144,26 @@ A full list of all released blogs can be found below:
 - [EDEX Data Retention](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-edex-data-retention)
 - [Adding ECMWF Data to EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-ecmwf-data)
 - [Ingesting GOES Satellite Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ingesting-goes-satellite)
+
+---
+
+<img src="../../images/youtube-logo.png" alt="YouTube logo" align="right">
+
+## YouTube Channel and Playlist
+
+Unidata has a YouTube channel where we publish videos about all of our software pacakges.  Specifically we also have a playlist dedicated to AWIPS videos.
+
+### Access
+
+All [Unidata vidoes can be accessed here](https://www.youtube.com/c/unidatanews) on our channel.
+
+All AWIPS vidoes can be found on the [AWIPS Playlist](https://www.youtube.com/watch?v=4ax6SRyaYTc&list=PLQut5OXpV-0gk9CcjfInV9hNIEAld-Tpp).
+
+### Content
+
+Our AWIPS videos cover a wide range of topics, but include some of the following themes:
+
+- AWIPS topic overviews
+- Instructional videos (ex. how to install CAVE)
+- In-depth walkthroughs on CAVE functionality
+- Python-AWIPS notebook examples
