@@ -19,6 +19,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 !!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."  
 
+- Bash shell environment
 - 16+ CPU cores (each CPU core can run a decorder in parallel)
 - 24GB RAM
 - 700GB+ Disk Space

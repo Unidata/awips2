@@ -40,6 +40,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 ### System Requirements
 
 - 64 bit CentOS/Red Hat 7
+- Bash shell environment
 
 !!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."
 
