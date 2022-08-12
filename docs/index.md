@@ -19,7 +19,7 @@
 [qpid]: http://qpid.apache.org
 
 
- The Advanced Weather Interactive Processing System (AWIPS) is a meteorological software package.  It is used for decoding, displaying, and analyzing data, and was originally developed for the National Weather Service (NWS) by Raytheon. There is a division here at UCAR called the Unidata Program Center (UCP) which develops and supports a modified non-operational version of AWIPS for use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).  This is released as open source software, free to download and use by anyone.
+ The Advanced Weather Interactive Processing System (AWIPS) is a meteorological software package.  It is used for decoding, displaying, and analyzing data, and was originally developed for the National Weather Service (NWS) by Raytheon. There is a division here at UCAR called the Unidata Program Center (UPC) which develops and supports a modified non-operational version of AWIPS for use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).  This is released as open source software, free to download and use by anyone.
 
 AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the [LDM](#ldm) client pulling data feeds from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by [EDEX](install/install-edex), which serves products and data over http.
 
