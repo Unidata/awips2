@@ -260,11 +260,11 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         }
     }
 
-    private static final String INSTRUCTION_DRAG_STORM = "Move Centroid to Storm in any Frame";
+    private static final String INSTRUCTION_DRAG_STORM = "Move Storm Dot to Leading Edge";
 
-    private static final String INSTRUCTION_NO_SHADED_AREA = "Move Storm Polygon to CWA";
+    private static final String INSTRUCTION_NO_SHADED_AREA = "Move Polygon to County Warning Area";
 
-    private static final String UPDATELISTTEXT = "UPDATE LIST                                 ";
+    private static final String UPDATELISTTEXT = "(Updating product was disabled by Unidata)";
 
     /** "OK" button text */
     private static final String OK_BTN_LABEL = "Create Text";
@@ -914,7 +914,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
                 if (!SimulatedTimeOperations.isTransmitAllowed()) {
                     Shell shell = getShell();
                     SimulatedTimeOperations.displayFeatureLevelWarning(shell,
-                            "Create WarnGen product");
+                            "Create WarnGen Product");
                     return;
                 }
 
@@ -960,15 +960,15 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         }
         if (createTextButtonEnabled) {
             if (warngenLayer.getWarningArea() == null) {
-                str = "Area selected has no overlap with current area of responsibility";
+                str = "Polygon area has no overlap with CWA Responsibility";
             } else {
                 if (warngenLayer.getStormTrackState().isInitiallyMotionless()
                         && !warngenLayer.getStormTrackState().isNonstationary()) {
                     str += INSTRUCTION_DRAG_STORM + "\n";
                 } else if (warngenLayer.getStormTrackState().trackVisible) {
-                    str += "Adjust Centroid in any Frame | ";
+                    str += "Step back a few frames and adjust storm dot";
                 }
-                str += "Adjust box around Warning Area";
+                str += "Adjust polygon around desired area";
             }
         }
         if (presetInstruct != null) {
@@ -1230,7 +1230,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
                         throws InvocationTargetException, InterruptedException {
                     long t0 = System.currentTimeMillis();
                     try {
-                        monitor.beginTask("Generating product", 1);
+                        monitor.beginTask("Generating text product... this may take a minute", 1);
                         statusHandler.debug("using startTime "
                                 + startTime.getTime() + " endTime "
                                 + endTime.getTime());
@@ -1313,6 +1313,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
                 number = m.group();
             }
         }
+        /// THIS MAY NEED TO BE ADDRESSED IN THE FUTURE -PH
         String id = siteNode + "WRKWG" + number;
         try {
             String product = id + ":" + warning;
