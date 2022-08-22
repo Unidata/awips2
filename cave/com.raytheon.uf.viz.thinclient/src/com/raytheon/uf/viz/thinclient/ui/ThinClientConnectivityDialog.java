@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.thinclient.ui;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.localization.ConnectivityPreferenceDialog;
@@ -65,13 +66,12 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ThinClientConnectivityDialog.class, "CAVE");
 
-
     private String dataRefreshMethod;
 
     private String proxyAddress;
 
     public ThinClientConnectivityDialog(boolean checkAlertViz) {
-        super(checkAlertViz);
+        super(checkAlertViz, "Thin Client Connectivity Preferences");
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         dataRefreshMethod = store
                 .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);
