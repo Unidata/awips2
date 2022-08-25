@@ -279,6 +279,7 @@ import tec.uom.se.unit.MetricPrefix;
  * 09/14/2016  3241        bsteffen    Update deprecated JTSCompiler method calls
  * 12/08/2016  5941        bsteffen    Fix recycling of resource.
  * 01/11/2017  6067        bsteffen    Fix errors on shutdown.
+ * 06/25/2017              mjames@ucar Simple dialog.
  * 08/29/2017  6328        randerso    Convert to use PresetInfoBullet
  * 09/25/2017  6362        randerso    Changed to support Alaska_Marine geospatial config
  * 01/11/2018  7188        lvenable    Added a a check for ColorableCapability and set geometryChanged to true so the
