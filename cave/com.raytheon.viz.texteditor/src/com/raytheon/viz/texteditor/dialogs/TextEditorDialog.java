@@ -106,7 +106,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.menus.IMenuService;
 
-import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
 import com.raytheon.uf.common.dataplugin.text.RemoteRetrievalResponse;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
@@ -120,8 +119,6 @@ import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateReque
 import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
-import com.raytheon.uf.common.dissemination.OUPTestRequest;
-import com.raytheon.uf.common.dissemination.OfficialUserProduct;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -143,7 +140,6 @@ import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -163,9 +159,6 @@ import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.command.IProductQueryCallback;
 import com.raytheon.viz.texteditor.command.ProductQueryJob;
-import com.raytheon.viz.texteditor.dialogs.LineWrapCheckConfirmationMsg.AnswerChoices;
-import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
-import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IAwipsBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IRecoverEditSessionCallback;
@@ -571,6 +564,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Nov 01, 2018  7599     tgurney         Reimplement "select to end of line"
  * Nov 05, 2018  6804     tgurney         executeTextScript return the script
  *                                        controller
+ * Nov 9, 2018            mjames          Remove send button capability
  * Nov 09, 2018  7587     tgurney         Add "writeToLog" parameter to
  *                                        showScriptStatus()
  * Nov 13, 2018  7598     tgurney         Stop redraw of text editor during
@@ -869,11 +863,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private MenuItem saveItem;
 
     /**
-     * Send and Exit menu item.
-     */
-    private MenuItem sendExitEditorItem;
-
-    /**
      * Cancel editor item.
      */
     private MenuItem cancelEditorItem;
@@ -887,11 +876,6 @@ public class TextEditorDialog extends CaveSWTDialog
      * Recover edit session menu item.
      */
     private MenuItem recoverEditSessionItem;
-
-    /**
-     * Re-send warning product menu item.
-     */
-    private MenuItem resendWarningProductnItem;
 
     /**
      * Close menu item.
@@ -1172,11 +1156,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private Button editorFillBtn;
 
     /**
-     * Editor send button.
-     */
-    private Button editorSendBtn;
-
-    /**
      * Editor attach button.
      */
     private Button editorAttachBtn;
@@ -1438,15 +1417,6 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /** Text character wrap dialog */
     private TextCharWrapDlg textCharWrapDlg;
-
-    /** LDAD fax sites dialog */
-    private LdadFaxSitesDlg ldadFaxSitesDlg;
-
-    /** Fax all message dialog */
-    private FaxMessageDlg faxAllMsgDlg;
-
-    /** Fax message dialog */
-    private FaxMessageDlg faxMsgDlg;
 
     /*
      * enum to detemine if editor session can be closed.
@@ -1738,53 +1708,6 @@ public class TextEditorDialog extends CaveSWTDialog
 
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
-        MenuItem faxAllItem = new MenuItem(fileMenu, SWT.NONE);
-        faxAllItem.setText("Fax All...");
-        faxAllItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-
-                if (faxAllMsgDlg == null || faxAllMsgDlg.isDisposed()) {
-                    faxAllMsgDlg = new FaxMessageDlg(shell);
-                    faxAllMsgDlg.setInitialText(textEditor.getText());
-                    faxAllMsgDlg.open();
-                } else {
-                    faxAllMsgDlg.bringToTop();
-                }
-            }
-        });
-
-        MenuItem faxSelectionItem = new MenuItem(fileMenu, SWT.NONE);
-        faxSelectionItem.setText("Fax Selection...");
-        faxSelectionItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (faxMsgDlg == null || faxMsgDlg.isDisposed()) {
-                    faxMsgDlg = new FaxMessageDlg(shell);
-                    faxMsgDlg.setInitialText(textEditor.getSelectionText());
-                    faxMsgDlg.open();
-                } else {
-                    faxMsgDlg.bringToTop();
-                }
-            }
-        });
-
-        MenuItem configAutoFaxItem = new MenuItem(fileMenu, SWT.NONE);
-        configAutoFaxItem.setText("Configure Auto Fax...");
-        configAutoFaxItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (ldadFaxSitesDlg == null || ldadFaxSitesDlg.isDisposed()) {
-                    ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
-                    ldadFaxSitesDlg.open();
-                } else {
-                    ldadFaxSitesDlg.bringToTop();
-                }
-            }
-        });
-
-        new MenuItem(fileMenu, SWT.SEPARATOR);
-
         enterEditorItem = new MenuItem(fileMenu, SWT.NONE);
         enterEditorItem.setText("Enter Editor");
         enterEditorItem.addSelectionListener(new SelectionAdapter() {
@@ -1803,17 +1726,6 @@ public class TextEditorDialog extends CaveSWTDialog
             @Override
             public void widgetSelected(SelectionEvent event) {
                 saveProduct();
-            }
-        });
-
-        sendExitEditorItem = new MenuItem(fileMenu, SWT.NONE);
-        sendExitEditorItem.setText("Send && Exit Editor");
-        sendExitEditorItem.setEnabled(false);
-        sendExitEditorItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                logInfo("File -> Send & Exit clicked");
-                sendProduct(false);
             }
         });
 
@@ -1850,24 +1762,6 @@ public class TextEditorDialog extends CaveSWTDialog
 
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
-        MenuItem requestFromRemoteSiteItem = new MenuItem(fileMenu, SWT.NONE);
-        requestFromRemoteSiteItem.setText("Request From Remote Site...");
-        requestFromRemoteSiteItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                RemoteSiteRequestDlg requestDlg = new RemoteSiteRequestDlg(
-                        shell, lastRemoteRetrievalRequest);
-                requestDlg.addCloseCallback(returnValue -> {
-                    RemoteRetrievalRequest req = (RemoteRetrievalRequest) returnValue;
-                    if (req != null) {
-                        lastRemoteRetrievalRequest = req;
-                        sendRemoteRetrievalRequest(req);
-                    }
-                });
-                requestDlg.open();
-            }
-        });
-
         recoverEditSessionItem = new MenuItem(fileMenu, SWT.NONE);
         recoverEditSessionItem.setText("Recover Edit Sesssion...");
         recoverEditSessionItem.addSelectionListener(new SelectionAdapter() {
@@ -1878,19 +1772,6 @@ public class TextEditorDialog extends CaveSWTDialog
                         TextEditorDialog.this);
                 recoveryDlg.setBlockOnOpen(false);
                 recoveryDlg.open();
-            }
-        });
-
-        new MenuItem(fileMenu, SWT.SEPARATOR);
-
-        resendWarningProductnItem = new MenuItem(fileMenu, SWT.NONE);
-        resendWarningProductnItem.setText("Resend Warning Product...");
-        resendWarningProductnItem.setEnabled(false);
-        resendWarningProductnItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                logInfo("File -> Resend Warning Product... clicked");
-                sendProduct(true);
             }
         });
 
@@ -3578,19 +3459,6 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        // Add the Send button.
-        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        editorSendBtn = new Button(editorBtnRowComp, SWT.PUSH);
-        editorSendBtn.setText("Send");
-        editorSendBtn.setLayoutData(gd);
-        editorSendBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                logInfo("Send button clicked");
-                sendProduct(false);
-            }
-        });
-
         // Add the Cancel button.
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Button editorCancelBtn = new Button(editorBtnRowComp, SWT.PUSH);
@@ -4507,18 +4375,9 @@ public class TextEditorDialog extends CaveSWTDialog
 
         // ---------------------------------
         // File Menu menu items
-        // Disabled when in editor mode
-        // ---------------------------------
-        resendWarningProductnItem
-                .setEnabled(!inEditMode && textEditor.getText() != null
-                        && textEditor.getText().length() > 0);
-
-        // ---------------------------------
-        // File Menu menu items
         // Enabled when in editor mode
         // ---------------------------------
         saveItem.setEnabled(inEditMode);
-        sendExitEditorItem.setEnabled(inEditMode);
         cancelEditorItem.setEnabled(inEditMode);
 
         // ---------------------------------
@@ -4912,276 +4771,6 @@ public class TextEditorDialog extends CaveSWTDialog
         userInformation("Notice", information);
     }
 
-    /**
-     * Disseminate the product.
-     *
-     * @param resend
-     *            true if product is to be resent
-     */
-    private synchronized void sendProduct(final boolean resend) {
-        if (!validateTime()) {
-            return;
-        }
-        StdTextProduct prod = getStdTextProduct();
-        if (warnGenFlag) {
-            QCConfirmationMsg qcMsg = new QCConfirmationMsg();
-            if (!qcMsg.checkWarningInfo(headerTF.getText(),
-                    textEditor.getText(), prod.getNnnid())) {
-                WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
-                        qcMsg.getTitle(), qcMsg.getProductMessage(),
-                        qcMsg.getModeMessage());
-                wgcd.addCloseCallback(returnValue -> {
-                    if (Boolean.TRUE.equals(returnValue)) {
-                        finishSendProduct(resend);
-                    }
-
-                });
-                wgcd.open();
-            } else {
-                finishSendProduct(resend);
-            }
-        } else {
-            finishSendProduct(resend);
-        }
-    }
-
-    /**
-     * This finishes preparing to send a product as part of normal completion of
-     * sendProduct or as part of the call back when there is a problem with the
-     * WarnGen being sent.
-     *
-     * @param resend
-     */
-    private void finishSendProduct(final boolean resend) {
-        if (statusBarLabel.getText().startsWith("Attachment:")) {
-            StringBuilder sb = new StringBuilder("An Attachment file (");
-            int startIndex = "Attachment:".length() + 1;
-            sb.append(statusBarLabel.getText().substring(startIndex));
-            sb.append(") will be transmitted with this message.");
-            int response = TextWSMessageBox.open(shell, "Notice", sb.toString(),
-                    SWT.OK | SWT.CANCEL);
-            if (SWT.OK != response) {
-                return;
-            }
-        }
-
-        // verify if product has already been resent
-        if (!verifyResendProduct()) {
-            return;
-        }
-
-        // verify required fields
-        if (!verifyRequiredFields()) {
-            return;
-        }
-
-        // verify wrapping
-        if (!verifyLineWidth(resend)) {
-            return;
-        }
-
-        concludeSendProduct(resend);
-    }
-
-    private void concludeSendProduct(final boolean resend) {
-        StdTextProduct prod = getStdTextProduct();
-        if (TextEditorCfg.getTextEditorCfg().getValidateCharacterSet()
-                && !validateCharacterSet(prod.getNnnid())) {
-            return;
-        }
-
-        // verify that the buffer does not exceed permitted length for FTM
-        if ("FTM".equals(prod.getNnnid()) && !verifyBufferSize()) {
-            return;
-        }
-
-        if (isWarnGenDlg) {
-            String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
-            SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend,
-                    afosId, prod.getNnnid());
-
-            WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
-                    sendMsg.getTitle(), sendMsg.getProductMessage(),
-                    sendMsg.getModeMessage());
-            wgcd.addCloseCallback(returnValue -> {
-                if (Boolean.TRUE.equals(returnValue)) {
-                    checkEmergencyProduct(resend);
-                }
-            });
-            wgcd.open();
-        } else {
-            checkEmergencyProduct(resend);
-        }
-    }
-
-    /**
-     * Checks if the product is a emergency warning product and opens up the
-     * WarnGen Confirmation Dialog if necessary.
-     *
-     * @param resend
-     *            true if product is to be resent
-     */
-    private void checkEmergencyProduct(final boolean resend) {
-        StdTextProduct prod = getStdTextProduct();
-        EmergencyConfirmationMsg emergencyMsg = new EmergencyConfirmationMsg();
-        if (!emergencyMsg
-                .checkWarningInfo(headerTF.getText().toUpperCase(),
-                        MixedCaseProductSupport.conditionalToUpper(
-                                prod.getNnnid(), textEditor.getText()),
-                        prod.getNnnid())) {
-
-            WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
-                    emergencyMsg.getTitle(), emergencyMsg.getProductMessage(),
-                    emergencyMsg.getModeMessage());
-            wgcd.addCloseCallback(returnValue -> {
-                if (Boolean.TRUE.equals(returnValue)) {
-                    warngenCloseCallback(resend);
-                }
-
-            });
-            wgcd.open();
-        } else {
-            warngenCloseCallback(resend);
-        }
-    }
-
-    /**
-     * This is used by finishedSendProduct as the call back to the warnGen
-     * confirmaiton Dialog.
-     *
-     * @param resend
-     * @param result
-     */
-    private void warngenCloseCallback(boolean resend) {
-
-        StdTextProduct prod = getStdTextProduct();
-        String body = MixedCaseProductSupport
-                .conditionalToUpper(prod.getNnnid(), textEditor.getText());
-        CAVEMode mode = CAVEMode.getMode();
-        boolean isOperational = CAVEMode.OPERATIONAL.equals(mode)
-                || CAVEMode.TEST.equals(mode);
-        if (isOperational) {
-            removeOptionalFields();
-
-            try {
-                updateTextEditor(body);
-                if ((inEditMode || resend)
-                        && !saveEditedProduct(prod, false, resend, true)
-                                .isEmpty()) {
-                    inEditMode = false;
-                }
-                if (!resend) {
-                    // DR 2028 - changing the order to always have etn for
-                    // product
-                    // from : send product, increment ETN
-                    // to : increment ETN, send product
-                    if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO,
-                                "Will increment ETN for this product.");
-                        prod.setProduct(
-                                VtecUtil.getVtec(prod.getProduct(), true));
-                    } else {
-                        statusHandler.handle(Priority.INFO,
-                                "Will NOT increment ETN for this product.");
-                    }
-
-                    OUPTestRequest testReq = new OUPTestRequest();
-                    testReq.setOupRequest(
-                            createOUPRequest(prod, prod.getProduct()));
-                    try {
-                        OUPResponse checkResponse = (OUPResponse) ThriftClient
-                                .sendRequest(testReq);
-                        if (checkResponse.hasFailure()) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "Error during text product transmission check: "
-                                            + checkResponse.getMessage());
-                            inEditMode = true;
-                            return;
-                        }
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error during text product transmission check",
-                                e);
-                        inEditMode = true;
-                        return;
-                    }
-
-                    // Update editor so the proper send times are displayed.
-                    textEditor.setText(prod.getProduct());
-                }
-
-                String product = prod.getProduct();
-                OUPRequest req = createOUPRequest(prod, product);
-
-                if (notify != null) {
-                    notify.add(product);
-                }
-
-                // Code in Run statement goes here!
-                new Thread(new ThriftClientRunnable(req)).start();
-                logInfo("Autowrap char size = " + currentWrapCfg.getWrapCol());
-                logInfo("Sent product:\n" + product);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error transmitting text product", e);
-            }
-        } else {
-            try {
-                if (!resend) {
-                    if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO,
-                                "Will increment ETN for this product.");
-                        body = VtecUtil.getVtec(
-                                MixedCaseProductSupport.conditionalToUpper(
-                                        prod.getNnnid(), textEditor.getText()));
-                    } else {
-                        statusHandler.handle(Priority.INFO,
-                                "Will NOT increment ETN for this product.");
-                    }
-                }
-                updateTextEditor(body);
-                if ((inEditMode || resend)
-                        && !saveEditedProduct(prod, false, resend, false)
-                                .isEmpty()) {
-                    inEditMode = false;
-                }
-                String practiceProd = TextDisplayModel.getInstance()
-                        .getProduct(token);
-                textEditor.setText(practiceProd);
-                SendPracticeProductRequest req = new SendPracticeProductRequest();
-                req.setProductText(practiceProd);
-                req.setNotifyGFE(true);
-                req.setDrtString(new SimpleDateFormat("yyyyMMdd_HHmm")
-                        .format(SimulatedTime.getSystemTime().getTime()));
-
-                ThriftClient.sendRequest(req);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error transmitting text product", e);
-            }
-        }
-
-        if (!inEditMode && !resend) {
-            saved = true;
-            StdTextProduct finalProduct = this.getStdTextProduct();
-            String header = null;
-            if ("WRK".equals(finalProduct.getNnnid())
-                    && !finalProduct.getXxxid().startsWith("WG")) {
-                header = "ZCZC " + finalProduct.getCccid()
-                        + finalProduct.getNnnid() + finalProduct.getXxxid()
-                        + " " + getAddressee() + "\nTTAA00 "
-                        + finalProduct.getSite() + " "
-                        + finalProduct.getHdrtime();
-            } else {
-                header = finalProduct.getWmoid() + " " + finalProduct.getSite()
-                        + " " + finalProduct.getHdrtime() + "\n"
-                        + finalProduct.getNnnid() + finalProduct.getXxxid();
-            }
-            headerTF.setText(header);
-            cancelEditor(false);
-        }
-    }
-
     private EtnRules getETNRules() throws Exception {
         LocalizationFile lf = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(ETN_RULES_FILE);
@@ -5211,37 +4800,6 @@ public class TextEditorDialog extends CaveSWTDialog
             result = false;
         }
         return result;
-    }
-
-    private OUPRequest createOUPRequest(StdTextProduct prod, String text) {
-        OUPRequest req = new OUPRequest();
-        OfficialUserProduct oup = new OfficialUserProduct();
-        String awipsWanPil = prod.getSite() + prod.getNnnid() + prod.getXxxid();
-        String awipsID = prod.getNnnid() + prod.getXxxid();
-
-        oup.setAwipsWanPil(awipsWanPil);
-        oup.setNeedsWmoHeader(false);
-        oup.setProductText(text);
-        oup.setSource("TextWS");
-        oup.setWmoType(fixNOR(prod.getBbbid()));
-        oup.setUserDateTimeStamp(prod.getHdrtime());
-        StringBuilder fileName = new StringBuilder();
-
-        // The .wan extension followed by the 10 digit epoch seconds
-        // of simulated time is used in EDEX's WarningDecoder to
-        // determine the base time.
-        fileName.append(awipsID).append(".wan")
-                .append(TimeUtil.getUnixTime(TimeUtil.newDate()));
-        oup.setFilename(fileName.toString());
-        oup.setAddress(addressee);
-        if (attachedFile != null && attachedFilename != null) {
-            oup.setAttachedFile(attachedFile);
-            oup.setAttachedFilename(attachedFilename);
-        }
-        req.setCheckBBB(true);
-        req.setProduct(oup);
-        req.setUser(UserController.getUserObject());
-        return req;
     }
 
     /**
@@ -5339,9 +4897,8 @@ public class TextEditorDialog extends CaveSWTDialog
             replaceWorkProductId();
 
             String header = headerTF.getText().toUpperCase();
-            String body = resend ? resendMessage()
-                    : MixedCaseProductSupport.conditionalToUpper(
-                            product.getNnnid(), textEditor.getText());
+            String body = MixedCaseProductSupport.conditionalToUpper(
+                    product.getNnnid(), textEditor.getText());
             // verify text
             headerTF.setText(header);
             updateTextEditor(body);
@@ -5354,8 +4911,7 @@ public class TextEditorDialog extends CaveSWTDialog
         // New up a StdTextProduct, then set the product component
         // to the tmpStr that represents the new content.
         StdTextProduct storedProduct = tdmInst.getStdTextProduct(token, true);
-        String productText = resend ? resendMessage()
-                : combineOriginalMessage();
+        String productText = combineOriginalMessage();
 
         if (!isAutoSave) {
             if (!resend) {
@@ -6345,8 +5901,6 @@ public class TextEditorDialog extends CaveSWTDialog
             // Automatically open the editor window with returned data.
             if (enterEditor) {
                 enterEditor();
-            } else {
-                resendWarningProductnItem.setEnabled(true);
             }
         }
     }
@@ -7138,51 +6692,6 @@ public class TextEditorDialog extends CaveSWTDialog
         }
 
         return resend;
-    }
-
-    /**
-     * Add RESENT to the end of the MND line
-     */
-    private String resendMessage() {
-        boolean updatedMND = false;
-        StringBuilder sb = new StringBuilder();
-
-        for (String line : textEditor.getText().split("\n")) {
-            if (!updatedMND && (line.endsWith("WARNING")
-                    || line.endsWith("WARNING...TEST")
-                    || line.endsWith("WARNING...CORRECTED")
-                    || line.endsWith("WARNING...CORRECTED...TEST")
-                    || line.endsWith("STATEMENT")
-                    || line.endsWith("STATEMENT...TEST")
-                    || line.endsWith("STATEMENT...CORRECTED")
-                    || line.endsWith("STATEMENT...CORRECTED...TEST")
-                    || line.endsWith("FORECAST")
-                    || line.endsWith("FORECAST...TEST")
-                    || line.endsWith("ADVISORY")
-                    || line.endsWith("ADVISORY...TEST")
-                    || line.endsWith("ADVISORY...CORRECTED")
-                    || line.endsWith("ADVISORY...CORRECTED...TEST"))) {
-                line += "...RESENT";
-                updatedMND = true;
-            }
-            sb.append(line + "\n");
-        }
-
-        return sb.toString();
-    }
-
-    private void removeOptionalFields() {
-        String text = textEditor.getText();
-        int startIndex = text.indexOf("!--");
-        int endIndex = text.indexOf("--!", startIndex);
-        while (startIndex >= 0 && endIndex >= startIndex) {
-            String part1 = text.substring(0, startIndex).trim();
-            String part2 = text.substring(endIndex + 3).trim();
-            text = part1 + "\n\n" + part2;
-            startIndex = text.indexOf("!--");
-            endIndex = text.indexOf("--!", startIndex);
-        }
-        textEditor.setText(text);
     }
 
     /*
@@ -8443,15 +7952,6 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     /**
-     * Set the enable state of the editor's send button.
-     *
-     * @param state
-     */
-    public void enableSend(boolean state) {
-        editorSendBtn.setEnabled(state);
-    }
-
-    /**
      * Queue a afosId and who to noify.
      *
      * @param afosId
@@ -8732,39 +8232,6 @@ public class TextEditorDialog extends CaveSWTDialog
             loadPaddingPattern();
         }
         return paddingPatternList;
-    }
-
-    private boolean verifyLineWidth(final boolean resend) {
-        if (!currentWrapCfg.isWrapEnabled()) {
-            return true;
-        }
-
-        int lineToWrap = findLineToWrap();
-        if (lineToWrap == -1) {
-            return true;
-        }
-        LineWrapCheckConfirmationMsg lineWrapCheckConfirmationMsg = new LineWrapCheckConfirmationMsg(
-                shell);
-        lineWrapCheckConfirmationMsg.addCloseCallback(returnValue -> {
-            if (AnswerChoices.EDIT.equals(returnValue)) {
-                // do nothing
-            } else if (AnswerChoices.FIX.equals(returnValue)) {
-                int lineToWrap1 = findLineToWrap();
-                while (lineToWrap1 > -1) {
-                    // recompileRegex might not have been called
-                    if (standardWrapRegex == null) {
-                        recompileRegex();
-                    }
-                    rewrapInternal(lineToWrap1);
-                    lineToWrap1--;
-                }
-                concludeSendProduct(resend);
-            } else if (AnswerChoices.SEND.equals(returnValue)) {
-                concludeSendProduct(resend);
-            }
-        });
-        lineWrapCheckConfirmationMsg.open();
-        return false;
     }
 
     private int findLineToWrap() {

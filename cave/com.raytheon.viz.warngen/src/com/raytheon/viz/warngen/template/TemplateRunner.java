@@ -162,6 +162,7 @@ import org.locationtech.jts.io.WKTReader;
  * Jul 21, 2016 DR 18159  Qinglu Lin   update runTemplate().
  * Aug 29, 2017  6328      randerso    Fix misspelled method name
  * Oct 31, 2017  6328      randerso    Fix missing CAN segment for partial cancellation
+ * Jun 24, 2019  ----     mjames@ucar  Remove backupData
  * Mar 02, 2018  6786      dgilling    Don't allow WMO header time to be
  *                                     different than VTEC start time for some
  *                                     products.
@@ -435,14 +436,6 @@ public class TemplateRunner {
         context.put("officeLoc",
                 warngenLayer.getDialogConfig().getWarngenOfficeLoc());
 
-        if (backupData != null) {
-            context.remove("officeLoc");
-            context.remove("officeShort");
-            context.put("officeLoc", warngenLayer.getBackupOfficeLoc());
-            context.put("officeShort", warngenLayer.getBackupOfficeShort());
-            context.put("backupSite",
-                    warngenLayer.getDialogConfig().getWarngenOfficeShort());
-        }
 
         String productId = config.getProductId();
         if (productId == null) {

@@ -20,6 +20,22 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
+<extension
+		point="org.eclipse.ui.menus">
+		<menuContribution locationURI="menu:tools">
+			<command
+				commandId="com.raytheon.viz.textworkstation.opentextworkstation"
+				label="Text Workstation">
+				<visibleWhen>
+				    <and>
+						<reference
+							definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+						</reference>
+                   </and>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+   </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
@@ -38,29 +54,5 @@
    		point="com.raytheon.uf.viz.core.component">
    		<component key="textws" class="com.raytheon.viz.textworkstation.TextWorkstationComponent"/>
    </extension>
-   <extension
-        point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-        <path
-                application="TextWS"
-                localizationType="CAVE_STATIC"
-                name="Configuration"
-                value="textws/gui"
-                recursive="true">
-        </path>
-        <path
-                application="TextWS"
-                localizationType="COMMON_STATIC"
-                name="Mixed Case"
-                value="mixedCase"
-                recursive="false">
-        </path>
-        <path
-                application="TextDB"
-                localizationType="COMMON_STATIC"
-                name="TextDB Config"
-                value="textdb/config"
-                recursive="false">
-        </path>
-   </extension> 
    
 </plugin>
