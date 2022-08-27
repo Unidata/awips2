@@ -59,9 +59,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -96,19 +98,18 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
 import com.raytheon.uf.viz.core.rsc.IDisposeListener;
-import com.raytheon.uf.viz.d2d.ui.map.SideView;
 import com.raytheon.uf.viz.vtec.VtecUtil;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.msgs.IWarngenObserver;
+import com.raytheon.viz.texteditor.TextWorkstationConstants;
+import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
+import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 import com.raytheon.viz.warngen.Activator;
-import com.raytheon.viz.warngen.comm.WarningSender;
 import com.raytheon.viz.warngen.gis.PolygonUtil;
 import com.raytheon.viz.warngen.template.TemplateRunner;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
@@ -250,7 +251,10 @@ import com.raytheon.viz.warngen.util.FollowUpUtil;
  * Aug 29, 2017  6328        randerso     Convert to use PresetInfoBullet. Made
  *                                        GUI resizable. Removed/renamed dam
  *                                        specific code.
- * Oct 16, 2017  18282       Qinglu Lin   Updated resetPressed().
+ * Jun 25, 2017             mjames@ucar   Simple dialog.
+ * Oct 16, 2017 18282       Qinglu Lin    Updated resetPressed().
+ * Jun 07, 2018             mjames@ucar   Bypass JMS messaging and send directly
+ *                                        to a textWS window.
  * Mar 02, 2018  6786        dgilling     Pass event duration if product uses
  *                                        durations instead of explicit start
  *                                        and end times.
@@ -258,6 +262,20 @@ import com.raytheon.viz.warngen.util.FollowUpUtil;
  * Mar 09, 2020  8050        randerso     Created separate function to update
  *                                        the bullets in the list vs updating
  *                                        which bullets are selected.
+ * Nov 17, 2021           srcarter@ucar   Set reasonable height, allow proper
+ *                                        resizing, remove instructions label call
+ *                                        because it's null and never used, change
+ *                                        bulletlist functionality so it doesn't
+ *                                        scroll to the top as soon as a user makes
+ *                                        a selection
+ * Dec 20, 2021           srcarter@ucar   Check for null before setting layout data
+ *                                        on tabs. Make all other components have false
+ *                                        for vertical expansion so the resizing
+ *                                        only resizes the bullet list
+ * Mar 15, 2022           srcarter@ucar   Set the proper number of columns in the layout
+ *                                        for the bottom buttons to be centered
+ * Jun 28, 2022           srcarter@ucar   Small change to disable the "UPDATE LIST"
+ *                                        combobox (not used in Unidata version)
  *
  * </pre>
  *
@@ -285,6 +303,8 @@ public class WarngenDialog extends CaveSWTDialog
 
     private static final int FONT_HEIGHT = 9;
 
+    private static Pattern PATTERN = Pattern.compile("(\\d{1,1})");
+
     private class TemplateRunnerInitJob extends Job {
         private final String site;
 
@@ -310,8 +330,6 @@ public class WarngenDialog extends CaveSWTDialog
     private static final String INSTRUCTION_NO_SHADED_AREA = "Move Storm Polygon to CWA";
 
     private static final String UPDATELISTTEXT = "UPDATE LIST                                 ";
-
-    private static final String NO_BACKUP_SELECTED = "none";
 
     /** "OK" button text */
     private static final String OK_BTN_LABEL = "Create Text";
@@ -366,8 +384,6 @@ public class WarngenDialog extends CaveSWTDialog
 
     private Button fromTrack;
 
-    private Button warnedAreaVisible;
-
     private Button[] mainProductBtns;
 
     private Button other;
@@ -377,10 +393,6 @@ public class WarngenDialog extends CaveSWTDialog
     public Button lineOfStorms;
 
     public Button box;
-
-    private Button changeBtn;
-
-    private ValidPeriodDialog validPeriodDlg;
 
     private boolean boxEditable = true;
 
@@ -398,15 +410,13 @@ public class WarngenDialog extends CaveSWTDialog
 
     private Button presetThreatArea;
 
-    private Group instructionsGroup;
+    private Label instructionsLabel;
 
     private Button restartBtn;
 
-    private Text start;
+    private Label validPeriod;
 
-    private Text end;
-
-    private Combo backupSiteCbo;
+    private static String SEP = "  to  ";
 
     private Text instructionsBox;
 
@@ -414,7 +424,7 @@ public class WarngenDialog extends CaveSWTDialog
 
     private boolean invalidFollowUpAction = false;
 
-    private final IWarngenObserver wed = new WarningSender();
+    private TextEditorDialog wgDlg;
 
     /** Bullet list font. */
     private Font bulletListFont = null;
@@ -450,16 +460,19 @@ public class WarngenDialog extends CaveSWTDialog
         timer.cancel();
         updateTimeTask.cancel();
         CurrentWarnings.removeListener(this);
-        IDisplayPaneContainer container = warngenLayer.getResourceContainer();
-        if (container != null && !(container instanceof SideView)) {
-            WarngenLayer
-                    .setLastSelectedBackupSite(warngenLayer.getBackupSite());
-        }
         warngenLayer = null;
     }
 
     @Override
     protected void initializeComponents(Shell shell) {
+        shell.addListener(SWT.Close, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                event.doit = false;
+                closePressed();
+            }
+        });
+
         Composite parent = shell;
         boolean advanced = isAdvancedOptionsEnabled();
         CTabFolder tabs = null;
@@ -481,8 +494,11 @@ public class WarngenDialog extends CaveSWTDialog
         gl.marginWidth = 1;
         mainComposite.setLayout(gl);
 
-        GridData gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         mainComposite.setLayoutData(gd);
+        if (tabs != null) {
+            tabs.setLayoutData(gd);
+        }
 
         createBackupTrackEditGroups(mainComposite);
         createRedrawBoxGroup(mainComposite);
@@ -490,7 +506,18 @@ public class WarngenDialog extends CaveSWTDialog
         createTimeRangeGroup(mainComposite);
         createBulletListAndLabel(mainComposite);
         createBottomButtons(mainComposite);
-        setBackupSite();
+        createMainProductButtons(productType);
+        createOtherProductsList(productType);
+        productType.layout(true, true);
+        // Don't let errors prevent the new controls from being displayed!
+        try {
+            changeTemplate(getDefaultTemplate());
+            resetPressed();
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error occurred while switching to the default template.",
+                    e);
+        }
         setInstructions();
 
         if (advanced) {
@@ -536,7 +563,7 @@ public class WarngenDialog extends CaveSWTDialog
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = BULLETLIST_WIDTH_IN_CHARS * charWidth;
-        gd.heightHint = BULLETLIST_HEIGHT_IN_LINES * lineHeight;
+        gd.heightHint = lineHeight * 4;
         bulletList.setLayoutData(gd);
         bulletListManager.recreateBullets(
                 warngenLayer.getConfiguration().getBullets(),
@@ -546,27 +573,13 @@ public class WarngenDialog extends CaveSWTDialog
         bulletList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                // get the current scroll location
+                int topIdx = bulletList.getTopIndex();
                 bulletListSelected();
+                // reset the scroll location back after the update
+                bulletList.setTopIndex(topIdx);
             }
         });
-
-        instructionsGroup = new Group(mainComposite, SWT.NONE);
-        instructionsGroup.setText("Instructions");
-        GridLayout layout = new GridLayout(1, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        instructionsGroup.setLayout(layout);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        instructionsGroup.setLayoutData(gd);
-
-        instructionsBox = new Text(instructionsGroup,
-                SWT.READ_ONLY | SWT.MULTI);
-        instructionsBox.setText("");
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        lineHeight = instructionsBox.getLineHeight();
-        gd.heightHint = INSTRUCTIONS_HEIGHT_IN_LINES * lineHeight;
-        instructionsBox.setLayoutData(gd);
-        instructionsBox.setBackground(instructionsGroup.getBackground());
 
         startTimeTimer();
     }
@@ -576,24 +589,21 @@ public class WarngenDialog extends CaveSWTDialog
      */
     private void createTimeRangeGroup(Composite mainComposite) {
         Group timeRange = new Group(mainComposite, SWT.NONE);
-        timeRange.setText("Time Range");
-        timeRange.setLayout(new GridLayout(1, false));
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        timeRange.setLayoutData(gd);
+        GridLayout gl = new GridLayout(1, false);
+        gl.verticalSpacing = 2;
+        gl.marginHeight = 1;
+        timeRange.setLayout(gl);
+        timeRange.setLayoutData(
+                new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 
-        Composite durComp = new Composite(timeRange, SWT.NONE);
-        GridLayout layout = new GridLayout(2, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        durComp.setLayout(layout);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        durComp.setLayoutData(gd);
+        Composite timeRangeComp = new Composite(timeRange, SWT.NONE);
+        timeRangeComp.setLayout(new GridLayout(3, false));
+        timeRangeComp.setLayoutData(
+                new GridData(SWT.DEFAULT, SWT.FILL, false, false));
 
-        Label dur = new Label(durComp, SWT.BOLD);
-        dur.setText("Duration:");
-
-        gd = new GridData();
-        durationList = new Combo(durComp, SWT.READ_ONLY);
+        GridData gd = new GridData();
+        gd.horizontalSpan = 1;
+        durationList = new Combo(timeRangeComp, SWT.READ_ONLY);
         WarngenConfiguration config = warngenLayer.getConfiguration();
         if (config.getDefaultDuration() != 0) {
             setDefaultDuration(config.getDefaultDuration());
@@ -605,37 +615,15 @@ public class WarngenDialog extends CaveSWTDialog
         durationList.setLayoutData(gd);
         durationList.setEnabled(config.isEnableDuration());
 
-        Composite changeComp = new Composite(timeRange, SWT.NONE);
-        layout = new GridLayout(4, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        changeComp.setLayout(layout);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        changeComp.setLayoutData(gd);
-
         startTime = TimeUtil.newCalendar();
         endTime = DurationUtil.calcEndTime(this.startTime,
                 defaultDuration.minutes);
 
         gd = new GridData();
-        start = new Text(changeComp, SWT.BORDER | SWT.READ_ONLY);
-        start.setLayoutData(gd);
-        start.setText(df.format(this.startTime.getTime()));
-
-        new Label(changeComp, SWT.NONE).setText(" to ");
-
-        end = new Text(changeComp, SWT.BORDER | SWT.READ_ONLY);
-        end.setText(df.format(this.endTime.getTime()));
-
-        changeBtn = new Button(changeComp, SWT.PUSH);
-        changeBtn.setText("Change...");
-        changeBtn.setEnabled(!config.isEnableDuration());
-        changeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                changeSelected();
-            }
-        });
+        gd.horizontalSpan = 2;
+        validPeriod = new Label(timeRangeComp, SWT.FILL);
+        validPeriod.setText(df.format(this.startTime.getTime()) + SEP
+                + df.format(this.endTime.getTime()));
 
         durationList.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -647,7 +635,6 @@ public class WarngenDialog extends CaveSWTDialog
 
     private void createProductTypeGroup(Composite mainComposite) {
         productType = new Group(mainComposite, SWT.NONE);
-        productType.setText("Product type");
         GridLayout gl = new GridLayout(2, false);
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
@@ -736,6 +723,8 @@ public class WarngenDialog extends CaveSWTDialog
             gd.horizontalIndent = 30;
             updateListCbo = new Combo(productType,
                     SWT.READ_ONLY | SWT.DROP_DOWN);
+            // disable the update list since we disable sending of warnings
+            updateListCbo.setEnabled(false);
             updateListCbo.setLayoutData(gd);
             recreateUpdates();
 
@@ -790,21 +779,8 @@ public class WarngenDialog extends CaveSWTDialog
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
         redrawBox.setLayout(gl);
-        redrawBox.setText("Redraw Box on Screen from:");
         redrawBox.setLayoutData(
                 new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-
-        warnedAreaVisible = new Button(redrawBox, SWT.CHECK);
-        warnedAreaVisible.setText("Warned Area Visible");
-        warnedAreaVisible.setLayoutData(
-                new GridData(SWT.RIGHT, SWT.DEFAULT, true, false));
-        warnedAreaVisible.setSelection(true);
-        warnedAreaVisible.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                warnedAreaVisibleToggled();
-            }
-        });
 
         Composite redrawFrom = new Composite(redrawBox, SWT.NONE);
         int columns = debug ? 4 : 3;
@@ -875,62 +851,28 @@ public class WarngenDialog extends CaveSWTDialog
         backupTrackEditComp.setLayoutData(
                 new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        createBackupGroup(backupTrackEditComp);
+        restartBtn = new Button(backupTrackEditComp, SWT.PUSH);
+        restartBtn.setText("Reset");
+        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+        gd.widthHint = 100;
+        restartBtn.setLayoutData(gd);
+        restartBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                resetPressed();
+            }
+        });
         createTrackGroup(backupTrackEditComp);
         createEditGroup(backupTrackEditComp);
 
-        // Populate the control
-        populateBackupGroup();
-    }
+        gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+        gd.heightHint = 40;
+        instructionsBox = new Text(mainComposite,
+                SWT.NONE | SWT.READ_ONLY | SWT.MULTI);
+        instructionsBox.setText("");
+        instructionsBox.setLayoutData(gd);
+        // instructionsBox.setSize(SWT.DEFAULT, SWT.DEFAULT);
 
-    /**
-     * Create the backup site
-     *
-     * @param backupTrackEditComp
-     */
-    private void createBackupGroup(Composite backupTrackEditComp) {
-        Group backupGroup = new Group(backupTrackEditComp, SWT.NONE);
-        backupGroup.setLayoutData(
-                new GridData(SWT.DEFAULT, SWT.FILL, false, true));
-        backupGroup.setText("Backup");
-        backupGroup.setLayout(new GridLayout(2, false));
-
-        Label label2 = new Label(backupGroup, SWT.BOLD);
-        label2.setText("WFO:");
-        label2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        backupSiteCbo = new Combo(backupGroup, SWT.READ_ONLY | SWT.DROP_DOWN);
-        backupSiteCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                backupSiteSelected();
-            }
-
-        });
-    }
-
-    /**
-     * Populate the backup site combo with data from preference store
-     */
-    private void populateBackupGroup() {
-        backupSiteCbo.removeAll();
-        backupSiteCbo.add(NO_BACKUP_SELECTED);
-        String[] CWAs = warngenLayer.getDialogConfig().getBackupCWAs()
-                .split(",");
-        int index = 0, selectedIndex = 0;
-        for (String cwa : CWAs) {
-            if (cwa.length() > 0) {
-                index += 1;
-                BackupData data = new BackupData(cwa);
-                backupSiteCbo.setData(data.site, data);
-                backupSiteCbo.add(data.site);
-                if (data.site.equals(warngenLayer.getBackupSite())) {
-                    selectedIndex = index;
-                    warngenLayer.setBackupSite(data.site);
-                }
-            }
-        }
-        backupSiteCbo.select(selectedIndex);
-        setBackupCboColors();
     }
 
     private void createTrackGroup(Composite backupTrackEditComp) {
@@ -939,12 +881,12 @@ public class WarngenDialog extends CaveSWTDialog
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
         trackGroup.setLayout(gl);
-        trackGroup.setText("Track type");
         trackGroup.setLayoutData(
-                new GridData(SWT.DEFAULT, SWT.FILL, false, true));
+                new GridData(SWT.DEFAULT, SWT.FILL, false, false));
+        trackGroup.setBackgroundMode(SWT.INHERIT_NONE);
 
         oneStorm = new Button(trackGroup, SWT.RADIO);
-        oneStorm.setText("One Storm");
+        oneStorm.setText("Single Storm");
         oneStorm.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent arg0) {
@@ -985,9 +927,8 @@ public class WarngenDialog extends CaveSWTDialog
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
         editGroup.setLayout(gl);
-        editGroup.setText("Edit");
         editGroup.setLayoutData(
-                new GridData(SWT.DEFAULT, SWT.FILL, false, true));
+                new GridData(SWT.DEFAULT, SWT.FILL, false, false));
 
         box = new Button(editGroup, SWT.RADIO);
         box.setText("Box");
@@ -1027,7 +968,7 @@ public class WarngenDialog extends CaveSWTDialog
      */
     private void createBottomButtons(Composite parent) {
         Composite buttonComp = new Composite(parent, SWT.NONE);
-        GridLayout gl = new GridLayout(3, true);
+        GridLayout gl = new GridLayout(2, true);
         gl.marginHeight = 1;
         buttonComp.setLayout(gl);
         buttonComp.setLayoutData(
@@ -1035,7 +976,7 @@ public class WarngenDialog extends CaveSWTDialog
 
         okButton = new Button(buttonComp, SWT.PUSH);
         okButton.setText(OK_BTN_LABEL);
-        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
         gd.widthHint = 100;
         okButton.setLayoutData(gd);
         okButton.addSelectionListener(new SelectionAdapter() {
@@ -1053,21 +994,9 @@ public class WarngenDialog extends CaveSWTDialog
 
         });
 
-        restartBtn = new Button(buttonComp, SWT.PUSH);
-        restartBtn.setText(RS_BTN_LABEL);
-        gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
-        gd.widthHint = 100;
-        restartBtn.setLayoutData(gd);
-        restartBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                resetPressed();
-            }
-        });
-
         Button btn = new Button(buttonComp, SWT.PUSH);
         btn.setText(CLOSE_BUTTON_LABEL);
-        gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
         gd.widthHint = 100;
         btn.setLayoutData(gd);
         btn.addSelectionListener(new SelectionAdapter() {
@@ -1118,9 +1047,9 @@ public class WarngenDialog extends CaveSWTDialog
             str = presetInstruct;
         }
         instructionsBox.setText(str);
-        Point p1 = instructionsBox.getSize();
-        Point p2 = instructionsBox.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        instructionsBox.setSize(new Point(p1.x, p2.y));
+        // Point p1 = instructionsBox.getSize();
+        // Point p2 = instructionsBox.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        // instructionsBox.setSize(new Point(p1.x, p2.y));
     }
 
     /**
@@ -1148,12 +1077,11 @@ public class WarngenDialog extends CaveSWTDialog
         WarningAction[] acts = new WarningAction[] { WarningAction.CON,
                 WarningAction.COR, WarningAction.CAN, WarningAction.EXP,
                 WarningAction.NEW, WarningAction.EXT };
-        for (int i = 0; i < warnings.size(); i++) {
+        for (AbstractWarningRecord warning : warnings) {
             for (WarningAction act : acts) {
                 if (FollowUpUtil.checkApplicable(site,
-                        warngenLayer.getConfiguration(), warnings.get(i),
-                        act)) {
-                    FollowupData data = new FollowupData(act, warnings.get(i));
+                        warngenLayer.getConfiguration(), warning, act)) {
+                    FollowupData data = new FollowupData(act, warning);
                     updateListCbo.setData(data.getDisplayString(), data);
                     if (act == WarningAction.NEW) {
                         newYes = true;
@@ -1214,8 +1142,8 @@ public class WarngenDialog extends CaveSWTDialog
         updateListCbo.add(UPDATELISTTEXT);
         updateListCbo.select(0);
 
-        for (int i = 0; i < dropDownItems.size(); i++) {
-            updateListCbo.add(dropDownItems.get(i));
+        for (String dropDownItem : dropDownItems) {
+            updateListCbo.add(dropDownItem);
         }
         // Select the previously selected item.
         invalidFollowUpAction = false;
@@ -1285,12 +1213,12 @@ public class WarngenDialog extends CaveSWTDialog
         ArrayList<String> durList = new ArrayList<>(durations.length);
         boolean isDefaultDurationInList = false;
         durationList.removeAll();
-        for (int i = 0; i < durations.length; i++) {
+        for (int duration : durations) {
             if (defaultDuration != null
-                    && defaultDuration.minutes == durations[i]) {
+                    && defaultDuration.minutes == duration) {
                 isDefaultDurationInList = true;
             }
-            DurationData data = new DurationData(durations[i]);
+            DurationData data = new DurationData(duration);
             durationList.setData(data.displayString, data);
             durList.add(data.displayString);
         }
@@ -1302,29 +1230,6 @@ public class WarngenDialog extends CaveSWTDialog
         }
 
         durationList.setItems(durList.toArray(new String[durList.size()]));
-    }
-    
-    /**
-     * Sets the Duration drop-down to a fixed value
-     *  
-     *
-     * @param duration
-     *              minutes to assign to duration
-     */
-    public void setLockedDuration(int duration){
-     
-        durationList.removeAll();
-        DurationData data = new DurationData(duration);
-        //Split full string to largest time interval given by DurationData formatting
-        //    Duration drop-down does not accept full duration string
-        String[] splitDuration = data.displayString.split(" ");
-        data.displayString = splitDuration[0] + " " +splitDuration[1];
-        durationList.setData(data.displayString, data);
-        durationList.add(data.displayString);
-        durationList.setItem(0, data.displayString);
-        durationList.setText(data.displayString);
-        durationList.setEnabled(false);
-        
     }
 
     /**
@@ -1354,8 +1259,6 @@ public class WarngenDialog extends CaveSWTDialog
                 .getSelectedBulletNames();
         final FollowupData followupData = (FollowupData) updateListCbo.getData(
                 updateListCbo.getItem(updateListCbo.getSelectionIndex()));
-        final BackupData backupData = (BackupData) backupSiteCbo.getData(
-                backupSiteCbo.getItem(backupSiteCbo.getSelectionIndex()));
 
         if (!checkFollowupSelection(followupData)) {
             return;
@@ -1401,20 +1304,11 @@ public class WarngenDialog extends CaveSWTDialog
                         statusHandler
                                 .debug("using startTime " + startTime.getTime()
                                         + " endTime " + endTime.getTime());
-                        if (warngenLayer.getConfiguration()
-                                .isEnableDuration()) {
-                            int duration = getSelectedDuration();
-                            resultContainer[0] = TemplateRunner.runTemplate(
-                                    warngenLayer, duration, extEndTime,
-                                    selectedBullets, followupData, backupData);
-                        } else {
-                            resultContainer[0] = TemplateRunner.runTemplate(
-                                    warngenLayer, startTime.getTime(),
-                                    endTime.getTime(), selectedBullets,
-                                    followupData, backupData);
-                        }
-                        Matcher m = FollowUpUtil.vtecPtrn
-                                .matcher(resultContainer[0]);
+                        String result = TemplateRunner.runTemplate(warngenLayer,
+                                startTime.getTime(), endTime.getTime(),
+                                selectedBullets, followupData, null);
+                        resultContainer[0] = result;
+                        Matcher m = FollowUpUtil.vtecPtrn.matcher(result);
                         totalSegments = 0;
                         while (m.find()) {
                             totalSegments++;
@@ -1448,7 +1342,7 @@ public class WarngenDialog extends CaveSWTDialog
                     try {
                         String result = resultContainer[0];
                         if (result != null) {
-                            wed.setTextWarngenDisplay(result, true);
+                            setTextWarngenDisplay(result);
                             updateWarngenUIState(result);
                         } else {
                             statusHandler.handle(Priority.PROBLEM,
@@ -1471,6 +1365,36 @@ public class WarngenDialog extends CaveSWTDialog
             Activator.getDefault().getLog().log(s);
             ErrorDialog.openError(Display.getCurrent().getActiveShell(), err,
                     err, s);
+        }
+    }
+
+    protected void setTextWarngenDisplay(String warning) {
+        String number = "0";
+        String host = TextWorkstationConstants.getId();
+        String siteNode = SiteAbbreviationUtil.getSiteNode(
+                LocalizationManager.getInstance().getCurrentSite());
+        if (host == null) {
+            statusHandler.handle(Priority.ERROR,
+                    "Text Workstation host not set in preferences.");
+        } else {
+            Matcher m = PATTERN.matcher(host);
+            if (m.find()) {
+                number = m.group();
+            }
+        }
+        String id = siteNode + "WRKWG" + number;
+        try {
+            String product = id + ":" + warning;
+            if (wgDlg == null) {
+                wgDlg = new TextEditorDialog(getShell(), "Text Warngen", false,
+                        "9", true);
+            }
+            wgDlg.showWarngenProduct(product, null);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error trying to send product [" + id
+                            + "] to Text Workstation: ",
+                    e);
         }
     }
 
@@ -1584,7 +1508,6 @@ public class WarngenDialog extends CaveSWTDialog
         }
         warngenLayer.resetInitialFrame();
         warngenLayer.setWarningAction(null);
-        instructionsGroup.setText("Instructions");
         changeStartEndTimes();
         warngenLayer.issueRefresh();
         setTrackLocked(false);
@@ -1596,70 +1519,6 @@ public class WarngenDialog extends CaveSWTDialog
     private void closePressed() {
         EditableManager.makeEditable(warngenLayer, false);
         hide();
-    }
-
-    private boolean setBackupSite() {
-        if ((backupSiteCbo.getSelectionIndex() >= 0)
-                && (backupSiteCbo.getItemCount() > 0)) {
-            int index = backupSiteCbo.getSelectionIndex();
-            String backupSite = backupSiteCbo.getItem(index);
-            warngenLayer.setBackupSite(backupSite);
-            IDisplayPaneContainer container = warngenLayer
-                    .getResourceContainer();
-            if (container != null && !(container instanceof SideView)) {
-                WarngenLayer.setLastSelectedBackupSite(backupSite);
-            }
-            if ("none".equalsIgnoreCase(backupSite)) {
-                new TemplateRunnerInitJob().schedule();
-            } else {
-                new TemplateRunnerInitJob(backupSite).schedule();
-            }
-
-            /*
-             * When the product selection buttons are recreated below, the
-             * button for the default template will be selected and mainProducts
-             * will have been recreated. Then getDefaultTemplate() can be used
-             * here to change the state.
-             */
-            createMainProductButtons(productType);
-            createOtherProductsList(productType);
-
-            // Don't let errors prevent the new controls from being displayed!
-            try {
-                changeTemplate(getDefaultTemplate());
-                resetPressed();
-            } catch (Exception e) {
-                statusHandler.error(
-                        "Error occurred while switching to the default template.",
-                        e);
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Action for when something is selected from the backup site combo
-     */
-    private void backupSiteSelected() {
-        if (setBackupSite()) {
-            productType.layout(true, true);
-            getShell().pack(true);
-        }
-        setBackupCboColors();
-    }
-
-    private void setBackupCboColors() {
-        if (backupSiteCbo.getSelectionIndex() == 0) {
-            backupSiteCbo.setBackground(null);
-            backupSiteCbo.setForeground(null);
-        } else {
-            backupSiteCbo.setBackground(
-                    shell.getDisplay().getSystemColor(SWT.COLOR_YELLOW));
-            backupSiteCbo.setForeground(
-                    shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        }
     }
 
     /**
@@ -1737,14 +1596,6 @@ public class WarngenDialog extends CaveSWTDialog
         boxEditable = true;
         trackEditable = true;
         realizeEditableState();
-    }
-
-    /**
-     * Whether to warn area visible was toggled
-     */
-    private void warnedAreaVisibleToggled() {
-        warngenLayer.setShouldDrawShaded(warnedAreaVisible.getSelection());
-        warngenLayer.issueRefresh();
     }
 
     /**
@@ -1878,7 +1729,6 @@ public class WarngenDialog extends CaveSWTDialog
         boolean enableDuration = warngenLayer.getConfiguration()
                 .isEnableDuration();
         durationList.setEnabled(enableDuration);
-        changeBtn.setEnabled(!enableDuration);
         recreateDurations(durationList);
 
         // Current selection doesn't matter anymore
@@ -1938,7 +1788,8 @@ public class WarngenDialog extends CaveSWTDialog
         if (warngenLayer.getConfiguration().isEnableDuration()) {
             endTime = DurationUtil.calcEndTime(startTime,
                     defaultDuration.minutes);
-            end.setText(df.format(endTime.getTime()));
+            validPeriod.setText(df.format(startTime.getTime()) + SEP
+                    + df.format(endTime.getTime()));
         }
 
         warngenLayer.getStormTrackState().newDuration = defaultDuration.minutes;
@@ -2159,43 +2010,6 @@ public class WarngenDialog extends CaveSWTDialog
         // TODO : this pack/layout maybe causing the issue
     }
 
-    private void changeSelected() {
-        statusHandler.debug("changeSelected");
-        if ((validPeriodDlg == null) || validPeriodDlg.isDisposed()) {
-            validPeriodDlg = new ValidPeriodDialog(shell,
-                    (Calendar) startTime.clone(), (Calendar) endTime.clone());
-            validPeriodDlg.addCloseCallback(new ICloseCallback() {
-
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    int duration = (Integer) returnValue;
-                    statusHandler
-                            .debug("changeSelected.dialogClosed: " + duration);
-                    if (duration != -1) {
-                        durationList.setEnabled(false);
-                        if (warngenLayer.getConfiguration()
-                                .isEnableDuration()) {
-                            endTime.add(Calendar.MINUTE, duration);
-                        } else {
-                            endTime = (Calendar) validPeriodDlg.getEndTime()
-                                    .clone();
-                        }
-                        end.setText(df.format(endTime.getTime()));
-                        warngenLayer
-                                .getStormTrackState().newDuration = duration;
-                        warngenLayer.getStormTrackState().geomChanged = true;
-                        warngenLayer.issueRefresh();
-                        changeStartEndTimes();
-                    }
-                    validPeriodDlg = null;
-                }
-            });
-            validPeriodDlg.open();
-        } else {
-            validPeriodDlg.bringToTop();
-        }
-    }
-
     /**
      *
      */
@@ -2206,7 +2020,8 @@ public class WarngenDialog extends CaveSWTDialog
         endTime = DurationUtil.calcEndTime(
                 extEndTime != null ? extEndTime : startTime,
                 ((DurationData) durationList.getData(selection)).minutes);
-        end.setText(df.format(endTime.getTime()));
+        validPeriod.setText(df.format(startTime.getTime()) + SEP
+                + df.format(endTime.getTime()));
 
         warngenLayer
                 .getStormTrackState().newDuration = ((DurationData) durationList
@@ -2222,7 +2037,6 @@ public class WarngenDialog extends CaveSWTDialog
     private void bulletListSelected() {
         bulletListManager.updateSelectedIndices(bulletList.getSelectionIndex(),
                 warngenLayer.state.followupData != null);
-        refreshBulletSelections();
     }
 
     /**
@@ -2236,14 +2050,6 @@ public class WarngenDialog extends CaveSWTDialog
         // A follow on ticket will be written to fix the existing broken
         // functionality of loading/unloading maps
         // updateMaps(bulletListManager.getMapsToLoad());
-    }
-
-    /**
-     * Call this function when only selection has changed.
-     */
-    private void refreshBulletSelections() {
-        bulletList.deselectAll();
-        bulletList.select(bulletListManager.getSelectedIndices());
     }
 
     private void updateMaps(java.util.List<String> mapsToLoad) {
@@ -2355,7 +2161,6 @@ public class WarngenDialog extends CaveSWTDialog
             FollowupData fd = (FollowupData) updateListCbo.getData(
                     updateListCbo.getItem(updateListCbo.getSelectionIndex()));
             startTime = TimeUtil.newCalendar();
-            start.setText(df.format(startTime.getTime()));
             if ((fd == null) || (WarningAction
                     .valueOf(fd.getAct()) == WarningAction.NEW)) {
                 endTime = DurationUtil.calcEndTime(startTime, duration);
@@ -2365,7 +2170,8 @@ public class WarngenDialog extends CaveSWTDialog
                     endTime = DurationUtil.calcEndTime(extEndTime, duration);
                 }
             }
-            end.setText(df.format(endTime.getTime()));
+            validPeriod.setText(df.format(startTime.getTime()) + SEP
+                    + df.format(endTime.getTime()));
         }
     }
 
@@ -2574,7 +2380,6 @@ public class WarngenDialog extends CaveSWTDialog
         boolean enableDuration = warngenLayer.getConfiguration()
                 .isEnableDuration();
         durationList.setEnabled(enableDuration);
-        changeBtn.setEnabled(!enableDuration);
 
         AbstractWarningRecord newWarn = CurrentWarnings
                 .getInstance(warngenLayer.getLocalizedSite())
@@ -2605,21 +2410,10 @@ public class WarngenDialog extends CaveSWTDialog
 
     private void setTimesFromFollowup(Date startDate, Date endDate) {
         // Sets the Time Range start and end times on dialog
-        start.setText(df.format(startDate));
         startTime.setTime(startDate);
-        end.setText(df.format(endDate));
         endTime.setTime(endDate);
         endTime.add(Calendar.MILLISECOND, 1);
 
-        // Sets the duration value on the dialog
-        int durationInMinutes = (int) ((endDate.getTime() - startDate.getTime())
-                / (TimeUtil.MILLIS_PER_MINUTE));
-        //Need to set the Duration drop down for followups
-        //  When not set, will use the default 30min for a followup,
-        //  which can omit the Day from a longer warning's followup
-        setLockedDuration(durationInMinutes);
-  
-        changeBtn.setEnabled(false);
         warngenLayer.getStormTrackState().endTime = endTime;
     }
 

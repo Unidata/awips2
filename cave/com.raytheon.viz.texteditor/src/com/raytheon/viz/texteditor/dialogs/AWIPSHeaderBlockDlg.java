@@ -107,6 +107,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Dec 10, 2018 7678        tgurney     Take initial WMO ID from afos2awips
  *                                      (with WMO ID from the product as fallback)
  * Mar 13, 2020 21048    mgamazaychikov Get wmoid from text product
+ * Jun 24, 2019 ----        mjames      Non-operationalize Warngen
+
  *
  * </pre>
  *
@@ -691,8 +693,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog
 
         logHeaderBlock("Enter button clicked. AWIPS Header Block values:");
 
-        boolean sendEnabled = true;
-        boolean unOfficialProd = false;
+        boolean sendEnabled = false;
+        boolean unOfficialProd = true;
         if (!isProductValid()) {
             // Notify the user that the product may not be valid.
             //
@@ -710,13 +712,6 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog
             if (response == SWT.NO || parentEditor.isDisposed()) {
                 return;
             }
-            parentEditor.enableSend(false);
-            sendEnabled = false;
-            if (isAfosPilComplete()) {
-                unOfficialProd = true;
-            }
-        } else {
-            parentEditor.enableSend(true);
         }
 
         // call the set methods

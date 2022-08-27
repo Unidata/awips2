@@ -42,6 +42,7 @@ Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.text.request,
  javax.vecmath,
  org.eclipse.core.expressions,
+ com.raytheon.viz.textworkstation,
  com.raytheon.viz.core.mode,
  com.raytheon.viz.core.map
 Bundle-ClassPath: com.raytheon.viz.warngen.jar
