@@ -51,7 +51,9 @@ import com.raytheon.viz.ui.EditorUtil;
  * Jan 23, 2018 7082       njensen     Rewrote execute() to use Eclipse 4 MUIElements
  *                                     to resize the display for differing number of
  *                                     side views
- * 
+ * Aug 24, 2022            srcarter    If no side panes, make the side width 0
+ * Aug 29, 2022            srcarter    Set the initial side pane count to 0
+ *
  * </pre>
  * 
  * @author mschenke
@@ -64,7 +66,7 @@ public class ChangeD2DLayoutAction extends AbstractHandler {
     public static int getViewCount() {
         Integer views = viewMap
                 .get(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
-        return views != null ? views : 4;
+        return views != null ? views : 0;
     }
 
     @Override
@@ -164,10 +166,17 @@ public class ChangeD2DLayoutAction extends AbstractHandler {
      */
     private void sizeWidth(MElementContainer<MUIElement> sideViewsContainer,
             int nSideViews) {
+        int width;
         if (nSideViews > 5) {
             nSideViews = 5;
         }
-        int width = (6 - nSideViews) * 1000;
+        // When switching back to single pane (nSideViews == 0) make sure
+        // the side panes are completely collapsed
+        if (nSideViews == 0) {
+            width = 0;
+        } else {
+            width = (6 - nSideViews) * 1000;
+        }
         int diff = 10000 - width;
         MElementContainer<MUIElement> screenContainer = sideViewsContainer
                 .getParent();

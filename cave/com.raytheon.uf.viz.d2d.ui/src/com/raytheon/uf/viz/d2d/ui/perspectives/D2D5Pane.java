@@ -51,7 +51,8 @@ import com.raytheon.viz.ui.UiUtil;
  * 7/1/06                   chammack    Initial Creation.
  * Mar 21, 2013       1638  mschenke    Changed map scales not tied to d2d
  * Oct 10, 2013       2104  mschenke    Switched to use MapScalesManager
- * 
+ * Aug 29, 2022             srcarter    Default to single pane view, with zero side panel width
+ *
  * </pre>
  * 
  * @author chammack
@@ -65,9 +66,9 @@ public class D2D5Pane implements IPerspectiveFactory {
     private static final String BASE_VIEW_ID_PREFIX = SideView.ID
             + UiUtil.SECONDARY_ID_SEPARATOR + "sideView";
 
-    private static final float THREE_PANE_WIDTH = 0.4f;
-
     private static final float FIVE_PANE_WIDTH = 0.2f;
+
+    private static final float ZERO_PANE_WIDTH = 0.0f;
 
     /*
      * (non-Javadoc)
@@ -93,7 +94,7 @@ public class D2D5Pane implements IPerspectiveFactory {
             }
         }
 
-        int numViews = ChangeD2DLayoutAction.getViewCount() == 2 ? 2
+        int numViews = ChangeD2DLayoutAction.getViewCount() == 0 ? 0
                 : baseViewsToAdd.size();
 
         String lastAdded = null;
@@ -108,7 +109,7 @@ public class D2D5Pane implements IPerspectiveFactory {
                             baseView,
                             false,
                             IPageLayout.LEFT,
-                            ChangeD2DLayoutAction.getViewCount() == 2 ? THREE_PANE_WIDTH
+                            ChangeD2DLayoutAction.getViewCount() == 0 ? ZERO_PANE_WIDTH
                                     : FIVE_PANE_WIDTH, editorArea);
                 } else {
                     layout.addStandaloneView(baseView, false,

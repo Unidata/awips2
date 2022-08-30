@@ -251,7 +251,7 @@
                    label="1 Pane Layout">
                 <parameter
                       name="sideViews"
-                      value="1">
+                      value="0">
                 </parameter>
              </command>
              <command
