@@ -3,7 +3,6 @@
 koax
 tmsp
 ktlx
-tjua
 
 # DIAL_RADARS - MUST HAVE THIS LINE
 
