@@ -2,6 +2,7 @@
 # LOCAL_RADARS (including terminal) - MUST HAVE THIS LINE
 klot
 tmdw
+tord
 
 # DIAL_RADARS - MUST HAVE THIS LINE
 
