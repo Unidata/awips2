@@ -61,6 +61,42 @@ If you experience any technical issues with our online course, please contact us
 
 ---
 
+## Python-AWIPS eLearning Course
+
+***Learn Python-AWIPS*** is our online educational course for those interested in learning about [Python-AWIPS](http://unidata.github.io/python-awips/).
+
+![Learn Python-AWIPS Banner](../images/learnPythonAwipsBanner.png)
+
+### Access
+
+Please create an account on <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">Unidata eLearning</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=4" target="_blank" rel="noopener noreferrer">Learn Python-AWIPS</a>.
+
+### Content
+
+*Learn Python-AWIPS* s designed for new users of Python-AWIPS who have some background in both Python and CAVE. Through tutorials, challenges, and demonstrations, you will learn the basics for working with EDEX resources through Python.
+The following topics and capabilities are covered throughout the course:
+
+- Programmatically explore the resources available on an EDEX server
+- Make a request to an EDEX for data
+- See examples of data manipulation
+- Plot requested data
+
+### Prerequisites
+
+Required:
+
+  - [A supported web browser](https://articulate.com/support/article/System-Requirements-for-Rise#viewing-content)
+  - Python3
+  - Conda
+  - Git
+  - Python-AWIPS using the [Source Code with Examples Install instructions](http://unidata.github.io/python-awips/#source-code-with-examples-install)
+
+### Support
+
+If you experience any technical issues with our online course, please contact us at: **support-elearning@unidata.ucar.edu**
+
+---
+
 ## Python-AWIPS Example Notebooks
 
 In addition to CAVE, AWIPS also has a Python package called ***python-awips*** which allows access to all data on an EDEX server.  We have created a suite of Jupyter Notebooks as examples for how to use various functions of python-awips.
