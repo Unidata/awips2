@@ -329,6 +329,21 @@ After you have confirmed that the grid was ingested with the given name, you can
 
 ---
 
+## Implementing a Production Process
+
+The [ingest method](#download-test-data) mentioned earlier is strictly meant to only be used during testing and development of ingesting new grid data.  The reasoning is because the manual end point is very inefficent during its ingest.  It creates copies of the data file and uses more resources than you'd want in a production process.
+
+Once you are satisfied with the data ingest and display in CAVE, then we highly recommend you implement a production process for ingest that does not involve the manual directory (`/awips2/data_store/ingest/`). 
+
+The recommended way is to make use of a Python script we distribute with AWIPS (EDEX).  This script is called `notifyAWIPS2-unidata.py` and located in th `/awips2/ldm/dev/` directory.  If you are already using a script to manually gather the data, then adding an additional call like the one below, should ingest your data to EDEX in an efficient manner:
+```
+/awips2/ldm/dev/notifyAWIPS2-unidata.py [path-to-new-grib-file]
+```
+
+!!! note "Make sure the python script is executable.  To do this you may have to run `chmod +x /awips2/ldm/dev/notifyAWIPS2-unidata.py`"
+
+---
+
 ## Using wgrib2
 
 Mentioned in this page are a few command parameters for `wgrib2` such as `-grid`, `varX`, `-center`, `-subcenter`, and `-full_name`.
