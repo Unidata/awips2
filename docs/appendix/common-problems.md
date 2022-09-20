@@ -110,6 +110,28 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 ---
 
+## CAVE Spring Start Up Error
+
+If you encounter the error below, please see one of our solution methods for resolving:
+```
+CAVE's Spring container did not initialize correctly and CAVE must shut down.
+```
+![CAVE Spring Start Up Error](../images/caveSpringError.png)
+
+We have found the reason for this failure is because the host machine is set to use a language other than English (ie. Spanish, French, etc).
+
+To resolve this issue, either:
+
+- Switch your system to English, when using CAVE
+
+or
+
+- Use our [Virtual Machine option](../install/install-cave/#method-1-linux-virtual-machine). This option allows your actual machine to stay in whichever language you choose, while allowing you to run CAVE in an environment set to English.  Although we list this installation under the Windows OS, this can also be done on Linux.
+
+!!! warning "The VM option has one notable drawback at the moment -- it cannot render RGB satellite products."
+
+---
+
 ## Products Not Loading Properly
 
 This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation, and the root of the problem is not having Python installed properly for CAVE to use the packages.
