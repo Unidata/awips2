@@ -692,6 +692,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#implementing-a-production-process" title="Implementing a Production Process" class="md-nav__link">
+    Implementing a Production Process
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#using-wgrib2" title="Using wgrib2" class="md-nav__link">
     Using wgrib2
   </a>
@@ -1055,6 +1062,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#implementing-a-production-process" title="Implementing a Production Process" class="md-nav__link">
+    Implementing a Production Process
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#using-wgrib2" title="Using wgrib2" class="md-nav__link">
     Using wgrib2
   </a>
@@ -1381,6 +1395,16 @@ wgrib2 -full_name cpti.grib2
 <hr />
 <h2 id="creating-menu-items">Creating Menu Items<a class="headerlink" href="#creating-menu-items" title="Permanent link"></a></h2>
 <p>After you have confirmed that the grid was ingested with the given name, you can <a href="../../cave/d2d-edit-menus/">edit the D2D product menus to display the new grid</a>.</p>
+<hr />
+<h2 id="implementing-a-production-process">Implementing a Production Process<a class="headerlink" href="#implementing-a-production-process" title="Permanent link"></a></h2>
+<p>The <a href="#download-test-data">ingest method</a> mentioned earlier is strictly meant to only be used during testing and development of ingesting new grid data.  The reasoning is because the manual end point is very inefficent during its ingest.  It creates copies of the data file and uses more resources than you'd want in a production process.</p>
+<p>Once you are satisfied with the data ingest and display in CAVE, then we highly recommend you implement a production process for ingest that does not involve the manual directory (<code>/awips2/data_store/ingest/</code>). </p>
+<p>The recommended way is to make use of a Python script we distribute with AWIPS (EDEX).  This script is called <code>notifyAWIPS2-unidata.py</code> and located in th <code>/awips2/ldm/dev/</code> directory.  If you are already using a script to manually gather the data, then adding an additional call like the one below, should ingest your data to EDEX in an efficient manner:</p>
+<pre><code>/awips2/ldm/dev/notifyAWIPS2-unidata.py [path-to-new-grib-file]
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Make sure the python script is executable.  To do this you may have to run <code>chmod +x /awips2/ldm/dev/notifyAWIPS2-unidata.py</code></p>
+</div>
 <hr />
 <h2 id="using-wgrib2">Using wgrib2<a class="headerlink" href="#using-wgrib2" title="Permanent link"></a></h2>
 <p>Mentioned in this page are a few command parameters for <code>wgrib2</code> such as <code>-grid</code>, <code>varX</code>, <code>-center</code>, <code>-subcenter</code>, and <code>-full_name</code>.</p>
