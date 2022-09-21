@@ -107,7 +107,6 @@ popd
 cd ../
 
 buildRPM "Installer.edex"
-buildRPM "Installer.edex-configuration"
 
 DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;

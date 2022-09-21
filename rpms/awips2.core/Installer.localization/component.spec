@@ -101,11 +101,6 @@ do
    grep -rl 'LATITUDE' $CAVE_DIR | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR | xargs sed -i 's/LONGITUDE/'$lon'/g'
 
-   # EDEX
-   SITE_DIR=$COMMON_DIR/site/$site
-   mkdir -p $SITE_DIR
-   cp -R $UTIL/siteconfig/* $SITE_DIR/
-   grep -rl 'XXX' $SITE_DIR | xargs sed -i 's/XXX/'$site'/g'
 done
 ls -la $BUILD_DIR/utility/cave_static
 find $BUILD_DIR/utility/cave_static

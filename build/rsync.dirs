@@ -1,4 +1,4 @@
-edexOsgi/* cave/* localization/*
+edexOsgi/* cave/* localization
 javaUtilities/* rpms pythonPackages 
 build/deploy.edex
 build/deploy.edex.awips2
@@ -27,13 +27,6 @@ build/deploy.ignite.awips2
 ../awips2-nws/viz/*
 ../awips2-goesr/edexOsgi/* 
 ../awips2-goesr/cave/* 
-../python-awips
-../awips2-data-delivery/common/*
-../awips2-data-delivery/edex/*
-../awips2-data-delivery/features/*
-../awips2-data-delivery/viz/*
-../awips2-drawing/viz/*
-../awips2-drawing/features/*
 ../awips2-gsd/viz/*
 ../awips2-gsd/features/*
 ../awips2-ogc/foss/*

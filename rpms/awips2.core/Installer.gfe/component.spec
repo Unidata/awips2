@@ -19,7 +19,6 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-data.gfe
 Requires: awips2-edex
-Requires: awips2-edex-configuration
 
 %description
 AWIPS II gfe Distribution - Contains the AWIPS II gfe netcdf files.
