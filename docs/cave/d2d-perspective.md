@@ -152,7 +152,7 @@ Combined-image displays have been improved by removing the valid time for non-fo
 
 ### Display Properties
 
-This menu option opens the Display Properties dialog box. All the options available in this dialog box are also available on the Toolbar.
+This menu option opens the Display Properties dialog box. Most of the options available in this dialog box are also available on the [Toolbar](#top), while the rest are available in the [individual resource menus](##hold-right-click-resource-name-for-menu) if that resource uses these properties.
 
 ![image](../images/x9uQNAI.png)
 
