@@ -1,0 +1,90 @@
+--- pqact/pqact.c	2019-05-03 13:03:54.000000000 -0500
++++ b/pqact.c	2021-10-06 11:44:10.157871170 -0500
+@@ -258,6 +258,10 @@
+                 DEFAULT_PIPE_TIMEO);
+         log_error_q(
+ "\t-o offset    Start with products arriving \"offset\" seconds before now (default: 0)");
++        log_error_q(
++"\t-k key_char    Unique single char code to identify shared memory segment used by edexBridge (default: 'R')");
++        log_error_q(
++"\t-s semkey_char Unique single char code to identify semaphore used by edexBridge (default: 'e')");
+         log_error_q(
+ "\tconfig_file  Pathname of configuration-file (default: " "\"%s\")",
+                 getPqactConfigPath());
+@@ -278,6 +282,9 @@
+         int          toffset = TOFFSET_NONE;
+         unsigned     queue_size = 5000;
+         const char*  progname = basename(av[0]);
++        bool edex_bridge_mode = false;
++        int key_proj_id = 'R';
++        int semkey_proj_id = 'e';
+ 
+         /*
+          * Setup default logging before anything else.
+@@ -316,7 +323,7 @@
+ 
+             opterr = 1;
+ 
+-            while ((ch = getopt(ac, av, "vxel:d:f:q:o:p:i:t:")) != EOF) {
++            while ((ch = getopt(ac, av, "vxel:d:f:q:o:p:i:t:k:s:")) != EOF) {
+                 switch (ch) {
+                 case 'v':
+                         if (!log_is_enabled_info)
+@@ -326,11 +333,7 @@
+                         (void)log_set_level(LOG_LEVEL_DEBUG);
+                         break;
+                 case 'e':
+-                        key = ftok("/etc/rc.d/rc.local",'R');
+-                        semkey = ftok("/etc/rc.d/rc.local",'e');
+-                        shmid = shmget(key, sizeof(edex_message) * queue_size,
+-                                0666 | IPC_CREAT);
+-                        semid = semget(semkey, 2, 0666 | IPC_CREAT);
++                        edex_bridge_mode = true;
+                         break;
+                 case 'l':
+                         logfname = optarg;
+@@ -382,6 +385,28 @@
+                 case 'p':
+                         spec.pattern = optarg;
+                         break;
++                case 'k': ; // empty statement to allow variable declaration in next line
++                         char *key_code_string = optarg;
++                         if (strlen(key_code_string) == 1) 
++                         {
++                                 key_proj_id = key_code_string[0];
++                         } 
++                         else 
++                         {
++                                 usage(progname);
++                         }
++                         break;
++                 case 's': ; // empty statement to allow variable declaration in next line
++                         char *sem_code_string = optarg;
++                         if (strlen(sem_code_string) == 1)
++                         {
++                                 semkey_proj_id = sem_code_string[0];
++                         }
++                         else
++                         {
++                                 usage(progname);
++                         }
++                         break;
+                 default:
+                         usage(progname);
+                         break;
+@@ -391,6 +416,15 @@
+             conffilename = getPqactConfigPath();
+             datadir = getPqactDataDirPath();
+ 
++            if (edex_bridge_mode) 
++            {
++                key = ftok("/etc/rc.d/rc.local", key_proj_id);
++                semkey = ftok("/etc/rc.d/rc.local", semkey_proj_id);
++                shmid = shmget(key, sizeof(edex_message) * queue_size,
++                        0666 | IPC_CREAT);
++                semid = semget(semkey, 2, 0666 | IPC_CREAT);
++            }
++
+             {
+                 int numOperands = ac - optind;
+ 
