@@ -30,7 +30,7 @@
 0000000000|41024| 33.83 | -78.48 |   -0|Sunset Bch, NC Nearshore            |US|BOY
 0000000000|41025| 35.01 | -75.45 |    0|Diamond Shoals (Red Buoy), NC       |US|BOY
 0000000000|41027| 33.30 | -78.14 |   -0|Caro-COOPS, Sunset Mid-Shelf        |US|BOY
-0000000000|41029| 32.81 | -79.63 |   -0|Capers, SC Nearshore                |US|BOY
+0000000000|41029| 32.805| -79.622|   -0|Capers, SC Nearshore                |US|BOY
 0000000000|41030| 32.52 | -79.34 |   -0|Capers, SC Mid-shelf                |US|BOY
 0000000000|41031| 32.28 | -80.41 |   -0|Fripp, SC Nearshore                 |US|BOY
 0000000000|41033| 32.28 | -80.41 |   -0|Caro-COOPS, Fripp Nearshore         |US|BOY
@@ -46,7 +46,7 @@
 0000000000|41048| 31.98 | -69.65 |    0|W of Bermuda                        |US|BOY
 0000000000|41049| 27.5  | -62.94 |    0|Atlantic (South)                    |US|BOY
 0000000000|41065| 32.802| -79.619|    0|CAP2WAVE, Capers Nearshore Waves    |US|BOY
-0000000000|41066| 32.536| -79.660|    0|19 NM SE Charleston, SC Harbor CORMP|US|BOY
+0000000000|41066| 32.528| -79.661|    0|19 NM SE Charleston, SC Harbor CORMP|US|BOY
 0000000000|41076| 32.536| -79.659|    0|CHR60WAVE                           |US|BOY
 0000000000|41108| 33.721| -78.015|    0|Wilmington Harbor NC Scripps        |US|BOY
 0000000000|41110| 34.141| -77.709|   -0|Masonboro Inlet, NC CORMP           |US|BOY

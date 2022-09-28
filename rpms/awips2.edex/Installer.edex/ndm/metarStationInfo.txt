@@ -1090,6 +1090,7 @@
 0000000000|K33V | 40.74542|-106.27538|2486|Walden-Jackson Cnty AP, Walden, CO|US|MTR
 0000000000|K35A | 34.68695| -81.64117| 186|Union Cnty AP, Union, SC         |US|MTR
 0000000000|K35B | 42.83 | -70.87 |    1|MERRIMACK RIVER, MA                 |US|MTR
+0000000000|K36K | 37.96950|-101.25500| 938|Lakin Airport, Lakin, KS         |US|MTR
 0000000000|K37C | 28.19 | -93.00 |    1|WEST CAMERON 556, LA                |US|MTR
 0000000000|K3A6 | 34.40 |-118.60 |  550|Newhall, CA                         |US|MTR
 0000000000|K3AU | 37.67164|-97.07786| 405|Augusta Muni, Augusta, KS         |US|MTR
@@ -2095,6 +2096,7 @@
 0000000000|KGFK | 47.96 | -97.18 |  257|GRAND FORKS INTL, ND                |US|MTR
 0000000000|KGFL | 43.36 | -73.62 |  100|GLENS FALLS, NY                     |US|MTR
 0000000000|KGGE | 33.312| -79.320|   12|Georgetown, SC                      |US|MTR
+0000000000|KGGF | 40.87066|-101.73388| 1044|Grant Muni Airport, NE          |US|MTR
 0000072247|KGGG | 32.38 | -94.71 |  111|Longview/Gregg Co, TX               |US|MTR
 0000000000|KGGI | 41.709| -92.735|  307|Grinnell Rgnl AP, Grinnell, IA      |US|MTR
 0000000000|KGGP | 40.711| -86.373|  225|Logansport/Cass Cnty AP, IN         |US|MTR

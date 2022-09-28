@@ -438,6 +438,7 @@
 35A Union County Airport, Union, SC
 35B Merrimack River, MA
 35D Allegan, MI
+36K Lakin Airport, Lakin, KS
 37C West Cameron 556, LA
 3A1 Folsom Fld AP, Cullman, AL
 3A6 Newhall, CA
@@ -1868,6 +1869,7 @@ GFK Grand Forks, ND
 GFL Glens Falls, NY
 GFU N-Funafuti, TV
 GGE Georgetown Cnty AP, SC
+GGF Grant Muni Airport, NE
 GGG Longview, TX
 GGH A-Honiara/Henderson, Solomon Is
 GGI Grinnell Rgnl AP, Grinnell, IA
