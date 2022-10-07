@@ -31,8 +31,7 @@
 #    03/12/13                      bkowal         Initial Creation.
 #    02/17/14        2712          bkowal         Provide a default value for localization site.
 #    03/19/14        2929          bkowal         'REGION' is now recognized as a valid localization level.
-#
-#
+#    02/04/19                      mjames@ucar    Removed REGION.
 #
 
 #
@@ -53,7 +52,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.localization import Localiz
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamGetRequest
 
 BUFFER_SIZE = 512 * 1024
-availableLevels = ['BASE', 'REGION', 'CONFIGURED', 'SITE', 'USER']
+availableLevels = ['BASE', 'CONFIGURED', 'SITE', 'USER']
 
 def importModule(name, localizationHost, localizationPort, localizedSite=None, localizationUser=None, 
                  loctype='COMMON_STATIC', level=None):

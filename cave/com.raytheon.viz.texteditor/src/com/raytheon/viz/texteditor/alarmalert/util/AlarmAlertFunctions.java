@@ -667,44 +667,21 @@ public class AlarmAlertFunctions {
     }
 
     /*
-     * Try to load the workstation file. If there is no workstation file then
-     * try to load the site file and create a new workstation file from it. If
-     * there is no site file, then create a new default workstation file.
+     * Try to load the site file.
      */
-    public static AAPACombined loadSiteAlarms(
-            ILocalizationFileObserver listener) {
-        LocalizationFile workstationFile = getFile(
-                initLocalization(LocalizationLevel.WORKSTATION), SITE_FILE);
+    public static AAPACombined loadSiteAlarms(ILocalizationFileObserver listener) {
         AAPACombined aapaCombined = null;
 
-        if (workstationFile == null || !workstationFile.exists()) {
-            // no workstation file found. try the site file
-            LocalizationFile siteFile = getFile(initSiteLocalization(),
-                    SITE_FILE);
-            if (siteFile == null) {
-                aapaCombined = createDefaultAAPACombined();
-            } else {
-                try {
-                    aapaCombined = loadFile(siteFile.getFile());
-                } catch (FileNotFoundException e) {
-                    aapaCombined = createDefaultAAPACombined();
-                }
-            }
-            // save work file
-            if (workstationFile != null) {
-                saveAlarms(aapaCombined, workstationFile);
-            }
-        } else {
+        LocalizationFile siteFile = getFile(initSiteLocalization(), SITE_FILE);
+        if (siteFile == null) {
+            aapaCombined = createDefaultAAPACombined();
             try {
-                aapaCombined = loadFile(workstationFile.getFile());
+                aapaCombined = loadFile(siteFile.getFile());
             } catch (FileNotFoundException e) {
                 aapaCombined = createDefaultAAPACombined();
             }
         }
 
-        if (workstationFile != null) {
-            workstationFile.addFileUpdatedObserver(listener);
-        }
         return aapaCombined;
     }
 
