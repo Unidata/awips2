@@ -1475,7 +1475,7 @@ DMX WFO Des Moines, Johnston, IA WSR-88D
 DNA Dona Ana County Jetport, NM
 DNK Self Strip, Ft. Polk, LA
 DNL Augusta, GA
-DNN Dalton Muni, GA
+DNN Dalton Muni AP, Dalton, GA
 DNS Denison, IA
 DNV Danville, IL
 DOE Doe Lake, MI

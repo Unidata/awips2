@@ -1794,7 +1794,7 @@
 0000000000|KDNA | 31.87495|-106.69385| 1254|Dona Ana County Jetport, NM     |US|MTR
 0000000000|KDNK | 31.10 | -93.00 |  114|Self Strip, Ft. Polk, LA            |US|MTR
 0000000000|KDNL | 33.47 | -82.03 |  130|Augusta, GA                         |US|MTR
-0000000000|KDNN | 34.72 | -84.87 |  216|Dalton Muni, GA                     |US|MTR
+0000000000|KDNN | 34.72294|-84.87024| 216|Dalton Muni AP, Dalton, GA        |US|MTR
 0000000000|KDNS | 41.98 | -95.38 |  388|DENISON, IA                         |US|MTR
 0000000000|KDNV | 40.20317|-87.58973| 212|Danville, IL                      |US|MTR
 0000000000|KDOE | 46.27 | -86.67 |  247|Doe Lake, MI                        |US|MTR
