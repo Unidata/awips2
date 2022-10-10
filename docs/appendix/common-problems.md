@@ -25,6 +25,22 @@ For Mac users, the easiest way is to open a new terminal and run the following c
 
 ---
 
+## CAVE Map Display in Lower Left Quadrant - Windows
+
+If you start up CAVE in Windows and notice the map is showing up only in the bottom left quadrant of your display, you will just need to tweak a few display settings.
+
+![CAVE Map 1/4 of screen](../images/CAVE_map.png)
+
+Try following these steps to fix your issue:
+
+- Right-click on the CAVE.exe (or shortcut) icon, select Properties
+- Select the Compatibility tab
+- Click "Change High DPI Settings"
+- At the bottom enable "Override High DPI scaling behavior"
+- Change the dropdown from Application to System
+
+---
+
 ## Disappearing Configurations
 
 If you ever notice some of the following settings you've configured/saved disappear from CAVE:
