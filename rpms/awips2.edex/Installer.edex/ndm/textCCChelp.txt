@@ -2778,6 +2778,7 @@ LYV Quentin Aanenson AP, Luverne, MN
 LZK WFO Little Rock, North Little Rock, AR WSR-88D
 LZU Lawrenceville/Gwinnett Co, GA 
 LZZ Lampasas, TX
+M01 General Dewitt Spain Airport, Memphis, TN
 M02 Dickson Muni AP, Dickson, TN
 M04 Covington Muni AP, Covington, TN
 M08 Bolivar/William Whitehurst, TN

@@ -2588,6 +2588,7 @@
 0000072340|KLZK | 34.84 | -92.25 |  165|North Little Rock, AR               |US|MTR
 0000000000|KLZU | 33.978| -83.962|  323|Lawrenceville/Gwinnett Co, GA       |US|MTR
 0000000000|KLZZ | 31.106| -98.196|  370|Lampasas, TX                        |US|MTR
+0000000000|KM01 | 35.20069|-90.05398| 69|Gen Dewitt Spain AP, Memphis, TN   |US|MTR
 0000000000|KM02 | 36.12794| -87.42983| 272|Dickson Muni AP, Dickson, TN     |US|MTR
 0000000000|KM04 | 35.58337| -89.58722| 85|Covington Muni AP, Covington, TN  |US|MTR
 0000000000|KM08 | 35.21514| -89.04325| 152|Bolivar/William L Whitehurst, TN |US|MTR
@@ -3553,7 +3554,7 @@
 0000000000|KUTA | 34.681| -90.347|   59|Tunica Muni, MS                     |US|MTR
 0000000000|KUTS | 30.74 | -95.59 |  105|Huntsville, TX                      |US|MTR
 0000000000|KUUU | 41.54 | -71.28 |   52|NEWPORT, RI                         |US|MTR
-0000000000|KUUV | 38.233| -91.164|  284|Sullivan Rgnl, Sullivan, MO         |US|MTR
+0000000000|KUUV | 38.23347|-91.16428| 284|Sullivan Rgnl, Sullivan, MO       |US|MTR
 0000000000|KUVA | 29.211| -99.744|  287|Garner Fld AP, Uvalde, TX           |US|MTR
 0000000000|KUXL | 30.13144| -93.37617| 3|Southland Fld AP, Sulphur, LA      |US|MTR
 0000000000|KUYF | 39.9327| -83.462| 330|Madison Cnty AP, London, OH         |US|MTR
