@@ -75,7 +75,7 @@ if [[ $(whoami) == "awips" ]]; then # local build
 #  rsync -aP dist/${os_version}-
   #TM#echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"
   #TM#rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
-  #rsync -aP dist/${os_version}-dev-${date} awips@hardy:~/
+  rsync -aP dist/${os_version}-dev-${date} awips@hardy:/awips2/dev
   #repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   #
   # Push to web server

@@ -1,0 +1,55 @@
+--- pqact/filel.c	2020-07-13 15:39:02.000000000 -0500
++++ b/filel.c	2020-08-06 09:31:30.711338836 -0500
+@@ -1286,25 +1286,6 @@
+         status = -1;
+     }
+     else {
+-        if (entry_isFlagSet(entry, FL_EDEX)) {
+-            if (shared_id == -1) {
+-                log_add("Notification specified but shared memory is not "
+-                        "available.");
+-            }
+-            else {
+-                edex_message* const queue =
+-                        (edex_message*)shmat(shared_id, (void*)0, 0);
+-                edex_message* const msg = queue + queue_counter;
+-                strncpy(msg->filename, entry->path, 4096);
+-                msg->filename[4096-1] = 0;
+-                strncpy(msg->ident, prodp->info.ident, 256);
+-                msg->ident[256-1] = 0;
+-                if (shmdt((void*)queue) == -1) {
+-                    log_add_syserr("Detaching shared memory failed.");
+-                }
+-            }
+-        }
+-
+         size_t sz = prodp->info.sz;
+         void*  data = prodp->data;
+ 
+@@ -1347,6 +1328,26 @@
+                     (void) ftruncate(entry->handle.fd, sz);
+ 
+                 status = flushIfAppropriate(entry);
++
++                if (entry_isFlagSet(entry, FL_EDEX)) {
++                    if (shared_id == -1) {
++                        log_add("Notification specified but shared memory is not "
++                                "available.");
++                    }
++                    else {
++                        edex_message* const queue =
++                                (edex_message*)shmat(shared_id, (void*)0, 0);
++                        edex_message* const msg = queue + queue_counter;
++                        strncpy(msg->filename, entry->path, 4096);
++                        msg->filename[4096-1] = 0;
++                        strncpy(msg->ident, prodp->info.ident, 256);
++                        msg->ident[256-1] = 0;
++                        if (shmdt((void*)queue) == -1) {
++                            log_add_syserr("Detaching shared memory failed.");
++                        }
++                    }
++                }
++
+                 if (status) {
+                     log_add("Couldn't flush I/O to file \"%s\"", entry->path);
+                 }

@@ -159,7 +159,7 @@ function build_qpid(){
 function build_server(){
    buildRPM "awips2"
 # NEED TO ADD:
-#  buildRPM "awips2-ldm"
+   buildRPM "awips2-ldm"
 #  buildRPM "awips2-tools
    buildRPM "awips2-gfesuite"
    build_pypies
