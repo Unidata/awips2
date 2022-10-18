@@ -125,7 +125,7 @@ cd ${_Installer_ldm}/patch
 if [ $? -ne 0 ]; then
    exit 1
 fi
-_PATCH_DIRS=( 'bin' 'decoders' 'etc' 'dev' 'gempak')
+_PATCH_DIRS=( 'bin' 'decoders' 'etc' 'dev' 'gempak' 'edex_post' 'pqact')
 for patchDir in ${_PATCH_DIRS[*]};
 do
    /bin/tar -cf ${patchDir}.tar ${patchDir}
@@ -179,6 +179,16 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+# Unpack patch tar files
+cd ${_ldm_dir}/SOURCES
+_PATCH_DIRS=( 'edex_post' 'pqact')
+for patchDir in ${_PATCH_DIRS[*]};
+do
+   /bin/tar -xf ${patchDir}.tar
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+done
 
 # build ldm
 . /etc/profile.d/awips2.sh
@@ -187,6 +197,13 @@ cd ${_ldm_root_dir}/src
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
+
+#patch edex post
+patch -u pqact/filel.c -i ${_ldm_dir}/SOURCES/edex_post/edex_post.patch || exit 1
+
+# apply pqact patch
+patch -u pqact/pqact.c -i ${_ldm_dir}/SOURCES/pqact/pqact.patch || exit 1
 
 ./configure --disable-max-size --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0' > configure.log 2>&1
 if [ $? -ne 0 ]; then

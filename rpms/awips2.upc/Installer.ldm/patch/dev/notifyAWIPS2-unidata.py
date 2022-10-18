@@ -15,7 +15,7 @@ header = path.basename(inPath)
 conn = IngestViaQPID()
 
 #send message to QPID
-print "sending %s with a header of %s"%(inPath,header)
+print ("sending %s with a header of %s"%(inPath,header))
 conn.sendmessage(inPath,header)
 
 #close QPID connection
