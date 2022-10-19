@@ -27,7 +27,9 @@ foreach $path(@paths)
     print "\t$syscmd\n";
     `$syscmd`;
 
-    $syscmd=" /awips2/python/bin/python /awips2/ldm/dev/notifyAWIPS2-unidata.py $outPath/$file";
+   # $syscmd=" /awips2/python/bin/python /awips2/ldm/dev/notifyAWIPS2-unidata.py $outPath/$file";
+    $syscmd=" /awips2/python/bin/python /awips2/fxa/bin/src/qpidNotify/qpidNotify.py $outPath/$file";
+
     print "\t$syscmd\n";
     `$syscmd`;
   }
