@@ -191,6 +191,7 @@ A full list of all released blogs can be found below:
 - [Use Warngen to Draw Convective Warnings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-use-warngen-to)
 - [Using Drawing Properties for WWA Display in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-drawing-properties)
 - [Understanding Graphic vs Image Products in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/understanding-graphic-vs-image-products)
+- [Getting to Know CAVE's Display Properties](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-getting-to-know)
 
 #### Python-AWIPS
 
