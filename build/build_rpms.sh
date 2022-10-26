@@ -28,12 +28,12 @@ pushd $REPO
 # If local source directories, exist, mount them to the
 # container, otherwise clone the repo from github
 #
-if [ ! -d awips2-core-foss ]; then      git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch   ;fi
-if [ ! -d awips2-core ]; then           git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
-if [ ! -d awips2-foss ]; then           git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
-if [ ! -d awips2-goesr ]; then          git clone https://github.com/Unidata/awips2-goesr.git --branch unidata_${AWIPSII_VERSION} --single-branch       ;fi
-if [ ! -d awips2-ncep ]; then           git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
-if [ ! -d awips2-nws ]; then           git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
+#if [ ! -d awips2-core-foss ]; then      git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch   ;fi
+#if [ ! -d awips2-core ]; then           git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
+#if [ ! -d awips2-foss ]; then           git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
+#if [ ! -d awips2-goesr ]; then          git clone https://github.com/Unidata/awips2-goesr.git --branch unidata_${AWIPSII_VERSION} --single-branch       ;fi
+#if [ ! -d awips2-ncep ]; then           git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
+#if [ ! -d awips2-nws ]; then           git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 #if [ ! -d awips2-unidata ]; then        git clone https://github.com/Unidata/awips2-unidata.git --branch unidata_${AWIPSII_VERSION} --single-branch     ;fi
 
 #
@@ -72,6 +72,7 @@ else
   su - awips -c "/bin/bash $buildsh -edex"
   su - awips -c "/bin/bash $buildsh -httpd"
   su - awips -c "/bin/bash $buildsh -cave"
+  #su - awips -c "/bin/bash $buildsh -localization"
 
 fi
 

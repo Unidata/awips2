@@ -1,0 +1,5 @@
+#
+# NEXRAD3 site products
+#
+NEXRAD3|HDS	^SDUS[235678]. (....) (..)(..)(..).*/p(...)(...)
+	FILE	-overwrite -close -edex	/awips2/data_store/radar/(\2:yyyy)(\2:mm)\2//\3/\6/\6_\5_(\2:yyyy)(\2:mm)\2_\3\4

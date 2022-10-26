@@ -1,0 +1,184 @@
+#####
+#
+# pqact.conf entries for Alaska region
+# 
+# NOTE: This file should not be edited as it will be overwritten by future installs.
+# If you need to modify this file copy it to pqact.conf.site.\*, edit that file,
+# and modify the pqact.include file to reference your local file instead. 
+# You should also open an NCF TT so the base file can be corrected.
+#
+#####
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer   Description
+# ------------- -------- ---------- --------------------------------------------
+# Mar 07, 2018  6824     randerso    Added pattern for Alaska LSRs
+# Aug 02, 2018  7061     randerso    Split pqact.conf.template out into multiple files
+# Jul 18, 2018  DR21433  arivera     Update NOAA-20 NUCAPS pqact pattern
+# Mar 03, 2022  DCS23022 jdynina     Update with AWIPS RC17698 changes
+#
+##
+
+#### Grid Section ####
+
+# AK ET-SURGE
+NGRID	^(L.R...) (KNHC) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+HDS	^(L.R...) (KNHC) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# ESTOFS - Alaska (A)
+NGRID	^(E[EHC][A][A-Z]88) (KWBM) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# ETSS-AK 
+NGRID	^(MHR|LPQ)([A-F][0-2][0-9]) (KNHC) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\4:yyyy)(\4:mm)\4/\5/ETSS/NDFD-AK/\1\2_\3_\4\5\6_(seq).grib2.%Y%m%d%H
+
+# GEFS
+NGRID	^([LM].A...) (KWBK) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK-GFS22
+NGRID	^([YZ].B...) (KWBC) (..)(..)(..) [^!]*!(grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# Global Wave Model - Alaska / Pacific
+NGRID	^(E.[EF]...) (KWBJ) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK-HiResWarw/nmm
+NGRID	^([LM].C...) (KWBS) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK-MOSGuide
+NGRID	^([LM].R...) (KWBQ) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# DR 17683
+# Day 8-11 3km Alaska Gridded MOS
+# Pattern added by Josh Watson
+# The noaaportIngester does not yet read a grib2 SBN file with more than one message.
+
+NGRID	^(L[BCDEFGHR]RZ96) (KWBQ) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/GMOS/GRID255/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+
+# AK-NAM12
+NGRID	^([LM].S...) (KWBE) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK-NamDNG3
+NGRID	^([LM].K...) (KWBE) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex    /data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK NBM
+NGRID|HDS	^(Y[A-Z][A-N][A-R][0-2][0-9]) (KWE[CDJ]) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex    /data_store/\6/(\3:yyyy)(\3:mm)\3/\4/NationalBlend/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK-NWPS
+NGRID	^(E...88) (PA..) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK-RTMA
+NGRID	^(L.K...) (KWBR) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# RTOFS
+NGRID	^(E[HS-V][ABDI][B-T]01) (KWBW) (..)(..)(..)
+	FILE	--overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/RTOFS/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+
+# AK-SREF (GRID216)
+NGRID	^([LM].V...) (KWBL) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# AK-WPCGuide
+NGRID	^(L.R...) (KWNH) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+#### End of Grid Section ####
+
+# Fix for GLD360
+NGRID	^(SFPA41) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -edex -close	/data_store/binlightning/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).nldn.%Y%m%d%H
+
+# Alaska MOS
+IDS|DDPLUS	^(FOAK[1-589].) (....) (..)(..)(..)
+	FILE	 -overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+IDS|DDPLUS	^(FEAK[1-589].) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# Shipobs SXVD01
+IDS|DDPLUS	^(SXVD01) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/maritime/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# TSUNAMI SEISMIC INFORMATION STATEMENT
+IDS|DDPLUS	^(SEAK71) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# S-NPP and NOAA-20 NUCAPS - hdf files for gridded data
+HDS	^(IUTN[01][69]) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/nucaps/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).hdf.%Y%m%d%H
+
+# global syntopic
+# # TEXT    ^SMUS.*                 /point/synoptic/Raw
+IDS|DDPLUS	^(S[IM][GNR][ALOS]..) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/synoptic/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# hydro pattern for ACR
+IDS|DDPLUS	^(AG..[0-9][0-9]) (PACR) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# QPE PACR
+# AWIPS1:       GRID    ^ZETA98.(PACR) /Grid/SBN/HydroRaw
+# ZETA98 KTAR 012300 /mNWS_160 !grib/nws/NWS_160/#255/201102012200/F001/APCP/sfc/
+#
+HDS	^(ZETA98) (PACR) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# VIIRS, GPM, GCOM+AMSR-2 Satellite data
+#NOTHER	^(TI[A-O]B99) (KNES) (..)(..)(..)
+#	FILE	-overwrite -log -close -edex	/data_store/polar/(\3:yyyy)(\3:mm)\3/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# Alaska MOS
+IDS|DDPLUS	^(FOAK[1-589].) (....) (..)(..)(..)
+	FILE	 -overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+IDS|DDPLUS	^(FEAK[1-389].) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# Alaska - Added for AAWU
+IDS|DDPLUS	^(W[SV]AK0[1-9]) (PAWU) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# National Radar for DCS 18425 / DR 18913 / DCS23022 (SR products)
+NNEXRAD	^(SDUS[234578].) (P)(...) (..)(..)(..) /p(N0B|N1B|N0G|N1G|NST|TZL|TZ1|TV1|NCR)(...)
+	FILE	-overwrite -log -close -edex	/data_store/radar/(\4:yyyy)(\4:mm)\4/\5/\2\8/\7/\1_\4\5\6_\2\8_\7_(seq).rad
+
+# Hydro capture text products -
+#  need entries in /awips2/edex/data/utility/edex_static/site/AFC/distribution/shef.xml
+IDS|DDPLUS	^(SRAK4.) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+IDS|DDPLUS	^(SOAK45) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# Fairbanks rec forecast
+WMO	^(SXAK49) (PAFG) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# Alaska MOS
+IDS|DDPLUS	^(FOAK[1-9].) (....) (..)(..)(..)
+	FILE	 -overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+#
+IDS|DDPLUS	^(FEAK[1-9].) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# LAMP / COOP-MOS
+IDS|DDPLUS	^(FEUS1[01]) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+ANY	^(NWAK5.) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/lsr/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H

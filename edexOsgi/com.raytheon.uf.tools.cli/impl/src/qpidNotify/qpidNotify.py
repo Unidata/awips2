@@ -43,12 +43,12 @@
 ##############################################################################
 
 import argparse
-from lib.Util import time_limit, TimeoutException
 import logging
 import os
 import re
 import sys
 import time
+from lib.Util import time_limit, TimeoutException
 
 from ufpy import qpidingest
 

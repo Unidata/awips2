@@ -1,0 +1,44 @@
+#####
+#
+# pqact.conf entries for Tropical models at RFC sites
+# 
+# NOTE: This file should not be edited as it will be overwritten by future installs.
+# If you need to modify this file copy it to pqact.conf.site.\*, edit that file,
+# and modify the pqact.include file to reference your local file instead. 
+# You should also open an NCF TT so the base file can be corrected.
+#
+#####
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer   Description
+# ------------- -------- ---------- --------------------------------------------
+# Aug 02, 2018  7061     randerso    Split pqact.conf.template out into multiple files
+#
+##
+# =====================================================================================================
+# P-ETSS Patterns for RFC updated Jul 10, 2017 (randerso)
+# =====================================================================================================
+#
+# ///////////////////////////////////////////////////////////////////////////
+# Probabilistic Extra-Tropical Storm Surge (P-ETSS) 625m 1 hourly
+# ///////////////////////////////////////////////////////////////////////////
+#
+ANY	^(Y[BFJ][A-Z][A-F][012][0-9]) (KWES) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\3/\4/P-ETSS/GRID374/\4\5Z_\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+#
+#
+# ================================== END P-ETSS Patterns =============================================
+# =====================================================================================================
+# TPCSurgeProb Patterns for RFC updated Jul 10, 2017 (randerso)
+# =====================================================================================================
+#
+# ///////////////////////////////////////////////////////////////////////////
+# Probabilistic storm Surge (P-Surge) 625m 1 hourly
+# ///////////////////////////////////////////////////////////////////////////
+#
+ANY	^(Y[BF][A-Z][A-F][012][0-9]) (KWEV) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\3/\4/PSURGE/GRID374/\4\5Z_\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+#
+# ================================== END TPCSurgeProb Patterns =============================================
+

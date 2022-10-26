@@ -1,0 +1,47 @@
+#####
+#
+# pqact.conf entries for Tropical models at WFO sites
+# 
+# NOTE: This file should not be edited as it will be overwritten by future installs.
+# If you need to modify this file copy it to pqact.conf.site.\*, edit that file,
+# and modify the pqact.include file to reference your local file instead. 
+# You should also open an NCF TT so the base file can be corrected.
+#
+#####
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer   Description
+# ------------- -------- ---------- --------------------------------------------
+# Aug 02, 2018  7061     randerso    Split pqact.conf.template out into multiple files
+# Apr 18, 2019 21230     kshrestha   Updated P-ETSS Patterns for WFOs
+# Feb 04, 2020 22151     dhaines     Made a new update to the P-ETSS patterns for WFOs
+#
+##
+# =====================================================================================================
+# P-ETSS Patterns for WFOs updated Jul 10, 2017 (randerso)
+# =====================================================================================================
+#
+# ///////////////////////////////////////////////////////////////////////////
+# Probabilistic Extra-Tropical Storm Surge (P-ETSS) CONUS 625m and Alaska 3km for 6 hourly products
+# ///////////////////////////////////////////////////////////////////////////
+#
+#DCS 20478 Added by Mark Sannutti.  For WFO/RFC only. DR 21230-- P-ETSS Patterns for WFOs updated April 18, 2019 
+ANY	^(Y[ACDEGHIKL][ABCDEGIK][A-F][0-9][0-9]) (KWES|KWEU) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex    /data_store/\6/(\3:yyyy)(\3:mm)\3/\4/P-ETSS/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+#
+#
+# ================================== END P-ETSS Patterns =============================================
+# =====================================================================================================
+# TPCSurgeProb Patterns for WFOs updated Jul 10, 2017 (randerso)
+# =====================================================================================================
+#
+# ///////////////////////////////////////////////////////////////////////////
+# Probabilistic storm Surge (P-Surge) 625m 6 hourly
+# ///////////////////////////////////////////////////////////////////////////
+#
+ANY	^(Y[ACDEGH][A-Z][A-F][012][0-9]) (KWEV) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\3/\4/PSURGE/GRID374/\4\5Z_\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+#
+# ================================== END TPCSurgeProb Patterns =============================================
+
