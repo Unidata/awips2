@@ -1,0 +1,166 @@
+! GRIB2  - NSSL Local Parameter Table
+!
+!D#  = Discipline number
+!CT# = Category number (Octet 10, Code Table 4.2)
+!ID# = Parameter number (Octet 11)
+!PD# = Product Definition Template number (Octet 8-9, Code Table 4.0)
+!
+! Lightning
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 002 000 000 CG Lightning Density 1min        flash km**-2 min**-1 LgtDens1min      0     -1.00
+209 002 001 000 CG Lightning Density 5min        flash km**-2 min**-1 LgtDens5min      0     -1.00
+209 002 002 000 CG Lightning Density 15min       flash km**-2 min**-1 LgtDens15min     0     -1.00
+209 002 003 000 CG Lightning Density 30min       flash km**-2 min**-1 LgtDens30min     0     -1.00
+209 002 005 000 Lightning Prob. next 30min Grid  %                    LgtProb30min     0      0.00
+!
+! Radar products
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 003 000 000 Azimuth Shear 0-2km AGL          0.001 s**-1          AzShr0-2km       0  -9999.00
+209 003 001 000 Azimuth Shear 3-6km AGL          0.001 s**-1          AzShr3-6km       0  -9999.00
+209 003 002 000 Rotation Track 0-2km AGL 30min   0.001 s**-1          RtTrk30mn        0  -9999.00
+209 003 003 000 Rotation Track 0-2km AGL 60min   0.001 s**-1          RtTrk60mn        0  -9999.00
+209 003 004 000 Rotation Track 0-2km AGL 120min  0.001 s**-1          RtTrk120mn       0  -9999.00
+209 003 005 000 Rotation Track 0-2km AGL 240min  0.001 s**-1          RtTrk240mn       0  -9999.00
+209 003 006 000 Rotation Track 0-2km AGL 360min  0.001 s**-1          RtTrk360mn       0  -9999.00
+209 003 007 000 Rotation Track 0-2km AGL 1440min 0.001 s**-1          RtTrk1440mn      0  -9999.00
+209 003 014 000 Rotation Track 0-3km AGL 30min   0.001 s**-1          RtTrkML30mn      0  -9999.00
+209 003 015 000 Rotation Track 0-3km AGL 60min   0.001 s**-1          RtTrkML60mn      0  -9999.00
+209 003 016 000 Rotation Track 0-3km AGL 120min  0.001 s**-1          RtTrkML120mn     0  -9999.00
+209 003 017 000 Rotation Track 0-3km AGL 240min  0.001 s**-1          RtTrkML240mn     0  -9999.00
+209 003 018 000 Rotation Track 0-3km AGL 360min  0.001 s**-1          RtTrkML360mn     0  -9999.00
+209 003 019 000 Rotation Track 0-3km AGL 1440min 0.001 s**-1          RtTrkML1440m     0  -9999.00
+209 003 026 000 Severe Hail Index                index                SHI              0  -9999.00
+209 003 027 000 Prob of Severe Hail              %                    POSH             0  -9999.00
+209 003 028 000 Maximum Est Size of Hail (MESH)  mm                   MESH             0  -9999.00
+209 003 029 000 MESH Hail Swath 30-min           mm                   MESHMx30mn       0  -9999.00
+209 003 030 000 MESH Hail Swath 60-min           mm                   MESHMx60mn       0  -9999.00
+209 003 031 000 MESH Hail Swath 120-min          mm                   MESHMx120mn      0  -9999.00
+209 003 032 000 MESH Hail Swath 240-min          mm                   MESHMx240mn      0  -9999.00
+209 003 033 000 MESH Hail Swath 360-min          mm                   MESHMx360mn      0  -9999.00
+209 003 034 000 MESH Hail Swath 1440-min         mm                   MESHMx1440mn     0  -9999.00
+209 003 041 000 Vertically Integrated Liquid     kg m**-2             VIL              0  -9999.00
+209 003 042 000 Vertically Integrated Liquid Den g m**-3              VILDensity       0  -9999.00
+209 003 043 000 Vertically Integrated Ice        kg m**-2             VII              0  -9999.00
+209 003 044 000 Echo Top - 18 dBZ                km MSL               EchoTop18        0  -9999.00
+209 003 045 000 Echo Top - 30 dBZ                km MSL               EchoTop30        0  -9999.00
+209 003 046 000 Echo Top - 50 dBZ                km MSL               EchoTop50        0  -9999.00
+209 003 047 000 Echo Top - 60 dBZ                km MSL               EchoTop60        0  -9999.00
+209 003 048 000 Thickness [50 dBZ top - (-20C)]  km                   H50AbvM20C       0  -9999.00
+209 003 049 000 Thickness [50 dBZ top - 0C]      km                   H50Abv0C         0  -9999.00
+209 003 050 000 Thickness [60 dBZ top - (-20C)]  km                   H60AbvM20C       0  -9999.00
+209 003 051 000 Thickness [60 dBZ top - 0C]      km                   H60Abv0C         0  -9999.00
+209 003 052 000 Isothermal Reflectivity at 0C    dBZ                  Refl0C           0  -9999.00
+209 003 053 000 Isothermal Reflectivity at -5C   dBZ                  ReflM5C          0  -9999.00
+209 003 054 000 Isothermal Reflectivity at -10C  dBZ                  ReflM10C         0  -9999.00
+209 003 055 000 Isothermal Reflectivity at -15C  dBZ                  ReflM15C         0  -9999.00
+209 003 056 000 Isothermal Reflectivity at -20C  dBZ                  ReflM20C         0  -9999.00
+209 003 057 000 ReflectivityAtLowestAltitude     dBZ                  ReflLowstAlt     0  -9999.00
+209 003 058 000 QC Reflectivity Lowest Altitude  dBZ                  ReflLowstAlt     0  -9999.00
+!
+! Imagery
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 004 000 000 Infrared (E/W blend)             K                    IRband4          0  -9999.00
+209 004 001 000 Visible (E/W blend)              non-dim              Visible          0  -9999.00
+209 004 002 000 Water Vapor (E/W blend)          K                    WaterVapor       0  -9999.00
+209 004 003 000 Cloud Cover                      K                    CloudCover       0  -9999.00
+!
+! Radar Precipitation
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 006 000 000 Surface Precip Type Convective   flag                 PrecipFlag       0  -9999.00
+209 006 001 000 Radar Precipitation Rate         mm hr**-1            PrecipRate       0  -9999.00
+209 006 002 000 Radar precip accum 1-hour        mm                   RadarQPE01H      0  -9999.00
+209 006 003 000 Radar precip accum 3-hour        mm                   RadarQPE03H      0  -9999.00
+209 006 004 000 Radar precip accum 6-hour        mm                   RadarQPE06H      0  -9999.00
+209 006 005 000 Radar precip accum 12-hour       mm                   RadarQPE12H      0  -9999.00
+209 006 006 000 Radar precip accum 24-hour       mm                   RadarQPE24H      0  -9999.00
+209 006 007 000 Radar precip accum 48-hour       mm                   RadarQPE48H      0  -9999.00
+209 006 008 000 Radar precip accum 72-hour       mm                   RadarQPE72H      0  -9999.00
+209 006 009 000 Gauge bias cor pcp accum 1hour   mm                   GaugeCQPE01H     0  -9999.00
+209 006 010 000 Gauge bias cor pcp accum 3hour   mm                   GaugeCQPE03H     0  -9999.00
+209 006 011 000 Gauge bias cor pcp accum 6hour   mm                   GaugeCQPE06H     0  -9999.00
+209 006 012 000 Gauge bias cor pcp accum 12hour  mm                   GaugeCQPE12H     0  -9999.00
+209 006 013 000 Gauge bias cor pcp accum 24hour  mm                   GaugeCQPE24H     0  -9999.00
+209 006 014 000 Gauge bias cor pcp accum 48hour  mm                   GaugeCQPE48H     0  -9999.00
+209 006 015 000 Gauge bias cor pcp accum 72hour  mm                   GaugeCQPE72H     0  -9999.00
+209 006 016 000 Gauge precip accum 1hour         mm                   GaugeQPE01H      0  -9999.00
+209 006 017 000 Gauge precip accum 3hour         mm                   GaugeQPE03H      0  -9999.00
+209 006 018 000 Gauge precip accum 6hour         mm                   GaugeQPE06H      0  -9999.00
+209 006 019 000 Gauge precip accum 12hour        mm                   GaugeQPE12H      0  -9999.00
+209 006 020 000 Gauge precip accum 24hour        mm                   GaugeQPE24H      0  -9999.00
+209 006 021 000 Gauge precip accum 48hour        mm                   GaugeQPE48H      0  -9999.00
+209 006 022 000 Gauge precip accum 72hour        mm                   GaugeQPE72H      0  -9999.00
+209 006 023 000 Mountain Map precip accum 1hour  mm                   MtnMapQPE01H     0  -9999.00
+209 006 024 000 Mountain Map precip accum 3hour  mm                   MtnMapQPE03H     0  -9999.00
+209 006 025 000 Mountain Map precip accum 6hour  mm                   MtnMapQPE06H     0  -9999.00
+209 006 026 000 Mountain Map precip accum 12hour mm                   MtnMapQPE12H     0  -9999.00
+209 006 027 000 Mountain Map precip accum 24hour mm                   MtnMapQPE24H     0  -9999.00
+209 006 028 000 Mountain Map precip accum 48hour mm                   MtnMapQPE48H     0  -9999.00
+209 006 029 000 Mountain Map precip accum 72hour mm                   MtnMapQPE72H     0  -9999.00
+209 006 030 000 MultiSensor QPE 01H Pass1        mm                   MrgdQpe1HP1      0     -1.00
+209 006 031 000 MultiSensor QPE 03H Pass1        mm                   MrgdQpe3HP1      0     -1.00
+209 006 032 000 MultiSensor QPE 06H Pass1        mm                   MrgdQpe6HP1      0     -1.00
+209 006 033 000 MultiSensor QPE 12H Pass1        mm                   MrgdQpe12HP1     0     -1.00
+209 006 034 000 MultiSensor QPE 24H Pass1        mm                   MrgdQpe24HP1     0     -1.00
+209 006 035 000 MultiSensor QPE 48H Pass1        mm                   MrgdQpe48HP1     0     -1.00
+209 006 036 000 MultiSensor QPE 72H Pass1        mm                   MrgdQpe72HP1     0     -1.00
+209 006 037 000 MultiSensor QPE 01H Pass2        mm                   MrgdQpe1HP2      0     -1.00
+209 006 038 000 MultiSensor QPE 03H Pass2        mm                   MrgdQpe3HP2      0     -1.00
+209 006 039 000 MultiSensor QPE 06H Pass2        mm                   MrgdQpe6HP2      0     -1.00
+209 006 040 000 MultiSensor QPE 12H Pass2        mm                   MrgdQpe12HP2     0     -1.00
+209 006 041 000 MultiSensor QPE 24H Pass2        mm                   MrgdQpe24HP2     0     -1.00
+209 006 042 000 MultiSensor QPE 48H Pass2        mm                   MrgdQpe48HP2     0     -1.00
+209 006 043 000 MultiSensor QPE 72H Pass2        mm                   MrgdQpe72HP2     0     -1.00
+!
+! Radar RAP model
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 007 000 000 Model Sfc temperature [RAP 13km] C                    ModelSfcTemp     0  -9999.00
+209 007 001 000 Model Sfc wet bulb T [RAP 13km]  C                    ModelWetTemp     0  -9999.00
+209 007 002 000 Prob warm rain [RAP 13km der]    %                    WarmRainProb     0  -9999.00
+209 007 003 000 Model Freezing Level [RAP 13km]  m MSL                ModelHgt0C       0  -9999.00
+209 007 004 000 Brightband Top [RAP 13km der]    m AGL                BritBandTop      0  -9999.00
+209 007 005 000 Brightband Bot [RAP 13km der]    m AGL                BritBandBotm     0  -9999.00
+!
+! Radar 
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 008 000 000 Radar Quality Index              non-dim              RadarQualIdx     0  -9999.00
+209 008 001 000 Gauge Infl Index for 1hour QPE   non-dim              GInflIdx01H      0  -9999.00
+209 008 002 000 Gauge Infl Index for 3hour QPE   non-dim              GInflIdx03H      0  -9999.00
+209 008 003 000 Gauge Infl Index for 6hour QPE   non-dim              GInflIdx06H      0  -9999.00
+209 008 004 000 Gauge Infl Index for 12hour QPE  non-dim              GInflIdx12H      0  -9999.00
+209 008 005 000 Gauge Infl Index for 24hour QPE  non-dim              GInflIdx24H      0  -9999.00
+209 008 006 000 Gauge Infl Index for 48hour QPE  non-dim              GInflIdx48H      0  -9999.00
+209 008 007 000 Gauge Infl Index for 72hour QPE  non-dim              GInflIdx72H      0  -9999.00
+209 008 008 000 Hybrid Scan Refl with VPR cor    dBZ                  SeamlsHSR        0  -9999.00
+209 008 009 000 Hgh Hybrid Scan Reflectivity     km AGL               SeamlsHSRHgt     0  -9999.00
+!
+! Radar CAPPI
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 009 000 000 88D3D Refl CAPPI 500-19000m      dBZ                  ConusReflQC      0  -9999.00
+209 009 001 000 AllRdr 3D Refl CAPPI 500-19000m  dBZ                  Conus+ReflQC     0  -9999.00
+!
+! Radar composite reflectivity
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 010 000 000 CompRefl Mosaic (optimal method) dBZ                  MrgRefQCCom      0  -9999.00
+209 010 001 000 Hgt CompRefl Mosaic (opt method) m MSL                HgtCompRefl      0  -9999.00
+209 010 002 000 LowLevel CompRefl Mosaic (0-4km) dBZ                  LoLvCompRefl     0  -9999.00
+209 010 003 000 HghLowLevel CompRefl Mos (0-4km) m MSL                HgtLLCompRef     0  -9999.00
+209 010 004 000 Layer CompRefl Mos 0-24kft       dBZ                  LCompReflLow     0  -9999.00
+209 010 005 000 Layer CompRefl Mos 24-60 kft     dBZ                  LCompReflHi      0  -9999.00
+209 010 006 000 Layer CompRefl Mos 33-60 kft     dBZ                  LCompReflSHi     0  -9999.00
+209 010 007 000 CompRefl Hourly Maximum          dBZ                  ReflCompHrMx     0  -9999.00
+209 010 008 000 Max Refl -10 deg C hgt and above dBZ                  ReflMaxAM10C     0  -9999.00
+!
+! Radar mosaic
+!D# CT# ID# PD# NAME                             UNITS                GNAM         SCALE   MISSING
+!23|123|123|123|12345678901234567890123456789012|12345678901234567890|123456789012|12345|123456.89
+209 011 000 000 Mosaic Base Refl (opt method)    dBZ                  MrgBasReflQC      0  -9999.00
+209 011 001 000 UnQc                             dBZ                  MrgReflComp       0  -9999.00
+209 011 002 000 Comp Refl Mosaic (max ref)       dBZ                  MrgReflQComp      0  -9999.00

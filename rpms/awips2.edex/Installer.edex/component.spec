@@ -112,7 +112,7 @@ if [ "${1}" = "1" ]; then
 
   #add services to the edex service list
   LIST_FILE=/etc/init.d/edexServiceList
-  BASE_SERVICES=(ingest ingestDat ingestGrib request)
+  BASE_SERVICES=(ingest ingestGrib request)
 
   if [ -f $LIST_FILE ]; then
      source $LIST_FILE

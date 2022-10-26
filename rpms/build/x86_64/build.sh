@@ -159,11 +159,11 @@ function build_qpid(){
 function build_server(){
    buildRPM "awips2"
 # NEED TO ADD:
-#  buildRPM "awips2-ldm"
+   buildRPM "awips2-ldm"
 #  buildRPM "awips2-tools
    buildRPM "awips2-gfesuite"
    build_pypies
-   buildLocalizationRPMs
+   buildLocalization
    
    buildRPM "awips2-alertviz"
    buildRPM "awips2-aviation-shared"
@@ -208,7 +208,7 @@ if [ "${1}" = "-python" ]; then build_python && exit 0; fi
 if [ "${1}" = "-qpid" ]; then build_qpid && exit 0; fi
 if [ "${1}" = "-server" ]; then build_server && exit 0; fi
 if [ "${1}" = "-pypies" ]; then build_pypies && exit 0; fi
-if [ "${1}" = "-localization" ]; then buildLocalizationRPMS && exit 0; fi
+if [ "${1}" = "-localization" ]; then buildLocalization && exit 0; fi
 if [ "${1}" = "-database" ]; then build_database && exit 0; fi
 if [ "${1}" = "-edex" ]; then buildEDEX && exit 0; fi
 if [ "${1}" = "-cave" ]; then buildCAVE && exit 0; fi
