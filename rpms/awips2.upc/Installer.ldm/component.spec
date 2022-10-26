@@ -22,6 +22,8 @@ Requires: openssh-clients
 Requires: awips2-qpid-proton%{?_isa}
 Requires: perl
 Requires: libxml2
+Requires: libxml2-devel
+Requires: pax
 Requires: libpng
 Requires: glibc-common
 Requires: zlib
