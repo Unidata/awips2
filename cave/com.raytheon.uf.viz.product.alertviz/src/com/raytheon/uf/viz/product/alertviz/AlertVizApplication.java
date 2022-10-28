@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
  *                                  errors.
  * Oct 12, 2018  7515     randerso  Implemented AlertVizStatusHandlerFactory to
  *                                  handle internal AlertViz errors properly.
+ * Sep 01, 2022           srcarter  Remove extra levels during initialization
  *
  * </pre>
  *
@@ -227,7 +228,6 @@ public class AlertVizApplication implements IStandaloneComponent {
     protected void initializeLocalization() throws Exception {
         PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
         new LocalizationInitializer(true, false).run();
-        AlertVizLocalizationConfigurer.registerExtraLevels();
     }
 
 }
