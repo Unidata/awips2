@@ -30,7 +30,6 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.common.dataplugin.bufrmos,
  com.raytheon.uf.common.dataplugin.bufrua,
  com.raytheon.uf.common.dataplugin.goessounding,
- com.raytheon.uf.common.dataplugin.ldadmesonet,
  com.raytheon.uf.common.dataplugin.modelsounding,
  com.raytheon.uf.common.dataplugin.obs,
  com.raytheon.uf.common.dataplugin.poessounding
