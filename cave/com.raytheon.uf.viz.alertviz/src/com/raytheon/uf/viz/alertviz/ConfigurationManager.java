@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  * Oct 04, 2018  7484     randerso   Changed to use AV_ADMIN for internal errors
  * Oct 08, 2018  7515     randerso   Adjusted priorities of AlertViz internal
  *                                   errors.
+ * Sep 01, 2022           srcarter   Remove workstation and set site to default                                  
  *
  * </pre>
  *
@@ -90,9 +91,6 @@ public class ConfigurationManager {
 
     public static final ConfigContext DEFAULT_SITE_CONFIG = new ConfigContext(
             ConfigContext.DEFAULT_NAME, LocalizationLevel.SITE);
-
-    public static final ConfigContext DEFAULT_WORKSTATION_CONFIG = new ConfigContext(
-            ConfigContext.DEFAULT_NAME, LocalizationLevel.WORKSTATION);
 
     private static final String CONFIG_DIR = ConfigContext.ALERTVIZ_DIR
             + IPathManager.SEPARATOR + ConfigContext.DEFAULT_SUBDIR;
@@ -165,32 +163,13 @@ public class ConfigurationManager {
     }
 
     /**
-     * Get default WORKSTATION configuration file for host machine. When it does
-     * not exist create from Default SITE or BASE.
+     * Get default config (SITE)
      *
      * @return hostContext
      */
     private ConfigContext getDefaultHostContext() {
-        ConfigContext workstationContext = DEFAULT_WORKSTATION_CONFIG;
-
-        try {
-            ILocalizationFile file = getLocalizationFile(workstationContext);
-
-            if (file == null || !file.exists()) {
-                ConfigContext sourceContext = DEFAULT_SITE_CONFIG;
-                file = getLocalizationFile(sourceContext);
-
-                if (file == null || !file.exists()) {
-                    sourceContext = DEFAULT_BASE_CONFIG;
-                }
-                Configuration config = retrieveConfiguration(sourceContext);
-                saveToFile(workstationContext, config);
-            }
-        } catch (Exception ex) {
-            statusHandler.fatal(
-                    "Unable to load configuration context " + context, ex);
-        }
-        return workstationContext;
+        ConfigContext siteContext = DEFAULT_SITE_CONFIG;
+        return siteContext;
     }
 
     public ConfigContext[] getConfigurations() {
@@ -278,7 +257,7 @@ public class ConfigurationManager {
         }
         if (configurationMap.containsKey(context)) {
             if (current.equals(context)) {
-                loadAsCurrent(DEFAULT_WORKSTATION_CONFIG);
+                loadAsCurrent(DEFAULT_SITE_CONFIG);
             }
             ILocalizationFile file = getLocalizationFile(context);
             try {
@@ -566,8 +545,7 @@ public class ConfigurationManager {
     }
 
     public static boolean isDefaultConfig(ConfigContext context) {
-        return DEFAULT_WORKSTATION_CONFIG.equals(context)
-                || DEFAULT_SITE_CONFIG.equals(context)
+        return DEFAULT_SITE_CONFIG.equals(context) 
                 || DEFAULT_BASE_CONFIG.equals(context);
     }
 }

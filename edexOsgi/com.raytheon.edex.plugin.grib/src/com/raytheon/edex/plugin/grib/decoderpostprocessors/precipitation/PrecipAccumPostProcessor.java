@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * ------------- -------- --------- -----------------------------------------
  * Sep 28, 2015  3756     nabowle   Initial creation
  * Apr 11, 2016  5564     bsteffen  Move localization files to common_static
+ * Sep 01, 2022           srcarter  Remove region localization level
  * 
  * </pre>
  * 
@@ -438,8 +439,8 @@ public class PrecipAccumPostProcessor extends DecoderPostProcessor {
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationLevel[] levels = new LocalizationLevel[] {
-                LocalizationLevel.BASE, LocalizationLevel.REGION,
-                LocalizationLevel.CONFIGURED, LocalizationLevel.SITE };
+                LocalizationLevel.BASE, LocalizationLevel.CONFIGURED, 
+                LocalizationLevel.SITE };
 
         Map<LocalizationLevel, ? extends ILocalizationFile> files = pathMgr
                 .getTieredLocalizationFile(LocalizationType.COMMON_STATIC,
