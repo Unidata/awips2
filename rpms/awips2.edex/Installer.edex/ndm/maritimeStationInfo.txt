@@ -430,10 +430,12 @@
 0000000000|ACXS1| 32.56 | -80.45 |   -0|ACE Basin NERR, SC                  |US|BOY
 0000000000|ACYN4| 39.36 | -74.42 |   -0|Atlantic City, NJ                   |US|BOY
 0000000000|ADKA2| 51.86 |-176.63 |   -0|Adak Island, AK                     |US|BOY
+0000000000|ADPA2| 51.869|-176.641|    8|Adak Port, AK Marine Exchange       |US|BOY
 0000000000|AGCM4| 42.621| -82.527|  177|Algonac, MI NOS                     |US|BOY
 0000000000|AGMW3| 44.61 | -87.43 |   -0|Algoma City Marina, WI              |US|BOY
 0000000000|AGXC1| 33.716|-118.246|   -0|Angels Gate, CA NOS WLON (NDBC)     |US|BOY
 0000000000|AJXA2| 58.287|-134.398|    5|Juneau AJ Dock, AK Marine Exchange  |US|BOY
+0000000000|AKXA2| 54.132|-165.782|    6|Akutan, AK Marine Exchange          |US|BOY
 0000000000|ALIA2| 56.898|-154.247|    0|Alitak, AK NOS 9457804              |US|BOY
 0000000000|ALNM4| 45.04 | -83.44 |   -0|Alpena, MI                          |US|BOY
 0000000000|ALXN6| 44.330| -75.933|    0|Alexandria Bay, NY NOS 8311062      |US|BOY
@@ -446,6 +448,7 @@
 0000000000|ANVC1| 38.91 |-123.71 |   -0|Arena Cove, CA                      |US|BOY
 0000000000|APAM2| 38.983| -76.48 |   -0|8575512 Annapolis, MD NOS           |US|BOY
 0000000000|APCF1| 29.73 | -84.98 |   -0|Apalachicola, FL NOS                |US|BOY
+0000000000|APMA2| 61.239|-149.889|    6|Anchorage Port, AK Marine Exchange  |US|BOY
 0000000000|APNM4| 45.05 | -83.45 |  179|Alpena, MI Water Plant (GLERL)      |US|BOY
 0000000000|APRP7| 13.442| 144.653|   -0|NWLON Apra Harbor, Guam 1630000     |US|BOY
 0000000000|APXF1| 29.79 | -84.88 |   -0|Apalachicola NERR, FL               |US|BOY
@@ -468,6 +471,7 @@
 0000000000|BDVF1| 25.476| -80.990|    0|Broad River, FL NPS                 |US|BOY
 0000000000|BDXC1| 38.317|-123.071|   -0|Bodega CA, UC Davis, Marine Lab     |US|BOY
 0000000000|BEPB6| 32.373| -64.703|   -0|NWLON Bermuda Esso Pier, Bermuda    |US|BOY
+0000000000|BEXA2| 60.791|-161.749|    5|Bethel, AK Marine Exchange          |US|BOY
 0000000000|BFTN7| 34.72 | -76.67 |   -0|8656483, Beaufort, NC NOS           |US|BOY
 0000000000|BGCF1| 26.4  | -81.88 |   -0|Big Carlos Pass, FL                 |US|BOY
 0000000000|BGNN4| 40.64 | -74.15 |    9|Bergen Pt West Reach, NY            |US|BOY
@@ -544,6 +548,7 @@
 0000000000|CPNT2| 28.118| -97.022|   -0|NWLON Copano Bay, TX                |US|BOY
 0000000000|CPTR1| 41.72 | -71.34 |    5|Conimicut Light, RI                 |US|BOY
 0000000000|CPVM2| 38.995| -76.388|    3|Chesapeake Bay Vsby NOS CMAN        |US|BOY
+0000000000|CPXA2| 53.843|-166.583|    5|Captains Bay, AK Marine Exchange    |US|BOY
 0000000000|CPXC1| 35.17 |-120.741|   16|Cal Poly Pier, CA                   |US|BOY
 0000000000|CQUC1| 38.006|-122.23 |   -0|Carquinez CA Cen/Northern CA OOS    |US|BOY
 0000000000|CRTA1| 30.308| -88.140|   -0|Cedar Pt, AL                        |US|BOY
@@ -558,6 +563,7 @@
 0000000000|DBLN6| 42.49 | -79.35 |  197|Dunkirk, NY/V                       |US|BOY
 0000000000|DELD1| 39.582| -75.590|   -0|NWLON Delaware City, DE             |US|BOY
 0000000000|DESW1| 47.68 |-124.49 |   39|Destruction Is., WA/D               |US|BOY
+0000000000|DHXA2| 70.222|-148.419|   15|Deadhorse, AK Marine Exchange       |US|BOY
 0000000000|DISW3| 47.08 | -90.73 |  211|Devils Island, WI/D                 |US|BOY
 0000000000|DKCM6| 30.355| -88.567|    0|Dock C, Pascagoula, MS NOS 8741501  |US|BOY
 0000000000|DKKF1| 25.180| -80.490|    0|Duck Key, FL NPS                    |US|BOY
@@ -566,6 +572,9 @@
 0000000000|DOMV2| 36.962| -76.425|   -0|Dominion Term Assoc, VA 8638511 NOS |US|BOY
 0000000000|DPHA1| 30.251| -88.078|   -0|Dauphin Island Sea Lab, AL          |US|BOY
 0000000000|DPIA1| 30.25 | -88.07 |    8|Dauphin Island, AL/V                |US|BOY
+0000000000|DPLA2| 53.884|-166.531|    5|Dutch Harbor APL, AK Marine Exchange|US|BOY
+0000000000|DPOA2| 53.903|-166.528|    5|Dutch Harbor Port Office, AK MAREX  |US|BOY
+0000000000|DPXA2| 53.889|-166.542|   20|Dutch Harbor Pilot Station, AK MAREX|US|BOY
 0000000000|DPXC1| 38.057|-122.259|   -0|Davis Point, San Pablo Bay, CA      |US|BOY
 0000000000|DRFA2| 60.55 |-152.14 |   17|Drift River Terminal, AK/M          |US|BOY
 0000000000|DRSD1| 39.089| -75.437|   -0|Delaware NERR, DE                   |US|BOY
@@ -636,7 +645,10 @@
 0000000000|GLSM4| 44.02 | -83.54 |  180|CR GLOS, Gravelly Shoals Lt. MI     |US|BOY
 0000000000|GNJT2| 29.36 | -94.73 |   -0|Galveston Bay (North Jetty), TX     |US|BOY
 0000000000|GPOM6| 30.230| -88.982|    0|Gulfport Outer Range, MS NOS 8744707|US|BOY
+0000000000|GBXA2| 63.777|-171.715|   10|Gambell, AK Marine Exchange         |US|BOY
+0000000000|GEXA2| 58.213|-136.381|   11|George Island, AK Marine Exchange   |US|BOY
 0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier, Gulf of Mexico|US|BOY
+0000000000|GPXA2| 58.062|-134.051|   12|Grave Point, AK Marine Exchange     |US|BOY
 0000000000|GRBL1| 29.101| -89.978|   -0|Grand Isle Blocks, LA CSI/LSU       |US|BOY
 0000000000|GRIM4| 46.721| -87.412|  199|Granite Island, MI                  |US|BOY
 0000000000|GRMM4| 46.68 | -85.97 |  186|GLOS, Grand Marais, MI              |US|BOY
@@ -681,9 +693,10 @@
 0000000000|JCRN4| 39.535| -74.464|   -0|Jacques Cousteau NERR, NJ           |US|BOY
 0000000000|JKYF1| 25.050| -80.904|    0|Johnson Key, FL NPS                 |US|BOY
 0000000000|JLXA2| 58.298|-134.404|    4|Juneau Library, AK Marine Exchange  |US|BOY
-0000000000|JMLA2| 58.286|-134.39 |   17|Juneau AML Dock MEA                 |US|BOY
+0000000000|JMLA2| 58.286|-134.390|    6|Juneau AML, AK Marine Exchange      |US|BOY
 0000000000|JMPN7| 34.21 | -77.795|   -0|NWLON Wrightsville Bch, NC Tide Gg  |US|BOY
 0000000000|JNEA2| 58.298|-134.412|   -0|Juneau Tide Guage, AK NOS  9452210  |US|BOY
+0000000000|JNGA2| 58.290|-134.394|    5|Juneau ANG Dock, AK Marine Exchange |US|BOY
 0000000000|JOXP4| 17.956| -66.239|   -0|Jobos Bay NERR, Puerto Rico         |US|BOY
 0000000000|JPRN7| 35.91 | -75.59 |   -0|Jennette's Pier/Nags Hd, NC COE WLON|US|BOY
 0000000000|JXUF1| 30.354| -81.612|    3|Jacksonville University, FL NOS     |US|BOY
@@ -692,9 +705,13 @@
 0000000000|KECA2| 55.332|-131.626|   -0|Ketchikan Tide Guage, AK NOS 9450460|US|BOY
 0000000000|KEXA2| 55.352|-131.684|    4|Ketchikan Harbor, AK Marine Exchange|US|BOY
 0000000000|KGCA2| 55.062|-162.327|    0|King Cove, AK NOS 9459881           |US|BOY
+0000000000|KGXA2| 57.777|-152.425|   15|Kodiak Gull Island, AK MAREX        |US|BOY
 0000000000|KLIH1| 20.90 |-156.47 |   -0|Kahului, HI                         |US|BOY
+0000000000|KMXA2| 57.782|-152.434|   10|Kodiak Matson Crane, AK MAREX       |US|BOY
 0000000000|KNOH1| 21.288|-157.865|    0|Kilo Nalu Observatory, HI UHI       |US|BOY
 0000000000|KNSW3| 42.59 | -87.81 |  176|Kenosha, WI (GLERL)                 |US|BOY
+0000000000|KNXA2| 60.552|-151.273|    4|Kenai, AK Marine Exchange           |US|BOY
+0000000000|KOZA2| 66.901|-162.589|    6|Kotzebue, AK Marine Exchange        |US|BOY
 0000000000|KPTN6| 40.81 | -73.765|    5|Kings Point, NY                     |US|BOY
 0000000000|KPTV2| 37.17 | -75.99 |   -0|8632200, Kiptopeke, VA NOS          |US|BOY
 0000000000|KTNF1| 29.82 | -83.59 |    3|Keaton Beach, FL/M                  |US|BOY
@@ -767,6 +784,7 @@
 0000000000|MISN6| 41.05 | -73.12 |    0|South Middle Sound, NY              |US|BOY
 0000000000|MISP4| 18.090| -67.939|    0|Mona Island, PR 9759938 NOS         |US|BOY
 0000000000|MIST2| 27.838| -97.05 |    4|Aransas Ship Channel, NERRS CMAN    |US|BOY
+0000000000|MIXA2| 57.837|-133.814|   19|Midway Island, AK Marine Exchange   |US|BOY
 0000000000|MKGM4| 43.227| -86.339|  185|Muskegon, MI (GLERL)                |US|BOY
 0000000000|MLRF1| 25.01 | -80.38 |   11|Molasses Reef, FL/V                 |US|BOY
 0000000000|MLSC1| 36.81 |-121.79 |   12|Moss Landing, South Harbor, CA      |US|BOY
@@ -809,13 +827,16 @@
 0000000000|NKXA2| 58.255|-134.945|   12|Naked Island, AK Marine Exchange    |US|BOY
 0000000000|NLMA3| 35.458|-114.666|  197|Lake Mohave, North, NPS             |US|BOY
 0000000000|NLNC3| 41.36 | -72.09 |   -0|New London, CT                      |US|BOY
+0000000000|NLXA2| 56.005|-161.177|   11|Nelson Lagoon, AK Marine Exchange   |US|BOY
 0000000000|NMTA2| 64.50 |-165.43 |   -0|Nome, AK                            |US|BOY
+0000000000|NMXA2| 64.494|-165.440|    7|Nome, AK Marine Exchange            |US|BOY
 0000000000|NOSC3| 41.12 | -73.16 |    0|Northern Open Sound, CT             |US|BOY
 0000000000|NOXN7| 34.155| -77.851|    5|North Carolina NERR, NC             |US|BOY
 0000000000|NPDW3| 45.29 | -86.98 |    0|Northport Pier, WI/D                |US|BOY
 0000000000|NPSF1| 26.13 | -81.807|   -0|Naples, FL NOS                      |US|BOY
 0000000000|NRRF1| 25.338| -80.911|   -0|North River, FL ENPWQS              |US|BOY
 0000000000|NSTP6|-14.280|-170.688|   -0|NWLON Pago Pago, American Samoa     |US|BOY
+0000000000|NSXA2| 60.740|-151.310|   48|Nikiski, AK Marine Exchange         |US|BOY
 0000000000|NTBC1| 34.408|-119.685|   -0|NWLON Santa Barbara, CA 9411340     |US|BOY
 0000000000|NTKM3| 41.29 | -70.1  |   -0|Nantucket Island, MA                |US|BOY
 0000000000|NUET2| 27.833| -97.486|   -0|Nueces Bay, TX TCOON                |US|BOY
@@ -847,6 +868,7 @@
 0000000000|OWXO1| 41.378| -82.508|  175|Old Woman Creek NERR, OH            |US|BOY
 0000000000|PACF1| 30.152| -85.667|    0|Panama City, FL NOS 8729108         |US|BOY
 0000000000|PACT2| 27.633| -97.237|    0|Packery Channel, TX NOS 8775792     |US|BOY
+0000000000|PAUA2| 57.124|-170.271|   20|St Paul, AK Marine Exchange         |US|BOY
 0000000000|PAXA2| 58.159|-134.178|   14|Point Arden, AK Marine Exchange     |US|BOY
 0000000000|PBFW1| 48.464|-122.468|   -0|Padilla Bay NERR, WA                |US|BOY
 0000000000|PBPA2| 58.20 |-134.15 |   -0|Point Bishop, AK                    |US|BOY
@@ -856,7 +878,9 @@
 0000000000|PCLM4| 47.28 | -88.53 |  198|Portage Canal, MI GLOS              |US|BOY
 0000000000|PCNT2| 28.45 | -96.40 |    0|Matagorda Bay, Port O'Connor, TX    |US|BOY
 0000000000|PCOC1| 38.06 |-122.04 |   -0|Port Chicago, CA                    |US|BOY
+0000000000|PCXA2| 57.463|-134.867|    5|Point Craven, AK Marine Exchange    |US|BOY
 0000000000|PEGF1| 26.081| -80.116|    0|South Port Everglades, FL           |US|BOY
+0000000000|PEXA2| 57.958|-136.227|    6|Pelican, AK Marine Exchange         |US|BOY
 0000000000|PFDC1| 33.735|-118.241|   -0|Los Angeles Pier 400, CA WLON (NDBC)|US|BOY
 0000000000|PFXC1| 33.748|-118.268|   -0|Los Angeles Pier F CA NOS WLON      |US|BOY
 0000000000|PGBP7| 13.428| 144.797|   -0|Pago Bay, Guam 1631428 NOS          |US|BOY
@@ -962,6 +986,7 @@
 0000000000|SGNW3| 43.75 | -87.69 |  189|Sheboygan, WI/D                     |US|BOY
 0000000000|SGOF1| 29.41 | -84.86 |   20|Tyndall AFB Tower C, FL             |US|BOY
 0000000000|SGRN4| 40.117| -74.017|   -0|SIT Sea Girt, NJ                    |US|BOY
+0000000000|SGXA2| 56.600|-169.541|   60|St George, AK Marine Exchange       |US|BOY
 0000000000|SHBL1| 29.868| -89.673|    0|Shell Beach, LA NOS 8761305         |US|BOY
 0000000000|SHPF1| 30.06 | -84.29 |    0|Shell Point, FL                     |US|BOY
 0000000000|SHXA2| 57.055|-135.349|    5|Sitka Harbor, AK Marine Exchange    |US|BOY
@@ -991,20 +1016,25 @@
 0000000000|SPGF1| 26.70 | -79.00 |    3|Settlement Point, GBI/M             |US|BOY
 0000000000|SPLL1| 28.87 | -90.48 |    0|South Pelto Block, LA CSI06         |US|BOY
 0000000000|SPTM4| 44.713| -83.273|  184|NWSCR GLOS Sturgeon Pt Light, MI    |US|BOY
+0000000000|SPXA2| 55.599|-132.203|    8|Ship Island, AK Marine Exchange     |US|BOY
 0000000000|SRBV3| 17.784| -64.762|    0|ICON, Salt River Bay, St Croix, VI  |US|BOY
 0000000000|SREF1| 25.352| -81.1  |   -0|Shark River, FL ENPWQS              |US|BOY
 0000000000|SRLM4| 45.773| -84.137|   -0|Spectacle Reef Light, MI GLERL/UofCO|US|BOY
 0000000000|SRST2| 29.67 | -94.05 |    5|Sabine, TX/M                        |US|BOY
+0000000000|SRXA2| 58.383|-134.652|    2|Statter Harbor, AK Marine Exchange  |US|BOY
 0000000000|SSBN7| 33.84 | -78.48 |   -0|Sunset Bch Nearshore Waves, NC      |US|BOY
 0000000000|STDM4| 47.18 | -87.22 |  211|Stannard Rock, MI/D                 |US|BOY
 0000000000|STXA2| 57.116|-135.391|   11|Sitka AML, AK Marine Exchange       |US|BOY
 0000000000|SUPN6| 44.47 | -75.80 |   79|Superior Shoals, NY/V               |US|BOY
 0000000000|SVLS1| 31.95 | -80.68 |   -0|Savannah Light, GA/D                |US|BOY
 0000000000|SVNM4| 42.401| -86.288|  176|South Haven, MI (GLERL)             |US|BOY
+0000000000|SVXA2| 63.693|-170.492|   10|Savoonga, AK Marine Exchange        |US|BOY
 0000000000|SWLA2| 60.120|-149.427|    5|9455090 Seward, AK NOS              |US|BOY
 0000000000|SWPM4| 46.502| -84.373|  186|S.W. Pier, MI                       |US|BOY
 0000000000|SWPV2| 36.95 | -76.33 |   -0|8638610, Sewells Point, VA NOS      |US|BOY
+0000000000|SWXA2| 60.116|-149.434|    8|Seward Harbor, AK Marine Exchange   |US|BOY
 0000000000|SXHW3| 46.56 | -90.44 |  186|Saxon Harbor, WI GLOS               |US|BOY
+0000000000|SXXA2| 55.315|-131.596|    9|Saxman, AK Marine Exchange          |US|BOY
 0000000000|SYWW3| 45.20 | -87.12 |    0|Sister Bay, WI/D                    |US|BOY
 0000000000|TAML1| 29.19 | -90.67 |    0|Tambour Bay, LA                     |US|BOY
 0000000000|TAQT2| 27.812| -97.390|   -0|Texas State Aquarium, TX            |US|BOY
@@ -1029,6 +1059,7 @@
 0000000000|TPBN4| 40.012| -75.042|   -0|NWLON Tacony-Palmyra Bridge, NJ     |US|BOY
 0000000000|TPEF1| 25.408| -80.964|    0|Tarpon Bay East, FL NPS             |US|BOY
 0000000000|TPLM2| 38.90 | -76.44 |   12|Thomas Point, MD/M                  |US|BOY
+0000000000|TPXA2| 54.803|-130.934|    8|Tree Point, AK Marine Exchange      |US|BOY
 0000000000|TRBL1| 29.17 | -90.58 |    0|Terrebonne Bay, LA                  |US|BOY
 0000000000|TRDF1| 28.415| -80.593|   -0|Trident Pier, FL NOS                |US|BOY
 0000000000|TRRF1| 25.223| -80.653|    0|Taylor River, FL NPS                |US|BOY
@@ -1040,11 +1071,13 @@
 0000000000|ULRA2| 63.872|-160.784|    5|Unalakleet, UnalakltRvr, AK NOS WLON|US|BOY
 0000000000|UNLA2| 53.879|-166.540|    2|9462620 Unalaska, AK NOS            |US|BOY
 0000000000|UPBC1| 38.038|-122.121|   -0|Un Pac RR Bge, Martinez, CA NOS WLON|US|BOY
+0000000000|UQXA2| 71.315|-156.722|    3|Utqiagvik, AK Marine Exchange       |US|BOY
 0000000000|VAKF1| 25.73 | -80.16 |   -0|Virginia Key, FL NOS                |US|BOY
 0000000000|VBBA3| 36.132|-114.412|  329|Lake Mead, Virgin Basin, NPS        |US|BOY
 0000000000|VCAF1| 24.712| -81.105|   -0|Vaca Key, FL NOS                    |US|BOY
 0000000000|VCAT2| 28.640| -96.595|   -0|Port Lavaca, TX TCOON               |US|BOY
 0000000000|VCVA2| 57.13 |-170.29 |   -0|Village Cove, St Paul, AK NOS WLOS  |US|BOY
+0000000000|VDXA2| 61.127|-146.344|    5|Valdez, AK Marine Exchange          |US|BOY
 0000000000|VDZA2| 61.125|-146.362|    0|Valdez, AK 9454240 NOS              |US|BOY
 0000000000|VENF1| 27.07 | -82.45 |    5|Venice, FL/V                        |US|BOY
 0000000000|VERV4| 19.202| -96.113|   -0|Veracruz, MX                        |US|BOY
@@ -1057,6 +1090,7 @@
 0000000000|WAVM6| 30.28 | -89.37 |   -0|Waveland, MS NOS                    |US|BOY
 0000000000|WAXM3| 41.582| -70.525|   10|Waquoit Bay NERR, MA                |US|BOY
 0000000000|WBYA1| 30.417| -87.825|   -0|Weeks Bay, AL NOS WLON              |US|BOY
+0000000000|WCXA2| 55.402|-131.729|    7|Ward Cove, AK Marine Exchange       |US|BOY
 0000000000|WDEL1| 28.662| -89.551|    0|Shell West Delta 143                |US|BOY
 0000000000|WDSV2| 36.982| -76.322|    0|NOS 8638614 Willoughby Degaus, VA   |US|BOY
 0000000000|WELM1| 43.320| -70.563|   -0|NWLON Wells, ME                     |US|BOY
@@ -1064,13 +1098,16 @@
 0000000000|WFPM4| 46.762| -84.966|  186|NWSCR GLOS Whitefish Point, MI      |US|BOY
 0000000000|WHRI2| 42.361| -87.813|  180|Waukegan Harbor, IL GLOS            |US|BOY
 0000000000|WIWF1| 25.585| -81.044|    0|Willy Willy, FL NPS                 |US|BOY
+0000000000|WIXA2| 60.777|-148.682|    5|Whittier AMHS, AK Marine Exchange   |US|BOY
 0000000000|WKXA1| 30.415| -87.826|    0|Weeks Bay NERR, AL                  |US|BOY
 0000000000|WLON7| 34.23 | -77.95 |   -0|Wilmington, NC NOS WLOS             |US|BOY
+0000000000|WLXA2| 65.605|-168.086|    4|Wales, AK Marine Exchange           |US|BOY
 0000000000|WNEM4| 46.283| -84.205|  177|West Neebish, MI NOS 9076027        |US|BOY
 0000000000|WPLF1| 25.708| -81.248|    0|Watson Place, FL NPS                |US|BOY
 0000000000|WPOW1| 47.66 |-122.44 |    9|West Point, WA/V                    |US|BOY
 0000000000|WPTW1| 46.927|-124.130|    0|Westport, WA NOS 9441102            |US|BOY
 0000000000|WRBF1| 25.077| -80.728|    0|Whipray Basin, FL NPS               |US|BOY
+0000000000|WRXA2| 70.636|-160.034|   10|Wainwright, AK Marine Exchange      |US|BOY
 0000000000|WSLM4| 45.842| -85.135|   -0|White Shoal Light MI GLERL/UofCO    |US|BOY
 0000000000|WWEF1| 25.53 | -80.94 |   -0|White Water - West, FL              |US|BOY
 0000000000|WYCM6| 30.326| -89.326|    0|Bay Waveland Y Club, MS NOS 8744737 |US|BOY
