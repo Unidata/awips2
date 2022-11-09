@@ -3615,6 +3615,7 @@
 0000000000|KW22 | 39.00 | -80.274|  498|Upshur Cnty AP, Buckhannon, WV      |US|MTR
 0000000000|KW29 | 38.976| -76.33 |    5|Bay Brdg AP, Stevensville, MD       |US|MTR
 0000000000|KW31 | 36.9604| -78.1851| 160|Lunenburg Cnty AP, Kenbridge, VA   |US|MTR
+0000000000|KW40 | 35.22083|-78.03768| 51|Mt Olive Muni AP, Mount Olive, NC  |US|MTR
 0000000000|KW43 | 44.663|-104.568| 1300|Hulett Muni, Hulett, WY             |US|MTR
 0000000000|KW63 | 36.5958| -78.5601| 128|Lake Country Rg AP, Clarksville, VA|US|MTR
 0000000000|KW75 | 37.6024| -76.4467|   9|Hummel Fld AP, Saluda, VA          |US|MTR

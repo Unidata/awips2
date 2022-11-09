@@ -4214,6 +4214,7 @@ W16 Winchester, VA
 W22 Upshur Cnty AP, Buckhannon, WV
 W29 Bay Bridge AP, Stevensville, MD
 W31 Lunenburg Cnty AP, Kenbridge, VA
+W40 Mt Olive Muni Airport, Mount Olive, NC
 W43 Hulett Muni, Hulett, WY
 W63 Lake Country Rgnl AP, Clarksville, VA
 W75 Hummel Fld AP, Saluda, VA
