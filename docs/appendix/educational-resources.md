@@ -192,6 +192,7 @@ A full list of all released blogs can be found below:
 - [Using Drawing Properties for WWA Display in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-drawing-properties)
 - [Understanding Graphic vs Image Products in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/understanding-graphic-vs-image-products)
 - [Getting to Know CAVE's Display Properties](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-getting-to-know)
+- [Creating a User Override](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-a-user)
 
 #### Python-AWIPS
 
@@ -202,6 +203,7 @@ A full list of all released blogs can be found below:
 - [View WWA Polygons with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-view-wwa-polygons)
 - [Creating METAR Station Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-metar-station)
 - [Create Sounding Plots with Model Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-sounding-plots)
+- [Plotting Multiple Datasets from EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plotting-multiple-datasets)
 
 #### EDEX
 
