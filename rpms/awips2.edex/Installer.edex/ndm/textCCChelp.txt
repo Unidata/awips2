@@ -398,6 +398,7 @@
 2C8 Cavalier Muni, Cavalier, ND
 2D5 Oakes Muni, Oakes, ND
 2DP Stumpy Point, NC
+2G2 Jefferson Cnty AP, Steubenville, OH
 2G9 Somerset Cnty AP, Somerset, PA
 2G4 Garrett Cnty AP, Oakland, MD
 2G6 Meadville, PA
@@ -437,6 +438,7 @@
 35A Union County Airport, Union, SC
 35B Merrimack River, MA
 35D Allegan, MI
+36K Lakin Airport, Lakin, KS
 37C West Cameron 556, LA
 3A1 Folsom Fld AP, Cullman, AL
 3A6 Newhall, CA
@@ -1473,7 +1475,7 @@ DMX WFO Des Moines, Johnston, IA WSR-88D
 DNA Dona Ana County Jetport, NM
 DNK Self Strip, Ft. Polk, LA
 DNL Augusta, GA
-DNN Dalton Muni, GA
+DNN Dalton Muni AP, Dalton, GA
 DNS Denison, IA
 DNV Danville, IL
 DOE Doe Lake, MI
@@ -1867,6 +1869,7 @@ GFK Grand Forks, ND
 GFL Glens Falls, NY
 GFU N-Funafuti, TV
 GGE Georgetown Cnty AP, SC
+GGF Grant Muni Airport, NE
 GGG Longview, TX
 GGH A-Honiara/Henderson, Solomon Is
 GGI Grinnell Rgnl AP, Grinnell, IA
@@ -2567,6 +2570,7 @@ K59 Amelia Earhart AP, Atchison, KS
 K61 Moritz Mem AP, Beloit, KS
 K62 Gene Synder Airport, Falmouth, KY
 K68 Garnett Muni AP, Garnett, KS
+K70 Ocean Reef Club Airport, Key Largo, FL
 K78 Abilene Muni AP, Abilene, KS
 K82 Smith Ctr Muni, KS
 K83 Sabetha Muni AP, Sabetha, KS
@@ -2774,6 +2778,7 @@ LYV Quentin Aanenson AP, Luverne, MN
 LZK WFO Little Rock, North Little Rock, AR WSR-88D
 LZU Lawrenceville/Gwinnett Co, GA 
 LZZ Lampasas, TX
+M01 General Dewitt Spain Airport, Memphis, TN
 M02 Dickson Muni AP, Dickson, TN
 M04 Covington Muni AP, Covington, TN
 M08 Bolivar/William Whitehurst, TN
@@ -4209,6 +4214,7 @@ W16 Winchester, VA
 W22 Upshur Cnty AP, Buckhannon, WV
 W29 Bay Bridge AP, Stevensville, MD
 W31 Lunenburg Cnty AP, Kenbridge, VA
+W40 Mt Olive Muni Airport, Mount Olive, NC
 W43 Hulett Muni, Hulett, WY
 W63 Lake Country Rgnl AP, Clarksville, VA
 W75 Hummel Fld AP, Saluda, VA

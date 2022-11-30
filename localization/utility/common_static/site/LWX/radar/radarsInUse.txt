@@ -2,7 +2,9 @@
 # LOCAL_RADARS (including terminal) - MUST HAVE THIS LINE
 klwx
 tiad
-
+tadw
+tbwi
+tdca
 
 # DIAL_RADARS - MUST HAVE THIS LINE
 

@@ -1,12 +1,12 @@
 # Install EDEX <i class="fa fa-linux"></i>
 
-EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at [Distributed EDEX, Installing Across Multiple Machines](/edex/distributed-computing/)
+EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at [Distributed EDEX, Installing Across Multiple Machines](../../edex/distributed-computing/)
 
 ---
 
 ## Latest Version
 
-**18.2.1-5**
+**18.2.1-6**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -19,6 +19,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 !!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."  
 
+- Bash shell environment
 - 16+ CPU cores (each CPU core can run a decorder in parallel)
 - 24GB RAM
 - 700GB+ Disk Space

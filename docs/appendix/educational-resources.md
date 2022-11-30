@@ -61,6 +61,42 @@ If you experience any technical issues with our online course, please contact us
 
 ---
 
+## Python-AWIPS eLearning Course
+
+***Learn Python-AWIPS*** is our online educational course for those interested in learning about [Python-AWIPS](http://unidata.github.io/python-awips/).
+
+![Learn Python-AWIPS Banner](../images/learnPythonAwipsBanner.png)
+
+### Access
+
+Please create an account on <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">Unidata eLearning</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=4" target="_blank" rel="noopener noreferrer">Learn Python-AWIPS</a>.
+
+### Content
+
+*Learn Python-AWIPS* s designed for new users of Python-AWIPS who have some background in both Python and CAVE. Through tutorials, challenges, and demonstrations, you will learn the basics for working with EDEX resources through Python.
+The following topics and capabilities are covered throughout the course:
+
+- Programmatically explore the resources available on an EDEX server
+- Make a request to an EDEX for data
+- See examples of data manipulation
+- Plot requested data
+
+### Prerequisites
+
+Required:
+
+  - [A supported web browser](https://articulate.com/support/article/System-Requirements-for-Rise#viewing-content)
+  - Python3
+  - Conda
+  - Git
+  - Python-AWIPS using the [Source Code with Examples Install instructions](http://unidata.github.io/python-awips/#source-code-with-examples-install)
+
+### Support
+
+If you experience any technical issues with our online course, please contact us at: **support-elearning@unidata.ucar.edu**
+
+---
+
 ## Python-AWIPS Example Notebooks
 
 In addition to CAVE, AWIPS also has a Python package called ***python-awips*** which allows access to all data on an EDEX server.  We have created a suite of Jupyter Notebooks as examples for how to use various functions of python-awips.
@@ -86,7 +122,30 @@ Our python-awips Notebooks span a wide range of topics, but generally cover the 
 
 ---
 
-<img src="../../images/awipsTips.png" alt="GeeksforGeeks logo" align="right">
+<img src="../../images/youtube-logo.png" alt="YouTube logo" align="right">
+
+## YouTube Channel and Playlist
+
+Unidata has a YouTube channel where we publish videos about all of our software pacakges.  Specifically we also have a playlist dedicated to AWIPS videos.
+
+### Access
+
+All [Unidata vidoes can be accessed here](https://www.youtube.com/c/unidatanews) on our channel.
+
+All AWIPS vidoes can be found on the [AWIPS Playlist](https://www.youtube.com/watch?v=4ax6SRyaYTc&list=PLQut5OXpV-0gk9CcjfInV9hNIEAld-Tpp).
+
+### Content
+
+Our AWIPS videos cover a wide range of topics, but include some of the following themes:
+
+- AWIPS topic overviews
+- Instructional videos (ex. how to install CAVE)
+- In-depth walkthroughs on CAVE functionality
+- Python-AWIPS notebook examples
+
+<img src="../../images/awipsTips.png" alt="AWIPS Tips logo" align="right">
+
+---
 
 ## AWIPS Tips Blog Series
 
@@ -109,6 +168,9 @@ A full list of all released blogs can be found below:
 - [Access Learn AWIPS CAVE from Unidata eLearning](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-learn-awips)
 - [AWIPS 18.2.1-5 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-5)
 - [GLM DATA IDD/LDM Feed Updates](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-glm-data-idd)
+- [AWIPS 18.2.1-6 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-6)
+- [Unidata AWIPS Summer Internship 2022: Rhoen Fiutak](https://www.unidata.ucar.edu/blogs/news/entry/unidata-awips-summer-internship-2022)
+- [Announcing a New eLearning Course: Learn Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course1)
 
 #### CAVE
 
@@ -127,6 +189,9 @@ A full list of all released blogs can be found below:
 - [Import Shapefiles in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-import-shapefiles-in)
 - [Create Objective Analysis Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-objective-analysis)
 - [Use Warngen to Draw Convective Warnings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-use-warngen-to)
+- [Using Drawing Properties for WWA Display in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-drawing-properties)
+- [Understanding Graphic vs Image Products in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/understanding-graphic-vs-image-products)
+- [Getting to Know CAVE's Display Properties](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-getting-to-know)
 
 #### Python-AWIPS
 
@@ -136,6 +201,7 @@ A full list of all released blogs can be found below:
 - [Create a Colored Surface Temperature Plot](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-a-colored)
 - [View WWA Polygons with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-view-wwa-polygons)
 - [Creating METAR Station Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-metar-station)
+- [Create Sounding Plots with Model Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-sounding-plots)
 
 #### EDEX
 
@@ -143,3 +209,4 @@ A full list of all released blogs can be found below:
 - [EDEX Data Retention](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-edex-data-retention)
 - [Adding ECMWF Data to EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-ecmwf-data)
 - [Ingesting GOES Satellite Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ingesting-goes-satellite)
+- [Localization Levels in EDEX](https://www.unidata.ucar.edu/blogs/news/entry/localization-in-edex)

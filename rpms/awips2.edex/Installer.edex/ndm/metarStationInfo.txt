@@ -1046,6 +1046,7 @@
 0000000000|K1V6 | 38.4284|-105.106| 1659|Fremont Cnty AP, Canon City, CO    |US|MTR
 0000074004|K1Y7 | 32.85 |-114.40 |   98|Yuma Proving Ground, AZ             |US|MTR
 0000000000|K1YT | 46.6667|-120.45| 438|Vagabond Army Airfield, Yakima, WA   |US|MTR
+0000000000|K2G2 | 40.36061|-80.70169| 365|Jefferson Cnty AP, Steubenville, OH|US|MTR
 0000000000|K2G9 | 40.03887|-79.01500| 693|Somerset Cnty AP, Somerset, PA    |US|MTR
 0000000000|K2J3 | 32.98594|-82.38481| 100|Louisville Muni AP, Louisville, GA|US|MTR
 0000000000|K2J5 | 32.89303|-81.96522| 73|Millen AP, Millen, GA              |US|MTR
@@ -1089,6 +1090,7 @@
 0000000000|K33V | 40.74542|-106.27538|2486|Walden-Jackson Cnty AP, Walden, CO|US|MTR
 0000000000|K35A | 34.68695| -81.64117| 186|Union Cnty AP, Union, SC         |US|MTR
 0000000000|K35B | 42.83 | -70.87 |    1|MERRIMACK RIVER, MA                 |US|MTR
+0000000000|K36K | 37.96950|-101.25500| 938|Lakin Airport, Lakin, KS         |US|MTR
 0000000000|K37C | 28.19 | -93.00 |    1|WEST CAMERON 556, LA                |US|MTR
 0000000000|K3A6 | 34.40 |-118.60 |  550|Newhall, CA                         |US|MTR
 0000000000|K3AU | 37.67164|-97.07786| 405|Augusta Muni, Augusta, KS         |US|MTR
@@ -1792,7 +1794,7 @@
 0000000000|KDNA | 31.87495|-106.69385| 1254|Dona Ana County Jetport, NM     |US|MTR
 0000000000|KDNK | 31.10 | -93.00 |  114|Self Strip, Ft. Polk, LA            |US|MTR
 0000000000|KDNL | 33.47 | -82.03 |  130|Augusta, GA                         |US|MTR
-0000000000|KDNN | 34.72 | -84.87 |  216|Dalton Muni, GA                     |US|MTR
+0000000000|KDNN | 34.72294|-84.87024| 216|Dalton Muni AP, Dalton, GA        |US|MTR
 0000000000|KDNS | 41.98 | -95.38 |  388|DENISON, IA                         |US|MTR
 0000000000|KDNV | 40.20317|-87.58973| 212|Danville, IL                      |US|MTR
 0000000000|KDOE | 46.27 | -86.67 |  247|Doe Lake, MI                        |US|MTR
@@ -2094,6 +2096,7 @@
 0000000000|KGFK | 47.96 | -97.18 |  257|GRAND FORKS INTL, ND                |US|MTR
 0000000000|KGFL | 43.36 | -73.62 |  100|GLENS FALLS, NY                     |US|MTR
 0000000000|KGGE | 33.312| -79.320|   12|Georgetown, SC                      |US|MTR
+0000000000|KGGF | 40.87066|-101.73388| 1044|Grant Muni Airport, NE          |US|MTR
 0000072247|KGGG | 32.38 | -94.71 |  111|Longview/Gregg Co, TX               |US|MTR
 0000000000|KGGI | 41.709| -92.735|  307|Grinnell Rgnl AP, Grinnell, IA      |US|MTR
 0000000000|KGGP | 40.711| -86.373|  225|Logansport/Cass Cnty AP, IN         |US|MTR
@@ -2444,6 +2447,7 @@
 0000000000|KK61 | 39.471| -98.129|  432|Moritz Mem AP, Beloit, KS           |US|MTR
 0000000000|KK62 | 38.70408|-84.39183| 274|Gene Synder AP, Falmouth, KY      |US|MTR
 0000000000|KK68 | 38.27736|-95.21523| 301|Garnett Muni AP, Garnett, KS      |US|MTR
+0000000000|KK70 | 25.32432|-80.27573| 2|Ocean Reef Club Airport, Key Largo, FL|US|MTR
 0000000000|KK78 | 38.90406|-97.23586| 351|Abilene Muni AP, Abilene, KS      |US|MTR
 0000000000|KK82 | 39.761| -98.793|  548|Smith Center Muni, KS               |US|MTR
 0000000000|KK83 | 39.90417|-95.77943| 405|Sabetha Muni AP, Sabetha, KS      |US|MTR
@@ -2584,6 +2588,7 @@
 0000072340|KLZK | 34.84 | -92.25 |  165|North Little Rock, AR               |US|MTR
 0000000000|KLZU | 33.978| -83.962|  323|Lawrenceville/Gwinnett Co, GA       |US|MTR
 0000000000|KLZZ | 31.106| -98.196|  370|Lampasas, TX                        |US|MTR
+0000000000|KM01 | 35.20069|-90.05398| 69|Gen Dewitt Spain AP, Memphis, TN   |US|MTR
 0000000000|KM02 | 36.12794| -87.42983| 272|Dickson Muni AP, Dickson, TN     |US|MTR
 0000000000|KM04 | 35.58337| -89.58722| 85|Covington Muni AP, Covington, TN  |US|MTR
 0000000000|KM08 | 35.21514| -89.04325| 152|Bolivar/William L Whitehurst, TN |US|MTR
@@ -3549,7 +3554,7 @@
 0000000000|KUTA | 34.681| -90.347|   59|Tunica Muni, MS                     |US|MTR
 0000000000|KUTS | 30.74 | -95.59 |  105|Huntsville, TX                      |US|MTR
 0000000000|KUUU | 41.54 | -71.28 |   52|NEWPORT, RI                         |US|MTR
-0000000000|KUUV | 38.233| -91.164|  284|Sullivan Rgnl, Sullivan, MO         |US|MTR
+0000000000|KUUV | 38.23347|-91.16428| 284|Sullivan Rgnl, Sullivan, MO       |US|MTR
 0000000000|KUVA | 29.211| -99.744|  287|Garner Fld AP, Uvalde, TX           |US|MTR
 0000000000|KUXL | 30.13144| -93.37617| 3|Southland Fld AP, Sulphur, LA      |US|MTR
 0000000000|KUYF | 39.9327| -83.462| 330|Madison Cnty AP, London, OH         |US|MTR
@@ -3610,6 +3615,7 @@
 0000000000|KW22 | 39.00 | -80.274|  498|Upshur Cnty AP, Buckhannon, WV      |US|MTR
 0000000000|KW29 | 38.976| -76.33 |    5|Bay Brdg AP, Stevensville, MD       |US|MTR
 0000000000|KW31 | 36.9604| -78.1851| 160|Lunenburg Cnty AP, Kenbridge, VA   |US|MTR
+0000000000|KW40 | 35.22083|-78.03768| 51|Mt Olive Muni AP, Mount Olive, NC  |US|MTR
 0000000000|KW43 | 44.663|-104.568| 1300|Hulett Muni, Hulett, WY             |US|MTR
 0000000000|KW63 | 36.5958| -78.5601| 128|Lake Country Rg AP, Clarksville, VA|US|MTR
 0000000000|KW75 | 37.6024| -76.4467|   9|Hummel Fld AP, Saluda, VA          |US|MTR

@@ -25,6 +25,22 @@ For Mac users, the easiest way is to open a new terminal and run the following c
 
 ---
 
+## CAVE Map Display in Lower Left Quadrant - Windows
+
+If you start up CAVE in Windows and notice the map is showing up only in the bottom left quadrant of your display, you will just need to tweak a few display settings.
+
+![CAVE Map 1/4 of screen](../images/CAVE_map.png)
+
+Try following these steps to fix your issue:
+
+- Right-click on the CAVE.exe (or shortcut) icon, select Properties
+- Select the Compatibility tab
+- Click "Change High DPI Settings"
+- At the bottom enable "Override High DPI scaling behavior"
+- Change the dropdown from Application to System
+
+---
+
 ## Disappearing Configurations
 
 If you ever notice some of the following settings you've configured/saved disappear from CAVE:
@@ -83,7 +99,7 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 **1. Close all error windows and any open windows associated with CAVE.**
 
-**2. In the Windows 10 search field, search for "control panel".**
+**2. In the Windows search field, search for "control panel".**
 
 ![](../images/ipv6ProblemStep2.png)
 
@@ -107,6 +123,28 @@ These errors are actually happening because the Windows machine is using IPv6, w
 !!! note "You may need to restart your machine for this to take effect"
 
 **7. Restart CAVE.**
+
+---
+
+## CAVE Spring Start Up Error
+
+If you encounter the error below, please see one of our solution methods for resolving:
+```
+CAVE's Spring container did not initialize correctly and CAVE must shut down.
+```
+![CAVE Spring Start Up Error](../images/caveSpringError.png)
+
+We have found the reason for this failure is because the host machine is set to use a language other than English (ie. Spanish, French, etc).
+
+To resolve this issue, either:
+
+- Switch your system to English, when using CAVE
+
+or
+
+- Use our [Virtual Machine option](../install/install-cave/#method-1-linux-virtual-machine). This option allows your actual machine to stay in whichever language you choose, while allowing you to run CAVE in an environment set to English.  Although we list this installation under the Windows OS, this can also be done on Linux.
+
+!!! warning "The VM option has one notable drawback at the moment -- it cannot render RGB satellite products."
 
 ---
 

@@ -4,7 +4,6 @@ ktlx
 kvnx
 kfdr
 tokc
-tpsf
 
 # DIAL_RADARS - MUST HAVE THIS LINE
 
