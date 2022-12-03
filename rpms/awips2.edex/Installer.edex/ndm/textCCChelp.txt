@@ -602,7 +602,6 @@
 6R3 Cleveland Muni, Cleveland, TX
 6R6 Dryden/Terrell Co, TX
 6S2 Florence Muni, Florence, OR
-6S5 Ravalli Cnty AP, Hamilton, MT
 6V1 Imperial, NE
 6V3 Richlands/Tazewell Co, VA
 6V8 Montrose, CO
@@ -2098,6 +2097,7 @@ HQI GOMEX High Is 376, TX AWOS-3
 HQM Hoquiam, WA
 HQU Thomson-McDuffie Co AP, Thomson, GA
 HQZ Mesquite, TX
+HRF Ravalli Cnty AP, Hamilton, MT
 HRI Hermiston, OR
 HRJ Erwin/Harnett Co, NC
 HRL Harlingen, TX

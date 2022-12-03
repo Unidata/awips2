@@ -1196,7 +1196,6 @@
 0000000000|K6R3 | 30.356| -95.008|   46|Cleveland Muni, Cleveland, TX       |US|MTR
 0000000000|K6R6 | 30.0465|-102.2132| 708|Dryden/Terrell Co, TX              |US|MTR
 0000000000|K6S2 | 43.9828|-124.1113| 16|Florence Muni, Florence, OR         |US|MTR
-0000000000|K6S5 | 46.25149|-114.12554| 1111|Ravalli Cnty AP, Hamilton, MT   |US|MTR
 0000000000|K6V1 | 40.55 |-101.65 | 1003|IMPERIAL, NE                        |US|MTR
 0000000000|K6V8 | 38.51 |-107.88 | 1752|MONTROSE, CO                        |US|MTR
 0000000000|K7A8 | 35.9454|-81.9962| 837|Avery Cnty AP, Spruce Pine, NC      |US|MTR
@@ -2263,6 +2262,7 @@
 0000000000|KHQM | 46.98 |-123.97 |    4|HOQUIAM, WA                         |US|MTR
 0000000000|KHQU | 33.53 | -82.516|  152|Thomson-McDuffie Co, GA             |US|MTR
 0000000000|KHQZ | 32.747| -96.530|  136|Mesquite Metro, Mesquite, TX        |US|MTR
+0000000000|KHRF | 46.25717|-114.12384| 1108|Ravalli Cnty AP, Hamilton, MT   |US|MTR
 0000000000|KHRI | 45.826|-119.261|  195|Hermiston Muni, OR                  |US|MTR
 0000000000|KHRJ | 35.38 | -78.73 |   60|Erwin/Harnett Co, NC                |US|MTR
 0000000000|KHRL | 26.23 | -97.67 |   11|HARLINGEN, TX                       |US|MTR
