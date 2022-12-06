@@ -73,7 +73,7 @@ Please create an account on <a href="https://elearning.unidata.ucar.edu/" target
 
 ### Content
 
-*Learn Python-AWIPS* s designed for new users of Python-AWIPS who have some background in both Python and CAVE. Through tutorials, challenges, and demonstrations, you will learn the basics for working with EDEX resources through Python.
+*Learn Python-AWIPS* is designed for new users of Python-AWIPS who have some background in both Python and CAVE. Through tutorials, challenges, and demonstrations, you will learn the basics for working with EDEX resources through Python.
 The following topics and capabilities are covered throughout the course:
 
 - Programmatically explore the resources available on an EDEX server
