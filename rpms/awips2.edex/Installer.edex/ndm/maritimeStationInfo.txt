@@ -348,7 +348,6 @@
 0000000000|461SL| 35.17 |-120.740|   -0|Port San Luis, CA                   |US|BOY
 0000000000|46L98| 34.46 |-120.100|   -0|El Capitan Beach, CA                |US|BOY
 0000000000|46P44| 34.41 |-119.820|   -0|Santa Barbara Harbor, CA            |US|BOY
-0000000000|46P43| 34.25 |-119.270|   -0|Ventura Harbor, CA                  |US|BOY
 0000000000|46L79| 34.15 |-119.200|   -0|Channel Islands Harbor, CA          |US|BOY
 0000000000|46L27| 33.35 |-118.310|   -0|Avalon Harbor, CA                   |US|BOY
 0000000000|46P43| 34.25 |-119.270|   -0|Ventura Harbor, CA                  |US|BOY
@@ -556,6 +555,7 @@
 0000000000|CRYV2| 36.888| -76.338|   -0|NWLON South Craney Island, VA       |US|BOY
 0000000000|CSBF1| 29.67 | -85.36 |    3|Cape San Blas, FL/V                 |US|BOY
 0000000000|CSPA2| 58.21 |-136.63 |   -0|Cape Spencer, AK                    |US|BOY
+0000000000|CSXA2| 58.199|-136.641|   22|Cape Spencer WX, AK Marine Exchange |US|BOY
 0000000000|CTGM1| 44.642| -67.297|    5|8411250 Cutler, ME NOS              |US|BOY
 0000000000|CWAF1| 25.30 | -81.01 |   -0|Clearwater Pass, FL                 |US|BOY
 0000000000|CWBF1| 27.98 | -82.83 |   -0|Clearwater Bch, FL NOS              |US|BOY
@@ -701,6 +701,7 @@
 0000000000|JPRN7| 35.91 | -75.59 |   -0|Jennette's Pier/Nags Hd, NC COE WLON|US|BOY
 0000000000|JXUF1| 30.354| -81.612|    3|Jacksonville University, FL NOS     |US|BOY
 0000000000|KATA1| 30.258| -88.213|   -0|Katrina Cut, AL                     |US|BOY
+0000000000|KCXA2| 66.901|-162.326|   20|King Cove, AK Marine Exchange       |US|BOY
 0000000000|KDAA2| 57.730|-152.514|    5|9457292 Kodiak Island, AK NOS       |US|BOY
 0000000000|KECA2| 55.332|-131.626|   -0|Ketchikan Tide Guage, AK NOS 9450460|US|BOY
 0000000000|KEXA2| 55.352|-131.684|    4|Ketchikan Harbor, AK Marine Exchange|US|BOY
@@ -1096,6 +1097,7 @@
 0000000000|WELM1| 43.320| -70.563|   -0|NWLON Wells, ME                     |US|BOY
 0000000000|WEXM1| 43.337| -70.55 |   19|Wells NERR, ME                      |US|BOY
 0000000000|WFPM4| 46.762| -84.966|  186|NWSCR GLOS Whitefish Point, MI      |US|BOY
+0000000000|WGXA2| 56.467|-132.382|   15|Wrangell Harbor, AK Marine Exchange |US|BOY
 0000000000|WHRI2| 42.361| -87.813|  180|Waukegan Harbor, IL GLOS            |US|BOY
 0000000000|WIWF1| 25.585| -81.044|    0|Willy Willy, FL NPS                 |US|BOY
 0000000000|WIXA2| 60.777|-148.682|    5|Whittier AMHS, AK Marine Exchange   |US|BOY
