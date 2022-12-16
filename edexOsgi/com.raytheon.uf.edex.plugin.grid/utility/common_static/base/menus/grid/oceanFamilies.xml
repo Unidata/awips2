@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/grid/ETSRG.xml"
+			menuText="Extra Tropical Storm Surge" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/ETCWL.xml"
+			menuText="Extra Tropical Comb. Storm Surge and Tide" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grid/ELEV.xml"
+			menuText="Ocean Surface Elevation" id="" useReferenceTime="true">
+		<substitute key="frameCount" value="${frameCount}"/>
+	</contribute>
+</menuTemplate>
