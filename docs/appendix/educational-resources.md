@@ -212,3 +212,4 @@ A full list of all released blogs can be found below:
 - [Adding ECMWF Data to EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-ecmwf-data)
 - [Ingesting GOES Satellite Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ingesting-goes-satellite)
 - [Localization Levels in EDEX](https://www.unidata.ucar.edu/blogs/news/entry/localization-in-edex)
+- [Porting Users CAVE Configurations](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-porting-users-cave)
