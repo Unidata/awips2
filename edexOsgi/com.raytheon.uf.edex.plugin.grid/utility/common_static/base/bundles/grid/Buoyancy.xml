@@ -9,7 +9,7 @@
                 <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
                 <capabilities>
                     <capability xsi:type="colorMapCapability">
-                        <colorMapParameters colorMapName="Grid/Gridded Data">
+                        <colorMapParameters colorMapName="Grid/gridded data">
                             <persisted/>
                         </colorMapParameters>
                     </capability>

@@ -51,7 +51,16 @@
             <parameter>ETCWL</parameter>
         </paramLevelMatches>
         <imageStyle>
+            <range scale="LINEAR">
             <displayUnits>ft</displayUnits>
+                <minValue>11</minValue>
+                <maxValue>-19</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>4</increment>
+            </colorbarLabeling>
+
         </imageStyle>
     </styleRule>
     <!-- HRRR -->
@@ -1217,6 +1226,8 @@
             <parameter>TP1hr</parameter>
             <parameter>TP3hr</parameter>
             <parameter>TP6hr</parameter>
+            <parameter>TP-GFS</parameter>
+            <parameter>CP-GFS</parameter>
             <parameter>SPAcc</parameter>
         </paramLevelMatches>
         <imageStyle>
@@ -1226,7 +1237,7 @@
                 <minValue>0.005</minValue>
                 <maxValue>12</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Radar/UPC One Hour Precip</defaultColormap>
             <colorbarLabeling>
                 <values>0.01 0.03 0.1 0.3 1 3 10</values>
             </colorbarLabeling>
@@ -1967,10 +1978,59 @@
         <imageStyle>
             <!-- filterHigh="true" -->
             <displayUnits>mi</displayUnits>
-            <range scale="LOG"/>
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>20</maxValue>
+            </range>
             <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>2</increment>
+            </colorbarLabeling>
         </imageStyle>
     </styleRule>
+<!--
+    * Categorical Lightning and Convection Potential GFS-LAMP
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>CLGTN2hr</parameter>
+            <parameter>CONVP2hr</parameter>
+            <singleLevel units="SURFACE"/>
+        </paramLevelMatches>
+        <imageStyle>
+            <!-- filterHigh="true" -->
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>10</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>1</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+<!--
+    * Lightning and Convection Probability GFS-LAMP
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>PROLGHT2hr</parameter>
+            <parameter>PROCON2hr</parameter>
+            <singleLevel units="SURFACE"/>
+        </paramLevelMatches>
+        <imageStyle>
+            <!-- filterHigh="true" -->
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>100</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+
     <!-- The "* CloudBase, CloudCeiling, zAGL" rule must come first in AWIPS 
         2 -->
     <!--
@@ -5629,6 +5689,15 @@
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>m/s</displayUnits>
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>2</maxValue>
+            </range>
+            <defaultColormap>Grid/Ocean Current Speed</defaultColormap>
+            <colorbarLabeling>
+                <increment>.5</increment>
+            </colorbarLabeling>
+
         </imageStyle>
     </styleRule>
     <!-- 15.1 additions below -->

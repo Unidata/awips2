@@ -4,7 +4,7 @@
 
     <contribute xsi:type="subinclude" subMenu = "GFS 1.00° Global" fileName="menus/grid/allFamilies-GFS.xml">
              <substitute key="modelName" value="GFS1p0" />
-             <substitute key="frameCount" value="180" />
+             <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </contribute>
 	<contribute xsi:type="subinclude" subMenu = "GFS 20km" 
@@ -22,7 +22,7 @@
              <substitute key="TP" value="TP"/>
     </contribute>
 	<contribute xsi:type="subinclude" subMenu = "HRRR" 
-             fileName="menus/grid/allFamilies.xml">
+             fileName="menus/grid/HRRRFamilies.xml">
              <substitute key="modelName" value="HRRR" />
              <substitute key="menuName" value="HRRR" />
              <substitute key="frameCount" value="19" />
@@ -110,7 +110,7 @@
 	<contribute xsi:type="bundleItem" file="bundles/grid/HFR.xml"
 		menuText="High Frequency Radar (HFR) Ocean Sfc Wind" id="hfr" useReferenceTime="true">
 	</contribute>
-
+<!-- Commented out since we aren't receiving this data
     <contribute xsi:type="subinclude" subMenu = "FNMOC WW3" 
              fileName="menus/grid/ww3.xml">
              <substitute key="modelName" value="FNMOC-WW3" />
@@ -132,6 +132,7 @@
              <substitute key="frameCount" value="32" />
              <substitute key="TP" value="TP"/>
     </contribute>
+-->
    	<contribute xsi:type="subinclude" subMenu = "ESTOFS" 
              fileName="menus/grid/oceanFamilies.xml">
              <substitute key="modelName" value="ESTOFS" />
@@ -169,12 +170,5 @@
              <substitute key="menuName" value="NamDNG 2.5km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
-    </contribute>
-    <contribute xsi:type="subinclude" subMenu = "NDFD" 
-             fileName="menus/grid/mesoFamilies.xml">
-             <substitute key="modelName" value="NDFD" />
-             <substitute key="menuName" value="NDFD" />
-             <substitute key="frameCount" value="2" />
-             <substitute key="TP" value="TP"/>
     </contribute>
 </menuTemplate>

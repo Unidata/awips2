@@ -96,10 +96,12 @@
 			menuText="250MB Wind / Height" id="" useReferenceTime="true">
 				<substitute key="level" value="250.0" />
 	</contribute>
+<!--
 	<contribute xsi:type="bundleItem" file="bundles/grid/PotentialVorticity.xml"
 			menuText="250MB Potential Vorticity" id="" useReferenceTime="true">
 				<substitute key="level" value="250.0" />
 	</contribute>
+-->
 	<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyHelicity.xml"
 				menuText="Helicity / Storm-Relative Flow" id="" useReferenceTime="true">
 	</contribute>

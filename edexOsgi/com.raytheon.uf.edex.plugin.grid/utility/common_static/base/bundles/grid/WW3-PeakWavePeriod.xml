@@ -11,7 +11,7 @@
                                     <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
                                     <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
                                     <capability xsi:type="colorMapCapability">
-                                        <colorMapParameters colorMapName="Grid/Gridded Data">
+                                        <colorMapParameters colorMapName="Grid/gridded data">
                                             <persisted/>
                                         </colorMapParameters>
                                     </capability>

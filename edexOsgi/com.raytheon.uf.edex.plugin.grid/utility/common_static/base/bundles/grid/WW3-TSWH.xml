@@ -10,7 +10,7 @@
                                 <capabilities>
                                     <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
                                     <capability xsi:type="colorMapCapability">
-                                        <colorMapParameters colorMapName="Grid/Gridded Data">
+                                        <colorMapParameters colorMapName="Grid/gridded data">
                                             <persisted/>
                                         </colorMapParameters>
                                     </capability>

@@ -31,10 +31,10 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="FHAG" constraintType="EQUALS"/>
+                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="10.0" constraintType="EQUALS"/>
+                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>
                         <alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -125,10 +125,6 @@
                             <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
                             <capability xsi:type="colorMapCapability">
                                 <colorMapParameters colorMapName="Grid/Temperature F">
-                                            <persisted>
-                                                <colorMapMin>247.9278</colorMapMin>
-                                                <colorMapMax>316.483</colorMapMax>
-                                            </persisted>
                                         </colorMapParameters>
                             </capability>
                         </capabilities>

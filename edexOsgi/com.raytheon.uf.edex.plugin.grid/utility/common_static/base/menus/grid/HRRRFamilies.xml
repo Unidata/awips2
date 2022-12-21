@@ -42,9 +42,6 @@
 	<contribute xsi:type="bundleItem" file="bundles/grid/SfcRH.xml"
 			menuText="Sfc Relative Humidity" id="" useReferenceTime="true">
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/30mbMeanDewpoint.xml"
-			menuText="30mb Mean Dewpoint" id="" useReferenceTime="true">
-	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/grid/PrecipitableWater.xml"
 			menuText="Precipitable Water" id="" useReferenceTime="true">
 	</contribute>
@@ -63,18 +60,6 @@
 			menuText="500MB Vorticity" id="" useReferenceTime="true">
 				<substitute key="level" value="500.0" />
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/VerticalVelocity.xml"
-			menuText="500MB Vertical Velocity" id="" useReferenceTime="true">
-			<substitute key="level" value="500.0" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/VerticalVelocity.xml"
-			menuText="700MB Vertical Velocity" id="" useReferenceTime="true">
-			<substitute key="level" value="700.0" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/VerticalVelocity.xml"
-			menuText="850MB Vertical Velocity" id="" useReferenceTime="true">
-			<substitute key="level" value="850.0" />
-	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/grid/Trenberth.xml"
 			menuText="Thickness / Vorticity Advection (Trenberth)" id="" useReferenceTime="true">
 	</contribute>
@@ -90,20 +75,6 @@
 			menuText="500MB Wind / Height" id="" useReferenceTime="true">
 				<substitute key="level" value="500.0" />
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/WindHeight.xml"
-			menuText="300MB Wind / Height" id="" useReferenceTime="true">
-				<substitute key="level" value="300.0" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/WindHeight.xml"
-			menuText="250MB Wind / Height" id="" useReferenceTime="true">
-				<substitute key="level" value="250.0" />
-	</contribute>
-<!--
-	<contribute xsi:type="bundleItem" file="bundles/grid/PotentialVorticity.xml"
-			menuText="250MB Potential Vorticity" id="" useReferenceTime="true">
-				<substitute key="level" value="250.0" />
-	</contribute>
--->
 	<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyHelicity.xml"
 				menuText="Helicity / Storm-Relative Flow" id="" useReferenceTime="true">
 	</contribute>

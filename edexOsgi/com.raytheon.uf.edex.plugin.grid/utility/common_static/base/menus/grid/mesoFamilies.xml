@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/grid/2mTemperature.xml"
-            menuText="2m Temperature and 10m Wind" id="" useReferenceTime="true">
+            menuText="2m Temperature and Surface Wind" id="" useReferenceTime="true">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/grid/DewpointTemp.xml"
             menuText="2m Dewpoint Temperature" id="" useReferenceTime="true">

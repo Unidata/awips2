@@ -1101,6 +1101,8 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>TP1hr</parameter>
             <parameter>TP3hr</parameter>
             <parameter>TP6hr</parameter>
+            <parameter>TP-GFS</parameter>
+            <parameter>CP-GFS</parameter>
         </paramLevelMatches>
         <contourStyle>
             <displayUnits>in</displayUnits>

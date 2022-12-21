@@ -31,10 +31,10 @@
 	                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 	                            </mapping>
 	                            <mapping key="info.level.masterLevel.name">
-	                                <constraint constraintValue="FHAG" constraintType="EQUALS"/>
+	                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
 	                            </mapping>
 	                            <mapping key="info.level.levelonevalue">
-	                                <constraint constraintValue="10.0" constraintType="EQUALS"/>
+	                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
 	                            </mapping>
 	                        </metadataMap>
 	                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -89,7 +89,7 @@
                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                             <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/Gridded Data">
+                                <colorMapParameters colorMapName="Grid/gridded data">
                                             <persisted>
                                                 <colorMapMin>245.05</colorMapMin>
                                                 <colorMapMax>302.62222</colorMapMax>
