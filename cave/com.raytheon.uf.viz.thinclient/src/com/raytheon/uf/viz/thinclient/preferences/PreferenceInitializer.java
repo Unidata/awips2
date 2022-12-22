@@ -68,7 +68,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
          * method will be used.
          */
         store.setDefault(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD,
-                ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_PUSH);
+                ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL);
 
         store.setDefault(
                 ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION,
@@ -80,7 +80,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
         // Default data refresh rate
         store.setDefault(ThinClientPreferenceConstants.P_DATA_REFRESH_INTERVAL,
-                5);
+                1);
 
         // By default, no proxy used
         store.setDefault(ThinClientPreferenceConstants.P_USE_PROXIES, false);
