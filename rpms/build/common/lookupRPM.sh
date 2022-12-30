@@ -342,10 +342,10 @@ function lookupRPM()
    fi
 
    # awips2 rpms -> viz rpms.
-   if [ "${1}" = "awips2-alertviz" ]; then
-      export RPM_SPECIFICATION="${awips2_cave_dir}/Installer.alertviz"
-      return 0
-   fi
+   #if [ "${1}" = "awips2-alertviz" ]; then
+   #   export RPM_SPECIFICATION="${awips2_cave_dir}/Installer.alertviz"
+   #   return 0
+   #fi
    if [ "${1}" = "-cave" ]; then
       return 0
    fi
