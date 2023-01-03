@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <!-- Set the initial top level menu -->
-    <contribute xsi:type="subMenu" menuText="HRRR-Smoke">
        <contribute xsi:type="bundleItem" file="bundles/grid/hrrrSmokeDisplay.xml"
            menuText="Fire Radiative Power Mean" id="FRPMean">
            <substitute key="levelID" value="SFC" />
@@ -25,6 +24,5 @@
            <substitute key="levelID" value="EA" />
            <substitute key="parameterID" value="AEROSOLOPTICALDEPTH" />
            <substitute key="levelOneValue" value="0.0" />
-       </contribute>
        </contribute>
 </menuTemplate>
