@@ -43,3 +43,6 @@
 41:41:QPE - Multi Sensor P2 (24 hr. accum.):mm:MultiSensorP2QPE24H
 42:42:QPE - Multi Sensor P2 (48 hr. accum.):mm:MultiSensorP2QPE48H
 43:43:QPE - Multi Sensor P2 (72 hr. accum.):mm:MultiSensorP2QPE72H
+44:44:QPE - Synthetic Precip Rate ID::SynthPrecipRateID
+45:45:QPE - Radar Only (15 min accum.):mm:RadarOnlyQPE15M
+46:46:QPE - Radar Only (Since 12Z accum.):mm:RadarOnlyQPE12Z

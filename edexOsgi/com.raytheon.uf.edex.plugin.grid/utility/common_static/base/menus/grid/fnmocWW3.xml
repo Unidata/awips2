@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="${menuName}">
+		<contribute xsi:type="bundleItem" file="bundles/grid/WW3-TSWH.xml"
+			    menuText="Significant Wave Height" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/grid/WW3-WVHGT.xml"
+			    menuText="Wind Wave Height" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/grid/WW3-SwellHeightDirection.xml"
+			    menuText="Swell Height and Direction" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/grid/WW3-PeakWavePeriod.xml"
+			    menuText="Peak Wave Period" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+	</contribute>
+</menuTemplate>

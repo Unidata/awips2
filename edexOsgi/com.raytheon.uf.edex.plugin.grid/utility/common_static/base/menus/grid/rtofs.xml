@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="${menuName}">
+		<contribute xsi:type="bundleItem" file="bundles/grid/RTOFS-current.xml"
+			    menuText="Sea Surface Current" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/grid/RTOFS-wtemp.xml"
+			    menuText="Sea Surface Temperature" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/grid/RTOFS-salinity.xml"
+			    menuText="Ocean Salinity" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/grid/RTOFS-barotropicVelocity.xml"
+			    menuText="Barotropic Velocity" id="" useReferenceTime="true">
+			<substitute key="frameCount" value="${frameCount}"/>
+		</contribute>
+	</contribute>
+</menuTemplate>

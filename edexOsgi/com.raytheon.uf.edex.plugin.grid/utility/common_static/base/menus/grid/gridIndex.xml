@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="titleItem" titleText= "------ Default Models ------" id="defaultModel"/> 
+
+    <contribute xsi:type="subinclude" subMenu = "GFS 1.00° Global" fileName="menus/grid/allFamilies-GFS.xml">
+             <substitute key="modelName" value="GFS1p0" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "GFS 20km" 
+             fileName="menus/grid/allFamilies-GFS.xml">
+             <substitute key="modelName" value="GFS20" />
+             <substitute key="menuName" value="GFS 20km" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "GFS-LAMP" 
+             fileName="menus/grid/lampFamilies.xml">
+             <substitute key="modelName" value="LAMP2p5" />
+             <substitute key="menuName" value="GFS-LAMP" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "HRRR" 
+             fileName="menus/grid/HRRRFamilies.xml">
+             <substitute key="modelName" value="HRRR" />
+             <substitute key="menuName" value="HRRR" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+        <contribute xsi:type="subinclude" subMenu = "HRRR Smoke" 
+             fileName="menus/grid/hrrrSmokeProducts.xml">
+             <substitute key="modelName" value="HRRR-Smoke" />
+             <substitute key="menuName" value="HRRR Smoke" />
+             <substitute key="frameCount" value="19" />
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "NAM 12km" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NAM12" />
+             <substitute key="menuName" value="NAM 12km" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP3hr"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "NAM 40km" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NAM40" />
+             <substitute key="menuName" value="NAM 40km" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP3hr"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "RAP 13km" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="RAP13" />
+             <substitute key="menuName" value="RAP 13km" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+<!-- Tiffany Meyer commented out because we aren't ignesting these models #20210507
+	<contribute xsi:type="subinclude" subMenu = "RAP 20km" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="RAP20" />
+             <substitute key="menuName" value="RAP 20km" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu = "RAp 40km" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="RAP40" />
+             <substitute key="menuName" value="RAP 40km" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+-->
+    <contribute xsi:type="subinclude" subMenu = "Comparison Families" 
+             fileName="menus/grid/baseComparisonFamilies.xml">
+    </contribute>
+
+    <contribute xsi:type="separator" id="MySeparatorId"/>
+
+   <contribute xsi:type="titleItem" titleText="------ Digital Forecasts and Mesoscale Analysis ------" id="forecasts"/>
+	<contribute xsi:type="subinclude" subMenu = "National Blend" 
+             fileName="menus/grid/mesoFamilies.xml">
+             <substitute key="modelName" value="NationalBlend" />
+             <substitute key="menuName" value="National Blend" />
+             <substitute key="frameCount" value="75" />
+             <substitute key="TP" value="TP1hr"/>
+             <substitute key="level" value="SFC"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "RTMA" 
+             fileName="menus/grid/mesoFamilies.xml">
+             <substitute key="modelName" value="RTMA" />
+             <substitute key="menuName" value="RTMA" />
+             <substitute key="frameCount" value="10" />
+             <substitute key="TP" value="TP1hr"/>
+             <substitute key="level" value="FH"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "URMA" 
+             fileName="menus/grid/mesoFamilies.xml">
+             <substitute key="modelName" value="URMA25" />
+             <substitute key="menuName" value="URMA" />
+             <substitute key="frameCount" value="10" />
+             <substitute key="TP" value="TP6hr"/>
+             <substitute key="level" value="SFC"/>
+    </contribute>
+
+
+    <contribute xsi:type="separator" id="MySeparatorId"/>
+
+	<contribute xsi:type="titleItem" titleText="------ Ocean Products ------" id="OceanModelsLine" />
+	<contribute xsi:type="bundleItem" file="bundles/grid/HFR.xml"
+		menuText="High Frequency Radar (HFR) Ocean Sfc Wind" id="hfr" useReferenceTime="true">
+	</contribute>
+<!-- Commented out since we aren't receiving this data
+    <contribute xsi:type="subinclude" subMenu = "FNMOC WW3" 
+             fileName="menus/grid/ww3.xml">
+             <substitute key="modelName" value="FNMOC-WW3" />
+             <substitute key="menuName" value="FNMOC WW3" />
+             <substitute key="frameCount" value="39" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu = "NOAA WW3" 
+             fileName="menus/grid/WaveWatch.xml">
+             <substitute key="modelName" value="WaveWatch" />
+             <substitute key="menuName" value="NOAA WW3" />
+             <substitute key="frameCount" value="32" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "NCEP WW3 Global" 
+             fileName="menus/grid/WaveWatch.xml">
+             <substitute key="modelName" value="GlobalWave" />
+             <substitute key="menuName" value="NCEP WW3 Global" />
+             <substitute key="frameCount" value="32" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+-->
+   	<contribute xsi:type="subinclude" subMenu = "ESTOFS" 
+             fileName="menus/grid/oceanFamilies.xml">
+             <substitute key="modelName" value="ESTOFS" />
+             <substitute key="menuName" value="ESTOFS" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "ETSS Storm Surge" 
+             fileName="menus/grid/oceanFamilies.xml">
+             <substitute key="modelName" value="ETSS" />
+             <substitute key="menuName" value="ETSS Storm Surge" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+        <contribute xsi:type="separator" id="MySeparatorId"/>
+
+    <contribute xsi:type="titleItem" titleText="------ Optional Models ------" id="optionalModels"/>
+	<contribute xsi:type="subinclude" subMenu = "CMC" 
+             fileName="menus/grid/cmcFamilies.xml">
+             <substitute key="modelName" value="CMC" />
+             <substitute key="menuName" value="CMC" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu = "NAVGEM" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NAVGEM" />
+             <substitute key="menuName" value="NAVGEM" />
+             <substitute key="frameCount" value="63" />
+             <substitute key="TP" value="TP3hr"/>
+    </contribute>
+	<contribute xsi:type="subinclude" subMenu = "NamDNG" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NamDNG" />
+             <substitute key="menuName" value="NamDNG 2.5km" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP3hr"/>
+    </contribute>
+</menuTemplate>

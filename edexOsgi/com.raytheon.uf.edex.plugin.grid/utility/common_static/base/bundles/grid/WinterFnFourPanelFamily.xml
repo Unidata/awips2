@@ -1,0 +1,1424 @@
+<!--Winter Fn Four Panel Family -->
+<bundle xmlns:ns2="http://www.example.org/productType">
+    <displayList>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" density="1.0" magnification="1.0" scale="CONUS" zoomLevel="0.2795201241970062" mapCenter="-96.32718142683997 46.02599847081895 0.0">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="Grid/gridded data">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="coral"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="600.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="EPVt2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="500.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="SITE/ARX/Frontogenesis/PFrnt - New">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="600.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<table>mapdata.world</table>
+<constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <mapName>State/County Boundaries</mapName>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="violet"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="500.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="qDiv" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="300.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="cyan"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="600.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="coral"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="600.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="QPV2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="500.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="600.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="DivFn" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
+            </descriptor>
+        </displays>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" density="1.0" magnification="1.0" scale="CONUS" zoomLevel="0.2795201241970062" mapCenter="-96.3473049749147 46.01352363113645 0.0">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="Grid/gridded data">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="dark khaki"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="700.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="EPVt2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="600.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="SITE/ARX/Frontogenesis/PFrnt - New">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="burlywood"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="700.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<table>mapdata.world</table>
+<constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <mapName>State/County Boundaries</mapName>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="yellow"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="700.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="DivFn" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="orange red"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="700.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="coral"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="700.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="QPV2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="600.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
+            </descriptor>
+        </displays>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" density="1.0" magnification="1.0" scale="CONUS" zoomLevel="0.2795201241970062" mapCenter="-96.3473049749147 46.01352363113645 0.0">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="Grid/gridded data">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="yellow"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="900.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="EPVt2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="800.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="SITE/ARX/Frontogenesis/PFrnt - New">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="orange red"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="900.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<table>mapdata.world</table>
+<constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <mapName>State/County Boundaries</mapName>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="coral"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="900.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="QPV2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="800.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="violet"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="900.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="dark khaki"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="900.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="DivFn" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
+            </descriptor>
+        </displays>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" density="1.0" magnification="1.0" scale="CONUS" zoomLevel="0.2795201241970062" mapCenter="-96.3473049749147 46.01352363113645 0.0">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="Grid/gridded data">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="dodger blue"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="800.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="EPVt2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="700.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+<colorMapParameters colorMapName="SITE/ARX/Frontogenesis/PFrnt - New">
+    <persisted/>
+</colorMapParameters>
+                            </capability>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                            <capability xsi:type="colorableCapability" colorAsString="burlywood"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="800.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<table>mapdata.world</table>
+<constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="labelableCapability" yOffset="0" xOffset="0"/>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <mapName>State/County Boundaries</mapName>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="coral"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="800.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="QPV2" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="700.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="cyan"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="800.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="PFrnt" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
+                            <capability xsi:type="colorableCapability" colorAsString="cyan"/>
+                            <capability xsi:type="outlineCapability" lineStyle="DEFAULT" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" spatial="false" sampling="false" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.level.levelonevalue">
+<constraint constraintValue="800.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+<constraint constraintValue="MB" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.parameter.abbreviation">
+<constraint constraintValue="DivFn" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.leveltwovalue">
+<constraint constraintValue="-999999.0" constraintType="IN"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>
