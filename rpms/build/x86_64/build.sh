@@ -165,7 +165,7 @@ function build_server(){
    build_pypies
    buildLocalization
    
-   buildRPM "awips2-alertviz"
+   #buildRPM "awips2-alertviz"
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-common-base"

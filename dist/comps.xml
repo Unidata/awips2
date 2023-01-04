@@ -102,7 +102,6 @@
          <packagereq type="mandatory">awips2-yajsw</packagereq>
          <packagereq type="mandatory">awips2-edex-rcm</packagereq>
          <packagereq type="mandatory">awips2-edex-mpe</packagereq>
-         <packagereq type="mandatory">awips2-gfesuite</packagereq>
          <packagereq type="mandatory">awips2-edex-geodb</packagereq>
          <packagereq type="mandatory">awips2-ldm</packagereq>
 
@@ -120,6 +119,7 @@
          <packagereq type="mandatory">awips2-python</packagereq>
          <packagereq type="mandatory">awips2-python-jep</packagereq>
          <packagereq type="mandatory">awips2-qpid-broker-j</packagereq>
+         <packagereq type="mandatory">awips2-qpid-proton</packagereq>
          <packagereq type="mandatory">awips2-rcm</packagereq>
          <packagereq type="mandatory">awips2-data.hdf5-topo</packagereq>
          <packagereq type="mandatory">awips2-data.gfe</packagereq>
@@ -177,9 +177,9 @@
          <packagereq type="mandatory">awips2-cave-wrapper</packagereq>
          <packagereq type="mandatory">awips2-gfesuite</packagereq>
 
-         <packagereq type="mandatory">awips2-alertviz</packagereq>
          <packagereq type="mandatory">awips2-cli</packagereq>
          <packagereq type="mandatory">awips2-notification</packagereq>
+         <packagereq type="mandatory">awips2-qpid-proton</packagereq>
 
          <packagereq type="mandatory">awips2-python-dynamicserialize</packagereq>
          <packagereq type="mandatory">awips2-python-h5py</packagereq>
@@ -232,7 +232,6 @@
          <packagereq type="mandatory">awips2-ncep-gempak</packagereq>
          <packagereq type="mandatory">awips2-gfesuite</packagereq>
 
-         <packagereq type="mandatory">awips2-alertviz</packagereq>
          <packagereq type="mandatory">awips2-cli</packagereq>
          <packagereq type="mandatory">awips2-notification</packagereq>
 

@@ -9,7 +9,7 @@ if ( ${USER} == "root" ) then
   endif
   exit 1
 endif
-alias cave /awips2/cave/run.sh
+alias cave /awips2/cave/cave.sh
 set JAVA_INSTALL="/awips2/java"
 set PYTHON_INSTALL="/awips2/python"
 set QPID_LIB_DIR="/awips2/qpid/lib"
