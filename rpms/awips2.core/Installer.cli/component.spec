@@ -42,7 +42,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/fxa
 %build
 
 %install
-# Copies the standard %{_build_vendor} licenses into a license directory for the
+# Copies the standard licenses into a license directory for the
 # current component.
 function copyLegal()
 {
