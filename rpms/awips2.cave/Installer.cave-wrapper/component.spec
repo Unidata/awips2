@@ -20,7 +20,7 @@ BuildRoot: /tmp
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -68,7 +68,6 @@ popd > /dev/null 2>&1
 
 for dir in \
         "${RPM_BUILD_ROOT}/awips2/cave" \
-        "${RPM_BUILD_ROOT}/etc/xdg/autostart" \
         "${RPM_BUILD_ROOT}/etc/profile.d" \
         "${RPM_BUILD_ROOT}/usr/share/applications" \
         ; do
@@ -103,14 +102,10 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# text-workstation autostart script.
+# cave autostart script.
 CAVE_SCRIPTS_DIR="%{_baseline_workspace}/rpms/%{_component_project_dir}/scripts"
-TEXTWS_AUTO_SCRIPT="${CAVE_SCRIPTS_DIR}/autostart/textws_left.desktop"
-cp ${TEXTWS_AUTO_SCRIPT} ${RPM_BUILD_ROOT}/etc/xdg/autostart
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-cp ${TEXTWS_AUTO_SCRIPT} ${RPM_BUILD_ROOT}/usr/share/applications
+CAVE_AUTO_SCRIPT="${CAVE_SCRIPTS_DIR}/autostart/cave.desktop"
+cp ${CAVE_AUTO_SCRIPT} ${RPM_BUILD_ROOT}/usr/share/applications
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -175,8 +170,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,root,root,-)
 /etc/profile.d/awips2Cave.csh
 /etc/profile.d/awips2Cave.sh
-/etc/xdg/autostart/textws_left.desktop
-/usr/share/applications/textws_left.desktop
+/usr/share/applications/cave.desktop
 
 %defattr(644,awips,fxalpha,755)
 /awips2/cave/*.ini
@@ -186,6 +180,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/caveEnvironment
 /awips2/cave/caveEnvironment/*
 /awips2/cave/*.sh
+/awips2/cave/cave.png
 /awips2/cave/VizUpdater.jar
 # not a noarch RPM due to the presence of the architecture-specific libraries.
 %dir /awips2/cave/lib64
