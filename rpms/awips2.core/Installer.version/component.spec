@@ -23,7 +23,7 @@ BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -90,7 +90,7 @@ function updateEDEXVersion()
    echo "* AWIPS II EDEX ESB Platform                     *" \
       >> ${EDEX_BANNER_TXT}
    padEdexBannerLine "Version: %{_component_version}-%{_component_release}" "${EDEX_BANNER_TXT}"
-   echo "* Raytheon Company                               *" \
+   echo "* %{_build_vendor} Company                               *" \
       >> ${EDEX_BANNER_TXT}
    echo "*------------------------------------------------*" \
       >> ${EDEX_BANNER_TXT}
