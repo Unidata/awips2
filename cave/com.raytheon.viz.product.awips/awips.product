@@ -127,6 +127,7 @@
       <feature id="com.raytheon.uf.viz.ffmp.feature"/>
       <feature id="com.raytheon.uf.viz.scan.feature"/>
       <feature id="com.raytheon.uf.viz.fssobs.feature"/>
+      <feature id="com.raytheon.uf.viz.satellite.goesr.feature" installMode="root"/>
    </features>
 
    <configurations>
