@@ -20,7 +20,7 @@ BuildRoot: /tmp
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -190,3 +190,4 @@ rm -rf ${RPM_BUILD_ROOT}
 # not a noarch RPM due to the presence of the architecture-specific libraries.
 %dir /awips2/cave/lib64
 /awips2/cave/lib64/*
+

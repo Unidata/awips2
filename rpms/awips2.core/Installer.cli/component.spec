@@ -15,7 +15,7 @@ Prefix: %{_component_default_prefix}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -42,7 +42,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/fxa
 %build
 
 %install
-# Copies the standard Raytheon licenses into a license directory for the
+# Copies the standard licenses into a license directory for the
 # current component.
 function copyLegal()
 {
