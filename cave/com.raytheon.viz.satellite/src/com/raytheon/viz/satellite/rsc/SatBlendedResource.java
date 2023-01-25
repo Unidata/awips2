@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
  * Nov 20, 2013  2492     bsteffen  Update inspect to use Measure objects
  * Oct 27, 2014  3681     bsteffen  Implement Interrogatable
  * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * Jan 20, 2023		  srcarter@ucar Enable E/W rendering on macOS
  * 
  * </pre>
  * 
@@ -146,23 +147,19 @@ public class SatBlendedResource extends
         }
     }
 
+    private List<DrawableImage> images = new ArrayList<>();
     @Override
+    /*
+     * For the mac build, skip the use of the mosaicImage completely
+     * and simply draw the individual SatResource images.
+     * (non-Javadoc)
+     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon.uf.viz.core.IGraphicsTarget, com.raytheon.uf.viz.core.drawables.PaintProperties)
+     */
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        ColorMapParameters params = getCapability(ColorMapCapability.class)
-                .getColorMapParameters();
-
-        // If first paint, initialize and wait for next paint
-        if (mosaicImage == null) {
-            initImage(target, paintProps, params);
-        } else if (mosaicImage.getWidth() != paintProps.getCanvasBounds().width
-                || mosaicImage
-                        .getHeight() != paintProps.getCanvasBounds().height) {
-            // If Window size changed, recreate the off screen buffer
-            disposeImage();
-            initImage(target, paintProps, params);
-        }
-
+        
+        PaintProperties rscProps = new PaintProperties(paintProps);
+        
         List<DataTime> rscTimes = new ArrayList<>();
         for (ResourcePair rp : getResourceList()) {
             AbstractVizResource<?, ?> rsc = rp.getResource();
@@ -175,7 +172,7 @@ public class SatBlendedResource extends
         if (!extent.equals(lastExtent) || !rscTimes.equals(lastTimes)) {
             lastTimes = rscTimes;
             lastExtent = extent;
-            List<DrawableImage> images = new ArrayList<>();
+            List<DrawableImage> tempImages = new ArrayList<>();
 
             for (ResourcePair rp : getResourceList()) {
                 AbstractVizResource<?, ?> rsc = rp.getResource();
@@ -185,40 +182,32 @@ public class SatBlendedResource extends
                     SatResource sr = (SatResource) rsc;
                     DataTime timeForRsc = paintProps.getFramesInfo()
                             .getTimeForResource(rsc);
-                    PaintProperties rscProps = new PaintProperties(paintProps);
                     rscProps.setDataTime(timeForRsc);
                     rscProps.setAlpha(1.0f);
                     List<DrawableImage> rscImages = sr.getImages(target,
                             rscProps);
+                    
                     for (DrawableImage di : rscImages) {
                         if (di != null && di.getImage() != null
                                 && di.getCoverage() != null
                                 && di.getCoverage().getMesh() != null) {
+                        	
                             // If image is ready to go, add
-                            images.add(di);
+                            tempImages.add(di);
                         }
                     }
                 }
             }
+            
+            if(tempImages.size()>0){
+            	images = new ArrayList(tempImages);
+            }
 
-            mosaicImage.setImagesToMosaic(
-                    images.toArray(new DrawableImage[images.size()]));
-            mosaicImage.setImageExtent(extent);
-
-            Coordinate ul = new Coordinate(extent.getMinX(), extent.getMaxY());
-            Coordinate ur = new Coordinate(extent.getMaxX(), extent.getMaxY());
-            Coordinate lr = new Coordinate(extent.getMaxX(), extent.getMinY());
-            Coordinate ll = new Coordinate(extent.getMinX(), extent.getMinY());
-
-            imageCoverage = new PixelCoverage(ul, ur, lr, ll);
         }
 
-        mosaicImage.setContrast(
-                getCapability(ImagingCapability.class).getContrast());
-        mosaicImage.setBrightness(
-                getCapability(ImagingCapability.class).getBrightness());
-
-        target.drawRaster(mosaicImage, imageCoverage, paintProps);
+        if(images.size()>0){
+        	target.drawRasters(rscProps, images.toArray(new DrawableImage[0]));
+        }
     }
 
     private void initImage(IGraphicsTarget target, PaintProperties paintProps,

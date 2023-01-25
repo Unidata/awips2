@@ -62,10 +62,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.radarapps.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.viz.text.feature"
          version="0.0.0"/>
 
@@ -74,11 +70,15 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.grid.feature"
+         id="com.raytheon.viz.dataaccess.feature"
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.gfe.feature"
+         id="com.raytheon.viz.warnings.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.grid.feature"
          version="0.0.0"/>
 
    <includes
@@ -102,10 +102,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.hydro.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.xy.feature"
          version="0.0.0"/>
 
@@ -119,14 +115,6 @@
 
    <includes
          id="com.raytheon.uf.viz.d2d.nsharp.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.archive.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.ncep.perspective.feature"
          version="0.0.0"/>
 
    <includes
@@ -158,51 +146,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.avnfps.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.dat.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.d2d.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.collaboration.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.gisdatastore.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.ui.awips.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.registry.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.aviation.advisory.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.datadelivery.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="edu.wisc.ssec.cimss.viz.convectprob.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.d2d.damagepath.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.gsd.viz.hazards.feature"
          version="0.0.0"/>
 
    <includes
@@ -214,23 +158,19 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.bmh.feature"
+         id="gov.noaa.gsd.viz.ensemble.feature"
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.server.edex.feature"
+         id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
          version="0.0.0"/>
 
    <includes
-         id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
+         id="com.raytheon.uf.viz.d2d.gfe.feature"
          version="0.0.0"/>
 
    <includes
-         id="gov.noaa.nws.ocp.viz.firewx.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.viz.warnings.feature"
+         id="com.raytheon.viz.gfe.feature"
          version="0.0.0"/>
 
    <includes
@@ -238,35 +178,11 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.fssobs.feature"
+         id="edu.wisc.ssec.cimss.viz.probsevere.feature"
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.scan.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.ffmp.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.ocp.viz.psh.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.ocp.viz.climate.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.ocp.viz.firewx.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.sr.oun.viz.mping.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.ost.viz.stq.feature"
+         id="com.raytheon.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
 
    <requires>
