@@ -171,6 +171,7 @@ A full list of all released blogs can be found below:
 - [AWIPS 18.2.1-6 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-6)
 - [Unidata AWIPS Summer Internship 2022: Rhoen Fiutak](https://www.unidata.ucar.edu/blogs/news/entry/unidata-awips-summer-internship-2022)
 - [Announcing a New eLearning Course: Learn Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course1)
+- [Use Case Example: Texas A&M CAVE in the Classroom](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-use-case-example)
 
 #### CAVE
 
@@ -193,6 +194,7 @@ A full list of all released blogs can be found below:
 - [Understanding Graphic vs Image Products in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/understanding-graphic-vs-image-products)
 - [Getting to Know CAVE's Display Properties](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-getting-to-know)
 - [Creating a User Override](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-a-user)
+- [Frames in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-frames-in-cave)
 
 #### Python-AWIPS
 
@@ -200,6 +202,7 @@ A full list of all released blogs can be found below:
 - [Plot New GOES Products From Unidata's Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
 - [Load Map Resources and Topography using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-load-map-resources)
 - [Create a Colored Surface Temperature Plot](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-a-colored)
+- [Create Colorized Model Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-colorized-model)
 - [View WWA Polygons with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-view-wwa-polygons)
 - [Creating METAR Station Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-metar-station)
 - [Create Sounding Plots with Model Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-sounding-plots)
