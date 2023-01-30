@@ -78,7 +78,7 @@ class EdexQpidIngest:
             if server == 'ev':
                 server = 'cpv1'
         # Make connection to QPID
-        self.qpidIngest = qpidingest.IngestViaQPID(host=server, port=5672, program="qpidNotify")
+        self.qpidIngest = qpidingest.IngestViaQPID(host="localhost", port=5672, program="qpidNotify")
 
     def sendToIngest(self, args):
         size = len(args)
