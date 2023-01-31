@@ -157,6 +157,148 @@
          <packagereq type="mandatory">awips2-watchdog</packagereq>
       </packagelist>
    </group>
+   <group>
+      <id>awips2-ingest</id>
+      <name>AWIPS EDEX Decode/Ingest (No Database, PyPIES, GFE)</name>
+      <default>true</default>
+      <description>This Will Install the AWIPS Components That Are Required For ingesting and decoding data (used with ancillary machine installs)</description>
+      <uservisible>true</uservisible>
+      <packagelist>
+         <packagereq type="mandatory">awips2</packagereq>
+         <packagereq type="mandatory">awips2-version</packagereq>
+         <packagereq type="mandatory">awips2-cli</packagereq>
+         <packagereq type="mandatory">awips2-scripts</packagereq>
+
+         <packagereq type="mandatory">awips2-edex</packagereq>
+         <packagereq type="mandatory">awips2-edex-alertviz</packagereq>
+         <packagereq type="mandatory">awips2-edex-archive</packagereq>
+         <packagereq type="mandatory">awips2-edex-base</packagereq>
+         <packagereq type="mandatory">awips2-edex-binlightning</packagereq>
+         <packagereq type="mandatory">awips2-edex-bufr</packagereq>
+         <packagereq type="mandatory">awips2-edex-common-core</packagereq>
+         <packagereq type="mandatory">awips2-common-foss</packagereq>
+         <packagereq type="mandatory">awips2-common-base</packagereq>
+         <packagereq type="mandatory">awips2-edex-core</packagereq>
+         <packagereq type="mandatory">awips2-edex-registry-client</packagereq>
+         <packagereq type="mandatory">awips2-edex-datadelivery-client</packagereq>
+         <packagereq type="mandatory">awips2-edex-datadelivery-core</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-com-beust-jcommander</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-com-google-protobuf</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-com-mchange</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-com-sun-jna</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-edu-mit-ll-netcdf</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-javax-activation</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-javax-mail</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-javax-media-opengl</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-javax-servlet</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-net-dods</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-net-opengis</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-net-opengis_v2</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-net-sf-ehcache</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-ogc-tools-gml</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-activemq</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-camel</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-commons-cli</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-commons-compress</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-commons-management</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-commons-net</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-commons-ssl</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-commons-validator</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-shiro</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-ws-commons-schema</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-ws-security</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-xalan</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-xml-resolver</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-xml-security</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-apache-xml-serializer</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-dom4j</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-eclipse-jetty</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-itadaki-bzip2</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-jasypt</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-jfreechart</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-joda-time</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-objectweb</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-opensaml</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-org-w3-xmlschema</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-ucar-nc2</packagereq>
+         <packagereq type="mandatory">awips2-edex-dat</packagereq>
+         <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
+         <packagereq type="mandatory">awips2-edex-hydro</packagereq>
+         <packagereq type="mandatory">awips2-edex-ost</packagereq>
+         <packagereq type="mandatory">awips2-edex-radar</packagereq>
+         <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
+         <packagereq type="mandatory">awips2-edex-satellite</packagereq>
+         <packagereq type="mandatory">awips2-edex-warning</packagereq>
+         <packagereq type="mandatory">awips2-edex-text</packagereq>
+         <packagereq type="mandatory">awips2-edex-aviation</packagereq>
+         <packagereq type="mandatory">awips2-edex-configuration</packagereq>
+         <packagereq type="mandatory">awips2-edex-npp</packagereq>
+         <packagereq type="mandatory">awips2-edex-ncep</packagereq>
+         <packagereq type="mandatory">awips2-edex-remote-script</packagereq>
+         <packagereq type="mandatory">awips2-edex-convectprob</packagereq>
+         <packagereq type="mandatory">awips2-edex-sportlma</packagereq>
+         <packagereq type="mandatory">awips2-edex-goesr</packagereq>
+         <packagereq type="mandatory">awips2-edex-grib-decoderpostprocessor</packagereq>
+         <packagereq type="mandatory">awips2-edex-mping</packagereq>
+         <packagereq type="mandatory">awips2-edex-nswrc-radar</packagereq>
+         <packagereq type="mandatory">awips2-edex-grid</packagereq>
+         <packagereq type="mandatory">awips2-edex-ogc-core</packagereq>
+         <packagereq type="mandatory">awips2-edex-ogc-wfs</packagereq>
+         <packagereq type="mandatory">awips2-edex-glmdecoder</packagereq>
+         <packagereq type="mandatory">awips2-edex-config-auto</packagereq>
+         <packagereq type="mandatory">awips2-edex-hazards</packagereq>
+         <packagereq type="mandatory">awips2-yajsw</packagereq>
+         <packagereq type="mandatory">awips2-edex-rcm</packagereq>
+         <packagereq type="mandatory">awips2-edex-mpe</packagereq>
+         <packagereq type="mandatory">awips2-edex-geodb</packagereq>
+         <packagereq type="mandatory">awips2-ldm</packagereq>
+
+         <packagereq type="mandatory">awips2-ignite</packagereq>
+         <packagereq type="mandatory">awips2-adapt-native</packagereq>
+         <packagereq type="mandatory">awips2-hydroapps-shared</packagereq>
+         <packagereq type="mandatory">awips2-java</packagereq>
+         <packagereq type="mandatory">awips2-notification</packagereq>
+         <packagereq type="mandatory">awips2-psql</packagereq>
+         <packagereq type="mandatory">pgadmin4</packagereq>
+         <packagereq type="mandatory">awips2-python</packagereq>
+         <packagereq type="mandatory">awips2-python-jep</packagereq>
+         <packagereq type="mandatory">awips2-qpid-broker-j</packagereq>
+         <packagereq type="mandatory">awips2-qpid-proton</packagereq>
+         <packagereq type="mandatory">awips2-rcm</packagereq>
+         <packagereq type="mandatory">awips2-aviation-shared</packagereq>
+
+         <packagereq type="mandatory">awips2-python-dynamicserialize</packagereq>
+         <packagereq type="mandatory">awips2-python-h5py</packagereq>
+         <packagereq type="mandatory">awips2-python-cycler</packagereq>
+         <packagereq type="mandatory">awips2-python-kiwisolver</packagereq>
+         <packagereq type="mandatory">awips2-python-backports-lru_cache</packagereq>
+         <packagereq type="mandatory">awips2-python-matplotlib</packagereq>
+         <packagereq type="mandatory">awips2-python-setuptools</packagereq>
+         <packagereq type="mandatory">awips2-python-numpy</packagereq>
+         <packagereq type="mandatory">awips2-qpid-proton-python</packagereq>
+         <packagereq type="mandatory">awips2-python-scipy</packagereq>
+         <packagereq type="mandatory">awips2-python-tables</packagereq>
+         <packagereq type="mandatory">awips2-python-thrift</packagereq>
+         <packagereq type="mandatory">awips2-python-tpg</packagereq>
+         <packagereq type="mandatory">awips2-python-ufpy</packagereq>
+         <packagereq type="mandatory">awips2-python-werkzeug</packagereq>
+         <packagereq type="mandatory">awips2-python-shapely</packagereq>
+         <packagereq type="mandatory">awips2-python-dateutil</packagereq>
+         <packagereq type="mandatory">awips2-python-pyparsing</packagereq>
+         <packagereq type="mandatory">awips2-python-pytz</packagereq>
+         <packagereq type="mandatory">awips2-python-six</packagereq>
+         <packagereq type="mandatory">awips2-python-pyshp</packagereq>
+         <packagereq type="mandatory">awips2-python-stomp.py</packagereq>
+         <packagereq type="mandatory">awips2-python-cftime</packagereq>
+         <packagereq type="mandatory">awips2-python-netcdf4</packagereq>
+         <packagereq type="mandatory">awips2-hdf5</packagereq>
+         <packagereq type="mandatory">awips2-netcdf</packagereq>
+         <packagereq type="mandatory">awips2-netcdf-devel</packagereq>
+         <packagereq type="mandatory">awips2-localapps-environment</packagereq>
+         <packagereq type="mandatory">awips2-watchdog</packagereq>
+      </packagelist>
+   </group>
 
    <group>
       <id>awips2-cave</id>
