@@ -473,7 +473,7 @@ function deleteEclipseConfigurationDir()
 function createEclipseConfigurationDir()
 {
     local d dir id=$(hostname)-$(whoami)
-    for d in "$HOME/.cave-eclipse/"; do
+    for d in "$HOME/caveData/.cave-eclipse/"; do
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
