@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Version=1.0
+Name=AWIPS CAVE
+Comment=Unidata AWIPS CAVE Visualization Client
+Icon=/awips2/cave/cave.png
+Exec=/awips2/cave/cave.sh
+Categories=Network;WebBrowser
+X-Desktop-File-Install-Version=0.15
