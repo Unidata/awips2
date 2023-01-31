@@ -47,6 +47,7 @@
 #                                     simultaneous purges.  Allow override of days to keep.
 # Jan 26, 2017  #6092     randerso    return exitCode so it can be propagated back to through the calling processes
 # Oct 22, 2019  #7943     tjensen     Remove -x flag from grep check in deleteOldEclipseConfigurationDirs()
+# Jan 31, 2022      tiffanym@ucar.edu Clean up output when CAVE is started
 ########################
 
 source /awips2/cave/iniLookup.sh
@@ -418,9 +419,7 @@ function deleteOldCaveLogs()
 
     # Purge the old logs.
     local n_days_to_keep=${CAVE_LOG_DAYS_TO_KEEP:-30}
-    echo -e "Cleaning consoleLogs: "
-    echo -e "find $logdir -type f -name "*.log" -mtime +$n_days_to_keep | xargs rm "
-    find "$logdir" -type f -name "*.log" -mtime +"$n_days_to_keep" | xargs rm
+    find "$logdir" -type f -name "*.log" -mtime +"$n_days_to_keep" | xargs -r rm
 
     # Record the last purge time and remove the lock file.
     echo $(date +%s) > "$last_purge_f"
@@ -474,7 +473,7 @@ function deleteEclipseConfigurationDir()
 function createEclipseConfigurationDir()
 {
     local d dir id=$(hostname)-$(whoami)
-    for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
+    for d in "$HOME/.cave-eclipse/"; do
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
@@ -487,7 +486,7 @@ function createEclipseConfigurationDir()
         fi
     done
     echo "Unable to create a unique Eclipse configuration directory.  Will proceed with default." >&2
-    export eclipseConfigurationDir=$HOME/.cave-eclipse
+    export eclipseConfigurationDir=$HOME/caveData/.cave-eclipse
     return 1
 }
 
