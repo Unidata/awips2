@@ -14,4 +14,4 @@ __pycache__
 build/awips-ade/RPMS/
 build/logs/
 cave/com.raytheon.viz.ui.personalities.awips/splash.bmp
-dist/
+dist/el7*
