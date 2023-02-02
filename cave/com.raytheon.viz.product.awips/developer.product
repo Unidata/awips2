@@ -19,6 +19,7 @@
       <vmArgs>-Xmx6144M
 -XX:+UseG1GC
 -XstartOnFirstThread
+-Djava.awt.headless=true
 -Dosgi.instance.area.readOnly=true
 -Dorg.eclipse.update.reconcile=false
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
@@ -29,6 +30,7 @@
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dorg.eclipse.swt.internal.gtk.useCairo=false
 -Dhttps.certificate.check=false
+-Djava.library.path=/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/jep
 -XX:MaxDirectMemorySize=1G
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
