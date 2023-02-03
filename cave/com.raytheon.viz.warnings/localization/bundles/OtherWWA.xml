@@ -1,0 +1,38 @@
+<bundle>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="4" />
+                            <capability xsi:type="colorableCapability" colorAsString="#ffffff" />
+                        </capabilities>
+                    </loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false" 
+						isVisible="true" />
+					<resourceData xsi:type="wwaResourceData" 						
+						isUpdatingOnMetadataOnly="false"
+						retrieveData="false"
+						isRequeryNecessaryOnTimeMatch="true" name="Other Watches, Warnings, Advisories">
+						<metadataMap>							
+							<mapping key="act">
+								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
+							</mapping>
+							<mapping key="phensig">
+                                <constraint constraintValue="AQ.Y,AS.O,AS.Y,DS.W,DU.Y,EC.A,EC.W,EH.A,EH.W,FG.Y,FW.A,FW.W,HT.Y,MF.Y,MH.W,MH.Y,MS.Y,SM.Y,WC.A,WC.W,WC.Y,ZF.Y,ZR.Y" constraintType="IN" />
+                                
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="warning" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>
