@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
+				<resource>
+               		<loadProperties loadWithoutData="true">
+                   		<capabilities>
+						    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+						    <capability xsi:type="magnificationCapability" magnification="1.25"/>
+						    <capability xsi:type="densityCapability" density="2"/>
+						    <capability xsi:type="colorableCapability" colorAsString="white"/>
+						</capabilities>
+               		</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Surface Winds"
+						plotModelFile="windDesign.svg" spiFile="basemaps/MTR.spi"
+						isUpdatingOnMetadataOnly="true" retrieveData="false"
+						isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true" pixelSizeHint="45">
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="reportType">
+								<constraint constraintValue="METAR" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="obs" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>
