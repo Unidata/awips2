@@ -46,6 +46,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Apr 28, 2014 DR 17310   D. Friedman Handle null VTEC fields.
  * Aug 28, 2014 ASM #15682 D. Friedman Refactor for WouWcnWatchesResourceData.
  * Apr 09, 2018 #6963      dgilling    Support Practice mode.
+ * Oct 21, 2021            srcarter    Simplified the construct method to always return WarningsResource 
+ * Mar 15, 2022            srcarter    Added a getter for the resource name
  *
  * </pre>
  *
@@ -66,29 +68,18 @@ public class WWAResourceData extends AbstractRequestableResourceData {
 
     protected Collection<AbstractWarningRecord> records;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @seecom.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData#
+     * constructResource(com.raytheon.uf.viz.core.comm.LoadProperties,
+     * com.raytheon.edex.db.objects.PluginDataObject[])
+     */
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        boolean watchResource = false;
-        records = new ArrayList<>(objects.length);
-        if (objects.length > 0) {
-            for (int i = 0; i < objects.length; i++) {
-                records.add((AbstractWarningRecord) objects[i]);
-            }
-            watchResource = "A".equals(((AbstractWarningRecord) objects[0])
-                    .getSig());
-        } else if (loadProperties.isLoadWithoutData()) {
-            // I must be trying to load without data, Ill try.
-            RequestConstraint phenSig = getMetadataMap().get("phensig");
-            watchResource = phenSig != null
-                    && phenSig.getConstraintValue().contains(".A");
-        }
-
-        if (watchResource) {
-            return new WatchesResource(this, loadProperties);
-        }
-
+    	
         return new WarningsResource(this, loadProperties);
     }
 
@@ -217,21 +208,12 @@ public class WWAResourceData extends AbstractRequestableResourceData {
     public boolean isRequeryNecessaryOnTimeMatch() {
         return false;
     }
-
-    @Override
-    public HashMap<String, RequestConstraint> getMetadataMap() {
-        HashMap<String, RequestConstraint> metadataMap = super.getMetadataMap();
-
-        if (metadataMap.containsKey("pluginName")) {
-            metadataMap = new HashMap<>(metadataMap);
-            CAVEMode caveMode = CAVEMode.getMode();
-            String pluginName = (CAVEMode.OPERATIONAL.equals(caveMode)
-                    || CAVEMode.TEST.equals(caveMode)) ? "warning"
-                            : "practicewarning";
-            metadataMap.replace("pluginName",
-                    new RequestConstraint(pluginName));
-        }
-
-        return metadataMap;
+    
+    /**
+     * @return  The resource name (similar to what's displayed
+     * in the resource stack, except without the timestamp)
+     */
+    public String getName(){
+    	return name;
     }
 }

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<phensigColors>
+	<map>
+	  <entry><key>AQ.Y</key><value color="gray" name="Air Quality Alert"></value></entry>
+	  <entry><key>AS.O</key><value color="gray" name="Air Stagnation Outlook"></value></entry>
+	  <entry><key>AS.Y</key><value color="gray" name="Air Stagnation Advisory"></value></entry>
+	  <entry><key>BH.S</key><value color="turquoise" name="Beach Hazards Statement"></value></entry>
+	  <entry><key>BW.Y</key><value color="thistle" name="Brisk Wind Advisory"></value></entry>
+	  <entry><key>BZ.A</key><value color="greenyellow" name="Blizzard Watch"></value></entry>
+	  <entry><key>BZ.W</key><value color="orangered" name="Blizzard Warning"></value></entry>
+	  <entry><key>CF.A</key><value color="mediumaquamarine" name="Coastal Flood Watch"></value></entry>
+	  <entry><key>CF.W</key><value color="forestgreen" name="Coastal Flood Warning"></value></entry>
+	  <entry><key>CF.Y</key><value color="lawngreen" name="Coastal Flood Advisory"></value></entry>
+	  <entry><key>CF.S</key><value color="olivedrab" name="Coastal Flood Statement"></value></entry>
+	  <entry><key>DS.W</key><value color="bisque" name="Dust Storm Warning"></value></entry>
+	  <entry><key>DS.Y</key><value color="darkkhaki" name="Dust Advisory"></value></entry>
+	  <entry><key>DU.Y</key><value color="darkkhaki" name="Blowing Dust Advisory"></value></entry>
+	  <entry><key>EC.A</key><value color="blue" name="Extreme Cold Watch"></value></entry>
+	  <entry><key>EC.W</key><value color="blue" name="Extreme Cold Warning"></value></entry>
+	  <entry><key>EH.A</key><value color="maroon" name="Excessive Heat Watch"></value></entry>
+	  <entry><key>EH.W</key><value color="mediumvioletred" name="Excessive Heat Warning"></value></entry>
+	  <entry><key>EW.W</key><value color="deeppink" name="Excessive Wind Warning"></value></entry>
+	  <entry><key>FA.A</key><value color="seagreen" name="Flood Watch"></value></entry>
+	  <entry><key>FA.W</key><value color="seagreen" name="Areal Flood Warning"></value></entry>
+	  <entry><key>FA.Y</key><value color="seagreen" name="Areal Flood Advisory"></value></entry>
+	  <entry><key>FF.A</key><value color="limegreen" name="Flash Flood Watch"></value></entry>
+	  <entry><key>FF.S</key><value color="yellowgreen" name="Flash Flood Statement"></value></entry>
+	  <entry><key>FF.W</key><value color="darkred" name="Flash Flood Warning"></value></entry>
+	  <entry><key>FG.Y</key><value color="slategray" name="Dense Fog Advisory"></value></entry>
+	  <entry><key>FL.A</key><value color="seagreen" name="Flood Watch"></value></entry>
+	  <entry><key>FL.W</key><value color="green" name="Flood Warning"></value></entry>
+	  <entry><key>HY.S</key><value color="#00ff7f" name="Hydrological Statement"></value></entry>
+	  <entry><key>FL.S</key><value color="#00ff7f" name="Flood Statement"></value></entry>
+	  <entry><key>FL.Y</key><value color="#00ff7f" name="Flood Advisory"></value></entry>
+	  <entry><key>FR.Y</key><value color="cornflowerblue" name="Frost Advisory"></value></entry>
+	  <entry><key>FW.A</key><value color="navajowhite" name="Fire Weather Watch"></value></entry>
+	  <entry><key>FW.W</key><value color="deeppink" name="Red Flag Warning"></value></entry>
+	  <entry><key>FZ.A</key><value color="royalblue" name="Freeze Watch"></value></entry>
+	  <entry><key>FZ.W</key><value color="cyan" name="Freeze Warning"></value></entry>
+	  <entry><key>GL.A</key><value color="pink" name="Gale Watch"></value></entry>
+	  <entry><key>GL.W</key><value color="#dda0dd" name="Gale Warning"></value></entry>
+	  <entry><key>HF.A</key><value color="darkorchid" name="Hurricane Force Wind Watch"></value></entry>
+	  <entry><key>HF.W</key><value color="#cd5c5c" name="Hurricane Force Wind Warning"></value></entry>
+	  <entry><key>HT.Y</key><value color="#ff7f4e" name="Heat Advisory"></value></entry>
+	  <entry><key>HU.A</key><value color="#ff00ff" name="Hurricane Watch"></value></entry>
+	  <entry><key>HU.S</key><value color="yellow" name="Hurricane Statement"></value></entry>
+	  <entry><key>HU.W</key><value color="#dc143c" name="Hurricane Warning"></value></entry>
+	  <entry><key>HW.A</key><value color="darkgoldenrod" name="High Wind Watch"></value></entry>
+	  <entry><key>HW.W</key><value color="goldenrod" name="High Wind Warning"></value></entry>
+	  <entry><key>HZ.A</key><value color="royalblue" name="Hard Freeze Watch"></value></entry>
+	  <entry><key>HZ.W</key><value color="blue" name="Hard Freeze Warning"></value></entry>
+	  <entry><key>SQ.W</key><value color="#EF2B1C" name="Snow Squall Warning"></value></entry>
+	  <entry><key>IS.W</key><value color="darkmagenta" name="Ice Storm Warning"></value></entry>
+	  <entry><key>LE.A</key><value color="LightSkyBlue" name="Lake Effect Snow Watch"></value></entry>
+	  <entry><key>LE.W</key><value color="DarkCyan" name="Lake Effect Snow Warning"></value></entry>
+	  <entry><key>LE.Y</key><value color="MediumTurquoise" name="Lake Effect Snow Advisory"></value></entry>
+	  <entry><key>LO.Y</key><value color="maroon" name="Low Water Advisory"></value></entry>
+	  <entry><key>LS.A</key><value color="MediumAquaMarine" name="Lakeshore Flood Watch"></value></entry>
+	  <entry><key>LS.S</key><value color="lawngreen" name="Lakeshore Flood Statement"></value></entry>
+	  <entry><key>LS.W</key><value color="forestgreen" name="Lakeshore Flood Warning"></value></entry>
+	  <entry><key>LS.Y</key><value color="lawngreen" name="Lakeshore Flood Advisory"></value></entry>
+	  <entry><key>LW.Y</key><value color="tan" name="Lake Wind Advisory"></value></entry>
+	  <entry><key>MA.A</key><value color="peachpuff" name="Special Marine Advisory"></value></entry>
+	  <entry><key>MA.S</key><value color="peachpuff" name="Special Marine Statement"></value></entry>
+	  <entry><key>MA.W</key><value color="palevioletred" name="Special Marine Warning"></value></entry>
+	  <entry><key>MF.Y</key><value color="slategray" name="Dense Fog Advisory"></value></entry>
+	  <entry><key>MH.W</key><value color="darkgray" name="Ashfall Warning"></value></entry>
+	  <entry><key>MH.Y</key><value color="dimgray" name="Ashfall Advisory"></value></entry>
+	  <entry><key>MS.Y</key><value color="khaki" name="Dense Smoke Advisory"></value></entry>
+	  <entry><key>RB.Y</key><value color="thistle" name="Small Craft Advisory for rough bar"></value></entry>
+	  <entry><key>RP.S</key><value color="turquoise" name="High Rip Current Risk"></value></entry>
+	  <entry><key>SC.Y</key><value color="thistle" name="Small Craft Advisory"></value></entry>
+	  <entry><key>SE.A</key><value color="darkslateblue" name="Hazardous Seas Watch"></value></entry>
+	  <entry><key>SE.W</key><value color="thistle" name="Hazardous Seas Warning"></value></entry>
+	  <entry><key>SI.Y</key><value color="thistle" name="Small Craft Advisory for winds"></value></entry>
+	  <entry><key>SM.Y</key><value color="khaki" name="Dense Smoke Advisory"></value></entry>
+	  <entry><key>SR.A</key><value color="violet" name="Storm Watch"></value></entry>
+	  <entry><key>SR.W</key><value color="darkorchid" name="Storm Warning"></value></entry>
+	  <entry><key>SS.A</key><value color="#DB7FF7" name="Storm Surge Watch"></value></entry>
+	  <entry><key>SS.W</key><value color="#B524F7" name="Storm Surge Warning"></value></entry>
+	  <entry><key>SU.W</key><value color="forestgreen" name="High Surf Warning"></value></entry>
+	  <entry><key>SU.Y</key><value color="mediumorchid" name="High Surf Advisory"></value></entry>
+	  <entry><key>SV.A</key><value color="palevioletred" name="Severe Thunderstorm Watch"></value></entry>
+	  <entry><key>SV.S</key><value color="aqua" name="Severe Weather Statement"></value></entry>
+	  <entry><key>SV.W</key><value color="orange" name="Severe Thunderstorm Warning"></value></entry>
+	  <entry><key>SW.Y</key><value color="thistle" name="Small Craft Advisory for hazardous seas"></value></entry>
+	  <entry><key>TO.A</key><value color="yellow" name="Tornado Watch"></value></entry>
+	  <entry><key>TO.W</key><value color="red" name="Tornado Warning"></value></entry>
+	  <entry><key>TR.A</key><value color="#f08080" name="Tropical Storm Watch"></value></entry>
+	  <entry><key>TR.W</key><value color="#b22222" name="Tropical Storm Warning"></value></entry>
+	  <entry><key>TS.A</key><value color="fuchsia" name="Tsunami Watch"></value></entry>
+	  <entry><key>TS.W</key><value color="#FD6347" name="Tsunami Warning"></value></entry>
+	  <entry><key>TS.Y</key><value color="chocolate" name="Tsunami Advisory"></value></entry>
+	  <entry><key>TY.A</key><value color="fuchsia" name="Typhoon Watch"></value></entry>
+	  <entry><key>TY.W</key><value color="#FD6347" name="Typhoon Warning"></value></entry>
+	  <entry><key>UP.A</key><value color="RosyBrown" name="Heavy Freezing Spray Watch"></value></entry>
+	  <entry><key>UP.W</key><value color="#00C0FF" name="Heavy Freezing Spray Warning"></value></entry>
+	  <entry><key>UP.Y</key><value color="#00C0FF" name="Freezing Spray Advisory"></value></entry>
+	  <entry><key>WC.A</key><value color="cadetblue" name="Wind Chill Watch"></value></entry>
+	  <entry><key>WC.W</key><value color="lightsteelblue" name="Wind Chill Warning"></value></entry>
+	  <entry><key>WC.Y</key><value color="paleturquoise" name="Wind Chill Advisory"></value></entry>
+	  <entry><key>WI.Y</key><value color="tan" name="Wind Advisory"></value></entry>
+	  <entry><key>WS.A</key><value color="#4682b4" name="Winter Storm Watch"></value></entry>
+	  <entry><key>WS.W</key><value color="hotpink" name="Winter Storm Warning"></value></entry>
+	  <entry><key>WW.Y</key><value color="#7b68ee" name="Winter Weather Advisory"></value></entry>
+	  <entry><key>ZF.Y</key><value color="teal" name="Freezing Fog Advisory"></value></entry>
+	  <entry><key>ZR.Y</key><value color="orchid" name="Freezing Rain Advisory"></value></entry>
+	</map>
+</phensigColors>

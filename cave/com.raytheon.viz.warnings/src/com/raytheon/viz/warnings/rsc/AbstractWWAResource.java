@@ -20,6 +20,7 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
 import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
+import com.raytheon.uf.common.dataplugin.warning.util.WarningLookups;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
@@ -51,6 +53,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.warnings.ui.DrawingPropertiesDialog;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -91,6 +94,10 @@ import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
  * Oct 16, 2015   4971     bsteffen    Do not reverse order of text.
  * Nov 05, 2015   5070     randerso    Adjust font sizes for dpi scaling
  * Aug 22, 2016   5842     dgilling    Remove dependency on viz.texteditor plugin.
+ * Dec 19, 2018   ----     mjames@ucar Added phensig color table lookup.
+ * Mar 15, 2022			 srcarter@ucar Add support for display settings for outline, fill, text and time displays
+ * Jun 24, 2022			 srcarter@ucar Add 'statement/other' display settings, set enabled for only relevant WWA types
+ * Jun 28, 2022			 srcarter@ucar Display sampling based on new 'sampling' settings
  *
  * </pre>
  *
@@ -131,7 +138,73 @@ public abstract class AbstractWWAResource extends
         protected boolean project = false;
 
     }
-
+    
+    /** Whether to display warning outlines by default */
+    public static final boolean WARN_OUTLINE_DEFAULT = true;
+    /** Whether to display warning fill by default */
+    public static final boolean WARN_FILL_DEFAULT = false;
+    /** Whether to display warning text by default */
+    public static final boolean WARN_TEXT_DEFAULT = true;
+    /** Whether to display warning times by default */
+    public static final boolean WARN_TIME_DEFAULT = true;
+    /** Whether to display watch outlines by default */
+    public static final boolean WATCH_OUTLINE_DEFAULT = false;
+    /** Whether to display watch fill by default */
+    public static final boolean WATCH_FILL_DEFAULT = true;
+    /** Whether to display watch text by default */
+    public static final boolean WATCH_TEXT_DEFAULT = true;
+    /** Whether to display watch time by default */
+    public static final boolean WATCH_TIME_DEFAULT = true;
+    /** Whether to display advisory outlines by default */
+    public static final boolean ADV_OUTLINE_DEFAULT = true;
+    /** Whether to display advisory fill by default */
+    public static final boolean ADV_FILL_DEFAULT = false;
+    /** Whether to display advisory text by default */
+    public static final boolean ADV_TEXT_DEFAULT = true;
+    /** Whether to display advisory time by default */
+    public static final boolean ADV_TIME_DEFAULT = true;
+    /** Whether to display statements/other outlines by default */
+    public static final boolean OTHER_OUTLINE_DEFAULT = true;
+    /** Whether to display statements/other fill by default */
+    public static final boolean OTHER_FILL_DEFAULT = true;
+    /** Whether to display statements/other text by default */
+    public static final boolean OTHER_TEXT_DEFAULT = true;
+    /** Whether to display statements/other time by default */
+    public static final boolean OTHER_TIME_DEFAULT = true;
+    //gui display variables
+    private boolean warnOutline = WARN_OUTLINE_DEFAULT;
+    private boolean warnFill = WARN_FILL_DEFAULT;
+    private boolean warnText = WARN_TEXT_DEFAULT;
+    private boolean warnTime = WARN_TIME_DEFAULT;
+    private boolean warnSample = true;
+    private boolean watchOutline = WATCH_OUTLINE_DEFAULT;
+    private boolean watchFill = WATCH_FILL_DEFAULT;
+    private boolean watchText = WATCH_TEXT_DEFAULT;
+    private boolean watchTime = WATCH_TIME_DEFAULT;
+    private boolean watchSample = true;
+    private boolean advOutline = ADV_OUTLINE_DEFAULT;
+    private boolean advFill = ADV_FILL_DEFAULT;
+    private boolean advText = ADV_TEXT_DEFAULT;
+    private boolean advTime = ADV_TIME_DEFAULT;
+    private boolean advSample = true;
+    private boolean otherOutline = OTHER_OUTLINE_DEFAULT;
+    private boolean otherFill = OTHER_FILL_DEFAULT;
+    private boolean otherText = OTHER_TEXT_DEFAULT;
+    private boolean otherTime = OTHER_TIME_DEFAULT;
+    private boolean otherSample = true;
+    private boolean enableWarnDisplay = false;
+    private boolean enableWatchDisplay = false;
+    private boolean enableAdvisoryDisplay = false;
+    private boolean enableOtherDisplay = false;
+    
+    // The significance values for WWAs
+    private static final String WARN_SIG = "W";
+    private static final String WATCH_SIG = "A";
+    private static final String ADVISORY_SIG = "Y";
+    
+    /** The dialog used to change display properties */
+    private DrawingPropertiesDialog drawingDialog;
+    
     protected static GeometryFactory gf = new GeometryFactory();
 
     protected static PreparedGeometryFactory pgf = new PreparedGeometryFactory();
@@ -227,7 +300,33 @@ public abstract class AbstractWWAResource extends
 
                     WarningEntry entry = entryMap.get(key);
                     AbstractWarningRecord record = entry.record;
-                    if (matchesFrame(entry, time, framePeriod, lastFrame)
+                    String sig = record.getSig();
+                    boolean samplingOn = false;
+                    if(sig !=null){ 
+	                    if(sig.equals(WATCH_SIG)){
+	                    	if(showWatchSampling()){
+		                    	samplingOn = true;
+	                    	}
+	                    }else if(sig.equals(WARN_SIG)){
+	                    	if(showWarnSampling()){
+	                    		samplingOn = true;
+	                    	}
+	                    }else if(sig.equals(ADVISORY_SIG)){
+	                    	if(showAdvisorySampling()){
+	                    		samplingOn = true;
+	                    	}
+	                    }else{
+	                    	if(showOtherSampling()){
+	                    		samplingOn = true;
+	                    	}
+	                    }
+                    }else{
+                    	if(showOtherSampling()){
+                    		samplingOn = true;
+                    	}
+                    }
+                    
+                    if (samplingOn && matchesFrame(entry, time, framePeriod, lastFrame)
                             && record.getGeometry() != null) {
 
                         Geometry recordGeom = record.getGeometry();
@@ -244,6 +343,9 @@ public abstract class AbstractWWAResource extends
                                     }
                                     sb.append(text);
                                 }
+                                sb.append("\n\n");
+                                sb.append(record.getOverviewText());
+                                sb.append(record.getSegText());
                                 return sb.toString();
                             }
                         }
@@ -254,7 +356,7 @@ public abstract class AbstractWWAResource extends
             }
 
         }
-        return "NO DATA";
+        return null;
     }
 
     protected void disposeEntry(final WarningEntry entry) {
@@ -360,33 +462,79 @@ public abstract class AbstractWWAResource extends
             }
             for (WarningEntry entry : candidates.values()) {
                 AbstractWarningRecord record = entry.record;
+                boolean drawShape = true;
+                boolean drawOutline = true;
+                boolean drawText = true;
+                boolean drawTime = true;
+                
+                String sig = record.getSig();
+                boolean sigRecognized = false;
+                if(record != null && record.getSig() != null){
+                	
+                	//warning
+                	if(sig.equalsIgnoreCase(WARN_SIG)){
+                		drawShape = warnFill;
+                		drawOutline = warnOutline;
+                		drawText = warnText;
+                		drawTime = warnTime;
+                		sigRecognized = true;
+                	}
+                	//watch
+                	else if(sig.equalsIgnoreCase(WATCH_SIG)){
+                		drawShape = watchFill;
+                		drawOutline = watchOutline;
+                		drawText = watchText;
+                		drawTime = watchTime;
+                		sigRecognized = true;
+                	}
+                	//advisory
+                	else if(sig.equals(ADVISORY_SIG)){
+                		drawShape = advFill;
+                		drawOutline = advOutline;
+                		drawText = advText;
+                		drawTime = advTime;
+                		sigRecognized = true;
+                	}
+                }
+                
+                if(sig == null || !sigRecognized){
+                	drawShape = otherFill;
+                	drawOutline = otherOutline;
+                	drawText = otherText;
+                	drawTime = otherTime;
+                }
 
                 // check shapes
                 if (entry.project) {
                     initShape(target, entry.record);
                     entry.project = false;
                 }
+                
+                RGB displaycolor = color;
+                if ( ! record.getPil().equals("SPS")) {
+                	displaycolor = RGBColors.getRGBColor(getPhensigColor(record.getPhensig()));
+                }
+                
+                if(entry != null){
+                	//draw shape
+                	if(drawShape && entry.shadedShape != null){
+                		target.drawShadedShape(entry.shadedShape, 1);
+                	}
+                	//draw outline
+                	if(drawOutline && entry.wireframeShape != null){
+                		OutlineCapability oc = getCapability(OutlineCapability.class);
+                		LineStyle lineStyle = oc.getLineStyle();
+                		int outlineWidth = oc.getOutlineWidth();
+                		// Make wire frame outline thicker for EMERGENCY warnings
+                		if (EmergencyType.isEmergency(record.getRawmessage())) {
+                			outlineWidth *= 3;
+                		}
 
-                if (entry != null && entry.wireframeShape != null) {
-                    LineStyle lineStyle = LineStyle.SOLID;
-                    if (record.getProductClass() != null
-                            && record.getProductClass().equals("T")) {
-                        lineStyle = LineStyle.DASHED;
-                    }
-
-                    int outlineWidth = getCapability(OutlineCapability.class)
-                            .getOutlineWidth();
-                    // Make wire frame outline thicker for EMERGENCY warnings
-                    if (EmergencyType.isEmergency(record.getRawmessage())) {
-                        outlineWidth *= 3;
-                    }
-
-                    target.drawWireframeShape(
-                            entry.wireframeShape,
-                            getCapability(ColorableCapability.class).getColor(),
-                            outlineWidth, lineStyle);
-                } else if (entry != null && entry.shadedShape != null) {
-                    target.drawShadedShape(entry.shadedShape, 1);
+                		target.drawWireframeShape(
+                              entry.wireframeShape,
+                              displaycolor,
+                              outlineWidth, lineStyle);
+                	}
                 }
 
                 if (record != null && record.getGeometry() != null) {
@@ -405,7 +553,16 @@ public abstract class AbstractWWAResource extends
 
                     double mapWidth = descriptor.getMapWidth()
                             * paintProps.getZoomLevel() / 1000;
-                    String[] textToPrint = getText(record, mapWidth);
+                    String[] fullText = getText(record, mapWidth);
+                    
+                    String[] textToPrint = {"",""};
+                    if(drawText){
+                    	textToPrint[0] = fullText[0];
+                    }
+                    if(drawTime){
+                    	textToPrint[1] = fullText[1];
+                    }
+
                     if (warningsFont == null) {
                         warningsFont = target.initializeFont(target
                                 .getDefaultFont().getFontName(), 9,
@@ -414,8 +571,7 @@ public abstract class AbstractWWAResource extends
                                 12);
                     }
 
-                    DrawableString params = new DrawableString(textToPrint,
-                            color);
+                    DrawableString params = new DrawableString(textToPrint, displaycolor);
                     params.font = warningsFont;
                     params.setCoordinates(d[0], d[1]);
                     params.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -428,7 +584,7 @@ public abstract class AbstractWWAResource extends
                         // moves over text to add EMER in a different font
                         textToPrint[1] = String.format("%1$-23" + "s",
                                 textToPrint[1]);
-                        params.setText(textToPrint, color);
+                        params.setText(textToPrint, displaycolor);
 
                         DrawableString emergencyString = new DrawableString(
                                 params);
@@ -436,7 +592,7 @@ public abstract class AbstractWWAResource extends
                                 d[1] + (paintProps.getZoomLevel()) * 90);
                         emergencyString.font = emergencyFont;
                         emergencyString.setText(new String[] { "", "",
-                                " " + EmergencyType.EMER, "" }, color);
+                                " " + EmergencyType.EMER, "" }, displaycolor);
                         target.drawStrings(emergencyString);
                     }
 
@@ -539,7 +695,38 @@ public abstract class AbstractWWAResource extends
                 if (!resourceData.getMetadataMap().containsKey("officeid")
                         || resourceData.getMetadataMap().get("officeid")
                                 .getConstraintValue().contains(officeid)) {
-                    this.recordsToLoad.add((AbstractWarningRecord) pdo);
+                	
+                    AbstractWarningRecord rec = (AbstractWarningRecord) pdo;
+                    this.recordsToLoad.add(rec);
+                    
+                    //set the drawing display for the corresponding significance types
+                    // if all settings are on, no need to keep doing it
+                    if(rec !=null && (!enableWatchDisplay || !enableWarnDisplay || !enableAdvisoryDisplay || !enableOtherDisplay)){
+	                    String sig = rec.getSig();
+	                    boolean sigRecognized = false;
+	                    if(sig!=null){
+		                    if(sig.equals(WARN_SIG)){
+		                    	enableWarnDisplay = true;
+		                    	sigRecognized = true;
+		                    }
+		                    else if(sig.equals(WATCH_SIG)){
+		                    	enableWatchDisplay = true;
+		                    	sigRecognized = true;
+		                    }
+		                    else if(sig.equals(ADVISORY_SIG)){
+		                    	enableAdvisoryDisplay = true;
+		                    	sigRecognized = true;
+		                    }
+	                    }
+	                    if(sig == null || !sigRecognized){
+	                    	enableOtherDisplay = true;
+	                    }
+                    }
+                    
+                    //update display if it already exists
+                    if(drawingDialog != null && !drawingDialog.isDisposed()){
+                    	drawingDialog.updateControlsEnabled(enableWatchDisplay, enableWarnDisplay, enableAdvisoryDisplay, enableOtherDisplay);
+                    }
                 }
             }
         }
@@ -591,20 +778,27 @@ public abstract class AbstractWWAResource extends
         addRecord(sort(pdos));
     }
 
+    protected String getPhensigColor(String phensig){
+        WarningLookups lookup = new WarningLookups();
+        System.out.println("Phensig"+ phensig);
+        return lookup.getPhensig(phensig).color;
+    }
+
+    protected String getPhensigName(String phensig){
+        WarningLookups lookup = new WarningLookups();
+        return lookup.getPhensig(phensig).name;
+    }
+
     protected String[] getText(AbstractWarningRecord record, double mapWidth) {
-        String vid = record.getPhensig();
-        String phen = record.getPhen();
-        String[] textToPrint = new String[] { "", "", "", "" };
+    	
+        String[] textToPrint = new String[] { "", "" };
 
-        textToPrint[0] = record.getProductClass();
-        if ((vid != null && phen != null)
-                && (vid.equals("TO.A") || vid.equals("SV.A")
-                        || phen.equals("FL") || phen.equals("FA"))) {
-            textToPrint[0] += "." + vid;
+        if ( ! record.getPil().equals("SPS")) {
+            textToPrint[0] = getPhensigName(record.getPhensig());
+        } else {
+        	textToPrint[0] = "Special Weather Statement";
         }
-        textToPrint[0] += "." + record.getEtn();
-        textToPrint[1] = record.getPil();
-
+        
         String startFormatString = DEFAULT_FORMAT;
         String endFormatString = DEFAULT_FORMAT;
         if (mapWidth == 0) {
@@ -616,14 +810,14 @@ public abstract class AbstractWWAResource extends
         }
 
         DateFormat startFormat = new SimpleDateFormat(startFormatString);
-        startFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
-        textToPrint[2] = "Valid "
-                + startFormat.format(record.getStartTime().getTime());
-
         DateFormat endFormat = new SimpleDateFormat(endFormatString);
+
+        startFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
         endFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
-        textToPrint[3] = "Thru "
-                + endFormat.format(record.getEndTime().getTime());
+        
+        textToPrint[1] = startFormat.format(record.getStartTime().getTime()) 
+                + "-" + endFormat.format(record.getEndTime().getTime());;
+               
 
         return textToPrint;
     }
@@ -724,5 +918,369 @@ public abstract class AbstractWWAResource extends
             // set font to null for recycle safety
             emergencyFont = null;
         }
+        
+        if(drawingDialog != null){
+        	drawingDialog.hide();
+        	drawingDialog = null;
+        }
     }
+
+	/**
+	 * Set whether or not to display the outline for warnings
+	 * @param warnOutline If true, will draw warning outlines
+	 */
+	public void setWarnOutlineDisplay(boolean warnOutline) {
+		this.warnOutline = warnOutline;
+	}
+
+	/**
+	 * Set whether or not to display the fill (shaded shape)
+	 * for warnings
+	 * @param warnFill  If true, will draw the warning fill
+	 */
+	public void setWarnFillDisplay(boolean warnFill) {
+		this.warnFill = warnFill;
+	}
+
+	/**
+	 * Set whether or not to display the text for warnings
+	 * @param warnText  If true, will draw the warning title
+	 */
+	public void setWarnTextDisplay(boolean warnText) {
+		this.warnText = warnText;
+	}
+
+	/**
+	 * Set whether or not to display the time for warnings
+	 * @param warnTime  If true, will draw the warning time
+	 */
+	public void setWarnTimeDisplay(boolean warnTime) {
+		this.warnTime = warnTime;
+	}
+	
+	/**
+	 * Set whether or not to display the sampling for warnings
+	 * @param warnSample  If true, will show the sampling output
+	 * for warnings, when sampling is enabled
+	 */
+	public void setWarnSampleDisplay(boolean warnSample) {
+		this.warnSample = warnSample;
+	}
+
+	/**
+	 * Set whether or not to display the outline for watches
+	 * @param watchOutline  If true, will draw the watch outline
+	 */
+	public void setWatchOutlineDisplay(boolean watchOutline) {
+		this.watchOutline = watchOutline;
+	}
+
+	/**
+	 * Set whether or not to display the fill (shaded shape) for watches
+	 * @param watchFill  If true, will draw the watch fill
+	 */
+	public void setWatchFillDisplay(boolean watchFill) {
+		this.watchFill = watchFill;
+	}
+
+	/**
+	 * Set whether or not to display the text for watches
+	 * @param watchText  If true, will draw the watch title
+	 */
+	public void setWatchTextDisplay(boolean watchText) {
+		this.watchText = watchText;
+	}
+
+	/**
+	 * Set whether or not to display the time for watches
+	 * @param watchTime  If true, will draw the watch time
+	 */
+	public void setWatchTimeDisplay(boolean watchTime) {
+		this.watchTime = watchTime;
+	}
+	
+	/**
+	 * Set whether or not to display the sampling for watches
+	 * @param watchSample  If true, will show the sampling output
+	 * for watches, when sampling is enabled
+	 */
+	public void setWatchSampleDisplay(boolean watchSample) {
+		this.watchSample = watchSample;
+	}
+
+	/**
+	 * Set whether or not to display the outline for advisories
+	 * @param advOutline  If true, will draw the advisory outline
+	 */
+	public void setAdvisoryOutlineDisplay(boolean advOutline) {
+		this.advOutline = advOutline;
+	}
+
+	/**
+	 * Set whether or not to display the fill (shaded shape) for
+	 * advisories
+	 * @param advFill  If true, will draw the advisory fill
+	 */
+	public void setAdvisoryFillDisplay(boolean advFill) {
+		this.advFill = advFill;
+	}
+
+	/**
+	 * Set whether or not to display the text for advisories
+	 * @param advText  If true, will draw the advisory title
+	 */
+	public void setAdvisoryTextDisplay(boolean advText) {
+		this.advText = advText;
+	}
+
+	/**
+	 * Set whether or not to display the time for advisories
+	 * @param advTime  If true, will draw the advisory time
+	 */
+	public void setAdvisoryTimeDisplay(boolean advTime) {
+		this.advTime = advTime;
+	}
+	
+	/**
+	 * Set whether or not to display the sampling for advisories
+	 * @param advSample  If true, will show the sampling output
+	 * for advisories, when sampling is enabled
+	 */
+	public void setAdvisorySampleDisplay(boolean advSample) {
+		this.advSample = advSample;
+	}
+	
+	/**
+	 * Set whether or not to display the outline for statements
+	 * and other records
+	 * @param advOutline  If true, will draw the outline
+	 */
+	public void setOtherOutlineDisplay(boolean otherOutline) {
+		this.otherOutline = otherOutline;
+	}
+
+	/**
+	 * Set whether or not to display the fill (shaded shape) for
+	 * statements and other records
+	 * @param otherFill  If true, will draw the fill
+	 */
+	public void setOtherFillDisplay(boolean otherFill) {
+		this.otherFill = otherFill;
+	}
+
+	/**
+	 * Set whether or not to display the text for statements
+	 * and other records
+	 * @param otherText  If true, will draw the title
+	 */
+	public void setOtherTextDisplay(boolean otherText) {
+		this.otherText = otherText;
+	}
+
+	/**
+	 * Set whether or not to display the time for statements 
+	 * and other records
+	 * @param otherTime  If true, will draw the time
+	 */
+	public void setOtherTimeDisplay(boolean otherTime) {
+		this.otherTime = otherTime;
+	}
+	
+	/**
+	 * Set whether or not to display the sampling for statements/
+	 * other records
+	 * @param otherSample  If true, will show the sampling output
+	 * for statements/other records, when sampling is enabled
+	 */
+	public void setOtherSampleDisplay(boolean otherSample) {
+		this.otherSample = otherSample;
+	}
+	
+	/**
+	 * @return  True if the warning outline is displayed
+	 */
+	public boolean showWarnOutline(){
+		return warnOutline;
+	}
+	
+	/**
+	 * @return  True if the warning fill is displayed
+	 */
+	public boolean showWarnFill(){
+		return warnFill;
+	}
+	
+	/**
+	 * @return  True if the warning text is displayed
+	 */
+	public boolean showWarnText(){
+		return warnText;
+	}
+	
+	/**
+	 * @return  True if the warning time is displayed
+	 */
+	public boolean showWarnTime(){
+		return warnTime;
+	}
+	
+	/**
+	 * @return  True if the warning sampling is to be displayed
+	 */
+	public boolean showWarnSampling(){
+		return warnSample;
+	}
+	
+	/**
+	 * @return  True if the watch outline is displayed
+	 */
+	public boolean showWatchOutline(){
+		return watchOutline;
+	}
+	
+	/**
+	 * @return  True if the watch fill is displayed
+	 */
+	public boolean showWatchFill(){
+		return watchFill;
+	}
+	
+	/**
+	 * @return  True if the watch text is displayed
+	 */
+	public boolean showWatchText(){
+		return watchText;
+	}
+	
+	/**
+	 * @return  True if the watch time is displayed
+	 */
+	public boolean showWatchTime(){
+		return watchTime;
+	}
+	
+	/**
+	 * @return  True if the watch sampling is to be displayed
+	 */
+	public boolean showWatchSampling(){
+		return watchSample;
+	}
+	
+	/**
+	 * @return  True if the advisory outline is displayed
+	 */
+	public boolean showAdvisoryOutline(){
+		return advOutline;
+	}
+	
+	/**
+	 * @return  True if the advisory fill is displayed
+	 */
+	public boolean showAdvisoryFill(){
+		return advFill;
+	}
+	
+	/**
+	 * @return True if the advisory text is displayed
+	 */
+	public boolean showAdvisoryText(){
+		return advText;
+	}
+	
+	/**
+	 * @return True if the advisory time is displayed
+	 */
+	public boolean showAdvisoryTime(){
+		return advTime;
+	}
+	
+	/**
+	 * @return  True if the advisory sampling is to be displayed
+	 */
+	public boolean showAdvisorySampling(){
+		return advSample;
+	}
+	
+	/**
+	 * @return  True if the statement/other outline is displayed
+	 */
+	public boolean showOtherOutline(){
+		return otherOutline;
+	}
+	
+	/**
+	 * @return  True if the statement/other fill is displayed
+	 */
+	public boolean showOtherFill(){
+		return otherFill;
+	}
+	
+	/**
+	 * @return True if the statement/other text is displayed
+	 */
+	public boolean showOtherText(){
+		return otherText;
+	}
+	
+	/**
+	 * @return True if the statement/other time is displayed
+	 */
+	public boolean showOtherTime(){
+		return otherTime;
+	}
+	
+	/**
+	 * @return  True if the other/statement sampling is to be displayed
+	 */
+	public boolean showOtherSampling(){
+		return otherSample;
+	}
+	
+	/**
+	 * @return True if the warning display settings are to 
+	 * be enabled
+	 */
+    public boolean enableWarnDisplay() {
+		return enableWarnDisplay;
+	}
+
+    /**
+	 * @return True if the watch display settings are to 
+	 * be enabled
+	 */
+	public boolean enableWatchDisplay() {
+		return enableWatchDisplay;
+	}
+
+	/**
+	 * @return True if the advisory display settings are
+	 * to be enabled
+	 */
+	public boolean enableAdvisoryDisplay() {
+		return enableAdvisoryDisplay;
+	}
+	
+	/**
+	 * @return True if the warning statement/other settings
+	 * are to be enabled
+	 */
+	public boolean enableOtherDisplay(){
+		return enableOtherDisplay;
+	}
+	
+	/**
+	 * Set the associated DrawingPropertiesDialog
+	 * @param dialog
+	 */
+	public void setDrawingDialog(DrawingPropertiesDialog dialog){
+		drawingDialog = dialog;
+	}
+	
+	/**
+	 * @return The dialog used to set the display (drawing) properties
+	 */
+	public DrawingPropertiesDialog getDrawingDialog(){
+		return drawingDialog;
+	}
+	
 }
