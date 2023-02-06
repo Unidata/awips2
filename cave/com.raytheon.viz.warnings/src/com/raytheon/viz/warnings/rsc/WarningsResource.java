@@ -37,6 +37,9 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
+import com.raytheon.uf.viz.core.drawables.FillPatterns;
+import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -70,6 +73,9 @@ import org.locationtech.jts.geom.Geometry;
  * Apr 14, 2014 DR 17257  D. Friedman  Redo time matching on per-minute refresh.
  * Apr 28, 2015 ASM #15008 D. Friedman Create polygon for EXTs even if original product is not found.
  * Aug 22, 2016 #5842      dgilling    Remove dependency on viz.texteditor plugin.
+ * Oct 21, 2021              srcarter    modified initShape to set the shape on watches, and wireframe on warnings and advisories
+ * Mar 15, 2022			srcarter@ucar  Change initshape() to add a shadedshape and wireframeshape to every entry
+ * 
  *
  * </pre>
  *
@@ -179,26 +185,38 @@ public class WarningsResource extends AbstractWWAResource {
                     entry.record = record;
                     entryMap.put(record.getDataURI(), entry);
                 }
+                
+                WarningAction act = WarningAction.valueOf(record.getAct());
+               
+                //give every entry a fill and outline
+                //add fill (shadedshape)
+            	IShadedShape ss = target.createShadedShape(false, descriptor.getGridGeometry());
+                geo = record.getGeometry();
+                JTSCompiler jtsCompiler = new JTSCompiler(ss, null, this.descriptor);
+                JTSGeometryData geoData = jtsCompiler.createGeometryData();
+                geoData.setGeometryColor(color);
+                jtsCompiler.handle(geo, geoData);
+                ss.setFillPattern(FillPatterns.getGLPattern(record.getPhen()
+                        .equals("TO") ? "VERTICAL" : "HORIZONTAL"));
+                ss.compile();
+
+                entry.shadedShape = ss;
+
+                //add outline (wireshape)
                 IWireframeShape wfs = entry.wireframeShape;
 
                 if (wfs != null) {
                     wfs.dispose();
                 }
-                WarningAction act = WarningAction.valueOf(record.getAct());
-                // Do not paint a wire frame shape for a CAN
-                if (act != WarningAction.CAN) {
-                    wfs = target.createWireframeShape(false, descriptor);
-                    geo = record.getGeometry();
 
-                    JTSCompiler jtsCompiler = new JTSCompiler(null, wfs,
-                            descriptor);
-                    jtsCompiler.handle(geo);
-                    wfs.compile();
-                    entry.wireframeShape = wfs;
-                } else {
-                    // Prevents sampling and a label to be painted
-                    entry.record.setGeometry(null);
-                }
+                wfs = target.createWireframeShape(false, descriptor);
+                geo = record.getGeometry();
+
+                jtsCompiler = new JTSCompiler(null, wfs, descriptor);
+                jtsCompiler.handle(geo);
+                wfs.compile();
+                entry.wireframeShape = wfs;
+                
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
                         "Error creating wireframe", e);

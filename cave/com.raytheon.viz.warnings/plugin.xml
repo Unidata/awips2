@@ -37,4 +37,12 @@
             name="Warnings">
       </command>
    </extension>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+          <contextualMenu
+            actionClass="com.raytheon.viz.warnings.ui.WWADrawingPropertiesAction"
+            name="Drawing Properties"
+            sortID="1">
+          </contextualMenu>
+   </extension>
 </plugin>

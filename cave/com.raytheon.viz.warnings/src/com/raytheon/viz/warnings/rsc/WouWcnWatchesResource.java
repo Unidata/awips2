@@ -20,6 +20,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler.PointStyle;
@@ -38,6 +39,7 @@ import org.locationtech.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * 2014-08-28   ASM #15682 D. Friemdan Initial creation
  * 2016-09-14   3241       bsteffen    Update deprecated JTSCompiler method calls
+ * 2022-03-15           srcarter@ucar  Changed initshape() to draw a shadedshape and wireframeshape for every entry
  * </pre>
  * 
  */
@@ -242,11 +244,10 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
         }
         AbstractWarningRecord record = entry.record;
         if (record.getGeometry() != null) {
-            IShadedShape ss = target.createShadedShape(false,
-                    descriptor.getGridGeometry());
+            //added fill (shadedshape)
+            IShadedShape ss = target.createShadedShape(false, descriptor.getGridGeometry());
             Geometry geo = (Geometry) record.getGeometry().clone();
-            JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
-                    this.descriptor);
+            JTSCompiler jtsCompiler = new JTSCompiler(ss, null, this.descriptor);
             JTSGeometryData jtsData = jtsCompiler.createGeometryData();
             jtsData.setPointStyle(PointStyle.CROSS);
             jtsData.setGeometryColor(color);
@@ -255,6 +256,21 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
                     .equals("TO") ? "VERTICAL" : "HORIZONTAL"));
             ss.compile();
             entry.shadedShape = ss;
+            
+            //added outline (wireshape)
+            IWireframeShape wfs = entry.wireframeShape;
+
+            if (wfs != null) {
+                wfs.dispose();
+            }
+
+            wfs = target.createWireframeShape(false, descriptor);
+            geo = record.getGeometry();
+
+            jtsCompiler = new JTSCompiler(null, wfs, descriptor);
+            jtsCompiler.handle(geo);
+            wfs.compile();
+            entry.wireframeShape = wfs;
         }
     }
 
