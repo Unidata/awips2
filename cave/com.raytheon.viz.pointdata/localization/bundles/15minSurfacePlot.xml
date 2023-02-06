@@ -44,6 +44,10 @@
                         <binOffset posOffset="450" negOffset="450"
                             virtualOffset="0" />
                         <metadataMap>
+                            <mapping key="reportType">
+                                <constraint constraintValue="METAR"
+                                    constraintType="EQUALS" />
+                            </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="obs"
                                     constraintType="EQUALS" />

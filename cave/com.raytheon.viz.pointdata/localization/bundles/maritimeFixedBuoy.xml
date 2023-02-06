@@ -80,6 +80,52 @@
                         <mapName>Fixed Buoy Locations</mapName>
                     </resourceData>
                 </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true" />
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="Moving Maritime Plot" plotModelFile="maritimeDesign.svg"
+                        isUpdatingOnMetadataOnly="true" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="1800" negOffset="1800"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="reportType">
+                                <constraint constraintValue="1006, 1003"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="sfcobs"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true" />
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="Moving MAROB Plot" plotModelFile="maritimeDesign.svg"
+                        isUpdatingOnMetadataOnly="true" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="1800" negOffset="1800"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="reportType">
+                                <constraint constraintValue="1007"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="sfcobs"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
             </descriptor>
         </displays>
     </displayList>
