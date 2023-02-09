@@ -36,8 +36,7 @@
                         isBlinking="false" isMapLayer="false" isHoverOn="false"
                         isVisible="true" />
                     <resourceData xsi:type="metarPrecipResourceData"
-                        duration="${duration}" ptype="${ptype}" 
-                        plotSource="${legend}" retrieveData="false"
+                        duration="${duration}" retrieveData="false"
                         isUpdatingOnMetadataOnly="false"
                         isRequeryNecessaryOnTimeMatch="true">
                         <binOffset posOffset="${posOffset}"
