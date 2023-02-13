@@ -59,6 +59,8 @@
                 <exclude>event-datadelivery-common.xml</exclude>
                 <exclude>.*ogc.*</exclude>
                 <exclude>.*dpa.*</exclude>
+                <exclude>ohd-common-database.xml</exclude>
+                <exclude>satpre-spring.xml</exclude>
         </mode>
 
         <mode name="ingestRadar">
