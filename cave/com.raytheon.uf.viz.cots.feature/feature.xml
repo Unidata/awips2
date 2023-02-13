@@ -37,7 +37,7 @@
          id="com.sun.jna"
          download-size="0"
          install-size="0"
-         version="4.5.1"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.dom4j"
@@ -136,7 +136,7 @@
          id="com.sun.jna.platform"
          download-size="0"
          install-size="0"
-         version="4.5.1"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
