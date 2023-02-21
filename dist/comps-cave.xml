@@ -1,0 +1,62 @@
+<comps>
+   <!-- <meta> -->
+   <!-- Meta Information Will Go Here Eventually -->
+   <!-- </meta> -->
+   <group>
+      <id>awips2-cave</id>
+      <name>AWIPS CAVE</name>
+      <default>true</default>
+      <description>This Will Install The AWIPS Visualization Environment Including: CAVE, AlertViz, ...</description>
+      <uservisible>true</uservisible>
+      <packagelist>
+         <packagereq type="mandatory">awips2</packagereq>
+         <packagereq type="mandatory">awips2-version</packagereq>
+         <packagereq type="mandatory">awips2-java</packagereq>
+         <packagereq type="mandatory">awips2-python</packagereq>
+         <packagereq type="mandatory">awips2-python-jep</packagereq>
+         <packagereq type="mandatory">awips2-psql</packagereq>
+         <packagereq type="mandatory">pgadmin4</packagereq>
+         <packagereq type="mandatory">awips2-bmh-shure</packagereq>
+         <packagereq type="mandatory">awips2-cave</packagereq>
+         <packagereq type="mandatory">awips2-cave-wrapper</packagereq>
+         <packagereq type="mandatory">awips2-gfesuite</packagereq>
+
+         <packagereq type="mandatory">awips2-cli</packagereq>
+         <packagereq type="mandatory">awips2-notification</packagereq>
+         <packagereq type="mandatory">awips2-qpid-proton</packagereq>
+
+         <packagereq type="mandatory">awips2-python-dynamicserialize</packagereq>
+         <packagereq type="mandatory">awips2-python-h5py</packagereq>
+         <packagereq type="mandatory">awips2-python-cycler</packagereq>
+         <packagereq type="mandatory">awips2-python-kiwisolver</packagereq>
+         <packagereq type="mandatory">awips2-python-backports-lru_cache</packagereq>
+         <packagereq type="mandatory">awips2-python-matplotlib</packagereq>
+         <packagereq type="mandatory">awips2-python-setuptools</packagereq>
+         <packagereq type="mandatory">awips2-python-numpy</packagereq>
+         <packagereq type="mandatory">awips2-qpid-proton-python</packagereq>
+         <packagereq type="mandatory">awips2-python-scipy</packagereq>
+         <packagereq type="mandatory">awips2-python-tables</packagereq>
+         <packagereq type="mandatory">awips2-python-thrift</packagereq>
+         <packagereq type="mandatory">awips2-python-tpg</packagereq>
+         <packagereq type="mandatory">awips2-python-ufpy</packagereq>
+         <packagereq type="mandatory">awips2-python-werkzeug</packagereq>
+         <packagereq type="mandatory">awips2-python-shapely</packagereq>
+         <packagereq type="mandatory">awips2-python-dateutil</packagereq>
+         <packagereq type="mandatory">awips2-python-pyparsing</packagereq>
+         <packagereq type="mandatory">awips2-python-pytz</packagereq>
+         <packagereq type="mandatory">awips2-python-six</packagereq>
+         <packagereq type="mandatory">awips2-python-stomp.py</packagereq>
+         <packagereq type="mandatory">awips2-python-cftime</packagereq>
+         <packagereq type="mandatory">awips2-python-numexpr</packagereq>
+         <packagereq type="mandatory">awips2-python-mock</packagereq>
+         <packagereq type="mandatory">awips2-python-pbr</packagereq>
+         <packagereq type="mandatory">awips2-python-funcsigs</packagereq>
+         <packagereq type="mandatory">awips2-python-netcdf4</packagereq>
+         <packagereq type="mandatory">awips2-hdf5</packagereq>
+         <packagereq type="mandatory">awips2-netcdf</packagereq>
+         <packagereq type="mandatory">awips2-netcdf-devel</packagereq>
+         <packagereq type="mandatory">awips2-localapps-environment</packagereq>
+         <packagereq type="mandatory">awips2-watchdog</packagereq>
+      </packagelist>
+   </group>
+</comps>
