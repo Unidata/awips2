@@ -9,6 +9,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 - [**Linux: 18.2.1-6**](#linux)
 - [**Windows: 18.2.1-6**](#windows)
 - [**Mac: 18.2.1-6**](#macos)
+- [**BETA Version**](install-cave-beta.md)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -58,6 +59,8 @@ To run CAVE either:
 
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
+
+Additionally users can choose to run a [virtual machine (VM)](#method-1-linux-virtual-machine) on linux.
 
 ---
 
@@ -252,6 +255,8 @@ You can reset CAVE by removing the **caveData** directory and reconnecting to an
 These are instructions to manually uninstall CAVE. However, the [`awips_install.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
 
 **1. Make sure you have exited out of any CAVE sessions**
+
+!!! note "Check to make sure your `/etc/yum.repos/awips2.repo` file has `enabled=1`."
 
 **2. Remove currently installed CAVE**
 ```
