@@ -202,4 +202,4 @@ To solve this issue, mark the group you want to remove and then try removing it 
 yum groups mark remove "AWIPS EDEX Server"
 yum groupremove "AWIPS EDEX Server"
 ```
-!!! note "Check to make sure your `/etc/yum.repos/awips2.repo` file has `enabled=1`."
+!!! note "Check to make sure your `/etc/yum.repos.d/awips2.repo` file has `enabled=1`."

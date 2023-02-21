@@ -133,11 +133,11 @@ The radar menu has not been updated yet to reflect what is in version 18.*. To r
 ---
 
 ## Uninstalling CAVE (Linux)
-These are instructions to manually uninstall CAVE. However, the [`awips_install.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
+These are instructions to manually uninstall CAVE. However, the [`awips_install-v20.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
 
 **1. Make sure you have exited out of any CAVE sessions**
 
-!!! note "Check to make sure your `/etc/yum.repos/awips2.repo` file has `enabled=1`."
+!!! note "Check to make sure your `/etc/yum.repos.d/awips2.repo` file has `enabled=1`."
 
 **2. Remove currently installed CAVE**
 ```

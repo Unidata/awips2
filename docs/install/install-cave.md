@@ -9,7 +9,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 - [**Linux: 18.2.1-6**](#linux)
 - [**Windows: 18.2.1-6**](#windows)
 - [**Mac: 18.2.1-6**](#macos)
-- [**BETA Version**](install-cave-beta.md)
+- [**BETA Version: 20.3.2-0.1**](install-cave-beta.md)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -256,7 +256,7 @@ These are instructions to manually uninstall CAVE. However, the [`awips_install.
 
 **1. Make sure you have exited out of any CAVE sessions**
 
-!!! note "Check to make sure your `/etc/yum.repos/awips2.repo` file has `enabled=1`."
+!!! note "Check to make sure your `/etc/yum.repos.d/awips2.repo` file has `enabled=1`."
 
 **2. Remove currently installed CAVE**
 ```
