@@ -172,7 +172,8 @@ A full list of all released blogs can be found below:
 - [Unidata AWIPS Summer Internship 2022: Rhoen Fiutak](https://www.unidata.ucar.edu/blogs/news/entry/unidata-awips-summer-internship-2022)
 - [Announcing a New eLearning Course: Learn Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course1)
 - [Use Case Example: Texas A&M CAVE in the Classroom](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-use-case-example)
-
+- [AWIPS 20.3.2-0.1 Beta CAVE Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-20)
+  
 #### CAVE
 
 - [Visualizing Data in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-visualizing-data-in)
