@@ -16,6 +16,13 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ---
 
+## Functionality/Reporting
+This is a beta release, so we are aware that not all functionality is working as expected. We ask you to please be aware of this and have similar expectations.
+One noteworthy deficiency we are aware of is the radar menu has not been updated yet to reflect what is in version 18.
+If you come across issues/bugs/missing functionality, we also encourage you to <a href=https://forms.gle/aYUZSi78KU3ZYJ3q7>report it using this short form</a>.
+
+---
+
 ## General Requirements
 
 Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:
@@ -24,7 +31,6 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
     !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](../appendix/common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
   
-- Java 11
 - OpenGL 2.0 Compatible Devices
 - At least 4GB RAM
 - At least 2GB Disk Space for Caching
@@ -61,7 +67,7 @@ To run CAVE either:
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
 
-Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-machine) on linux.
+Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-machine) on Linux.
 
 ---
 
@@ -73,7 +79,7 @@ Currently the only installation available for Windows, is the [**Linux Virtual M
 
 ### Linux Virtual Machine
 
-Some CAVE functionality may be missing (ex: rendering RGB satellite images).
+Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).
 
 #### System Requirements
 
@@ -124,11 +130,6 @@ You can reset CAVE by removing the **caveData** directory and reconnecting to an
 - Linux: `/home/<user>/caveData/`
 - macOS: `/Users/<user>/Library/caveData/`
 - Windows: `C:\Users\<user>\caveData\`
-
----
-
-## Functionality/Reporting
-The radar menu has not been updated yet to reflect what is in version 18.*. To report any other bugs/issues/broken functionality, please fill out <a href=https://forms.gle/aYUZSi78KU3ZYJ3q7>this short form</a>. 
 
 ---
 
