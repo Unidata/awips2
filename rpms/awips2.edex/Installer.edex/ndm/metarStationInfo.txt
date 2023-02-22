@@ -3858,7 +3858,7 @@
 0000070204|PAGM | 63.77 |-171.74 |    8|GAMBELL, AK                         |US|MTR
 0000070383|PAGN | 57.504|-134.585|    0|Angoon Seaplane Base, Angoon, AK    |US|MTR
 0000070367|PAGS | 58.42 |-135.73 |    9|GUSTAVUS, AK                        |US|MTR
-0000070362|PAGY | 59.48 |-135.32 |    5|SKAGWAY, AK                         |US|MTR
+0000070362|PAGY | 59.4602|-135.31686| 13|SKAGWAY, AK                        |US|MTR
 0000000000|PAHC | 62.19 |-159.78 |   21|Holy Cross AP, Holy Cross, AK       |US|MTR
 0000000000|PAHL | 65.698|-156.351|   65|HUSLIA, AK                          |US|MTR
 0000000000|PAHN | 59.25 |-135.52 |    5|Haines, AK                          |US|MTR
