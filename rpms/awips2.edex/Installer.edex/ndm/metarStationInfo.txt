@@ -3265,6 +3265,7 @@
 0000000000|KSBO | 32.6091| -82.3699| 100|Emanuel Cnty AP, Swainsboro, GA    |US|MTR
 0000000000|KSBP | 35.24 |-120.64 |   64|San Luis Obispo/McChesney Field, CA |US|MTR
 0000000000|KSBS | 40.48 |-106.82 | 2097|STEAMBOAT SPRNGS, CO                |US|MTR
+0000000000|KSBX | 48.54069|-111.87125|1049|Shelby Airport, Shelby, MT       |US|MTR
 0000000000|KSBY | 38.34 | -75.50 |   16|SALISBURY, MD                       |US|MTR
 0000000000|KSCD | 33.1718| -86.3055| 173|Merkel Sylacauga AP, Sylacauga, AL |US|MTR
 0000000000|KSCF | 29.116| -91.871|   -0|GOMEX South Marsh 268, LA AWOS-3    |US|MTR
@@ -3615,7 +3616,7 @@
 0000000000|KW22 | 39.00 | -80.274|  498|Upshur Cnty AP, Buckhannon, WV      |US|MTR
 0000000000|KW29 | 38.976| -76.33 |    5|Bay Brdg AP, Stevensville, MD       |US|MTR
 0000000000|KW31 | 36.9604| -78.1851| 160|Lunenburg Cnty AP, Kenbridge, VA   |US|MTR
-0000000000|KW40 | 35.22083|-78.03768| 51|Mt Olive Muni AP, Mount Olive, NC  |US|MTR
+0000000000|KW40 | 35.22145|-78.03862| 51|Mt Olive Muni AP, Mount Olive, NC  |US|MTR
 0000000000|KW43 | 44.663|-104.568| 1300|Hulett Muni, Hulett, WY             |US|MTR
 0000000000|KW63 | 36.5958| -78.5601| 128|Lake Country Rg AP, Clarksville, VA|US|MTR
 0000000000|KW75 | 37.6024| -76.4467|   9|Hummel Fld AP, Saluda, VA          |US|MTR

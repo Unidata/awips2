@@ -3722,6 +3722,7 @@ SBN South Bend, IN
 SBO Emanuel Cnty AP, Swainsboro, GA
 SBP San Luis Obispo, CA
 SBS Steamboat Springs, CO
+SBX Shelby Airport, Shelby, MT
 SBY Salisbury, MD
 SC1 South Central US; South Carolina Rivers
 SCC Storm Summary
