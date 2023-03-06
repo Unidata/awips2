@@ -6,6 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.comm
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.raytheon.uf.common.alertviz
 Import-Package: com.raytheon.uf.common.message

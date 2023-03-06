@@ -4,7 +4,7 @@ Bundle-Name: Binlightning Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.binlightning
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.common.dataplugin.binlightning.dataaccess,
  com.raytheon.uf.common.dataplugin.binlightning.impl
