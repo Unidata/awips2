@@ -4,7 +4,7 @@ Bundle-Name: Grid Derived Parameters
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.grid.derivparam
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.derivparam,
  com.raytheon.uf.common.inventory,
