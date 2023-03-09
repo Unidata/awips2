@@ -78,6 +78,8 @@ import com.raytheon.viz.ui.widgets.TimeRangeEntry;
  * ------------ ---------- ----------- --------------------------
  * Dec  5, 2012            randerso    Initial creation
  * Feb 15, 2013     #1629  randerso    Fix saving of default plugin to prefs
+ * Nov  1, 2021        srcarter@ucar   Made the dialog shorter to show on smaller screens
+ * Mar  7, 2023        srcarter@ucar   Allow dialog to be resized
  * 
  * </pre>
  * 
@@ -258,14 +260,12 @@ public class GisDataStoreParametersDialog extends CaveJFACEDialog {
         tableGroup.setLayoutData(layoutData);
         layout = new GridLayout(1, false);
         tableGroup.setLayout(layout);
-        layout.marginWidth = 0;
-        layout.marginHeight = 0;
         tableGroup.setText("Table:");
 
         tablesList = new List(tableGroup, SWT.SINGLE | SWT.BORDER
                 | SWT.V_SCROLL | SWT.H_SCROLL);
         layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
-        layoutData.heightHint = tablesList.getItemHeight() * 12;
+        layoutData.heightHint = tablesList.getItemHeight() * 4;
         tablesList.setLayoutData(layoutData);
         tablesList.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -306,6 +306,8 @@ public class GisDataStoreParametersDialog extends CaveJFACEDialog {
         typeCombo.setText(pluginName);
         selectedPlugin = null;
         selectPlugin(pluginName);
+        
+        ((GridLayout)mainComp.getLayout()).marginHeight=2;
         return mainComp;
     }
 
@@ -451,6 +453,14 @@ public class GisDataStoreParametersDialog extends CaveJFACEDialog {
             Arrays.sort(pluginNames);
         }
         return pluginNames;
+    }
+    
+    /**
+     *  Override isResizable from Dialog, to allow the GIS Import
+     *  window to be resizable.
+     */
+    protected boolean isResizable() {
+        return true;
     }
 
 }

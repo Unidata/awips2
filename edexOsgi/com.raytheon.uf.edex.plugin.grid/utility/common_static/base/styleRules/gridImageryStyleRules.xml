@@ -5429,7 +5429,7 @@
                 <minValue>-100</minValue>
                 <maxValue>115</maxValue>
             </range>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
+            <defaultColormap>Grid/gridded data</defaultColormap>
             <colorbarLabeling>
                 <increment>20</increment>
             </colorbarLabeling>
@@ -5710,7 +5710,7 @@
                 <minValue>-4</minValue>
                 <maxValue>8</maxValue>
             </range>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
+            <defaultColormap>Grid/gridded data</defaultColormap>
             <colorbarLabeling>
                 <increment>1</increment>
             </colorbarLabeling>
@@ -5727,7 +5727,7 @@
                 <minValue>0</minValue>
                 <maxValue>1.05</maxValue>
             </range>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
+            <defaultColormap>Grid/gridded data</defaultColormap>
             <colorbarLabeling>
                 <increment>0.1</increment>
             </colorbarLabeling>

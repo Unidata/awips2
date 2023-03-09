@@ -21,7 +21,7 @@ cat > /tmp/temp.grib2.$$
 #
 # Here's the wgrib2 command to change the process-id (from 83) to 254
 #
-/awips2/tools/bin/wgrib2 -match "^[0-9]*(:|\.1)"  /tmp/temp.grib2.$$ -set background_process_id 0 -set analysis_or_forecast_process_id 254 -GRIB /tmp/out.grib2.$$
+wgrib2 -match "^[0-9]*(:|\.1)"  /tmp/temp.grib2.$$ -set background_process_id 0 -set analysis_or_forecast_process_id 254 -GRIB /tmp/out.grib2.$$
 
 #
 # Insert the patched grib file back into the LDM queue.
