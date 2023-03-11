@@ -302,6 +302,7 @@
 1CM Stanford, MT
 1CN Ruso, ND
 1CW Gering, NE
+1D1 Milbank Muni Airport, Milbank, SD
 1DM Denton, MT
 1DN Max, ND
 1DW 11.5m NW Kimball, NE
@@ -715,6 +716,7 @@ ADM K-Ardmore Municipal, OK; P-Marshall D Hunter AP, Marshall, AK
 ADN Additional Details to Natl Wx Summary; C-Doaktown Auto RCS, NB
 ADQ Kodiak, AK
 ADS Addison Airport, Dallas, TX
+ADT Atwood-Rawlins Cnty Airport, Atwood, KS
 ADT Slana Arpt, AK
 ADU K-Auduborn, IA; P-Dutch Harbor, AK
 ADW Andrews AFB, Camp Springs, MD
@@ -2157,7 +2159,6 @@ I19 Greene Co-Lewis Jackson AP, Dayton, OH
 I18 New Castle, IN
 I23 Fayette County Airport, OH
 I35 Tucker-Guthrie Mem AP, Harlan, KY
-I39 Madison AP, Richmond, KY
 I43 James A Rhodes Airport, Jackson, OH
 I63 Mt. Sterling Muni, IL
 I67 Cincinnati W AP, Harrison, OH
@@ -3248,6 +3249,7 @@ OHP Ohio to Parkersberg
 OHS Ohio to Shawneetown
 OHX WFO Nashville, TN WSR-88D
 OIC LT Warren Eaton Airport, Norwich, NY
+OIN Oberlin Muni Airport, Oberlin, KS
 OJA Stafford AP, Weatherford, OK
 OJC Olathe, KS
 OJI Ojibway, MI
@@ -3592,6 +3594,7 @@ REV WFO Reno, NV
 REX Radar Map of Extrapolated Echo Patterns
 RFD Rockford, IL
 RFI Rusk Cnty AP, Henderson, TX
+RGA Central Kentucky Regional Airport, Richmond, KY
 RGK Red Wing, MN
 RGX Reno, NV WSR-88D
 RHA Middle Atlantic RFC, State College, PA
