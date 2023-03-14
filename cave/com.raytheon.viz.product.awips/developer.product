@@ -78,4 +78,11 @@
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
    </configurations>
 
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
 </product>
