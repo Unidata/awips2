@@ -208,6 +208,7 @@ A full list of all released blogs can be found below:
 - [Creating METAR Station Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-metar-station)
 - [Create Sounding Plots with Model Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-sounding-plots)
 - [Plotting Multiple Datasets from EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plotting-multiple-datasets)
+- [Open Jupyter Notebooks with our Virtual Machine](https://www.unidata.ucar.edu/blogs/news/entry/open-jupyter-notebooks-with-our)
 
 #### EDEX
 
