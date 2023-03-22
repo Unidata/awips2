@@ -15,6 +15,7 @@
 #                       GOES16 Derived products coming from NOAAPort
 #                       GOES16 GLM data coming from Unidata's IDD via Texas Tech
 #                       CIRA RGB GOES Satellite products added
+# 20230321      20.3.2  Update WW3 regex lines so we get the data
 
 #
 # ------------------------------------------
@@ -610,49 +611,49 @@ HDS	^O.J.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
 #
 # WW3 Global
 #
-NGRID	E.A.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+NGRID	E.A.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 	FILE	-edex -close
 	/awips2/data_store/grid/WW3_Global/WW3_Global_\1_\200-concat-%Y%m%d_%H%M.grib2
 #
 # WW3 Regional Alaska
 #
-#NGRID	E.E.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+#NGRID	E.E.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 #	FILE	-edex -close
 #	/awips2/data_store/grid/WW3_Regional_Alaska/WW3_Regional_Alaska_\1_\200.grib2
 #
 # WW3 Coastal Alaska
 #
-#NGRID	E.F.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+#NGRID	E.F.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 #	FILE	-edex -close
 #	/awips2/data_store/grid/WW3_Coastal_Alaska/WW3_Coastal_Alaska_\1_\200.grib2
 #
 # WW3 Eastern Pacific (Regional)
 #
-#NGRID	E.D.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+#NGRID	E.D.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 #	FILE	-edex -close
 #	/awips2/data_store/grid/WW3_Regional_Eastern_Pacific/WW3_Regional_Eastern_Pacific_\1_\200.grib2
 #
 # WW3 US East Coast (Regional)
 #
-#NGRID	E.B.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+#NGRID	E.B.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 #	FILE	-edex -close
 #	/awips2/data_store/grid/WW3_Regional_US_East_Coast/WW3_Regional_US_East_Coast_\1_\200.grib2
 #
 # WW3 US East Coast (Coastal)
 #
-#NGRID	E.H.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+#NGRID	E.H.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 #	FILE	-edex -close
 #	/awips2/data_store/grid/WW3_Coastal_US_East_Coast/WW3_Coastal_US_East_Coast_\1_\200.grib2
 #
 # WW3 US West Coast (Regional)
 #
-#NGRID	E.C.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+#NGRID	E.C.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 #	FILE	-edex -close
 #	/awips2/data_store/grid/WW3_Regional_US_West_Coast/WW3_Regional_US_West_Coast_\1_\200.grib2
 #
 # WW3 US West Coast (Coastal)
 #
-#NGRID	E.G.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)/F(...)/.*
+#NGRID	E.G.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
 #	FILE	-edex -close
 #	/awips2/data_store/grid/WW3_Coastal_US_West_Coast/WW3_Coastal_US_West_Coast_\1_\200.grib2
 #
