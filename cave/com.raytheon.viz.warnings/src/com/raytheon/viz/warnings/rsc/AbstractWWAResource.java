@@ -780,7 +780,6 @@ public abstract class AbstractWWAResource extends
 
     protected String getPhensigColor(String phensig){
         WarningLookups lookup = new WarningLookups();
-        System.out.println("Phensig"+ phensig);
         return lookup.getPhensig(phensig).color;
     }
 
