@@ -230,6 +230,7 @@ public abstract class AbstractWWAResource extends
     private TimeRange currentFramePeriod = null;
     private boolean currentLastFrame = false;
     private HashMap<String, WarningEntry> currentCandidates = new HashMap<>();
+    private float currentZoom = Float.MIN_VALUE;
     
     /** The dialog used to change display properties */
     private DrawingPropertiesDialog drawingDialog;
@@ -584,19 +585,7 @@ public abstract class AbstractWWAResource extends
                 if (record != null && record.getGeometry() != null) {
                     //only calculate the drawable strings the first time through
                     if(entry.paramsDS == null || (entry.emergencyDS == null && EmergencyType.isEmergency(record.getRawmessage()))){
-                        // Calculate the upper left portion of the polygon
-                        Coordinate upperLeft = new Coordinate(180, -90);
-    
-                        for (Coordinate c : record.getGeometry().getCoordinates()) {
-                            if (c.y - c.x > upperLeft.y - upperLeft.x) {
-                                upperLeft = c;
-                            }
-                        }
-    
-                        double[] d = descriptor.worldToPixel(new double[] {
-                                upperLeft.x, upperLeft.y });
-                        d[0] -= paintProps.getZoomLevel() * 100;
-    
+                        
                         double mapWidth = descriptor.getMapWidth()
                                 * paintProps.getZoomLevel() / 1000;
                         String[] fullText = getText(record, mapWidth);
@@ -608,8 +597,7 @@ public abstract class AbstractWWAResource extends
                         if(drawTime){
                         	textToPrint[1] = fullText[1];
                         }
-                        
-    
+
                         if (warningsFont == null) {
                             warningsFont = target.initializeFont(target
                                     .getDefaultFont().getFontName(), 9,
@@ -620,7 +608,6 @@ public abstract class AbstractWWAResource extends
     
                         DrawableString params = new DrawableString(textToPrint, entry.color);
                         params.font = warningsFont;
-                        params.setCoordinates(d[0], d[1]);
                         params.horizontalAlignment = HorizontalAlignment.RIGHT;
                         params.verticallAlignment = VerticalAlignment.BOTTOM;
                         params.magnification = getCapability(
@@ -636,8 +623,7 @@ public abstract class AbstractWWAResource extends
     
                             DrawableString emergencyString = new DrawableString(
                                     params);
-                            emergencyString.setCoordinates(d[0],
-                                    d[1] + (paintProps.getZoomLevel()) * 90);
+
                             emergencyString.font = emergencyFont;
                             emergencyString.setText(new String[] { "", "",
                                     " " + EmergencyType.EMER, "" }, entry.color);
@@ -647,6 +633,11 @@ public abstract class AbstractWWAResource extends
                         entry.textStr = fullText[0];
                         entry.timeStr = fullText[1];
                     }
+                    //if zoom has changed, recalucate text positions
+                    if(currentZoom != paintProps.getZoomLevel()) {
+                        calculateTextPosition(entry, paintProps);
+                    }
+                    
                     if (EmergencyType.isEmergency(record.getRawmessage())) {
                         target.drawStrings(entry.emergencyDS);
                     }
@@ -665,6 +656,32 @@ public abstract class AbstractWWAResource extends
 
                 }
             }
+        }
+    }
+    
+    private void calculateTextPosition(WarningEntry entry, PaintProperties paintProps) {
+        AbstractWarningRecord record = entry.record;
+        
+        // Calculate the upper left portion of the polygon
+        Coordinate upperLeft = new Coordinate(180, -90);
+
+        for (Coordinate c : record.getGeometry().getCoordinates()) {
+            if (c.y - c.x > upperLeft.y - upperLeft.x) {
+                upperLeft = c;
+            }
+        }
+
+        double[] d = descriptor.worldToPixel(new double[] {
+                upperLeft.x, upperLeft.y });
+        d[0] -= paintProps.getZoomLevel() * 100;
+
+
+        //update the drawable strings
+        if(entry.emergencyDS != null) {
+            entry.emergencyDS.setCoordinates(d[0], d[1] + (paintProps.getZoomLevel()) * 90);
+        }
+        if(entry.paramsDS != null) {
+            entry.paramsDS.setCoordinates(d[0], d[1]);
         }
     }
 
