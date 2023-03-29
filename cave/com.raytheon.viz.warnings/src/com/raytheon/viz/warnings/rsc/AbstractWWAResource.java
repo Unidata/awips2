@@ -452,7 +452,7 @@ public abstract class AbstractWWAResource extends
         int index = info.getFrameIndex();
         boolean framesChanged = false;
         //only do the frame logic if the frame has changed
-        if(currentFrameIdx == Integer.MIN_VALUE || currentFrameIdx != index) {
+        if(currentFrameIdx != index) {
             framesChanged = true;
             currentFrameIdx = index;
             currentCandidates.clear();
@@ -502,6 +502,11 @@ public abstract class AbstractWWAResource extends
                     }
                 }
             }
+            //If there are no entries, end here
+            if(currentCandidates.values() == null) {
+                return;
+            }
+            
             for (WarningEntry entry : currentCandidates.values()) {
                 AbstractWarningRecord record = entry.record;
                 boolean drawShape = true;
@@ -632,6 +637,7 @@ public abstract class AbstractWWAResource extends
                         
                         entry.textStr = fullText[0];
                         entry.timeStr = fullText[1];
+                        calculateTextPosition(entry, paintProps);
                     }
                     //if zoom has changed, recalucate text positions
                     if(currentZoom != paintProps.getZoomLevel()) {
@@ -656,6 +662,7 @@ public abstract class AbstractWWAResource extends
 
                 }
             }
+            currentZoom = paintProps.getZoomLevel();
         }
     }
     
