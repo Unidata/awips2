@@ -44,18 +44,6 @@
             <substitute value="0" key="posOff" />
         </contribute>
         <contribute xsi:type="bundleItem" useReferenceTime="true"
-            file="bundles/Redbook.xml" menuText="Thunderstorm Prob"
-            timeQuery="true" id="thunderstormProb">
-            <substitute value="PGWB44" key="wmo" />
-            <substitute value="0" key="posOff" />
-        </contribute>
-        <contribute xsi:type="bundleItem" useReferenceTime="true"
-            file="bundles/Redbook.xml" menuText="Severe Thunderstorm Prob"
-            timeQuery="true" id="severeThunderstormProb">
-            <substitute value="PGWB45" key="wmo" />
-            <substitute value="0" key="posOff" />
-        </contribute>
-        <contribute xsi:type="bundleItem" useReferenceTime="true"
             file="bundles/Redbook.xml" menuText="Day 1 Hail outlook"
             timeQuery="true" id="day1Hailoutlook">
             <substitute value="PENE00" key="wmo" />
@@ -103,12 +91,14 @@
             <substitute value="PZNK00" key="wmo" />
             <substitute value="0" key="posOff" />
         </contribute>
+<!-- 
         <contribute xsi:type="bundleItem" useReferenceTime="true"
             file="bundles/Redbook.xml" menuText="Day 4-8 Composite Severe Outlook"
             timeQuery="true" id="day4to8CompositeSevereOutlook">
             <substitute value="PGNM98" key="wmo" />
             <substitute value="0" key="posOff" />
         </contribute>
+ -->
         <contribute xsi:type="bundleItem" useReferenceTime="true"
             file="bundles/Redbook.xml" menuText="Active Mesoscale Disc Summary"
             timeQuery="true" id="activeMesoscaleDiscSummary">
