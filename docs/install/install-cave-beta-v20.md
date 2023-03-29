@@ -74,9 +74,37 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 **Latest Version: 20.3.2-0.1**
 
-Currently the only installation available for Windows, is the [**Linux Virtual Machine**](#linux-virtual-machine).
+For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
-### Linux Virtual Machine
+The direct install is much easier/faster than v18*. The virtual machine option won't render RGB composites of satellite imagery.
+
+### Method 1: Direct Windows Install
+
+#### System Requirements
+- User variables PATH and PYTHONHOME must be defined and set to the AWIPS Python path
+
+#### Download and Installation Instructions
+
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2.msi)
+2. Set the **user** environment variables:
+    - Access the Environment Variables window by typing "env" in the start bar, and selecting the "Edit environment variables for **your** account"
+    - Edit your **Path** variable and add `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
+    - If not created, create a New Variables: **PYTHONHOME** and set the path to `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
+
+!!!note "If you have multiple paths to python set in your variables, make sure that the one you added is at the top"
+
+    ![Env Vars](../images/EnvVariables-v20.png)
+    
+
+#### Run CAVE
+
+To run CAVE, either:
+
+- Double click on the CAVE icon on your desktop
+- Type "cave" in the start bar and hit enter
+- Find and run CAVE app in the file browser:  `C:\Users\%USER%\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.exe`
+
+### Method 2: Linux Virtual Machine
 
 Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).
 
@@ -163,3 +191,6 @@ sudo yum remove awips2-*
 rm -rf /awips2/cave
 rm -rf ~/caveData
 ```
+
+
+[def]: ../images/E
