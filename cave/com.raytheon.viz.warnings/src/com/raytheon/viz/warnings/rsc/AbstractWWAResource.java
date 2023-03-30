@@ -98,6 +98,7 @@ import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
  * Mar 15, 2022			 srcarter@ucar Add support for display settings for outline, fill, text and time displays
  * Jun 24, 2022			 srcarter@ucar Add 'statement/other' display settings, set enabled for only relevant WWA types
  * Jun 28, 2022			 srcarter@ucar Display sampling based on new 'sampling' settings
+ * Mar 27, 2023          srcarter@ucar Optimize drawing to improve performance
  *
  * </pre>
  *
@@ -136,6 +137,28 @@ public abstract class AbstractWWAResource extends
          * set to true if paint needs to re-init the shape
          */
         protected boolean project = false;
+        
+        /**
+         * the display color
+         */
+        protected RGB color = null;
+        
+        /**
+         * the text string that can be displayed
+         */
+        protected String textStr = null;
+        /**
+         * the time string that can be displayed
+         */
+        protected String timeStr = null;
+        /**
+         * the stylized emergency display string
+         */
+        protected DrawableString emergencyDS = null;
+        /**
+         * the stylized params display string
+         */
+        protected DrawableString paramsDS = null;
 
     }
     
@@ -201,6 +224,13 @@ public abstract class AbstractWWAResource extends
     private static final String WARN_SIG = "W";
     private static final String WATCH_SIG = "A";
     private static final String ADVISORY_SIG = "Y";
+    
+    // Current drawing objects
+    private int currentFrameIdx = Integer.MIN_VALUE;
+    private TimeRange currentFramePeriod = null;
+    private boolean currentLastFrame = false;
+    private HashMap<String, WarningEntry> currentCandidates = new HashMap<>();
+    private float currentZoom = Float.MIN_VALUE;
     
     /** The dialog used to change display properties */
     private DrawingPropertiesDialog drawingDialog;
@@ -420,47 +450,64 @@ public abstract class AbstractWWAResource extends
             }
         }
         int index = info.getFrameIndex();
-        if (!this.recordsToLoad.isEmpty()) {
-            this.updateDisplay(target);
+        boolean framesChanged = false;
+        //only do the frame logic if the frame has changed
+        if(currentFrameIdx != index) {
+            framesChanged = true;
+            currentFrameIdx = index;
+            currentCandidates.clear();
+
+            if (!this.recordsToLoad.isEmpty()) {
+                this.updateDisplay(target);
+            }
+
+            DataTime thisFrameTime = null;
+            if (index > -1 && index < frames.length) {
+                thisFrameTime = frames[index];
+            }
+            if (thisFrameTime == null) {
+                return;
+            }
+
+            TimeRange framePeriod = null;
+            boolean lastFrame = false;
+            if (index + 1 < frames.length) {
+                framePeriod = new TimeRange(thisFrameTime.getRefTime(),
+                        frames[index + 1].getRefTime());
+            } else {
+                framePeriod = getLastFrameTimeRange(thisFrameTime.getRefTime());
+                lastFrame = true;
+            }
+            currentFramePeriod = framePeriod;
+            currentLastFrame = lastFrame;
         }
 
-        DataTime thisFrameTime = null;
-        if (index > -1 && index < frames.length) {
-            thisFrameTime = frames[index];
-        }
-        if (thisFrameTime == null) {
-            return;
-        }
-
-        TimeRange framePeriod = null;
-        boolean lastFrame = false;
-        if (index + 1 < frames.length) {
-            framePeriod = new TimeRange(thisFrameTime.getRefTime(),
-                    frames[index + 1].getRefTime());
-        } else {
-            framePeriod = getLastFrameTimeRange(thisFrameTime.getRefTime());
-            lastFrame = true;
-        }
         synchronized (paintLock) {
-            HashMap<String, WarningEntry> candidates = new HashMap<>();
-            for (WarningEntry entry : entryMap.values()) {
-                if (matchesFrame(entry, paintProps.getDataTime(), framePeriod,
-                        lastFrame)) {
-                    String key = getEventKey(entry);
-                    WarningEntry current = candidates.get(key);
-
-                    if (current == null
-                            || current.record.getIssueTime().before(
-                                    entry.record.getIssueTime())
-                            || (current.record.getIssueTime().equals(
-                                    entry.record.getIssueTime()) && current.record
-                                    .getInsertTime().before(
-                                            entry.record.getInsertTime()))) {
-                        candidates.put(key, entry);
+            if(currentCandidates.size() == 0 || framesChanged) {
+                for (WarningEntry entry : entryMap.values()) {
+                    if (matchesFrame(entry, paintProps.getDataTime(), currentFramePeriod,
+                            currentLastFrame)) {
+                        String key = getEventKey(entry);
+                        WarningEntry current = currentCandidates.get(key);
+    
+                        if (current == null
+                                || current.record.getIssueTime().before(
+                                        entry.record.getIssueTime())
+                                || (current.record.getIssueTime().equals(
+                                        entry.record.getIssueTime()) && current.record
+                                        .getInsertTime().before(
+                                                entry.record.getInsertTime()))) {
+                            currentCandidates.put(key, entry);
+                        }
                     }
                 }
             }
-            for (WarningEntry entry : candidates.values()) {
+            //If there are no entries, end here
+            if(currentCandidates.values() == null) {
+                return;
+            }
+            
+            for (WarningEntry entry : currentCandidates.values()) {
                 AbstractWarningRecord record = entry.record;
                 boolean drawShape = true;
                 boolean drawOutline = true;
@@ -510,9 +557,12 @@ public abstract class AbstractWWAResource extends
                     entry.project = false;
                 }
                 
-                RGB displaycolor = color;
-                if ( ! record.getPil().equals("SPS")) {
-                	displaycolor = RGBColors.getRGBColor(getPhensigColor(record.getPhensig()));
+                if(entry.color == null) {
+                    RGB displaycolor = color;
+                    if ( ! record.getPil().equals("SPS")) {
+                    	displaycolor = RGBColors.getRGBColor(getPhensigColor(record.getPhensig()));
+                    }
+                    entry.color = displaycolor;
                 }
                 
                 if(entry != null){
@@ -532,74 +582,113 @@ public abstract class AbstractWWAResource extends
 
                 		target.drawWireframeShape(
                               entry.wireframeShape,
-                              displaycolor,
+                              entry.color,
                               outlineWidth, lineStyle);
                 	}
                 }
 
                 if (record != null && record.getGeometry() != null) {
-                    // Calculate the upper left portion of the polygon
-                    Coordinate upperLeft = new Coordinate(180, -90);
-
-                    for (Coordinate c : record.getGeometry().getCoordinates()) {
-                        if (c.y - c.x > upperLeft.y - upperLeft.x) {
-                            upperLeft = c;
+                    //only calculate the drawable strings the first time through
+                    if(entry.paramsDS == null || (entry.emergencyDS == null && EmergencyType.isEmergency(record.getRawmessage()))){
+                        
+                        double mapWidth = descriptor.getMapWidth()
+                                * paintProps.getZoomLevel() / 1000;
+                        String[] fullText = getText(record, mapWidth);
+                        
+                        String[] textToPrint = {"",""};
+                        if(drawText){
+                        	textToPrint[0] = fullText[0];
                         }
+                        if(drawTime){
+                        	textToPrint[1] = fullText[1];
+                        }
+
+                        if (warningsFont == null) {
+                            warningsFont = target.initializeFont(target
+                                    .getDefaultFont().getFontName(), 9,
+                                    new IFont.Style[0]);
+                            emergencyFont = target.getDefaultFont().deriveWithSize(
+                                    12);
+                        }
+    
+                        DrawableString params = new DrawableString(textToPrint, entry.color);
+                        params.font = warningsFont;
+                        params.horizontalAlignment = HorizontalAlignment.RIGHT;
+                        params.verticallAlignment = VerticalAlignment.BOTTOM;
+                        params.magnification = getCapability(
+                                MagnificationCapability.class).getMagnification();
+                        entry.paramsDS = params;
+    
+                        // Draws the string again to have it appear bolder
+                        if (EmergencyType.isEmergency(record.getRawmessage())) {
+                            // moves over text to add EMER in a different font
+                            textToPrint[1] = String.format("%1$-23" + "s",
+                                    textToPrint[1]);
+                            params.setText(textToPrint, entry.color);
+    
+                            DrawableString emergencyString = new DrawableString(
+                                    params);
+
+                            emergencyString.font = emergencyFont;
+                            emergencyString.setText(new String[] { "", "",
+                                    " " + EmergencyType.EMER, "" }, entry.color);
+                            entry.emergencyDS = emergencyString;
+                        }
+                        
+                        entry.textStr = fullText[0];
+                        entry.timeStr = fullText[1];
+                        calculateTextPosition(entry, paintProps);
                     }
-
-                    double[] d = descriptor.worldToPixel(new double[] {
-                            upperLeft.x, upperLeft.y });
-                    d[0] -= paintProps.getZoomLevel() * 100;
-
-                    double mapWidth = descriptor.getMapWidth()
-                            * paintProps.getZoomLevel() / 1000;
-                    String[] fullText = getText(record, mapWidth);
+                    //if zoom has changed, recalucate text positions
+                    if(currentZoom != paintProps.getZoomLevel()) {
+                        calculateTextPosition(entry, paintProps);
+                    }
                     
-                    String[] textToPrint = {"",""};
-                    if(drawText){
-                    	textToPrint[0] = fullText[0];
-                    }
-                    if(drawTime){
-                    	textToPrint[1] = fullText[1];
-                    }
-
-                    if (warningsFont == null) {
-                        warningsFont = target.initializeFont(target
-                                .getDefaultFont().getFontName(), 9,
-                                new IFont.Style[0]);
-                        emergencyFont = target.getDefaultFont().deriveWithSize(
-                                12);
-                    }
-
-                    DrawableString params = new DrawableString(textToPrint, displaycolor);
-                    params.font = warningsFont;
-                    params.setCoordinates(d[0], d[1]);
-                    params.horizontalAlignment = HorizontalAlignment.RIGHT;
-                    params.verticallAlignment = VerticalAlignment.BOTTOM;
-                    params.magnification = getCapability(
-                            MagnificationCapability.class).getMagnification();
-
-                    // Draws the string again to have it appear bolder
                     if (EmergencyType.isEmergency(record.getRawmessage())) {
-                        // moves over text to add EMER in a different font
-                        textToPrint[1] = String.format("%1$-23" + "s",
-                                textToPrint[1]);
-                        params.setText(textToPrint, displaycolor);
-
-                        DrawableString emergencyString = new DrawableString(
-                                params);
-                        emergencyString.setCoordinates(d[0],
-                                d[1] + (paintProps.getZoomLevel()) * 90);
-                        emergencyString.font = emergencyFont;
-                        emergencyString.setText(new String[] { "", "",
-                                " " + EmergencyType.EMER, "" }, displaycolor);
-                        target.drawStrings(emergencyString);
+                        target.drawStrings(entry.emergencyDS);
                     }
-
-                    target.drawStrings(params);
+                    
+                    String[] currentStrs = {"",""};
+                    if(drawText) {
+                        currentStrs[0] = entry.textStr;
+                    }
+                    if(drawTime) {
+                        currentStrs[1] = entry.timeStr;
+                    }
+                    
+                    entry.paramsDS.setText(currentStrs, entry.color);
+                    
+                    target.drawStrings(entry.paramsDS);
 
                 }
             }
+            currentZoom = paintProps.getZoomLevel();
+        }
+    }
+    
+    private void calculateTextPosition(WarningEntry entry, PaintProperties paintProps) {
+        AbstractWarningRecord record = entry.record;
+        
+        // Calculate the upper left portion of the polygon
+        Coordinate upperLeft = new Coordinate(180, -90);
+
+        for (Coordinate c : record.getGeometry().getCoordinates()) {
+            if (c.y - c.x > upperLeft.y - upperLeft.x) {
+                upperLeft = c;
+            }
+        }
+
+        double[] d = descriptor.worldToPixel(new double[] {
+                upperLeft.x, upperLeft.y });
+        d[0] -= paintProps.getZoomLevel() * 100;
+
+
+        //update the drawable strings
+        if(entry.emergencyDS != null) {
+            entry.emergencyDS.setCoordinates(d[0], d[1] + (paintProps.getZoomLevel()) * 90);
+        }
+        if(entry.paramsDS != null) {
+            entry.paramsDS.setCoordinates(d[0], d[1]);
         }
     }
 
@@ -688,6 +777,9 @@ public abstract class AbstractWWAResource extends
 
     public synchronized void addRecord(PluginDataObject[] pdos)
             throws VizException {
+        //data has changed, so clear the current drawing candidates
+        currentCandidates.clear();
+        
         for (PluginDataObject pdo : pdos) {
             if (pdo instanceof AbstractWarningRecord) {
                 AbstractWarningRecord record = (AbstractWarningRecord) pdo;
@@ -750,7 +842,7 @@ public abstract class AbstractWWAResource extends
 
     @SuppressWarnings("unchecked")
     protected void requestData(DataTime earliest) throws VizException {
-        System.out.println("requesting data");
+//        System.out.println("requesting data");
         Map<String, RequestConstraint> map = (Map<String, RequestConstraint>) resourceData
                 .getMetadataMap().clone();
         if (earliestRequested != null) {
