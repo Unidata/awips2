@@ -31,10 +31,6 @@
 			menuText="Primary Wave Period" id="" useReferenceTime="true">
 		<substitute key="frameCount" value="${frameCount}"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-SecondaryPeriod.xml"
-			menuText="Secondary Wave Period" id="" useReferenceTime="true">
-		<substitute key="frameCount" value="${frameCount}"/>
-	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/grid/WaveWatch-VorticityWind.xml"
 			menuText="Sfc Vorticity and Wind" id="" useReferenceTime="true">
 		<substitute key="frameCount" value="${frameCount}"/>

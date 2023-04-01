@@ -61,9 +61,9 @@
                    name="xxx"
                    visible="true">
              </separator>
-             <command id="HPC"
+             <command id="WPC"
                    commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ HPC ------">
+                   label="------ WPC ------">
              </command>       
              <separator
                    name="xxx"

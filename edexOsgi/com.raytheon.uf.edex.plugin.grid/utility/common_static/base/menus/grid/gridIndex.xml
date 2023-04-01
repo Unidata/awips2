@@ -125,6 +125,7 @@
              <substitute key="frameCount" value="32" />
              <substitute key="TP" value="TP"/>
     </contribute>
+-->
 	<contribute xsi:type="subinclude" subMenu = "NCEP WW3 Global" 
              fileName="menus/grid/WaveWatch.xml">
              <substitute key="modelName" value="GlobalWave" />
@@ -132,7 +133,6 @@
              <substitute key="frameCount" value="32" />
              <substitute key="TP" value="TP"/>
     </contribute>
--->
    	<contribute xsi:type="subinclude" subMenu = "ESTOFS" 
              fileName="menus/grid/oceanFamilies.xml">
              <substitute key="modelName" value="ESTOFS" />
