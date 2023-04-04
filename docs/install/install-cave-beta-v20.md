@@ -85,8 +85,8 @@ The direct install is much easier/faster than v18*. The virtual machine option w
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2.msi)
-2. Set the **user** environment variables:
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2-20230329-0449.msi)
+2. Set the **user** environment variables (not **system**):
     - Access the Environment Variables window by typing "env" in the start bar, and selecting the "Edit environment variables for **your** account"
     - Edit your **Path** variable and add `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
     - If not created, create a New Variables: **PYTHONHOME** and set the path to `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
@@ -123,9 +123,9 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.1** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.1.zip)
+1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.2.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.1.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.2.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
@@ -156,9 +156,9 @@ Once inside the VM, to run CAVE either:
     ![install Python3.6](../images/python3.6-install.png)
      - Use all the default settings during installation.
      - This will require Admin Privileges
-     1. After completing the installer, you must run the `Install Certificates.command`, do this by double-clicking on the file in the downloaded folder.
-     1. Finally, you need to change your environment with these latest changes, to do so, open a terminal and type `source .zprofile`
-     1. Now you can confirm you have the correct version of python by running `which python3` and the output should be:
+     a. After completing the installer, you must run the `Install Certificates.command`, do this by double-clicking on the file in the downloaded folder.
+     b. Finally, you need to change your environment with these latest changes, to do so, open a terminal and type `source .zprofile`
+     c. Now you can confirm you have the correct version of python by running `which python3` and the output should be:
    ```
    /Library/Frameworks/Python.framework/Versions/3.6/python3
    ```
@@ -234,6 +234,3 @@ sudo yum remove awips2-*
 rm -rf /awips2/cave
 rm -rf ~/caveData
 ```
-
-
-[def]: ../images/E
