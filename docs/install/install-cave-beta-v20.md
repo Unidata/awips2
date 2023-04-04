@@ -8,7 +8,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 - [**Linux: 20.3.2-0.2**](#linux)
 - [**Windows: 20.3.2-0.2**](#windows)
-- **Mac:** not yet supported
+- [**Mac: 20.3.2-0.2**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -137,6 +137,49 @@ Once inside the VM, to run CAVE either:
 - Use the desktop icon 
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
+
+---
+
+## macOS <i class="fa fa-apple"></i> 
+
+**Latest Version: 20.3.2-0.2**
+
+!!! warning "These installation steps reqiure **Admin Privileges** to fully complete."
+
+### System Requirements
+
+- Python3.6
+
+### Download and Installation Instructions
+
+1. [Download and install Python3.6](https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg) to the default directory (`/Library/Framework/...`)
+    ![install Python3.6](../images/python3.6-install.png)
+     - Use all the default settings during installation.
+     - This will require Admin Privileges
+     1. After completing the installer, you must run the `Install Certificates.command`, do this by double-clicking on the file in the downloaded folder.
+     1. Finally, you need to change your environment with these latest changes, to do so, open a terminal and type `source .zprofile`
+     1. Now you can confirm you have the correct version of python by running `which python3` and the output should be:
+   ```
+   /Library/Frameworks/Python.framework/Versions/3.6/python3
+   ```
+2. [Download and install these supplemental python packages](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-python-20.3.2-1-signed.pkg)
+    ![install python packages](../images/install-awips-python.png)
+     - Use all the default settings during installation
+     - This will require Admin Privileges
+3. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave-20.3.2-0.2.dmg)
+    ![Cave System Install](../images/mac-install.png)
+     - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level
+     - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location
+
+### Run CAVE
+
+To run CAVE either:
+
+- Use the System Menu Go > Applications > CAVE
+- Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit **enter** to run it
+
+!!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:"
+![internet warning](../images/mac-cave-internet-download2.png)
 
 ---
 
