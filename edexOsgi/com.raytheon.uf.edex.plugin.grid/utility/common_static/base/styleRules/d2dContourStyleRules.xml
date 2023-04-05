@@ -826,7 +826,7 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
             <parameter>geoVort</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <displayUnits label="/1e5s">/100000</displayUnits>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#"
                 minLabel="N" maxLabel="X">
                 <increment>2</increment>
@@ -846,7 +846,7 @@ m/s| 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
             <parameter>RV</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <displayUnits label="/1e5s">/100000</displayUnits>
             <smoothingDistance>100</smoothingDistance>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#"
                 minLabel="N" maxLabel="X">
@@ -2842,7 +2842,7 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
             <parameter>AV</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <displayUnits label="/1e5s">/100000</displayUnits>
             <smoothingDistance>80</smoothingDistance>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#"
                 minLabel="N" maxLabel="X">
@@ -4233,13 +4233,12 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <creatingEntity>HiResW-ARW-AK</creatingEntity>
             <creatingEntity>HiResW-ARW-PR</creatingEntity>
             <creatingEntity>HiResW-ARW-SJU</creatingEntity>
-            <creatingEntity>HRRR</creatingEntity>
             <parameter>AV</parameter>
             <parameter>RV</parameter>
             <parameter>geoVort</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <displayUnits label="/1e5s">/100000</displayUnits>
             <smoothingDistance>100</smoothingDistance>
             <contourLabeling labelSpacing="4">
                 <increment>8</increment>
