@@ -158,10 +158,12 @@ Once inside the VM, to run CAVE either:
      - This will require Admin Privileges
      a. After completing the installer, you must run the `Install Certificates.command`, do this by double-clicking on the file in the downloaded folder.
      b. Finally, you need to change your environment with these latest changes, to do so, open a terminal and type `source .zprofile`
-     c. Now you can confirm you have the correct version of python by running `which python3` and the output should be:
-   ```
-   /Library/Frameworks/Python.framework/Versions/3.6/python3
-   ```
+       - If this file does not exist, double click and run the `Update Shell Profile.command` in the downloaded folder.
+  
+       c. Now you can confirm you have the correct version of python by running `which python3` and the output should be:
+          ```
+          /Library/Frameworks/Python.framework/Versions/3.6/python3
+          ```
 2. [Download and install these supplemental python packages](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-python-20.3.2-1-signed.pkg)
     ![install python packages](../images/install-awips-python.png)
      - Use all the default settings during installation

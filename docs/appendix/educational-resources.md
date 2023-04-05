@@ -173,6 +173,8 @@ A full list of all released blogs can be found below:
 - [Announcing a New eLearning Course: Learn Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course1)
 - [Use Case Example: Texas A&M CAVE in the Classroom](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-use-case-example)
 - [AWIPS 20.3.2-0.1 Beta CAVE Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-20)
+- [AWIPS 20.3.2-0.2 Beta CAVE Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-201)
+
   
 #### CAVE
 
