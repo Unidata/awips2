@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 20.3.2-0.1**](#linux)
-- [**Windows:**](#windows) VM option available, but direct install not yet supported
-- **Mac:** not yet supported
+- [**Linux: 20.3.2-0.2**](#linux)
+- [**Windows: 20.3.2-0.2**](#windows)
+- [**Mac: 20.3.2-0.2**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -42,7 +42,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 20.3.2-0.1**
+**Latest Version: 20.3.2-0.2**
 
 ### System Requirements
 
@@ -72,11 +72,39 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 20.3.2-0.1**
+**Latest Version: 20.3.2-0.2**
 
-Currently the only installation available for Windows, is the [**Linux Virtual Machine**](#linux-virtual-machine).
+For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
-### Linux Virtual Machine
+The direct install is much easier/faster than v18*. The virtual machine option won't render RGB composites of satellite imagery.
+
+### Method 1: Direct Windows Install
+
+#### System Requirements
+- User variables PATH and PYTHONHOME must be defined and set to the AWIPS Python path
+
+#### Download and Installation Instructions
+
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2-20230329-0449.msi)
+2. Set the **user** environment variables (not **system**):
+    - Access the Environment Variables window by typing "env" in the start bar, and selecting the "Edit environment variables for **your** account"
+    - Edit your **Path** variable and add `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
+    - If not created, create a New Variables: **PYTHONHOME** and set the path to `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
+
+!!!note "If you have multiple paths to python set in your variables, make sure that the one you added is at the top"
+
+    ![Env Vars](../images/EnvVariables-v20.png)
+    
+
+#### Run CAVE
+
+To run CAVE, either:
+
+- Double click on the CAVE icon on your desktop
+- Type "cave" in the start bar and hit enter
+- Find and run CAVE app in the file browser:  `C:\Users\%USER%\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.exe`
+
+### Method 2: Linux Virtual Machine
 
 Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).
 
@@ -95,9 +123,9 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.1** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.1.zip)
+1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.2.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.1.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.2.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
@@ -109,6 +137,51 @@ Once inside the VM, to run CAVE either:
 - Use the desktop icon 
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
+
+---
+
+## macOS <i class="fa fa-apple"></i> 
+
+**Latest Version: 20.3.2-0.2**
+
+!!! warning "These installation steps reqiure **Admin Privileges** to fully complete."
+
+### System Requirements
+
+- Python3.6
+
+### Download and Installation Instructions
+
+1. [Download and install Python3.6](https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg) to the default directory (`/Library/Framework/...`)
+    ![install Python3.6](../images/python3.6-install.png)
+     - Use all the default settings during installation.
+     - This will require Admin Privileges
+     a. After completing the installer, you must run the `Install Certificates.command`, do this by double-clicking on the file in the downloaded folder.
+     b. Finally, you need to change your environment with these latest changes, to do so, open a terminal and type `source .zprofile`
+       - If this file does not exist, double click and run the `Update Shell Profile.command` in the downloaded folder.
+  
+       c. Now you can confirm you have the correct version of python by running `which python3` and the output should be:
+          ```
+          /Library/Frameworks/Python.framework/Versions/3.6/python3
+          ```
+2. [Download and install these supplemental python packages](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-python-20.3.2-1-signed.pkg)
+    ![install python packages](../images/install-awips-python.png)
+     - Use all the default settings during installation
+     - This will require Admin Privileges
+3. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave-20.3.2-0.2.dmg)
+    ![Cave System Install](../images/mac-install.png)
+     - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level
+     - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location
+
+### Run CAVE
+
+To run CAVE either:
+
+- Use the System Menu Go > Applications > CAVE
+- Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit **enter** to run it
+
+!!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:"
+![internet warning](../images/mac-cave-internet-download2.png)
 
 ---
 
