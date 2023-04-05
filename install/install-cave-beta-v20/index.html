@@ -823,8 +823,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#linux-virtual-machine" title="Linux Virtual Machine" class="md-nav__link">
-    Linux Virtual Machine
+  <a href="#method-1-direct-windows-install" title="Method 1: Direct Windows Install" class="md-nav__link">
+    Method 1: Direct Windows Install
   </a>
   
     <nav class="md-nav">
@@ -853,6 +853,74 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-2-linux-virtual-machine" title="Method 2: Linux Virtual Machine" class="md-nav__link">
+    Method 2: Linux Virtual Machine
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-requirements_2" title="System Requirements" class="md-nav__link">
+    System Requirements
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-and-installation-instructions_2" title="Download and Installation Instructions" class="md-nav__link">
+    Download and Installation Instructions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-cave_2" title="Run CAVE" class="md-nav__link">
+    Run CAVE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macos" title="macOS " class="md-nav__link">
+    macOS 
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-requirements_3" title="System Requirements" class="md-nav__link">
+    System Requirements
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-and-installation-instructions_3" title="Download and Installation Instructions" class="md-nav__link">
+    Download and Installation Instructions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-cave_3" title="Run CAVE" class="md-nav__link">
+    Run CAVE
+  </a>
   
 </li>
         
@@ -904,9 +972,9 @@
 <hr />
 <h2 id="latest-cave-versions">Latest CAVE Versions<a class="headerlink" href="#latest-cave-versions" title="Permanent link"></a></h2>
 <ul>
-<li><a href="#linux"><strong>Linux: 20.3.2-0.1</strong></a></li>
-<li><a href="#windows"><strong>Windows:</strong></a> VM option available, but direct install not yet supported</li>
-<li><strong>Mac:</strong> not yet supported</li>
+<li><a href="#linux"><strong>Linux: 20.3.2-0.2</strong></a></li>
+<li><a href="#windows"><strong>Windows: 20.3.2-0.2</strong></a></li>
+<li><a href="#macos"><strong>Mac: 20.3.2-0.2</strong></a></li>
 </ul>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
 <div class="admonition note">
@@ -940,7 +1008,7 @@
 </ul>
 <hr />
 <h2 id="linux">Linux <i class="fa fa-linux"></i><a class="headerlink" href="#linux" title="Permanent link"></a></h2>
-<p><strong>Latest Version: 20.3.2-0.1</strong></p>
+<p><strong>Latest Version: 20.3.2-0.2</strong></p>
 <h3 id="system-requirements">System Requirements<a class="headerlink" href="#system-requirements" title="Permanent link"></a></h3>
 <ul>
 <li>64 bit CentOS/Red Hat 7</li>
@@ -968,11 +1036,38 @@
 <p>Additionally users can choose to run a <a href="#linux-virtual-machine">virtual machine (VM)</a> on Linux.</p>
 <hr />
 <h2 id="windows">Windows <i class="fa fa-windows"></i><a class="headerlink" href="#windows" title="Permanent link"></a></h2>
-<p><strong>Latest Version: 20.3.2-0.1</strong></p>
-<p>Currently the only installation available for Windows, is the <a href="#linux-virtual-machine"><strong>Linux Virtual Machine</strong></a>.</p>
-<h3 id="linux-virtual-machine">Linux Virtual Machine<a class="headerlink" href="#linux-virtual-machine" title="Permanent link"></a></h3>
-<p>Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).</p>
+<p><strong>Latest Version: 20.3.2-0.2</strong></p>
+<p>For Windows, Unidata offers two installation options: a <a href="#method-1-direct-windows-install"><strong>Direct Windows Installation</strong></a>, or a  <a href="#method-2-linux-virtual-machine"><strong>Linux Virtual Machine</strong></a>.</p>
+<p>The direct install is much easier/faster than v18*. The virtual machine option won't render RGB composites of satellite imagery.</p>
+<h3 id="method-1-direct-windows-install">Method 1: Direct Windows Install<a class="headerlink" href="#method-1-direct-windows-install" title="Permanent link"></a></h3>
 <h4 id="system-requirements_1">System Requirements<a class="headerlink" href="#system-requirements_1" title="Permanent link"></a></h4>
+<ul>
+<li>User variables PATH and PYTHONHOME must be defined and set to the AWIPS Python path</li>
+</ul>
+<h4 id="download-and-installation-instructions_1">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_1" title="Permanent link"></a></h4>
+<ol>
+<li>Download and install: <a href="https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2-20230329-0449.msi"><strong>awips-cave.msi</strong> <i class="fa fa-download"></i></a></li>
+<li>Set the <strong>user</strong> environment variables (not <strong>system</strong>):<ul>
+<li>Access the Environment Variables window by typing "env" in the start bar, and selecting the "Edit environment variables for <strong>your</strong> account"</li>
+<li>Edit your <strong>Path</strong> variable and add <code>%APPDATA%\UCAR Unidata\AWIPS CAVE\Python</code></li>
+<li>If not created, create a New Variables: <strong>PYTHONHOME</strong> and set the path to <code>%APPDATA%\UCAR Unidata\AWIPS CAVE\Python</code></li>
+</ul>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">If you have multiple paths to python set in your variables, make sure that the one you added is at the top</p>
+<p><img alt="Env Vars" src="../../images/EnvVariables-v20.png" /></p>
+</div>
+<h4 id="run-cave_1">Run CAVE<a class="headerlink" href="#run-cave_1" title="Permanent link"></a></h4>
+<p>To run CAVE, either:</p>
+<ul>
+<li>Double click on the CAVE icon on your desktop</li>
+<li>Type "cave" in the start bar and hit enter</li>
+<li>Find and run CAVE app in the file browser:  <code>C:\Users\%USER%\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.exe</code></li>
+</ul>
+<h3 id="method-2-linux-virtual-machine">Method 2: Linux Virtual Machine<a class="headerlink" href="#method-2-linux-virtual-machine" title="Permanent link"></a></h3>
+<p>Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).</p>
+<h4 id="system-requirements_2">System Requirements<a class="headerlink" href="#system-requirements_2" title="Permanent link"></a></h4>
 <ul>
 <li><a href="https://www.vmware.com/products/workstation-player/workstation-player-evaluation.html">VMWare Workstation Player</a> must be installed (free software):</li>
 <li>
@@ -987,24 +1082,68 @@
 <p><img alt="VMWare Workstation Player DPI Setting" src="../../images/vmwareplayer-update-dpi.png" /></p>
 </li>
 </ul>
-<h4 id="download-and-installation-instructions_1">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_1" title="Permanent link"></a></h4>
+<h4 id="download-and-installation-instructions_2">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_2" title="Permanent link"></a></h4>
 <ol>
-<li>Download the zipped file containing the virtual machine: <a href="https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.1.zip"><strong>CentOS7-Unidata-CAVE-20.3.2-0.1</strong> <i class="fa fa-download"></i></a></li>
+<li>Download the zipped file containing the virtual machine: <a href="https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.2.zip"><strong>CentOS7-Unidata-CAVE-20.3.2-0.2</strong> <i class="fa fa-download"></i></a></li>
 <li>Unzip the folder.</li>
-<li>Open VMWare Player and go to <strong>Player</strong> &gt; <strong>File...</strong> &gt; <strong>Open</strong> and locate the folder that was created from the downloaded zipped file.  Select the file called <strong>"CentOS 7 - Unidata CAVE 20.3.2-0.1.vmx"</strong>.</li>
+<li>Open VMWare Player and go to <strong>Player</strong> &gt; <strong>File...</strong> &gt; <strong>Open</strong> and locate the folder that was created from the downloaded zipped file.  Select the file called <strong>"CentOS 7 - Unidata CAVE 20.3.2-0.2.vmx"</strong>.</li>
 <li>Run this new VM option.  If it asks if it's been moved or copied, select <strong>"I Copied It"</strong>.<ul>
 <li>There will be a user in the Linux machine named "awips" and the password is "awips"</li>
 <li>The root password is "unidataAWIPS" if ever needed</li>
 </ul>
 </li>
 </ol>
-<h4 id="run-cave_1">Run CAVE<a class="headerlink" href="#run-cave_1" title="Permanent link"></a></h4>
+<h4 id="run-cave_2">Run CAVE<a class="headerlink" href="#run-cave_2" title="Permanent link"></a></h4>
 <p>Once inside the VM, to run CAVE either:</p>
 <ul>
 <li>Use the desktop icon </li>
 <li>Use the terminal and type the command <code>cave</code></li>
 <li>Find the application in the Linux Desktop menu: Applications &gt; Internet &gt; AWIPS CAVE</li>
 </ul>
+<hr />
+<h2 id="macos">macOS <i class="fa fa-apple"></i><a class="headerlink" href="#macos" title="Permanent link"></a></h2>
+<p><strong>Latest Version: 20.3.2-0.2</strong></p>
+<div class="admonition warning">
+<p class="admonition-title">These installation steps reqiure <strong>Admin Privileges</strong> to fully complete.</p>
+</div>
+<h3 id="system-requirements_3">System Requirements<a class="headerlink" href="#system-requirements_3" title="Permanent link"></a></h3>
+<ul>
+<li>Python3.6</li>
+</ul>
+<h3 id="download-and-installation-instructions_3">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_3" title="Permanent link"></a></h3>
+<ol>
+<li>
+<p><a href="https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg">Download and install Python3.6</a> to the default directory (<code>/Library/Framework/...</code>)
+    <img alt="install Python3.6" src="../../images/python3.6-install.png" /></p>
+<ul>
+<li>Use all the default settings during installation.</li>
+<li>This will require Admin Privileges
+ a. After completing the installer, you must run the <code>Install Certificates.command</code>, do this by double-clicking on the file in the downloaded folder.
+ b. Finally, you need to change your environment with these latest changes, to do so, open a terminal and type <code>source .zprofile</code></li>
+<li>If this file does not exist, double click and run the <code>Update Shell Profile.command</code> in the downloaded folder.</li>
+</ul>
+<p>c. Now you can confirm you have the correct version of python by running <code>which python3</code> and the output should be:
+      <code>/Library/Frameworks/Python.framework/Versions/3.6/python3</code>
+2. <a href="https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-python-20.3.2-1-signed.pkg">Download and install these supplemental python packages</a>
+<img alt="install python packages" src="../../images/install-awips-python.png" />
+ - Use all the default settings during installation
+ - This will require Admin Privileges
+3. <a href="https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave-20.3.2-0.2.dmg">Download and install CAVE</a>
+<img alt="Cave System Install" src="../../images/mac-install.png" />
+ - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level
+ - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location</p>
+</li>
+</ol>
+<h3 id="run-cave_3">Run CAVE<a class="headerlink" href="#run-cave_3" title="Permanent link"></a></h3>
+<p>To run CAVE either:</p>
+<ul>
+<li>Use the System Menu Go &gt; Applications &gt; CAVE</li>
+<li>Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit <strong>enter</strong> to run it</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:</p>
+</div>
+<p><img alt="internet warning" src="../../images/mac-cave-internet-download2.png" /></p>
 <hr />
 <h2 id="edex-connection">EDEX Connection<a class="headerlink" href="#edex-connection" title="Permanent link"></a></h2>
 <p>Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter <strong>edex-beta.unidata.ucar.edu</strong>.</p>
