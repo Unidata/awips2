@@ -63,7 +63,9 @@ If you are running MacOS Monterey, you may see the following message when starti
 
 ![Monterey warning](../images/monterey-warning.png)
 
-This message can be ignored, and will hopefully go away when we release version 20+ of AWIPS.
+Monterey versions 12.3 or newer will not support our production (v18) CAVE.
+
+Please [download and install our beta v20 CAVE](../install/install-cave-beta-v20.md#macos) for newer MacOS Versions.
 
 ---
 
