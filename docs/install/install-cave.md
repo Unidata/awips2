@@ -1,5 +1,8 @@
 # Install CAVE
 
+!!! warning "Attention: Our public EDEX servers (edex-cloud.unidata.ucar.edu< and edex-beta.unidata.ucar.edu) will experience an outage this weekend from late Saturday, 4/15/23, until sometime Monday, 4/17/23.  We apologize for this inconvenience."
+
+
 CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  Unidata supports CAVE to work on three platforms: [Centos (Redhat) Linux](#linux), [Windows](#windows), and [macOS](#macos).  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
 
 ---

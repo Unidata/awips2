@@ -155,6 +155,8 @@ AWIPS Tips is a bi-weekly (every two weeks) blog series that is posted on our Un
 
 <a href="https://www.unidata.ucar.edu/blogs/news/tags/awipstips" target="_blank" rel="noopener noreferrer">View all of the AWIPS Tips blogs here</a>, and easily search for them using the *awips-tips* tag.
 
+Please join our [mailing list (awips2-users)](https://www.unidata.ucar.edu/support/#mailinglists) to get the notifications of new AWIPS Tips when they come out!
+
 ### Content
 
 A full list of all released blogs can be found below:
