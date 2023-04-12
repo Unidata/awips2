@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2011            mschenke     Initial creation
+ * Apr 14, 2023            tiffanym@ucar Bring over MJ change for 3-way toggle for products, none, maps (Jun 14, 2017)    
  * 
  * </pre>
  * 
@@ -79,11 +80,11 @@ public class D2DChangeLegendModeHandler extends AbstractD2DLegendInputHandler {
         if (!cancel && prefManager.handleClick(TOGGLE_LEGEND_PREF, mouseButton)) {
             switch (resource.getLegendMode()) {
             case MAP: {
-                resource.getLegendAction(LegendMode.NONE).run();
+                resource.getLegendAction(LegendMode.PRODUCT).run();
                 break;
             }
             case NONE: {
-                resource.getLegendAction(LegendMode.PRODUCT).run();
+                resource.getLegendAction(LegendMode.MAP).run();
                 break;
             }
             case PRODUCT: {
