@@ -1,47 +1,32 @@
 # Common Problems
 
-## Removing caveData
+## All Operating Systems
+
+### Removing caveData
 
 Removing caveData (flushing the local cache) should be one of the first troubleshooting steps to take when experiencing weird behavior in CAVE.  The cache lives in a folder called **caveData**, hence why this process is also referred to as removing or deleting caveData.
 
-### Linux
+#### Linux
 
 For Linux users, the easiest way is to open a new terminal and run the following command:
 
     rm -rf ~/caveData 
 
-### Windows 
+#### Windows 
 
 For Windows users, simply delete the caveData folder in your home user directory:
 
 ![Windows Remove caveData](../images/windowsRemoveCavedata.png)
 
-### Mac
+#### Mac
 
 For Mac users, the easiest way is to open a new terminal and run the following command:
 
     rm -rf ~/Library/caveData
 
-
 ---
 
-## CAVE Map Display in Lower Left Quadrant - Windows
-
-If you start up CAVE in Windows and notice the map is showing up only in the bottom left quadrant of your display, you will just need to tweak a few display settings.
-
-![CAVE Map 1/4 of screen](../images/CAVE_map.png)
-
-Try following these steps to fix your issue:
-
-- Right-click on the CAVE.exe (or shortcut) icon, select Properties
-- Select the Compatibility tab
-- Click "Change High DPI Settings"
-- At the bottom enable "Override High DPI scaling behavior"
-- Change the dropdown from Application to System
-
----
-
-## Disappearing Configurations
+### Disappearing Configurations
 
 If you ever notice some of the following settings you've configured/saved disappear from CAVE:
 
@@ -57,19 +42,7 @@ There is a good chance we can recover your settings.  To do so, please send a sh
 
 ---
 
-## Monterey CAVE Warning
-
-If you are running MacOS Monterey, you may see the following message when starting CAVE:
-
-![Monterey warning](../images/monterey-warning.png)
-
-Monterey versions 12.3 or newer will not support our production (v18) CAVE.
-
-Please [download and install our beta v20 CAVE](../install/install-cave-beta-v20.md#macos) for newer MacOS Versions.
-
----
-
-## Remotely Connecting to CAVE
+### Remotely Connecting to CAVE
 
 Since the pandemic began, many users have asked if they can use X11 forwarding or ssh tunneling to remotely connect to CAVE machines.  **This is not recommended or supported**, and CAVE crashes in many different ways and expresses strange behavior as well.
 
@@ -81,7 +54,82 @@ If that is not an option, then the only remote access we recommend is using some
 
 ---
 
-## Windows CAVE Start Up Error
+### CAVE Spring Start Up Error
+
+If you encounter the error below, please see one of our solution methods for resolving:
+```
+CAVE's Spring container did not initialize correctly and CAVE must shut down.
+```
+![CAVE Spring Start Up Error](../images/caveSpringError.png)
+
+We have found the reason for this failure is because the host machine is set to use a language other than English (ie. Spanish, French, etc).
+
+To resolve this issue, either:
+
+- Switch your system to English, when using CAVE
+
+or
+
+- Use our [Virtual Machine option](../install/install-cave/#method-1-linux-virtual-machine). This option allows your actual machine to stay in whichever language you choose, while allowing you to run CAVE in an environment set to English.  Although we list this installation under the Windows OS, this can also be done on Linux.
+
+!!! warning "The VM option has one notable drawback at the moment -- it cannot render RGB satellite products."
+
+---
+
+### Products Not Loading Properly
+
+This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation (and is possible on Linux), and the root of the problem is not having Python installed properly for CAVE to use the packages.
+
+If the [Windows installation](install-cave.md#download-and-installation-instructions_2) was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.
+
+The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
+![failed load](../images/failedJepMetarLoad.png)
+
+You may see an error that mentions the python package, **jep**.
+
+Known datasets this can affect (this is not a comprehensive list):
+
+  - Model Winds
+  - Metars Winds
+  - METAR Station Plot
+  - GFS Precip Type
+
+To correct this issue on Windows:
+
+  - Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)
+  - Redo all necessary [installation instructions in **steps 1 through 6**](install-cave.md#download-and-installation-instructions_2)
+
+To correct this issue on Mac:
+
+ - Install the [awips-python.pkg package found on **step 1**](https://unidata.github.io/awips2/install/install-cave/#download-and-installation-instructions_3)
+
+To correct this issue on Linux:
+
+- When running `which python` from a terminal, make sure `/awips2/python/` is returned, if not, reset that environment variable, or re-run the [**awips_install.sh** script from our installation instructions](install-cave.md#download-and-installation-instructions)
+
+---
+
+## Windows
+
+### CAVE Map Display in Lower Left Quadrant - Windows
+
+If you start up CAVE in Windows and notice the map is showing up only in the bottom left quadrant of your display, you will just need to tweak a few display settings.
+
+![CAVE Map 1/4 of screen](../images/CAVE_map.png)
+
+Try following these steps to fix your issue:
+
+- Right-click on the CAVE.exe (or shortcut) icon, select Properties
+- Select the Compatibility tab
+- Click "Change High DPI Settings"
+- At the bottom enable "Override High DPI scaling behavior"
+- Change the dropdown from Application to System
+
+---
+
+### Windows CAVE Start Up Error
+
+!!! Note "This should no longer be an issue for our v20 release of AWIPS."
 
 One common error some users are seeing manifests itself just after selecting an EDEX server to connect to.  The following error dialogs may show up:
 
@@ -128,58 +176,58 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 ---
 
-## CAVE Spring Start Up Error
+## MacOS
 
-If you encounter the error below, please see one of our solution methods for resolving:
-```
-CAVE's Spring container did not initialize correctly and CAVE must shut down.
-```
-![CAVE Spring Start Up Error](../images/caveSpringError.png)
+### Monterey CAVE Warning
 
-We have found the reason for this failure is because the host machine is set to use a language other than English (ie. Spanish, French, etc).
+If you are running MacOS Monterey, you may see the following message when starting CAVE:
 
-To resolve this issue, either:
+![Monterey warning](../images/monterey-warning.png)
 
-- Switch your system to English, when using CAVE
+Monterey versions 12.3 or newer will not support our production (v18) CAVE.
 
-or
-
-- Use our [Virtual Machine option](../install/install-cave/#method-1-linux-virtual-machine). This option allows your actual machine to stay in whichever language you choose, while allowing you to run CAVE in an environment set to English.  Although we list this installation under the Windows OS, this can also be done on Linux.
-
-!!! warning "The VM option has one notable drawback at the moment -- it cannot render RGB satellite products."
+!!! note "Please [download and install our beta v20 CAVE](../install/install-cave-beta-v20.md#macos) for newer MacOS Versions to avoid this issue."
 
 ---
 
-## Products Not Loading Properly
+### White Boxes for Surface Resources
 
-This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation, and the root of the problem is not having Python installed properly for CAVE to use the packages.
+If you do not have an NVIDIA graphics card and driver, you may see "boxes" drawn on the editor for some of the products (**METARS Station Plots** and **Surface Winds** are the resources we're aware of), as shown below:
 
-If the [Windows installation](install-cave.md#download-and-installation-instructions_2) was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.
+![](../images/caveMacGraphicsCard.png)
 
-The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
-![failed load](../images/failedJepMetarLoad.png)
+You may be able to fix this issue:
 
-You may see an error that mentions the python package, **jep**.
+- Check what graphics cards are available on your machine, by going to the Apple menu (far left, upper corner) > About This Mac > Overview tab (default):
 
-Known datasets this can affect (this is not a comprehensive list):
+    ![](../images/aboutMac.png)
+    
+- If you see two entries at the **Graphics** line, like the image shown above, then you have two graphics cards on your system. **Intel graphics cards *may*** be able to render our products properly.  In this case, you can "force" your computer to use the Intel card by running the following in a terminal:
 
-  - Model Winds
-  - Metars Winds
-  - METAR Station Plot
-  - GFS Precip Type
+      ```
+      sudo pmset -[a|b|c] gpuswitch 0
+      ```
+    
+    Where `[a|b|c]` is only one of those options, which mean:
 
-To correct this issue on Windows:
+    - a: adjust settings for **all** scenarios
+    - b: adjust settings while running off **battery**
+    - c: adjust settings while connected to **charger**
+    
+    The argument `0` sets the computer to use the dedicated GPU (in our case above the Intel GPU).
 
-  - Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)
-  - Redo all necessary [installation instructions in **steps 1 through 6**](install-cave.md#download-and-installation-instructions_2)
+    The two other options for that argument are:
 
-To correct this issue on Mac:
-
- - Install the [awips-python.pkg package found on **step 1**](https://unidata.github.io/awips2/install/install-cave/#download-and-installation-instructions_3)
+    - 1: automatic graphics switching
+    - 2: integrated GPU 
+    
+    !!! note "It may be smart to run `pmset -g` first, so you can see what the current `gpuswitch` setting is (likely `1`), that way you can revert the settings if you want them back to how they were, when not using CAVE."
 
 ---
 
-## Troubleshooting Uninstalling EDEX (Linux)
+## Linux
+
+### Troubleshooting Uninstalling EDEX
 
 Sometimes yum can get in a weird state and not know what AWIPS groups have been installed. For example if you are trying to remove AWIPS you may see an error:
 
