@@ -993,6 +993,7 @@
 0000000000|K1CN | 47.71512|-101.009| 599|Ruso, ND                           |US|MTR
 0000000000|K1CW | 41.5806 |-103.573| 1370|Gering, NE                        |US|MTR
 0000000000|K1D1 | 45.23053|-96.56596| 340|Milbank Muni Airport, Milbank, SD |US|MTR
+0000000000|K1D7 | 45.29258|-97.51379| 565|Webster Muni Airport, Webster, SD |US|MTR
 0000000000|K1DM | 47.37602|-109.814| 1093|Denton, MT                        |US|MTR
 0000000000|K1DN | 47.79468|-101.298|  634|Max, ND                           |US|MTR
 0000000000|K1DW | 41.36167|-103.79408| 1540|11.5m NW Kimball, NE            |US|MTR
@@ -1812,7 +1813,7 @@
 0000072261|KDRT | 29.38 |-100.92 |  313|DEL RIO INTL, TX                    |US|MTR
 0000000000|KDSF | 28.343| -88.165| 130|Mississippi Canyon 650, LA           |US|MTR
 0000072546|KDSM | 41.53395|-93.65311| 294|DES MOINES INTL, IA               |US|MTR
-0000072523|KDSV | 42.58 | -77.72 |  209|DANSVILLE MUNICI, NY                |US|MTR
+0000072523|KDSV | 42.57053| -77.71327| 201|DANSVILLE MUNICI, NY             |US|MTR
 0000000000|KDTA | 39.3836|-112.5022|1451|Delta Muni, Delta, UT              |US|MTR
 0000000000|KDTL | 46.83 | -95.88 |  426|DETROIT LAKES, MN                   |US|MTR
 0000000000|KDTN | 32.53 | -93.75 |   55|DNTN SHREVEPORT, LA                 |US|MTR
@@ -2680,6 +2681,7 @@
 0000000000|KMIW | 42.11061|-92.91632| 297|Marshalltown, IA                  |US|MTR
 0000000000|KMJQ | 43.66 | -94.99 |  441|JACKSON MUNI, MN                    |US|MTR
 0000000000|KMJX | 39.927| -74.292|   25|Miller Air Park, Toms River, NJ     |US|MTR
+0000000000|KMKA | 44.52524| -98.95811| 478|Miller Muni Airport, Miller, SD  |US|MTR
 0000000000|KMKC | 39.12 | -94.60 |  231|Kansas City Downtown, MO            |US|MTR
 0000072640|KMKE | 42.9548|-87.9044| 210|MILWAUKEE/MITCHE, WI                |US|MTR
 0000072636|KMKG | 43.171114|-86.236852| 193|MUSKEGON COUNTY, MI             |US|MTR
@@ -3215,7 +3217,7 @@
 0000000000|KRUQ | 35.646| -80.520|  236|Salisbury/Rowan Co, NC              |US|MTR
 0000000000|KRUT | 43.54 | -72.95 |  240|Rutland-Southern Vermont Rgnl, VT   |US|MTR
 0000000000|KRVJ | 32.05949| -82.15357| 60|Swinton Smith Field, Reidsville, GA|US|MTR
-0000000000|KRVS | 36.04 | -95.98 |  191|TULSA/JONES ARPT, OK                |US|MTR
+0000000000|KRVS | 36.04 | -95.98 |  191|TULSA RIVERSIDE ARPT, OK            |US|MTR
 0000000000|KRVL | 40.67739|-77.62683| 250|Reedsville, PA                    |US|MTR
 0000000000|KRWC | 37.51 |-122.17 |    5|REDWOOD CITY, CA                    |US|MTR
 0000000000|KRWF | 44.55 | -95.08 |  311|REDWOOD FALLS, MN                   |US|MTR
@@ -3658,7 +3660,7 @@
 0000000000|KXIH | 29.180| -94.521|   -0|High Is 179A, LA AWOS (Apache Corp) |US|MTR
 0000000000|KXLL | 40.570| -75.488|  122|Queen Cty AP, Allentown, PA         |US|MTR
 0000074794|KXMR | 28.468| -80.567|    3|Cape Canaveral AF SS, Cocoa Bch, FL |US|MTR
-0000000000|KXNA | 36.282| -94.307|  392|Fayetteville/Springdale/NW Rgnl, AR |US|MTR
+0000000000|KXNA | 36.282| -94.307|  392|Northwest Arkansas National ARPT, AR|US|MTR
 0000000000|KXNT |42.50840| -78.65808| 424|Bertrand Chaffe, Springville, NY  |US|MTR
 0000000000|KXNX | 36.37508| -86.40842| 178|Sumner Cnty AP, Gallatin, TN     |US|MTR
 0000000000|KXPY | 29.123| -90.202|   -0|Port Fourchon, LA AWOS3             |US|MTR

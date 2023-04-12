@@ -303,6 +303,7 @@
 1CN Ruso, ND
 1CW Gering, NE
 1D1 Milbank Muni Airport, Milbank, SD
+1D7 Webster Muni Airport, Webster, SD
 1DM Denton, MT
 1DN Max, ND
 1DW 11.5m NW Kimball, NE
@@ -2915,6 +2916,7 @@ MIV Millville, NJ
 MIW Marshalltown, IA
 MJQ Jackson Muni, MN
 MJX Toms River, NJ
+MKA Miller Muni Airport, Miller, SD
 MKC C B Wheeler DT AP, KC, MO; Kansas City, MO
 MKE Milwaukee, WI
 MKG Muskegon, MI
@@ -3667,7 +3669,7 @@ RUQ Salisbury/Rowan Co, NC
 RUT Rutland-Southern Vermont Rgnl, VT
 RVJ Swinton Smith Field, Reidsville, GA
 RVL Reedsville, PA
-RVS Tulsa/Jones, OK
+RVS Tulsa Riverside Arpt, OK
 RWC Redwood City, CA
 RWF Redwood Falls, MN
 RWI Rocky Mount, NC
@@ -4679,7 +4681,7 @@ XMI McNabs Is, NS
 XMM Fort McMurray, AB
 XMR Cape Canaveral AF Skid Strip, Cocoa Beach, FL
 XMY Malay Falls, NS
-XNA Fayetteville/Springdale/NW Rgnl, AR
+XNA Northwest Arkansas National Arpt, AR
 XNM North Mountain, NS
 XNT Bertrand Chaffee Hospital, Springville, NY
 XNX Sumner Cnty AP, Gallatin, TN
