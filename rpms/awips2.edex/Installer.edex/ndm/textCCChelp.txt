@@ -566,7 +566,6 @@
 5HN Cape Hinchinbrook, AK
 5HR Hayes River, AK
 5J0 Grant Cnty Rgnl, John Day, OR
-5M9 Marion-Crittenden Cnty AP, Marion, KY
 5MK Mount McKinley National Park, AK
 5NV Nunivak Island, AK
 5PX Paxson, AK
@@ -705,6 +704,7 @@ ACR Circle City, AK, P-Alaska RFC, Anchorage, AK
 ACT Waco, TX
 ACV K-Arcata, CA; P-Cordova/Mile 13, AK
 ACY Atlantic City, NJ
+ACZ Henderson Field Airport, Wallace, NC
 ACZ Cape Romanzoff, AK
 ADC Wadena Muni, MN
 ADE Deering, AK
@@ -1856,7 +1856,8 @@ GCM Claremore Regnl, OK
 GCN Grand Canyon, AZ
 GCO Green River in Colorado
 GCY Greeneville Airport, Greeneville, TN
-GDB Granite Falls Muni, MN 
+GDA Marion-Crittenden Cnty AP, Marion, KY
+GDB Granite Falls Muni, MN
 GDJ Granbury Muni, TX
 GDP Pine Springs/Guadalupe Mtns NP, TX
 GDV Glendive, MT

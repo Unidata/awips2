@@ -1176,7 +1176,6 @@
 0000072516|K5B5 | 42.89 | -73.25 |  252|Bennington/Wm H Morse State, VT     |US|MTR
 0000000000|K5C1 | 29.724| -98.695|  422|Boerne Stage Field AP, Boerne, TX   |US|MTR
 0000000000|K5H4 | 47.791| -99.932|  490|Harvey Muni, Harvey, ND             |US|MTR
-0000000000|K5M9 | 37.3363| -88.1097| 198|Marion-Critt Cnty AP, Marion, KY   |US|MTR
 0000000000|K5R0 | 28.22 | -93.75 |   26|EAST ADDITION B3, TX                |US|MTR
 0000000000|K5R8 | 30.4411| -93.4736| 25|De Quincy Industrial Air Park, LA   |US|MTR
 0000000000|K5SM | 39.426|-107.379| 3232|Sunlight, CO (Pass)                 |US|MTR
@@ -1275,6 +1274,7 @@
 0000072256|KACT | 31.62 | -97.22 |  155|WACO-MADISON COO, TX                |US|MTR
 0000000000|KACV | 40.978|-124.108|   68|Arcata/Eureka AP, CA                |US|MTR
 0000072407|KACY | 39.46 | -74.57 |   20|ATLANTIC CITY IN, NJ                |US|MTR
+0000000000|KACZ | 34.71786|-78.00389| 12|Henderson Field AP, Wallace, NC    |US|MTR
 0000000000|KADC | 46.447| -95.212|  418|Wadena Muni, MN                     |US|MTR
 0000000000|KADF | 34.0998| -93.0661| 56|Florence Mem AP, Arkadelphia, AR    |US|MTR
 0000000000|KADG | 41.87 | -84.07 |  243|Adrian/Lenawee Co, MI               |US|MTR
@@ -2084,6 +2084,7 @@
 0000000000|KGCM | 36.29 | -95.48 |  221|Claremore Regnl, OK                 |US|MTR
 0000000000|KGCN | 35.96 |-112.15 | 2125|GRAND CANYON, AZ                    |US|MTR
 0000000000|KGCY | 36.19601|-82.81099| 490|Greeneville AP, Greeneville, TN   |US|MTR
+0000000000|KGDA | 37.33594| -88.11067| 199|Marion-Critt Cnty AP, Marion, KY |US|MTR
 0000000000|KGDB | 44.753| -95.556|  319|Granite Falls Muni, MN              |US|MTR
 0000000000|KGDJ | 32.444| -97.817|  237|Granbury Muni, TX                   |US|MTR
 0000072262|KGDP | 31.83 |-104.80 | 1662|Guadalupe Mtns NP, TX               |US|MTR
