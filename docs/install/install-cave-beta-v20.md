@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 20.3.2-0.2**](#linux)
-- [**Windows: 20.3.2-0.2**](#windows)
-- [**Mac: 20.3.2-0.2**](#macos)
+- [**Linux: 20.3.2-0.3**](#linux)
+- [**Windows: 20.3.2-0.3**](#windows)
+- [**Mac: 20.3.2-0.3**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -72,7 +72,7 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 20.3.2-0.2**
+**Latest Version: 20.3.2-0.3**
 
 For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
@@ -85,16 +85,7 @@ The direct install is much easier/faster than v18*. The virtual machine option w
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2-20230329-0449.msi)
-2. Set the **user** environment variables (not **system**):
-    - Access the Environment Variables window by typing "env" in the start bar, and selecting the "Edit environment variables for **your** account"
-    - Edit your **Path** variable and add `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
-    - If not created, create a New Variables: **PYTHONHOME** and set the path to `%APPDATA%\UCAR Unidata\AWIPS CAVE\Python`
-
-!!!note "If you have multiple paths to python set in your variables, make sure that the one you added is at the top"
-
-    ![Env Vars](../images/EnvVariables-v20.png)
-    
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2-20230329-0449.msi)    
 
 #### Run CAVE
 
@@ -142,36 +133,20 @@ Once inside the VM, to run CAVE either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 20.3.2-0.2**
+**Latest Version: 20.3.2-0.3**
 
 !!! warning "These installation steps reqiure **Admin Privileges** to fully complete."
 
 ### System Requirements
 
-- Python3.6
+- Nvidia Graphics Card (Some Intel Graphics cards seem to work as well)
 
 ### Download and Installation Instructions
 
-1. [Download and install Python3.6](https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg) to the default directory (`/Library/Framework/...`)
-    ![install Python3.6](../images/python3.6-install.png)
-     - Use all the default settings during installation.
-     - This will require Admin Privileges
-          - After completing the installer, you must run the `Install Certificates.command`, do this by double-clicking on the file in the downloaded folder.
-          - Finally, you need to change your environment with these latest changes, to do so, open a terminal and type `source .zprofile`
-             - If this file does not exist, double click and run the `Update Shell Profile.command` in the downloaded folder.
-          - Now you can confirm you have the correct version of python by running `which python3` and the output should be:
-                    ```
-                    /Library/Frameworks/Python.framework/Versions/3.6/python3
-                    ```
-
-2. [Download and install these supplemental python packages](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-python-20.3.2-1-signed.pkg)
-    ![install python packages](../images/install-awips-python.png)
-     - Use all the default settings during installation
-     - This will require Admin Privileges
-3. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave-20.3.2-0.2.dmg)
+1. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave-20.3.2-0.3.dmg)
     ![Cave System Install](../images/mac-install.png)
-     - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level
-     - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location
+     - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
+     - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges
 
 ### Run CAVE
 
