@@ -30,7 +30,6 @@
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dorg.eclipse.swt.internal.gtk.useCairo=false
 -Dhttps.certificate.check=false
--Djava.library.path=/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/jep
 -XX:MaxDirectMemorySize=1G
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
@@ -71,6 +70,8 @@
    <features>
       <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
       <feature id="com.raytheon.viz.feature.awips.developer" version="1.9.0.qualifier"/>
+      <feature id="com.raytheon.viz.hydro.feature" installMode="root"/>
+      <feature id="com.raytheon.uf.viz.aviation.advisory.feature" installMode="root"/>
    </features>
 
    <configurations>
