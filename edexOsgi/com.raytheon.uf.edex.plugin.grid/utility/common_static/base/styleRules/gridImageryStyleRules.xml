@@ -1462,7 +1462,7 @@
             <parameter>geoVort</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <displayUnits label="/1e5s">/100000</displayUnits>
             <range scale="LINEAR">
                 <minValue>-5</minValue>
                 <maxValue>30</maxValue>
@@ -2166,7 +2166,7 @@
                 <minValue>0</minValue>
                 <maxValue>80</maxValue>
             </range>
-            <defaultColormap>Radar/Storm Total Precip</defaultColormap>
+            <defaultColormap>HRRR Reflectivity</defaultColormap>
             <colorbarLabeling>
                 <increment>5</increment>
             </colorbarLabeling>
@@ -4613,6 +4613,28 @@
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
+  <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>SPCGuide</creatingEntity>
+            <parameter>SRCONO</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <!-- filterLow="true" -->
+            <range scale="LINEAR">
+                <minValue>1</minValue>
+                <maxValue>8</maxValue>
+            </range>
+            <defaultColormap>SPC Outlook</defaultColormap>
+     <dataMapping>
+        <entry displayValue="2.5" pixelValue="2.5" label="TSTM" sample="TSTM" />
+        <entry displayValue="3.5" pixelValue="3.5" label="MRGL" sample="MRGL"/>
+        <entry displayValue="4.5" pixelValue="4.5" label="SLGT" sample="SLGT" />
+        <entry displayValue="5.5" pixelValue="5.5" label="ENH" sample="ENH" />
+        <entry displayValue="6.5" pixelValue="6.5" label="MDT" sample="MDT" />
+        <entry displayValue="7.5" pixelValue="7.5" label="HIGH" sample="HIGH" />
+     </dataMapping>
+        </imageStyle>
+    </styleRule>
     <!--
         * RUC, RUC130, RUC236, PR
         in/hr | 141.732 | 0.0 | 0.005 | 16 |x|,c| 12 | 8 | 0.01 0.25 0.5 
@@ -4992,7 +5014,7 @@
             <parameter>geoVort</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <displayUnits label="/1e5s">/100000</displayUnits>
             <range mirror="true" scale="LOG">
                 <minValue>5</minValue>
                 <maxValue>300</maxValue>
