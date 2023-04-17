@@ -276,6 +276,8 @@ import com.raytheon.viz.warngen.util.FollowUpUtil;
  *                                        for the bottom buttons to be centered
  * Jun 28, 2022           srcarter@ucar   Small change to disable the "UPDATE LIST"
  *                                        combobox (not used in Unidata version)
+ * Apr 17, 2023           srcarter@ucar   Re-enable single clicking for multiple selections
+ *                                        in bullet list. Increase default size of list
  *
  * </pre>
  *
@@ -563,7 +565,7 @@ public class WarngenDialog extends CaveSWTDialog
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = BULLETLIST_WIDTH_IN_CHARS * charWidth;
-        gd.heightHint = lineHeight * 4;
+        gd.heightHint = lineHeight * 7;
         bulletList.setLayoutData(gd);
         bulletListManager.recreateBullets(
                 warngenLayer.getConfiguration().getBullets(),
@@ -2037,6 +2039,7 @@ public class WarngenDialog extends CaveSWTDialog
     private void bulletListSelected() {
         bulletListManager.updateSelectedIndices(bulletList.getSelectionIndex(),
                 warngenLayer.state.followupData != null);
+        updateBulletList();
     }
 
     /**
