@@ -1,4 +1,4 @@
-# Install CAVE - BETA Versio
+# Install CAVE - BETA Version
 
 CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
 
