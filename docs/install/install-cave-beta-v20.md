@@ -76,7 +76,9 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
-The direct install is much easier/faster than v18*. The virtual machine option won't render RGB composites of satellite imagery.
+!!! note "The direct install is much easier/faster than v18*."
+
+!!! warning "The virtual machine option won't render RGB composites of satellite imagery."
 
 ### Method 1: Direct Windows Install
 
