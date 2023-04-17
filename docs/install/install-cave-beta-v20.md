@@ -80,9 +80,6 @@ The direct install is much easier/faster than v18*. The virtual machine option w
 
 ### Method 1: Direct Windows Install
 
-#### System Requirements
-- User variables PATH and PYTHONHOME must be defined and set to the AWIPS Python path
-
 #### Download and Installation Instructions
 
 1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.2-20230329-0449.msi)    
@@ -134,8 +131,6 @@ Once inside the VM, to run CAVE either:
 ## macOS <i class="fa fa-apple"></i> 
 
 **Latest Version: 20.3.2-0.3**
-
-!!! warning "These installation steps reqiure **Admin Privileges** to fully complete."
 
 ### System Requirements
 
