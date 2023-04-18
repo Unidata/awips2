@@ -2846,6 +2846,7 @@ MCU Chihuahua Intl, MX
 MCV Cuidad Victoria Arpt, MX
 MCW Mason City, IA
 MCX White Cnty AP, Monticello, IN
+MCZ Martin County Airport, Williamston, NC
 MCZ Cozumel, MX
 MD1 Rivers in Maryland
 MDC Marias Des Cygnes
