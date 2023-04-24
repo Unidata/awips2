@@ -70,7 +70,7 @@ To resolve this issue, either:
 
 or
 
-- Use our [Virtual Machine option](../install/install-cave/#method-1-linux-virtual-machine). This option allows your actual machine to stay in whichever language you choose, while allowing you to run CAVE in an environment set to English.  Although we list this installation under the Windows OS, this can also be done on Linux.
+- Use our [Virtual Machine option](../install/install-cave/#method-2-linux-virtual-machine). This option allows your actual machine to stay in whichever language you choose, while allowing you to run CAVE in an environment set to English.  Although we list this installation under the Windows OS, this can also be done on Linux.
 
 !!! warning "The VM option has one notable drawback at the moment -- it cannot render RGB satellite products."
 

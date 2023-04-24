@@ -60,7 +60,7 @@ To run CAVE either:
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
 
-Additionally users can choose to run a [virtual machine (VM)](#method-1-linux-virtual-machine) on Linux.
+Additionally users can choose to run a [virtual machine (VM)](#method-2-linux-virtual-machine) on Linux.
 
 ---
 
@@ -76,11 +76,7 @@ For Windows, Unidata offers two installation options: a [**Direct Windows Instal
 
 ### Method 1: Direct Windows Install
 
-This method has been simplified to include python packaged with CAVE so no other software installation is necessary. The CAVE shortcut on the Desktop is a `.bat` file that updates your env variables only when CAVE is launched, so it will not mess with any other python applications or environments.
-
-#### System Requirements
-
-- Running Windows OS
+This method has been simplified to include python  and java packaged with CAVE so no other software installation is necessary. CAVE no longer needs manual changes to any environment variables in order to run.
 
 #### Download and Installation Instructions
 

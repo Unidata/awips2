@@ -209,7 +209,7 @@ There currently 10 channel differences that are offered in CAVE:
 * Vegetation (0.64 - 0.87 &mu;m)
 * Upper Level Info (11.2 - 6.19 &mu;m)
 
-!!! note "The rendering of these products uses the **Jep** package in Python, which has specific [install instructions](http://127.0.0.1:8000/install/install-cave/#method-2-direct-windows-install) for Windows."
+!!! note "The rendering of these products uses the **Jep** package in Python, which has specific [install instructions](http://127.0.0.1:8000/install/install-cave/#method-1-direct-windows-install) for Windows."
 
 ---
 
