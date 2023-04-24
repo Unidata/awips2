@@ -76,7 +76,7 @@ For Windows, Unidata offers two installation options: a [**Direct Windows Instal
 
 ### Method 1: Direct Windows Install
 
-This method has been simplified to include python  and java packaged with CAVE so no other software installation is necessary. CAVE no longer needs manual changes to any environment variables in order to run.
+This method has been simplified to include python and java packaged with CAVE so no other software installation is necessary. CAVE no longer needs changes to any environment variables in order to run.
 
 #### Download and Installation Instructions
 
