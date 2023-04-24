@@ -72,12 +72,11 @@ For Windows, Unidata offers two installation options: a [**Direct Windows Instal
 
 !!! note "As of 4/24/2023, the direct install method has been completely simplified! No admin priviledges or extra software needed."
 
-Both the [direct installation method](#method-1-direct-windows-install) and [virtual machine (VM)](#method-2-linux-virtual-machine) method are straight forward installs. 
 !!! warning "At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)"
 
 ### Method 1: Direct Windows Install
 
-This method has been simplified to include python packaged with CAVE so no other software installation in necessary. The CAVE shortcut on the Desktop is a `.bat` file that updates your env variables only when CAVE is launched, so it will not mess with any other python applications or environments.
+This method has been simplified to include python packaged with CAVE so no other software installation is necessary. The CAVE shortcut on the Desktop is a `.bat` file that updates your env variables only when CAVE is launched, so it will not mess with any other python applications or environments.
 
 #### System Requirements
 
