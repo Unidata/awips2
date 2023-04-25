@@ -3,7 +3,7 @@
 $pwd=`pwd`;
 chomp $pwd;
 
-$dir="el7-dev-20230216";
+$dir="el7-dev-20230418";
 $baseDir="$dir-cave";
 
 `rm -rf $baseDir`;
@@ -33,3 +33,5 @@ foreach $line(@lines)
 
 `sudo su - -c \"createrepo -g $pwd/comps-cave.xml $pwd/$baseDir\"`;
 `sudo chown -R awips:fxalpha $baseDir`;
+
+`rsync -aP $pwd/$baseDir tiffanym\@fserv:/share/awips2/20.3.2/linux/rpms/cave`;
