@@ -1,6 +1,6 @@
 # Install CAVE
 
-CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  Unidata supports CAVE to work on three platforms: [Centos (Redhat) Linux](#linux), [Windows](#windows), and [macOS](#macos).  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
+CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  Unidata supports CAVE to work on three platforms: [Centos (Redhat) Linux](#linux), [Windows](#windows), and [macOS](#macos).  The installer may require administrator privileges to install and may require other system changes (environment variables, etc) as well.
 
 ---
 
@@ -70,7 +70,7 @@ Additionally users can choose to run a [virtual machine (VM)](#method-2-linux-vi
 
 For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
-!!! note "As of 4/24/2023, the direct install method has been completely simplified! No admin priviledges or extra software needed."
+!!! note "As of 4/24/2023, the direct install method has been completely simplified! No admin privileges or extra software needed."
 
 !!! warning "At the moment, the VM option may not render all products in CAVE (ex. RGB composites of satellite imagery)"
 
