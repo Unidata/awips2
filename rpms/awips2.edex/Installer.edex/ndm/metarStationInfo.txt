@@ -1693,6 +1693,7 @@
 0000000000|KCRV | 40.055|-105.589| 3538|Corona Pass 9N, CO                  |US|MTR
 0000072414|KCRW | 38.38 | -81.60 |  301|CHARLESTON/KANAW, WV                |US|MTR
 0000000000|KCRX | 34.91497| -88.603484| 130|Corinth-Alcorn Cnty AP, MS      |US|MTR
+0000000000|KCSB | 40.30658|-100.16207|736|Cambridge Muni AP, Cambridge, NE  |US|MTR
 0000000000|KCSG | 32.53 | -84.93 |  121|Columbus Metro AP, Columbus, GA     |US|MTR
 0000000000|KCSL | 35.34 |-120.74 |   76|CAMP SAN LUIS, CA                   |US|MTR
 0000000000|KCSM | 35.36 | -99.20 |  588|Clinton/Clinton-Sherman, OK         |US|MTR

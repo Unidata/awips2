@@ -1357,6 +1357,7 @@ CRS Corsicana Muni, TX
 CRV Corona Pass 9N, CO
 CRW Charleston, WV
 CRX Roscoe Turner AP, Corinth, MS
+CSB Cambridge Municipal Airport, Cambridge, NE
 CSG Columbus Metro AP, Columbus, GA
 CSI Cedar, Skunk, IA
 CSL Camp San Luis, CA
