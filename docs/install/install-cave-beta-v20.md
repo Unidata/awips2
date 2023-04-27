@@ -42,7 +42,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 20.3.2-0.2**
+**Latest Version: 20.3.2-0.3**
 
 ### System Requirements
 
@@ -113,9 +113,9 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.3.zip)
+1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.3** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.3.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.2.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.3.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
