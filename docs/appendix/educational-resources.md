@@ -201,6 +201,7 @@ A full list of all released blogs can be found below:
 - [Getting to Know CAVE's Display Properties](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-getting-to-know)
 - [Creating a User Override](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-a-user)
 - [Frames in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-frames-in-cave)
+- [Panes in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-panes-in-cave)
 
 #### Python-AWIPS
 
