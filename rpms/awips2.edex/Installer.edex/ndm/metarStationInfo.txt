@@ -1639,7 +1639,7 @@
 0000000000|KCLL | 30.58 | -96.37 |   97|COLLEGE STATION, TX                 |US|MTR
 0000000000|KCLM | 48.12 |-123.50 |   88|Port Angeles/Wm R Fairchild Intl, WA|US|MTR
 0000000000|KCLS | 46.677|-122.983|   54|Chehalis-Centralia AP, Chehalis, WA |US|MTR
-0000072314|KCLT | 35.2225| -80.9543| 228|Charlotte/Douglas Intl, NC         |US|MTR
+0000072314|KCLT | 35.20833|-80.96139| 221|Charlotte/Douglas Intl, NC        |US|MTR
 0000000000|KCLW | 27.9772| -82.7591| 22|Clearwater Air Pk, Clearwater, FL   |US|MTR
 0000000000|KCMA | 34.21 |-119.09 |   23|Camarillo, CA                       |US|MTR
 0000000000|KCMB | 29.441| -92.979|   -0|East Cameron 47JP, LA               |US|MTR
