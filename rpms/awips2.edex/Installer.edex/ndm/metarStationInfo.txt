@@ -1671,9 +1671,8 @@
 0000072445|KCOU | 38.83 | -92.22 |  274|COLUMBIA REGIONA, MO                |US|MTR
 0000000000|KCPC | 34.28 | -78.71 |   30|Whiteville/Columbus Co Muni, NC     |US|MTR
 0000000000|KCPF | 37.38736|-83.26161| 383|Wendell H Ford AP, Hazard, KY     |US|MTR
-0000000000|KCPK | 36.66 | -76.32 |    6|Chesapeake Muni, VA                 |US|MTR
+0000000000|KCPK | 36.66562|-76.32066| 6|Chesapeake Muni, VA                 |US|MTR
 0000000000|KCPM | 33.88992| -118.24381|  30|Compton/Woodley AP, Compton, CA |US|MTR
-0000000000|KCPK | 36.66 | -76.32 |    6|Chesapeake Muni, VA                 |US|MTR
 0000072569|KCPR | 42.93 |-106.47 | 1622|CASPER/NATRONA I, WY                |US|MTR
 0000000000|KCPS | 38.571| -90.156|  126|St Louis DT AP, Cahokia/St Louis, IL|US|MTR
 0000000000|KCPT | 32.354| -97.434|  260|Cleburne Muni, Cleburne, TX         |US|MTR
@@ -1959,7 +1958,7 @@
 0000000000|KEZM | 32.21639| -83.12867| 93|Heart of GA Rgnl AP, Eastman, GA  |US|MTR
 0000000000|KEZS | 44.787| -88.560|  248|Shawano Muni, WI                    |US|MTR
 0000000000|KEZZ | 39.72756|-94.27639| 317|Cameron Memorial AP, Cameron, MO  |US|MTR
-0000000000|KF00 | 33.61309|-96.17933| 188|Jones Field AP, Bonham, TXX       |US|MTR
+0000000000|KF00 | 33.61309|-96.17933| 188|Jones Field AP, Bonham, TX        |US|MTR
 0000000000|KF05 | 34.226| -99.284|  386|Wilbarger Cnty AP, Vernon, TX       |US|MTR
 0000000000|KF17 | 31.8316| -94.1564| 97|Center Muni, Center, TX             |US|MTR
 0000000000|KF44 | 32.16385|-95.82835| 135|Athens Muni, Athens, TX           |US|MTR
@@ -2412,7 +2411,7 @@
 0000000000|KJFX | 33.901995|-87.31417|147|Jasper, AL                        |US|MTR
 0000000000|KJFZ | 37.064| -81.798|  808|Richlands/Tazewell Co, VA           |US|MTR
 0000000000|KJGG | 37.23917|-76.71610| 15|Williamsburg-Jamestown Airport, VA |US|MTR
-0000000000|KJHN | 37.583|-101.733| 1013|Johnson, KS                         |US|MTR
+0000000000|KJHN | 37.58539|-101.73230| 1014|Johnson, KS                     |US|MTR
 0000000000|KJHW | 42.16 | -79.25 |  525|JAMESTOWN, NY                       |US|MTR
 0000000000|KJKA | 30.29 | -87.672|    5|Jack Edwards AP, Gulf Shores, AL    |US|MTR
 0000000000|KJKJ | 46.84 | -96.66 |  280|Moorhead Muni, MN                   |US|MTR
@@ -2713,7 +2712,7 @@
 0000000000|KMMT | 33.93 | -80.80 |   77|MCENTIRE/COLMBUS, SC                |US|MTR
 0000000000|KMMU | 40.799| -74.415|   57|Morristown Muni, NJ                 |US|MTR
 0000000000|KMMV | 45.1960|-123.1320| 48|McMinnville Muni, OR                |US|MTR
-0000000000|KMNE | 32.64603|-93.29808| 85|Minden Airport, Minden, LAx        |US|MTR
+0000000000|KMNE | 32.64603|-93.29808| 85|Minden Airport, Minden, LA         |US|MTR
 0000000000|KMNH | 39.22316|-104.64226| 2149|Monument/Elbert, CO             |US|MTR
 0000000000|KMNI | 33.587| -80.209|   31|Manning, SC                         |US|MTR
 0000000000|KMNM | 45.12 | -87.63 |  189|MENOMINEE, MI                       |US|MTR
@@ -2732,7 +2731,7 @@
 0000000000|KMPZ | 40.95 | -91.51 |  224|Mount Pleasant Muni, IA             |US|MTR
 0000000000|KMQB | 40.52 | -90.65 |  215|Macomb, IL                          |US|MTR
 0000000000|KMQE | 42.21 | -71.11 |  200|East Milton/Blue Hill Obsrv, MA     |US|MTR
-0000000000|KMQI | 35.918983|-75.695536| 4|MANTEO/DARE CO R, NC n            |US|MTR
+0000000000|KMQI | 35.918983|-75.695536| 4|MANTEO/DARE CO R, NC              |US|MTR
 0000000000|KMQJ | 39.844| -85.897|  263|Mount Comfort, IN                   |US|MTR
 0000000000|KMQM | 44.58 |-112.32 | 2068|MONIDA, MT                          |US|MTR
 0000000000|KMQS | 39.979| -75.865|  201|Chester/Carlson AP, Coatesville, PA |US|MTR
