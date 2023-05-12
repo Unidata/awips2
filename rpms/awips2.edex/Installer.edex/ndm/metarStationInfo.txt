@@ -2553,7 +2553,7 @@
 0000000000|KLSB | 32.33346|-108.69174| 1307|Lordsburg Muni, NM              |US|MTR
 0000000000|KLSD | 38.04 | -84.62 |  299|LEXINGTON/CREECH, KY                |US|MTR
 0000072643|KLSE | 43.88 | -91.25 |  202|LA CROSSE MUNICI, WI                |US|MTR
-0000072225|KLSF | 32.34 | -85.00 |  130|FORT BENNING, GA                    |US|MTR
+0000072225|KLSF | 32.34 | -85.00 |  130|Fort Moore, GA                      |US|MTR
 0000000000|KLSK | 42.7538|-104.4046|1514|Lusk Muni, Lusk, WY                |US|MTR
 0000000000|KLSV | 36.23 |-115.03 |  570|LAS VEGS/NELIS AF,NV                |US|MTR
 0000072352|KLTS | 34.68 | -99.27 |  420|ALTUS AFB, OK                       |US|MTR
