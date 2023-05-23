@@ -92,17 +92,17 @@ EXEC	"rtstats -h rtstats.unidata.ucar.edu"
 #
 # DEFAULT - Satellite Ancillary EDEX
 #
-REQUEST NIMAGE "CloudAndMoistureImagery" 10.0.0.233 # GOES Stiched Channels (Unidata)
-REQUEST NIMAGE "GLMISatSS" 10.0.0.233 # GOES Stitched GLM from NWS ISatSS (Unidata)
-REQUEST NIMAGE "CIRA" 10.0.0.233 # GOES CIRA RGBs (Unidata)
-REQUEST HDS|NOTHER "IXT.[8-9]9"  10.0.0.233 # GOES Derived Products & Wind (SBN)
-REQUEST NOTHER "^IXT[WXY]01" 10.0.0.233       # GOES Derived products-different WMO (COD, CPS, CTP) (SBN)
+REQUEST NIMAGE "CloudAndMoistureImagery" idd.unidata.ucar.edu # GOES Stiched Channels (Unidata)
+REQUEST NIMAGE "GLMISatSS" idd.unidata.ucar.edu # GOES Stitched GLM from NWS ISatSS (Unidata)
+REQUEST NIMAGE "CIRA" idd.unidata.ucar.edu # GOES CIRA RGBs (Unidata)
+REQUEST HDS|NOTHER "IXT.[8-9]9"  idd.unidata.ucar.edu # GOES Derived Products & Wind (SBN)
+REQUEST NOTHER "^IXT[WXY]01" idd.unidata.ucar.edu       # GOES Derived products-different WMO (COD, CPS, CTP) (SBN)
 
-#REQUEST NOTHER "^TI[A-W]... KNES" 10.0.0.233  # VIIRS and GOES CMI (SBN)
-#REQUEST DIFAX "OR_GLM-L2" 10.0.0.233 # GOES GLM Level 2 (SBN) 
-#REQUEST UNIWISC|NIMAGE ".*" 10.0.0.233        # AREA/GINI and GOES (NIMAGE feedtype includes DIFAX)
-#REQUEST DIFAX "OR_ABI" 10.0.0.233            # GOES ABI netCDF4 (Unidata tiles - not using)
-#REQUEST NOTHER "^TI[PRS]... KNES" 10.0.0.233 # GOES ABI gini (not using)
+#REQUEST NOTHER "^TI[A-W]... KNES" idd.unidata.ucar.edu  # VIIRS and GOES CMI (SBN)
+#REQUEST DIFAX "OR_GLM-L2" idd.unidata.ucar.edu # GOES GLM Level 2 (SBN) 
+#REQUEST UNIWISC|NIMAGE ".*" idd.unidata.ucar.edu        # AREA/GINI and GOES (NIMAGE feedtype includes DIFAX)
+#REQUEST DIFAX "OR_ABI" idd.unidata.ucar.edu            # GOES ABI netCDF4 (Unidata tiles - not using)
+#REQUEST NOTHER "^TI[PRS]... KNES" idd.unidata.ucar.edu # GOES ABI gini (not using)
 
 #REQUEST WMO ".*" initial-secondary-host.another.domain
 #REQUEST WMO ".*" another-secondary-host.yet_another.domain:3152

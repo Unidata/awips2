@@ -90,8 +90,8 @@ EXEC	"rtstats -h rtstats.unidata.ucar.edu"
 # which host can deliver the data-products most quickly on average.
 #
 # DEFAULT Radar Ancillary EDEX
-REQUEST NEXRAD3 ".*" 10.0.0.233 # Radar Level3 
-REQUEST HDS "^SDUS6.*" 10.0.0.233 # Radar Level3 - specific files
+REQUEST NEXRAD3 ".*" idd.unidata.ucar.edu # Radar Level3 
+REQUEST HDS "^SDUS6.*" idd.unidata.ucar.edu # Radar Level3 - specific files
 #
 #REQUEST WMO ".*" initial-secondary-host.another.domain
 #REQUEST WMO ".*" another-secondary-host.yet_another.domain:3152
