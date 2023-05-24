@@ -2104,7 +2104,7 @@
 0000000000|KGGI | 41.709| -92.735|  307|Grinnell Rgnl AP, Grinnell, IA      |US|MTR
 0000000000|KGGP | 40.711| -86.373|  225|Logansport/Cass Cnty AP, IN         |US|MTR
 0000072768|KGGW | 48.21 |-106.63 |  693|GLASGOW INTL ARPT, MT               |US|MTR
-0000000000|KGHB | 27.840| -91.988|   -0|GB172/Salsa (Shell E-P)             |US|MTR
+0000000000|KGHB | 27.840| -91.988|   -0|GB172/Salsa (Shell E-P), LA         |US|MTR
 0000000000|KGHG | 42.098| -70.672|    3|Harlow Fld, Marshfield Muni, MA     |US|MTR
 0000000000|KGHW | 45.65 | -95.32 |  425|Glenwood, MN                        |US|MTR
 0000000000|KGIC | 45.943|-116.123| 1010|Idaho Cnty AP, Grangeville, ID      |US|MTR
@@ -2226,7 +2226,7 @@
 0000000000|KHHF | 35.895|-100.404|  730|Hemphill Co AP, Canadian, TX        |US|MTR
 0000000000|KHHG | 40.8529|-85.4571| 246|Huntington Muni, Huntington, IN     |US|MTR
 0000000000|KHHR | 33.93 |-118.34 |   20|Hawthorne Muni/Jack Northrop Fld, CA|US|MTR
-0000000000|KHHV | 26.939| -94.689|   -0|Alaminos Canyon 25/H-D (ExxonMobil) |US|MTR
+0000000000|KHHV | 26.939|-94.689| -0|Alaminos Canyon 25/H-D (ExxonMobil), TX|US|MTR
 0000000000|KHHW | 34.0334| -95.54206| 174|Stan Stamper Muni, Hugo, OK       |US|MTR
 0000000000|KHIB | 47.39 | -92.85 |  412|HIBBING, MN                         |US|MTR
 0000000000|KHIE | 44.36 | -71.53 |  322|WHITEFIELD, NH                      |US|MTR
@@ -2678,7 +2678,7 @@
 0000000000|KMIE | 40.242| -85.396|  286|Muncie/Delaware Co-Johnson Fld, IN  |US|MTR
 0000000000|KMIJ | 40.19 |-112.93 | 1329|DUGWAY/TOOELE, UT                   |US|MTR
 0000000000|KMIO |36.90922|-94.88750| 246|MIAMI Regional Airport, OK         |US|MTR
-0000000000|KMIS | 29.296| -88.842|   -0|Main Pass 140B AWOS (Apache Corp)   |US|MTR
+0000000000|KMIS | 29.296| -88.842|  -0|Main Pass 140B AWOS (Apache Corp), LA|US|MTR
 0000000000|KMIV | 39.37 | -75.07 |   26|Millville Muni, NJ                  |US|MTR
 0000000000|KMIW | 42.11061|-92.91632| 297|Marshalltown, IA                  |US|MTR
 0000000000|KMJQ | 43.66 | -94.99 |  441|JACKSON MUNI, MN                    |US|MTR
@@ -3372,7 +3372,7 @@
 0000000000|KSPR | 28.5989| -91.2064| -0|GOMEX Ship Shoal, LA AWOS-3         |US|MTR
 0000072351|KSPS | 33.98 | -98.48 |  314|SHEPPARD AFB, TX                    |US|MTR
 0000072650|KSPW | 43.17 | -95.21 |  404|Spencer Muni, IA                    |US|MTR
-0000000000|KSQE | 28.083| -90.819|   -0|GOMEX Ship Shoal 354 Fieldwood Energ|US|MTR
+0000000000|KSQE | 28.083| -90.819| -0|GOMEX Ship Shoal 354 Fieldwood Energ, LA|US|MTR
 0000000000|KSQI | 41.75 | -89.67 |  197|STERLING ROCK, IL                   |US|MTR
 0000000000|KSQL | 37.53 |-122.25 |    1|SAN CARLOS, CA                      |US|MTR
 0000000000|KSRB | 36.0559| -85.5308| 312|Upper Cumberland Reg AP, Sparta, TN|US|MTR
@@ -3395,7 +3395,7 @@
 0000000000|KSTN | 33.44 | -90.92 |   39|STONEVILLE, MS                      |US|MTR
 0000000000|KSTP | 44.94 | -93.05 |  232|SAINT PAUL, MN                      |US|MTR
 0000000000|KSTS | 38.51 |-122.81 |   38|Santa Rosa/Sonoma Co, CA            |US|MTR
-0000000000|KSTZ | 28.160| -90.666|   -0|South Timbalier 301B (Shell E-P)    |US|MTR
+0000000000|KSTZ | 28.160| -90.666|   -0|South Timbalier 301B (Shell E-P), LA|US|MTR
 0000000000|KSUA | 27.18076|-80.22324| 5|Stuart/Witham, FL                   |US|MTR
 0000000000|KSUE | 44.84367|-87.42153| 219|STURGEON BAY, WI                  |US|MTR
 0000000000|KSUN | 43.504|-114.296| 1622|Friedman Mem AP, Hailey, ID         |US|MTR
@@ -3589,7 +3589,7 @@
 0000000000|KVIH | 38.14 | -91.77 |  350|VICHY/ROLLA, MO                     |US|MTR
 0000000000|KVIS | 36.33 |-119.40 |   89|VISALIA, CA                         |US|MTR
 0000000000|KVJI | 36.68 | -82.03 |  631|Abington, VA                        |US|MTR
-0000000000|KVKY | 29.248| -88.441|   -0|Main Pass 289C AWOS3 (Apache Corp)  |US|MTR
+0000000000|KVKY | 29.248| -88.441| -0|Main Pass 289C AWOS3 (Apache Corp), LA|US|MTR
 0000000000|KVKS | 32.2391| -90.9282| 33|Vicksburg Muni, Vicksburg, MS       |US|MTR
 0000000000|KVLD | 30.79 | -83.28 |   68|VALDOSTA, GA                        |US|MTR
 0000000000|KVLL | 42.543| -83.178|  222|Oakland/Troy AP, Troy, MI           |US|MTR
@@ -3603,7 +3603,7 @@
 0000072221|KVPS | 30.48 | -86.53 |   26|EGLIN AFB/VALPAR, FL                |US|MTR
 0000000000|KVPZ | 41.45 | -87.01 |  235|Valparaiso/Porter Co Muni, IN       |US|MTR
 0000000000|KVQQ | 30.219| -81.877|   25|Jacksonville/Cecil Fld NAS, FL      |US|MTR
-0000000000|KVQT | 28.270| -92.264|   -0|Vermilion 331 (Energy Res Tech)     |US|MTR
+0000000000|KVQT | 28.270| -92.264|   -0|Vermilion 331 (Energy Res Tech), LA |US|MTR
 0000000000|KVRB | 27.65530|-80.41424| 7|VERO BEACH, FL                      |US|MTR
 0000000000|KVSF | 43.34 | -72.52 |  175|SPRINGFIELD ST, VT                  |US|MTR
 0000000000|KVTA | 40.025| -82.462|  269|Newark/Heath AP, Newark, OH         |US|MTR
@@ -3617,7 +3617,7 @@
 0000000000|KVVV | 45.31 | -96.42 |  335|Ortonville, MN                      |US|MTR
 0000000000|KVWU | 48.15 | -94.52 |  360|Waskish Muni, MN                    |US|MTR
 0000000000|KVYS | 41.35 | -89.15 |  199|Peru, IL                            |US|MTR
-0000000000|KVZA | 28.060| -92.271|   -0|VR 380A (Mariner Energy)            |US|MTR
+0000000000|KVZA | 28.060| -92.271|   -0|VR 380A (Mariner Energy), LA        |US|MTR
 0000000000|KW06 | 37.99 | -75.87 |    1|CRISFIELD (CGLS), MD                |US|MTR
 0000000000|KW13 | 38.0769| -78.9444| 438|Eagle's Nest AP, Waynesboro, VA    |US|MTR
 0000000000|KW22 | 39.00 | -80.274|  498|Upshur Cnty AP, Buckhannon, WV      |US|MTR

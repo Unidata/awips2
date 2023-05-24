@@ -1880,7 +1880,7 @@ GGI Grinnell Rgnl AP, Grinnell, IA
 GGP Logansport, IN
 GGT Aurora, Guatemala
 GGW WFO Glasgow, MT WSR-88D
-GHB GOMEX GB172/Salsa (Shell E-P)
+GHB GOMEX GB172/Salsa (Shell E-P), LA
 GHG Harlow Fld, Marshfield Muni, MA
 GHW Glenwood, MN
 GIC Idaho Cnty AP, Grangeville, ID
@@ -2036,7 +2036,7 @@ HHG Huntington Muni, Huntington, IN
 HHI Wheeler AFB, HI
 HHN Hana, HI
 HHR Hawthorne, CA
-HHV GOMEX AC25/Hoover-Diana (ExxonMobile)
+HHV GOMEX AC25/Hoover-Diana (ExxonMobile), TX
 HHW Stan Stamper Muni, Hugo, OK
 HIB Hibbing, MN
 HIE Whitefield, NH
@@ -2913,7 +2913,7 @@ MIM Miami River
 MIN Minnesota, Mississippi Above St Paul
 MIO MIAMI Regional Airport, OK
 MIO Saltillo, MX
-MIS K-GOMEX MP 140B (Apache Corp); Mississippi Mainstem
+MIS K-GOMEX MP 140B (Apache Corp); Mississippi Mainstem, LA
 MIT Ixtepec, OX, MX
 MIV Millville, NJ
 MIW Marshalltown, IA
@@ -3864,7 +3864,7 @@ SPN Spanish Language Products
 SPR GOMEX Ship Shoal, LA AWOS-3
 SPS Sheppard AFB, TX
 SPW Spencer, IA
-SQE Ship Shoal 354 GOMEX (Fieldwood Energy)
+SQE Ship Shoal 354 GOMEX (Fieldwood Energy), LA
 SQI Sterling Rockfalls, IL
 SQL San Carlos, CA
 SRB Upper Cumberland Reg AP, Sparta, TN
@@ -3904,7 +3904,7 @@ STS Santa Rosa, CA
 STT Charlotte Amalie, VI
 STU N-American Samoa
 STX Christiansted, Saint Croix, VI
-STZ GOMEX ST 301 (Shell E-P)
+STZ GOMEX ST 301 (Shell E-P), LA
 SUA Stuart/Witham, FL
 SUE Sturgeon Bay, WI
 SUN Friedman Mem AP, Hailey, ID
@@ -4215,7 +4215,7 @@ VWS P-Valdez, AK
 VWU Waskish Muni, MN
 VWX Evansville, IN WSR-88D
 VYS Peru, IL
-VZA GOMEX VR 380A (Mariner Energy)
+VZA GOMEX VR 380A (Mariner Energy), LA
 VZY C-Mackenzie Auto, BC
 W06 Crisfield CGLS, MD
 W13 Eagle's Nest AP, Waynesboro, VA
