@@ -302,6 +302,8 @@
 1CM Stanford, MT
 1CN Ruso, ND
 1CW Gering, NE
+1D1 Milbank Muni Airport, Milbank, SD
+1D7 Webster Muni Airport, Webster, SD
 1DM Denton, MT
 1DN Max, ND
 1DW 11.5m NW Kimball, NE
@@ -398,6 +400,7 @@
 2C8 Cavalier Muni, Cavalier, ND
 2D5 Oakes Muni, Oakes, ND
 2DP Stumpy Point, NC
+2G2 Jefferson Cnty AP, Steubenville, OH
 2G9 Somerset Cnty AP, Somerset, PA
 2G4 Garrett Cnty AP, Oakland, MD
 2G6 Meadville, PA
@@ -437,6 +440,7 @@
 35A Union County Airport, Union, SC
 35B Merrimack River, MA
 35D Allegan, MI
+36K Lakin Airport, Lakin, KS
 37C West Cameron 556, LA
 3A1 Folsom Fld AP, Cullman, AL
 3A6 Newhall, CA
@@ -562,7 +566,6 @@
 5HN Cape Hinchinbrook, AK
 5HR Hayes River, AK
 5J0 Grant Cnty Rgnl, John Day, OR
-5M9 Marion-Crittenden Cnty AP, Marion, KY
 5MK Mount McKinley National Park, AK
 5NV Nunivak Island, AK
 5PX Paxson, AK
@@ -600,7 +603,6 @@
 6R3 Cleveland Muni, Cleveland, TX
 6R6 Dryden/Terrell Co, TX
 6S2 Florence Muni, Florence, OR
-6S5 Ravalli Cnty AP, Hamilton, MT
 6V1 Imperial, NE
 6V3 Richlands/Tazewell Co, VA
 6V8 Montrose, CO
@@ -702,6 +704,7 @@ ACR Circle City, AK, P-Alaska RFC, Anchorage, AK
 ACT Waco, TX
 ACV K-Arcata, CA; P-Cordova/Mile 13, AK
 ACY Atlantic City, NJ
+ACZ Henderson Field Airport, Wallace, NC
 ACZ Cape Romanzoff, AK
 ADC Wadena Muni, MN
 ADE Deering, AK
@@ -714,6 +717,7 @@ ADM K-Ardmore Municipal, OK; P-Marshall D Hunter AP, Marshall, AK
 ADN Additional Details to Natl Wx Summary; C-Doaktown Auto RCS, NB
 ADQ Kodiak, AK
 ADS Addison Airport, Dallas, TX
+ADT Atwood-Rawlins Cnty Airport, Atwood, KS
 ADT Slana Arpt, AK
 ADU K-Auduborn, IA; P-Dutch Harbor, AK
 ADW Andrews AFB, Camp Springs, MD
@@ -1353,6 +1357,7 @@ CRS Corsicana Muni, TX
 CRV Corona Pass 9N, CO
 CRW Charleston, WV
 CRX Roscoe Turner AP, Corinth, MS
+CSB Cambridge Municipal Airport, Cambridge, NE
 CSG Columbus Metro AP, Columbus, GA
 CSI Cedar, Skunk, IA
 CSL Camp San Luis, CA
@@ -1473,7 +1478,7 @@ DMX WFO Des Moines, Johnston, IA WSR-88D
 DNA Dona Ana County Jetport, NM
 DNK Self Strip, Ft. Polk, LA
 DNL Augusta, GA
-DNN Dalton Muni, GA
+DNN Dalton Muni AP, Dalton, GA
 DNS Denison, IA
 DNV Danville, IL
 DOE Doe Lake, MI
@@ -1852,7 +1857,8 @@ GCM Claremore Regnl, OK
 GCN Grand Canyon, AZ
 GCO Green River in Colorado
 GCY Greeneville Airport, Greeneville, TN
-GDB Granite Falls Muni, MN 
+GDA Marion-Crittenden Cnty AP, Marion, KY
+GDB Granite Falls Muni, MN
 GDJ Granbury Muni, TX
 GDP Pine Springs/Guadalupe Mtns NP, TX
 GDV Glendive, MT
@@ -1867,13 +1873,14 @@ GFK Grand Forks, ND
 GFL Glens Falls, NY
 GFU N-Funafuti, TV
 GGE Georgetown Cnty AP, SC
+GGF Grant Muni Airport, NE
 GGG Longview, TX
 GGH A-Honiara/Henderson, Solomon Is
 GGI Grinnell Rgnl AP, Grinnell, IA
 GGP Logansport, IN
 GGT Aurora, Guatemala
 GGW WFO Glasgow, MT WSR-88D
-GHB GOMEX GB172/Salsa (Shell E-P)
+GHB GOMEX GB172/Salsa (Shell E-P), LA
 GHG Harlow Fld, Marshfield Muni, MA
 GHW Glenwood, MN
 GIC Idaho Cnty AP, Grangeville, ID
@@ -2029,7 +2036,7 @@ HHG Huntington Muni, Huntington, IN
 HHI Wheeler AFB, HI
 HHN Hana, HI
 HHR Hawthorne, CA
-HHV GOMEX AC25/Hoover-Diana (ExxonMobile)
+HHV GOMEX AC25/Hoover-Diana (ExxonMobile), TX
 HHW Stan Stamper Muni, Hugo, OK
 HIB Hibbing, MN
 HIE Whitefield, NH
@@ -2095,6 +2102,7 @@ HQI GOMEX High Is 376, TX AWOS-3
 HQM Hoquiam, WA
 HQU Thomson-McDuffie Co AP, Thomson, GA
 HQZ Mesquite, TX
+HRF Ravalli Cnty AP, Hamilton, MT
 HRI Hermiston, OR
 HRJ Erwin/Harnett Co, NC
 HRL Harlingen, TX
@@ -2154,7 +2162,6 @@ I19 Greene Co-Lewis Jackson AP, Dayton, OH
 I18 New Castle, IN
 I23 Fayette County Airport, OH
 I35 Tucker-Guthrie Mem AP, Harlan, KY
-I39 Madison AP, Richmond, KY
 I43 James A Rhodes Airport, Jackson, OH
 I63 Mt. Sterling Muni, IL
 I67 Cincinnati W AP, Harrison, OH
@@ -2567,6 +2574,7 @@ K59 Amelia Earhart AP, Atchison, KS
 K61 Moritz Mem AP, Beloit, KS
 K62 Gene Synder Airport, Falmouth, KY
 K68 Garnett Muni AP, Garnett, KS
+K70 Ocean Reef Club Airport, Key Largo, FL
 K78 Abilene Muni AP, Abilene, KS
 K82 Smith Ctr Muni, KS
 K83 Sabetha Muni AP, Sabetha, KS
@@ -2728,7 +2736,7 @@ LSB Lordsburg Muni, NM
 LSC Lower Sacramento River
 LSD Lexington/Creech, KY
 LSE La Crosse, WI
-LSF Fort Benning, Columbus, GA
+LSF Fort Moore, Columbus, GA
 LSK Lusk Muni, Lusk, WY
 LST Lone Star, TX
 LSV Nellis AFB, Las Vegas, NV
@@ -2774,6 +2782,7 @@ LYV Quentin Aanenson AP, Luverne, MN
 LZK WFO Little Rock, North Little Rock, AR WSR-88D
 LZU Lawrenceville/Gwinnett Co, GA 
 LZZ Lampasas, TX
+M01 General Dewitt Spain Airport, Memphis, TN
 M02 Dickson Muni AP, Dickson, TN
 M04 Covington Muni AP, Covington, TN
 M08 Bolivar/William Whitehurst, TN
@@ -2838,6 +2847,7 @@ MCU Chihuahua Intl, MX
 MCV Cuidad Victoria Arpt, MX
 MCW Mason City, IA
 MCX White Cnty AP, Monticello, IN
+MCZ Martin County Airport, Williamston, NC
 MCZ Cozumel, MX
 MD1 Rivers in Maryland
 MDC Marias Des Cygnes
@@ -2903,12 +2913,13 @@ MIM Miami River
 MIN Minnesota, Mississippi Above St Paul
 MIO MIAMI Regional Airport, OK
 MIO Saltillo, MX
-MIS K-GOMEX MP 140B (Apache Corp); Mississippi Mainstem
+MIS K-GOMEX MP 140B (Apache Corp); Mississippi Mainstem, LA
 MIT Ixtepec, OX, MX
 MIV Millville, NJ
 MIW Marshalltown, IA
 MJQ Jackson Muni, MN
 MJX Toms River, NJ
+MKA Miller Muni Airport, Miller, SD
 MKC C B Wheeler DT AP, KC, MO; Kansas City, MO
 MKE Milwaukee, WI
 MKG Muskegon, MI
@@ -3243,6 +3254,7 @@ OHP Ohio to Parkersberg
 OHS Ohio to Shawneetown
 OHX WFO Nashville, TN WSR-88D
 OIC LT Warren Eaton Airport, Norwich, NY
+OIN Oberlin Muni Airport, Oberlin, KS
 OJA Stafford AP, Weatherford, OK
 OJC Olathe, KS
 OJI Ojibway, MI
@@ -3587,6 +3599,7 @@ REV WFO Reno, NV
 REX Radar Map of Extrapolated Echo Patterns
 RFD Rockford, IL
 RFI Rusk Cnty AP, Henderson, TX
+RGA Central Kentucky Regional Airport, Richmond, KY
 RGK Red Wing, MN
 RGX Reno, NV WSR-88D
 RHA Middle Atlantic RFC, State College, PA
@@ -3659,7 +3672,7 @@ RUQ Salisbury/Rowan Co, NC
 RUT Rutland-Southern Vermont Rgnl, VT
 RVJ Swinton Smith Field, Reidsville, GA
 RVL Reedsville, PA
-RVS Tulsa/Jones, OK
+RVS Tulsa Riverside Arpt, OK
 RWC Redwood City, CA
 RWF Redwood Falls, MN
 RWI Rocky Mount, NC
@@ -3680,6 +3693,7 @@ RZZ Roanoke Rapids/Halifax Co, NC
 S02 Ship Shoal 224A, LA
 S06 Mullan, ID
 S10 Lake Chelan AP, Chelan, WA
+S12 Albany Municipal Airport, Albany, OR
 S14 Spencer, IA
 S19 Friday Harbor, WA
 S22 Hermiston Muni, OR
@@ -3717,6 +3731,7 @@ SBN South Bend, IN
 SBO Emanuel Cnty AP, Swainsboro, GA
 SBP San Luis Obispo, CA
 SBS Steamboat Springs, CO
+SBX Shelby Airport, Shelby, MT
 SBY Salisbury, MD
 SC1 South Central US; South Carolina Rivers
 SCC Storm Summary
@@ -3850,7 +3865,7 @@ SPN Spanish Language Products
 SPR GOMEX Ship Shoal, LA AWOS-3
 SPS Sheppard AFB, TX
 SPW Spencer, IA
-SQE Ship Shoal 354 GOMEX (Fieldwood Energy)
+SQE Ship Shoal 354 GOMEX (Fieldwood Energy), LA
 SQI Sterling Rockfalls, IL
 SQL San Carlos, CA
 SRB Upper Cumberland Reg AP, Sparta, TN
@@ -3890,7 +3905,7 @@ STS Santa Rosa, CA
 STT Charlotte Amalie, VI
 STU N-American Samoa
 STX Christiansted, Saint Croix, VI
-STZ GOMEX ST 301 (Shell E-P)
+STZ GOMEX ST 301 (Shell E-P), LA
 SUA Stuart/Witham, FL
 SUE Sturgeon Bay, WI
 SUN Friedman Mem AP, Hailey, ID
@@ -4201,7 +4216,7 @@ VWS P-Valdez, AK
 VWU Waskish Muni, MN
 VWX Evansville, IN WSR-88D
 VYS Peru, IL
-VZA GOMEX VR 380A (Mariner Energy)
+VZA GOMEX VR 380A (Mariner Energy), LA
 VZY C-Mackenzie Auto, BC
 W06 Crisfield CGLS, MD
 W13 Eagle's Nest AP, Waynesboro, VA
@@ -4209,6 +4224,7 @@ W16 Winchester, VA
 W22 Upshur Cnty AP, Buckhannon, WV
 W29 Bay Bridge AP, Stevensville, MD
 W31 Lunenburg Cnty AP, Kenbridge, VA
+W40 Mt Olive Muni Airport, Mount Olive, NC
 W43 Hulett Muni, Hulett, WY
 W63 Lake Country Rgnl AP, Clarksville, VA
 W75 Hummel Fld AP, Saluda, VA
@@ -4669,7 +4685,7 @@ XMI McNabs Is, NS
 XMM Fort McMurray, AB
 XMR Cape Canaveral AF Skid Strip, Cocoa Beach, FL
 XMY Malay Falls, NS
-XNA Fayetteville/Springdale/NW Rgnl, AR
+XNA Northwest Arkansas National Arpt, AR
 XNM North Mountain, NS
 XNT Bertrand Chaffee Hospital, Springville, NY
 XNX Sumner Cnty AP, Gallatin, TN
