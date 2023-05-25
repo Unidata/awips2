@@ -3242,6 +3242,7 @@
 0000000000|KS02 | 28.50 | -91.30 |   32|SHIP SHOAL B224A, LA                |US|MTR
 0000000000|KS06 | 47.48 |-115.80 | 1011|MULLAN, ID                          |US|MTR
 0000000000|KS10 | 47.8660|-119.9427| 385|Lake Chelan AP, Chelan, WA         |US|MTR
+0000000000|KS12 | 44.63782|-123.05945| 69|Albany Muni Airport, Albany, OR   |US|MTR
 0000000000|KS14 | 44.30 |-112.10 | 1794|SPENCER, ID                         |US|MTR
 0000000000|KS19 | 48.51 |-123.00 |   37|FRIDAY HARBOR, WA                   |US|MTR
 0000000000|KS25 | 47.796583|-103.255194| 643|Watford City Muni, ND          |US|MTR

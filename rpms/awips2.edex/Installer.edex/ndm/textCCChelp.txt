@@ -3693,6 +3693,7 @@ RZZ Roanoke Rapids/Halifax Co, NC
 S02 Ship Shoal 224A, LA
 S06 Mullan, ID
 S10 Lake Chelan AP, Chelan, WA
+S12 Albany Municipal Airport, Albany, OR
 S14 Spencer, IA
 S19 Friday Harbor, WA
 S22 Hermiston Muni, OR
