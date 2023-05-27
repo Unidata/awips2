@@ -2145,7 +2145,7 @@
 0000000000|KGRD | 34.2539| -82.1526| 192|Greenwood, SC                      |US|MTR
 0000074207|KGRF | 47.09 |-122.58 |   92|FORT LEWIS/GRAY, WA                 |US|MTR
 0000072552|KGRI | 40.98 | -98.32 |  566|GRAND ISLAND, NE                    |US|MTR
-0000000000|KGRK | 31.07 | -97.83 |  309|FORT HOOD/R GRAY, TX                |US|MTR
+0000000000|KGRK | 31.06725| -97.82892| 309|Fort Cavazos, Robert Gray AAF, TX|US|MTR
 0000000000|KGRN | 42.80597|-102.17525| 1086|Gordon Muni AP, Gordon, NE      |US|MTR
 0000072635|KGRR | 42.882106|-85.522983| 245|GRAND RAPIDS INT, MI            |US|MTR
 0000000000|KGRY | 27.625| -90.441|   -0|Green Canyon 338, LA /Front Runner  |US|MTR
@@ -2317,7 +2317,6 @@
 0000000000|KI23 |39.57040|-83.42052| 299|Fayette County Airport, OH         |US|MTR
 0000000000|KI26 | 37.82 | -87.69 |  117|HENDERSON CITY, KY                  |US|MTR
 0000000000|KI35 | 36.8593| -83.35847| 473|Tucker-Guthrie Mem AP, Harlan, KY |US|MTR
-0000000000|KI43 | 38.98136|-82.57785| 221|James A Rhodes AP, Jackson, OH    |US|MTR
 0000000000|KI63 | 39.988| -90.804|  223|Mt Sterling Muni, Mt Sterling, IL   |US|MTR
 0000000000|KI67 | 39.2593| -84.7743| 178|Cincinnati W AP, Harrison, OH      |US|MTR
 0000000000|KI69 | 39.0784| -84.2102| 257|Clermont Cnty AP, Batavia, OH      |US|MTR
@@ -2348,7 +2347,7 @@
 0000000000|KIKG | 27.55086| -98.03092| 40|Kleberg Cnty AP, Kingsville, TX   |US|MTR
 0000000000|KIKK | 41.07 | -87.85 |  192|Kankakee, IL                        |US|MTR
 0000000000|KIKR | 34.95 |-106.57 | 1613|Kirtland AFB, NM                    |US|MTR
-0000000000|KIKT | 28.521| -88.289|   -0|Mississippi Canyon 474/NaKika (BP)  |US|MTR
+0000000000|KIKT | 28.521| -88.289|   -0|Mississippi Canyon474/NaKika(BP), LA|US|MTR
 0000000000|KIKV | 41.69 | -93.57 |  275|Ankeny, IA                          |US|MTR
 0000000000|KIKW | 43.66 | -84.26 |  194|Jack Barstow AP, Midland, MI        |US|MTR
 0000000000|KILE | 31.09 | -97.69 |  258|KILLEEN MUNI, TX                    |US|MTR
@@ -2425,6 +2424,7 @@
 0000000000|KJPX | 40.98 | -72.25 |   17|East Hampton Town Airport, NY       |US|MTR
 0000000000|KJQF | 35.39 | -80.71 |  210|Concord Rgnl, NC                    |US|MTR
 0000000000|KJRB | 40.70121| -74.00903|  2|Manhattan/Wallstreet Helioport, New York, NY |US|MTR
+0000000000|KJRO | 38.98136|-82.57785| 221|James A Rhodes AP, Jackson, OH    |US|MTR
 0000000000|KJSO | 31.869| -95.217|  206|Cherokee Co AP, Jacksonville, TX    |US|MTR
 0000000000|KJST | 40.33 | -78.83 |  696|JOHNSTOWN, PA                       |US|MTR
 0000000000|KJSV | 35.44 | -94.80 |  161|Sallisaw Muni, OK                   |US|MTR
@@ -3598,7 +3598,7 @@
 0000000000|KVNP | 29.467| -92.369|   -0|GOMEX Vermillion 26, LA AWOS-3      |US|MTR
 0000000000|KVNW | 40.86383|-84.60636| 240|Van Wert Cnty AP, Van Wert, OH    |US|MTR
 0000000000|KVNY | 34.21 |-118.49 |  244|Van Nuys, CA                        |US|MTR
-0000000000|KVOA | 29.229| -87.781|   -0|Viosca Knoll 786/Petronius (Chevron)|US|MTR
+0000000000|KVOA | 29.229| -87.781|  -0|VioscaKnoll786/Petronius(Chevron), LA|US|MTR
 0000000000|KVOK | 43.94 | -90.27 |  277|VOLK FLD/CMP DGS, WI                |US|MTR
 0000000000|KVPC | 34.13 | -84.85 |  233|Cartersville, GA                    |US|MTR
 0000072221|KVPS | 30.48 | -86.53 |   26|EGLIN AFB/VALPAR, FL                |US|MTR
