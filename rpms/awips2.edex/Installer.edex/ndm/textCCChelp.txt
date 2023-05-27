@@ -1929,7 +1929,7 @@ GRB WFO Green Bay, WI WSR-88D
 GRD Greenwood, SC
 GRF Fort Lewis, Tacoma, WA
 GRI Grand Island, NE
-GRK Gray AAF, Ft. Hood, Killeen, TX
+GRK Robert Gray AAF, Ft. Cavazos, Killeen, TX
 GRN Green River
 GRN Gordon Municipal Airport, Gordon, NE
 GRO P-Rota Intl, MY
@@ -2162,7 +2162,6 @@ I19 Greene Co-Lewis Jackson AP, Dayton, OH
 I18 New Castle, IN
 I23 Fayette County Airport, OH
 I35 Tucker-Guthrie Mem AP, Harlan, KY
-I43 James A Rhodes Airport, Jackson, OH
 I63 Mt. Sterling Muni, IL
 I67 Cincinnati W AP, Harrison, OH
 I69 Clermont Cnty AP, Batavia, OH
@@ -2309,7 +2308,7 @@ IKM United Republic of Cameroon
 IKN Kenya
 IKO Nikolski AFS, AK
 IKR Korea
-IKT GOMEX MC 474/NaKika (BP)
+IKT GOMEX MC 474/NaKika (BP), LA
 IKU Cook Islands
 IKV Ankeny, IA
 IKW K-Jack Barstow AP, Midland, MI; Kuwait
@@ -2541,6 +2540,7 @@ JPX East Hampton Town Airport, NY
 JQF Concord Rgnl, NC
 JRB Manhattan/Wallstreet Heliport, New York, NY
 JRF P-Kalaeloa AP, Kapolei, HI
+JRO James A Rhodes Airport, Jackson, OH
 JSC Johnson Space Ctr
 JSD Stratford, CT
 JSJ San Juan Intl, PU
@@ -4189,7 +4189,7 @@ VNC Venice, FL
 VNP GOMEX Vermillion 26, LA AWOS-3
 VNW Van Wert County Airport, Van Wert, OH
 VNY Van Nuys, CA
-VOA GOMEX VK 786/Petronius (Chevron)
+VOA GOMEX VK 786/Petronius (Chevron), LA
 VOK Camp Douglas, WI
 VPC Cartersville, GA
 VPS Eglin AFB, Valparaiso, FL
