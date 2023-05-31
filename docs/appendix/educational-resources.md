@@ -216,6 +216,7 @@ A full list of all released blogs can be found below:
 - [Create Sounding Plots with Model Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-sounding-plots)
 - [Plotting Multiple Datasets from EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plotting-multiple-datasets)
 - [Open Jupyter Notebooks with our Virtual Machine](https://www.unidata.ucar.edu/blogs/news/entry/open-jupyter-notebooks-with-our)
+- [Visualizing Upper Air Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-visualizing-upper-air)
 
 #### EDEX
 
