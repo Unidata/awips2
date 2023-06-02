@@ -214,6 +214,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/bin
 /awips2/edex/bin/*.sh
 
+%dir /awips2/edex/data/ndm
+/awips2/edex/data/ndm/*
+
 %attr(744,root,root) /etc/init.d/edex_camel
 %attr(744,root,root) /etc/watchdog.d/edex_camel_watchdog.sh
 %attr(755,awips,fxalpha) /awips2/dev/updateNDM.pl
