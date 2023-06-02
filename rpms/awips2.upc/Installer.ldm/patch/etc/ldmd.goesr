@@ -90,7 +90,7 @@ EXEC	"rtstats -h rtstats.unidata.ucar.edu"
 
 REQUEST NIMAGE "CloudAndMoistureImagery" idd.unidata.ucar.edu # GOES Stiched Channels (Unidata)
 REQUEST NIMAGE "GLMISatSS" idd.unidata.ucar.edu # GOES Stitched GLM from NWS ISatSS (Unidata)
-REQUEST NIMAGE "CIRA" idd.unidata.ucar.edu # GOES CIRA RGBs (Unidata)
+REQUEST NIMAGE "(GeoColor|CloudSnow|DebraDust)" idd.unidata.ucar.edu # GOES CIRA RGBs (Unidata)
 REQUEST HDS|NOTHER "IXT.[8-9]9"  idd.unidata.ucar.edu # GOES Derived Products & Wind (SBN)
 REQUEST NOTHER "^IXT[WXY]01" idd.unidata.ucar.edu       # GOES Derived products-different WMO (COD, CPS, CTP) (SBN)
 
