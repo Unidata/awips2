@@ -313,6 +313,9 @@
             <param name="feature"
                 value="com.raytheon.uf.edex.nswrc.radar.feature" />
         </antcall>
+		<antcall target="build">
+			<param name="feature" value="edu.wisc.ssec.cimss.edex.probsevere.feature" />
+		</antcall>
         <!-- SPECIAL CASE -->
         <if>
             <equals arg1="${lightning}" arg2="false" />
