@@ -1001,6 +1001,7 @@
 0000000000|K1EN | 47.75053|-101.674|  646|Ryder, ND                         |US|MTR
 0000000000|K1EW | 41.103  |-103.983| 1609|10m SW of Bushnell, NE            |US|MTR
 0000000000|K1F0 | 34.15 | -97.12 |  257|Ardmore Downtown Executive, OK      |US|MTR
+0000000000|K1F5 | 39.36508|-100.43808| 833|Hoxie-Sheridan Cnty AP, Hoxie, KS|US|MTR
 0000000000|K1FM | 47.60527|-112.311| 1344|Augusta, MT                       |US|MTR
 0000000000|K1FN | 47.89596|-101.674|  646|Ryder 2, ND                       |US|MTR
 0000000000|K1FW | 41.36378|-103.48898| 1452|13m NE Kimball, NE              |US|MTR
