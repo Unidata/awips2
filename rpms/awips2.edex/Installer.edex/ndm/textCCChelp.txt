@@ -311,6 +311,7 @@
 1EN Ryder, ND
 1EW 10m SW of Bushnell, NE
 1F0 Ardmore Downtown Executive, OK
+1F5 Hoxie-Sheridan County Airport, Hoxie, KS
 1FM Augusta, MT
 1FN Ryder 2, ND
 1FW 13m NE Kimball, NE
