@@ -53,3 +53,4 @@ com.raytheon.uf.viz.ncep.perspective.feature
 com.raytheon.uf.viz.d2d.skewt.feature
 com.raytheon.uf.viz.server.edex.feature
 com.raytheon.uf.viz.dataplugin.nswrc.feature
+edu.wisc.ssec.cimss.viz.probsevere.feature
