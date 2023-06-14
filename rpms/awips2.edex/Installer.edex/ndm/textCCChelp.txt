@@ -1713,7 +1713,7 @@ FAM Farmington, MO
 FAR Fargo, ND
 FAT Fresno Air Terminal, CA
 FAY Fayetteville, NC
-FBG Fort Bragg, Fayetteville, NC
+FBG Fort Liberty, Fayetteville, NC
 FBL Faribault, MN
 FBO Freeze-up Outlook
 FBR Fort Bridger AP, Fort Bridger, WY
