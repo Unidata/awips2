@@ -228,3 +228,4 @@ A full list of all released blogs can be found below:
 - [Porting Users CAVE Configurations](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-porting-users-cave)
 - [Creating New Scales/Maps](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-new-scales)
 - [Adding Shapefiles to the Maps Menu with EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-shapefiles-to)
+- [Removing Model Data from EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-removing-model-data)
