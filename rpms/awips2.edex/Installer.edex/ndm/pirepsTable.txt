@@ -1300,7 +1300,7 @@ FAR           0 FARGO                                   4675  -9685     0  0
 FAT           0 FRESNO,CA                               3678 -11972     0  0
 FAU           0 FAIRVIEW                                3629  -9848     0  0
 FAY           0 FAYETTEVILLE                            3499  -7888     0  0
-FBG           0 FT BRAGG,NC                             3517  -7900     0  0
+FBG           0 FORT LIBERTY,NC                         3517  -7900     0  0
 FBK           0 FAIRBANKS                        AK US  6484 -14761     0  0
 FBL           0 FARIBAULT,MN                            4430  -9322     0  0
 FBR           0 FORT BRIDGER                            4138 -11042     0  0

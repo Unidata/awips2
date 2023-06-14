@@ -1971,7 +1971,7 @@
 0000072753|KFAR | 46.91 | -96.80 |  277|FARGO/HECTOR FIE, ND                |US|MTR
 0000072389|KFAT | 36.78 |-119.72 |  100|FRESNO AIR TERMI, CA                |US|MTR
 0000000000|KFAY | 34.99 | -78.88 |   58|Fayetteville Regnl/Grannis Fld, NC  |US|MTR
-0000074693|KFBG | 35.14 | -78.93 |   74|FORT BRAGG/SIMMO, NC                |US|MTR
+0000074693|KFBG | 35.13207| -78.93621| 74|Fort Liberty, Fayetteville, NC    |US|MTR
 0000000000|KFBL | 44.34 | -93.31 |  323|Faribault, MN                       |US|MTR
 0000000000|KFBR | 41.3933|-110.40597|2145|Fort Bridger AP, Fort Bridger, WY |US|MTR
 0000000000|KFCH | 36.73211| -119.82033| 85|Fresno Chandler Ex AP, Fresno, CA |US|MTR
