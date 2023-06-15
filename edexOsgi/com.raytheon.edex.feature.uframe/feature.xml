@@ -39,6 +39,7 @@
    <includes
          id="com.raytheon.uf.common.base.feature"
          version="0.0.0"/>
+
    <includes
          id="com.raytheon.uf.edex.foss.org.apache.commons.management.feature"
          version="0.0.0"/>
@@ -281,6 +282,10 @@
 
    <includes
          id="com.raytheon.uf.edex.goesr.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.ncep.nco.feature"
          version="0.0.0"/>
 
 </feature>
