@@ -3,9 +3,7 @@
 	<include installTo="menu:satellite?before=GOESR" 
         fileName="menus/satellite/goesr/goesrMenu.xml">
     </include>
-<!--
 	<include installTo="menu:satellite?after=GOESR"
 		fileName="menus/satellite/baseSatellite.xml">
-	</include> 
--->
+	</include>
 </menuContributionFile>
