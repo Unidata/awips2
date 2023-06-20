@@ -30,6 +30,7 @@
     menuText="0.64 μm Imagery Band 1 (CH 01)" id="Img0.64">
     <substitute key="parameter" value="0.64Ref"/>
   </contribute>
+<!--
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
     menuText="0.865 μm Imagery Band 2 (CH 02)" id="Img0.865">
     <substitute key="parameter" value="0.865Ref"/>
@@ -38,6 +39,7 @@
     menuText="1.61 μm Imagery Band 3 (CH I3 (R))" id="Img1.61">
     <substitute key="parameter" value="1.61Ref"/>
   </contribute> 
+-->
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
     menuText="3.74 μm Imagery Band 4 (CH 04)" id="Img3.74">
     <substitute key="parameter" value="3.74BT"/>
@@ -57,7 +59,7 @@
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
     menuText="Moderate Band 13 (4.05u)" id="Mod4.05">
     <substitute key="parameter" value="4.05BT"/>
-  </contribute> -->
+  </contribute> 
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
     menuText="Moderate Band 14 (8.55u)" id="Mod8.55">
     <substitute key="parameter" value="8.55BT"/>
@@ -70,8 +72,9 @@
     menuText="Moderate Band 16 (12.013u)" id="Mod12.013">
     <substitute key="parameter" value="12.013BT"/>
   </contribute> 
+-->
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
-    menuText="0.7 μm Near Constant Contrast" id="NCC0.7">
+    menuText="0.7 μm Near Constant Contrast" id="Moderate0.7">
   <substitute key="channelType" value="Moderate"/>
   </contribute>
   

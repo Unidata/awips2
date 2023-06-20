@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="separator" id="Separator"/>
     <contribute xsi:type="titleItem" titleText="------ Legacy Satellitle Data ------" id="legacySat"/>
     <contribute xsi:type="subMenu" menuText="Legacy Satellite Data">
     <contribute xsi:type="titleItem" titleText="------ Composite Imagery ------" id="CompositeImagery" />
