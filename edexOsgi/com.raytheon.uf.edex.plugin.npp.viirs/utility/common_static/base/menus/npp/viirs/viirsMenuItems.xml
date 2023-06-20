@@ -45,45 +45,51 @@
          Lee Byerle 1/2/2018
    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <contribute xsi:type="titleItem" titleText="------ VIIRS ------" id="ImageryLine"/>
-  <contribute xsi:type="subMenu" menuText="S-NPP CONUS" id="CONUSid">
-    <contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
-      <substitute key="region" value="CONUS"/>
-    </contribute>
-    </contribute>
+  <contribute xsi:type="titleItem" titleText="------ S-NPP ------" id="ImageryLine"/>
+
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="S-NPP CONUS - 0.7 μm Near Constant Contrast" id="Moderate0.7">
+    <substitute key="channelType" value="Moderate"/>
+    <substitute key="region" value="CONUS"/>
+  </contribute>
+
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="S-NPP Pacific - 0.7 μm Near Constant Contrast" id="Moderate0.7">
+    <substitute key="channelType" value="Moderate"/>
+    <substitute key="region" value="Pacific"/>
+  </contribute>
+
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="S-NPP Puerto Rico - 0.7 μm Near Constant Contrast" id="Moderate0.7">
+    <substitute key="channelType" value="Moderate"/>
+    <substitute key="region" value="Puerto Rico"/>
+  </contribute>
   <contribute xsi:type="subMenu" menuText="S-NPP Alaska" id="Alaskaid">
     <contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems_AK.xml">
       <substitute key="region" value="Alaska"/>
     </contribute>
-    </contribute>
-  <contribute xsi:type="subMenu" menuText="S-NPP Pacific" id="Pacificid">
-    <contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
-      <substitute key="region" value="Pacific"/>
-    </contribute>
-    </contribute>
-  <contribute xsi:type="subMenu" menuText="S-NPP Puerto Rico" id="PuertoRicoid">
-    <contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
-      <substitute key="region" value="Puerto Rico"/>
-    </contribute>
-    </contribute>
-  <contribute xsi:type="subMenu" menuText="NOAA-20 CONUS" id="CONUSidJPSS">
-    <contribute xsi:type="subinclude" fileName="menus/npp/viirs/jpss/viirsBundleItems_JPSS.xml">
-      <substitute key="region" value="CONUSJPSS"/>
-    </contribute>
+  </contribute>
+
+
+  <contribute xsi:type="titleItem" titleText="------ NOAA-20 ------" id="ImageryLine"/>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="NOAA-20 CONUS - 0.7 μm Near Constant Contrast" id="Moderate0.7J">
+    <substitute key="channelType" value="Moderate"/>
+    <substitute key="region" value="CONUSJPSS"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="NOAA-20 Pacific - 0.7 μm Near Constant Contrast" id="Moderate0.7J">
+    <substitute key="channelType" value="Moderate"/>
+    <substitute key="region" value="PacificJPSS"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="NOAA-20 Puerto Rico - 0.7 μm Near Constant Contrast" id="Moderate0.7J">
+    <substitute key="channelType" value="Moderate"/>
+    <substitute key="region" value="Puerto_RicoJPSS"/>
   </contribute>
   <contribute xsi:type="subMenu" menuText="NOAA-20 Alaska" id="AlaskaidJPSS">
     <contribute xsi:type="subinclude" fileName="menus/npp/viirs/jpss/viirsBundleItems_AK_JPSS.xml">
       <substitute key="region" value="AlaskaJPSS"/>
     </contribute>
-  </contribute>
-  <contribute xsi:type="subMenu" menuText="NOAA-20 Pacific" id="PacificidJPSS">
-    <contribute xsi:type="subinclude" fileName="menus/npp/viirs/jpss/viirsBundleItems_JPSS.xml">
-      <substitute key="region" value="PacificJPSS"/>
-    </contribute> 
-  </contribute>
-  <contribute xsi:type="subMenu" menuText="NOAA-20 Puerto Rico" id="PuertoRicoidJPSS">
-    <contribute xsi:type="subinclude" fileName="menus/npp/viirs/jpss/viirsBundleItems_JPSS.xml">
-      <substitute key="region" value="Puerto_RicoJPSS"/>
-    </contribute> 
   </contribute>
 </menuTemplate>

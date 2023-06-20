@@ -23,25 +23,36 @@
         version of the file will completely replace a lower priority version
         of the file. 
     -->
+    <!-- 
+        The viirs day night band can be displayed with either channelType=DNB 
+        or channelType=NCC but the parameter is always the same.
+     -->
 <bundle>
-    <displayList>
-        <displays xsi:type="mapRenderableDisplay"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <descriptor xsi:type="mapDescriptor">
-                <resource>
-                    <loadProperties />
-                    <resourceData xsi:type="nucapsSoundingMapResourceData">
-                        <nsharpResourceData>${soundingResourceData}</nsharpResourceData>
-                        <resourceName>${name;Unknown}</resourceName>
+	<displayList>
+		<displays xsi:type="mapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties/>
+					<resourceData xsi:type="viirsResourceData">
+						<groupTimeRangeMinutes>${groupTimeRange;30}</groupTimeRangeMinutes>
                         <metadataMap>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="${pluginName}"
-                                    constraintType="EQUALS" />
+                            <mapping key="channelType">
+                                <constraint constraintValue="${channelType;DNB}" constraintType="EQUALS"/>
                             </mapping>
+                            <mapping key="parameter">
+                                <constraint constraintValue="0.7Ref" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="viirs" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="region">
+                                <constraint constraintValue="${region}" constraintType="EQUALS"/>
+                            </mapping>
+
                         </metadataMap>
                     </resourceData>
-                </resource>
-            </descriptor>
-        </displays>
-    </displayList>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
 </bundle>
