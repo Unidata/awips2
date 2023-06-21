@@ -18,7 +18,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Functionality/Reporting
 
-This is a beta release, so we are aware that not all functionality is working as expected. We ask you to please be aware of this and have similar expectations. One noteworthy deficiency we are aware of is the radar menu has not been updated yet to reflect what is in version 18. If you come across issues/bugs/missing functionality, we also encourage you to <a href=https://forms.gle/aYUZSi78KU3ZYJ3q7>report it using this short form</a>.
+This is a beta release, so we are aware that not all functionality is working as expected. We ask you to please be aware of this and have similar expectations. One noteworthy deficiency we are aware of is the radar menu has not been updated yet to reflect what is in version 18. If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6jyZtbh49g-GCBoAQYzTVwAIf_aKz0QOeAr7gDVFhPrjAmw/viewform?usp=sf_link">report it using this short form</a>.
 
 ---
 
