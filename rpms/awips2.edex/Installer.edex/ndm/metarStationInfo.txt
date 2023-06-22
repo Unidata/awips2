@@ -3335,7 +3335,7 @@
 0000000000|KSKL | 41.13 |-106.56 | 2468|Skyline, WY                         |US|MTR
 0000000000|KSKX | 36.46 |-105.67 | 2161|TAOS MUNI APT, NM                   |US|MTR
 0000000000|KSLB | 42.60 | -95.23 |  454|Storm Lake, IA                      |US|MTR
-0000072572|KSLC | 40.79 |-111.97 | 1288|SALT LAKE CITY I, UT                |US|MTR
+0000072572|KSLC | 40.77070|-111.96501| 1288|SALT LAKE CITY I, UT            |US|MTR
 0000072694|KSLE | 44.9080|-122.9950| 61|Salem/McNary, OR                    |US|MTR
 0000000000|KSLG | 36.19 | -94.49 |  364|Siloam Springs, AR                  |US|MTR
 0000000000|KSLH | 45.65 | -84.52 |  195|Cheyboygan/Cheboygan Co, MI         |US|MTR
