@@ -1043,6 +1043,7 @@
 0000000000|K1QW | 46.802|-120.171|  927|Yakima Training Center Ops Area, WA |US|MTR
 0000000000|K1R7 | 31.60585| -90.40932| 149|Br-Lin Cnty AP, Brookhaven, MS   |US|MTR
 0000000000|K1R8 | 30.87033|-87.81933| 76|Bay Minette MuniAP, Bay Minette, AL|US|MTR
+0000000000|K1S3 | 46.27115|-106.62390| 832|Tillitt Field Airport, Forsyth, MT|US|MTR
 0000000000|K1S5 | 46.3271|-119.9704| 234|Sunnyside Muni, Sunnyside, WA      |US|MTR
 0000000000|K1V1 | 39.54 |-107.80 | 1646|RIFLE, CO                           |US|MTR
 0000072614|K1V4 | 44.42 | -72.02 |  217|St. Johnsbury, VT                   |US|MTR
@@ -1095,6 +1096,7 @@
 0000000000|K35B | 42.83 | -70.87 |    1|MERRIMACK RIVER, MA                 |US|MTR
 0000000000|K36K | 37.96950|-101.25500| 938|Lakin Airport, Lakin, KS         |US|MTR
 0000000000|K37C | 28.19 | -93.00 |    1|WEST CAMERON 556, LA                |US|MTR
+0000000000|K38S | 46.38783| -112.76494| 1430|Deer Lodge Cnty AP, MT         |US|MTR
 0000000000|K3A6 | 34.40 |-118.60 |  550|Newhall, CA                         |US|MTR
 0000000000|K3AU | 37.67164|-97.07786| 405|Augusta Muni, Augusta, KS         |US|MTR
 0000072619|K3B1 | 45.46 | -69.55 |  427|GREENVILLE, ME                      |US|MTR
@@ -1123,6 +1125,7 @@
 0000000000|K3SZ | 38.93 | -90.43 |  133|St. Charles, MO                     |US|MTR
 0000000000|K3T5 | 29.91 | -96.95 |   99|La Grange/Fayette Regnl, TX         |US|MTR
 0000000000|K3TH | 47.61 |-115.37 |  725|THOMPSON FALLS, MT                  |US|MTR
+0000000000|K3U3 | 46.15341|-112.86773| 1534|Bowman Field Arpt, Anaconda, MT |US|MTR
 0000000000|K3V9 | 39.29 |-106.87 | 2270|ASPEN, CO                           |US|MTR
 0000000000|K40B | 46.62 | -69.52 |  314|CLAYTON LAKE, ME                    |US|MTR
 0000000000|K40G | 35.65 |-112.13 | 1829|GRND CANYN/VALLE, AZ                |US|MTR
