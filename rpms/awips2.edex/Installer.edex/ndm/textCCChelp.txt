@@ -354,6 +354,7 @@
 1R7 Brookhaven-Lincoln Cnty AP, Brookhaven, MS
 1R8 Bay Minette Muni Airport, Bay Minette, AL
 1S0 Pierce Cnty AP, Puyallup, WA
+1S3 Tillitt Field Airport, Forsyth, MT
 1S5 Sunnyside Muni, WA
 1V1 Rifle, CO
 1V4 St. Johnsbury, VT
@@ -443,6 +444,7 @@
 35D Allegan, MI
 36K Lakin Airport, Lakin, KS
 37C West Cameron 556, LA
+38S Deer Lodge County Airport, Deer Lodge, MT
 3A1 Folsom Fld AP, Cullman, AL
 3A6 Newhall, CA
 3AU Augusta Muni, Augusta, KS
@@ -476,6 +478,7 @@
 3SZ St. Charles, MO
 3T5 La Grange/Fayette Regnl, TX 
 3TH Thompson Falls, MT
+3U3 Bowman Field Airport, Anaconda, MT
 3V6 Crested Butte, CO
 3V9 Aspen, CO
 3WO Shawano, WI
