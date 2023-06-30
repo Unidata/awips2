@@ -23,6 +23,11 @@ splashLoc=$(find /awips2/repo/awips2/cave -name "splash.bmp")
 mv splash.bmp $splashLoc
 echo "replacing splash.bmp"
 
+#Set CAVE About information
+echo "0=$AWIPSII_VERSION-$AWIPSII_RELEASE
+1=$AWIPSII_BUILD_DATE
+2=$AWIPSII_BUILD_SYS">/awips2/repo/awips2/cave/com.raytheon.viz.product.awips/about.mappings
+
 # If local source directories, exist, mount them to the container
 if [ $rpmname = "buildCAVE" ]; then
   for dn in `cat build/repos| grep -v static| grep -v nativelib |grep -v awips2-rpm`
@@ -72,10 +77,10 @@ if [[ $(whoami) == "awips" ]]; then # local build
   sudo mv dist/${os_version}-dev dist/${os_version}-dev-${date}
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
-#  rsync -aP dist/${os_version}-
-  #TM#echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"
-  #TM#rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
-  rsync -aP dist/${os_version}-dev-${date} awips@edex3:/awips2/dev
+  echo "rsync -aP dist/${os_version}-dev-${date}"
+  #echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"
+  #rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
+  #rsync -aP dist/${os_version}-dev-${date} awips@edex3:/awips2/dev
   rsync -aP dist/${os_version}-dev-${date} awips@hardy:/awips2/dev
   #repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   #
