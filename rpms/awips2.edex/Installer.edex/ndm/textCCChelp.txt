@@ -1787,6 +1787,7 @@ FOA Flora, IL
 FOD Fort Dodge, IA
 FOE Topeka, KS
 FOK Westhampton Beach, NY
+FOM Fillmore Municipal Airport, Fillmore, UT
 FOT Rohnerville AP, Fortuna, CA
 FOZ Bigfork Muni, MN
 FPK Charlotte/Fitch H. Beach Muni, MI
@@ -2599,6 +2600,7 @@ KLS Kelso, WA
 KLV Lakeview, OR
 KMJ P-Majuro Atoll, Marshall Is Intnl AP
 KMR P-WSO Majuro, RMI (Republic of Marshall Islands)
+KNB Kanab Municipal Airport, Kanab, UT
 KOA Kailua-Kona, HI
 KPK T-Golden Rock, St. Kitts, AT
 KPN Charlestown/Newcastle Airport, Nevis Island, LC
@@ -3612,6 +3614,7 @@ RHP Andrews-Murphy, NC
 RHV San Jose, CA
 RIC Richmond, VA
 RID Richmond Muni Airport, Richmond, IN
+RIF Richfield Muni Airport, Richfield, UT
 RIL Rifle/Garfield Regnl, CO
 RIM Radar Echo Intensity Map; K-Rim, WY
 RIP Radar Regional Intensity Plot (RIP)
@@ -3864,6 +3867,7 @@ SPD Springfield/Comanche Natl Grass, CO
 SPF Spearfish, SD
 SPG Saint Petersburg, FL
 SPI Springfield, IL
+SPK Spanish Fork Municipal Airport, Spanish Fork, UT
 SPL K-South Padre Island, TX; South Platte Basin
 SPN Spanish Language Products
 SPR GOMEX Ship Shoal, LA AWOS-3
@@ -4089,6 +4093,7 @@ TYS Knoxville, TN
 TYX Fort Drum, NY WSR-88D
 TZR Columbus/Bolton, OH
 U11 Rexburg/Madison Co, ID
+U14 Nephi Municipal Airport, Nephi, UT
 U15 Challis, ID
 U16 Eagle Range, UT
 U17 Bullfrog, UT
@@ -4096,6 +4101,7 @@ U24 Delta, UT
 U28 Green River, UT
 U31 Austin, NV
 U42 S Valley Rgnl AP, Salt Lake City, UT
+U52 Beaver Municipal Airport, Beaver, UT
 U67 Roosevelt, UT
 U68 North Big Horn Cnty AP, Cowley/Lovell/Byron, WY
 U71 Vernal, UT
