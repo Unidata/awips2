@@ -2029,6 +2029,7 @@
 0000072549|KFOD | 42.55 | -94.18 |  355|FORT DODGE, IA                      |US|MTR
 0000000000|KFOE | 38.96 | -95.67 |  324|TOPEKA-FORBES, KS                   |US|MTR
 0000000000|KFOK | 40.84 | -72.63 |   20|Westhampton Beach/FSGabreski, NY    |US|MTR
+0000000000|KFOM | 38.95814|-112.36314| 1519|Fillmore Muni AP, Fillmore, UT  |US|MTR
 0000000000|KFOT | 40.55394|-124.13267| 120|Rohnerville AP, Fortuna, CA      |US|MTR
 0000000000|KFOZ | 47.78 | -93.65 |  411|Bigfork Muni, MN                    |US|MTR
 0000000000|KFPK | 42.57 | -84.81 |  272|Charlotte/Fitch H Beach Muni, MI    |US|MTR
@@ -2460,6 +2461,7 @@
 0000000000|KK83 | 39.90417|-95.77943| 405|Sabetha Muni AP, Sabetha, KS      |US|MTR
 0000000000|KK88 | 37.86822|-95.38694| 310|Allen Cnty AP, Iola, KS           |US|MTR
 0000000000|KKLS | 46.117|-122.90 |    5|KELSO, WA                           |US|MTR
+0000000000|KKNB | 37.01051|-112.53148| 1484|Kanab Muni Airport, Kanab, UT   |US|MTR
 0000000000|KKSC | 28.62 | -80.70 |    3|BECAME STN 74794, FL                |US|MTR
 0000000000|KKSD | 32.58 |-116.98 |  160|SN DG/BROWN FLD, CA                 |US|MTR
 0000000000|KKY8 | 37.95319|-86.85717| 125|Ron Lewis Field, Lewisport, KY    |US|MTR
@@ -3168,6 +3170,7 @@
 0000000000|KRHV | 37.34 |-121.82 |   41|SAN JSE/REID/HIL, CA                |US|MTR
 0000072401|KRIC | 37.51 | -77.31 |   50|RICHMOND/BYRD FI, VA                |US|MTR
 0000000000|KRID |39.75608|-84.84269| 347|Richmond Muni AP, Richmond, IN     |US|MTR
+0000000000|KRIF |38.73411|-112.10158| 1621|Richfield Muni AP, Richfield, UT |US|MTR
 0000000000|KRIL | 39.54 |-107.72 | 1691|RIFLE/GARFIELD R, CO                |US|MTR
 0000000000|KRIM | 43.10 |-110.32 | 2310|Rim, WY                             |US|MTR
 0000072286|KRIV | 33.89 |-117.27 |  469|MARCH AFB/RIVERS, CA                |US|MTR
@@ -3373,6 +3376,7 @@
 0000000000|KSPF | 44.487|-103.786| 1198|Black Hills AP, Spearfish, SD       |US|MTR
 0000000000|KSPG | 27.77 | -82.63 |    2|St Petersburg/Albert Whitted, FL    |US|MTR
 0000072439|KSPI | 39.84531|-89.68402| 181|A Lincoln Cap AP, Springfield, IL |US|MTR
+0000000000|KSPK | 40.14503|-111.66769| 1381|Spanish Fork AP, Spanish Fork, UT|US|MTR
 0000000000|KSPL | 26.0706| -97.1572|  3|South Padre Island Heliport, TX     |US|MTR
 0000000000|KSPR | 28.5989| -91.2064| -0|GOMEX Ship Shoal, LA AWOS-3         |US|MTR
 0000072351|KSPS | 33.98 | -98.48 |  314|SHEPPARD AFB, TX                    |US|MTR
@@ -3526,6 +3530,7 @@
 0000000000|KTYR | 32.35 | -95.40 |  166|Tyler/Pounds Field, TX              |US|MTR
 0000072326|KTYS | 35.81 | -83.98 |  302|KNOXVILLE MUNICI, TN                |US|MTR
 0000000000|KTZR | 39.90 | -83.13 |  280|Columbus/Bolton, OH                 |US|MTR
+0000000000|KU14 | 39.73658|-111.87006| 1531|Nephi Muni Airport, Nephi, UT   |US|MTR
 0000000000|KU15 | 44.53 |-114.22 | 1529|CHALLIS, ID                         |US|MTR
 0000000000|KU16 | 41.05 |-113.07 | 1292|EAGLE RANGE, UT                     |US|MTR
 0000000000|KU17 | 37.51 |-110.70 | 1110|MARINA/BULLFROG, UT                 |US|MTR
@@ -3533,6 +3538,7 @@
 0000000000|KU28 | 39.01 |-110.15 | 1241|GREEN RIVER, UT                     |US|MTR
 0000000000|KU31 | 39.51 |-117.09 | 2014|AUSTIN, NV                          |US|MTR
 0000000000|KU42 | 40.62 |-111.9929| 1404|S Valley Rgnl AP, Salt Lake Cty, UT|US|MTR
+0000000000|KU52 | 38.23058|-112.67542| 1787|Beaver Muni Airport, Beaver, UT |US|MTR
 0000074420|KU67 | 40.30 |-110.05 | 1556|ROOSEVELT, UT                       |US|MTR
 0000000000|KU68 | 44.9117|-108.4455|1248|N Big Horn AP, Cowley/Lov/Byr, WY  |US|MTR
 0000000000|KU71 | 40.48 |-109.53 | 1612|VERNAL, UT                          |US|MTR
