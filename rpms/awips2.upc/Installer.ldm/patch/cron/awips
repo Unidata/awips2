@@ -8,7 +8,7 @@
 #10 * * * * /awips2/ldm/bin/ascat_grib.sh >& /dev/null 2>&1
 */5 * * * * /bin/perl /awips2/ldm/dev/purgeRadar.pl >>/awips2/ldm/dev/logs/purgeRadar.log 2>&1
 */2 * * * * /bin/perl /awips2/ldm/dev/checkFileTime.pl >>/awips2/ldm/dev/logs/checkFileTime.log 2>&1
-#TM#30 3 * * * /bin/perl /awips2/dev/updateNDM.pl >>/awips2/dev/logs/updateNDM.log 2>&1
+30 3 * * * /bin/perl /awips2/dev/updateNDM.pl >>/awips2/dev/logs/updateNDM.log 2>&1
  
 # LDM-6.8.1+ metrics gathering
 #

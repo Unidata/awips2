@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<areaNames>
+<map>
+	<entry><key>401</key><value>Arctic</value></entry>
+	<entry><key>400</key><value>Antarctic</value></entry>
+	<entry><key>185</key><value>GOES-Sounder</value></entry>
+	<entry><key>71</key><value>GOES-Sounder</value></entry>
+	<entry><key>184</key><value>GOES-West</value></entry>
+<!--
+	<entry><key>180</key><value>GOES-East</value></entry>
+	<entry><key>86</key><value>HIMAWARI-8</value></entry>
+	<entry><key>10</key><value>SSMIS</value></entry>
+	<entry><key>3</key><value>WINDSAT</value></entry>
+	<entry><key>3100</key><value>Global</value></entry>
+	<entry><key>3101</key><value>Global</value></entry>
+	<entry><key>601</key><value>Mollweide</value></entry>
+	<entry><key>701</key><value>Mollweide</value></entry>
+	<entry><key>9050</key><value>GOES-East-West</value></entry>
+	<entry><key>9053</key><value>GOES-East-West</value></entry>
+	<entry><key>9056</key><value>GOES-East-West</value></entry>
+	<entry><key>9059</key><value>GOES-East-West</value></entry>
+	<entry><key>9062</key><value>GOES-East-West</value></entry>
+-->
+</map>
+</areaNames>

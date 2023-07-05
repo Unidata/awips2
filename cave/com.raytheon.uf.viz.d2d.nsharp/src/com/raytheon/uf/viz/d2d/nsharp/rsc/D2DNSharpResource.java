@@ -73,6 +73,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
  * Jan 15, 2019  7697     bsteffen  Individually add soundings so station info
  *                                  is not shared.
  * Apr 15  2019  7480     bhurley   Improved auto-update
+ * Jun 15, 2023           tiffanym@ucar reimplement NSHARP load functionality
  * 
  * </pre>
  * 
@@ -212,8 +213,8 @@ public class D2DNSharpResource
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         getHandler().setSoundingType(resourceData.getSoundingType());
-        partListener = new D2DNSharpPartListener(this);
-        partListener.enable();
+        //partListener = new D2DNSharpPartListener(this);
+        //partListener.enable();
     }
 
     @Override

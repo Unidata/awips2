@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<svg width="100" height="100" 
+viewBox="0 0 100 100" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+        @font-face { font-family: "LargeSpecialSymbolFont";
+                src: url(LargeSpecialSymbols.svg#LrgSpecialSymbols); }
+        text.barb
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.arrow
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+        text.weather
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: WxSymbolFont;
+            }
+        text.special
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-size: 1em;
+                font-family: SpecialSymbolFont;
+            }
+        text.large
+            {
+                fill: none;
+                font-size: 1.5em;
+                stroke-width: 1px;
+                font-size: 1.5em;
+                font-family: LargeSpecialSymbolFont;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info"> 
+  <text id="cloudCoverText" plotMode="range" class="special" plotLookupTable="maritime_cloud_chars.txt" plotParam="maritimeObscuredSkySymLIFR" x="0" y="0">0</text>
+  <text id="cbhText" plotMode="table" class="text" plotLookupTable="maritime_base_lookup.txt" style="text-anchor: end;" plotParam="maritimeObscuredSkyLIFR" x="-10" y="0">0</text>
+</symbol>
+</defs>
+<use id="wind" x="50" y="50" width="100" height="100" visibility="visible" xlink:href="#plotData"/>
+</svg>

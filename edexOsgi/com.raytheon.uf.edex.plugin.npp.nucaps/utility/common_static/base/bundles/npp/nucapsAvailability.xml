@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<bundle>
+    <displayList>
+        <displays xsi:type="mapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties />
+                    <resourceData xsi:type="nucapsSoundingMapResourceData">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="nucaps"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>
