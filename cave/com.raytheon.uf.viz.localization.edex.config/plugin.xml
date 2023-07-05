@@ -37,18 +37,6 @@
     <path
         application="EDEX"
         localizationType="COMMON_STATIC"
-        name="Backup Service"
-        value="backupsvc">
-    </path>
-    <path
-        application="EDEX"
-        localizationType="COMMON_STATIC"
-        name="Localization Backup"
-        value="localizationBackup">
-    </path>
-    <path
-        application="EDEX"
-        localizationType="COMMON_STATIC"
         name="Distribution"
         value="distribution">
     </path>
