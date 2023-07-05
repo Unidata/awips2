@@ -24,26 +24,115 @@
         of the file.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="bundleItem"
-        file="bundles/DefaultRadarCodedMessage.xml" menuText="10km Radar Coded Msg"
-        id="10kmRadarCodedMsg" />
-    <contribute xsi:type="subinclude" fileName="menus/radar/airportRadars.xml" />
-    <contribute xsi:type="titleItem" titleText="------ Mosaic ------"
+	<contribute xsi:type="subinclude" subMenu="Dial Radars" id="allDialRadar" fileName="menus/radar/dialRadars.xml"/>
+    <contribute xsi:type="subinclude" subMenu="TDWR Radars" id="tdwrRadar" fileName="menus/radar/tdwrRadars.xml" />
+	<contribute xsi:type="separator" id="seperator" />
+		
+	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
         id="RadarMosaic" />
-    <contribute xsi:type="subinclude"
-        fileName="menus/radar/regionalMosaicMenus.xml" />
-    <contribute xsi:type="subinclude"
-        fileName="menus/radar/radarMosaicProductMenu.xml" />
-    <contribute xsi:type="separator" id="belowRadarMosaics" />
-    <contribute xsi:type="subMenu" menuText="Dial Radars"
-        id="RadarMenuDialRadarsSubMenu">
-        <contribute xsi:type="subinclude" subMenu="Local Dial Radars"
-            id="localDialRadar" fileName="menus/radar/dialRadars.xml">
-        </contribute>
-        <contribute xsi:type="subinclude" subMenu="All Dial Radars"
-            id="allDialRadar" fileName="menus/radar/dialAllRadars.xml">
-        </contribute>
-    </contribute>
+  
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="N0Q - 0.5 Reflectivity" id="Radar05Reflectivity">
+		<substitute key="product" value="153,94,19,20" />
+		<substitute key="elevation" value="0.5" />
+		<substitute key="name" value="N0Q 0.5 Reflectivity" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="DHR - Hybrid Scan Reflectivity" id="RadarHybridScanRefl">
+		<substitute key="product" value="32,33" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DHR Hybrid Scan Refl" />
+		</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="DVL - Digital Vert integrated Liquid" id="RadarDigitalVertIntegratedLiquid">
+		<substitute key="product" value="134" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DVL Digital Vert integrated Liquid" />
+	</contribute>
+	
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="HHC - Hybrid Hydrometeor Classification" id="RadarHybridHydroClass">
+		<substitute key="product" value="177" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="HHC Hybrid Hydro Class" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="EET - Enhanced Echo Tops" id="RadarEnhancedEchoTopsClass">
+		<substitute key="product" value="135" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="EET Enhanced Echo Tops" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="DSP - Digital Storm Total Precip" id="RadarDigitalStormTotalPrecip">
+		<substitute key="product" value="138" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DSP Digital Storm Total Precip" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="DPR - Inst Precip Rate" id="InstPrecipRateDPR">
+		<substitute key="product" value="176" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DPR Inst Precip Rate (in/hr)" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="DTA - Storm Total Accum (STA)" id="RadarDualPolStormTotal">
+		<substitute key="product" value="172" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DTA Storm Total Accum" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="DSD - Storm Total Accum Diff" id="RadarDualPolStormTotal">
+		<substitute key="product" value="175" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DSD Storm Total Accum Diff" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="DAA - 1 Hour Digital Accumulation Array" id="RadarDualPol1hrPrecip">
+		<substitute key="product" value="170" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DAA 1hr Digital Accumulation Array" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="OHA - 1 Hour Accumulation" id="RadarDualPol1hrAccum">
+		<substitute key="product" value="169" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="OHA 1hr Accum" />
+	</contribute>
+	<contribute xsi:type="subinclude"
+		fileName="menus/radar/regionalMosaicMenus.xml" subMenu="Dual Pol User 3hr Accum /hrly (DUA)"
+		id="RadarUserSelectablePrecip3hr">
+		<substitute key="product" value="173" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="layer" value="3.0" />
+		<substitute key="name" value="Dual Pol User 3hr Accum /hrly (DUA)" />
+	</contribute>
+	<contribute xsi:type="subinclude"
+		fileName="menus/radar/regionalMosaicMenus.xml" subMenu="Dual Pol User 24hr Accum @12Z (DUA)"
+		id="RadarUserSelectablePrecip24hr">
+		<substitute key="product" value="173" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="layer" value="6.0" />
+		<substitute key="name" value="Dual Pol User 24hr Accum @12Z (DUA)" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="N0X - 0.5 Differential Reflectivity (ZDR)" id="Radar05ZDR">
+		<substitute key="product" value="159,158" />
+		<substitute key="elevation" value="0.5" />
+		<substitute key="name" value="N0X Diff Reflectivity" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="N0K - 0.5 Specific Diff Phase (KDP)" id="Radar05KDP">
+		<substitute key="product" value="163,162" />
+		<substitute key="elevation" value="0.5" />
+		<substitute key="name" value="N0K Specific Diff Phase" />
+	</contribute>
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+		subMenu="N0C - 0.5 Correlation Coeff (CC)" id="Radar05CC">
+		<substitute key="product" value="161,160" />
+		<substitute key="elevation" value="0.5" />
+		<substitute key="name" value="N0C Correlation Coefficient" />
+	</contribute>
+	<contribute xsi:type="separator" id="seperator" />
     <contribute xsi:type="subinclude"
         fileName="menus/radar/baseRadarApplications.xml" />
 </menuTemplate>

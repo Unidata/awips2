@@ -1,4 +1,4 @@
-%define _ldm_version 6.13.14
+%define _ldm_version 6.14.5
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 #
 # AWIPS II LDM Spec File

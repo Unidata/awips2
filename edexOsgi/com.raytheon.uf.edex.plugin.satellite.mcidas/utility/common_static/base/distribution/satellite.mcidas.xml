@@ -26,4 +26,6 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>AREA[0-9]{4}.*</regex>
+    <regex>pnga2area</regex>
+    <regex>.*uniwisc.*</regex>	
 </requestPatterns>
