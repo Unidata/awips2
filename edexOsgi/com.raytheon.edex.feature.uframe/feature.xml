@@ -39,6 +39,7 @@
    <includes
          id="com.raytheon.uf.common.base.feature"
          version="0.0.0"/>
+
    <includes
          id="com.raytheon.uf.edex.foss.org.apache.commons.management.feature"
          version="0.0.0"/>
@@ -224,10 +225,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.aviation.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.edex.satellite.feature"
          version="0.0.0"/>
 
@@ -236,15 +233,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.hydro.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.edex.radar.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.dat.feature"
          version="0.0.0"/>
 
    <includes
@@ -272,15 +261,15 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.mpe.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.edex.menus.vb.feature"
          version="0.0.0"/>
 
    <includes
          id="com.raytheon.uf.edex.goesr.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.ncep.nco.feature"
          version="0.0.0"/>
 
 </feature>

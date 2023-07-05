@@ -62,6 +62,22 @@ mkdir -p %{_build_root}/etc/watchdog.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
+mkdir -p %{_build_root}/awips2/edex/data/ndm
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/awips2/dev
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/awips2/dev/logs
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/ndm/* ${RPM_BUILD_ROOT}/awips2/edex/data/ndm/
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/updateNDM.pl ${RPM_BUILD_ROOT}/awips2/dev/
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/logs ${RPM_BUILD_ROOT}/awips2/dev/
 
 # remove any .gitignore files
 # currently, the ebxml webapp includes a .gitignore file
@@ -199,5 +215,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/bin
 /awips2/edex/bin/*.sh
 
+%dir /awips2/edex/data/ndm
+/awips2/edex/data/ndm/*
+
 %attr(744,root,root) /etc/init.d/edex_camel
 %attr(744,root,root) /etc/watchdog.d/edex_camel_watchdog.sh
+%attr(755,awips,fxalpha) /awips2/dev/updateNDM.pl
+%attr(755,awips,fxalpha) /awips2/dev/logs/updateNDM.log

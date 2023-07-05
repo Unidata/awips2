@@ -19,20 +19,32 @@
  **/
 package com.raytheon.uf.edex.plugin.satellite.mcidas;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.apache.commons.codec.binary.Base64;
+import org.opengis.referencing.crs.ProjectedCRS;
+
+import ar.com.hjg.pngj.ImageLineByte;
+import ar.com.hjg.pngj.PngReaderByte;
+
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
@@ -71,6 +83,12 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  *                                      IDataRecord required by the SatelliteDao
  * 12/03/2013   DR 16841    D. Friedman Allow record overwrites
  * 09/18/2014   3627        mapeters    Updated deprecated method calls.
+ * 05/11/2015   ----        mjames      PS (south and north) stereogrpahic support added.
+ * 05/19/2015   ----        mjames      Added decoding of GVAR native projection products
+ * 07/12/2015   ----        mjames      Account for GOES E and W UNIWISC AREA file numbers
+ * 01/21/2016   ----        mjames      Cleanup
+ * 10/24/2017   ----        mjames      Native support for PNG-compressed AREA files.
+ * 08/14/2018   ----        mjames      Find and use position of PNG header.
  * Sep 23, 2021 8608        mapeters    Handle PDO.traceId changes
  * </pre>
  *
@@ -87,6 +105,12 @@ public class McidasSatelliteDecoder {
     private static final int EXPECTED_IMAGE_TYPE_LE = 4;
 
     private static final int EXPECTED_IMAGE_TYPE_BE = 0x04000000;
+    
+    private static final int RADIUS = 6371200;
+
+    final int SIZE_OF_AREA = 256;
+
+    private final byte[] PNG_HDR = { -119, 80, 78, 71 };
 
     private static final double HALFPI = Math.PI / 2.;
 
@@ -132,6 +156,14 @@ public class McidasSatelliteDecoder {
      * @throws Exception
      */
     private PluginDataObject[] decodeMcidasArea(byte[] data) throws Exception {
+
+        byte[] area         = new byte[SIZE_OF_AREA];
+        byte[] nonAreaBlock = new byte[data.length - SIZE_OF_AREA];
+
+        System.arraycopy(data, 0, area, 0, SIZE_OF_AREA);
+        System.arraycopy(data, SIZE_OF_AREA, nonAreaBlock, 0,
+                nonAreaBlock.length);
+
         ByteBuffer buf = ByteBuffer.wrap(data);
         buf.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -146,80 +178,96 @@ public class McidasSatelliteDecoder {
                 formatError(UNEXPECTED_HEADER_VALUE);
             }
         }
-        int sensorSourceNumber = buf.getInt();
-        int yyyddd = buf.getInt();
-        int hhmmss = buf.getInt();
-        int ulImageLine = buf.getInt();
-        int ulImageElement = buf.getInt();
-        buf.getInt(); // reserved
-        int nLines = buf.getInt();
-        int nElementsPerLine = buf.getInt();
-        int nBytesPerElement = buf.getInt();
-        int lineResolution = buf.getInt();
-        int elementResolution = buf.getInt();
-        int nBands = buf.getInt();
-        int linePrefixLength = buf.getInt();
-        /* int projectNumber = */buf.getInt();
-        /* int creationYyyddd = */buf.getInt();
-        /* int creationHhmmss = */buf.getInt();
-        int bandMap1to32 = buf.getInt();
-        int bandMap33to64 = buf.getInt();
-        // sensor specific
-        buf.position(buf.position() + (4 * 4));
-        // memo
-        buf.position(buf.position() + (4 * 8));
+
+        int sensorSourceNumber = buf.getInt();          // W3
+        int yyyddd = buf.getInt();                      // W4
+        int hhmmss = buf.getInt();                      // W5
+        int ulImageLine = buf.getInt();                 // W6
+        int ulImageElement = buf.getInt();              // W7
+        buf.getInt();                                   // W8 reserved
+        int nLines = buf.getInt();                      // W9
+        int nElementsPerLine = buf.getInt();            // W10
+        int nBytesPerElement = buf.getInt();            // W11
+        int lineResolution = buf.getInt();              // W12
+        int elementResolution = buf.getInt();           // W13
+        int nBands = buf.getInt();                      // W14
+        int linePrefixLength = buf.getInt();            // W15
+        /* int projectNumber = */buf.getInt();          // W16
+        /* int creationYyyddd = */buf.getInt();         // W17
+        /* int creationHhmmss = */buf.getInt();         // W18
+        /*
+       32-bit filter band map for multichannel
+       images; if a bit is set, data exists for the band;
+       band 1 is the least significant byte (rightmost)
+         */
+        int bandMap1to32 = buf.getInt();                // W19
+        /*
+         * W20-24 
+            satellite specific information  
+         */
+        int bandMap33to64 = buf.getInt();               // W20
+        buf.position(buf.position() + (4 * 4));         // sensor specific
+        buf.position(buf.position() + (4 * 8));         // memo
         int areaNumber = buf.getInt();
         int dataBlockOffset = buf.getInt();
         int navBlockOffset = buf.getInt();
         /* int validityCode = */buf.getInt();
-        buf.position(buf.position() + (8 * 4)); // PDL
-        buf.getInt();
-        // GOES AA band 8
+        buf.position(buf.position() + (8 * 4));         // PDL
+        buf.getInt();                                   // GOES AA band 8
         /* int imageYyyddd = */buf.getInt();
         /* int imageHhmmssOrMillis = */buf.getInt();
         /* int imageStartScan = */buf.getInt();
         /* int prefixDocLength = */buf.getInt();
-        /* int prefixCalibrationLength = */buf.getInt();
-        /* int prefixBandListLength = */buf.getInt();
-        // source type
-        buf.getInt();
-        // cal type
-        buf.getInt();
-        buf.position(buf.position() + (3 * 4));
-        // reserved
-        /* int originalSourceType = */buf.getInt();
-        // actually a 4cc?
-        /* int units = */buf.getInt();
-        // also 4cc?
+        int prefixCalibrationLength = buf.getInt();     // W50
+        /* int prefixBandListLength = */buf.getInt();   // W51
+        buf.getInt();                                   // W52 source type
+        String calType = get4cc(buf);                   // W53 cal type
+        buf.position(buf.position() + (3 * 4));         // reserved
+        /* int originalSourceType = */buf.getInt();     // actually a 4cc?
+        /* int units = */buf.getInt();                  // also 4cc?
         /* int scaling = */buf.getInt();
         /* int supplementalBlockOffset = */buf.getInt();
-        buf.getInt();
-        // reserved
-        /* int calibrationOffset = */buf.getInt();
-        // comment cards
-        buf.getInt();
+        buf.getInt();                                   // reserved
+        int calibrationOffset = buf.getInt();           // W63
+        int numberOfComments = buf.getInt();            // W64 comment cards
+
+        /* Nav block */
+        int navsize;
+        if (calibrationOffset == 0){
+            navsize = dataBlockOffset - navBlockOffset;
+        } else {
+            navsize = calibrationOffset - navBlockOffset;
+        }
+        byte[] navigation = new byte[navsize];
+        System.arraycopy(nonAreaBlock, 0, navigation, 0, navigation.length);
+
+        byte[] nonNavBlock = new byte[nonAreaBlock.length - navsize];
+        System.arraycopy(nonAreaBlock, navsize, nonNavBlock, 0, nonNavBlock.length);
+
+        /* PNG block */
+        int PNG_HDR_POS = indexOf(nonNavBlock, PNG_HDR);
+        byte[] pngBlock = new byte[nonNavBlock.length - PNG_HDR_POS];
+        System.arraycopy(nonNavBlock, PNG_HDR_POS, pngBlock, 0, pngBlock.length);
 
         long bandBits = ((long) bandMap33to64 << 32) | bandMap1to32;
-        if (nBands != Long.bitCount(bandBits)) {
-            formatError(
-                    "Specified number of bands does not match number of bits in band map");
+        long bandBitsCount =  Long.bitCount(bandBits);
+        if (nBands != bandBitsCount && nBands > 1) {
+            formatError("Specified number of bands does not match number of bits in band map");
         }
 
         // Decode the navigation block
         buf.position(navBlockOffset);
         SatMapCoverage coverage = decodeNavigation(elementResolution,
                 lineResolution, ulImageElement, ulImageLine, nElementsPerLine,
-                nLines, buf);
+                nLines, buf, navigation);
 
         // Decode the data block, creating a SatelliteRecord for each band.
         PluginDataObject[] result = new PluginDataObject[nBands];
         int bitIndex = 0;
-        for (int ri = 0; ri < nBands; ++ri) {
+        RECORD: for (int ri = 0; ri < nBands; ++ri) {
             while ((bandBits & (1L << bitIndex)) == 0) {
-                ++bitIndex;
-                if (bitIndex >= 64) {
-                    // shouldn't happen
-                    return result;
+                if (++bitIndex >= 64) {
+                    break RECORD; // shouldn't happen
                 }
             }
             SatelliteRecord rec = new SatelliteRecord();
@@ -231,18 +279,20 @@ public class McidasSatelliteDecoder {
                     bitIndex + 1);
             rec.setPhysicalElement(pev.name);
             rec.setUnits(pev.units);
-            rec.setSectorID(getAreaName(areaNumber));
+            rec.setSectorID(getAreaName(sensorSourceNumber, areaNumber));
             rec.setCoverage(coverage);
 
             // TODO: Line pad if not a multiple of four bytes
-            if ((linePrefixLength == 0) && (nBytesPerElement == 1)
-                    && (nBands == 1)) {
-                byte[] imageBytes = new byte[nLines * nElementsPerLine];
-                buf.position(dataBlockOffset);
-                buf.get(imageBytes);
-
-                rec.setMessageData(imageBytes);
-
+            if ((linePrefixLength == 0) && (nBytesPerElement == 1)  && (nBands == 1)) {
+                if (isPngCompressed(pngBlock)) {
+                    byte[] pngBytes = decompressPngSatellite(pngBlock);
+                    rec.setMessageData(pngBytes);
+                } else {
+                    byte[] imageBytes = new byte[nLines * nElementsPerLine];
+                    buf.position(dataBlockOffset);
+                    buf.get(imageBytes);
+                    rec.setMessageData(imageBytes);
+                }
             } else if (nBytesPerElement == 1) {
                 byte[] imageBytes = new byte[nLines * nElementsPerLine];
                 int si = dataBlockOffset + (ri * nBytesPerElement);
@@ -251,8 +301,7 @@ public class McidasSatelliteDecoder {
                 for (int y = 0; y < nLines; ++y) {
                     si += linePrefixLength;
                     for (int x = 0; x < nElementsPerLine; ++x) {
-                        imageBytes[di] = buf.get(si);
-                        ++di;
+                        imageBytes[di++] = buf.get(si);
                         si += eincr;
                     }
                 }
@@ -260,11 +309,10 @@ public class McidasSatelliteDecoder {
                 unimplemented("non-byte elements");
             }
 
-            rec.setSourceTraceId(traceId);
+            rec.setTraceId(traceId);
             rec.setPersistenceTime(TimeUtil.newGmtCalendar().getTime());
             rec.setOverwriteAllowed(true);
 
-            // Set the data into the IDataRecord
             // Set the data into the IDataRecord
             IDataRecord dataRec = SatelliteRecord.getDataRecord(rec);
             if (dataRec != null) {
@@ -281,8 +329,72 @@ public class McidasSatelliteDecoder {
                 result = new PluginDataObject[0];
             }
         }
-
         return result;
+    }
+
+    /**
+     *
+     * from guava/guava/src/com/google/common/primitives/Bytes.java
+     *
+     * @param array
+     * @param target
+     * @return
+     */
+    public static int indexOf(byte[] array, byte[] target) {
+        if (target.length == 0) {
+          return 0;
+        }
+        outer:
+        for (int i = 0; i < array.length - target.length + 1; i++) {
+          for (int j = 0; j < target.length; j++) {
+            if (array[i + j] != target[j]) {
+              continue outer;
+            }
+          }
+          return i;
+        }
+        return -1;
+    }
+
+    /**
+     * Method to check if file is PNG-compressed.
+     *
+     * @param messageData
+     * @return
+     */
+    private boolean isPngCompressed(byte[] messageData) {
+        byte[] buffer = new byte[4];
+        System.arraycopy(messageData, 0, buffer, 0, buffer.length);
+        boolean compressed = Arrays.equals(buffer, PNG_HDR);
+        return compressed;
+    }
+
+    /**
+     * Method to handle Unidata PNG compressed satellite data.
+     *
+     * @param messageData
+     * @return
+     * @throws DecoderException
+     */
+    private byte[] decompressPngSatellite(byte[] messageData)
+            throws SatelliteDecoderException {
+
+        InputStream stream = new ByteArrayInputStream(messageData);
+        PngReaderByte png = new PngReaderByte(stream);
+
+        int MAX_IMAGE_SIZE = 30000000;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_IMAGE_SIZE);
+        byte[] inflated = null;
+
+        for (int row=0;row< png.getImgInfo().rows;row++){
+            ImageLineByte line = png.readRowByte();
+            byte [] buf = line.getScanlineByte();
+            bos.write(buf, 0, buf.length);
+        }
+
+        inflated = bos.toByteArray();
+        bos = null;
+        return inflated;
     }
 
     /**
@@ -291,37 +403,45 @@ public class McidasSatelliteDecoder {
      *
      */
     private SatMapCoverage decodeNavigation(int xImgRes, int yImgRes, int ulX,
-            int ulY, int nx, int ny, ByteBuffer buf) throws Exception {
+            int ulY, int nx, int ny, ByteBuffer buf, byte[] navigation) 
+                    throws Exception {
         SatMapCoverage result = new SatMapCoverage();
         String navType = get4cc(buf);
-        if ("MERC".equals(navType)) {
-            int lineOfEquator = buf.getInt();
-            int elementOfEquator = buf.getInt();
-            int stdLatDDMMSS = buf.getInt();
-            int spacingAtStdLatInMeters = buf.getInt();
-            int nrmlLonDDMMSS = buf.getInt();
+        int lineOfEquator = buf.getInt();
+        int elementOfEquator = buf.getInt();
+        int stdLatDDMMSS = buf.getInt();
+        int spacingAtStdLatInMeters = buf.getInt();
+        int nrmlLonDDMMSS = buf.getInt();
+   
+        
+        // NOTE: We do not check the following for compatibility with WGS84.
+        int radiusInMeters = buf.getInt();
+        /* int eccentricity = */buf.getInt();
+        /* boolean geodetic = */buf.getInt()/* >= 0 */;
 
-            // NOTE: We do not check the following for compatibility with WGS84.
-            int radiusInMeters = buf.getInt();
-            /* int eccentricity = */buf.getInt();
-            /* boolean geodetic = */buf.getInt()/* >= 0 */;
+        boolean westPositive = buf.getInt() >= 0;
+        float la1, lo1, la2, lo2;
+        double dy;
 
-            boolean westPositive = buf.getInt() >= 0;
-            float la1, lo1, la2, lo2;
+        /*
+         * The following is based on
+         * gov.noaa.nws.ncep.edex.plugin.mcidas/src
+         * /gov/noaa/nws/ncep/edex/plugin/mcidas/decoder/McidasDecoder.java
+         */
 
-            /*
-             * The following is based on
-             * gov.noaa.nws.ncep.edex.plugin.mcidas/src
-             * /gov/noaa/nws/ncep/edex/plugin/mcidas/decoder/McidasDecoder.java
-             */
+        double clon = flipLon(unpackDdmmss(nrmlLonDDMMSS), westPositive);
+        double clat = unpackDdmmss(stdLatDDMMSS);
+        double dx = spacingAtStdLatInMeters * xImgRes;
 
-            double clon = flipLon(unpackDdmmss(nrmlLonDDMMSS), westPositive);
-            double clat = unpackDdmmss(stdLatDDMMSS);
-            double dx = spacingAtStdLatInMeters * xImgRes;
-
-            double phi0r = clat * DTR;
-            double rxp = (((double) (elementOfEquator - ulX) / xImgRes) + 1.);
-            double ryp = (ny - ((double) (lineOfEquator - ulY) / yImgRes));
+        double phi0r = clat * DTR;
+        double sign = 1.;
+        if (phi0r < 0.) {
+            sign = -1.;
+        }
+        double rxp = (((double) (elementOfEquator - ulX) / xImgRes) + 1.);
+        double ryp = (ny - ((double) (lineOfEquator - ulY) / yImgRes));
+        
+        if (navType.equals("MERC")) {
 
             double dxp = 1. - rxp;
             double dyp = 1. - ryp;
@@ -337,12 +457,61 @@ public class McidasSatelliteDecoder {
             la2 = (float) (((2. * Math.atan(arg)) - HALFPI) * RTD);
             lo2 = (float) prnlon((clon + (((dx * dxp) / rcos) * RTD)));
             lo2 = (float) prnlon(lo2);
-
+            
             result = SatSpatialFactory.getInstance().getCoverageTwoCorners(
                     SatSpatialFactory.PROJ_MERCATOR, nx, ny, (float) clon,
                     (float) clat, la1, lo1, la2, lo2);
+            
+        } else if (navType.trim().equals("PS")) {
+
+            dy = (float) spacingAtStdLatInMeters * yImgRes;
+            double dxp = (1. - rxp) * dx;
+            double dyp = (1. - ryp) * dy;
+            double alpha = 1. + Math.sin(Math.abs(phi0r));
+            double rm = Math.sqrt(((dxp * dxp) + (dyp * dyp))) / alpha;
+            la1 = (float) (sign * ((HALFPI - (2. * Math.atan(rm / RADIUS)))) * RTD);
+            double thta;
+            if (dyp != 0) {
+                dyp = (-dyp) * sign;
+                thta = (Math.atan2(dxp, dyp)) * RTD;
+                lo1 = (float) prnlon((clon + thta));
+            } else {
+                lo1 = (float) clon;
+            }
+
+            /*
+             * Compute lat/lon of the upper-right corner
+             */
+            dxp = (nx - rxp) * dx;
+            dyp = (ny - ryp) * dy;
+            rm = Math.sqrt(((dxp * dxp) + (dyp * dyp))) / alpha;
+            la2 = (float) (sign * ((HALFPI - (2. * Math.atan(rm / RADIUS)))) * RTD);
+
+            if (dyp != 0) {
+                dyp = (-dyp) * sign;
+                thta = (Math.atan2(dxp, dyp)) * RTD;
+                lo2 = (float) prnlon((clon + thta));
+            } else {
+                lo2 = (float) clon;
+            }
+
+            result = SatSpatialFactory.getInstance().getCoverageTwoCorners(
+                    SatSpatialFactory.PROJ_POLAR, nx, ny, (float) clon,
+                    (float) clat, la1, lo1, la2, lo2);
+            
         } else {
-            unimplemented(String.format("navigation type \"%s\"", navType));
+            /*
+             * Native projection
+             */
+            //unimplemented(String.format("navigation type \"%s\"", navType));
+            clon = nrmlLonDDMMSS / 10000000.f;
+            clon = (float) Math.toDegrees(clon);
+            ProjectedCRS crs = MapUtil.constructNative(navType, encodeNavBlock(navigation));
+
+            result = SatSpatialFactory.getInstance().getCoverageNative(
+                    SatSpatialFactory.PROJ_GVAR, nx, ny, (float) clon,
+                    ulX, ulY, xImgRes, yImgRes, crs);
+            
         }
 
         return result;
@@ -391,24 +560,22 @@ public class McidasSatelliteDecoder {
     }
 
     private String getCreatingEntity(int sensorSourceNumber) {
-        String value = McidasSatelliteLookups.getInstance()
-                .getCreatingEntity(sensorSourceNumber);
-        return value != null ? value
-                : String.format("Unknown-%d", sensorSourceNumber);
+        String value = McidasSatelliteLookups.getInstance().getCreatingEntity(
+                sensorSourceNumber);
+        return value != null ? value : String.format("Unknown-%d",
+                sensorSourceNumber);
     }
 
     private PhysicalElementValue getPhysicalElement(int ssn, int bandIndex) {
         PhysicalElementValue value = McidasSatelliteLookups.getInstance()
                 .getPhysicalElement(ssn, bandIndex);
-        return value != null ? value
-                : new PhysicalElementValue(
-                        String.format("Unknown-%d", bandIndex), null);
+        return value != null ? value : new PhysicalElementValue(String.format(
+                "Unknown-%d", bandIndex), null);
     }
 
-    private String getAreaName(int areaNumber) {
-        String value = McidasSatelliteLookups.getInstance()
-                .getAreaName(areaNumber);
-        return value != null ? value : String.format("AREA%04d", areaNumber);
+    private String getAreaName(int ssn, int areaNumber) {
+        String value = McidasSatelliteLookups.getInstance().getAreaName(ssn);
+    	return value != null ? value : String.format("AREA%04d", areaNumber);
     }
 
     private void formatError(String message) throws DecoderException {
@@ -416,8 +583,14 @@ public class McidasSatelliteDecoder {
     }
 
     protected void unimplemented(String feature) throws DecoderException {
-        throw new DecoderException(
-                String.format("%s: unimplemented: %s", traceId, feature));
+        throw new DecoderException(String.format("%s: unimplemented: %s",
+                traceId, feature));
     }
+    private String encodeNavBlock(byte[] navigation) {
 
+        Base64 b64 = new Base64();
+        byte[] coded = b64.encode(navigation);
+
+        return new String(coded);
+    }
 }
