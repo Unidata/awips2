@@ -89,6 +89,7 @@ import org.locationtech.jts.io.WKTWriter;
  * Jan 15, 2015  5054     randerso    Remove unnecessary new Shell
  * Jan 16, 2016  DR 11474 A. Rickert  Parsing Lat/Lon with parseDouble for better accuracy
  * Jan 05, 2018  6735     tgurney     Rewrite updateStationInfo and db queries
+ * Jul 05, 2023         srcarter@ucar Fix default size on mac, make dialog resizable
  *
  * </pre>
  *
@@ -197,7 +198,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog
     };
 
     public PutHomeCursorDialog(Shell shell) {
-        super(shell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        super(shell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
 
         setText("Put Home Cursor");
         PointsDataManager.getInstance().addHomeChangedListener(this);
@@ -219,7 +220,7 @@ public class PutHomeCursorDialog extends CaveSWTDialog
 
         Group locSelectionGroup = new Group(shell, SWT.NONE);
 
-        GridData gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
         locSelectionGroup.setLayoutData(gridData);
         locSelectionGroup.setText("Location selection via:");
 
@@ -227,6 +228,8 @@ public class PutHomeCursorDialog extends CaveSWTDialog
         locSelectionGroup.setLayout(rowLayout);
 
         createSelectionChoices(locSelectionGroup);
+        // for the mac, force it to size properly so the components are visible
+        locSelectionGroup.pack();
 
         Composite controlsComp = new Composite(locSelectionGroup, SWT.NONE);
         controlsComp.setLayout(new GridLayout(2, false));
@@ -265,8 +268,10 @@ public class PutHomeCursorDialog extends CaveSWTDialog
          * Composite for the location radio buttons.
          */
         Composite locationComp = new Composite(selectionGroup, SWT.BORDER);
-        locationComp.setLayout(new GridLayout(3, true));
-
+        locationComp.setLayout(new GridLayout(3, false));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        locationComp.setLayoutData(gd);
+        
         stationRadio = new Button(locationComp, SWT.RADIO);
         stationRadio.setText("Station");
         stationRadio.setSelection(true);
