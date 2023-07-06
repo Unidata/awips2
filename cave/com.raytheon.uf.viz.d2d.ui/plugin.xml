@@ -1456,19 +1456,19 @@
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.loadSerialized"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+1">
+            sequence="M1+M2+L">
       </key>
        <key
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.saveProcedure"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+2">
+            sequence="M1+S">
       </key>
        <key
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.saveBundle"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+3">
+            sequence="M1+M2+S">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
