@@ -23,9 +23,9 @@ Exporrt KML     | Ctrl+K
 Action|Command
 ------------------------------|---------------
 Open a New Map                | Ctrl + N  
-Open a Bundle                 | Ctrl + O  
-Save Bundle                   | Ctrl + S 
-Save Bundle Locally           | Ctrl + Shift + S 
+Open a Display                | Ctrl + O  
+Save Display                  | Ctrl + S 
+Save Display Locally          | Ctrl + Shift + S 
 Save KML                      | Ctrl + K
 Exit CAVE                     | Alt + F4   
 Exit CAVE                     | Ctrl + Q  
