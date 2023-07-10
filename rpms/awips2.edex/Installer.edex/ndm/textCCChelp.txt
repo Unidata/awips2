@@ -4102,8 +4102,10 @@ U28 Green River, UT
 U31 Austin, NV
 U42 S Valley Rgnl AP, Salt Lake City, UT
 U52 Beaver Municipal Airport, Beaver, UT
+U55 Panguitch Municipal Airport, Panguitch, UT
 U67 Roosevelt, UT
 U68 North Big Horn Cnty AP, Cowley/Lovell/Byron, WY
+U69 Duchesne Municipal Airport, Duchesne, UT
 U71 Vernal, UT
 U78 Soda Springs, ID
 UAO Aurora, OR
