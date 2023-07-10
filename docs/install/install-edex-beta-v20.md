@@ -1,4 +1,4 @@
-# Install EDEX <i class="fa fa-linux"></i>
+# Install EDEX - <span style="color:red">BETA Version!</span> <i class="fa fa-linux"></i>
 
 EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at [Distributed EDEX, Installing Across Multiple Machines](../../edex/distributed-computing/)
 
@@ -9,6 +9,14 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 **20.3.2-0.4**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
+
+!!! note "Version 20.\* of CAVE is not compatible with Version 18.\* EDEX and vice versa, Version 18.\* of CAVE is not compatible with Version 20.\* EDEX."
+
+---
+
+## Functionality/Reporting
+
+This is a beta release, so we are aware that not all functionality is working as expected. We ask you to please be aware of this and have similar expectations. One noteworthy deficiency we are aware of is the radar menu has not been updated yet to reflect what is in version 18. If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6jyZtbh49g-GCBoAQYzTVwAIf_aKz0QOeAr7gDVFhPrjAmw/viewform?usp=sf_link">report it using this short form</a>.
 
 ---
 
