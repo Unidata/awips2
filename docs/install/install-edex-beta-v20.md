@@ -6,9 +6,8 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Latest Version
 
-- **18.2.1-6**
-- [**BETA Version: 20.3.2-0.4**](install-edex-beta-v20.md)
-  
+**20.3.2-0.4**
+
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
 ---
@@ -25,8 +24,6 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 - 24GB RAM
 - 700GB+ Disk Space
 - gcc-c++ package
-    - Run `rpm -qa | grep gcc-c++` to verify if the package is installed
-    - If it is not installed, run `yum install gcc-c++` to install the package
 - A **Solid State Drive (SSD)** is recommended
     - A SSD should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
 
@@ -42,16 +39,16 @@ The first 3 steps should all be run as **root**
 
 ### 1. Install EDEX
 
-Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
+Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/awips_install-v20.sh)
 
 ```
-wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
-chmod 755 awips_install.sh
-sudo ./awips_install.sh --edex
+wget https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/awips_install-v20.sh
+chmod 755 awips_install-v20.sh
+sudo ./awips_install-v20.sh --edex
 ```
 
 
-!!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
+!!! note "**awips_install-v20.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 
        1. Checks to see if EDEX is currently running, if so stops the processes with the `edex stop` command
        2. If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a `yum groupremove awips2-server`
@@ -64,7 +61,7 @@ sudo ./awips_install.sh --edex
 !!! warning "If you receive an error relating to yum, then please run"
 
     ```
-    sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"
+    sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install-v20.sh --edex"
     ```
 
 
