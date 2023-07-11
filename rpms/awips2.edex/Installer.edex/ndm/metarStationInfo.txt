@@ -1200,6 +1200,7 @@
 0000000000|K6R0 | 30.34 | -89.82 |    8|Slidell, LA                         |US|MTR
 0000000000|K6R3 | 30.356| -95.008|   46|Cleveland Muni, Cleveland, TX       |US|MTR
 0000000000|K6R6 | 30.0465|-102.2132| 708|Dryden/Terrell Co, TX              |US|MTR
+0000000000|K6S0 | 45.80648|-109.97826| 1370|Howard Field AP, Big Timber, MT |US|MTR
 0000000000|K6S2 | 43.9828|-124.1113| 16|Florence Muni, Florence, OR         |US|MTR
 0000000000|K6V1 | 40.55 |-101.65 | 1003|IMPERIAL, NE                        |US|MTR
 0000000000|K6V8 | 38.51 |-107.88 | 1752|MONTROSE, CO                        |US|MTR

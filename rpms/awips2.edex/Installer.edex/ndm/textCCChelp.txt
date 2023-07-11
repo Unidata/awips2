@@ -606,6 +606,7 @@
 6P9 Cook Canyon Ranch AP, Ranger, TX
 6R3 Cleveland Muni, Cleveland, TX
 6R6 Dryden/Terrell Co, TX
+6S0 Howard Field Airport, Big Timber, MT
 6S2 Florence Muni, Florence, OR
 6V1 Imperial, NE
 6V3 Richlands/Tazewell Co, VA
