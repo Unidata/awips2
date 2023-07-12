@@ -1,4 +1,4 @@
-# Install CAVE - BETA Version
+# Install CAVE - <span style="color:red">BETA Version!</span> 
 
 CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
 
@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 20.3.2-0.3**](#linux)
-- [**Windows: 20.3.2-0.3**](#windows)
-- [**Mac: 20.3.2-0.3**](#macos)
+- [**Linux: 20.3.2-0.4**](#linux)
+- [**Windows: 20.3.2-0.4**](#windows)
+- [**Mac: 20.3.2-0.4**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -42,7 +42,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 20.3.2-0.3**
+**Latest Version: 20.3.2-0.4**
 
 ### System Requirements
 
@@ -72,7 +72,7 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 20.3.2-0.3**
+**Latest Version: 20.3.2-0.4**
 
 For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
@@ -84,7 +84,7 @@ For Windows, Unidata offers two installation options: a [**Direct Windows Instal
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.3-20230425-1147.msi)    
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.3-20230707-0220.msi)    
 
 #### Run CAVE
 
@@ -92,7 +92,7 @@ To run CAVE, either:
 
 - Double click on the CAVE icon on your desktop
 - Type "cave" in the start bar and hit enter
-- Find and run CAVE app in the file browser:  `C:\Users\%USER%\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.exe`
+- Find and run CAVE app in the file browser:  `C:\Users\%USER%\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.bat`
 
 ### Method 2: Linux Virtual Machine
 
@@ -113,9 +113,9 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.3** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.3.zip)
+1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-0.4** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/CentOS7-Unidata-CAVE-20.3.2-0.4.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.3.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-0.4.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
@@ -132,7 +132,7 @@ Once inside the VM, to run CAVE either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 20.3.2-0.3**
+**Latest Version: 20.3.2-0.4**
 
 ### System Requirements
 
@@ -140,7 +140,7 @@ Once inside the VM, to run CAVE either:
 
 ### Download and Installation Instructions
 
-1. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave-20.3.2-0.3.dmg)
+1. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave-20.3.2-0.4.dmg)
     ![Cave System Install](../images/mac-install.png)
      - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
      - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges

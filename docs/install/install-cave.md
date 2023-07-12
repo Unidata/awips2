@@ -9,7 +9,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 - [**Linux: 18.2.1-6**](#linux)
 - [**Windows: 18.2.1-6**](#windows)
 - [**Mac: 18.2.1-6**](#macos)
-- [**BETA Version: 20.3.2-0.3**](install-cave-beta-v20.md)
+- [**BETA Version: 20.3.2-0.4**](install-cave-beta-v20.md)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
