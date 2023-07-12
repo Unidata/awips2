@@ -10,7 +10,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/install/install-edex/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/install/install-edex-beta-v20/">
       
       
         <meta name="author" content="support-awips@unidata.ucar.edu">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Install EDEX - Unidata AWIPS User Manual</title>
+        <title>Install EDEX - <span style="color:red">BETA Version!</span> <i class="fa fa-linux"></i> - Unidata AWIPS User Manual</title>
       
     
     
@@ -93,7 +93,7 @@
               
             
             
-              Install EDEX
+              Install EDEX - <span style="color:red">BETA Version!</span> <i class="fa fa-linux"></i>
             
           
         </span>
@@ -227,224 +227,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        Install EDEX
-      </label>
-    
-    <a href="./" title="Install EDEX" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../install-edex/" title="Install EDEX" class="md-nav__link">
       Install EDEX
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#latest-version" title="Latest Version" class="md-nav__link">
-    Latest Version
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#system-requirements" title="System requirements" class="md-nav__link">
-    System requirements
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#download-and-installation-instructions" title="Download and Installation Instructions" class="md-nav__link">
-    Download and Installation Instructions
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-install-edex" title="1. Install EDEX" class="md-nav__link">
-    1. Install EDEX
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-edex-setup" title="2. EDEX Setup" class="md-nav__link">
-    2. EDEX Setup
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-configure-iptables" title="3. Configure iptables" class="md-nav__link">
-    3. Configure iptables
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#open-port-9588" title="Open Port 9588" class="md-nav__link">
-    Open Port 9588
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#to-open-ports-to-all-connections" title="To open ports to all connections" class="md-nav__link">
-    To open ports to all connections
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#to-open-ports-to-specific-ip-addresses" title="To open ports to specific IP addresses" class="md-nav__link">
-    To open ports to specific IP addresses
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#restart-iptables" title="Restart iptables" class="md-nav__link">
-    Restart iptables
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#troubleshooting" title="Troubleshooting" class="md-nav__link">
-    Troubleshooting
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-start-edex" title="4. Start EDEX" class="md-nav__link">
-    4. Start EDEX
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#additional-notes" title="Additional Notes" class="md-nav__link">
-    Additional Notes
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ensure-selinux-is-disabled" title="Ensure SELinux is Disabled" class="md-nav__link">
-    Ensure SELinux is Disabled
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ssd-mount" title="SSD Mount" class="md-nav__link">
-    SSD Mount
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configure-ldm-feeds" title="Configure LDM Feeds" class="md-nav__link">
-    Configure LDM Feeds
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuration-file-awips2ldmetcldmdconf" title="Configuration file: /awips2/ldm/etc/ldmd.conf" class="md-nav__link">
-    Configuration file: /awips2/ldm/etc/ldmd.conf
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuration-file-awips2ldmetcpqactconf" title="Configuration File: /awips2/ldm/etc/pqact.conf" class="md-nav__link">
-    Configuration File: /awips2/ldm/etc/pqact.conf
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuration-file-awips2ldmetcregistryxml" title="Configuration File: /awips2/ldm/etc/registry.xml" class="md-nav__link">
-    Configuration File: /awips2/ldm/etc/registry.xml
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#directories-to-know" title="Directories to Know" class="md-nav__link">
-    Directories to Know
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#what-version-is-my-edex" title="What Version is my EDEX?" class="md-nav__link">
-    What Version is my EDEX?
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#uninstalling-edex" title="Uninstalling EDEX" class="md-nav__link">
-    Uninstalling EDEX
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
     
@@ -980,6 +767,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#functionalityreporting" title="Functionality/Reporting" class="md-nav__link">
+    Functionality/Reporting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#system-requirements" title="System requirements" class="md-nav__link">
     System requirements
   </a>
@@ -1170,18 +964,21 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/install/install-edex.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/install/install-edex-beta-v20.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="install-edex">Install EDEX <i class="fa fa-linux"></i><a class="headerlink" href="#install-edex" title="Permanent link"></a></h1>
+                <h1 id="install-edex-beta-version">Install EDEX - <span style="color:red">BETA Version!</span> <i class="fa fa-linux"></i><a class="headerlink" href="#install-edex-beta-version" title="Permanent link"></a></h1>
 <p>EDEX is the <strong>E</strong>nvironmental <strong>D</strong>ata <strong>Ex</strong>change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at <a href="../../edex/distributed-computing/">Distributed EDEX, Installing Across Multiple Machines</a></p>
 <hr />
 <h2 id="latest-version">Latest Version<a class="headerlink" href="#latest-version" title="Permanent link"></a></h2>
-<ul>
-<li><strong>18.2.1-6</strong></li>
-<li><a href="../install-edex-beta-v20/"><strong>BETA Version: 20.3.2-0.4</strong></a></li>
-</ul>
+<p><strong>20.3.2-0.4</strong></p>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
+<div class="admonition note">
+<p class="admonition-title">Version 20.* of CAVE is not compatible with Version 18.* EDEX and vice versa, Version 18.* of CAVE is not compatible with Version 20.* EDEX.</p>
+</div>
+<hr />
+<h2 id="functionalityreporting">Functionality/Reporting<a class="headerlink" href="#functionalityreporting" title="Permanent link"></a></h2>
+<p>This is a beta release, so we are aware that not all functionality is working as expected. We ask you to please be aware of this and have similar expectations. One noteworthy deficiency we are aware of is the radar menu has not been updated yet to reflect what is in version 18. If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6jyZtbh49g-GCBoAQYzTVwAIf_aKz0QOeAr7gDVFhPrjAmw/viewform?usp=sf_link">report it using this short form</a>.</p>
 <hr />
 <h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link"></a></h2>
 <ul>
@@ -1195,11 +992,7 @@
 <li>16+ CPU cores (each CPU core can run a decorder in parallel)</li>
 <li>24GB RAM</li>
 <li>700GB+ Disk Space</li>
-<li>gcc-c++ package<ul>
-<li>Run <code>rpm -qa | grep gcc-c++</code> to verify if the package is installed</li>
-<li>If it is not installed, run <code>yum install gcc-c++</code> to install the package</li>
-</ul>
-</li>
+<li>gcc-c++ package</li>
 <li>A <strong>Solid State Drive (SSD)</strong> is recommended<ul>
 <li>A SSD should be mounted either to <code>/awips2</code> (to contain the entire EDEX system) or to <code>/awips2/edex/data/hdf5</code> (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.</li>
 </ul>
@@ -1215,13 +1008,13 @@
 <h2 id="download-and-installation-instructions">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions" title="Permanent link"></a></h2>
 <p>The first 3 steps should all be run as <strong>root</strong></p>
 <h3 id="1-install-edex">1. Install EDEX<a class="headerlink" href="#1-install-edex" title="Permanent link"></a></h3>
-<p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></p>
-<pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
-chmod 755 awips_install.sh
-sudo ./awips_install.sh --edex
+<p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/awips_install-v20.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></p>
+<pre><code>wget https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/awips_install-v20.sh
+chmod 755 awips_install-v20.sh
+sudo ./awips_install-v20.sh --edex
 </code></pre>
 <div class="admonition note">
-<p class="admonition-title"><strong>awips_install.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
+<p class="admonition-title"><strong>awips_install-v20.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
 <ol>
 <li>Checks to see if EDEX is currently running, if so stops the processes with the <code>edex stop</code> command</li>
 <li>If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a <code>yum groupremove awips2-server</code></li>
@@ -1234,7 +1027,7 @@ sudo ./awips_install.sh --edex
 </div>
 <div class="admonition warning">
 <p class="admonition-title">If you receive an error relating to yum, then please run</p>
-<p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"</code></p>
+<p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install-v20.sh --edex"</code></p>
 </div>
 <h3 id="2-edex-setup">2. EDEX Setup<a class="headerlink" href="#2-edex-setup" title="Permanent link"></a></h3>
 <p>The external and localhost addresses need to be specified in <code>/etc/hosts</code></p>
@@ -1515,41 +1308,6 @@ sudo yum groupremove &quot;AWIPS EDEX Server&quot;
       
         
 <footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid">
-        
-          <a href="install/install-cave/" title="Install CAVE" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
-            </div>
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                Install CAVE
-              </span>
-            </div>
-          </a>
-        
-        
-          <a href="appendix/common-problems/" title="Common Problems" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Common Problems
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
