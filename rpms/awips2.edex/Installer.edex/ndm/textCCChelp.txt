@@ -608,6 +608,7 @@
 6R6 Dryden/Terrell Co, TX
 6S0 Howard Field Airport, Big Timber, MT
 6S2 Florence Muni, Florence, OR
+6S8 Laurel Muni Airport, Laurel, MT
 6V1 Imperial, NE
 6V3 Richlands/Tazewell Co, VA
 6V8 Montrose, CO
@@ -620,6 +621,7 @@
 77M Malta, ID
 77S Hobby Field Airport, Creswell, OR
 79J Andalusia/Opp, AL
+79S Fort Benton Airport, Fort Benton, MT
 7A8 Avery Cnty AP, Spruce Pine, NC
 7B5 West Cameron 587, LA
 7BM Cottonwood Pass, CO
@@ -632,6 +634,7 @@
 7R3 Amelia/Lake Palourd, LA
 7R4 Intracoastal City, LA
 7R8 Offshr S.Marsh Is Block 23, LA
+7S0 Ronan Airport, Ronan, MT
 7W4 Lake Anna AP, Bumpass, VA
 7W6 Hyde County Airport, Engelhard, NC
 80A 00H ERL 850 mb Plot File
