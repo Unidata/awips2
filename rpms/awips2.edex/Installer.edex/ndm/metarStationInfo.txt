@@ -1200,7 +1200,9 @@
 0000000000|K6R0 | 30.34 | -89.82 |    8|Slidell, LA                         |US|MTR
 0000000000|K6R3 | 30.356| -95.008|   46|Cleveland Muni, Cleveland, TX       |US|MTR
 0000000000|K6R6 | 30.0465|-102.2132| 708|Dryden/Terrell Co, TX              |US|MTR
+0000000000|K6S0 | 45.80648|-109.97826| 1370|Howard Field AP, Big Timber, MT |US|MTR
 0000000000|K6S2 | 43.9828|-124.1113| 16|Florence Muni, Florence, OR         |US|MTR
+0000000000|K6S8 | 45.70518|-108.76077| 1080|Laurel Muni Airport, Laurel, MT |US|MTR
 0000000000|K6V1 | 40.55 |-101.65 | 1003|IMPERIAL, NE                        |US|MTR
 0000000000|K6V8 | 38.51 |-107.88 | 1752|MONTROSE, CO                        |US|MTR
 0000000000|K7A8 | 35.9454|-81.9962| 837|Avery Cnty AP, Spruce Pine, NC      |US|MTR
@@ -1210,6 +1212,7 @@
 0000000000|K77M | 42.30 |-113.37 | 1435|MALTA, ID                           |US|MTR
 0000000000|K77S | 43.93075|-123.00667| 165|Hobby Field AP, Creswell, OR     |US|MTR
 0000000000|K79J | 31.32 | -86.41 |   94|Andalusia/Opp AP, AL                |US|MTR
+0000000000|K79S | 47.84419|-110.63686| 874|Fort Benton Arpt, Fort Benton, MT|US|MTR
 0000000000|K7B5 | 28.09 | -93.21 |    1|WEST CAMERON 587, LA                |US|MTR
 0000000000|K7BM | 38.799|-106.218| 2995|Cottonwood Pass, CO                 |US|MTR
 0000000000|K7G2 | 41.78 | -80.70 |  282|Ashtabula Co, OH                    |US|MTR
@@ -1220,6 +1223,7 @@
 0000000000|K7R3 | 29.70 | -91.10 |    2|AMELIA/LAKE PALO, LA                |US|MTR
 0000000000|K7R4 | 29.78 | -92.13 |    5|INTRACOASTAL CIT, LA                |US|MTR
 0000000000|K7R8 | 28.30 | -91.98 |    1|SOUTH MARSH ISLA, LA                |US|MTR
+0000000000|K7S0 | 47.56717|-114.10108| 941|Ronan Airport, Ronan, MT         |US|MTR
 0000000000|K7W4 | 37.9658| -77.7459| 107|Lake Anna AP, Bumpass, VA          |US|MTR
 0000000000|K7W6 | 35.56204|-75.95566| 2|Hyde County Airport, Engelhard, NC  |US|MTR
 0000000000|K8A3 | 36.41350|-85.31044| 418|Livingston Muni AP, Livingston, TN|US|MTR
