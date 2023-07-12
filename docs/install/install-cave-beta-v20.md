@@ -84,7 +84,7 @@ For Windows, Unidata offers two installation options: a [**Direct Windows Instal
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.3-20230707-0220.msi)    
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave-20.3.2-0.4-20230707-0220.msi)    
 
 #### Run CAVE
 
