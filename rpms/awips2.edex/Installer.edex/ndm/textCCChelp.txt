@@ -590,6 +590,7 @@
 603 Bulletin No. 603
 604 Bulletin No. 604
 60M OBS ERL WND 14K FT
+60R Navasota Muni Airport, Navasota, TX
 60Y Slayton Muni, Slayton, MN
 62M 12 HR RGL WND 12K FT
 62Y Two Harbors, MN
@@ -1731,6 +1732,7 @@ FCL Clarks Point AP, Clarks Point, AK
 FCM Flying Cloud Airport, MN
 FCS Fort Carson, Colorado Springs, CO
 FCX Roanoke/Blacksburg, VA WSR-88D
+FCT Vagabond Army Heliport, Yakima, WA
 FDK Frederick Muni Apt, MD
 FDR Frederick, OK
 FDW Winnsboro, SC

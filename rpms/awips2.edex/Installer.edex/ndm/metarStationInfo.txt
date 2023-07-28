@@ -544,7 +544,7 @@
 0000071226|CXHP | 55.40 |-116.483|  602|High Prairie AGDM, ALTA             |CN|MTR
 0000071344|CXHR | 51.183|-112.5  |  971|Hussar AGDM, AB                     |CN|MTR
 0000071027|CXIB | 46.67 | -60.40 |    8|Ingonish Beach CS, NS               |CN|SAO
-0000071159|CXJM | 61.35 |-120.78 |  227|Jean Marie, NW                      |CN|SAO
+0000071159|CXJM | 61.35 |-120.78 |  227|Jean Marie, NT                      |CN|SAO
 0000071299|CXKA | 49.60 | -82.65 |  218|Kapuskasing CDA, ON                 |CN|SAO
 0000000000|CXKE | 45.00 | -75.63 |   99|Kemptville, ON                      |CN|MTR
 0000071301|CXKI | 48.15 | -80.0  |  324|Kirkland Lake CS ON                 |CN|SAO
@@ -1049,7 +1049,6 @@
 0000072614|K1V4 | 44.42 | -72.02 |  217|St. Johnsbury, VT                   |US|MTR
 0000000000|K1V6 | 38.4284|-105.106| 1659|Fremont Cnty AP, Canon City, CO    |US|MTR
 0000074004|K1Y7 | 32.85 |-114.40 |   98|Yuma Proving Ground, AZ             |US|MTR
-0000000000|K1YT | 46.6667|-120.45| 438|Vagabond Army Airfield, Yakima, WA   |US|MTR
 0000000000|K2G2 | 40.36061|-80.70169| 365|Jefferson Cnty AP, Steubenville, OH|US|MTR
 0000000000|K2G9 | 40.03887|-79.01500| 693|Somerset Cnty AP, Somerset, PA    |US|MTR
 0000000000|K2J3 | 32.98594|-82.38481| 100|Louisville Muni AP, Louisville, GA|US|MTR
@@ -1184,6 +1183,7 @@
 0000000000|K5R8 | 30.4411| -93.4736| 25|De Quincy Industrial Air Park, LA   |US|MTR
 0000000000|K5SM | 39.426|-107.379| 3232|Sunlight, CO (Pass)                 |US|MTR
 0000000000|K5T9 | 28.8571|-100.5135|270|Maverick Cnty Int AP, Eagle Pass, TX|US|MTR
+0000000000|K60R | 30.36714| -96.11294| 70|Navasota Muni Arprt, Navasota, TX |US|MTR
 0000000000|K62Y | 47.11 | -91.75 |  328|TWO HARBORS, MN                     |US|MTR
 0000072787|K63S | 48.54539|-117.88079|  574|Colville AP, Colville, WA       |US|MTR
 0000000000|K65S | 48.726|-116.295|  712|Boundary Cnty AP, Bonners Ferry, ID |US|MTR
@@ -1985,6 +1985,7 @@
 0000000000|KFCI | 37.40644| -77.52483| 72|Chesterfield Cnty AP, Richmond, VA|US|MTR
 0000000000|KFCM | 44.84 | -93.47 |  276|Minneapolis/Flying Cloud, MN        |US|MTR
 0000072468|KFCS | 38.69 |-104.77 | 1789|FORT CARSON/BUTT, CO                |US|MTR
+0000000000|KFCT | 46.66942| -120.45597|420|Vagabond Army Heliport, Yakima, WA|US|MTR
 0000000000|KFDK | 39.418| -77.374|   92|Frederick Muni Apt, MD              |US|MTR
 0000000000|KFDR | 34.35 | -98.98 |  383|Frederick Muni, OK                  |US|MTR
 0000000000|KFDW | 34.315| -81.109|  176|Winnsboro, SC                       |US|MTR
@@ -3122,7 +3123,7 @@
 0000000000|KPVF | 38.724|-120.753|  788|Placerville, CA                     |US|MTR
 0000000000|KPVG | 36.780| -76.4488|   7|Hampton Rds Exec AP, Norfolk, VA    |US|MTR
 0000000000|KPVJ | 34.711| -97.223|  295|Pauls Valley Muni, OK               |US|MTR
-0000000000|KPVU | 40.23 |-111.72 | 1369|PROVO, UT                           |US|MTR
+0000000000|KPVU | 40.2239|-111.7253| 1369|PROVO, UT                         |US|MTR
 0000000000|KPVW | 34.163|-101.722| 1028|Hale Cnty AP, Plainview, TX         |US|MTR
 0000000000|KPWA | 35.54 | -97.65 |  396|WILEY POST FIELD, OK                |US|MTR
 0000000000|KPWC | 46.72 | -94.38 |  395|Pine River Regional, MN             |US|MTR
