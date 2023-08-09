@@ -459,7 +459,6 @@
 3HA Chicago, IL
 3HT Harlowton, MT
 3I2 Mason Cnty AP, Pt Pleasant, WV
-3J7 Greene Cnty Rgnl AP, Greensboro, GA
 3K3 Syracuse, KS
 3K8 Coldwater, KS
 3KK Kankakee, IL
@@ -1343,6 +1342,7 @@ CPC Whiteville/Columbus Co Muni, NC
 CPF Wendell H Ford AP, Hazard, KY
 CPK Chesapeake Muni, VA
 CPM Compton/Woodley AP, Compton, CA
+CPP Greene County Regional Airport, Greensboro, GA
 CPP F-Pointe-Noire, CG, W Africa
 CPR Casper, WY
 CPS St Louis DT AP, Cahokia/East Saint Louis, IL
@@ -3683,6 +3683,7 @@ RUI Ruidoso, NM
 RUM Rumford, ME
 RUQ Salisbury/Rowan Co, NC
 RUT Rutland-Southern Vermont Rgnl, VT
+RVF Ruby Valley Field Airport, Twin Bridges, MT
 RVJ Swinton Smith Field, Reidsville, GA
 RVL Reedsville, PA
 RVS Tulsa Riverside Arpt, OK

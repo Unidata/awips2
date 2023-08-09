@@ -1107,7 +1107,6 @@
 0000000000|K3FC | 40.09 | -95.60 |  445|FALLS CITY, NE                      |US|MTR
 0000000000|K3HT | 46.44 |-109.84 | 1268|HARLOWTON, MT                       |US|MTR
 0000000000|K3I2 | 38.915| -82.099|  196|Mason Cnty AP, Pt Pleasant, WV      |US|MTR
-0000000000|K3J7 | 33.598| -83.139|  206|Greene Cnty Rgnl AP, Greensboro, GA |US|MTR
 0000000000|K3K3 | 37.922|-101.746| 1013|Syracuse, KS                        |US|MTR
 0000000000|K3K8 | 37.22333|-99.33167| 636|Coldwater, KS                     |US|MTR
 0000000000|K3KM | 37.75 | -97.20 |  433|WICHITA, KS                         |US|MTR
@@ -1681,6 +1680,7 @@
 0000000000|KCPF | 37.38736|-83.26161| 383|Wendell H Ford AP, Hazard, KY     |US|MTR
 0000000000|KCPK | 36.66562|-76.32066| 6|Chesapeake Muni, VA                 |US|MTR
 0000000000|KCPM | 33.88992| -118.24381|  30|Compton/Woodley AP, Compton, CA |US|MTR
+0000000000|KCPP | 33.59797|-83.13826|210|Greene Cnty Rgnl AP, Greensboro, GA|US|MTR
 0000072569|KCPR | 42.93 |-106.47 | 1622|CASPER/NATRONA I, WY                |US|MTR
 0000000000|KCPS | 38.571| -90.156|  126|St Louis DT AP, Cahokia/St Louis, IL|US|MTR
 0000000000|KCPT | 32.354| -97.434|  260|Cleburne Muni, Cleburne, TX         |US|MTR
@@ -3230,6 +3230,7 @@
 0000072618|KRUM | 44.54 | -70.53 |  205|RUMFORD, ME                         |US|MTR
 0000000000|KRUQ | 35.646| -80.520|  236|Salisbury/Rowan Co, NC              |US|MTR
 0000000000|KRUT | 43.54 | -72.95 |  240|Rutland-Southern Vermont Rgnl, VT   |US|MTR
+0000000000|KRVF | 45.53542|-112.30228|1460|Ruby Valley Fld AP, Twin Bridges, MT|US|MTR
 0000000000|KRVJ | 32.05949| -82.15357| 60|Swinton Smith Field, Reidsville, GA|US|MTR
 0000000000|KRVS | 36.04 | -95.98 |  191|TULSA RIVERSIDE ARPT, OK            |US|MTR
 0000000000|KRVL | 40.67739|-77.62683| 250|Reedsville, PA                    |US|MTR
