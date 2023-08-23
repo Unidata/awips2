@@ -230,6 +230,7 @@
 0000000000|45186| 42.368| -87.795|  176|Waukegan, IL, U of IL               |US|BOY
 0000000000|45187| 42.491| -87.779|  176|Winthrop Harbor, IL, U of IL        |US|BOY
 0000000000|45198| 41.892| -87.563|  176|Chicago Pier, IL, U of IL           |US|BOY
+0000000000|45210| 44.055| -87.050|   -0|Rawley Point East, WI (269)         |US|BOY
 0000000000|46001| 56.23 |-147.90 |    0|DN25 /D GULF OF AK                  |US|BOY
 0000000000|46002| 42.527|-130.260|    0|6N04 /D OREGON                      |US|BOY
 0000000000|46004| 50.93 |-136.10 |   -0|Middle Nomad                        |CN|BOY

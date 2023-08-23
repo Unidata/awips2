@@ -1178,6 +1178,7 @@
 0000072516|K5B5 | 42.89 | -73.25 |  252|Bennington/Wm H Morse State, VT     |US|MTR
 0000000000|K5C1 | 29.724| -98.695|  422|Boerne Stage Field AP, Boerne, TX   |US|MTR
 0000000000|K5H4 | 47.791| -99.932|  490|Harvey Muni, Harvey, ND             |US|MTR
+0000000000|K5K2 | 38.45146| -101.75008| 1100|Tribune Muni Arpt, Tribune, KS |US|MTR
 0000000000|K5R0 | 28.22 | -93.75 |   26|EAST ADDITION B3, TX                |US|MTR
 0000000000|K5R8 | 30.4411| -93.4736| 25|De Quincy Industrial Air Park, LA   |US|MTR
 0000000000|K5SM | 39.426|-107.379| 3232|Sunlight, CO (Pass)                 |US|MTR
@@ -1954,6 +1955,7 @@
 0000000000|KEVU | 40.353| -94.915|  351|Missouri Rgnl AP, Maryville, MO     |US|MTR
 0000072432|KEVV | 38.05 | -87.53 |  118|EVANSVILLE/DRESS, IN                |US|MTR
 0000000000|KEVW | 41.27 |-111.03 | 2183|Evanston-Uninta Co Burns Fld, WY    |US|MTR
+0000000000|KEVY | 39.52103|-75.72367| 21|Summit Airport, Middletown, DE     |US|MTR
 0000000000|KEWB | 41.69 | -70.97 |   23|NEW BEDFORD, MA                     |US|MTR
 0000000000|KEWK | 38.05708|-97.27523| 467|NEWTON (AWOS), KS                 |US|MTR
 0000000000|KEWN | 35.072853|-77.043020| 6|NEW BERN, NC                      |US|MTR
@@ -3552,6 +3554,7 @@
 0000000000|KU71 | 40.48 |-109.53 | 1612|VERNAL, UT                          |US|MTR
 0000000000|KU73 | 42.73 |-114.46 | 1234|Jerome, ID                          |US|MTR
 0000000000|KU78 | 42.66 |-111.58 | 1781|SODA SPRINGS, ID                    |US|MTR
+0000000000|KU96 | 37.43531|-110.56428| 1340|Cal Black Arpt, Halls Crossing, UT|US|MTR
 0000000000|KUAO | 45.2490|-122.7660| 60|Aurora, OR                          |US|MTR
 0000000000|KUBE | 45.50597| -91.98109| 378|Cumberland Muni, Cumberland, WI  |US|MTR
 0000072385|KUCC | 36.96 |-116.05 | 1195|YUCCA FLAT, NV                      |US|MTR
