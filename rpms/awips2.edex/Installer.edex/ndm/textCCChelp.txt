@@ -569,6 +569,7 @@
 5HN Cape Hinchinbrook, AK
 5HR Hayes River, AK
 5J0 Grant Cnty Rgnl, John Day, OR
+5K2 Tribune Municipal Airport, Tribune, KS
 5MK Mount McKinley National Park, AK
 5NV Nunivak Island, AK
 5PX Paxson, AK
@@ -1688,6 +1689,7 @@ EVT Space Weather Event Reports
 EVU NW Missouri Rgnl AP, Maryville, MO
 EVV Evansville, IN
 EVW Evanston, WY
+EVY Summit Airport, Middletown, DE
 EWB New Bedford, MA
 EWK Newton, KS
 EWN New Bern, NC
@@ -4115,6 +4117,7 @@ U68 North Big Horn Cnty AP, Cowley/Lovell/Byron, WY
 U69 Duchesne Municipal Airport, Duchesne, UT
 U71 Vernal, UT
 U78 Soda Springs, ID
+U96 Cal Black Memorial Airport, Halls Crossing, UT
 UAO Aurora, OR
 UBE Cumberland Muni, Cumberland, WI
 UCC Yucca Flat, NV
