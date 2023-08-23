@@ -232,3 +232,4 @@ A full list of all released blogs can be found below:
 - [Creating New Scales/Maps](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-new-scales)
 - [Adding Shapefiles to the Maps Menu with EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-adding-shapefiles-to)
 - [Removing Model Data from EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-removing-model-data)
+- [LDM Usage in AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ldm-usage-in)
