@@ -20,6 +20,7 @@
 
 package com.raytheon.viz.gfe.core.internal;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -169,6 +170,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * Jan 04, 2018  7178     randerso  Removed deallocateUnusedGrids. Code cleanup
  * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
  *                                  selected when perspective is re-opened.
+ * Feb 01, 2019  ----     mjames    Use only BASE level for now/dev.
+ * Feb 04, 2019  ----     mjames    Force sync of python files required by GFE perspective.
  * Feb 28, 2018  7116     randerso  Force time range to be recalculated when
  *                                  simulated time is changed.
  * Dec 11, 2018  7692     dgilling  Add additional debug logging to track VCParm
@@ -2898,23 +2901,47 @@ public class ParmManager
     private List<VCModule> initVirtualCalcParmDefinitions() {
         // retrieve the inventory from the ifpServer
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext[] contexts = new LocalizationContext[] {
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE),
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.SITE),
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.USER) };
 
         Map<String, LocalizationFile> modMap = new HashMap<>();
-        for (LocalizationContext context : contexts) {
-            LocalizationFile[] files = pathMgr.listFiles(context,
-                    FileUtil.join("gfe", "vcmodule"), new String[] { "py" },
+        
+        LocalizationContext context = pathMgr.getContext(
+        		LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE);
+                	
+    	// vcmodule files
+        LocalizationFile[] files = pathMgr.listFiles(context,
+                "gfe/vcmodule", new String[] { "py" },
+                false, true);
+        for (LocalizationFile lf : files) {
+            String modName = LocalizationUtil.extractName(lf.getPath())
+                    .replace(".py", "");
+            modMap.put(modName, lf);
+        }
+        
+        String[] syncPaths = {
+        		"python",
+        		"python/time",
+        		"python/dataaccess",
+        		"gfe/vcmodule",
+        		"gfe/vcmodule/utility",
+        		"gfe/python",
+        		"gfe/textproducts/templates/product",
+        		"gfe/textproducts/templates",
+        		"gfe/textproducts",
+        		"vtec"
+        		};
+        
+        for (String path : syncPaths){
+        	LocalizationFile[] baseGfeFiles = pathMgr.listFiles(context,
+        			path, new String[] {"py" },
                     false, true);
-            for (LocalizationFile lf : files) {
-                String modName = LocalizationUtil.extractName(lf.getPath())
-                        .replace(".py", "");
-                modMap.put(modName, lf);
+            for (LocalizationFile lf : baseGfeFiles) {
+                try {
+    				File pyFile = lf.getFile(true);
+    			} catch (LocalizationException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
             }
         }
 
