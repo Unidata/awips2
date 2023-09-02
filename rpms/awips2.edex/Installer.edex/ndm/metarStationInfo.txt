@@ -994,6 +994,7 @@
 0000000000|K1CW | 41.5806 |-103.573| 1370|Gering, NE                        |US|MTR
 0000000000|K1D1 | 45.23053|-96.56596| 340|Milbank Muni Airport, Milbank, SD |US|MTR
 0000000000|K1D7 | 45.29258|-97.51379| 565|Webster Muni Airport, Webster, SD |US|MTR
+0000000000|K1D8 | 44.85657|-98.53123| 399|Redfield Muni Arpt, Redfield, SD  |US|MTR
 0000000000|K1DM | 47.37602|-109.814| 1093|Denton, MT                        |US|MTR
 0000000000|K1DN | 47.79468|-101.298|  634|Max, ND                           |US|MTR
 0000000000|K1DW | 41.36167|-103.79408| 1540|11.5m NW Kimball, NE            |US|MTR
