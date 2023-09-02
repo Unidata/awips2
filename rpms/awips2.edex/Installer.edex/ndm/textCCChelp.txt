@@ -304,6 +304,7 @@
 1CW Gering, NE
 1D1 Milbank Muni Airport, Milbank, SD
 1D7 Webster Muni Airport, Webster, SD
+1D8 Redfield Muni Airport, Redfield, SD
 1DM Denton, MT
 1DN Max, ND
 1DW 11.5m NW Kimball, NE
