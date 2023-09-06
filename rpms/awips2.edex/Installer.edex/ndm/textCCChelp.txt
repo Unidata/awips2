@@ -1050,6 +1050,7 @@ BEC Beech Factory Airport, Wichita, KS
 BED Bedford, MA
 BEH Benton Harbor, MI
 BET Bethel, AK
+BFA Boyne Mountain Airport, Boyne Falls, MI
 BFD Bradford, PA
 BFF Scottsbluff, NE
 BFI Seattle/Boeing Fld/King Co Intl, WA

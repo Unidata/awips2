@@ -1449,6 +1449,7 @@
 0000000000|KBEC | 37.6939|-97.2149| 429|Beech Factory Airport, Wichita, KS  |US|MTR
 0000074490|KBED | 42.47 | -71.29 |   41|Bedford/Laurence G Hanscom, MA      |US|MTR
 0000000000|KBEH | 42.14 | -86.44 |  196|BENTON HARBOR/RO, MI                |US|MTR
+0000000000|KBFA | 45.16584|-84.92411| 219|Boyne Mntn Arpt, Boyne Falls, MI  |US|MTR
 0000000000|KBFD | 41.80 | -78.64 |  653|BRADFORD REGIONA, PA                |US|MTR
 0000072566|KBFF | 41.88 |-103.60 | 1206|SCOTTSBLUFF/HEIL, NE                |US|MTR
 0000000000|KBFI | 47.53 |-122.30 |    5|Seattle/Boeing Fld/King Co Intl, WA |US|MTR
