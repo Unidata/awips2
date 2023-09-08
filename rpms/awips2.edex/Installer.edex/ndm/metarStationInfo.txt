@@ -1141,6 +1141,7 @@
 0000000000|K49Y | 43.68 | -92.18 |  389|Preston/Fillmore Co, MN             |US|MTR
 0000000000|K4A6 | 34.6887| -86.0059| 198|Scottsboro Muni, Scottsboro, AL    |US|MTR
 0000000000|K4A9 | 34.474| -85.721|  267|Isbell Fld AP, Fort Payne, AL       |US|MTR
+0000000000|K4B8 | 41.68933|-72.86469| 62|Robertson Fld Arpt, Plainville, CT |US|MTR
 0000000000|K4BL | 37.62 |-109.47 | 1840|BLANDING, UT                        |US|MTR
 0000000000|K4BM | 39.05024|-105.51436| 3432|Wilkerson Pass, CO              |US|MTR
 0000000000|K4BQ | 45.44 |-105.40 |  922|BROADUS, MT                         |US|MTR

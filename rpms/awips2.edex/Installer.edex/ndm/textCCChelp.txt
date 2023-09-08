@@ -513,6 +513,7 @@
 4A6 Scottsboro Muni, Scottsboro, AL
 4A9 Isbell Fld AP, Fort Payne, AL
 4B4 Meriden, CT
+4B8 Robertson Field Airport, Plainville, CT
 4BK Brookings, OR
 4BL Blanding, UT
 4BM Wilkerson Pass, CO
