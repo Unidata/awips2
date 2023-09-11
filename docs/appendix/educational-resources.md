@@ -205,6 +205,7 @@ A full list of all released blogs can be found below:
 - [Image Combination with CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-image-combination)
 - [Colorized GOES CIRA Products](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-colorized-goes-cira)
 - [Changing Localizations in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-changing-localizations-in)
+- [All About Sampling](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-all-about-sampling)
 
 #### Python-AWIPS
 
