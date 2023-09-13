@@ -126,6 +126,10 @@ import com.raytheon.uf.edex.plugin.text.impl.TextDBStaticData;
  * Nov 09, 2021  22859    zalberts       Added additional sort by datacrc to
  *                                       AFOS_QUERY_STMT for consistent results
  *                                       when reftime and inserttime are equal.
+ * Sep 13, 2023         tiffanym@@ucar   Force text workstation requests to look at the 
+ *                                       operational stdtextproducts db table instead
+ *                                       of practicestdtxtproducts db table when CAVE
+ *                                       is running in practice mode (Unidata default)    
  *
  * </pre>
  *
@@ -237,10 +241,8 @@ public class StdTextProductDao extends CoreDao {
      *            true for operational table, false for practice table
      */
     public StdTextProductDao(boolean operationalModeFlag) {
-        super(DaoConfig.forClass("fxa",
-                (operationalModeFlag ? OperationalStdTextProduct.class
-                        : PracticeStdTextProduct.class)));
-        this.operationalMode = operationalModeFlag;
+        super(DaoConfig.forClass("fxa", OperationalStdTextProduct.class));
+        this.operationalMode = true;
     }
 
     /**
@@ -1073,9 +1075,7 @@ public class StdTextProductDao extends CoreDao {
                     public List<AFOSProductId> doInTransaction(
                             TransactionStatus status) {
                         Session sess = getCurrentSession();
-                        Criteria crit = sess.createCriteria(operationalMode
-                                ? OperationalStdTextProduct.class
-                                : PracticeStdTextProduct.class);
+                        Criteria crit = sess.createCriteria(OperationalStdTextProduct.class);
                         ProjectionList fields = Projections.projectionList();
                         fields.add(Projections.property(CCC_ID));
                         fields.add(Projections.property(ProdNNN_ID));
@@ -1598,7 +1598,6 @@ public class StdTextProductDao extends CoreDao {
      * @return StdTextProduct, an
      */
     private StdTextProduct getStdTextProductInstance() {
-        return this.operationalMode ? new OperationalStdTextProduct()
-                : new PracticeStdTextProduct();
+        return new OperationalStdTextProduct();
     }
 }
