@@ -90,6 +90,9 @@ import org.locationtech.jts.geom.GeometryFactory;
  *                                     code cleanup
  * 07/05/2016   19153   mgamazaychikov Fix disappearance of AlarmAlert Bell after initial close
  * Jan 24, 2018  7132      tgurney     Add destroyAlarmAlertBell()
+ * Sep 13, 2023         tiffanym@ucar  Brought back logic that looks at the site level for the
+ *                                     DefaultSiteAlarms.xml if it doesn't exist at the workstation
+ *                                     level
  *
  *
  * </pre>
@@ -667,21 +670,44 @@ public class AlarmAlertFunctions {
     }
 
     /*
-     * Try to load the site file.
+     * Try to load the workstation file. If there is no workstation file then
+     * try to load the site file and create a new workstation file from it. If
+     * there is no site file, then create a new default workstation file.
      */
-    public static AAPACombined loadSiteAlarms(ILocalizationFileObserver listener) {
+    public static AAPACombined loadSiteAlarms(
+            ILocalizationFileObserver listener) {
+        LocalizationFile workstationFile = getFile(
+                initLocalization(LocalizationLevel.SITE), SITE_FILE);
         AAPACombined aapaCombined = null;
 
-        LocalizationFile siteFile = getFile(initSiteLocalization(), SITE_FILE);
-        if (siteFile == null) {
-            aapaCombined = createDefaultAAPACombined();
+        if (workstationFile == null || !workstationFile.exists()) {
+            // no workstation file found. try the site file
+            LocalizationFile siteFile = getFile(initSiteLocalization(),
+                    SITE_FILE);
+            if (siteFile == null) {
+                aapaCombined = createDefaultAAPACombined();
+            } else {
+                try {
+                    aapaCombined = loadFile(siteFile.getFile());
+                } catch (FileNotFoundException e) {
+                    aapaCombined = createDefaultAAPACombined();
+                }
+            }
+            // save work file
+            if (workstationFile != null) {
+                saveAlarms(aapaCombined, workstationFile);
+            }
+        } else {
             try {
-                aapaCombined = loadFile(siteFile.getFile());
+                aapaCombined = loadFile(workstationFile.getFile());
             } catch (FileNotFoundException e) {
                 aapaCombined = createDefaultAAPACombined();
             }
         }
 
+        if (workstationFile != null) {
+            workstationFile.addFileUpdatedObserver(listener);
+        }
         return aapaCombined;
     }
 
