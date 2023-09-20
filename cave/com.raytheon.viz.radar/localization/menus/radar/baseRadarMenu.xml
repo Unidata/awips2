@@ -24,6 +24,9 @@
         of the file.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 	<contribute xsi:type="bundleItem" file="bundles/nexradAvailability.xml"
+                        menuText="NEXRAD Display" id="NEXRADDisplay">
+ 	</contribute>
 	<contribute xsi:type="subinclude" subMenu="Dial Radars" id="allDialRadar" fileName="menus/radar/dialRadars.xml"/>
     <contribute xsi:type="subinclude" subMenu="TDWR Radars" id="tdwrRadar" fileName="menus/radar/tdwrRadars.xml" />
 	<contribute xsi:type="separator" id="seperator" />
