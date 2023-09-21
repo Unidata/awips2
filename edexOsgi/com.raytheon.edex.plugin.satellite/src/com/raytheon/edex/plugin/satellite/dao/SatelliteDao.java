@@ -74,6 +74,8 @@ import com.raytheon.uf.edex.database.query.SpatialDatabaseQuery;
  * Jul 07, 2015  4279     rferrel     Override delete to clean up orphan entries in satellite_spatial table.
  * Aug 11, 2015  4673     rjpeter     Remove use of executeNativeSql.
  * Sep 17, 2015  4279     rferrel     Do not purge the newest satellite_spatial entries.
+*  Apr 29, 2016  ----     mjames      Force 1 interpolationLevels for NEXRCOMP products
+ *                                    since def. (5) is pixeled and load time is similar.
  * Feb 20, 2018  7123     bsteffen    Override postPurge() instead of delete().
  * Jun 06, 2018  7310     mapeters    Get only distinct times in getSatelliteInventory() methods
  * Jun 15, 2018  7310     mapeters    Add spatial constraint to queries
@@ -177,8 +179,14 @@ public class SatelliteDao extends PluginDao {
                     }
 
                 }, metaId);
-        // set the number of levels in the 'parent' satellite data.
-        satRecord.setInterpolationLevels(levels);
+        // If these are 1-4km UCAR NEXRCOMP composites, or GOES-16(R) images, 
+        // show full res (no tiling)
+        if (satRecord.getSource().equals("WCDAS") || 
+                satRecord.getSource().equals("UCAR")){
+            satRecord.setInterpolationLevels(1);
+        } else {
+            satRecord.setInterpolationLevels(levels);
+        }
         return true;
     }
 
