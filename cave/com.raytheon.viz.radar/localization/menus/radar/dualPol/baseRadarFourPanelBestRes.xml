@@ -28,7 +28,7 @@
         id="${icao}BestResZV" />
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 1.5 2.4 3.4"
-        id="${icao}05152434BestResZV">
+        fullBundleLoad="true" id="${icao}05152434BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -47,7 +47,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 0.9 1.5 1.8"
-        id="${icao}05091518BestResZV">
+        fullBundleLoad="true" id="${icao}05091518BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -66,7 +66,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.9 1.5 1.8 2.4 "
-        id="${icao}09151824BestResZV">
+        fullBundleLoad="true" id="${icao}09151824BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -85,7 +85,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="1.5 2.4 3.4 4.3"
-        id="${icao}15243443BestResZV">
+        fullBundleLoad="true" id="${icao}15243443BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -107,7 +107,7 @@
         id="${icao}BestResZSRM8"></contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 1.5 2.4 3.4"
-        id="${icao}05152434BestResZV">
+        fullBundleLoad="true" id="${icao}05152434BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -126,7 +126,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 0.9 1.5 1.8"
-        id="${icao}05091518BestResZV">
+        fullBundleLoad="true" id="${icao}05091518BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -145,7 +145,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.9 1.5 1.8 2.4 "
-        id="${icao}09151824BestResZV">
+        fullBundleLoad="true" id="${icao}09151824BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -164,7 +164,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="1.5 2.4 3.4 4.3"
-        id="${icao}15243443BestResZV">
+        fullBundleLoad="true" id="${icao}15243443BestResZV">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -186,7 +186,7 @@
         id="${icao}BestResZDR" />
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 1.5 2.4 3.4"
-        id="${icao}05152434BestResZZDR">
+        fullBundleLoad="true" id="${icao}05152434BestResZZDR">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -205,7 +205,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 0.9 1.5 1.8"
-        id="${icao}05091518BestResZZDR">
+        fullBundleLoad="true" id="${icao}05091518BestResZZDR">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -224,7 +224,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.9 1.5 1.8 2.4 "
-        id="${icao}09151824BestResZZDR">
+        fullBundleLoad="true" id="${icao}09151824BestResZZDR">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -243,7 +243,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="1.5 2.4 3.4 4.3"
-        id="${icao}15243443BestResZZDR">
+        fullBundleLoad="true" id="${icao}15243443BestResZZDR">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -265,7 +265,7 @@
         id="${icao}BestResCC" />
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 1.5 2.4 3.4"
-        id="${icao}05152434BestResZCC">
+        fullBundleLoad="true" id="${icao}05152434BestResZCC">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -284,7 +284,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 0.9 1.5 1.8"
-        id="${icao}05091518BestResZCC">
+        fullBundleLoad="true" id="${icao}05091518BestResZCC">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -303,7 +303,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.9 1.5 1.8 2.4 "
-        id="${icao}09151824BestResZCC">
+        fullBundleLoad="true" id="${icao}09151824BestResZCC">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -322,7 +322,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="1.5 2.4 3.4 4.3"
-        id="${icao}15243443BestResZCC">
+        fullBundleLoad="true" id="${icao}15243443BestResZCC">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -344,7 +344,7 @@
         id="${icao}BestResKDP" />
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 1.5 2.4 3.4"
-        id="${icao}05152434BestResZKDP">
+        fullBundleLoad="true" id="${icao}05152434BestResZKDP">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -363,7 +363,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.5 0.9 1.5 1.8"
-        id="${icao}05091518BestResZKDP">
+        fullBundleLoad="true" id="${icao}05091518BestResZKDP">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -382,7 +382,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="0.9 1.5 1.8 2.4 "
-        id="${icao}09151824BestResZKDP">
+        fullBundleLoad="true" id="${icao}09151824BestResZKDP">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -401,7 +401,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="1.5 2.4 3.4 4.3"
-        id="${icao}15243443BestResZKDP">
+        fullBundleLoad="true" id="${icao}15243443BestResZKDP">
         <substitute key="icao" value="${icao}" />
         <substitute key="product1" value="153" />
         <substitute key="product2" value="94" />
@@ -423,7 +423,7 @@
         id="${icao}ZHCML" />
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarDualPolFourPanelZHCML.xml" menuText="0.5 1.5 2.4 3.4"
-        id="${icao}DualPolFourPanelZHCML">
+        fullBundleLoad="true" id="${icao}DualPolFourPanelZHCML">
         <substitute key="icao" value="${icao}" />
         <substitute key="elevation1" value="0.5" />
         <substitute key="elevation2" value="1.5" />
@@ -432,7 +432,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarDualPolFourPanelZHCML.xml" menuText="0.5 0.9 1.5 1.8"
-        id="${icao}DualPolFourPanelZHCML">
+        fullBundleLoad="true" id="${icao}DualPolFourPanelZHCML">
         <substitute key="icao" value="${icao}" />
         <substitute key="elevation1" value="0.5" />
         <substitute key="elevation2" value="0.9" />
@@ -441,7 +441,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarDualPolFourPanelZHCML.xml" menuText="0.9 1.5 1.8 2.4"
-        id="${icao}DualPolFourPanelZHCML">
+        fullBundleLoad="true" id="${icao}DualPolFourPanelZHCML">
         <substitute key="icao" value="${icao}" />
         <substitute key="elevation1" value="0.9" />
         <substitute key="elevation2" value="1.5" />
@@ -450,7 +450,7 @@
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarDualPolFourPanelZHCML.xml" menuText="1.5 2.4 3.4 4.3"
-        id="${icao}DualPolFourPanelZHCML">
+        fullBundleLoad="true" id="${icao}DualPolFourPanelZHCML">
         <substitute key="icao" value="${icao}" />
         <substitute key="elevation1" value="1.5" />
         <substitute key="elevation2" value="2.4" />
@@ -462,17 +462,17 @@
         id="${icao}OtherIn4Panel" />
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarComp05VILMax.xml" menuText="Comp 0.5 VIL Max"
-        id="${icao}Comp05VILMax">
+        fullBundleLoad="true" id="${icao}Comp05VILMax">
         <substitute key="icao" value="${icao}" />
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarTot1hr3hrComp.xml" menuText="Tot 1hr 3hr 0.5"
-        id="${icao}Tot1hr3hr05">
+        fullBundleLoad="true" id="${icao}Tot1hr3hr05">
         <substitute key="icao" value="${icao}" />
     </contribute>
     <contribute xsi:type="bundleItem"
         file="bundles/DefaultRadarVILCompMax2Max3.xml" menuText="VIL Comp Max2 Max3"
-        id="${icao}VILCompMax2Max3">
+        fullBundleLoad="true" id="${icao}VILCompMax2Max3">
         <substitute key="icao" value="${icao}" />
     </contribute>
 </menuTemplate>
