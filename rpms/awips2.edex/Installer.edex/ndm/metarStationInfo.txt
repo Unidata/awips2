@@ -1869,6 +1869,7 @@
 0000000000|KE41 | 31.19775|-101.47540| 825|Reagan Cnty AP, Big Lake, TX     |US|MTR
 0000000000|KE42 | 36.22100|-101.19450| 942|Samuel B Cornelius, Spearman, TX |US|MTR
 0000000000|KE74 | 32.83 |-109.68 |  900|SAFFORD, AZ                         |US|MTR
+0000000000|KE77 | 32.6364|-110.6472|  997|San Manuel Arpt, San Manuel, AZ   |US|MTR
 0000000000|KEAN | 42.05553| -104.92861| 1456|Phifer Airfield, Wheatland, WY |US|MTR
 0000000000|KEAR | 40.73 | -99.00 |  649|KEARNEY, NE                         |US|MTR
 0000000000|KEAT | 47.41 |-120.20 |  379|WENATCHEE/PNGBRN, WA                |US|MTR
@@ -2806,6 +2807,7 @@
 0000000000|KMYZ | 39.8564| -96.6307| 391|Marysville Muni, Marysville, KS    |US|MTR
 0000000000|KMZG | 27.7269| -96.191|  -0|Mustang Island A85A, TX             |US|MTR
 0000000000|KMZH | 46.42 | -92.80 |  328|Moose Lake/Carlton Co, MN           |US|MTR
+0000000000|KMZJ | 32.5098| -111.3253| 577|Pinal Airpark, Marana, AZ         |US|MTR
 0000000000|KMZZ | 40.490| -85.680|  262|Marion Muni, Marion, IN             |US|MTR
 0000000000|KN00 | 43.36 | -76.39 |  145|Fulton, NY                          |US|MTR
 0000000000|KN03 | 42.5926| -76.2149| 365|Chase Fld, Cortland, NY            |US|MTR
