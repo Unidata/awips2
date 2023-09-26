@@ -1567,6 +1567,7 @@ E38 Casparis Muni, Alpine, TX
 E41 Reagan County Airport, Big Lake, TX
 E42 Samuel B Cornelius Airport, Spearman, TX
 E74 Safford, AZ
+E77 San Manuel Airport, San Manuel, AZ
 EAN Phifer Airfield, Wheatland, WY
 EAR Kearney, NE
 EAT Wenatchee, WA
@@ -3088,6 +3089,7 @@ MYZ Marysville Muni, Marysville, KS
 MZC Zacatecas Arpt, MX
 MZG Mustang Island A85A, TX
 MZH K-Moose Lake/Carlton Co, MN; M-Ixtapa-Zihuatanejo, MX
+MZJ Pinal Airpark, Marana, AZ
 MZO Manzanillo Intl, MX
 MZP Zapopan, MX
 MZZ Marion, IN
