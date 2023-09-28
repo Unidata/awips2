@@ -1138,6 +1138,7 @@
 0000000000|K48A | 32.40066|-83.27841| 115|Cochran AP, Cochran, GA           |US|MTR
 0000000000|K48I | 38.687| -80.652|  387|Braxton Cnty AP, Sutton, WV         |US|MTR
 0000000000|K49A | 34.6282| -84.5266| 453|Gilmer Cnty AP, Ellijay, GA        |US|MTR
+0000000000|K49T | 32.77172|-96.80206| 146|Dallas CBD Heliport, Dallas, TX   |US|MTR
 0000000000|K49Y | 43.68 | -92.18 |  389|Preston/Fillmore Co, MN             |US|MTR
 0000000000|K4A6 | 34.6887| -86.0059| 198|Scottsboro Muni, Scottsboro, AL    |US|MTR
 0000000000|K4A9 | 34.474| -85.721|  267|Isbell Fld AP, Fort Payne, AL       |US|MTR
@@ -1262,6 +1263,7 @@
 0000000000|K9L0 | 33.46 |-117.69 |   15|DANA POINT, CA                      |US|MTR
 0000000000|K9L2 | 34.97 |-117.87 |  701|N Aux Airfld, Edwards AFB, CA       |US|MTR
 0000000000|K9MN | 44.02 | -92.48 |  335|St Marys Hosp Helipad, Rochester, MN|US|MTR
+0000000000|K9S5 | 45.87811|-111.56944|1246|Three Forks Arpt, Three Forks, MT|US|MTR
 0000072653|K9V9 | 43.80 | -99.32 |  530|CHAMBERLAIN, SD                     |US|MTR
 0000000000|KA06 | 34.05 |-118.24 |   71|Los Angeles Civic Center, CA        |US|MTR
 0000000000|KA08 | 32.5105| -87.3848| 67|Vaiden Fld AP, Marion, AL           |US|MTR

@@ -509,6 +509,7 @@
 49A Gilmer Cnty AP, Ellijay, GA
 49D Cloquet, MN
 49J Hilton Head Island, SC
+49T Dallas CBD Heliport, Dallas, TX
 49Y Preston/Fillmore Co, MN
 4A6 Scottsboro Muni, Scottsboro, AL
 4A9 Isbell Fld AP, Fort Payne, AL
@@ -677,6 +678,7 @@
 9L2 North Aux Airfld, Edwards AFB, CA
 9MN St Marys Hosp Helipad, Rochester, MN
 9R9 Block 245 SAWRS, Offshr Vermilion Area
+9S5 Three Forks Airport, Three Forks, MT
 9V9 Chamberlain, SD
 A08 Vaiden Fld AP, Marion, AL
 A39 Ak-Chin Regional AP, Maricopa, AZ
