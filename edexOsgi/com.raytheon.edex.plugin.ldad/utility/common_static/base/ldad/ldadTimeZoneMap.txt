@@ -1,0 +1,36 @@
+##
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Mar 05, 2018  6851     randerso  Initial creation
+#
+##
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
+##
+# This file contains a mapping of time zone strings used by LDAD data 
+# to valid time zones recognized by java.time.ZoneId
+##
+EST     GMT-0500
+EST5    GMT-0500
+CST     GMT-0600
+CST6    GMT-0600
+MST     GMT-0700
+MST7    GMT-0700
+PST     GMT-0800
+PST8    GMT-0800
+AKST    GMT-0900
+AKST9   GMT-0900
+AST10   GMT-1000
+HST     GMT-1000
+HST10   GMT-1000
+HAST    GMT-1000
+HAST10  GMT-1000
+ChST    GMT+1000
+CHST    GMT+1000

@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ldad Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.ldad
+Bundle-Version: 1.18.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.raytheon.edex.plugin.ldad.common
+Require-Bundle: com.raytheon.uf.common.dataplugin.ldad,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.edex.common,
+ com.raytheon.uf.common.localization,
+ javax.measure,
+ org.slf4j,
+ javax.xml.bind
+Import-Package: com.raytheon.uf.common.status
