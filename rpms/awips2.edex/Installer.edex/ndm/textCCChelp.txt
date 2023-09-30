@@ -679,6 +679,7 @@
 9MN St Marys Hosp Helipad, Rochester, MN
 9R9 Block 245 SAWRS, Offshr Vermilion Area
 9S5 Three Forks Airport, Three Forks, MT
+9S9 Lexington Airport, Lexington, OR
 9V9 Chamberlain, SD
 A08 Vaiden Fld AP, Marion, AL
 A39 Ak-Chin Regional AP, Maricopa, AZ
@@ -3725,12 +3726,14 @@ S25 Watford City Muni, ND
 S29 Salida, CO
 S32 Cooperstown Muni, Cooperstown, ND
 S33 Madras Muni, Madras, OR
+S34 Plains Airport, Plains, MT
 S39 Prineville AP, Prineville, OR
 S47 Tillamook, OR
 S52 Methow Valley AP, Winthrop, WA
 S58 South Timbalier, LA
 S59 Libby Airport, Libby, MT
 S65 Ship Shoal 198G, LA
+S71 Edgar G Obie Airport, Chinook, MT
 S86 Sandpoint, ID
 S85 Big Sky Field Airport, Culbertson, MT
 S88 Arlington, WA
@@ -5067,6 +5070,7 @@ ZCR C-Charlo Auto, NB
 ZDC Washington, DC CWSU
 ZDV Denver, CO CWSU
 ZEM Eastmain River Arpt, QC
+ZER Schuylkill Airport, Pottsville, PA
 ZFA Faro Arpt, YK
 ZFM Ft McPherson Arpt, NT
 ZFN Ft Norman Arpt, NT

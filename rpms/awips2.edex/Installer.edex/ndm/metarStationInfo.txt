@@ -1264,6 +1264,7 @@
 0000000000|K9L2 | 34.97 |-117.87 |  701|N Aux Airfld, Edwards AFB, CA       |US|MTR
 0000000000|K9MN | 44.02 | -92.48 |  335|St Marys Hosp Helipad, Rochester, MN|US|MTR
 0000000000|K9S5 | 45.87811|-111.56944|1246|Three Forks Arpt, Three Forks, MT|US|MTR
+0000000000|K9S9 | 45.45414|-119.69028| 498|Lexington Airport, Lexington, OR |US|MTR
 0000072653|K9V9 | 43.80 | -99.32 |  530|CHAMBERLAIN, SD                     |US|MTR
 0000000000|KA06 | 34.05 |-118.24 |   71|Los Angeles Civic Center, CA        |US|MTR
 0000000000|KA08 | 32.5105| -87.3848| 67|Vaiden Fld AP, Marion, AL           |US|MTR
@@ -3272,11 +3273,13 @@
 0000000000|KS29 | 38.54 |-106.05 | 2282|SALIDA/ALEXANDER, CO                |US|MTR
 0000000000|KS32 | 47.4228| -98.1059| 434|Cooperstown Muni, Cooperstown, ND  |US|MTR
 0000000000|KS33 | 44.6702|-121.1551| 743|Madras, OR                         |US|MTR
+0000000000|KS34 | 47.47356|-114.90708| 752|Plains Airport, Plains, MT       |US|MTR
 0000000000|KS39 | 44.2878|-120.9052|991|Prineville AP, Prineville, OR       |US|MTR
 0000000000|KS52 | 48.42495|-120.14589| 520|Methow Valley AP, Winthrop, WA   |US|MTR
 0000000000|KS58 | 28.53 | -90.58 |    1|SOUTH TIMBALIER, LA                 |US|MTR
 0000000000|KS59 | 48.28333| -115.490| 794|Libby Airport, Libby, MT          |US|MTR
 0000000000|KS65 | 28.50 | -91.20 |    2|SHIP SHOAL 198G, LA                 |US|MTR
+0000000000|KS71 | 48.59211| -109.25061| 734|Edgar G Obie Arpt, Chinook, MT  |US|MTR
 0000000000|KS85 | 48.15356|-104.50406| 595|Big Sky Field AP, Culbertson, MT |US|MTR
 0000000000|KS88 | 48.16 |-122.15 |   42|ARLINGTON, WA                       |US|MTR
 0000000000|KSAA | 41.4435|-106.8275|2138|Shively Fld AP, Saratoga, WY       |US|MTR
@@ -3717,6 +3720,7 @@
 0000000000|KYKN | 42.92 | -97.38 |  398|Yankton, SD                         |US|MTR
 0000072525|KYNG | 41.27 | -80.67 |  361|YOUNGSTOWN MUNI, OH                 |US|MTR
 0000072280|KYUM | 32.66 |-114.60 |   63|YUMA INTL AIRPORT, AZ               |US|MTR
+0000000000|KZER | 40.70675| -76.37375| 527|Schuylkill Arpt, Pottsville, PA  |US|MTR
 0000000000|KZPH | 28.228| -82.1559|  27|Zephyrhills Muni, Zephyrhills, FL   |US|MTR
 0000000000|KZSE | 47.28 |-122.18 |   99|Auburn, WA                          |US|MTR
 0000000000|KZZV | 39.94609|-81.89315| 274|Zanesville, OH                    |US|MTR
