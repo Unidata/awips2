@@ -16,7 +16,8 @@
 #                       GOES16 GLM data coming from Unidata's IDD via Texas Tech
 #                       CIRA RGB GOES Satellite products added
 # 20230321      20.3.2  Update WW3 regex lines so we get the data
-
+# 20231004	20.3.2	Add RAWS data 
+#			Add additioanl NBM data
 # USPLN
 LIGHTNING	USPLN1EX
 	FILE	-close -edex	/awips2/data_store/lightning/%Y%m%d%H%M.uspln
@@ -93,6 +94,11 @@ IDS|DDPLUS	^(UA(US|PA|NT)..) (.{4}) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/airep/\1_\3_\4\5\6_(seq)
 IDS|DDPLUS	^(UB.{4}) (.{4}) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/pirep/\1_\2_\3\4\5_(seq)
+#
+# RAWS
+#
+EXP	^RAWS ...... (raws_ldad_)(........)(..)(..)(.xml)
+	FILE	-overwrite -close -edex	/awips2/data_store/ldadmesonet/\2/\3/\1\2\3\4\5
 #
 # ACARS
 #
@@ -1075,5 +1081,5 @@ NGRID	^OUTA98 KWNB (......)[^!]*!grib2
 #
 # National Blend of Models
 #
-NGRID|HDS	^(Y.A...) (KWE[AB]) (..)(..)(..)
+NGRID|HDS	^(Y.A...) (KWE[ABGIHLO]) (..)(..)(..)
 	FILE	-close	/awips2/data_store/grid/(\3:yyyy)(\3:mm)\3/\4/NationalBlend/staging/NationalBlend_\3\4\5-concat-%Y%m%d_%H%M.grib2
