@@ -3275,6 +3275,7 @@
 0000000000|KS33 | 44.6702|-121.1551| 743|Madras, OR                         |US|MTR
 0000000000|KS34 | 47.47356|-114.90708| 752|Plains Airport, Plains, MT       |US|MTR
 0000000000|KS39 | 44.2878|-120.9052|991|Prineville AP, Prineville, OR       |US|MTR
+0000000000|KS40 | 46.21336|-119.79556|215|Prosser Airport, Prosser, WA      |US|MTR
 0000000000|KS52 | 48.42495|-120.14589| 520|Methow Valley AP, Winthrop, WA   |US|MTR
 0000000000|KS58 | 28.53 | -90.58 |    1|SOUTH TIMBALIER, LA                 |US|MTR
 0000000000|KS59 | 48.28333| -115.490| 794|Libby Airport, Libby, MT          |US|MTR
@@ -4042,7 +4043,7 @@
 0000000000|PHHN | 20.784|-156.144|   23|Hana, HI                            |US|MTR
 0000000000|PHJH | 21.02 |-156.63 |   40|Lahaina/West Maui, HI               |US|MTR
 0000091178|PHJR | 21.32 |-158.07 |   15|Kalaeloa, HI                        |US|MTR
-0000091281|PHKO | 19.65 |-156.00 |    9|Kailua Kona, HI                     |US|MTR
+0000091281|PHKO | 19.73877|-156.04563| 15|Kailua Kona, HI                   |US|MTR
 0000091165|PHLI | 21.98 |-159.35 |   45|Lihue, HI                           |US|MTR
 0000000000|PHLU | 21.22 |-156.97 |    8|Kalaupapa, HI                       |US|MTR
 0000091186|PHMK | 21.15 |-157.10 |  137|Kaunakakai Molokai, HI              |US|MTR
