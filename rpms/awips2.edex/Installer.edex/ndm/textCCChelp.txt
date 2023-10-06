@@ -3728,6 +3728,7 @@ S32 Cooperstown Muni, Cooperstown, ND
 S33 Madras Muni, Madras, OR
 S34 Plains Airport, Plains, MT
 S39 Prineville AP, Prineville, OR
+S40 Prosser Airport, Prosser, WA
 S47 Tillamook, OR
 S52 Methow Valley AP, Winthrop, WA
 S58 South Timbalier, LA
