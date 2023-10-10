@@ -1368,6 +1368,10 @@
     				</with>
                </activeWhen>
 	     </handler>
+	     <handler
+	           class="com.raytheon.uf.viz.d2d.ui.actions.DeleteAWIPSBundle"
+	           commandId="com.raytheon.viz.ui.deleteAWIPSBundle">
+	     </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.SetPerspectiveHandler"
                commandId="com.raytheon.viz.ui.setperspective">
@@ -1799,6 +1803,12 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Copy out an AWIPS procedure"
             name="Copy Out AWIPS Procedure">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.deleteAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Delete a bundle"
+            name="Delete Bundle">
       </command>
       <command
             id="com.raytheon.viz.ui.setperspective"
