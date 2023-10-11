@@ -1426,6 +1426,7 @@ CZL TB David Fld AP, Calhoun, GA
 CZT Dimmit Cnty AP, Carrizo Springs, TX
 CZZ Campo, CA
 D07 Faith Muni, SD
+D09 Bottineau Municipal Airport, Bottineau, ND
 D25 Manitowish Waters AP, Manitowish Waters, WI
 D39 Sauk Centre Muni, MN
 D45 Warroad, MN
