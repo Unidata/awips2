@@ -1750,6 +1750,7 @@
 0000000000|KCZT | 28.52225| -99.8236|182|Dimmit Cnty AP, Carrizo Sprgs, TX  |US|MTR
 0000000000|KCZZ | 32.62 |-116.47 |  802|CAMPO, CA                           |US|MTR
 0000000000|KD07 | 45.032565|-102.020024| 787|Faith Muni, SD                 |US|MTR
+0000000000|KD09 | 48.83047|-100.41731| 512|Bottineau Cnty Arpt, Bottineau, ND|US|MTR
 0000000000|KD25 | 46.1202| -89.8822| 491|Manitowish Waters AP, WI           |US|MTR
 0000000000|KD36 | 46.72 | -92.04 |  186|Duluth/Sky Harbor, MN               |US|MTR
 0000000000|KD39 | 45.707| -94.933|  379|Sauk Centre Muni, MN                |US|MTR
