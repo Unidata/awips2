@@ -6,9 +6,9 @@ AWIPS makes use of service-oriented architecture to request, process, and serve 
 
 ## Unidata's Current EDEX Server
 
-Currently, with our specific EDEX server we use a Database/Request instance that also decodes and ingests a good portion of the data.   It handles all data requests from CAVE users, as well as the majority of the decoding and ingesting for data feeds coming down on the LDM.  The **radar** data has been specifically exluded (from the decoding and ingest) and it has its own [**Ingest/Decode Server**](#ingestdecode-server) which is explained in more detail below.
+Currently, we use a distributed architecture comprised of three machines: 1 **main EDEX** machine and 2 **ancillary EDEX** machines.  The main EDEX machine decodes and processes the majority of the data, while serving and storing all of the data.  Our two ancillary machines -- one for radar data and one for satellite data -- each decode and process a subset of the data and send it back to the main EDEX for storage and requesting.
 
-For our EDEX we have designated an instance of the ingest/decoding server to be dedicated to handling the radar data.  Our *Radar-EDEX* recieves and decodes all radar down from the LDM and then stores it back on our main [**Database/Request EDEX**](#databaserequest-server) in the form of HDF5 data files and PostgreSQL metadata.
+The main EDEX is an instance of our [Database and Request Server](#databaserequest-server) and more information on our [ancillary EDEX machines](#ancillary-edex-server-ingestdecode-edex-server) is below as well.
 
 ---
 
