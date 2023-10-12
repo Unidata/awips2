@@ -6,7 +6,7 @@ AWIPS makes use of service-oriented architecture to request, process, and serve 
 
 ## Unidata's Current EDEX Server
 
-Currently, we use a distributed arcitecture comprised of three machines: 1 **main EDEX** machine and 2 **ancillary EDEX** machines.  The main EDEX machine decodes and processes the majority of the data, while serving and storing all of the data.  Our two ancillary machines -- one for radar data and one for satellite data -- each decode and process a subset of the data and send it back to the main EDEX for storage and requesting.
+Currently, we use a distributed architecture comprised of three machines: 1 **main EDEX** machine and 2 **ancillary EDEX** machines.  The main EDEX machine decodes and processes the majority of the data, while serving and storing all of the data.  Our two ancillary machines -- one for radar data and one for satellite data -- each decode and process a subset of the data and send it back to the main EDEX for storage and requesting.
 
 The main EDEX is an instance of our [Database and Request Server](#databaserequest-server) and more information on our [ancillary EDEX machines](#ancillary-edex-server-ingestdecode-edex-server) is below as well.
 
