@@ -1462,7 +1462,7 @@
             <parameter>geoVort</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="/1e5s">/100000</displayUnits>
+            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
             <range scale="LINEAR">
                 <minValue>-5</minValue>
                 <maxValue>30</maxValue>
@@ -5014,7 +5014,7 @@
             <parameter>geoVort</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="/1e5s">/100000</displayUnits>
+            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
             <range mirror="true" scale="LOG">
                 <minValue>5</minValue>
                 <maxValue>300</maxValue>
