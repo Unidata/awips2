@@ -1123,7 +1123,6 @@
 0000072650|K3SE | 43.18 | -95.15 |  404|SPENCER, IA                         |US|MTR
 0000000000|K3SZ | 38.93 | -90.43 |  133|St. Charles, MO                     |US|MTR
 0000000000|K3T5 | 29.91 | -96.95 |   99|La Grange/Fayette Regnl, TX         |US|MTR
-0000000000|K3TH | 47.61 |-115.37 |  725|THOMPSON FALLS, MT                  |US|MTR
 0000000000|K3U3 | 46.15341|-112.86773| 1534|Bowman Field Arpt, Anaconda, MT |US|MTR
 0000000000|K3V9 | 39.29 |-106.87 | 2270|ASPEN, CO                           |US|MTR
 0000000000|K40B | 46.62 | -69.52 |  314|CLAYTON LAKE, ME                    |US|MTR
@@ -1195,6 +1194,7 @@
 0000000000|K6A2 | 33.227| -84.275|  292|Griffin-Spaldg Cnty AP, Griffin, GA |US|MTR
 0000000000|K6B0 | 43.9848| -73.0959| 149|Middlebury State AP, Middlebury, VT|US|MTR
 0000000000|K6B1 | 43.28 | -70.92 |  104|Rochester, NH                       |US|MTR
+0000000000|K6B4 | 43.01611|-75.16954| 404|Frankfort-Highland Arpt, NY       |US|MTR
 0000000000|K6B9 | 42.91396| -76.44077|  316|Skaneateles Aero Drome, Skaneateles, NY|US|MTR
 0000000000|K6I2 | 37.6335| -85.2418| 266|Lebanon-Springf AP, Springfield, KY|US|MTR
 0000000000|K6L4 | 37.8557| -81.9159| 508|Logan Cnty AP, Logan, WV           |US|MTR
@@ -3487,6 +3487,7 @@
 0000000000|KTFP | 27.913| -97.212|    5|T P McCampbell AP, Ingleside, TX    |US|MTR
 0000000000|KTGI | 37.82587| -75.99766| 2|Tangier Island AP, Tangier, VA     |US|MTR
 0000000000|KTHA | 35.380| -86.2467| 330|Tullahoma Rgnl, Tullahoma, TN       |US|MTR
+0000000000|KTHM | 47.57350|-115.28066| 752|Thompson Falls Airport, MT       |US|MTR
 0000000000|KTHV | 39.92 | -76.87 |  148|York, PA                            |US|MTR
 0000000000|KTIF | 41.962|-100.569|  892|Thomas Cnty AP, Thedford, NE        |US|MTR
 0000072354|KTIK | 35.43 | -97.38 |  394|TINKER AFB, OK                      |US|MTR
