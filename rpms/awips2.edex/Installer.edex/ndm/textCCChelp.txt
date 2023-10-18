@@ -477,7 +477,6 @@
 3SE Spencer, IA
 3SZ St. Charles, MO
 3T5 La Grange/Fayette Regnl, TX 
-3TH Thompson Falls, MT
 3U3 Bowman Field Airport, Anaconda, MT
 3V6 Crested Butte, CO
 3V9 Aspen, CO
@@ -603,6 +602,7 @@
 6A1 Butler Muni, Butler, GA
 6A2 Griffin, GA
 6B0 Middlebury State AP, Middlebury, VT
+6B4 Frankfort-Highland Airport, NY
 6B9 Skaneateles Aero Drome, Skaneateles, NY
 6I2 Lebanon-Springfield AP, Springfield, KY
 6L4 Logan Cnty AP, Logan, WV
@@ -4018,6 +4018,7 @@ TFP T P McCampbell AP, Ingleside, TX
 TFX WFO Great Falls, MT
 TGI Tangier Island AP, Tangier, VA
 THA Tullahoma Rgnl, Tullahoma, TN
+THM Thompson Falls Airport, MT
 THR Threats Assessment
 THV York, PA
 TIF Thomas Cnty AP, Thedford, NE
