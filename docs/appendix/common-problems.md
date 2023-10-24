@@ -119,7 +119,8 @@ If you start up CAVE in Windows and notice the map is showing up only in the bot
 
 Try following these steps to fix your issue:
 
-- Right-click on the CAVE.exe (or shortcut) icon, select Properties
+- Right-click on the CAVE.exe, select Properties
+!!! note "This is not the batch file (CAVE.bat) that gets installed as the CAVE shortcut on the Desktop, the CAVE.exe is located in `C:\Users\[your_username]\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.exe`."
 - Select the Compatibility tab
 - Click "Change High DPI Settings"
 - At the bottom enable "Override High DPI scaling behavior"
