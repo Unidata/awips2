@@ -207,6 +207,7 @@ A full list of all released blogs can be found below:
 - [Changing Localizations in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-changing-localizations-in)
 - [All About Sampling](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-all-about-sampling)
 - [Maps Database Constraints](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-maps-database-constraints)
+- [Measuring Up - Distance Tools in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-measuring-up-distance)
 
 #### Python-AWIPS
 
