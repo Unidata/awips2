@@ -2180,8 +2180,9 @@ HZX Isedor Iverson AP, McGregor, MN
 HZY Ashtabula Co, OH
 I14 Indianapolis, IN
 I16 Kee Fld AP, Pineville, WV
-I19 Greene Co-Lewis Jackson AP, Dayton, OH
+I18 Jackson Cnty Airport, Ravenswood, WV
 I18 New Castle, IN
+I19 Greene Co-Lewis Jackson AP, Dayton, OH
 I23 Fayette County Airport, OH
 I35 Tucker-Guthrie Mem AP, Harlan, KY
 I63 Mt. Sterling Muni, IL
