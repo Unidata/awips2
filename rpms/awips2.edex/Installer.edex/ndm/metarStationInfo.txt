@@ -2334,6 +2334,7 @@
 0000000000|KHZX | 46.619| -93.310|  374|Isedor Iverson AP, McGregor, MN     |US|MTR
 0000000000|KHZY | 41.779| -80.697|  277|Ashtabula Co, OH                    |US|MTR
 0000000000|KI16 | 37.600| -81.559|  544|Kee Fld AP, Pineville, WV           |US|MTR
+0000000000|KI18 | 38.92978| -81.81947| 231|Jackson Cnty Arpt, Ravenswood, WV|US|MTR
 0000000000|KI19 | 39.69103| -83.99199| 289|Greene Co-Lewis Jackson AP, Dayton, OH|US|MTR
 0000000000|KI23 |39.57040|-83.42052| 299|Fayette County Airport, OH         |US|MTR
 0000000000|KI26 | 37.82 | -87.69 |  117|HENDERSON CITY, KY                  |US|MTR
