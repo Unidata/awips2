@@ -1081,8 +1081,9 @@
 0000000000|K2IS | 26.73517|-81.05106| 6|Clewiston Airglades AP, Clewiston, FL|US|MTR
 0000000000|K2J9 | 30.59787| -84.55743| 69|Quincy Muni, Quincy, FL           |US|MTR
 0000000000|K2M2 | 35.23431|-87.25794| 285|Lawrence Cnty AP, Lawrenceburg,TN |US|MTR
+0000000000|K2M8 | 35.27848|-89.93300| 75|Charles W Baker Arpt, Millington, TN|US|MTR
 0000000000|K2P2 | 45.38825| -86.92404| 199|Washington Island AP, Washington Island, WI|US|MTR
-0000000000|K2R2 | 39.747| -86.475|  273|Hendricks Cnty AP, Indianapolis, IN |US|MTR
+0000000000|K2R2 | 39.74678|-86.47517| 274|Hendricks Cnty AP, Indianapolis, IN|US|MTR
 0000000000|K2R9 | 28.82499| -97.86557| 88|Kenedy Regional Airport, Kenedy, TX|US|MTR
 0000000000|K2V5 | 40.10032|-102.24096| 1118|Wray Muni, Wray, CO             |US|MTR
 0000000000|K2V6 | 40.10420|-102.71300| 1261|Yuma Minicipal AP, Yuma, CO     |US|MTR
@@ -1266,6 +1267,7 @@
 0000000000|K9S5 | 45.87811|-111.56944|1246|Three Forks Arpt, Three Forks, MT|US|MTR
 0000000000|K9S9 | 45.45414|-119.69028| 498|Lexington Airport, Lexington, OR |US|MTR
 0000072653|K9V9 | 43.80 | -99.32 |  530|CHAMBERLAIN, SD                     |US|MTR
+0000000000|K9Y1 | 47.39133|-102.77181| 685|Weydahl Field, Killdeer, ND      |US|MTR
 0000000000|KA06 | 34.05 |-118.24 |   71|Los Angeles Civic Center, CA        |US|MTR
 0000000000|KA08 | 32.5105| -87.3848| 67|Vaiden Fld AP, Marion, AL           |US|MTR
 0000000000|KA39 | 32.99055| -111.91890| 398|Ak-Chin Regional AP, Maricopa, AZ|US|MTR
