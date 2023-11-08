@@ -414,6 +414,7 @@
 2J5 Millen Airport, Millen, GA
 2J9 Quincy Muni, Quincy, FL
 2M2 Lawrence County Airport, Lawrenceburg, TN
+2M8 Charles W Baker Airport, Millington, TN
 2P2 Washington Island AP, Washington Island, WI
 2P3 Paynesville Muni, MN
 2R2 Hendricks Cnty AP, Indianapolis, IN
@@ -681,6 +682,7 @@
 9S5 Three Forks Airport, Three Forks, MT
 9S9 Lexington Airport, Lexington, OR
 9V9 Chamberlain, SD
+9Y1 Weydahl Field, Killdeer, ND
 A08 Vaiden Fld AP, Marion, AL
 A39 Ak-Chin Regional AP, Maricopa, AZ
 AAA K-Lincoln/Logan Co, IL; U-Almaty, RA
