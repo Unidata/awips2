@@ -20,9 +20,11 @@
 
 package com.raytheon.uf.edex.plugin.satellite.gini;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
@@ -32,6 +34,8 @@ import java.util.regex.Matcher;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
+import ar.com.hjg.pngj.ImageLineByte;
+import ar.com.hjg.pngj.PngReaderByte;
 import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -99,7 +103,9 @@ import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
  *                                      replaced database lookups with in memory tables
  * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * Feb 18, 2016  4838     skorolev    Corrected image rotation for scanMode = 3.
+ * Jun 23, 2016           mjames@ucar Handle pngg2gini'd FNEXRAD gini files.
  * Dec 01, 2016  5970     njensen     Use WMO_HEADER_PATTERN instead of WMOHeaderFinder
+ * Oct 20, 2017           mjames@ucar Decode Unidata PNG-compressed imagery.
  * Sep 23, 2021  8608     mapeters    Handle PDO.traceId changes
  *
  * </pre>
@@ -116,6 +122,10 @@ public class GiniSatelliteDecoder {
 
     private static final String SAT_HDR_TT = "TI";
 
+    private static final int UCAR = 99;
+    
+    private static final int UCAR_PRODUCT_OFFSET = 100;
+    
     private static final int GINI_HEADER_SIZE = 512;
 
     private static final int INITIAL_READ = GINI_HEADER_SIZE + 128;
@@ -250,7 +260,7 @@ public class GiniSatelliteDecoder {
 
                 record = new SatelliteRecord();
 
-                if (isCompressed(byteBuffer)) {
+                if (isZlibCompressed(byteBuffer)) {
                     /*
                      * If the data is compressed, we assume it came from the SBN
                      * and will have a reasonable size such that we can have two
@@ -262,7 +272,9 @@ public class GiniSatelliteDecoder {
                             - byteBuffer.position()];
                     f.seek(byteBuffer.position());
                     f.readFully(data);
-                    byte[][] retVal = decompressSatellite(data);
+
+                    byte[][] retVal = decompressZlibSatellite(data);
+
                     byteBuffer = ByteBuffer.wrap(retVal[0]);
                     tempBytes = retVal[1];
                 } else {
@@ -272,13 +284,36 @@ public class GiniSatelliteDecoder {
                      */
                     byteBuffer.compact();
                     byteBuffer.flip();
+
+                    int compressionFlag = byteBuffer.get(42);
+                    // Unidata PNG compression flag
+                    if (compressionFlag == -128) { 
+
+                        byte[] pngdata = new byte[(int) file.length() - offsetOfDataInFile];
+                        f.seek(offsetOfDataInFile);
+                        f.readFully(pngdata);
+
+                        tempBytes = decompressPngSatellite(pngdata);
+
+                    }
                 }
 
                 // get the scanning mode
                 int scanMode = byteBuffer.get(37);
 
+                // read the creating entity
+                byte entityByte = byteBuffer.get(1);
+                String entity = creatingEntityTable.lookup(entityByte);
+                if (entity == null) {
+                	throw new UnrecognizedDataException(
+                			"Unknown satellite entity id: " + entityByte);
+                	}
+                record.setCreatingEntity(entity);
+
                 // read the source
                 byte sourceByte = byteBuffer.get(0);
+                if (entityByte == UCAR) sourceByte = (byte) (UCAR_PRODUCT_OFFSET+byteBuffer.get(0));
+
                 String source = sourceTable.lookup(sourceByte);
                 if (source == null) {
                     throw new UnrecognizedDataException(
@@ -286,17 +321,10 @@ public class GiniSatelliteDecoder {
                 }
                 record.setSource(source);
 
-                // read the creating entity
-                byte entityByte = byteBuffer.get(1);
-                String entity = creatingEntityTable.lookup(entityByte);
-                if (entity == null) {
-                    throw new UnrecognizedDataException(
-                            "Unknown satellite entity id: " + entityByte);
-                }
-                record.setCreatingEntity(entity);
-
                 // read the sector ID
                 byte sectorByte = byteBuffer.get(2);
+                if (entityByte == UCAR) sectorByte = (byte) (UCAR_PRODUCT_OFFSET+byteBuffer.get(2));
+                
                 String sector = sectorIdTable.lookup(sectorByte);
                 if (sector == null) {
                     throw new UnrecognizedDataException(
@@ -305,7 +333,8 @@ public class GiniSatelliteDecoder {
                 record.setSectorID(sector);
 
                 // read the physical element
-                byte physByte = byteBuffer.get(3);
+                int physByte = byteBuffer.get(3);
+                if (entityByte == UCAR) physByte = (int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3));
                 String physElem = physicalElementTable.lookup(physByte);
                 if (physElem == null) {
                     throw new UnrecognizedDataException(
@@ -316,12 +345,20 @@ public class GiniSatelliteDecoder {
 
                 // read the units
                 String unit = unitTable.lookup(byteBuffer.get(3));
+                if (entityByte == UCAR) {
+                	unit = unitTable.lookup((int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3)));
+                }
                 if (unit != null) {
                     record.setUnits(unit);
                 }
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
+                // TODO: update this with png inflate
+                // correction for pngg2gini
+                if (entityByte == UCAR && byteBuffer.get(8) < 100)
+                	intValue = 2000 +  byteBuffer.get(8);
+
                 calendar.set(Calendar.YEAR, intValue);
 
                 // read the month of the year
@@ -598,13 +635,13 @@ public class GiniSatelliteDecoder {
     }
 
     /**
-     * Checks to see if the current satellite product is compressed.
-     *
+     * Checks to see if the current satellite product is zlib compressed.
+     * 
      * Assumes messageData is a byte[]-backed ByteBuffer.
      *
      * @return A boolean indicating if the file is compressed or not
      */
-    private boolean isCompressed(ByteBuffer messageData) {
+    private boolean isZlibCompressed(ByteBuffer messageData) {
         boolean compressed = true;
         byte[] placeholder = new byte[10];
         Inflater decompressor = new Inflater();
@@ -621,13 +658,40 @@ public class GiniSatelliteDecoder {
     }
 
     /**
-     * Method to handle compressed satellite data.
+     * Method to handle Unidata PNG compressed satellite data.
      *
      * @param messageData
      * @return
      * @throws DecoderException
      */
-    private byte[][] decompressSatellite(byte[] messageData)
+    private byte[] decompressPngSatellite(byte[] messageData)
+            throws SatelliteDecoderException {
+
+        InputStream stream = new ByteArrayInputStream(messageData);
+        PngReaderByte png = new PngReaderByte(stream);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_IMAGE_SIZE);
+        byte[] inflated = null;
+
+        for (int row=0;row< png.getImgInfo().rows;row++){
+        ImageLineByte line = png.readRowByte();
+        byte [] buf = line.getScanlineByte();
+        bos.write(buf, 0, buf.length);
+        }
+
+        inflated = bos.toByteArray();
+        bos = null;
+        return inflated;
+    }
+
+	/**
+     * Method to handle zlib compressed satellite data.
+     * 
+     * @param messageData
+     * @return
+     * @throws DecoderException
+     */
+    private byte[][] decompressZlibSatellite(byte[] messageData)
             throws SatelliteDecoderException {
         byte[] retVal = null;
 

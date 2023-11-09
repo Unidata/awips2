@@ -1,0 +1,45 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="mesonetDecoder" class="com.raytheon.edex.plugin.ldad.LdadDecoder">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.ldadmesonet.MesonetLdadRecord" />
+        <constructor-arg value="mesonet" />
+    </bean>
+
+    <bean id="mesonetDatabase" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="metadata" />
+    </bean>
+
+    <bean id="ldadmesonetDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="ldadmesonet" />
+        <constructor-arg value="jms-durable:queue:Ingest.ldadmesonet"/>
+    </bean>
+
+    <bean id="ldadmesonetPointData" class="com.raytheon.uf.edex.plugin.ldadmesonet.LdadmesonetPointDataTransform"/>
+
+    <camelContext id="ldadmesonet-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <route id="ldadmesonetIngestRoute">
+            <from uri="jms-durable:queue:Ingest.ldadmesonet"/>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="mesonetDecoder" method="decode" />
+                    <bean ref="dupElim" />
+                    <bean ref="ldadmesonetPointData" method="toPointData" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:ldadmesonet?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

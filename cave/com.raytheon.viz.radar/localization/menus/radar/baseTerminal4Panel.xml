@@ -31,7 +31,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev1} ${elev2} ${elev6} ${elev8}"
-            id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZV"
+            fullBundleLoad="true" id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZV"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -52,7 +52,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev1} ${elev3} ${elev5} ${elev6}"
-            id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZV"
+            fullBundleLoad="true" id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZV"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -73,7 +73,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev1} ${elev2} ${elev3} ${elev4}"
-            id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZV"
+            fullBundleLoad="true" id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZV"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -94,7 +94,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev3} ${elev7} ${elev8} ${elev9}"
-            id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZV"
+            fullBundleLoad="true" id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZV"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -115,7 +115,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev8} ${elev9} ${elev10} ${elev12}"
-            id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZV"
+            fullBundleLoad="true" id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZV"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -140,7 +140,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev1} ${elev2} ${elev6} ${elev8}"
-            id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZSRM8"
+            fullBundleLoad="true" id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZSRM8"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -161,7 +161,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev1} ${elev3} ${elev5} ${elev6}"
-            id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZSRM8"
+            fullBundleLoad="true" id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZSRM8"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -182,7 +182,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev1} ${elev2} ${elev3} ${elev4}"
-            id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZSRM8"
+            fullBundleLoad="true" id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZSRM8"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -203,7 +203,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev3} ${elev7} ${elev8} ${elev9}"
-            id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZSRM8"
+            fullBundleLoad="true" id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZSRM8"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -224,7 +224,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml"
             menuText="${elev8} ${elev9} ${elev10} ${elev12}"
-            id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZSRM8"
+            fullBundleLoad="true" id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZSRM8"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />

@@ -3,14 +3,25 @@
 # devorg: Unidata Program Center
 # author: Michael James, Tiffany Meyer
 # maintainer: <support-awips@unidata.ucar.edu>
-# Date Updated: 2/17/2023
-# use: ./awips_install-v20.sh (--cave|--help)
+# Date Updated: 7/10/2023
+# use: ./awips_install.sh (--cave|--edex|--database|--ingest|--help)
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
 
-usage="$(basename "$0") [-h] (--cave) #script to install Unidata AWIPS CAVE release.\n
+usage="$(basename "$0") [-h] (--cave|--edex|--database|--ingest) #script to install Unidata AWIPS components.\n
     -h, --help           show this help text\n
-    --cave               install CAVE for x86_64 Linux\n"
+    --cave               install CAVE for x86_64 Linux\n
+    --edex, --server     install EDEX Standaone Server x86_64 Linux\n
+    --database           install EDEX Request/Database x86_64 Linux\n
+    --ingest             install EDEX Ingest Node Server x86_64 Linux\n"
+
+function stop_edex_services {
+  for srvc in edex_ldm edex_camel qpidd httpd-pypies edex_postgres ; do
+    if [ -f /etc/init.d/$srvc ]; then
+      service $srvc stop
+    fi
+  done
+}
 
 function check_yumfile {
   if [[ $(grep "release 7" /etc/redhat-release) ]]; then
@@ -70,17 +81,34 @@ function check_netcdf {
   fi
 }
 
+function check_git {
+  if ! [[ $(rpm -qa | grep ^git-[12]) ]]; then
+    # install git if not installed
+    yum install git -y
+
+  fi
+}
+
+function check_wgrib2 {
+  if ! [[ $(rpm -qa | grep ^wgrib2) ]]; then
+    # install wgrib2 if not installed
+    yum install wgrib2 -y
+
+  fi
+}
+
 function check_cave {
+  check_edex
   if [[ $(rpm -qa | grep awips2-cave-20) ]]; then
     echo $'\n'CAVE is currently installed and needs to be removed before installing.
     pkill cave.sh
     pkill -f 'cave/cave.sh'
     remove_cave
   fi
-
-  check_edex
   if [[ $(rpm -qa | grep awips2-cave-18) ]]; then
   while true; do
+    pkill run.sh
+    pkill -f 'cave/run.sh'
     read -p "Version 18.* of CAVE is currently installed and needs to be removed before installing the Beta Version 20.* of CAVE. Do you wish to remove CAVE? (Please type yes or no) `echo $'\n> '`" yn
     case $yn in
       [Yy]* ) remove_cave; break;;
@@ -93,6 +121,7 @@ function check_cave {
 
 function remove_cave {
   yum groupremove awips2-cave -y
+  yum remove awips2-* -y
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "
@@ -120,7 +149,7 @@ function remove_cave {
 
 function check_edex {
   if [[ $(rpm -qa | grep awips2-edex) ]]; then
-    echo "Found EDEX RPMs installed. The current EDEX needs to be removed before installing version 20.* of CAVE (beta release)."
+    echo "found EDEX RPMs installed. The current EDEX needs to be removed before installing."
     check_remove_edex
   else
     if [ -d /awips2/database/data/ ]; then
@@ -312,12 +341,14 @@ function remove_edex {
     pkill cave.sh
     pkill -f 'cave/run.sh'
     rm -rf /home/awips/caveData
+    
   else
     echo "Now removing EDEX"
   fi
 
   yum groupremove awips2-server awips2-database awips2-ingest awips2-cave -y
   yum remove awips2-* -y
+
   if [[ $(rpm -qa | grep awips2 | grep -v cave) ]]; then
     echo "
     =================== FAILED ===========================
@@ -335,9 +366,9 @@ function remove_edex {
        ex. yum groups mark remove 'AWIPS EDEX Server'"
      exit
   else
-    awips2_dirs=("data" "database" "data_store" "edex" "hdf5" "httpd_pypies" "java" "ldm" "postgres" "psql" "pypies" "python" "qpid" "tmp" "tools" "yajsw")
+    awips2_dirs=("cave" "data" "database" "data_store" "edex" "etc" "hdf5" "hdf5_locks" "httpd_pypies" "ignite" "java" "ldm" "netcdf" "postgres" "psql" "pypies" "python" "qpid" "tmp" "tools" "yajsw")
     for dir in ${awips2_dirs[@]}; do
-      if [ $dir != dev ] && [ $dir != cave ] ; then
+      if [ $dir != dev ] ; then
         echo "Removing /awips2/$dir"
         rm -rf /awips2/$dir
       fi
@@ -346,8 +377,12 @@ function remove_edex {
 }
 
 function check_users {
+
+  if ! getent group "fxalpha" >/dev/null 2>&1; then
+    groupadd fxalpha
+  fi
   if ! id "awips" >/dev/null 2>&1; then
-    groupadd fxalpha && useradd -G fxalpha awips
+    useradd -G fxalpha awips
   fi
 }
 
@@ -356,12 +391,13 @@ function server_prep {
   check_yumfile
   stop_edex_services
   check_limits
+  check_epel
   check_netcdf
   check_wget
   check_rsync
   check_edex
   check_git
-  check_epel
+  check_wgrib2
 }
 
 function disable_ndm_update {
@@ -395,8 +431,27 @@ case $key in
         echo "CAVE has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --server|--edex)
-        echo "EDEX is not available to install for AWIPS Version 20.* (beta release). To install CAVE use the --cave flag\n"
-        exit
+        server_prep
+        yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
+        sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
+        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+        echo "EDEX server has finished installing, the install log can be found in /tmp/awips-install.log"
+        ;;
+    --database)
+        server_prep
+        yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
+        disable_ndm_update
+        sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
+        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+        echo "EDEX database has finished installing, the install log can be found in /tmp/awips-install.log"
+        ;;
+    --ingest)
+        server_prep
+        yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
+        disable_ndm_update
+        sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
+        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+        echo "EDEX ingest has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     -h|--help)
         echo -e $usage
@@ -406,4 +461,3 @@ esac
 
 PATH=$PATH:/awips2/edex/bin/
 exit
-

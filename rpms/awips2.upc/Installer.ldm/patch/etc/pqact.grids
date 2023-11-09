@@ -16,6 +16,7 @@
 #                       GOES16 GLM data coming from Unidata's IDD via Texas Tech
 #                       CIRA RGB GOES Satellite products added
 # 20230321      20.3.2  Update WW3 regex lines so we get the data
+# 20231004      20.3.2  Add additioanl NBM data
 #
 # ------------------------------------------
 # - Global Ensemble Forecast System (GEFS) -
@@ -750,5 +751,5 @@ NGRID	^OUTA98 KWNB (......)[^!]*!grib2
 #
 # National Blend of Models
 #
-NGRID|HDS	^(Y.A...) (KWE[AB]) (..)(..)(..)
+NGRID|HDS	^(Y.A...) (KWE[ABGIHLO]) (..)(..)(..)
 	FILE	-close	/awips2/data_store/grid/(\3:yyyy)(\3:mm)\3/\4/NationalBlend/staging/NationalBlend_\3\4\5-concat-%Y%m%d_%H%M.grib2
