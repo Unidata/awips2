@@ -40,7 +40,7 @@
     <parameter>
         <name>Absolute Vorticity</name>
         <abbreviation>AV</abbreviation>
-        <unit>1/s</unit>
+        <unit>/s</unit>
     </parameter>
     <parameter>
         <name>Categorical Rain</name>
@@ -1152,12 +1152,12 @@
     <parameter>
         <name>Vertical u-component shear</name>
         <abbreviation>VUCSH</abbreviation>
-        <unit>1/s</unit>
+        <unit>/s</unit>
     </parameter>
     <parameter>
         <name>Vertical v-component shear</name>
         <abbreviation>VVCSH</abbreviation>
-        <unit>1/s</unit>
+        <unit>/s</unit>
     </parameter>
     <parameter>
         <name>Haines Index</name>
@@ -1217,7 +1217,7 @@
     <parameter>
         <name>Vertical Shear Speed</name>
         <abbreviation>VSS</abbreviation>
-        <unit>1/s</unit>
+        <unit>/s</unit>
     </parameter>
     <parameter>
         <name>Cloud Mixing Ratio</name>

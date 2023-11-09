@@ -296,10 +296,7 @@ public class AppsDefaults {
             if (_appsDefaultsNationalFile.exists()) {
                 logger.info("Setting base Apps_defaults file: "
                         + _appsDefaultsNationalFile);
-            } else {
-                logger.error("No base Apps_defaults file found.");
-            }
-
+            } 
             if (this.appsDefaultsObserver == null) {
                 appsDefaultsObserver = new ILocalizationPathObserver() {
                     @Override

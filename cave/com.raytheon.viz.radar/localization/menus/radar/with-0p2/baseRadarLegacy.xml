@@ -802,7 +802,7 @@
             id="${icao}ZV" />
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="0.5 1.5 2.4 3.4"
-            id="${icao}4bit4panel05152434ZV">
+            fullBundleLoad="true" id="${icao}4bit4panel05152434ZV">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="27" />
@@ -813,7 +813,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="0.5 0.9 1.5 1.8"
-            id="${icao}4bit4panel05091518ZV">
+            fullBundleLoad="true" id="${icao}4bit4panel05091518ZV">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="27" />
@@ -824,7 +824,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="0.9 1.5 1.8 2.4"
-            id="${icao}4bit4panel09151824ZV">
+            fullBundleLoad="true" id="${icao}4bit4panel09151824ZV">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="27" />
@@ -835,7 +835,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="1.5 2.4 3.4 4.3"
-            id="${icao}4bit4panel15243443ZV">
+            fullBundleLoad="true" id="${icao}4bit4panel15243443ZV">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="27" />
@@ -846,7 +846,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="1.5 4.3 6.0 10.0"
-            id="${icao}4bit4panel154360100ZV">
+            fullBundleLoad="true" id="${icao}4bit4panel154360100ZV">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="27" />
@@ -857,7 +857,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="4.3 5.3 6.0 7.5"
-            id="${icao}4bit4panel43536075ZV">
+            fullBundleLoad="true" id="${icao}4bit4panel43536075ZV">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="27" />
@@ -868,7 +868,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="6.0 10.0 14.0 19.5"
-            id="${icao}4bit4panel60100140195ZV">
+            fullBundleLoad="true" id="${icao}4bit4panel60100140195ZV">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="27" />
@@ -882,7 +882,7 @@
             id="${icao}ZSRM" />
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="0.5 1.5 2.4 3.4"
-            id="${icao}4bit4panel05152434ZSRM">
+            fullBundleLoad="true" id="${icao}4bit4panel05152434ZSRM">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="56" />
@@ -893,7 +893,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="0.5 0.9 1.5 1.8"
-            id="${icao}4bit4panel05091518ZSRM">
+            fullBundleLoad="true" id="${icao}4bit4panel05091518ZSRM">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="56" />
@@ -904,7 +904,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="0.9 1.5 1.8 2.4"
-            id="${icao}4bit4panel09151824ZSRM">
+            fullBundleLoad="true" id="${icao}4bit4panel09151824ZSRM">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="56" />
@@ -915,7 +915,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="1.5 2.4 3.4 4.3"
-            id="${icao}4bit4panel15243443ZSRM">
+            fullBundleLoad="true" id="${icao}4bit4panel15243443ZSRM">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="56" />
@@ -926,7 +926,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="1.5 4.3 6.0 10.0"
-            id="${icao}4bit4panel154360100ZSRM">
+            fullBundleLoad="true" id="${icao}4bit4panel154360100ZSRM">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="56" />
@@ -937,7 +937,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="4.3 5.3 6.0 7.5"
-            id="${icao}4bit4panel43536075ZSRM">
+            fullBundleLoad="true" id="${icao}4bit4panel43536075ZSRM">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="56" />
@@ -948,7 +948,7 @@
         </contribute>
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlended.xml" menuText="6.0 10.0 14.0 19.5"
-            id="${icao}4bit4panel60100140195ZSRM">
+            fullBundleLoad="true" id="${icao}4bit4panel60100140195ZSRM">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="19" />
             <substitute key="product2" value="56" />

@@ -93,7 +93,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # remove the test logback configuration used for development
-rm -f ${RPM_BUILD_ROOT}/awips2/edex/conf/logback-test.xml
+# We don't want to remove the test logback, because it's used for the new modes we create
+#rm -f ${RPM_BUILD_ROOT}/awips2/edex/conf/logback-test.xml
 if [ $? -ne 0 ]; then
    exit 1
 fi
