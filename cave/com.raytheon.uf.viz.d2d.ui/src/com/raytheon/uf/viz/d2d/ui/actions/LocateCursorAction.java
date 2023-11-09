@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 1, 2009            bgonzale     Initial creation
+ * Nov 8, 2023          srcarter@ucar  Fix functionality of the dialog, make UI more reasonable
  * 
  * </pre>
  * 
@@ -89,13 +90,12 @@ public class LocateCursorAction extends AbstractTool {
 
         // set up close timer
         Display display = PlatformUI.getWorkbench().getDisplay();
-        int oneAndAHalfSeconds = 1500;
+        int delay = 400;
 
-        display.timerExec(oneAndAHalfSeconds, new Runnable() {
+        display.timerExec(delay, new Runnable() {
             @Override
             public void run() {
-                if (dialog != null && dialog.getShell() != null
-                        && !dialog.getShell().isDisposed()) {
+                if (dialog != null) {
                     dialog.close();
                 }
             }
@@ -103,9 +103,10 @@ public class LocateCursorAction extends AbstractTool {
     }
 
     private static class CursorBoxDialog extends CaveJFACEDialog {
+        private Shell shell;
         protected CursorBoxDialog(Shell parentShell) {
             super(parentShell);
-            setShellStyle(SWT.NO_TRIM | SWT.MODELESS);
+            shell = new Shell(parentShell, SWT.NO_TRIM | SWT.MODELESS);
         }
 
         /*
@@ -123,15 +124,12 @@ public class LocateCursorAction extends AbstractTool {
             final Point cLoc = display.getCursorLocation();
             final Color white = display.getSystemColor(SWT.COLOR_WHITE);
             final Color black = display.getSystemColor(SWT.COLOR_BLACK);
-            final int boxCount = 23; // 12 white boxes and 11 black boxes
-            final int sideSize = 190;
+            final int boxCount = 15; // 8 white boxes and 7 black boxes
+            final int sideSize = 60;
             final int center = sideSize / 2;
             final int sideInc = center / boxCount;
             final int margin = sideInc * 2;
-            GridData shellGD = new GridData(SWT.FILL, SWT.FILL, true, true);
 
-            newShell.setLayout(new GridLayout(1, false));
-            newShell.setLayoutData(shellGD);
             newShell.setBounds(cLoc.x - center, cLoc.y - center, sideSize,
                     sideSize);
 
@@ -167,6 +165,21 @@ public class LocateCursorAction extends AbstractTool {
             // overide this method so that the default dialog buttons are not
             // drawn.
             return null;
+        }
+        
+        @Override
+        public int open() {
+            configureShell(shell);
+            shell.setVisible(true);
+            return getReturnCode();
+        }
+        
+        @Override
+        public boolean close() {
+            shell.dispose();
+            shell = null;
+            super.close();
+            return true;
         }
 
     }
