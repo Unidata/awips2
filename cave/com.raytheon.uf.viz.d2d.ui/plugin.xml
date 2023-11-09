@@ -1460,7 +1460,7 @@
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.showHistoryList"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+H">
+            sequence="M1+M2+H">
       </key>
       <key
             contextId="com.raytheon.uf.viz.d2d.ui"
@@ -1633,7 +1633,7 @@
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="INSERT">
+            sequence="M1+M2+I">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
