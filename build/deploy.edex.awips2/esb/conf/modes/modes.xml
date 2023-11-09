@@ -32,6 +32,7 @@
                 <exclude>ohd-common-database.xml</exclude>
                 <exclude>satpre-spring.xml</exclude>
                 <exclude>ncgrib-file-endpoint.xml</exclude>
+                <exclude>text-subscription.*</exclude>
         </mode>
 
         <mode name="ingestGrib">
@@ -69,12 +70,14 @@
                 <includeMode>goesrExclude</includeMode>
                 <exclude>.*(airmet|atcf|aww|convsigmet|gfe|grid|hydro|intlsigmet|modis|ncpafm|ncuair|profiler|netcdf-grid).*</exclude>
                 <exclude>.*(nonconvsigmet|satellite|sgwh|ssha|stats|stormtrack|textlightning_ep|useradmin|wcp).*</exclude>
+                <exclude>purge.*</exclude>
         </mode>
 
         <mode name="ingestGoesR">
                 <includeMode>ingest</includeMode>
                 <includeMode>pluginExclude</includeMode>
                 <includeMode>radarExclude</includeMode>
+                <exclude>purge.*</exclude>
         </mode>
 
         <mode name="ingestGrids">
@@ -82,6 +85,7 @@
                 <includeMode>pluginModelSoundingExclude</includeMode>
                 <includeMode>radarExclude</includeMode>
                 <includeMode>goesrExclude</includeMode>
+                <exclude>purge.*</exclude>
         </mode>
 
         <mode name="pluginExclude">
