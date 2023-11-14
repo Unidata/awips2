@@ -23,6 +23,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.npp.nucaps.NucapsNSharpResourceData;
 import com.raytheon.uf.viz.npp.sounding.rsc.NPPSoundingMapResourceData;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
@@ -38,6 +39,8 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * Dec 16, 2015 18191   pwang      Initial creation. Color code dots base on QC value
  * Feb 03, 2016 18588   wkwock     Fix update nucaps data issue.
  * Apr 14, 2016 18588   wkwock     Improve the performance.
+ * Sep 14, 2016         mjames     setNsharpResourceData and setResourceName from within
+ *                                 (fixes NUCAPS Availability on OS X)
  * 
  * </pre>
  * 
@@ -61,6 +64,10 @@ public class NucapsSoundingMapResourceData extends NPPSoundingMapResourceData {
             throws VizException {
         NucapsSoundingMapResource resource = new NucapsSoundingMapResource(this,
                 loadProperties);
+        
+        this.setNsharpResourceData(NucapsNSharpResourceData.class);
+        this.setResourceName("NUCAPS");
+        
         if (objects instanceof PluginDataObject[]) {
             resource.addRecordsNoUpdate((PluginDataObject[]) objects);
         }
