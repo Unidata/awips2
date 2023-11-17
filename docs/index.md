@@ -54,7 +54,7 @@ Unidata AWIPS source code and binaries (RPMs) are considered to be in the public
 
 Unidata and XSEDE Jetstream have partnered to offer an EDEX data server in the cloud, open to the community.  Select the server in the Connectivity Preferences dialog, or enter **`edex-cloud.unidata.ucar.edu`** (without *http://* before, or *:9581/services* after).
 
-![EDEX in the cloud](/images/connectionWindow.png)
+![EDEX in the cloud](images/connectWindow.png)
 
 ---
 
