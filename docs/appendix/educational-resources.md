@@ -224,6 +224,7 @@ A full list of all released blogs can be found below:
 - [Visualizing Upper Air Soundings](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-visualizing-upper-air)
 - [Compare Model Sounding Data in Python](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-compare-model-sounding)
 - [Beta Python-AWIPS Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-beta-python-awips)
+- [Creating New Products with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-new-products)
 
 #### EDEX
 
