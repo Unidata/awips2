@@ -23,11 +23,12 @@
         version of the file will completely replace a lower priority version
         of the file. 
     -->
+<!-- L. Byerle 8/8/2023 Update for NOAA-21 and towr-s RPM v24 -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="separator" id="MySeparatorId" />
-    <contribute xsi:type="titleItem" titleText="------ Polar Orbiting Satellites ------" id="polarSat"/>
-    <contribute xsi:type="subMenu" id="NPPProducts" menuText="S-NPP and NOAA-20 VIIRS Imagery">
-        <contribute xsi:type="separator" id="Imagery" visible="false" />
-    </contribute>
+    <contribute xsi:type="titleItem" titleText="----- Polar Satellites-----" id="Polar"/>
 
+    <contribute xsi:type="subMenu" id="NPPProducts" menuText="JPSS Polar (S-NPP, NOAA-20, NOAA-21)">
+        <contribute xsi:type="separator" id="Imagery"
+            visible="false" />
+    </contribute>
 </menuTemplate>

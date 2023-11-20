@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -19,11 +19,14 @@
         further_licensing_information.
     -->
     <!-- 
-        This is an absolute override file, indicating that a higher priority 
-        version of the file will completely replace a lower priority version
-        of the file. 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
     -->
-<menuContributionFile>
-    <include installTo="menu:satellite?after=GROUP3"
-        fileName="menus/npp/nucaps/nucapsMenuItems.xml" />
-</menuContributionFile>
+    
+    <!-- The 2m Temperature derived parameter was created specifically for griddednucaps to allow for delination 
+    between Temps aloft and 2 m Temps for plotting Temps in unts of F (2m) vs C or K aloft. -->
+<DerivedParameter unit="F" name="2m Temperature" abbreviation="T2m">
+    <Method models="griddednucaps" levels="2FHAG" name="Alias">
+        <Field level="2FHAG" abbreviation="T" />
+    </Method>
+</DerivedParameter>

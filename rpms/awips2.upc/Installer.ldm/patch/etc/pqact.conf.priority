@@ -23,6 +23,8 @@
 #                       Update RTOFS entry
 #                       Update SPCGuide gridded products to include Fire Weather and Dry Thunderstorm grids
 #                       Update level3 radar product entry
+#                       Update viirs polar product entry
+
 # USPLN
 LIGHTNING	USPLN1EX
 	FILE	-close -edex	/awips2/data_store/lightning/%Y%m%d%H%M.uspln
@@ -184,9 +186,9 @@ NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
 #NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DerivedMotionWinds/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
 #	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/derived-IDD/\5\6\7\8.nc4
 
-# GOES 16 GLM gridded products via Texas Tech-->Unidata IDD 
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightningMapper/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
-	FILE	-close -edex	/awips2/data_store/GOES/\3/\6/GLM-IDD/\4\5\6\7.nc4
+# GOES 16 GLM gridded products via Texas Tech-->Unidata IDD (depricated)
+#NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightningMapper/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+#	FILE	-close -edex	/awips2/data_store/GOES/\3/\6/GLM-IDD/\4\5\6\7.nc4
 
 # GOES GLM Raw data - don't use, AWIPS does not display the raw GLM data (not using)
 #DIFAX	^/data/cspp-geo/(EAST|WEST|GRB-R)/OR_GLM-L2-([^/]*).nc
@@ -214,7 +216,7 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/(
 # NPP/VIIRS
 #
 # Polar products
-NOTHER	^(TI[A-Q]...) (KNES) (......)
+NOTHER	^(TI[A-T]...) (KNES) (......)
 	FILE	-close -edex	/awips2/data_store/viirs/\1_\2_\3
 #
 # NEXRAD3 GEMPAK-generated national composite (1-4km)
