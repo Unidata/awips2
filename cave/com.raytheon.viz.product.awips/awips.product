@@ -129,6 +129,7 @@
       <feature id="com.raytheon.uf.viz.fssobs.feature"/>
       <feature id="edu.wisc.ssec.cimss.viz.probsevere.feature"/>
       <feature id="com.raytheon.uf.viz.satellite.goesr.feature" installMode="root"/>
+      <feature id="gov.noaa.nws.sti.mdl.viz.griddednucaps.feature" installMode="root"/>
    </features>
 
    <configurations>

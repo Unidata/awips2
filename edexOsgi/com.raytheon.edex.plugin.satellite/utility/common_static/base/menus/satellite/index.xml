@@ -6,4 +6,19 @@
 	<include installTo="menu:satellite"
 		fileName="menus/satellite/baseSatellite.xml">
 	</include>
+    <include subMenu="Polar Derived Products Imagery" installTo="menu:satellite?after=NPPProducts"
+        fileName="menus/satellite/baseDerivedProductsImagery.xml">
+        <substitute key="sector" value="Supernational" />
+    </include> 
+    <include installTo="menu:satellite"
+        fileName="menus/satellite/baseFourSatComposite.xml">
+        <substitute key="sector"
+            value="NH Composite - Meteosat-GOES E-GOES W-GMS" />
+        <substitute key="entity" value="Composite" />
+    </include>
+<!--   
+	<include installTo="menu:satellite"
+	    fileName="menus/satellite/otherSatellite.xml">
+	</include>
+ -->
 </menuContributionFile>

@@ -156,12 +156,6 @@ IDS|DDPLUS	^(W[CSV]PN[01][1-9]) (KKCI) (..)(..)(..)
 ANY	^([PQ][A-Z0-9]{3,5}) (....) (..)(..)(..) !redbook [^/]*/([^/]*)/([^/]*)/([^/]*)/([0-9]{8})
 	FILE	-overwrite -close -edex	/awips2/data_store/redbook/\4\5Z_\8_\7_\6-\1_\2.rb
 #
-# NPP/VIIRS
-#
-# Polar products
-NOTHER	^(TI[A-Q]...) (KNES) (......)
-	FILE	-close -edex	/awips2/data_store/viirs/\1_\2_\3
-#
 # NEXRAD3 GEMPAK-generated national composite (1-4km)
 #
 FNEXRAD	^rad/NEXRCOMP/(...)/(...)_(........)_(....)	
