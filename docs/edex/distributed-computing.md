@@ -220,5 +220,3 @@ Watch the edex JVM log with the command
 * You can install multiple `awips2-ingest` servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (`DB_ADDR` and `PYPIES_SERVER` in `/awips2/edex/bin/setup.env`):
 
 * Every EDEX Ingest IP address must be allowed in both **iptables** and **pg_hba.conf** as [shown above](#2-iptables-config).
-
-* Data processed on 
