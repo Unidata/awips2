@@ -45,16 +45,6 @@
       </definition>
    </extension>
    <extension
-         point="org.eclipse.ui.perspectives">
-      <perspective
-            class="com.raytheon.viz.hydro.perspective.HydroPerspective"
-            id="com.raytheon.viz.hydro.HydroPerspective"
-            name="Hydro"
-            icon="icons/hydro.png"
-            singleton="true">
-      </perspective>
-   </extension>
-   <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:com.raytheon.viz.hydrocommon.Tools?after=hydroToolsAdditions">
@@ -948,12 +938,6 @@
          <actionSet
                id="com.raytheon.viz.hydro.HydroActionSet">
          </actionSet>
-      </perspectiveExtension>
-      <perspectiveExtension
-            targetID="*">
-         <perspectiveShortcut
-               id="com.raytheon.viz.hydro.HydroPerspective">
-         </perspectiveShortcut>
       </perspectiveExtension>
    </extension>
    <extension
