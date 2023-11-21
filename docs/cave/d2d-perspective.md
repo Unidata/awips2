@@ -58,7 +58,7 @@ Holding down the right mouse button anywhere in the map view will open a right-c
 
 From the above menu select **Show Map Legends** and watch the Resource Stack show only map resources which are loaded to the view.
 
-![image](../images/maplayers.png)
+![image](../images/changeLegends.gif)
 
 ### Sample Loaded Resources
 
@@ -72,7 +72,7 @@ Right-click hold in the view and select **Two Panel Layout** or **Four Panel Lay
 
 !!! note "Notice the readout is at the same position in both panels.  Any mouse movement made on one panel will be made on the other."
 
-![2-panel](../images/2panelReadout.png)
+![2-panel](../images/2panelReadout.gif)
 
 By default, loading any data will load that data onto **both** panels.  However, there is the option to specify which panel you would like to load data into, which can be useful if you want to have different data in each of the panels.  To access this option, simple hold-right click to pull up the Display menu and choose **Load to This Panel** as shown below:
 
@@ -81,7 +81,7 @@ By default, loading any data will load that data onto **both** panels.  However,
 Now, a yellow **L** will appear in the lower left hand corner of the panel you selected to load data to.  When data is loaded from the menus it will only load to the display desginated with the L. 
 Switch back to loading in both panels, by using the **Load to All Panels** option in the Display Menu.
 
-![single panel load](../images/singlePanelLoad.png)
+![single panel load](../images/singlePanelLoad.gif)
 
 From this multi-pane display, hold-right-click again and you will see the **Single Panel Layout** option to switch back to a standard view (defaulting to the left of two, and top-left of four).
 
