@@ -45,26 +45,57 @@
          Lee Byerle 1/2/2018
    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <contribute xsi:type="titleItem" titleText="------ S-NPP ------" id="ImageryLine"/>
+<!--  Comment out since I don't notice any difference in these products
+<contribute xsi:type="titleItem" titleText=" VIIRS " id="ImageryLine"/>
+<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="VIIRS CONUS - 0.7 μm Day-Night Band NCC" id="ccNCC0.7">
+  <substitute key="region" value="CONUS%"/>
+  <substitute key="channelType" value="Moderate"/>
+  <substitute key="colormap" value="NPP/VIIRS/NCC_zero_to_one"/>
+  </contribute>
+
+ 
+ <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="VIIRS Pacific - 0.7 μm Day-Night Band NCC" id="cpNCC0.7">
+  <substitute key="region" value="Pacific%"/>
+  <substitute key="channelType" value="Moderate"/>
+  <substitute key="colormap" value="NPP/VIIRS/NCC_zero_to_one"/>
+  </contribute>
+
+ <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="VIIRS Puerto Rico - 0.7 μm Day-Night Band NCC" id="cprNCC0.7">
+  <substitute key="region" value="Puerto%"/>
+  <substitute key="channelType" value="Moderate"/>
+  <substitute key="colormap" value="NPP/VIIRS/NCC_zero_to_one"/>
+  </contribute>
+  
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="VIIRS Alaska - 0.7 μm Day-Night Band NCC" id="caNCC0.7">
+  <substitute key="region" value="Alaska%"/>
+  <substitute key="channelType" value="Moderate"/>
+  <substitute key="colormap" value="NPP/VIIRS/NCC_zero_to_one"/>
+  </contribute>
+   -->
+  <contribute xsi:type="titleItem" titleText="------ S-NPP/NOAA-21 ------" id="ImageryLine"/>
 
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
-    menuText="S-NPP CONUS - 0.7 μm Near Constant Contrast" id="Moderate0.7">
+    menuText="S-NPP/NOAA-21 CONUS - 0.7 μm Near Constant Contrast" id="Moderate0.7">
     <substitute key="channelType" value="Moderate"/>
     <substitute key="region" value="CONUS"/>
   </contribute>
 
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
-    menuText="S-NPP Pacific - 0.7 μm Near Constant Contrast" id="Moderate0.7">
+    menuText="S-NPP/NOAA-21 Pacific - 0.7 μm Near Constant Contrast" id="Moderate0.7">
     <substitute key="channelType" value="Moderate"/>
     <substitute key="region" value="Pacific"/>
   </contribute>
 
   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
-    menuText="S-NPP Puerto Rico - 0.7 μm Near Constant Contrast" id="Moderate0.7">
+    menuText="S-NPP/NOAA-21 Puerto Rico - 0.7 μm Near Constant Contrast" id="Moderate0.7">
     <substitute key="channelType" value="Moderate"/>
     <substitute key="region" value="Puerto Rico"/>
   </contribute>
-  <contribute xsi:type="subMenu" menuText="S-NPP Alaska" id="Alaskaid">
+  <contribute xsi:type="subMenu" menuText="S-NPP/NOAA-21 Alaska" id="Alaskaid">
     <contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems_AK.xml">
       <substitute key="region" value="Alaska"/>
     </contribute>

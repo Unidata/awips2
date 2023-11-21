@@ -18,14 +18,27 @@
     See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
     further_licensing_information.
 -->
-
-    <!--
-        This is an absolute override file, indicating that a higher priority
-        version of the file will completely replace a lower priority version
-        of the file.
+   <!-- TOWRdocs Header
+        netcdfGrid plugin distribution file, currently for GPM IMERG products.
+    -->
+    <!-- TOWRdocs Description
+         Adds patterns for global blended hydro and global multi-sat GOES composites.
+    -->
+    <!-- TOWRdocs Status
+         Modification to the base distribution file of the same name to handle
+         blended hydro products and global GOES composite imagery
+         10/3/2019 Adds header search for blended hydro
+         4/8/20 Adds pattern for global composite GOES Imagery
+         5/8/20 Adds pattern for global composite GOES Imagery over SBN (headers TICF*)
+         5/23/20 Remove TICF07/SWIR for multi-sat comp
+         3/18/22 Add LightningCast
+         1/15/23 Add VIIRS Flood Maps
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 1/15/2023
     -->
 <requestPatterns xmlns:ns2="group">
-    <!-- NOS -->
+    <!-- NOS (three below are in 16.4.1 baseline -->
     <regex>^sst_geo-polar-blended.*</regex>
     <regex>^ncom_relo.*</regex>
     <regex>^NARR_[0-9]{8}_.*</regex>
@@ -33,11 +46,16 @@
     <regex>^BHP-TPW_v\d\dr\d_blend.*</regex>
     <regex>^BHP-RR_v\d\dr\d_blend.*</regex>
     <regex>^BHP-PCT_v\d\dr\d_blend.*</regex>
-<!--WMO Headers for Blended hydro TPW, Rain Rate, PCT:
+<!--WMO Headers for blended products:
     TITX38 KNES - BHP-TPW
     TICX70 KNES - BHP-PCT (Percent normal TPW)
     TITX39 KNES - BHP-RR (Rain Rate)     
-    Use the following pattern for Blended Hydro:
+     Use the following pattern for Blended Hydro:
 -->
     <regex>^TI[CT]X.*</regex>
+<!--GOES Multisat imagery SBN (1 line below)  or PDA (2 lines below) -->
+    <regex>^TICF(02|08|14).*</regex>
+    <regex>^GLOBCOMP(WV|SIR|LIR|VIS)_nc.*</regex>
+    <regex>LightningCast</regex>
+    <regex>^VIIRS-Flood-NWS.*</regex>
 </requestPatterns>

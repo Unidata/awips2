@@ -95,7 +95,7 @@ EXEC	"rtstats -h rtstats.unidata.ucar.edu"
 REQUEST FNEXRAD ".*" idd.unidata.ucar.edu # MRMS - Unidata feed via NCEP
 REQUEST WMO ".*" idd.unidata.ucar.edu           # WMO Feedtype includes HDS|IDS|DDPLUS
 REQUEST UNIWISC|NIMAGE ".*" idd.unidata.ucar.edu        # AREA/GINI and GOES (NIMAGE feedtype includes DIFAX)
-REQUEST NOTHER "^TI[A-Q]... KNES" idd.unidata.ucar.edu  # VIIRS via SBN	
+REQUEST NOTHER "^TI[A-W]... KNES" idd.unidata.ucar.edu  # VIIRS via SBN	
 REQUEST NGRID ".*" idd.unidata.ucar.edu
 #REQUEST HDS ".*" idd.unidata.ucar.edu                  # Duplicate
 #REQUEST CMC ".*" idd.unidata.ucar.edu                   # CMC is an alias for GEM
@@ -108,7 +108,7 @@ REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu            # GFS
 REQUEST EXP "WwWind" idd.unidata.ucar.edu               # ESPL/PSD Profilers
 #REQUEST NGRID "^YAU[CDLMPQS]" idd.unidata.ucar.edu     # MRMS-NOAAPort
 REQUEST FSL2 "HRRR\.Smoke" idd.unidata.ucar.edu        # HRRR Smoke
-
+REQUEST EXP "RAWS.*" 10.0.0.233 #RAWS mesonet data
 #
 #REQUEST WMO ".*" initial-secondary-host.another.domain
 #REQUEST WMO ".*" another-secondary-host.yet_another.domain:3152

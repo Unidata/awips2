@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,12 +18,22 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-    <!-- 
-        This is an absolute override file, indicating that a higher priority 
-        version of the file will completely replace a lower priority version
-        of the file. 
+    <!-- TOWRdocs Header
+         Index file 
+        -->
+    <!-- TOWRdocs Description
+         Sets the menu items to install under S-NPP, beneath VIIRS. S-NPP is under the
+         "Satellite" button.  NPPProducts is a subMenu defined one directory back
+         in nppMenuItems.xml.
     -->
+    <!-- TOWRdocs Status
+         New menu file not in the baseline for VIIRS products. 
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 10/2/2019
+   -->
+
 <menuContributionFile>
-    <include installTo="menu:satellite?after=GROUP3"
-        fileName="menus/npp/nucaps/nucapsMenuItems.xml" />
+   <include installTo="menu:NPPProducts?after=Soundings" fileName="menus/npp/viirsProducts/viirsProductsMenuItems.xml"/> 
+
 </menuContributionFile>

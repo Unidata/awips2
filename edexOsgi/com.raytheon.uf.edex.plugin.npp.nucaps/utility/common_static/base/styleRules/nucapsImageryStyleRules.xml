@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization..
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!--
+    This is an incremental override file, indicating that the files
+    at different localization levels will be combined.
+-->
+  <!-- TOWRdocs Header
+        gridded nucaps imagery style rules
+   -->
+   <!-- TOWRdocs Description
+        Specifies styling for imagery rendered gridded nucaps. 
+   -->
+   <!-- TOWRdocs Status
+        Updates PWAT, Adds T, specifying temp at 2m FHAG as degF, leaves other layers default degC, aligned with
+        nucaps imagery style rules 
+        10/27/2021 Replaced T with T2m (derived param) for degF read-out. See last entry
+   -->
+   <!-- TOWRdocs POC
+        Kris White 10/27/2021
+   -->
+<styleRuleset>
+
+    <styleRule>
+		<paramLevelMatches>
+			<parameter>TOZNE</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<range scale="LINEAR">
+				<minValue>100</minValue>
+				<maxValue>600</maxValue>
+			</range>
+			<defaultColormap>Grid/TotalOzone</defaultColormap>
+			<colorbarLabeling>
+				<increment>50</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		Ozone Anomaly rule for gridded NUCAPS (MRS 2020-03-02)
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>OZA</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>200</maxValue>
+			</range>
+			<defaultColormap>Grid/OzoneAnomaly</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		Tropopause Height rule for gridded NUCAPS (MRS 2020-03-02)
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TPH</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR">
+				<minValue>100</minValue>
+				<maxValue>600</maxValue>
+			</range>
+			<defaultColormap>Grid/TropopauseLevel</defaultColormap>
+			<colorbarLabeling>
+				<increment>50</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PWAT - griddednucaps
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PWAT</parameter>
+			<creatingEntity>griddednucaps</creatingEntity>
+		</paramLevelMatches>
+		  <imageStyle>
+			<displayUnits>in</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0.0</minValue>
+				<maxValue>3.5</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.5</increment>
+			</colorbarLabeling>
+		</imageStyle> 
+	</styleRule>
+	<!--
+		* Quality Control - griddednucaps
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>QUAL</parameter>
+			<datasetid>griddednucaps</datasetid>
+		</paramLevelMatches>
+		<imageStyle>
+		    <interpolate>false</interpolate>
+			<displayUnits></displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>9</maxValue>
+			</range>
+			<defaultColormap>Grid/griddedNUCAPS_QC</defaultColormap>
+			<colorbarLabeling>
+				<increment>1</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+        * ThetaE - for gridded NUCAPS
+        K | 1.0 | 0.0 | 0 | 1 | | | 29 | -1 | 10
+    -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ThetaE</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>K</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+        </imageStyle>
+    </styleRule>
+    <!--
+        * ThetaE, Surface, BLyr > 150agl, for gridded NUCAPS
+        K | 1.0 | 0.0 | 233| 318 | | | 29 | 0 | 10
+    -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ThetaE</parameter>
+            <singleLevel units="SURFACE" />
+            <rangeLevel units="BL">
+                <upper>180150</upper>
+                <lower>30</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>K</displayUnits>
+            <range scale="LINEAR">
+                <minValue>233</minValue>
+                <maxValue>375</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+    <!--
+        * ThetaE, 1050MB > 500MB, log, for gridded NUCAPS
+        C | 1.0 | 0.0 | 233 > 278 | 375 > 348 | | | 29 | 0 | 10
+    -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ThetaE</parameter>
+            <rangeLevel units="MB">
+                <upper>1050</upper>
+                <lower>500</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>K</displayUnits>
+            <range levelScale="LOG">
+                <minValue>233</minValue>
+                <minValue2>278</minValue2>
+                <maxValue>375</maxValue>
+                <maxValue2>348</maxValue2>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+    <!--
+        * ThetaE, 500MB > 250MB, log for gridded NUCAPS
+        C | 1.0 | 0.0 | 278 > 303 | 318 > 358 | | | 29 | 0 | 10
+    -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ThetaE</parameter>
+            <rangeLevel units="MB">
+                <upper>500</upper>
+                <lower>250</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>K</displayUnits>
+            <range levelScale="LOG">
+                <minValue>278</minValue>
+                <minValue2>303</minValue2>
+                <maxValue>318</maxValue>
+                <maxValue2>358</maxValue2>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+    <!--
+        * ThetaE, 250MB > 100MB, log, for gridded NUCAPS
+        C | 1.0 | 0.0 | 303 > 353 | 358 > 450 | | | 29 | 0 | 10
+    -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ThetaE</parameter>
+            <rangeLevel units="MB">
+                <upper>250</upper>
+                <lower>100</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>K</displayUnits>
+            <range levelScale="LOG">
+                <minValue>303</minValue>
+                <minValue2>353</minValue2>
+                <maxValue>358</maxValue>
+                <maxValue2>450</maxValue2>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+
+<!-- Temperature rule -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>T2m</parameter>
+            <datasetid>griddednucaps</datasetid>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>F</displayUnits>
+            <range scale="LINEAR">
+                <minValue>-80</minValue>
+                <maxValue>140</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+	
+</styleRuleset>

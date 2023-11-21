@@ -74,6 +74,7 @@
          <packagereq type="mandatory">awips2-edex-dat</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-gfe</packagereq>
+         <packagereq type="mandatory">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-hydro</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>
@@ -243,6 +244,7 @@
          <packagereq type="mandatory">awips2-edex-mping</packagereq>
          <packagereq type="mandatory">awips2-edex-nswrc-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-grid</packagereq>
+         <packagereq type="mandatory">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-ogc-core</packagereq>
          <packagereq type="mandatory">awips2-edex-ogc-wfs</packagereq>
          <packagereq type="mandatory">awips2-edex-glmdecoder</packagereq>
@@ -858,6 +860,7 @@
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-dataprovideragent</packagereq>
          <packagereq type="mandatory">awips2-edex-grid</packagereq>
+         <packagereq type="mandatory">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-ogc-core</packagereq>
          <packagereq type="mandatory">awips2-edex-ogc-wfs</packagereq>
          <packagereq type="mandatory">awips2-edex</packagereq>
@@ -968,6 +971,7 @@
          <packagereq type="default">awips2-edex-dat</packagereq>
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
          <packagereq type="default">awips2-edex-gfe</packagereq>
+         <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="default">awips2-edex-hydro</packagereq>
          <packagereq type="default">awips2-edex-ost</packagereq>
          <packagereq type="default">awips2-edex-probsevere</packagereq>
@@ -1103,6 +1107,7 @@
          <packagereq type="mandatory">awips2-edex-dat</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-gfe</packagereq>
+         <packagereq type="mandatory">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-hydro</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
          <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
