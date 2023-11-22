@@ -3979,7 +3979,7 @@ T18 Falfurrias, TX
 T20 Dreyer Mem AP, Gonzales, TX
 T27 Burnet, TX
 T35 Cameron Muni, Cameron, TX
-T39 Huntsville, TX
+T39 Archer City Muni Airport, Archer City, TX
 T41 La Porte Muni Airport, La Porte, TX
 T46 South Brazos A70, TX
 T62 Toole, UT
