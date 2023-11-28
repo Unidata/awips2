@@ -7,19 +7,17 @@ WarnGen is an AWIPS graphics application for creating and issuing warnings as is
 ## Quick Steps - Using WarnGen in Unidata AWIPS CAVE
 
 1. [**Load NEXRAD Display**](#load-nexrad-level-3-display) from the Radar menu
-2. Choose a CWA with active severe weather (PAH is used in the video below)
+2. Choose a CWA with active severe weather (BUF is used in the video below)
 3. [**Re-localize**](#select-site-localization) to this site in the **CAVE** &gt; **Preferences** &gt; **Localization** menu
 4. Exit out of CAVE and reload (you should notice the new CWA at the top of CAVE)
-5. [**Load radar data**](#load-single-radar-data-from-the-local-radars) from the local radar menu **kpah** &gt; **Z + SRM8**
+5. [**Load radar data**](#load-single-radar-data-from-the-local-radars) from the local radar menu **kbuf** &gt; **Z + SRM8**
 6. Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM
-7. Click [**WarnGen**](#launch-warngen) toolbar button or load from **Tools** &gt; **WarnGen**
+7. Click [**WarnGen**](#launch-warngen) toolbar button ![](../images/warngenIcon.png) or load from **Tools** &gt; **WarnGen**
 8. [**Drag the storm marker**](#generate-a-storm-motion-vector) to the center of a storm feature
 9. Step through frames back and forth and adjust the marker to match the trajectory of the storm feature
 10. Click **Track** in the Warngen GUI to update the polygon shape and trajectory
 11. From the WarnGen dialog select the type of warning to generate, time range, basis of the warning, and any threats (wind, hail, etc)
 12. Click [**Create Text**](#text-window) at the bottom of the WarnGen dialog to generate a text warning product in a new window
-
-    > Note: Since you are not "issuing" the warning, leave the top to rows blank ("TTAAii" and "CCCC") and Click "Enter" and a separate text window should open 
  
     ![](../images/warngenHeaderBlock.png)
 
@@ -36,19 +34,25 @@ The video below walks through creating a warning polygon and text in AWIPS. More
 
 ## Load NEXRAD level 3 display
 
-Select the menu **Radar** > **NEXRAD Display** and note coverage areas of current severe weather.  We choose a CWA ID that contains some active severe weather (PAH Paducah, Kentucky, in this example).
+Select the menu **Radar** > **NEXRAD Display** and note coverage areas of current severe weather.  We choose a CWA ID that contains some active severe weather (BUF Buffalo, New York, in this example).
 
 ## Select SITE Localization
 
-Open **CAVE** > **Preferences** > **Localization**, select the CWA site ID (PAH) for the coverage area you want to use, followed by **Apply** and **Okay** and restart CAVE. Once CAVE is restarted, you should notice the new CWA at the top of the CAVE window.
+Open **CAVE** > **Preferences** > **Localization**, select the CWA site ID (BUF) for the coverage area you want to use, followed by **Apply** and **Okay** and restart CAVE. Once CAVE is restarted, you should notice the new CWA at the top of the CAVE window.
 
 ![](../images/warngenLocalization.png)
 
 ## Load single radar data from the local radars
 
-Click on the local radar **kpah** &gt; **Z + SRM8**. Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM.
+Use the specialized site menu for the local radar data products, ex. Click on the local radar **kbuf** &gt; **Z + SRM8**.
 
-![](../images/warngenLocalRadar.png)
+![](../images/warngenLocalRadar1.png)
+
+This menu includes several sections with submenus for all available radar data at that site.
+
+![](../images/warngenLocalRadar2.png)
+
+Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM.
 
 ## Launch WarnGen
 
@@ -96,9 +100,13 @@ When you are customizing a polygon in WarnGen, speed is critical. Everyone, even
 
 ## Text Window
 
-Once you are satisfied with your polygon and have chosen your selections, click **Create Text** in the WarnGen GUI. Initially the AWIPS Header Block window appears. Leave the top two rows bank and click **Enter** for the text window to open. 
+Once you are satisfied with your polygon and have chosen your selections, click **Create Text** in the WarnGen GUI. Initially the AWIPS Header Block window appears. Click **Enter** for the text window to open. 
 
 ![](../images/warngenHeaderBlock.png)
+
+This will open the Text Window.
+
+![](../images/warngenTextWindow.png)
 
 Using the customized settings in the WarnGen GUI, WarnGen translates the information into a text product that is displayed in a text window on the Text Display. The auto-generated text contains the storm speed and direction, the counties and cities affected by the warning/advisory, the valid times of the product, the warning/advisory body text (including any optional bullets selected in the GUI), and additional code to help our partners to efficiently process and disseminate the warning/advisory. The locked parts of the text are highlighted in blue and most of your text should not need to be edited if you configured your WarnGen window correctly.
 
