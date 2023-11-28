@@ -51,9 +51,11 @@ If you would like to interactively explore the different graphical areas in NSHA
 ---
 ## Skew-T Display
 
+The Skew-T display renders a vertical profile of temperature, dew point, and wind for RAOBs and model point soundings using a Skew-T Log-P diagram. There are many different display configurations available.  The one shown in these next few sections is the **SPC Wide Screen Configuration**.
+
 ![](../images/nsharpSkewT.png)
 
-The Skew-T display renders a vertical profile of temperature, dew point, and wind for RAOBs and model point soundings using a Skew-T Log-P diagram. The box in the upper-left of the main display is linked to the cursor readout when over the SkewT chart.  It reports the temperature, dewpoint, wind direction and speed, pressure, height AGL, and relative humidity of the trace.
+The box in the upper-left of the main display is linked to the cursor readout when over the SkewT chart.  It reports the temperature, dewpoint, wind direction and speed, pressure, height AGL, and relative humidity of the trace.
 
 Skew-T is the default upper air chart in AWIPS, and can be changed to *turbulence display* (**T**) or an *icing display* (**I**).  These options are available as buttons at the bottom of the NSHARP(D2D) controls tab (mentioned in [NSHARP Configurations](#nsharp-configurations)).  Use the [AWIPS-2 NSHARP Interactive Overview page](http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html) for more information about the Skew-T display.
 
@@ -104,6 +106,8 @@ Use the [AWIPS NSHARP Interactive Overview page](http://www.wdtd.noaa.gov/buildT
 
 ---
 ## Sounding Inventory
+
+The display configuration used in this example is the **D2D Standard SkewT Screen Configuration**.
 
 ![](../images/nsharpInventory.png)
 
