@@ -13,11 +13,13 @@ NSHARP is available a number of ways in CAVE:
 
 		 ![](../images/volumeBrowserSoundingMenu.png)
 
-     - Select a source that has data (signified by a green box to the right)
+     - Select a source from the **Volume** menu
 
-		 ![](../images/volumeBrowserSources.png)
+		 ![](../images/volumeBrowserSources1.png)  
+     Make sure it has data, signified by a green box to the right
+     ![](../images/volumeBrowserSources2.png)
 
-     - Select **Soundings** from the Fields menu
+     - Select **Soundings** from the **Fields** menu
 
 		 ![](../images/volumeBrowserFields.png)
 
