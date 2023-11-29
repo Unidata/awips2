@@ -17,7 +17,7 @@ The Volume Browser window is divided into four areas:
 1. The [**Menu Bar**](#volume-browser-menu-bar) along the top
 2. The Data Selection Menus
 3. The Product Selection List
-4. The Load Buttons (Diff and Load) to load items from the Product Selection List
+4. The Load Buttons (**Diff** and **Load**) to load items from the Product Selection List
 
 Each area is then subdivided into menu components. The menu bar along the top of the Volume Browser window has dropdown lists that contain options for controlling all the various menu choices of the Volume Browser.
 
