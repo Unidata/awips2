@@ -6,7 +6,10 @@ The default localization site for Unidata AWIPS is OAX (Omaha, Nebraska, where t
 
 ![](../images/connectWindow.png)
 
-Since release 16.1.4, CAVE users can switch the localization site to any valid NWS WFO from **CAVE > Preferences > Localization**, where edits can be made to both the site ID and EDEX server name. Click **Restart** after changes are applied.  
+<!-- 
+Need to reimplement the "Restart Now" button, and be a bit smarter about it (apply automatically, delete caveData if changing servers).
+
+Since release 16.1.4, CAVE users can switch the localization site to any valid NWS WFO from **CAVE > Preferences > Localization**, where edits can be made to both the site ID and EDEX server name. Click **Restart** after changes are applied.   -->
 This window also has the option to **Prompt for settings on startup**, which if checked, would ask for the EDEX Server and Site location every time CAVE is started (this can be useful if you are used to switching between servers and/or sites).
 
 ![](../images/localization-preferences.png)
