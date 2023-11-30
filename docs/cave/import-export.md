@@ -4,8 +4,6 @@
 
 The D2D screen can be exported as a PNG image as well as an animated GIF using the **File > Export > Image** menu option.  This captures the current state of the screen, and allows you to set animation options (frame number, dwell time, etc) for exporting GIFs.  If you choose to animate, you will either need to rename the destination file to have the *.gif* extension, or CAVE will pop up a dialog when you go to save, asking you to confirm that you want to output a GIF.
 
-> **Note**: This functionality **does not** currently work on **Mac OS** because it implements OGL libraries which are not compatible on Mac.
-
 ![image](../images/exportImageDialog.png)
 
 ---
