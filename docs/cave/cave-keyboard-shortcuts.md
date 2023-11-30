@@ -20,29 +20,35 @@ Exporrt KML     | Ctrl+K
 
 ## D2D Menu Shortcuts
 
-Action|Command
-------------------------------|---------------
-Open a New Map                | Ctrl + N  
-Open a Display                | Ctrl + O  
-Save Display                  | Ctrl + S 
-Save Display Locally          | Ctrl + Shift + S 
-Save KML                      | Ctrl + K
-Exit CAVE                     | Alt + F4   
-Exit CAVE                     | Ctrl + Q  
-Clear Data                    | Ctrl + C 
-First Frame                   | Ctrl + &#8592;
-Last Frame                    | Ctrl + &#8594;
-Step Back                     | &#8592;
-Step Forward                  | &#8592;  
-Increase Loop Speed           | Page Up
-Decrease Loop Speed           | Page Down
-Open Time Options             | Ctrl + T 
-Toggle Image Combination      | Insert
-Open Loop Properties          | Ctrl + L  
-Open Image Properties         | Ctrl + I  
+| Action                       | Command          |
+|------------------------------|------------------|
+| Open New Map                 | Ctrl + T         |
+| Open a Display               | Ctrl + Shift + L |
+| Save Display                 | Ctrl + S         |
+| Save Display Locally         | Ctrl + Shift + S |
+| Save KML                     | Ctrl + K         |
+| New Procedure                | Ctrl + N         |
+| Open Procedure               | Ctrl + O         |
+| Delete Procedure             | Ctrl + D         |
+| Copy Display to Procedure(s) | Ctrl + B         |
+| History List                 | Ctrl + Shift + H |
+| Clear Data                   | Ctrl + Shift + C |
+| First Frame                  | Ctrl + &#8592;   |
+| Last Frame                   | Ctrl + &#8594;   |
+| Step Back                    | &#8592;          |
+| Step Forward                 | &#8594;          |
+| Increase Loop Speed          | Page Up          |
+| Decrease Loop Speed          | Page Down        |
+| Toggle Time Options          | Ctrl + Shift + T |
+| Toggle Image Combination     | Ctrl + Shift + L |
+| Open Loop Properties         | Ctrl + L         |
+| Open Image Properties        | Ctrl + I         |
+| Show Print Dialog            | Ctrl + P         |
+| Locate Cursor                | F12              |
 
 ## D2D All Tilts Shortcuts
->**Note**: Requires all tilts product in main display panel
+
+!!! note "Requires all tilts product in main display panel"
 
 Action|Command
 --------------------------------|---------------
@@ -56,7 +62,8 @@ Jump to Highest Elevation Angle | Ctrl + &#8593;
 Jump to Lowest Elevation Angle  | Ctrl + &#8595; 
 
 ## D2D Numeric Keypad Shortcuts
->**Note**: Num Lock must be enabled for these keystrokes to work
+
+!!! note "Num Lock must be enabled for these keystrokes to work"
 
 Action|Command
 --------------------------------------------------|---------------
@@ -69,7 +76,8 @@ Toggle Between Images 1 and 2 at Full Brightness      | [Numpad] .
 Toggle Legend                                     | [Numpad] Enter 
 
 ## Panel Combo Rotate (PCR) Shortcuts
->**Note**: These numbers refer to the ones at the top of the Keyboard
+
+!!! note "These numbers refer to the ones at the top of the Keyboard"
 
 Action|Command
 ---------------------------|------
