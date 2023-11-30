@@ -97,7 +97,7 @@ Verify or make the following changes to set up eclipse for AWIPS development:
 
       * Set to **/awips2/python/bin/python**
     
-        > Note: Add all paths to the SYSTEM pythonpath if prompted
+        !!! note "Add all paths to the SYSTEM pythonpath if prompted"
     
 1. There might be some unresolved errors.  These should be made to warnings instead.
 

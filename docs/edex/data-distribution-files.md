@@ -4,7 +4,7 @@
 
 EDEX uses **distribution files** to alert the appropriate decoding plug-in that new data has been recieved.  These files do so by use of XML and regular expressions.  If the WMO header, or file name*, matches a regular expression listed in a distribution XML, then EDEX will put a message into the QPID queue for its corresponding decoder to recognize and process.  It is worth noting that more than one distribution file can recognize a single peice of data and notify their decoders to act.
 
-> \*Sometimes the distribution file will not look at the filename.  If this file is coming in through the LDM using a proper FILE action, then the it is possible the distribution file will only look at the header and not the filename.  If the file is ingested using the *manual* endpoint (/awips2/data_store/ingest/), then this behaviour could be different.
+!!! note "Sometimes the distribution file will not look at the filename.  If this file is coming in through the LDM using a proper FILE action, then the it is possible the distribution file will only look at the header and not the filename.  If the file is ingested using the *manual* endpoint (/awips2/data_store/ingest/), then this behaviour could be different."
 
 If a piece of data **does not** match any distribution XML, EDEX will:
 
@@ -183,6 +183,7 @@ The grib/grid decoder distribution file matches all numerical grids distributed 
 Important notes about regular expressions:
 
 * Any time a new entry is placed in the **pqact.conf** file on LDM, it is likely a corresponding entry needs to be added to the appropriate Data Distribution file in the data distribution directory, or the data file will be logged to **edex-ingest-unrecognized-files-YYYYMMDD.log**.  
-> The exception to this rule is if the new data coming from the LDM is a type of data that already exists and EDEX already has a distribution file with a matching regex that will recognize it.
+
+!!! note "The exception to this rule is if the new data coming from the LDM is a type of data that already exists and EDEX already has a distribution file with a matching regex that will recognize it."
 
 * If you have written a new regex for a distribution file to match on a filename, and it is not matching, then the file most likely has a header. In this case EDEX will only look at the header to match the regex.  You must change your regex to something that matches the header, not the filename.
