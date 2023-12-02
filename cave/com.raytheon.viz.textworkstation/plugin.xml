@@ -22,7 +22,7 @@
 <plugin>
 <extension
 		point="org.eclipse.ui.menus">
-		<menuContribution locationURI="menu:tools">
+		<menuContribution locationURI="menu:tools?after=tools.Te">
 			<command
 				commandId="com.raytheon.viz.textworkstation.opentextworkstation"
 				label="Text Workstation">
