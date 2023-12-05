@@ -1240,6 +1240,58 @@
                   </parameter>
                </command>
             </menu>
+                        <menu
+                  label="&gt; 64">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="80">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="100">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="120">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="150">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="200">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="250">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="300">
+                  </parameter>
+               </command>
+            </menu>
          </menuContribution>
          <menuContribution
                locationURI="menu:com.raytheon.viz.ui.actions.magnification">

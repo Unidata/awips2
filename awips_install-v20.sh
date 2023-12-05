@@ -3,8 +3,8 @@
 # devorg: Unidata Program Center
 # author: Michael James, Tiffany Meyer
 # maintainer: <support-awips@unidata.ucar.edu>
-# Date Updated: 7/10/2023
-# use: ./awips_install.sh (--cave|--edex|--database|--ingest|--help)
+# Date Updated: 11/22/2023
+# use: ./awips_install-v20.sh (--cave|--edex|--database|--ingest|--help)
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
 
@@ -98,7 +98,6 @@ function check_wgrib2 {
 }
 
 function check_cave {
-  check_edex
   if [[ $(rpm -qa | grep awips2-cave-20) ]]; then
     echo $'\n'CAVE is currently installed and needs to be removed before installing.
     pkill cave.sh
@@ -121,7 +120,7 @@ function check_cave {
 
 function remove_cave {
   yum groupremove awips2-cave -y
-  yum remove awips2-* -y
+  #yum remove awips2-* -y
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "
@@ -432,6 +431,7 @@ case $key in
         ;;
     --server|--edex)
         server_prep
+        yum install awips2-*post* -y 
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 

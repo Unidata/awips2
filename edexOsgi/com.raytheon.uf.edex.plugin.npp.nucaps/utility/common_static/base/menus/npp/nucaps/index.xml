@@ -24,6 +24,6 @@
         of the file. 
     -->
 <menuContributionFile>
-    <include installTo="menu:NPPProducts?after=Soundings"
+    <include installTo="menu:satellite?after=GROUP3"
         fileName="menus/npp/nucaps/nucapsMenuItems.xml" />
 </menuContributionFile>

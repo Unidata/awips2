@@ -27,10 +27,56 @@
  	<contribute xsi:type="bundleItem" file="bundles/nexradAvailability.xml"
                         menuText="NEXRAD Display" id="NEXRADDisplay">
  	</contribute>
-	<contribute xsi:type="subinclude" subMenu="Dial Radars" id="allDialRadar" fileName="menus/radar/dialRadars.xml"/>
+	<contribute xsi:type="subinclude" subMenu="NEXRAD Radars" id="allDialRadar" fileName="menus/radar/dialRadars.xml"/>
     <contribute xsi:type="subinclude" subMenu="TDWR Radars" id="tdwrRadar" fileName="menus/radar/tdwrRadars.xml" />
 	<contribute xsi:type="separator" id="seperator" />
-		
+        <contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
+                id="RadarMosaic" />
+        <!--  Unidata Composite -->
+        <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DHR - Digital Hybrid Reflectivity" id="DHR">
+        <substitute key="element" value="DHR"/>
+        <substitute key="colormap" value="Radar/DHR"/>
+                <substitute key="interpolate" value="false"/>
+    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DVL - Digital VIL" id="DVL">
+        <substitute key="element" value="DVL"/>
+        <substitute key="colormap" value="Radar/OSF/Digital VIL"/>
+                <substitute key="interpolate" value="false"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="EET - Enhanced Echo Tops" id="EET">
+        <substitute key="element" value="EET"/>
+        <substitute key="colormap" value="Radar/Enhanced Echo Tops"/>
+                <substitute key="interpolate" value="false"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="HHC - Hybrid Hydrometeor Classification" id="HHC">
+        <substitute key="element" value="HHC"/>
+        <substitute key="colormap" value="Radar/HHC NEXRCOMP"/>
+                <substitute key="interpolate" value="false"/>
+    </contribute>
+    <!-- 
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DAA - One-Hour Digital Accum Array" id="DAA">
+        <substitute key="element" value="DAA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+                <substitute key="interpolate" value="true"/>
+    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DTA - Storm-Total Precipitation" id="DTA">
+        <substitute key="element" value="DTA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+                <substitute key="interpolate" value="true"/>
+    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="OHA - One-Hour Accumulation" id="OHA">
+        <substitute key="element" value="OHA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+                <substitute key="interpolate" value="true"/>
+    </contribute>
+	-->	
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
         id="RadarMosaic" />
   
