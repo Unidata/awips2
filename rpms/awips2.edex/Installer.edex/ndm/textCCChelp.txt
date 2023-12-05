@@ -304,6 +304,7 @@
 1CW Gering, NE
 1D1 Milbank Muni Airport, Milbank, SD
 1D7 Webster Muni Airport, Webster, SD
+1D8 Redfield Muni Airport, Redfield, SD
 1DM Denton, MT
 1DN Max, ND
 1DW 11.5m NW Kimball, NE
@@ -413,6 +414,7 @@
 2J5 Millen Airport, Millen, GA
 2J9 Quincy Muni, Quincy, FL
 2M2 Lawrence County Airport, Lawrenceburg, TN
+2M8 Charles W Baker Airport, Millington, TN
 2P2 Washington Island AP, Washington Island, WI
 2P3 Paynesville Muni, MN
 2R2 Hendricks Cnty AP, Indianapolis, IN
@@ -459,7 +461,6 @@
 3HA Chicago, IL
 3HT Harlowton, MT
 3I2 Mason Cnty AP, Pt Pleasant, WV
-3J7 Greene Cnty Rgnl AP, Greensboro, GA
 3K3 Syracuse, KS
 3K8 Coldwater, KS
 3KK Kankakee, IL
@@ -477,7 +478,6 @@
 3SE Spencer, IA
 3SZ St. Charles, MO
 3T5 La Grange/Fayette Regnl, TX 
-3TH Thompson Falls, MT
 3U3 Bowman Field Airport, Anaconda, MT
 3V6 Crested Butte, CO
 3V9 Aspen, CO
@@ -509,10 +509,12 @@
 49A Gilmer Cnty AP, Ellijay, GA
 49D Cloquet, MN
 49J Hilton Head Island, SC
+49T Dallas CBD Heliport, Dallas, TX
 49Y Preston/Fillmore Co, MN
 4A6 Scottsboro Muni, Scottsboro, AL
 4A9 Isbell Fld AP, Fort Payne, AL
 4B4 Meriden, CT
+4B8 Robertson Field Airport, Plainville, CT
 4BK Brookings, OR
 4BL Blanding, UT
 4BM Wilkerson Pass, CO
@@ -570,6 +572,7 @@
 5HN Cape Hinchinbrook, AK
 5HR Hayes River, AK
 5J0 Grant Cnty Rgnl, John Day, OR
+5K2 Tribune Municipal Airport, Tribune, KS
 5MK Mount McKinley National Park, AK
 5NV Nunivak Island, AK
 5PX Paxson, AK
@@ -590,6 +593,7 @@
 603 Bulletin No. 603
 604 Bulletin No. 604
 60M OBS ERL WND 14K FT
+60R Navasota Muni Airport, Navasota, TX
 60Y Slayton Muni, Slayton, MN
 62M 12 HR RGL WND 12K FT
 62Y Two Harbors, MN
@@ -599,6 +603,7 @@
 6A1 Butler Muni, Butler, GA
 6A2 Griffin, GA
 6B0 Middlebury State AP, Middlebury, VT
+6B4 Frankfort-Highland Airport, NY
 6B9 Skaneateles Aero Drome, Skaneateles, NY
 6I2 Lebanon-Springfield AP, Springfield, KY
 6L4 Logan Cnty AP, Logan, WV
@@ -606,7 +611,9 @@
 6P9 Cook Canyon Ranch AP, Ranger, TX
 6R3 Cleveland Muni, Cleveland, TX
 6R6 Dryden/Terrell Co, TX
+6S0 Howard Field Airport, Big Timber, MT
 6S2 Florence Muni, Florence, OR
+6S8 Laurel Muni Airport, Laurel, MT
 6V1 Imperial, NE
 6V3 Richlands/Tazewell Co, VA
 6V8 Montrose, CO
@@ -619,6 +626,7 @@
 77M Malta, ID
 77S Hobby Field Airport, Creswell, OR
 79J Andalusia/Opp, AL
+79S Fort Benton Airport, Fort Benton, MT
 7A8 Avery Cnty AP, Spruce Pine, NC
 7B5 West Cameron 587, LA
 7BM Cottonwood Pass, CO
@@ -631,6 +639,7 @@
 7R3 Amelia/Lake Palourd, LA
 7R4 Intracoastal City, LA
 7R8 Offshr S.Marsh Is Block 23, LA
+7S0 Ronan Airport, Ronan, MT
 7W4 Lake Anna AP, Bumpass, VA
 7W6 Hyde County Airport, Engelhard, NC
 80A 00H ERL 850 mb Plot File
@@ -670,7 +679,10 @@
 9L2 North Aux Airfld, Edwards AFB, CA
 9MN St Marys Hosp Helipad, Rochester, MN
 9R9 Block 245 SAWRS, Offshr Vermilion Area
+9S5 Three Forks Airport, Three Forks, MT
+9S9 Lexington Airport, Lexington, OR
 9V9 Chamberlain, SD
+9Y1 Weydahl Field, Killdeer, ND
 A08 Vaiden Fld AP, Marion, AL
 A39 Ak-Chin Regional AP, Maricopa, AZ
 AAA K-Lincoln/Logan Co, IL; U-Almaty, RA
@@ -679,6 +691,7 @@ AAF Apalachicola Muni, FL
 AAO Wichita/Col James Jabara, KS
 AAP Port Alexander, AK
 AAQ P-Palmer Muni, AK; NTWC-National Tsunami Warning Ctr, AK
+AAS Taylor County Airport, Dallas, TX
 AAT Alturas Muni, CA
 AB1 Southern Alberta
 AB2 Central and Northern Alberta
@@ -1044,6 +1057,7 @@ BEC Beech Factory Airport, Wichita, KS
 BED Bedford, MA
 BEH Benton Harbor, MI
 BET Bethel, AK
+BFA Boyne Mountain Airport, Boyne Falls, MI
 BFD Bradford, PA
 BFF Scottsbluff, NE
 BFI Seattle/Boeing Fld/King Co Intl, WA
@@ -1338,6 +1352,7 @@ CPC Whiteville/Columbus Co Muni, NC
 CPF Wendell H Ford AP, Hazard, KY
 CPK Chesapeake Muni, VA
 CPM Compton/Woodley AP, Compton, CA
+CPP Greene County Regional Airport, Greensboro, GA
 CPP F-Pointe-Noire, CG, W Africa
 CPR Casper, WY
 CPS St Louis DT AP, Cahokia/East Saint Louis, IL
@@ -1413,6 +1428,7 @@ CZL TB David Fld AP, Calhoun, GA
 CZT Dimmit Cnty AP, Carrizo Springs, TX
 CZZ Campo, CA
 D07 Faith Muni, SD
+D09 Bottineau Municipal Airport, Bottineau, ND
 D25 Manitowish Waters AP, Manitowish Waters, WI
 D39 Sauk Centre Muni, MN
 D45 Warroad, MN
@@ -1558,6 +1574,7 @@ E38 Casparis Muni, Alpine, TX
 E41 Reagan County Airport, Big Lake, TX
 E42 Samuel B Cornelius Airport, Spearman, TX
 E74 Safford, AZ
+E77 San Manuel Airport, San Manuel, AZ
 EAN Phifer Airfield, Wheatland, WY
 EAR Kearney, NE
 EAT Wenatchee, WA
@@ -1683,6 +1700,7 @@ EVT Space Weather Event Reports
 EVU NW Missouri Rgnl AP, Maryville, MO
 EVV Evansville, IN
 EVW Evanston, WY
+EVY Summit Airport, Middletown, DE
 EWB New Bedford, MA
 EWK Newton, KS
 EWN New Bern, NC
@@ -1727,6 +1745,7 @@ FCL Clarks Point AP, Clarks Point, AK
 FCM Flying Cloud Airport, MN
 FCS Fort Carson, Colorado Springs, CO
 FCX Roanoke/Blacksburg, VA WSR-88D
+FCT Vagabond Army Heliport, Yakima, WA
 FDK Frederick Muni Apt, MD
 FDR Frederick, OK
 FDW Winnsboro, SC
@@ -2163,8 +2182,9 @@ HZX Isedor Iverson AP, McGregor, MN
 HZY Ashtabula Co, OH
 I14 Indianapolis, IN
 I16 Kee Fld AP, Pineville, WV
-I19 Greene Co-Lewis Jackson AP, Dayton, OH
+I18 Jackson Cnty Airport, Ravenswood, WV
 I18 New Castle, IN
+I19 Greene Co-Lewis Jackson AP, Dayton, OH
 I23 Fayette County Airport, OH
 I35 Tucker-Guthrie Mem AP, Harlan, KY
 I63 Mt. Sterling Muni, IL
@@ -3077,6 +3097,7 @@ MYZ Marysville Muni, Marysville, KS
 MZC Zacatecas Arpt, MX
 MZG Mustang Island A85A, TX
 MZH K-Moose Lake/Carlton Co, MN; M-Ixtapa-Zihuatanejo, MX
+MZJ Pinal Airpark, Marana, AZ
 MZO Manzanillo Intl, MX
 MZP Zapopan, MX
 MZZ Marion, IN
@@ -3677,6 +3698,7 @@ RUI Ruidoso, NM
 RUM Rumford, ME
 RUQ Salisbury/Rowan Co, NC
 RUT Rutland-Southern Vermont Rgnl, VT
+RVF Ruby Valley Field Airport, Twin Bridges, MT
 RVJ Swinton Smith Field, Reidsville, GA
 RVL Reedsville, PA
 RVS Tulsa Riverside Arpt, OK
@@ -3708,12 +3730,15 @@ S25 Watford City Muni, ND
 S29 Salida, CO
 S32 Cooperstown Muni, Cooperstown, ND
 S33 Madras Muni, Madras, OR
+S34 Plains Airport, Plains, MT
 S39 Prineville AP, Prineville, OR
+S40 Prosser Airport, Prosser, WA
 S47 Tillamook, OR
 S52 Methow Valley AP, Winthrop, WA
 S58 South Timbalier, LA
 S59 Libby Airport, Libby, MT
 S65 Ship Shoal 198G, LA
+S71 Edgar G Obie Airport, Chinook, MT
 S86 Sandpoint, ID
 S85 Big Sky Field Airport, Culbertson, MT
 S88 Arlington, WA
@@ -3954,7 +3979,7 @@ T18 Falfurrias, TX
 T20 Dreyer Mem AP, Gonzales, TX
 T27 Burnet, TX
 T35 Cameron Muni, Cameron, TX
-T39 Huntsville, TX
+T39 Archer City Muni Airport, Archer City, TX
 T41 La Porte Muni Airport, La Porte, TX
 T46 South Brazos A70, TX
 T62 Toole, UT
@@ -3996,6 +4021,7 @@ TFP T P McCampbell AP, Ingleside, TX
 TFX WFO Great Falls, MT
 TGI Tangier Island AP, Tangier, VA
 THA Tullahoma Rgnl, Tullahoma, TN
+THM Thompson Falls Airport, MT
 THR Threats Assessment
 THV York, PA
 TIF Thomas Cnty AP, Thedford, NE
@@ -4108,6 +4134,7 @@ U68 North Big Horn Cnty AP, Cowley/Lovell/Byron, WY
 U69 Duchesne Municipal Airport, Duchesne, UT
 U71 Vernal, UT
 U78 Soda Springs, ID
+U96 Cal Black Memorial Airport, Halls Crossing, UT
 UAO Aurora, OR
 UBE Cumberland Muni, Cumberland, WI
 UCC Yucca Flat, NV
@@ -5049,6 +5076,7 @@ ZCR C-Charlo Auto, NB
 ZDC Washington, DC CWSU
 ZDV Denver, CO CWSU
 ZEM Eastmain River Arpt, QC
+ZER Schuylkill Airport, Pottsville, PA
 ZFA Faro Arpt, YK
 ZFM Ft McPherson Arpt, NT
 ZFN Ft Norman Arpt, NT

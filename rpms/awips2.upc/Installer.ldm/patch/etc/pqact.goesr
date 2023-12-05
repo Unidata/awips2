@@ -45,8 +45,8 @@ NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
 #	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/derived-IDD/\5\6\7\8.nc4
 
 # GOES 16 GLM gridded products via Texas Tech-->Unidata IDD (depricated)
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightningMapper/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
-	FILE	-close -edex	/awips2/data_store/GOES/\3/\6/GLM-IDD/\4\5\6\7.nc4
+#NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GeostationaryLightningMapper/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+#	FILE	-close -edex	/awips2/data_store/GOES/\3/\6/GLM-IDD/\4\5\6\7.nc4
 
 # GOES GLM Raw data - don't use, AWIPS does not display the raw GLM data (not using)
 #DIFAX	^/data/cspp-geo/(EAST|WEST|GRB-R)/OR_GLM-L2-([^/]*).nc
@@ -70,10 +70,18 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DebraDust/([^/]*)/(
 NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
 	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/CloudSnow/\5\6\7\8.nc4
 
+#
+# NPP/VIIRS
+#
+# Polar products
+NOTHER	^(TI[A-W]...) (KNES) (......)
+	FILE	-close -edex	/awips2/data_store/viirs/\1_\2_\3
+
 #  GOES East Derived Products      WMO Header    Regions
 #  ---------------                 ----------    -------
 #  Aerosol Detection (Smoke+Dust)  IXTA99 KNES   F,C,M
 #  Aerosol Optical Depth           IXTB99 KNES   F,C
+#  Cloud Cover Layers              IXTC99 KNES   F,C,M
 #  Cloud Top Phase                 IXTD99 KNES   F,C,M
 #  Fog and Low Stratus             IXTE99 KNES   C
 #  Rainfall Rate/QPE               IXTF99 KNES   F
@@ -82,12 +90,14 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/(
 #  Cloud Top Temperature           IXTI99 KNES   F,M
 #  Fire/Hot Spot Characterization  IXTJ99 KNES   F,C,M
 #  Land Surface (Skin) Temperature IXTK99 KNES   F,C,M
+#  Fractional Snow Cover	   IXTL99 KNES   F
 #  Sea Surface (Skin) Temperature  IXTM99 KNES   F
 #  Derived Stability Indices       IXTN99 KNES   F,C,M
 #  Total Precipitable Water        IXTO99 KNES   F,C,M
 #  Vertical Moisture Profile       IXTP99 KNES   C
 #  Vertical Temperature Profile    IXTQ99 KNES   C
-#  Geostationay Lightning Mapper   IXTR99 KNES   F,C
+#  Ice Concentration and Extent    IXTR99 KNES   F
+#  Ice Thickness and Age	   IXTT99 KNES   F
 #  Derived Motion Winds            IXTU99 KNES   C,M
 #  Cloud Particle Size Dist        IXTW01 KNES   F,C,M
 #  Cloud Top Pressure              IXTX01 KNES   F,C
@@ -97,6 +107,7 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/(
 #  ---------------                 ----------    -------
 #  Aerosol Detection 		   IXTA89 KNES	 F,C,M
 #  Aerosol Optical Depth	   IXTB89 KNES	 F,C
+#  Cloud Cover Layers              IXTC89 KNES   F,C,M
 #  Cloud Top Phase		   IXTD89 KNES	 F,C,M
 #  Rainfall Rate/QPE		   IXTF89 KNES	 F
 #  Cloud Top Height		   IXTG89 KNES	 F,C,M
@@ -104,9 +115,13 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/(
 #  Cloud Top Temperature	   IXTI89 KNES	 F,M
 #  Fire/Hot Spot Characterization  IXTJ89 KNES   F,C,M
 #  Land Sfc (Skin) Temp		   IXTK89 KNES	 F,C,M
+#  Fractional Snow Cover	   IXTL89 KNES   F
+#  Sea Surface (Skin) Temperature  IXTM99 KNES   F
 #  Sea Sfc Temp (skin)		   IXTM89 KNES	 F
 #  Derived Stability Indices	   IXTN89 KNES	 F,C,M
 #  Total Precip Water		   IXTO89 KNES	 F,C,M
 #  Vertical Moisture Profile	   IXTP89 KNES	 C
 #  Vertical Temperature Profile	   IXTQ89 KNES	 C
-#  Derived Motion Winds	   	   IXUT89 KNES	 C
+#  Ice Concentration and Extent    IXTR89 KNES   F
+#  Ice Thickness and Age	   IXTT89 KNES   F
+#  Derived Motion Winds	   	   IXTU89 KNES	 C

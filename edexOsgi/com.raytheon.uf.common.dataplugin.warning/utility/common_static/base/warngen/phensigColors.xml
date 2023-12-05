@@ -34,7 +34,9 @@
 	  <entry><key>FL.Y</key><value color="#00ff7f" name="Flood Advisory"></value></entry>
 	  <entry><key>FR.Y</key><value color="cornflowerblue" name="Frost Advisory"></value></entry>
 	  <entry><key>FW.A</key><value color="navajowhite" name="Fire Weather Watch"></value></entry>
+	  <entry><key>FR.W</key><value color="deeppink" name="Fire Warning"></value></entry>
 	  <entry><key>FW.W</key><value color="deeppink" name="Red Flag Warning"></value></entry>
+	  <entry><key>RF.W</key><value color="deeppink" name="Red Flag Warning"></value></entry>
 	  <entry><key>FZ.A</key><value color="royalblue" name="Freeze Watch"></value></entry>
 	  <entry><key>FZ.W</key><value color="cyan" name="Freeze Warning"></value></entry>
 	  <entry><key>GL.A</key><value color="pink" name="Gale Watch"></value></entry>

@@ -31,7 +31,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlendedBestRes.xml"
             menuText="${elev0} ${elev1} ${elev2} ${elev3}"
-            id="${icao}${elev0}${elev1}${elev2}${elev3}Terminal4panelZV"
+            fullBundleLoad="true" id="${icao}${elev0}${elev1}${elev2}${elev3}Terminal4panelZV"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -52,7 +52,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlendedBestRes.xml"
             menuText="${elev4} ${elev5} ${elev6} ${elev7}"
-            id="${icao}${elev0}${elev1}${elev2}${elev3}Terminal4panelZV"
+            fullBundleLoad="true" id="${icao}${elev0}${elev1}${elev2}${elev3}Terminal4panelZV"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -157,7 +157,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlendedBestRes.xml"
             menuText="${elev0} ${elev1} ${elev2} ${elev3}"
-            id="${icao}{elev0}${elev1}${elev2}${elev3}Terminal4panelZSRM8"
+            fullBundleLoad="true" id="${icao}{elev0}${elev1}${elev2}${elev3}Terminal4panelZSRM8"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />
@@ -178,7 +178,7 @@
         <contribute xsi:type="bundleItem"
             file="bundles/DefaultRadarFourPanelBlendedBestRes.xml"
             menuText="${elev4} ${elev5} ${elev6} ${elev7}"
-            id="${icao}{elev0}${elev1}${elev2}${elev3}Terminal4panelZSRM8"
+            fullBundleLoad="true" id="${icao}{elev0}${elev1}${elev2}${elev3}Terminal4panelZSRM8"
             suppressErrors="${suppressErrors3}">
             <substitute key="icao" value="${icao}" />
             <substitute key="product1" value="180" />

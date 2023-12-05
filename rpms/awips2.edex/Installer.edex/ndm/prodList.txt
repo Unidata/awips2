@@ -1,7 +1,10 @@
 # Updates:
-# 10/25/2021 Implement RC 17698
-# 04/21/2021 stop collecting products 34, 136, 171,
+# 10/25/2021 scn21-96 Implement RC 17698
+# 04/21/2021 scn21-36 stop collecting products 34, 136, 171,
 #            19, 20, and 27
+# 08/14/2023 scn23-09 Stop collecting products 78, 80, 81, 82
+#            138, 174, and 175
+# 10/16/2023 reverted removal of product 81
 #
 # productId elevAngle prodCategory Partial WMO Id
     2         0            GSM          NXUS6
@@ -27,12 +30,8 @@
    66         0            NML          SDUS6
    67         0            NLA          SDUS6
    75         0            FTM          NOUS6
-   78         0            N1P          SDUS3
-   80         0            NTP          SDUS5
    81         0            DPA          SDUS5
-   82         0            SPD          SDUS6
    90         0            NHL          SDUS6
-   138        0            DSP          SDUS5
    141        0            NMD          SDUS3
    152        0            RSL          SDUS6
    94        -2            NXQ          SDUS6
@@ -184,7 +183,5 @@
    169        0            OHA          SDUS8
    170        0            DAA          SDUS8
    172        0            DTA          SDUS8
-   174        0            DOD          SDUS6
-   175        0            DSD          SDUS6
    176        0            DPR          SDUS8
    177        0            HHC          SDUS8

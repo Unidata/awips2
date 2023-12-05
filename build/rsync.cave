@@ -31,3 +31,7 @@ javaUtilities/* rpms pythonPackages
 ../awips2-ogc/foss/*
 ../awips2-ogc/edex/*
 ../awips2-ogc/features/*
+../awips2-nws/edex/*
+../awips2-nws/common/*
+../awips2-nws/features/*
+../awips2-nws/viz/*

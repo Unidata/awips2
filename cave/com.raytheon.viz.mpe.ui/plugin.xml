@@ -20,16 +20,7 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.perspectives">
-      <perspective
-            class="com.raytheon.viz.mpe.ui.perspective.MPEPerspective"
-            id="com.raytheon.viz.mpe.ui.MPEPerspective"
-            name="MPE"
-            icon="icons/mpe.png"
-            singleton="true">
-      </perspective>
-   </extension>
+
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -1736,12 +1727,6 @@
           <actionSet
                 id="com.raytheon.viz.MPEActionSet">
           </actionSet>
-       </perspectiveExtension>
-       <perspectiveExtension
-             targetID="*">
-          <perspectiveShortcut
-                id="com.raytheon.viz.mpe.ui.MPEPerspective">
-          </perspectiveShortcut>
        </perspectiveExtension>
     </extension>
     <extension

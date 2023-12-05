@@ -1,557 +1,1185 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
-    <!-- 
-        This is an absolute override file, indicating that a higher priority 
-        version of the file will completely replace a lower priority version
-        of the file. 
-    -->
-    <!-- loads four panel HCA analysis, looks like this 
-    +++++++++++++++++++++++ 
-    +  Z   HC  +  Z   HC  + 
-    +    ML    +    ML    + 
-    +++++++++++++++++++++++
-    +  Z   HC  +  Z   HC  + 
-    +    ML    +    ML    +
-    +++++++++++++++++++++++ 
-    substitution keys:
-       product the productCode to load
-       elev     a range of elevations to load seperated by two dashes. -->
-<bundle>
+<bundle name="4 Panel Map">
     <displayList>
-        <displays xsi:type="d2DMapRenderableDisplay"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="CONUS" mapCenter="-96.86461947562519 40.47307545273292 0.0" zoomLevel="1.0">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="blendableCapability" resourceIndex="0" alphaStep="8"/>
+                            <capability xsi:type="rangeRingsOverlayCapability"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                        </capabilities>
                     </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_LOCAL">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                     </properties>
-                    <resourceData xsi:type="radarResourceData"
-                        isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="blendedResourceData">
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/Storm Clear Reflectivity">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.46666664"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="153,94,19,20"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="IN" constraintValue="${elevation1}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/DualPol/Hydrometeor Class">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.53333336"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="165,164"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="EQUALS" constraintValue="${elevation1}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false" renderingOrderId="MAP_OUTLINE">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <mapName>State/County Boundaries</mapName>
+                        <unloadList/>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<unloadList/>
+<table>mapdata.world</table>
+<constraint>upper(name) NOT IN ('CANADA', 'MEXICO', 'UNITED STATES') AND first_coun != 'Y'</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="750000" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<unloadList/>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<unloadList/>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<unloadList/>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<unloadList/>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<unloadList/>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                         <metadataMap>
+                            <mapping key="icao">
+<constraint constraintType="EQUALS" constraintValue="${icao}"/>
+                            </mapping>
                             <mapping key="primaryElevationAngle">
-                                <constraint constraintValue="${elevation1}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="${elevation1}"/>
                             </mapping>
                             <mapping key="productCode">
-                                <constraint constraintValue="166"
-                                    constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="icao">
-                                <constraint constraintValue="${icao}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="166"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="radar"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="radar"/>
                             </mapping>
                         </metadataMap>
                     </resourceData>
                 </resource>
-                <resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="imagingCapability"
-                                interpolationState="false" brightness="1.0"
-                                contrast="1.0" alpha="1.0" />
-                            <capability xsi:type="rangeRingsOverlayCapability" />
-                        </capabilities>
-                    </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
-                    </properties>
-                    <resourceData xsi:type="blendedResourceData">
-                        <resource>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="153,94,19,20"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation1}"
-                                            constraintType="IN" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                        </resource>
-                        <resource>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="165,164"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation1}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                        </resource>
-                    </resourceData>
-                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <gridGeometry rangeX="0 13391" rangeY="0 9999" envelopeMinX="-3217360.2108624117" envelopeMaxX="2889016.9103023135" envelopeMinY="-535763.0304681085" envelopeMaxY="4023747.8031403385">
+                    <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
+  GEOGCS["WGS84(DD)", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Lambert_Conformal_Conic_1SP"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", -95.0], 
+  PARAMETER["latitude_of_origin", 25.0], 
+  PARAMETER["scale_factor", 1.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
             </descriptor>
         </displays>
-        <displays xsi:type="d2DMapRenderableDisplay"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="CONUS" mapCenter="-96.86461947562519 40.47307545273292 0.0" zoomLevel="1.0">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="blendableCapability" resourceIndex="0" alphaStep="8"/>
+                            <capability xsi:type="rangeRingsOverlayCapability"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                        </capabilities>
                     </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_LOCAL">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                     </properties>
-                    <resourceData xsi:type="radarResourceData"
-                        isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="blendedResourceData">
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/Storm Clear Reflectivity">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.46666664"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="153,94,19,20"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="IN" constraintValue="${elevation2}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/DualPol/Hydrometeor Class">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.53333336"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="165,164"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="EQUALS" constraintValue="${elevation2}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false" renderingOrderId="MAP_OUTLINE">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <mapName>State/County Boundaries</mapName>
+                        <unloadList/>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<unloadList/>
+<table>mapdata.world</table>
+<constraint>upper(name) NOT IN ('CANADA', 'MEXICO', 'UNITED STATES') AND first_coun != 'Y'</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="750000" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<unloadList/>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<unloadList/>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<unloadList/>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<unloadList/>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<unloadList/>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                         <metadataMap>
+                            <mapping key="icao">
+<constraint constraintType="EQUALS" constraintValue="${icao}"/>
+                            </mapping>
                             <mapping key="primaryElevationAngle">
-                                <constraint constraintValue="${elevation2}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="${elevation2}"/>
                             </mapping>
                             <mapping key="productCode">
-                                <constraint constraintValue="166"
-                                    constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="icao">
-                                <constraint constraintValue="${icao}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="166"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="radar"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="radar"/>
                             </mapping>
                         </metadataMap>
                     </resourceData>
                 </resource>
-                <resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="imagingCapability"
-                                interpolationState="false" brightness="1.0"
-                                contrast="1.0" alpha="1.0" />
-                            <capability xsi:type="rangeRingsOverlayCapability" />
-                        </capabilities>
-                    </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
-                    </properties>
-                    <resourceData xsi:type="blendedResourceData">
-                        <resource>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="153,94,19,20"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation2}"
-                                            constraintType="IN" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                        </resource>
-                        <resource>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="165,164"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation2}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                        </resource>
-                    </resourceData>
-                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <gridGeometry rangeX="0 13391" rangeY="0 9999" envelopeMinX="-3217360.2108624117" envelopeMaxX="2889016.9103023135" envelopeMinY="-535763.0304681085" envelopeMaxY="4023747.8031403385">
+                    <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
+  GEOGCS["WGS84(DD)", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Lambert_Conformal_Conic_1SP"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", -95.0], 
+  PARAMETER["latitude_of_origin", 25.0], 
+  PARAMETER["scale_factor", 1.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
             </descriptor>
         </displays>
-        <displays xsi:type="d2DMapRenderableDisplay"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="CONUS" mapCenter="-96.86461947562519 40.47307545273292 0.0" zoomLevel="1.0">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="blendableCapability" resourceIndex="0" alphaStep="8"/>
+                            <capability xsi:type="rangeRingsOverlayCapability"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                        </capabilities>
                     </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_LOCAL">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                     </properties>
-                    <resourceData xsi:type="radarResourceData"
-                        isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="blendedResourceData">
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/Storm Clear Reflectivity">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.46666664"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="153,94,19,20"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="IN" constraintValue="${elevation3}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/DualPol/Hydrometeor Class">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.53333336"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="165,164"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="EQUALS" constraintValue="${elevation3}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false" renderingOrderId="MAP_OUTLINE">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <mapName>State/County Boundaries</mapName>
+                        <unloadList/>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<unloadList/>
+<table>mapdata.world</table>
+<constraint>upper(name) NOT IN ('CANADA', 'MEXICO', 'UNITED STATES') AND first_coun != 'Y'</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="750000" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<unloadList/>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<unloadList/>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<unloadList/>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<unloadList/>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<unloadList/>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                         <metadataMap>
+                            <mapping key="icao">
+<constraint constraintType="EQUALS" constraintValue="${icao}"/>
+                            </mapping>
                             <mapping key="primaryElevationAngle">
-                                <constraint constraintValue="${elevation3}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="${elevation3}"/>
                             </mapping>
                             <mapping key="productCode">
-                                <constraint constraintValue="166"
-                                    constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="icao">
-                                <constraint constraintValue="${icao}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="166"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="radar"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="radar"/>
                             </mapping>
                         </metadataMap>
                     </resourceData>
                 </resource>
-                <resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="imagingCapability"
-                                interpolationState="false" brightness="1.0"
-                                contrast="1.0" alpha="1.0" />
-                            <capability xsi:type="rangeRingsOverlayCapability" />
-                        </capabilities>
-                    </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
-                    </properties>
-                    <resourceData xsi:type="blendedResourceData">
-                        <resource>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="153,94,19,20"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation3}"
-                                            constraintType="IN" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                        </resource>
-                        <resource>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                >
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="165,164"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation3}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                        </resource>
-                    </resourceData>
-                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <gridGeometry rangeX="0 13391" rangeY="0 9999" envelopeMinX="-3217360.2108624117" envelopeMaxX="2889016.9103023135" envelopeMinY="-535763.0304681085" envelopeMaxY="4023747.8031403385">
+                    <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
+  GEOGCS["WGS84(DD)", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Lambert_Conformal_Conic_1SP"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", -95.0], 
+  PARAMETER["latitude_of_origin", 25.0], 
+  PARAMETER["scale_factor", 1.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
             </descriptor>
         </displays>
-        <displays xsi:type="d2DMapRenderableDisplay"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="CONUS" mapCenter="-96.86461947562519 40.47307545273292 0.0" zoomLevel="1.0">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="blendableCapability" resourceIndex="0" alphaStep="8"/>
+                            <capability xsi:type="rangeRingsOverlayCapability"/>
+                            <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                        </capabilities>
                     </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_LOCAL">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                     </properties>
-                    <resourceData xsi:type="radarResourceData"
-                        isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="blendedResourceData">
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/Storm Clear Reflectivity">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.46666664"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="153,94,19,20"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="IN" constraintValue="${elevation4}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+<resourceType>PLAN_VIEW</resourceType>
+<perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+<capabilities>
+    <capability xsi:type="colorMapCapability">
+        <colorMapParameters colorMapName="Radar/DualPol/Hydrometeor Class">
+            <persisted/>
+        </colorMapParameters>
+    </capability>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="rangeRingsOverlayCapability"/>
+    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="false" alpha="0.53333336"/>
+    <capability xsi:type="colorableCapability" colorAsString="green1"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+    <capability xsi:type="blendedCapability"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+<metadataMap>
+    <mapping key="icao">
+        <constraint constraintType="EQUALS" constraintValue="${icao}"/>
+    </mapping>
+    <mapping key="productCode">
+        <constraint constraintType="IN" constraintValue="165,164"/>
+    </mapping>
+    <mapping key="primaryElevationAngle">
+        <constraint constraintType="EQUALS" constraintValue="${elevation4}"/>
+    </mapping>
+    <mapping key="pluginName">
+        <constraint constraintType="EQUALS" constraintValue="radar"/>
+    </mapping>
+</metadataMap>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false" renderingOrderId="MAP_OUTLINE">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <mapName>State/County Boundaries</mapName>
+                        <unloadList/>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>World</mapName>
+<unloadList/>
+<table>mapdata.world</table>
+<constraint>upper(name) NOT IN ('CANADA', 'MEXICO', 'UNITED STATES') AND first_coun != 'Y'</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="750000" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>State Boundaries</mapName>
+<unloadList/>
+<table>mapdata.states</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Canada</mapName>
+<unloadList/>
+<table>mapdata.canada</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>Mexico</mapName>
+<unloadList/>
+<table>mapdata.mexico</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>County Boundaries</mapName>
+<unloadList/>
+<table>mapdata.county</table>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+<resourceType>PLAN_VIEW</resourceType>
+<capabilities>
+    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+    <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
+    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+    <capability xsi:type="shadeableCapability" opacity="1.0"/>
+    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
+</capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+<mapName>two lakes</mapName>
+<unloadList/>
+<table>mapdata.lake</table>
+<constraint>name in ('Great Salt Lake', 'Lake Winnepeg')</constraint>
+<geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                        <capabilities>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="green1"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="radarResourceData" pointID="" mode="" latest="false" rangeRings="true" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                         <metadataMap>
+                            <mapping key="icao">
+<constraint constraintType="EQUALS" constraintValue="${icao}"/>
+                            </mapping>
                             <mapping key="primaryElevationAngle">
-                                <constraint constraintValue="${elevation4}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="${elevation4}"/>
                             </mapping>
                             <mapping key="productCode">
-                                <constraint constraintValue="166"
-                                    constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="icao">
-                                <constraint constraintValue="${icao}"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="166"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="radar"
-                                    constraintType="EQUALS" />
+<constraint constraintType="EQUALS" constraintValue="radar"/>
                             </mapping>
                         </metadataMap>
                     </resourceData>
                 </resource>
-                <resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="imagingCapability"
-                                interpolationState="false" brightness="1.0"
-                                contrast="1.0" alpha="1.0" />
-                            <capability xsi:type="rangeRingsOverlayCapability" />
-                        </capabilities>
-                    </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true">
-                    </properties>
-                    <resourceData xsi:type="blendedResourceData">
-                        <resource>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="153,94,19,20"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation4}"
-                                            constraintType="IN" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                        </resource>
-                        <resource>
-                            <resourceData xsi:type="radarResourceData"
-                                isUpdatingOnMetadataOnly="false"
-                                isRequeryNecessaryOnTimeMatch="true">
-                                <metadataMap>
-                                    <mapping key="productCode">
-                                        <constraint
-                                            constraintValue="165,164"
-                                            constraintType="IN" />
-                                    </mapping>
-                                    <mapping key="icao">
-                                        <constraint
-                                            constraintValue="${icao}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="pluginName">
-                                        <constraint
-                                            constraintValue="radar"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                    <mapping key="primaryElevationAngle">
-                                        <constraint
-                                            constraintValue="${elevation4}"
-                                            constraintType="EQUALS" />
-                                    </mapping>
-                                </metadataMap>
-                            </resourceData>
-                            <loadProperties
-                                loadWithoutData="true">
-                                <capabilities>
-                                    <capability xsi:type="imagingCapability"
-                                        interpolationState="false"
-                                        brightness="1.0" contrast="1.0"
-                                        alpha="1.0" />
-                                    <capability
-                                        xsi:type="rangeRingsOverlayCapability" />
-                                </capabilities>
-                            </loadProperties>
-                        </resource>
-                    </resourceData>
-                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <gridGeometry rangeX="0 13391" rangeY="0 9999" envelopeMinX="-3217360.2108624117" envelopeMaxX="2889016.9103023135" envelopeMinY="-535763.0304681085" envelopeMaxY="4023747.8031403385">
+                    <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
+  GEOGCS["WGS84(DD)", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Lambert_Conformal_Conic_1SP"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", -95.0], 
+  PARAMETER["latitude_of_origin", 25.0], 
+  PARAMETER["scale_factor", 1.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
             </descriptor>
         </displays>
     </displayList>
+    <loopProperties>
+        <fwdFrameTime>231</fwdFrameTime>
+        <revFrameTime>1050</revFrameTime>
+        <firstFrameDwell>693</firstFrameDwell>
+        <lastFrameDwell>1485</lastFrameDwell>
+        <mode>Forward</mode>
+        <looping>false</looping>
+    </loopProperties>
 </bundle>

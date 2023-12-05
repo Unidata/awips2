@@ -47,12 +47,16 @@
 0000000000|41049| 27.5  | -62.94 |    0|Atlantic (South)                    |US|BOY
 0000000000|41065| 32.802| -79.619|    0|CAP2WAVE, Capers Nearshore Waves    |US|BOY
 0000000000|41066| 32.528| -79.661|    0|19 NM SE Charleston, SC Harbor CORMP|US|BOY
+0000000000|41068| 27.593| -80.189|    0|9 NM NE Ft Pierce Inlet, FL CORMP   |US|BOY
+0000000000|41069| 29.289| -80.803|    0|14 NM NE Ponce Inlet, FL CORMP      |US|BOY
+0000000000|41070| 29.289| -80.803|    0|PNCWAVE, CORMP                      |US|BOY
 0000000000|41076| 32.536| -79.659|    0|CHR60WAVE                           |US|BOY
 0000000000|41108| 33.721| -78.015|    0|Wilmington Harbor NC Scripps        |US|BOY
 0000000000|41110| 34.141| -77.709|   -0|Masonboro Inlet, NC CORMP           |US|BOY
 0000000000|41112| 30.72 | -81.29 |    0|Kings Bay, GA(132)                  |US|BOY
 0000000000|41113| 28.40 | -80.53 |   -0|Cape Canav Nrshore, FL Scripps CDIP |US|BOY
 0000000000|41114| 27.60 | -80.20 |   -0|Fort Pierce, FL (134) Scripps CDIP  |US|BOY
+0000000000|41117| 30.000| -81.080|   -0|St Augustine Nrshore, FL Scripps    |US|BOY
 0000000000|41140| 17.769| -64.723|   -0|Chistiansted, St. Croix, VI SCRIPPS |US|BOY
 0000000000|42001| 25.900| -89.667|    0|10D08 /V MID GULF                   |US|BOY
 0000000000|42002| 26.06 | -93.65 |    0|10D10 /V W GULF                     |US|BOY
@@ -230,6 +234,7 @@
 0000000000|45186| 42.368| -87.795|  176|Waukegan, IL, U of IL               |US|BOY
 0000000000|45187| 42.491| -87.779|  176|Winthrop Harbor, IL, U of IL        |US|BOY
 0000000000|45198| 41.892| -87.563|  176|Chicago Pier, IL, U of IL           |US|BOY
+0000000000|45210| 44.055| -87.050|   -0|Rawley Point East, WI (269)         |US|BOY
 0000000000|46001| 56.23 |-147.90 |    0|DN25 /D GULF OF AK                  |US|BOY
 0000000000|46002| 42.527|-130.260|    0|6N04 /D OREGON                      |US|BOY
 0000000000|46004| 50.93 |-136.10 |   -0|Middle Nomad                        |CN|BOY

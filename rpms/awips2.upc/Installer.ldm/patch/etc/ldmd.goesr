@@ -97,8 +97,7 @@ REQUEST NIMAGE "GLMISatSS" idd.unidata.ucar.edu # GOES Stitched GLM from NWS ISa
 REQUEST NIMAGE "(GeoColor|CloudSnow|DebraDust)" idd.unidata.ucar.edu # GOES CIRA RGBs (Unidata)
 REQUEST HDS|NOTHER "IXT.[8-9]9"  idd.unidata.ucar.edu # GOES Derived Products & Wind (SBN)
 REQUEST NOTHER "^IXT[WXY]01" idd.unidata.ucar.edu       # GOES Derived products-different WMO (COD, CPS, CTP) (SBN)
-
-#REQUEST NOTHER "^TI[A-W]... KNES" idd.unidata.ucar.edu  # VIIRS and GOES CMI (SBN)
+REQUEST NOTHER "^TI[A-W]... KNES" idd.unidata.ucar.edu  # VIIRS and GOES CMI (SBN)
 #REQUEST DIFAX "OR_GLM-L2" idd.unidata.ucar.edu # GOES GLM Level 2 (SBN) 
 #REQUEST UNIWISC|NIMAGE ".*" idd.unidata.ucar.edu        # AREA/GINI and GOES (NIMAGE feedtype includes DIFAX)
 #REQUEST DIFAX "OR_ABI" idd.unidata.ucar.edu            # GOES ABI netCDF4 (Unidata tiles - not using)

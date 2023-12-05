@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+    <!-- TOWRdocs Header
+        Submenu for viirs products
+    -->
+    <!-- TOWRdocs Description
+        Added for derived polar products
+    -->
+    <!-- TOWRdocs Status
+        9/30/2019 Modify VIIRS Fires to point to dmw table
+        11/4/2019 strings for Offset
+        1/14/2020 Comment out menu items to be hidden
+        1/17/2020 Update parameter name for Ice
+        2/5/2020 Add'l ATMS items.
+        9/16/2023 Add VIIRS Flood Maps. Hide ATMS products
+    -->
+    <!-- TOWRdocs POC
+        Lee Byerle 9/16/2023
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Active Fires DMW plugin -->
+    <contribute xsi:type="bundleItem" file="bundles/viirsFires/viirsFiresPower-dmwPlugin.xml" menuText="VIIRS Active Fires (LDM)" id="activefiresymbolpow.resource">
+                        <substitute key="svg" value="viirsFiresPowerPlotSymbolDesign.svg"/>
+                        <substitute key="scene" value="VIIRS_FIRES" />
+                        <substitute key="density" value="4"/>
+                        <substitute key="magnify" value="1.5"/>
+                        <substitute key="posOffset" value="0"/>
+                        <substitute key="negOffset" value="3600"/>
+                        <substitute key="virtualOffset" value="0"/>
+    </contribute>
+
+  <contribute xsi:type="subMenu" menuText="VIIRS Flood Map   (LDM)" id="mcViirsFloodMapMenu2">
+          <contribute xsi:type="subinclude" fileName="menus/npp/viirs/menu_vfm_mc.xml">
+    </contribute>
+  </contribute> 
+
+<!--        <contribute xsi:type="titleItem" titleText="-ATMS Products (Data Delivery)-" id="ATMSProdLine"/> -->
+
+<!--MIRS ATMS Ice Pointset plugin -->
+<!--    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Ice Concentration" id="ATMSSIce">
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+        <substitute key="parameter" value="SICP"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Snow Cover" id="ATMSSnow">
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="parameter" value="SNOW"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Snow Fall Rate" id="ATMSSFR">
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+        <substitute key="parameter" value="SFR"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Snow Water Equivalent" id="ATMSSWE">
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+        <substitute key="parameter" value="SWE"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Total Precipitable Water" id="ATMSTPW">
+        <substitute key="colormap" value="GOES-R/GOESR-L2/color-pw10-10"/>
+        <substitute key="parameter" value="TPW"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute> 
+    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Cloud Liquid Water" id="ATMSCLW">
+        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="parameter" value="CLW"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute> 
+    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Rain Rate" id="ATMSRRate">
+        <substitute key="colormap" value="Sat/MW/nrlmicrorain_swaths"/>
+        <substitute key="parameter" value="Rain_Rate"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute> 
+    <contribute xsi:type="bundleItem" file="bundles/pointset_bundle.xml"
+        menuText="NOAA-20 ATMS Skin Temperature" id="ATMSSkinT">
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+        <substitute key="parameter" value="TSkin"/>
+        <substitute key="datasetId" value="ATMS"/>
+    </contribute>  -->
+
+</menuTemplate>

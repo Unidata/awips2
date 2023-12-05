@@ -150,7 +150,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Other Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="AQ.Y,AS.O,AS.Y,DS.W,DU.Y,EH.A,EH.W,FG.Y,FW.A,FW.W,HT.Y,MF.Y,MH.W,MH.Y,MS.Y,SM.Y"/>
+                                        <constraint constraintType="IN" constraintValue="AQ.Y,AS.O,AS.Y,DS.W,DU.Y,EH.A,EH.W,FG.Y,FW.A,FW.W,RF.W,FR.W,HT.Y,MF.Y,MH.W,MH.Y,MS.Y,SM.Y"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>

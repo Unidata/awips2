@@ -140,7 +140,7 @@
 								<constraint constraintValue="${level}" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="NAM40" constraintType="EQUALS" />
+								<constraint constraintValue="NAM12" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser" />
