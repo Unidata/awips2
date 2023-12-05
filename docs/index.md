@@ -25,9 +25,6 @@ AWIPS takes a unified approach to data ingest, where most data ingested into the
 
 Unidata supports two data visualization frameworks: [CAVE](install/install-cave) (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and [python-awips](python/overview) (a python package).
 
-> **Note**: Our version of CAVE is a **non-operational** version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from Unidata's CAVE.  Additional functionality may not be available as well.
-
-
 ![CAVE](images/Unidata_AWIPS2_CAVE.png)
 
 ---

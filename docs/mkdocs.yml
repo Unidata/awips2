@@ -45,8 +45,9 @@ nav:
       - GOES 16/17: cave/goes-16-17-satellite.md
       - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
       - Volume Browser: cave/d2d-gridded-models.md
-      - Display Tools: cave/d2d-tools.md
-      - Radar Tools: cave/d2d-radar-tools.md
+      - Tools: cave/d2d-all-tools.md
+      # - Display Tools: cave/d2d-tools.md
+      # - Radar Tools: cave/d2d-radar-tools.md
       - Editing Menus: cave/d2d-edit-menus.md
       - Change Localization: cave/cave-localization.md
       - Import/Export: cave/import-export.md
