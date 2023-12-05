@@ -23,6 +23,19 @@
         version of the file will completely replace a lower priority version
         of the file. 
     -->
+    <!-- TOWRdocs Header
+         NPP and NOAA products index.xml
+        -->
+    <!-- TOWRdocs Description
+         Specifies where to install the NPP and NOAA-20 primary sub-menu button under satellite. This updat moves
+         it farther up the Satellite menu. in the Base file the installTo sets to before=GROUP5. This update uses GROUP3.
+      -->
+    <!-- TOWRdocs Status
+        Modification of the base index.xml
+    -->
+    <!-- TOWRdocs POC
+     Lee Byerle 10/30/2020
+    -->
 <menuContributionFile>
-    <include installTo="menu:satellite" fileName="menus/npp/nppMenuItems.xml" />
+    <include installTo="menu:satellite?before=GROUP3" fileName="menus/npp/nppMenuItems.xml" />
 </menuContributionFile>

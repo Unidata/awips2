@@ -3460,7 +3460,7 @@
 0000000000|KT20 | 29.5291| -97.4643| 108|Dreyer Mem AP, Gonzales, TX        |US|MTR
 0000000000|KT31 | 26.17 | -97.35 |    6|Port Isabel/Cameron Co, TX          |US|MTR
 0000000000|KT35 | 30.879| -96.971|  123|Cameron Muni, Cameron, TX           |US|MTR
-0000000000|KT39 | 30.74 | -95.59 |  105|Huntsville, TX                      |US|MTR
+0000000000|KT39 | 33.58233|-98.61867|325|Archer City Muni Arpt, Archer City, TX|US|MTR
 0000000000|KT41 | 29.66925| -95.06419| 8|La Porte Muni Airport, La Porte, TX|US|MTR
 0000000000|KT46 | 28.02 | -95.87 |   23|SOUTH BRAZOS A70, TX                |US|MTR
 0000000000|KT62 | 40.18 |-112.20 | 1538|TOOELE, UT                          |US|MTR

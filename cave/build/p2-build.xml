@@ -304,6 +304,9 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="edu.wisc.ssec.cimss.viz.probsevere.feature" />
 		</antcall>
+                <antcall target="p2.build.repo">
+                        <param name="feature" value="gov.noaa.nws.sti.mdl.viz.griddednucaps.feature" />
+                </antcall>
 		<antcall target="cleanup.features" />
 	</target>
 

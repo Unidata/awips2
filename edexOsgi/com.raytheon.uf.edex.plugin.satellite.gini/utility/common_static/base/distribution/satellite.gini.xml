@@ -37,9 +37,13 @@
     Cell: (301) 787-9925
      -->
 <!-- L. Byerle 11/26/2019 modify so that new global blended Hydro in netcdfgrid plugin are distinct those in this plugin. 
-     Specifically, to ensure that if the 4th digit is X then it will not be picked up by the satellite gini plugin -->
+     Specifically, to ensure that if the 4th digit is X then it will not be picked up by the satellite gini plugin
+     L. Byerle 5/8/2020 Separate TICF* into its own pattern to distinguish from new TICF* in grid format (see netcdfgrid.xml
+-->
 <!--  T. Meyer 9/202/2023 modify so Unidata's PNG compressed files will be decoded -->
-    <regex>TI[CGT][A-WYZ].. ....</regex>
+    <regex>TI[GT][A-WYZ].. ....</regex>
+<!-- Account for legacy multi-sat comp only (TICF*), but not new multi-sat comp used by netcdfgrid plugin -->
+    <regex>TICF0[134] ....</regex>
     <regex>.*NEXRCOMP.*</regex>
 
 </requestPatterns>
