@@ -89,7 +89,7 @@
              <separator name="StdEnvDataPackageFamilies" visible="true"/>
       </menuContribution>
       <menuContribution
-            locationURI="menu:tools">
+            locationURI="menu:tools?after=tools.U">
              <command
                    commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
                    label="Volume Browser">
