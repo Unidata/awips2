@@ -5830,7 +5830,7 @@
             <interpolate>false</interpolate>
             <displayUnits>in</displayUnits>
             <range scale="LINEAR">
-                <minValue>-0.5</minValue>
+                <minValue>-0.05</minValue>
                 <maxValue>12.0</maxValue>
             </range>
             <defaultColormap>mrms/mrmsQPEDP</defaultColormap>
