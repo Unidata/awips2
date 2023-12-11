@@ -51,8 +51,8 @@
             <parameter>ETCWL</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <range scale="LINEAR">
             <displayUnits>ft</displayUnits>
+            <range scale="LINEAR">
                 <minValue>11</minValue>
                 <maxValue>-19</maxValue>
             </range>
@@ -5211,6 +5211,10 @@
                 <maxValue>70</maxValue>
             </range>
             <defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+            <colorbarLabeling>
+                <values> 10 20 30 40 50 60 70</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="&lt;" pixelValue="0"/>
                 <entry displayValue="0.005" operator="&gt;" pixelValue="0.0015"/>
@@ -5223,6 +5227,7 @@
                 <entry displayValue="70" operator="&gt;" pixelValue="21.335"/>
                 <entry displayValue="200" operator="&gt;" pixelValue="60.96"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <styleRule>
@@ -5254,7 +5259,11 @@
                 <minValue>0</minValue>
                 <maxValue>40</maxValue>
             </range>
+            <colorbarLabeling>
+                <values>10 20 30 40</values>
+            </colorbarLabeling>
             <defaultColormap>mrms/mrmsHSRHeight</defaultColormap>
+<!--
             <dataMapping>
                 <entry pixelValue="0" operator="&lt;" label="" />
                 <entry pixelValue="0.0015" operator="&gt;"
@@ -5268,6 +5277,7 @@
                 <entry pixelValue="12.191" operator="&gt;"
                     displayValue='40' />
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS Composite Reflectivity Height -->
@@ -5287,6 +5297,11 @@
                 <maxValue>70</maxValue>
             </range>
             <defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+        
+            <colorbarLabeling>
+                <values>10 20 30 40 50 60 70</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="&lt;" pixelValue="0"/>
                 <entry displayValue="0.005" operator="&gt;" pixelValue="1.5"/>
@@ -5299,6 +5314,7 @@
                 <entry displayValue="70" operator="&gt;" pixelValue="21033.5"/>
                 <entry displayValue="200" operator="&gt;" pixelValue="60960"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS Thickness Products -->
@@ -5317,6 +5333,10 @@
                 <maxValue>35</maxValue>
             </range>
             <defaultColormap>mrms/mrmsThickness</defaultColormap>
+            <colorbarLabeling>
+                <values>-20 -15 -10 -5 0 5 10 15 20 25 30 35</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry displayValue="-20" operator="&lt;" pixelValue="-6.095"/>
                 <entry displayValue="-15" operator="&lt;" pixelValue="-4.572"/>
@@ -5332,6 +5352,7 @@
                 <entry displayValue="35" operator="&gt;" pixelValue="10.667"/>
                 <entry displayValue="99" operator="&gt;" pixelValue="30.175"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS CG Lightning Density -->
@@ -5350,6 +5371,10 @@
                 <maxValue>50</maxValue>
             </range>
             <defaultColormap>mrms/mrmsLightning</defaultColormap>
+            <colorbarLabeling>
+                <values>0 1 2 5 10 15 20 25 30 35 40 45 50</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="&lt;" pixelValue="-0.19"/>
                 <entry displayValue="0" operator="&gt;" pixelValue="0"/>
@@ -5371,6 +5396,7 @@
                 <entry displayValue="50" operator="&gt;" pixelValue="50"/>
                 <entry displayValue="999" operator="&gt;" pixelValue="999"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS Lightning Probability and Warm Rain Probability-->
@@ -5391,30 +5417,6 @@
             <colorbarLabeling>
                 <values>0 10 20 30 40 50 60 70 80 90 100</values>
             </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!-- MRMS Lightning Jump -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>LightningJumpGrid</parameter>
-            <parameter>LightningJumpGridMax5min</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <numericFormat>
-                <pattern>0.0</pattern>
-            </numericFormat>
-            <displayUnits label=" Sigma">*1</displayUnits>
-            <range>
-                <minValue>-4</minValue>
-                <maxValue>7</maxValue>
-            </range>
-            <defaultColormap>mrms/mrmsLtgJump</defaultColormap>
-            <interpolate>false</interpolate>
-            <colorbarLabeling>
-                <values>-4 -3 -2 -1 0 1 2 3 4 5 6</values>
-            </colorbarLabeling>
-=======
->>>>>>> 2c1200f... Move mrms bundles and menus from ./awips2/cave/com.raytheon.viz.grid/ to ./awips2/edexOsgi/com.raytheon.uf.edex.plugin.grid/:edexOsgi/com.raytheon.uf.edex.plugin.grid/utility/common_static/base/styleRules/gridImageryStyleRules.xml
         </imageStyle>
     </styleRule>
     <!-- MRMS Lightning Jump -->
@@ -5477,6 +5479,10 @@
                 <maxValue>4.0</maxValue>
             </range>
             <defaultColormap>mrms/mrmsHail</defaultColormap>
+            <colorbarLabeling>
+                <values>.5 1 1.5 2 2.5 3 3.5 4</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="&lt;" pixelValue="0"/>
                 <entry displayValue="0.005" operator="&gt;" pixelValue="0.126"/>
@@ -5490,6 +5496,7 @@
                 <entry displayValue="4.0" operator="&gt;" pixelValue="101.523"/>
                 <entry displayValue="9.0" operator="&gt;" pixelValue="228.601"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <styleRule>
@@ -5541,6 +5548,10 @@
                 <maxValue>0.025</maxValue>
             </range>
             <defaultColormap>mrms/mrmsRotation</defaultColormap>
+            <colorbarLabeling>
+                <values>.001 .002 .004 .006 .008 .010 .012 .014 .016 .018 .020 .022 .024</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="&lt;" pixelValue="0"/>
                 <entry displayValue="0.001" operator="&gt;" pixelValue="1"/>
@@ -5558,6 +5569,7 @@
                 <entry displayValue="0.024" operator="&gt;" pixelValue="24"/>
                 <entry displayValue="0.099" operator="&gt;" pixelValue="99"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS Precipitation Type -->
@@ -5653,6 +5665,10 @@
                 <maxValue>1</maxValue>
             </range>
             <defaultColormap>mrms/mrmsRQI</defaultColormap>
+            <colorbarLabeling>
+                <values>0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry displayValue="0" label="" operator="&lt;" pixelValue="0"/>
                 <entry displayValue="0.1" operator="&gt;" pixelValue="0.1"/>
@@ -5666,6 +5682,7 @@
                 <entry displayValue="0.9" operator="&gt;" pixelValue="0.9"/>
                 <entry displayValue="1.0" operator="&gt;" pixelValue="1.0"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS Reflectivity Products -->
@@ -5705,7 +5722,12 @@
                 <maxValue>82</maxValue>
             </range>
             <defaultColormap>mrms/mrmsReflectivity</defaultColormap>
+            <colorbarLabeling>
+                <values>-20 -10 0 10 20 30 40 50 60 70 80 90</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
+                <entry displayValue="NO DATA" operator="&lt;" pixelValue="-20"/>
                 <entry displayValue="-20" operator="&gt;" pixelValue="-20"/>
                 <entry displayValue="-10" operator="&gt;" pixelValue="-10"/>
                 <entry displayValue="0" operator="&gt;" pixelValue="0"/>
@@ -5719,6 +5741,7 @@
                 <entry displayValue="80" operator="&gt;" pixelValue="80"/>
                 <entry displayValue="90" operator="&gt;" pixelValue="90"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS Merged ZDR -->
@@ -5807,7 +5830,7 @@
             <interpolate>false</interpolate>
             <displayUnits>in</displayUnits>
             <range scale="LINEAR">
-                <minValue>-0.05</minValue>
+                <minValue>-0.5</minValue>
                 <maxValue>12.0</maxValue>
             </range>
             <defaultColormap>mrms/mrmsQPEDP</defaultColormap>
@@ -5846,6 +5869,10 @@
                 <maxValue>100</maxValue>
             </range>
             <defaultColormap>mrms/mrmsPOSH</defaultColormap>
+            <colorbarLabeling>
+                <values>10 20 30 40 50 60 70 80 90 100</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry displayValue="0" label="" operator="&lt;" pixelValue="0"/>
                 <entry displayValue="10" operator="&gt;" pixelValue="10"/>
@@ -5859,6 +5886,7 @@
                 <entry displayValue="90" operator="&gt;" pixelValue="90"/>
                 <entry displayValue="100" operator="&gt;" pixelValue="100"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS SHI -->
@@ -5874,6 +5902,10 @@
                 <maxValue>450</maxValue>
             </range>
             <defaultColormap>mrms/mrmsSHI</defaultColormap>
+            <colorbarLabeling>
+                <values>0 30 60 90 120 150 180 210 240 270 300 330 360 390 420 450</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="=" pixelValue="-1.00"/>
                 <entry displayValue="0" operator="&gt;" pixelValue="0"/>
@@ -5894,6 +5926,7 @@
                 <entry displayValue="450" operator="&gt;" pixelValue="450"/>
                 <entry displayValue="999" operator="&gt;" pixelValue="999"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS VII -->
@@ -5909,6 +5942,10 @@
                 <maxValue>40</maxValue>
             </range>
             <defaultColormap>mrms/mrmsVII</defaultColormap>
+            <colorbarLabeling>
+                <values>0 3.33 6.53 9.33 12.13 17 25 40 90</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="&lt;" pixelValue="-1.00"/>
                 <entry displayValue="0" operator="&gt;" pixelValue="0"/>
@@ -5921,6 +5958,7 @@
                 <entry displayValue="40" operator="&gt;" pixelValue="40"/>
                 <entry displayValue="99" operator="&gt;" pixelValue="99"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
         <!-- MRMS VIL Density -->
@@ -5936,6 +5974,10 @@
                 <maxValue>6.00</maxValue>
             </range>
             <defaultColormap>mrms/mrmsVILDensity</defaultColormap>
+            <colorbarLabeling>
+                <values>1 2 3 4 5</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry pixelValue="0" operator="&gt;" label="" />
                 <entry pixelValue="1" operator="&gt;"
@@ -5949,6 +5991,7 @@
                 <entry pixelValue="5" operator="&gt;"
                     displayValue='5' />
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <!-- MRMS VIL -->
@@ -5967,6 +6010,10 @@
                 <maxValue>82.00</maxValue>
             </range>
             <defaultColormap>mrms/mrmsVIL</defaultColormap>
+            <colorbarLabeling>
+                <values>0 10 20 30 40 50 60 70 80</values>
+            </colorbarLabeling>
+<!--
             <dataMapping>
                 <entry label="" operator="&gt;" pixelValue="-34.00"/>
                 <entry displayValue="0" operator="&gt;" pixelValue="0"/>
@@ -5981,6 +6028,7 @@
                 <entry displayValue="90" operator="&gt;" pixelValue="90"/>
                 <entry displayValue="200" operator="&gt;" pixelValue="200"/>
             </dataMapping>
+-->
         </imageStyle>
     </styleRule>
     <styleRule>
