@@ -6,7 +6,7 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Latest Version
 
-**20.3.2-0.4**
+**20.3.2-1**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -47,10 +47,10 @@ The first 3 steps should all be run as **root**
 
 ### 1. Install EDEX
 
-Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/awips_install-v20.sh)
+Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
 
 ```
-wget https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/awips_install-v20.sh
+wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
 chmod 755 awips_install-v20.sh
 sudo ./awips_install-v20.sh --edex
 ```

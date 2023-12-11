@@ -53,7 +53,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ### Download and Installation Instructions
 
-1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/awips_install.sh)
+1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
 2. In a terminal, go to the download directory 
 3. Make the installer an executable by running: `chmod 755 awips_install.sh`
 4. Run the installer: `sudo ./awips_install.sh --cave`
@@ -84,7 +84,7 @@ For Windows, Unidata offers two installation options: a [**Direct Windows Instal
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/awips-cave.msi)    
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/awips-cave.msi)    
 
 #### Run CAVE
 
@@ -113,7 +113,7 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-1** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/20.3.2/windows/unidata_cave.zip)
+1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-1** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
 2. Unzip the folder.
 3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-1.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
@@ -140,7 +140,7 @@ Once inside the VM, to run CAVE either:
 
 ### Download and Installation Instructions
 
-1. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/20.3.2/mac/awips-cave.dmg)
+1. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave.dmg)
     ![Cave System Install](../images/mac-install.png)
      - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
      - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges
