@@ -76,9 +76,9 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
-!!! note "The direct install is much easier/faster than v18*."
-
 !!! warning "The virtual machine option won't render RGB composites of satellite imagery."
+
+!!! note "For those running CAVE in a lab or needing it installed at the system level for multiple users, please contact support-awips@ucar.unidata.edu"
 
 ### Method 1: Direct Windows Install
 
@@ -140,7 +140,7 @@ Once inside the VM, to run CAVE either:
 
 ### Download and Installation Instructions
 
-1. [Download and install CAVE](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave.dmg)
+1. Download and install CAVE: [awips-cave.dmg](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave.dmg)
     ![Cave System Install](../images/mac-install.png)
      - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
      - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges
@@ -159,7 +159,7 @@ To run CAVE either:
 
 ## EDEX Connection
 
-Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter **edex-beta.unidata.ucar.edu**.
+Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter **edex-cloud.unidata.ucar.edu**.
 
 ![EDEX in the cloud](../images/connectWindow.png)
 
