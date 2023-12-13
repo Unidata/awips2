@@ -344,18 +344,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -380,20 +368,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="../d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -668,7 +644,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+    <a href="../../appendix/maps-database/" title="Maps Database" class="md-nav__link">
       Maps Database
     </a>
   </li>
@@ -771,22 +747,22 @@
                 
                 <h1 id="nexrad-radar-display">NEXRAD Radar Display<a class="headerlink" href="#nexrad-radar-display" title="Permanent link"></a></h1>
 <p>The Unidata D2D Perspective features a selectable NEXRAD station display over a loop of the <a href="https://www.unidata.ucar.edu/data/radar.html#fnexrad">FNEXRAD</a> Digital Hybrid Reflectivity product. Selecting any station will open a two-panel reflectivity and velocity view for the selected station.</p>
-<p><img alt="image" src="../../images/nexrad-display.png" /></p>
-<p><img alt="image" src="../../images/radar-two-panel.png" /></p>
+<p><img alt="image" src="../images/nexrad-display.png" /></p>
+<p><img alt="image" src="../images/radar-two-panel.png" /></p>
 <h1 id="nexrad-tdwr-station-menus">NEXRAD &amp; TDWR Station Menus<a class="headerlink" href="#nexrad-tdwr-station-menus" title="Permanent link"></a></h1>
 <p>Individual NEXRAD station menus are accessible in <strong>Radar</strong> &gt; <strong>NEXRAD Stations</strong> and are grouped alphabetically for a condensed submenu structure.  With only the NEXRAD3 feedtype (NEXAD2 being disabled), notice that only some of the menu items will out with available data.</p>
-<p><img alt="image" src="../../images/rnJIkyR.png" /></p>
+<p><img alt="image" src="../images/rnJIkyR.png" /></p>
 <h1 id="best-res-zsrm8-zv">Best Res Z+SRM8 / Z+V<a class="headerlink" href="#best-res-zsrm8-zv" title="Permanent link"></a></h1>
 <p>The radar combination products Z+SRM and Z+V are precombined formats of the reflectivity and storm relative motion or velocity, displayed together via a single menu selection. SRM products include the storm motion vector information, which is plotted in the upper left corner of the Main Display Pane.</p>
-<p><img alt="image" src="../../images/f3KMFFQ1Xv.gif" /></p>
-<p><img alt="image" src="../../images/dr2pzX3.png" /></p>
+<p><img alt="image" src="../images/f3KMFFQ1Xv.gif" /></p>
+<p><img alt="image" src="../images/dr2pzX3.png" /></p>
 <h1 id="4-panel-zsrm-zdrv-kdphc-ccsw">4-panel Z+SRM, ZDR+V, KDP+HC, CC+SW<a class="headerlink" href="#4-panel-zsrm-zdrv-kdphc-ccsw" title="Permanent link"></a></h1>
 <h1 id="4-panel-z-zdr-hckdp-cc">4-panel Z, ZDR, HC+KDP, CC<a class="headerlink" href="#4-panel-z-zdr-hckdp-cc" title="Permanent link"></a></h1>
 <p>This section enables you to load multiple base and dual-pol products, which are then simultaneously displayed. The label of this section of the menu describes the format for loading the products: Z+SRM in the upper left quadrant, ZDR+V in the upper right quadrant, KDP+HC in the lower left quadrant, and CC+SW in the lower right quadrant. Primary dual-pol base data analysis is best accomplished using the <strong>All Tilts base data</strong> option (4 panel all tilts with 8 products loaded), though you may use the single tilts (e.g., 0.5 base data) for longer time duration loops.</p>
 <p>To load 4 panel displays containing multiple elevation angles of the same product, you would
 select the <strong>four panel</strong> option and then select the desired set of 4 panels from the <strong>four
 panel</strong> submenu.</p>
-<p><img alt="image" src="../../images/cLSS6leYQ1.gif" /></p>
+<p><img alt="image" src="../images/cLSS6leYQ1.gif" /></p>
 <p>All Tilts allows you to step or animate in either space or time. Selecting one of the All Tilts buttons will load all the tilts available from the latest volume scan. It will continue to load tilts from previous volume scans until it has loaded as many frames as indicated on the frame count menu. Auto updates will add higher tilts from the latest volume scan, replacing a tilt from the oldest volume.</p>
 <p>After loading an All Tilts display, <strong>Shift + LEFT ARROW</strong> and <strong>Shift + RIGHT ARROW</strong> and looping will take you through the frames in the order in which the system loaded them (without regard to volume scan or tilt). The <strong>UP ARROW</strong> and <strong>DOWN ARROW</strong> will step the display up or down in a volume scan allowing the tilts to change for a fixed time. The <strong>RIGHT ARROW</strong> and <strong>LEFT ARROW</strong> will step the display forward or backward through time at a fixed tilt. Once you have set the mode of motion (vertical or time), the <strong>Page Up/Page Down</strong> keys will start and adjust loop speed. To switch from vertical to time mode or from time to vertical mode, press the desired arrow key.</p>
 <p>If you hit the up or down arrow key in a standard (not All-Tilts) display, looping and stepping are disabled until you hit either the left or right arrow key or one of the stepping buttons on the menu. Once an arrow key (Left, Right, Up, Down) has been pressed, the stepping/animation controls on the main window toolbar and the <strong>Page Up/Page Down</strong> keys will function in that same mode. For example, assume the <strong>UP ARROW</strong> or <strong>DOWN ARROW</strong> key is pressed; the menu controls will now operate through the tilts at a fixed time, e.g., you can go to the lowest tilt by selecting the First Frame iconified button.</p>
@@ -801,18 +777,18 @@ panel</strong> submenu.</p>
 <li><strong>4-bit/Legacy Prods</strong>: The 4-bit/Legacy Prods submenu uses generic selectors that load 8-bit (256 level) data, with legacy 4-bit (16 level) and 3-bit (8 level) data filling in when no 8-bit data is available.</li>
 <li><strong>Radar Applications</strong>: The Radar Applications submenu provides access to all the radar applications and radar tools.</li>
 </ul>
-<p><img alt="image" src="../../images/m82tQwX.png" /></p>
+<p><img alt="image" src="../images/m82tQwX.png" /></p>
 <h1 id="mrms">MRMS<a class="headerlink" href="#mrms" title="Permanent link"></a></h1>
 <hr />
 <h1 id="fnexrad-composites">FNEXRAD Composites<a class="headerlink" href="#fnexrad-composites" title="Permanent link"></a></h1>
 <h2 id="dhr">DHR<a class="headerlink" href="#dhr" title="Permanent link"></a></h2>
-<p><img alt="image" src="../../images/dhr.png" /></p>
+<p><img alt="image" src="../images/dhr.png" /></p>
 <h2 id="dlv">DLV<a class="headerlink" href="#dlv" title="Permanent link"></a></h2>
-<p><img alt="image" src="../../images/dvl.png" /></p>
+<p><img alt="image" src="../images/dvl.png" /></p>
 <h2 id="eet">EET<a class="headerlink" href="#eet" title="Permanent link"></a></h2>
-<p><img alt="image" src="../../images/eet.png" /></p>
+<p><img alt="image" src="../images/eet.png" /></p>
 <h2 id="hhc">HHC<a class="headerlink" href="#hhc" title="Permanent link"></a></h2>
-<p><img alt="image" src="../../images/hhc.png" /></p>
+<p><img alt="image" src="../images/hhc.png" /></p>
 <h2 id="daa">DAA<a class="headerlink" href="#daa" title="Permanent link"></a></h2>
 <p><img alt="image" src="../images/daa.png" /></p>
 <h2 id="dta">DTA<a class="headerlink" href="#dta" title="Permanent link"></a></h2>
@@ -830,7 +806,7 @@ mosaics on cascading menus provide a limited list of radar products from a prede
 <h2 id="estimated-actual-velocity-eav">Estimated Actual Velocity (EAV)<a class="headerlink" href="#estimated-actual-velocity-eav" title="Permanent link"></a></h2>
 <p>A velocity (V) display from the radar shows only the radial component of the wind, so the indicated
 speed depends on the direction of the wind and the azimuth (direction) from the radar. Consider, for example, a north wind. Straight north of the radar, the full speed of the wind will be seen on the V product. As one moves around to the east of the radar, the radial component gets smaller, eventually reaching zero straight east of the radar. If the wind direction is known, then the actual wind speed can be computed by dividing the observed radial speed by the cosine of the angle between the radar radial and the actual direction. The EAV tool allows you to provide that angle and use the sampling function of the display to show the actual wind speed.</p>
-<p><img alt="image" src="../../images/qLuJnK2aVF.gif" /></p>
+<p><img alt="image" src="../images/qLuJnK2aVF.gif" /></p>
 <h2 id="four-dimensional-stormcell-investigator-fsi">Four-dimensional Stormcell Investigator (FSI)<a class="headerlink" href="#four-dimensional-stormcell-investigator-fsi" title="Permanent link"></a></h2>
 <p>The <a href="http://www.nws.noaa.gov/mdl/fsi/">Four-dimensional Stormcell Investigator (FSI)</a> was developed by the National Severe Storms Laboratory for its Warning Decision Support System Integrated Information.  This technology allows users to create and manipulate dynamic cross-sections (both vertical and at constant altitude), such that one can “slice and dice” storms and view these data in three-dimensions and across time.</p>
 <h2 id="v-r-shear">V-R Shear<a class="headerlink" href="#v-r-shear" title="Permanent link"></a></h2>

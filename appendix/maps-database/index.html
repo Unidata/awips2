@@ -22,7 +22,7 @@
     
     
       
-        <title>Maps database - Unidata AWIPS User Manual</title>
+        <title>Maps Database - Unidata AWIPS User Manual</title>
       
     
     
@@ -91,9 +91,13 @@
           
             
               
+                <span class="md-header-nav__parent">
+                  Appendix
+                </span>
+              
             
             
-              Maps database
+              Maps Database
             
           
         </span>
@@ -344,18 +348,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -380,20 +372,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="../../cave/d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -635,10 +615,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-10" type="checkbox" id="nav-10">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-10" type="checkbox" id="nav-10" checked>
     
     <label class="md-nav__link" for="nav-10">
       Appendix
@@ -666,11 +648,281 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Maps Database
+      </label>
+    
+    <a href="./" title="Maps Database" class="md-nav__link md-nav__link--active">
       Maps Database
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mapdataairport" title="mapdata.airport" class="md-nav__link">
+    mapdata.airport
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdataallrivers" title="mapdata.allrivers" class="md-nav__link">
+    mapdata.allrivers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdataartcc" title="mapdata.artcc" class="md-nav__link">
+    mapdata.artcc
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatabasins" title="mapdata.basins" class="md-nav__link">
+    mapdata.basins
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatacanada" title="mapdata.canada" class="md-nav__link">
+    mapdata.canada
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatacity" title="mapdata.city" class="md-nav__link">
+    mapdata.city
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatacounty" title="mapdata.county" class="md-nav__link">
+    mapdata.county
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatacustomlocations" title="mapdata.customlocations" class="md-nav__link">
+    mapdata.customlocations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatacwa" title="mapdata.cwa" class="md-nav__link">
+    mapdata.cwa
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatafirewxaor" title="mapdata.firewxaor" class="md-nav__link">
+    mapdata.firewxaor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatafirewxzones" title="mapdata.firewxzones" class="md-nav__link">
+    mapdata.firewxzones
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatafix" title="mapdata.fix" class="md-nav__link">
+    mapdata.fix
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatahighaltitude" title="mapdata.highaltitude" class="md-nav__link">
+    mapdata.highaltitude
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatahighsea" title="mapdata.highsea" class="md-nav__link">
+    mapdata.highsea
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatahighway" title="mapdata.highway" class="md-nav__link">
+    mapdata.highway
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatahsa" title="mapdata.hsa" class="md-nav__link">
+    mapdata.hsa
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatainterstate" title="mapdata.interstate" class="md-nav__link">
+    mapdata.interstate
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdataisc" title="mapdata.isc" class="md-nav__link">
+    mapdata.isc
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatalake" title="mapdata.lake" class="md-nav__link">
+    mapdata.lake
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatalatlon10" title="mapdata.latlon10" class="md-nav__link">
+    mapdata.latlon10
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatalowaltitude" title="mapdata.lowaltitude" class="md-nav__link">
+    mapdata.lowaltitude
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatamajorrivers" title="mapdata.majorrivers" class="md-nav__link">
+    mapdata.majorrivers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatamarinesites" title="mapdata.marinesites" class="md-nav__link">
+    mapdata.marinesites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatamarinezones" title="mapdata.marinezones" class="md-nav__link">
+    mapdata.marinezones
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatamexico" title="mapdata.mexico" class="md-nav__link">
+    mapdata.mexico
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatanavaid" title="mapdata.navaid" class="md-nav__link">
+    mapdata.navaid
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdataoffshore" title="mapdata.offshore" class="md-nav__link">
+    mapdata.offshore
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatarailroad" title="mapdata.railroad" class="md-nav__link">
+    mapdata.railroad
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatarfc" title="mapdata.rfc" class="md-nav__link">
+    mapdata.rfc
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdataspecialuse" title="mapdata.specialuse" class="md-nav__link">
+    mapdata.specialuse
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatastates" title="mapdata.states" class="md-nav__link">
+    mapdata.states
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatatimezones" title="mapdata.timezones" class="md-nav__link">
+    mapdata.timezones
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatawarngenloc" title="mapdata.warngenloc" class="md-nav__link">
+    mapdata.warngenloc
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdataworld" title="mapdata.world" class="md-nav__link">
+    mapdata.world
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapdatazone" title="mapdata.zone" class="md-nav__link">
+    mapdata.zone
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -1019,7 +1271,7 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/appendix/maps-database.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                  <h1>Maps database</h1>
+                  <h1>Maps Database</h1>
                 
                 <h2 id="mapdataairport">mapdata.airport<a class="headerlink" href="#mapdataairport" title="Permanent link"></a></h2>
 <table>
@@ -2829,6 +3081,41 @@
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                AWIPS Grid Parameters
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Acronyms and Abbreviations
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">

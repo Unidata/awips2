@@ -484,18 +484,6 @@
 
 
   <li class="md-nav__item">
-    <a href="cave/goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -520,20 +508,8 @@
 
 
   <li class="md-nav__item">
-    <a href="cave/d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="cave/d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -808,7 +784,7 @@
 
 
   <li class="md-nav__item">
-    <a href="python/maps-database/" title="Maps Database" class="md-nav__link">
+    <a href="appendix/maps-database/" title="Maps Database" class="md-nav__link">
       Maps Database
     </a>
   </li>
@@ -1033,9 +1009,6 @@
 <p>The Advanced Weather Interactive Processing System (AWIPS) is a meteorological software package.  It is used for decoding, displaying, and analyzing data, and was originally developed for the National Weather Service (NWS) by Raytheon. There is a division here at UCAR called the Unidata Program Center (UPC) which develops and supports a modified non-operational version of AWIPS for use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.  This is released as open source software, free to download and use by anyone.</p>
 <p>AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the <a href="#ldm">LDM</a> client pulling data feeds from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by <a href="install/install-edex">EDEX</a>, which serves products and data over http.</p>
 <p>Unidata supports two data visualization frameworks: <a href="install/install-cave">CAVE</a> (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and <a href="python/overview">python-awips</a> (a python package).</p>
-<blockquote>
-<p><strong>Note</strong>: Our version of CAVE is a <strong>non-operational</strong> version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from Unidata's CAVE.  Additional functionality may not be available as well.</p>
-</blockquote>
 <p><img alt="CAVE" src="images/Unidata_AWIPS2_CAVE.png" /></p>
 <hr />
 <h2 id="download-and-install-cave"><a href="install/install-cave">Download and Install CAVE</a><a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
@@ -1049,7 +1022,7 @@
 <hr />
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
 <p>Unidata and XSEDE Jetstream have partnered to offer an EDEX data server in the cloud, open to the community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
-<p><img alt="EDEX in the cloud" src="/images/boEbFSf28t.gif" /></p>
+<p><img alt="EDEX in the cloud" src="images/connectWindow.png" /></p>
 <hr />
 <h2 id="distributed-computing">Distributed Computing<a class="headerlink" href="#distributed-computing" title="Permanent link"></a></h2>
 <p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  Because AWIPS was originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, Unidata modified the package to be more applicable in the University setting.  Because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive (SSD) could handle most of the entire NOAAport data volume.  However, with GOES-R(16) now online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was a need to distribute EDEX data decoding in order to handle this firehose of data.</p>

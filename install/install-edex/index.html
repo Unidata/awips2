@@ -263,6 +263,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#functionalityreporting" title="Functionality/Reporting" class="md-nav__link">
+    Functionality/Reporting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#system-requirements" title="System requirements" class="md-nav__link">
     System requirements
   </a>
@@ -557,18 +564,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -593,20 +588,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="../../cave/d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -881,7 +864,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+    <a href="../../appendix/maps-database/" title="Maps Database" class="md-nav__link">
       Maps Database
     </a>
   </li>
@@ -975,6 +958,13 @@
         <li class="md-nav__item">
   <a href="#latest-version" title="Latest Version" class="md-nav__link">
     Latest Version
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functionalityreporting" title="Functionality/Reporting" class="md-nav__link">
+    Functionality/Reporting
   </a>
   
 </li>
@@ -1173,15 +1163,18 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/install/install-edex.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="install-edex">Install EDEX <i class="fa fa-linux"></i><a class="headerlink" href="#install-edex" title="Permanent link"></a></h1>
+                <h1 id="install-edex">Install EDEX<a class="headerlink" href="#install-edex" title="Permanent link"></a></h1>
 <p>EDEX is the <strong>E</strong>nvironmental <strong>D</strong>ata <strong>Ex</strong>change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at <a href="../../edex/distributed-computing/">Distributed EDEX, Installing Across Multiple Machines</a></p>
 <hr />
 <h2 id="latest-version">Latest Version<a class="headerlink" href="#latest-version" title="Permanent link"></a></h2>
-<ul>
-<li><strong>18.2.1-6</strong></li>
-<li><a href="../install-edex-beta-v20/"><strong>BETA Version: 20.3.2-0.4</strong></a></li>
-</ul>
+<p><strong>20.3.2-1</strong></p>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
+<div class="admonition note">
+<p class="admonition-title">Version 20.* of CAVE is not compatible with Version 18.* EDEX and vice versa, Version 18.* of CAVE is not compatible with Version 20.* EDEX.</p>
+</div>
+<hr />
+<h2 id="functionalityreporting">Functionality/Reporting<a class="headerlink" href="#functionalityreporting" title="Permanent link"></a></h2>
+<p>If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6jyZtbh49g-GCBoAQYzTVwAIf_aKz0QOeAr7gDVFhPrjAmw/viewform?usp=sf_link">report it using this short form</a>.</p>
 <hr />
 <h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link"></a></h2>
 <ul>
@@ -1195,11 +1188,7 @@
 <li>16+ CPU cores (each CPU core can run a decorder in parallel)</li>
 <li>24GB RAM</li>
 <li>700GB+ Disk Space</li>
-<li>gcc-c++ package<ul>
-<li>Run <code>rpm -qa | grep gcc-c++</code> to verify if the package is installed</li>
-<li>If it is not installed, run <code>yum install gcc-c++</code> to install the package</li>
-</ul>
-</li>
+<li>gcc-c++ package</li>
 <li>A <strong>Solid State Drive (SSD)</strong> is recommended<ul>
 <li>A SSD should be mounted either to <code>/awips2</code> (to contain the entire EDEX system) or to <code>/awips2/edex/data/hdf5</code> (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.</li>
 </ul>
@@ -1217,11 +1206,11 @@
 <h3 id="1-install-edex">1. Install EDEX<a class="headerlink" href="#1-install-edex" title="Permanent link"></a></h3>
 <p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></p>
 <pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
-chmod 755 awips_install.sh
-sudo ./awips_install.sh --edex
+chmod 755 awips_install-v20.sh
+sudo ./awips_install-v20.sh --edex
 </code></pre>
 <div class="admonition note">
-<p class="admonition-title"><strong>awips_install.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
+<p class="admonition-title"><strong>awips_install-v20.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
 <ol>
 <li>Checks to see if EDEX is currently running, if so stops the processes with the <code>edex stop</code> command</li>
 <li>If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a <code>yum groupremove awips2-server</code></li>
@@ -1234,7 +1223,7 @@ sudo ./awips_install.sh --edex
 </div>
 <div class="admonition warning">
 <p class="admonition-title">If you receive an error relating to yum, then please run</p>
-<p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"</code></p>
+<p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install-v20.sh --edex"</code></p>
 </div>
 <h3 id="2-edex-setup">2. EDEX Setup<a class="headerlink" href="#2-edex-setup" title="Permanent link"></a></h3>
 <p>The external and localhost addresses need to be specified in <code>/etc/hosts</code></p>

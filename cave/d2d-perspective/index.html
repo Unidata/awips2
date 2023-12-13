@@ -551,18 +551,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -587,20 +575,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="../d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -875,7 +851,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+    <a href="../../appendix/maps-database/" title="Maps Database" class="md-nav__link">
       Maps Database
     </a>
   </li>
@@ -1171,37 +1147,38 @@
 <p>It's important to understand that Product Resources and Map Resources are handled differently given the time-based nature of Products, compared to the static nature of maps.  Selecting the <strong>Clear</strong> button will remove all Products but not remove any Map Products.</p>
 <h3 id="left-click-resource-name-to-hide">Left-Click Resource Name to Hide<a class="headerlink" href="#left-click-resource-name-to-hide" title="Permanent link"></a></h3>
 <p>A left click on any resource in the stack will hide the resource and turn the label gray.  Clicking the name again makes the resource visible.</p>
-<p><img alt="image" src="../../images/rASkR3Rp6y.gif" /></p>
+<p><img alt="image" src="../../images/showHideResource.gif" /></p>
 <h3 id="right-click-background-to-cycle-resource-views">Right-Click Background to Cycle Resource Views<a class="headerlink" href="#right-click-background-to-cycle-resource-views" title="Permanent link"></a></h3>
-<p>The default display in the resource stack is the Product Resources. Right Click the mouse on the map background (anywhere but on the stack itself) to switch to a Simple View, which just shows the current displayed time if product data is loaded.  Right Click again to show all Map Resources.  Right Click again to switch back to Product Resources.</p>
+<p>The default display in the resource stack is the Product Resources. Right Click the mouse on the map background (anywhere but on the stack itself) to switch to a Simple View, which just shows the current displayed time if product data is loaded.  Right Click again to show all Map Resources.  Right Click again to switch back to Product Resources.
+<img alt="image" src="../../images/cycleResource.gif" /></p>
 <h3 id="hold-right-click-resource-name-for-menu">Hold-Right-Click Resource Name for Menu<a class="headerlink" href="#hold-right-click-resource-name-for-menu" title="Permanent link"></a></h3>
 <p>Drag the mouse over a loaded resource and <strong>hold</strong> the right mouse button until a menu appears.</p>
 <p>The hold-right-click menu allows you to control individual resource <strong>Image Properties</strong>, <strong>Change Colormaps</strong>, change resource color, width, density, and magnification, <strong>move resources up and down</strong> in the stack, as well as configure custom options with other interactive resources.</p>
-<p><img alt="image" src="../../images/lP4W1kmTIh.gif" /></p>
+<p><img alt="image" src="../../images/resourceMenu.gif" /></p>
 <p>This menu also gives you the option to unload <strong>this specific product</strong>, as opposed to removing all data prodcuts.  Simply select the <strong>Unload</strong> option at the bottom of the resource's hold-right-click menu.</p>
 <hr />
 <h2 id="display-menu">Display Menu<a class="headerlink" href="#display-menu" title="Permanent link"></a></h2>
 <p>The display menu has many options which can alter the functionality in CAVE.</p>
 <h3 id="hold-right-click-background-for-display-menu">Hold-Right-Click Background for Display Menu<a class="headerlink" href="#hold-right-click-background-for-display-menu" title="Permanent link"></a></h3>
 <p>Holding down the right mouse button anywhere in the map view will open a right-click menu</p>
-<p><img alt="image" src="../../images/rightclickmenu.gif" /></p>
+<p><img alt="image" src="../images/rightclickmenu.png" /></p>
 <h3 id="show-map-legends">Show Map Legends<a class="headerlink" href="#show-map-legends" title="Permanent link"></a></h3>
 <p>From the above menu select <strong>Show Map Legends</strong> and watch the Resource Stack show only map resources which are loaded to the view.</p>
-<p><img alt="image" src="../../images/maplayers.png" /></p>
+<p><img alt="image" src="../../images/changeLegends.gif" /></p>
 <h3 id="sample-loaded-resources">Sample Loaded Resources<a class="headerlink" href="#sample-loaded-resources" title="Permanent link"></a></h3>
 <p>Most data types have a right-click menu option for reading out the pixel value, displayed as multi-line text for multiple resources.  This can be toggled on and off by selecting the <strong>Sample</strong> option in the Display Menu.</p>
-<p><img alt="image" src="../../images/ui4fNI3X0C.gif" /></p>
+<p><img alt="image" src="../../images/sample.gif" /></p>
 <h3 id="toggle-2-or-4-panel-layout">Toggle 2 or 4-Panel Layout<a class="headerlink" href="#toggle-2-or-4-panel-layout" title="Permanent link"></a></h3>
 <p>Right-click hold in the view and select <strong>Two Panel Layout</strong> or <strong>Four Panel Layout</strong> to create duplicates of the current view.</p>
 <div class="admonition note">
 <p class="admonition-title">Notice the readout is at the same position in both panels.  Any mouse movement made on one panel will be made on the other.</p>
 </div>
-<p><img alt="2-panel" src="../../images/2panelReadout.png" /></p>
+<p><img alt="2-panel" src="../../images/2panelReadout.gif" /></p>
 <p>By default, loading any data will load that data onto <strong>both</strong> panels.  However, there is the option to specify which panel you would like to load data into, which can be useful if you want to have different data in each of the panels.  To access this option, simple hold-right click to pull up the Display menu and choose <strong>Load to This Panel</strong> as shown below:</p>
 <p><img alt="select panel load" src="../../images/loadToThisPanel.png" /></p>
 <p>Now, a yellow <strong>L</strong> will appear in the lower left hand corner of the panel you selected to load data to.  When data is loaded from the menus it will only load to the display desginated with the L. 
 Switch back to loading in both panels, by using the <strong>Load to All Panels</strong> option in the Display Menu.</p>
-<p><img alt="single panel load" src="../../images/singlePanelLoad.png" /></p>
+<p><img alt="single panel load" src="../../images/singlePanelLoad.gif" /></p>
 <p>From this multi-pane display, hold-right-click again and you will see the <strong>Single Panel Layout</strong> option to switch back to a standard view (defaulting to the left of two, and top-left of four).</p>
 <h3 id="unload-data">Unload Data<a class="headerlink" href="#unload-data" title="Permanent link"></a></h3>
 <p>Select <strong>Unload All Products</strong> to remove all loaded graphic and image products from the display and start fresh.<br />
@@ -1209,12 +1186,12 @@ Select <strong>Unload Graphics</strong> to remove all but the image products.</p
 <p><img alt="display panel unload" src="../../images/displayPanelUnload.png" /></p>
 <hr />
 <h2 id="product-browser">Product Browser<a class="headerlink" href="#product-browser" title="Permanent link"></a></h2>
-<p>The Product Browser allows users to browse a complete data inventory in a side window, organized by data type.  To open the Product Browser, either select the icon in the toolbar (<img alt="" src="../../images/productBroswerIcon.png" />), or go to the menu: <strong>CAVE</strong> &gt; <strong>Data Browsers</strong> &gt; <strong>Product Browser</strong>.</p>
+<p>The Product Browser allows users to browse a complete data inventory in a side window, organized by data type.  To open the Product Browser, either select the icon in the toolbar (<img alt="" src="../../images/productBrowserIcon.png" />), or go to the menu: <strong>CAVE</strong> &gt; <strong>Data Browsers</strong> &gt; <strong>Product Browser</strong>.</p>
 <p>Selections for <strong>Grid</strong>, <strong>Lightning</strong>, <strong>Maps</strong>, <strong>Radar</strong>, <strong>Redbook</strong>, and <strong>Satellite</strong> are available.  All products loaded with the Product Browser are given default settings.</p>
 <blockquote>
 <p><strong>Note</strong>: The Linux and Mac version also have a selection for <strong>GFE</strong> available.</p>
 </blockquote>
-<p><img alt="image" src="../../images/vPeaMsn9ZT.gif" /></p>
+<p><img alt="image" src="../../images/openProductBrowser.gif" /></p>
 <hr />
 <!--- ## Switch Pane Layouts
 
@@ -1266,7 +1243,7 @@ This check button enables/disables the ability to display data on its native sca
 <p>Combined-image displays have been improved by removing the valid time for non-forecast products and removing the date string (time is kept) from the left side of the legend. In particular, this makes All-Tilts radar legends more usable.</p>
 <h3 id="display-properties">Display Properties<a class="headerlink" href="#display-properties" title="Permanent link"></a></h3>
 <p>This menu option opens the Display Properties dialog box. Most of the options available in this dialog box are also available on the <a href="#top">Toolbar</a>, while the rest are available in the <a href="##hold-right-click-resource-name-for-menu">individual resource menus</a> if that resource uses these properties.</p>
-<p><img alt="image" src="../../images/x9uQNAI.png" /></p>
+<p><img alt="image" src="../../images/displayProperties.png" /></p>
 <h3 id="loop-properties-ctrl-l">Loop Properties (Ctrl + L)<a class="headerlink" href="#loop-properties-ctrl-l" title="Permanent link"></a></h3>
 <p>Loop Properties is another dialog box that can be opened from the Options menu or from the Loop Properties iconified button on the D2D Toolbar, or by using the Ctrl + L keyboard shortcut. The dialog allows you to adjust the forward and backward speeds, with 0 = off and 10 = maximum speed. You can set the duration of the first and last frame dwell times to between zero and 2.5 seconds.</p>
 <p>You can turn looping on or off by checking the Looping check button. There is also a Looping button located on the Toolbar that enables/disables the animation in the large display pane. Finally, you can turn looping on and increase/decrease forward speed by pressing Page Up/Page Down on your keyboard, and turn looping off with the Left or Right Arrow keys. On the toolbar, you can use the button to start/stop looping.</p>
@@ -1288,7 +1265,7 @@ This check button enables/disables the ability to display data on its native sca
 <h2 id="cave-preferences">CAVE Preferences<a class="headerlink" href="#cave-preferences" title="Permanent link"></a></h2>
 <p>Preferences and settings for the CAVE client can be found in the <strong>CAVE &gt; Preferences</strong> menu.</p>
 <p>Set the Localization Site and server for the workstation; configure mouse operations, change performance levels, font magnification, and text workstation hostname.</p>
-<p><img alt="image" src="../../images/ymFRs6S.png" /></p>
+<p><img alt="image" src="../../images/localizationPreferences.png" /></p>
 <hr />
 <h2 id="load-mode">Load Mode<a class="headerlink" href="#load-mode" title="Permanent link"></a></h2>
 <p>Within the Display Properties dialog is the Load Mode option, which provides different ways to display data by manipulating previous model runs and inventories of data sets. The selected load mode is shown on the toolbar when the Load Mode menu is closed, and can also be changed by using this toolbar option as well.</p>

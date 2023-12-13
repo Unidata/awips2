@@ -348,18 +348,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -384,20 +372,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="../../cave/d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -772,7 +748,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+    <a href="../../appendix/maps-database/" title="Maps Database" class="md-nav__link">
       Maps Database
     </a>
   </li>
@@ -952,9 +928,9 @@
                 <h1 id="data-distribution-files">Data Distribution Files<a class="headerlink" href="#data-distribution-files" title="Permanent link"></a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link"></a></h2>
 <p>EDEX uses <strong>distribution files</strong> to alert the appropriate decoding plug-in that new data has been recieved.  These files do so by use of XML and regular expressions.  If the WMO header, or file name*, matches a regular expression listed in a distribution XML, then EDEX will put a message into the QPID queue for its corresponding decoder to recognize and process.  It is worth noting that more than one distribution file can recognize a single peice of data and notify their decoders to act.</p>
-<blockquote>
-<p>*Sometimes the distribution file will not look at the filename.  If this file is coming in through the LDM using a proper FILE action, then the it is possible the distribution file will only look at the header and not the filename.  If the file is ingested using the <em>manual</em> endpoint (/awips2/data_store/ingest/), then this behaviour could be different.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Sometimes the distribution file will not look at the filename.  If this file is coming in through the LDM using a proper FILE action, then the it is possible the distribution file will only look at the header and not the filename.  If the file is ingested using the <em>manual</em> endpoint (/awips2/data_store/ingest/), then this behaviour could be different.</p>
+</div>
 <p>If a piece of data <strong>does not</strong> match any distribution XML, EDEX will:</p>
 <ul>
 <li>
@@ -1115,15 +1091,13 @@ Note: this next code block is formatted using html so that one of the lines of c
 <h3 id="addtional-information">Addtional Information<a class="headerlink" href="#addtional-information" title="Permanent link"></a></h3>
 <p>Important notes about regular expressions:</p>
 <ul>
-<li>
-<p>Any time a new entry is placed in the <strong>pqact.conf</strong> file on LDM, it is likely a corresponding entry needs to be added to the appropriate Data Distribution file in the data distribution directory, or the data file will be logged to <strong>edex-ingest-unrecognized-files-YYYYMMDD.log</strong>.  </p>
-<blockquote>
-<p>The exception to this rule is if the new data coming from the LDM is a type of data that already exists and EDEX already has a distribution file with a matching regex that will recognize it.</p>
-</blockquote>
-</li>
-<li>
-<p>If you have written a new regex for a distribution file to match on a filename, and it is not matching, then the file most likely has a header. In this case EDEX will only look at the header to match the regex.  You must change your regex to something that matches the header, not the filename.</p>
-</li>
+<li>Any time a new entry is placed in the <strong>pqact.conf</strong> file on LDM, it is likely a corresponding entry needs to be added to the appropriate Data Distribution file in the data distribution directory, or the data file will be logged to <strong>edex-ingest-unrecognized-files-YYYYMMDD.log</strong>.  </li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">The exception to this rule is if the new data coming from the LDM is a type of data that already exists and EDEX already has a distribution file with a matching regex that will recognize it.</p>
+</div>
+<ul>
+<li>If you have written a new regex for a distribution file to match on a filename, and it is not matching, then the file most likely has a header. In this case EDEX will only look at the header to match the regex.  You must change your regex to something that matches the header, not the filename.</li>
 </ul>
                 
                   

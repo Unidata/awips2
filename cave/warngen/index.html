@@ -456,18 +456,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -492,20 +480,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="../d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -780,7 +756,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+    <a href="../../appendix/maps-database/" title="Maps Database" class="md-nav__link">
       Maps Database
     </a>
   </li>
@@ -973,21 +949,18 @@
 <h2 id="quick-steps-using-warngen-in-unidata-awips-cave">Quick Steps - Using WarnGen in Unidata AWIPS CAVE<a class="headerlink" href="#quick-steps-using-warngen-in-unidata-awips-cave" title="Permanent link"></a></h2>
 <ol>
 <li><a href="#load-nexrad-level-3-display"><strong>Load NEXRAD Display</strong></a> from the Radar menu</li>
-<li>Choose a CWA with active severe weather (PAH is used in the video below)</li>
+<li>Choose a CWA with active severe weather (BUF is used in the video below)</li>
 <li><a href="#select-site-localization"><strong>Re-localize</strong></a> to this site in the <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong> menu</li>
 <li>Exit out of CAVE and reload (you should notice the new CWA at the top of CAVE)</li>
-<li><a href="#load-single-radar-data-from-the-local-radars"><strong>Load radar data</strong></a> from the local radar menu <strong>kpah</strong> &gt; <strong>Z + SRM8</strong></li>
+<li><a href="#load-single-radar-data-from-the-local-radars"><strong>Load radar data</strong></a> from the local radar menu <strong>kbuf</strong> &gt; <strong>Z + SRM8</strong></li>
 <li>Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM</li>
-<li>Click <a href="#launch-warngen"><strong>WarnGen</strong></a> toolbar button or load from <strong>Tools</strong> &gt; <strong>WarnGen</strong></li>
+<li>Click <a href="#launch-warngen"><strong>WarnGen</strong></a> toolbar button <img alt="" src="../../images/warngenIcon.png" /> or load from <strong>Tools</strong> &gt; <strong>WarnGen</strong></li>
 <li><a href="#generate-a-storm-motion-vector"><strong>Drag the storm marker</strong></a> to the center of a storm feature</li>
 <li>Step through frames back and forth and adjust the marker to match the trajectory of the storm feature</li>
 <li>Click <strong>Track</strong> in the Warngen GUI to update the polygon shape and trajectory</li>
 <li>From the WarnGen dialog select the type of warning to generate, time range, basis of the warning, and any threats (wind, hail, etc)</li>
 <li>
 <p>Click <a href="#text-window"><strong>Create Text</strong></a> at the bottom of the WarnGen dialog to generate a text warning product in a new window</p>
-<blockquote>
-<p>Note: Since you are not "issuing" the warning, leave the top to rows blank ("TTAAii" and "CCCC") and Click "Enter" and a separate text window should open </p>
-</blockquote>
 <p><img alt="" src="../../images/warngenHeaderBlock.png" /></p>
 </li>
 <li>
@@ -1002,13 +975,16 @@
 </iframe>
 
 <h2 id="load-nexrad-level-3-display">Load NEXRAD level 3 display<a class="headerlink" href="#load-nexrad-level-3-display" title="Permanent link"></a></h2>
-<p>Select the menu <strong>Radar</strong> &gt; <strong>NEXRAD Display</strong> and note coverage areas of current severe weather.  We choose a CWA ID that contains some active severe weather (PAH Paducah, Kentucky, in this example).</p>
+<p>Select the menu <strong>Radar</strong> &gt; <strong>NEXRAD Display</strong> and note coverage areas of current severe weather.  We choose a CWA ID that contains some active severe weather (BUF Buffalo, New York, in this example).</p>
 <h2 id="select-site-localization">Select SITE Localization<a class="headerlink" href="#select-site-localization" title="Permanent link"></a></h2>
-<p>Open <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong>, select the CWA site ID (PAH) for the coverage area you want to use, followed by <strong>Apply</strong> and <strong>Okay</strong> and restart CAVE. Once CAVE is restarted, you should notice the new CWA at the top of the CAVE window.</p>
+<p>Open <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong>, select the CWA site ID (BUF) for the coverage area you want to use, followed by <strong>Apply</strong> and <strong>Okay</strong> and restart CAVE. Once CAVE is restarted, you should notice the new CWA at the top of the CAVE window.</p>
 <p><img alt="" src="../../images/warngenLocalization.png" /></p>
 <h2 id="load-single-radar-data-from-the-local-radars">Load single radar data from the local radars<a class="headerlink" href="#load-single-radar-data-from-the-local-radars" title="Permanent link"></a></h2>
-<p>Click on the local radar <strong>kpah</strong> &gt; <strong>Z + SRM8</strong>. Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM.</p>
-<p><img alt="" src="../../images/warngenLocalRadar.png" /></p>
+<p>Use the specialized site menu for the local radar data products, ex. Click on the local radar <strong>kbuf</strong> &gt; <strong>Z + SRM8</strong>.</p>
+<p><img alt="" src="../../images/warngenLocalRadar1.png" /></p>
+<p>This menu includes several sections with submenus for all available radar data at that site.</p>
+<p><img alt="" src="../../images/warngenLocalRadar2.png" /></p>
+<p>Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM.</p>
 <h2 id="launch-warngen">Launch WarnGen<a class="headerlink" href="#launch-warngen" title="Permanent link"></a></h2>
 <p>Select <strong>WarnGen</strong> from the D2D Toolbar or from the <strong>Tools</strong> &gt; <strong>WarnGen</strong> menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window.</p>
 <p><img alt="" src="../../images/warngen.png" /></p>
@@ -1039,8 +1015,10 @@ When you are customizing a polygon in WarnGen, speed is critical. Everyone, even
 -->
 
 <h2 id="text-window">Text Window<a class="headerlink" href="#text-window" title="Permanent link"></a></h2>
-<p>Once you are satisfied with your polygon and have chosen your selections, click <strong>Create Text</strong> in the WarnGen GUI. Initially the AWIPS Header Block window appears. Leave the top two rows bank and click <strong>Enter</strong> for the text window to open. </p>
+<p>Once you are satisfied with your polygon and have chosen your selections, click <strong>Create Text</strong> in the WarnGen GUI. Initially the AWIPS Header Block window appears. Click <strong>Enter</strong> for the text window to open. </p>
 <p><img alt="" src="../../images/warngenHeaderBlock.png" /></p>
+<p>This will open the Text Window.</p>
+<p><img alt="" src="../../images/warngenTextWindow.png" /></p>
 <p>Using the customized settings in the WarnGen GUI, WarnGen translates the information into a text product that is displayed in a text window on the Text Display. The auto-generated text contains the storm speed and direction, the counties and cities affected by the warning/advisory, the valid times of the product, the warning/advisory body text (including any optional bullets selected in the GUI), and additional code to help our partners to efficiently process and disseminate the warning/advisory. The locked parts of the text are highlighted in blue and most of your text should not need to be edited if you configured your WarnGen window correctly.</p>
 <div class="admonition danger">
 <p class="admonition-title">The Unidata AWIPS release is <em>non-operational</em>. You will be allowed to simulate the drawing and text-generation of warnings, but are <strong>prevented from transmitting</strong> a generated warning upstream</p>
@@ -1099,13 +1077,13 @@ With a tracked storm in WarnGen:
           </a>
         
         
-          <a href="cave/goes-16-17-satellite/" title="GOES 16/17" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                GOES 16/17
+                GIS and Shapefiles
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

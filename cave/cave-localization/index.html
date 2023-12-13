@@ -350,18 +350,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../goes-16-17-satellite/" title="GOES 16/17" class="md-nav__link">
-      GOES 16/17
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
@@ -386,20 +374,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
-      Display Tools
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
-      Radar Tools
+    <a href="../d2d-all-tools/" title="Tools" class="md-nav__link">
+      Tools
     </a>
   </li>
 
@@ -710,7 +686,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+    <a href="../../appendix/maps-database/" title="Maps Database" class="md-nav__link">
       Maps Database
     </a>
   </li>
@@ -828,12 +804,15 @@
                 <h1 id="change-localization">Change Localization<a class="headerlink" href="#change-localization" title="Permanent link"></a></h1>
 <h2 id="localization-preferences">Localization Preferences<a class="headerlink" href="#localization-preferences" title="Permanent link"></a></h2>
 <p>The default localization site for Unidata AWIPS is OAX (Omaha, Nebraska, where the Raytheon team is located).  When you are prompted to connect to an EDEX server, you can change the WFO ID as well. </p>
-<p><img alt="" src="../../images/edexServerDialog.png" /></p>
-<p>Since release 16.1.4, CAVE users can switch the localization site to any valid NWS WFO from <strong>CAVE &gt; Preferences &gt; Localization</strong>, where edits can be made to both the site ID and EDEX server name. Click <strong>Restart</strong> after changes are applied.<br />
-This window also has the option to <strong>Prompt for settings on startup</strong>, which if checked, would ask for the EDEX Server and Site location every time CAVE is started (this can be useful if you are used to switching between servers and/or sites).</p>
-<p><img alt="" src="../../images/cave-localization-3.png" /></p>
+<p><img alt="" src="../../images/connectWindow.png" /></p>
+<!-- 
+Need to reimplement the "Restart Now" button, and be a bit smarter about it (apply automatically, delete caveData if changing servers).
+
+Since release 16.1.4, CAVE users can switch the localization site to any valid NWS WFO from **CAVE > Preferences > Localization**, where edits can be made to both the site ID and EDEX server name. Click **Restart** after changes are applied.   -->
+<p>This window also has the option to <strong>Prompt for settings on startup</strong>, which if checked, would ask for the EDEX Server and Site location every time CAVE is started (this can be useful if you are used to switching between servers and/or sites).</p>
+<p><img alt="" src="../../images/localization-preferences.png" /></p>
 <p>Change the site (example shows TBW Tampa Bay) and click <strong>Apply</strong> or <strong>OK</strong> and confirm the popup dialog, which informs you that you must <em>restart</em> CAVE for the changes to take effect.  </p>
-<p><img alt="" src="../../images/cave-localization-4.png" /></p>
+<p><img alt="" src="../../images/localization-preferences-changed.png" /></p>
                 
                   
                 
