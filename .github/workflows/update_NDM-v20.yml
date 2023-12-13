@@ -1,4 +1,4 @@
-name: update station info
+name: update station info v20
 
 on:
   workflow_dispatch:
