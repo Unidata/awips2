@@ -6,7 +6,7 @@ Project home: [https://github.com/Unidata/edex-docker](https://github.com/Unidat
 
 EDEX can be run inside a docker container, which allows you to process data into an AWIPS system without requiring accessing and altering the machine's native CentOS installation and configuration.
 
-The [EDEX Docker Image](https://github.com/Unidata/edex-docker) is built on CentOS 7 and contains the latest Unidata AWIPS release (18.1.1).  
+The [EDEX Docker Image](https://github.com/Unidata/edex-docker) is built on CentOS 7 and contains the latest NSF Unidata AWIPS release (18.1.1).  
 
 This container is an **ingest-only** install, meaning there is **no database or request server**.  This example requires a Database/Request server be configured for you to access remotely.  See the [**Distributed EDEX**](https://unidata.github.io/awips2/edex/distributed-computing/) document for more. 
 
@@ -103,7 +103,7 @@ Defines which data feeds to receive. By default there is only one active request
  
 ### etc/pqact.conf
 
-Defines how products are processed and where they are written to on the filesystem. This is the full set of pattern actions used in Unidata AWIPS, and generally you do not need to edit this file. Instead control which data feeds are requested in `ldmd.conf` (above).
+Defines how products are processed and where they are written to on the filesystem. This is the full set of pattern actions used in NSF Unidata AWIPS, and generally you do not need to edit this file. Instead control which data feeds are requested in `ldmd.conf` (above).
 
 ### bin/setup.env
 

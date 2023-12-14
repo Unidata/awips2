@@ -1,10 +1,10 @@
 # WarnGen Walkthrough
 
-WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a *non-operational* forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but **prevents you from transmitting a generated warning upstream**.
+WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the NSF Unidata AWIPS release it is a *non-operational* forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but **prevents you from transmitting a generated warning upstream**.
 
 !!! warning "In order to select a feature it must be within your *CAVE localization* coverage (load **Maps** > **County Warning Areas** to see coverages)"
 
-## Quick Steps - Using WarnGen in Unidata AWIPS CAVE
+## Quick Steps - Using WarnGen in NSF Unidata AWIPS CAVE
 
 1. [**Load NEXRAD Display**](#load-nexrad-level-3-display) from the Radar menu
 2. Choose a CWA with active severe weather (BUF is used in the video below)
@@ -110,7 +110,7 @@ This will open the Text Window.
 
 Using the customized settings in the WarnGen GUI, WarnGen translates the information into a text product that is displayed in a text window on the Text Display. The auto-generated text contains the storm speed and direction, the counties and cities affected by the warning/advisory, the valid times of the product, the warning/advisory body text (including any optional bullets selected in the GUI), and additional code to help our partners to efficiently process and disseminate the warning/advisory. The locked parts of the text are highlighted in blue and most of your text should not need to be edited if you configured your WarnGen window correctly.
 
-!!! danger "The Unidata AWIPS release is *non-operational*. You will be allowed to simulate the drawing and text-generation of warnings, but are **prevented from transmitting** a generated warning upstream"
+!!! danger "The NSF Unidata AWIPS release is *non-operational*. You will be allowed to simulate the drawing and text-generation of warnings, but are **prevented from transmitting** a generated warning upstream"
 
 <!--
 For some products like Severe Weather Statements, there are parts of text that must be edited that have wild-card characters around them that need to be removed after modifying the text inside (e.g. !** WEAKENED.MOVED OUT OF THE WARNED AREA. **!). When you attempt to send a product, WarnGen will instruct you to modify this text if you have not. Once the text looks ready for submission you click the Send button, and, on a live system, the warning will be transmitted for public broadcast after you press the Go Ahead button on the final WarnGen check. WES-2 Bridge has been implemented in a way that cannot interact with the live AWIPS processes and communications, so warnings issued on the WES-2 Bridge will not be transmitted as live products.

@@ -2,7 +2,7 @@
 
 ## Localization Preferences
 
-The default localization site for Unidata AWIPS is OAX (Omaha, Nebraska, where the Raytheon team is located).  When you are prompted to connect to an EDEX server, you can change the WFO ID as well. 
+The default localization site for NSF Unidata AWIPS is OAX (Omaha, Nebraska, where the Raytheon team is located).  When you are prompted to connect to an EDEX server, you can change the WFO ID as well. 
 
 ![](../images/connectWindow.png)
 

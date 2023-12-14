@@ -74,7 +74,7 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 **Latest Version: 20.3.2-1**
 
-For Windows, Unidata offers two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
+For Windows, we offer two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
 !!! warning "The virtual machine option won't render RGB composites of satellite imagery."
 
@@ -159,7 +159,7 @@ To run CAVE either:
 
 ## EDEX Connection
 
-Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter **edex-cloud.unidata.ucar.edu**.
+NSF Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter **edex-cloud.unidata.ucar.edu**.
 
 ![EDEX in the cloud](../images/connectWindow.png)
 

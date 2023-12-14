@@ -187,6 +187,8 @@ Switching perspectives in CAVE can be found in the **CAVE > Perspective** menu.
 
 D2D is one of many available CAVE perspectives.  By selecting the **CAVE** > **Perspective** menu you can switch into the **GFE**, or **Localization** perspective.
 !!! warning "The **GFE** perspective is not currently working on the direct Windows or MacOS installations of CAVE."
+!!! note "The GFE perspective is only enabled for the OAX site."
+
 
 ![image](../images/perspectivesMenu.png)
 
