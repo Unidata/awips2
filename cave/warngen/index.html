@@ -22,7 +22,7 @@
     
     
       
-        <title>WarnGen Walkthrough - Unidata AWIPS User Manual</title>
+        <title>WarnGen Walkthrough - NSF Unidata AWIPS Manual</title>
       
     
     
@@ -75,7 +75,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="http://unidata.github.io/awips2/" title="Unidata AWIPS User Manual" class="md-header-nav__button md-logo">
+        <a href="http://unidata.github.io/awips2/" title="NSF Unidata AWIPS Manual" class="md-header-nav__button md-logo">
           
             
               <img src="../../images/home.png" width="24" height="24">
@@ -169,14 +169,14 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="drawer">
-    <a href="http://unidata.github.io/awips2/" title="Unidata AWIPS User Manual" class="md-nav__button md-logo">
+    <a href="http://unidata.github.io/awips2/" title="NSF Unidata AWIPS Manual" class="md-nav__button md-logo">
       
         
           <img src="../../images/home.png">
         
       
     </a>
-    Unidata AWIPS User Manual
+    NSF Unidata AWIPS Manual
   </label>
   
     <div class="md-nav__source">
@@ -365,8 +365,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#quick-steps-using-warngen-in-unidata-awips-cave" title="Quick Steps - Using WarnGen in Unidata AWIPS CAVE" class="md-nav__link">
-    Quick Steps - Using WarnGen in Unidata AWIPS CAVE
+  <a href="#quick-steps-using-warngen-in-nsf-unidata-awips-cave" title="Quick Steps - Using WarnGen in NSF Unidata AWIPS CAVE" class="md-nav__link">
+    Quick Steps - Using WarnGen in NSF Unidata AWIPS CAVE
   </a>
   
 </li>
@@ -848,8 +848,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#quick-steps-using-warngen-in-unidata-awips-cave" title="Quick Steps - Using WarnGen in Unidata AWIPS CAVE" class="md-nav__link">
-    Quick Steps - Using WarnGen in Unidata AWIPS CAVE
+  <a href="#quick-steps-using-warngen-in-nsf-unidata-awips-cave" title="Quick Steps - Using WarnGen in NSF Unidata AWIPS CAVE" class="md-nav__link">
+    Quick Steps - Using WarnGen in NSF Unidata AWIPS CAVE
   </a>
   
 </li>
@@ -938,15 +938,15 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/cave/warngen.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_20.3.2/docs/cave/warngen.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="warngen-walkthrough">WarnGen Walkthrough<a class="headerlink" href="#warngen-walkthrough" title="Permanent link"></a></h1>
-<p>WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a <em>non-operational</em> forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but <strong>prevents you from transmitting a generated warning upstream</strong>.</p>
+<p>WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the NSF Unidata AWIPS release it is a <em>non-operational</em> forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but <strong>prevents you from transmitting a generated warning upstream</strong>.</p>
 <div class="admonition warning">
 <p class="admonition-title">In order to select a feature it must be within your <em>CAVE localization</em> coverage (load <strong>Maps</strong> &gt; <strong>County Warning Areas</strong> to see coverages)</p>
 </div>
-<h2 id="quick-steps-using-warngen-in-unidata-awips-cave">Quick Steps - Using WarnGen in Unidata AWIPS CAVE<a class="headerlink" href="#quick-steps-using-warngen-in-unidata-awips-cave" title="Permanent link"></a></h2>
+<h2 id="quick-steps-using-warngen-in-nsf-unidata-awips-cave">Quick Steps - Using WarnGen in NSF Unidata AWIPS CAVE<a class="headerlink" href="#quick-steps-using-warngen-in-nsf-unidata-awips-cave" title="Permanent link"></a></h2>
 <ol>
 <li><a href="#load-nexrad-level-3-display"><strong>Load NEXRAD Display</strong></a> from the Radar menu</li>
 <li>Choose a CWA with active severe weather (BUF is used in the video below)</li>
@@ -1021,7 +1021,7 @@ When you are customizing a polygon in WarnGen, speed is critical. Everyone, even
 <p><img alt="" src="../../images/warngenTextWindow.png" /></p>
 <p>Using the customized settings in the WarnGen GUI, WarnGen translates the information into a text product that is displayed in a text window on the Text Display. The auto-generated text contains the storm speed and direction, the counties and cities affected by the warning/advisory, the valid times of the product, the warning/advisory body text (including any optional bullets selected in the GUI), and additional code to help our partners to efficiently process and disseminate the warning/advisory. The locked parts of the text are highlighted in blue and most of your text should not need to be edited if you configured your WarnGen window correctly.</p>
 <div class="admonition danger">
-<p class="admonition-title">The Unidata AWIPS release is <em>non-operational</em>. You will be allowed to simulate the drawing and text-generation of warnings, but are <strong>prevented from transmitting</strong> a generated warning upstream</p>
+<p class="admonition-title">The NSF Unidata AWIPS release is <em>non-operational</em>. You will be allowed to simulate the drawing and text-generation of warnings, but are <strong>prevented from transmitting</strong> a generated warning upstream</p>
 </div>
 <!--
 For some products like Severe Weather Statements, there are parts of text that must be edited that have wild-card characters around them that need to be removed after modifying the text inside (e.g. !** WEAKENED.MOVED OUT OF THE WARNED AREA. **!). When you attempt to send a product, WarnGen will instruct you to modify this text if you have not. Once the text looks ready for submission you click the Send button, and, on a live system, the warning will be transmitted for public broadcast after you press the Go Ahead button on the final WarnGen check. WES-2 Bridge has been implemented in a way that cannot interact with the live AWIPS processes and communications, so warnings issued on the WES-2 Bridge will not be transmitted as live products.

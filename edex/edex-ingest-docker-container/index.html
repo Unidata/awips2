@@ -22,7 +22,7 @@
     
     
       
-        <title>Docker EDEX - Unidata AWIPS User Manual</title>
+        <title>Docker EDEX - NSF Unidata AWIPS Manual</title>
       
     
     
@@ -75,7 +75,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="http://unidata.github.io/awips2/" title="Unidata AWIPS User Manual" class="md-header-nav__button md-logo">
+        <a href="http://unidata.github.io/awips2/" title="NSF Unidata AWIPS Manual" class="md-header-nav__button md-logo">
           
             
               <img src="../../images/home.png" width="24" height="24">
@@ -169,14 +169,14 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="drawer">
-    <a href="http://unidata.github.io/awips2/" title="Unidata AWIPS User Manual" class="md-nav__button md-logo">
+    <a href="http://unidata.github.io/awips2/" title="NSF Unidata AWIPS Manual" class="md-nav__button md-logo">
       
         
           <img src="../../images/home.png">
         
       
     </a>
-    Unidata AWIPS User Manual
+    NSF Unidata AWIPS Manual
   </label>
   
     <div class="md-nav__source">
@@ -908,14 +908,14 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.2.1/docs/edex/edex-ingest-docker-container.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_20.3.2/docs/edex/edex-ingest-docker-container.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="docker-edex">Docker EDEX<a class="headerlink" href="#docker-edex" title="Permanent link"></a></h1>
 <p>Project home: <a href="https://github.com/Unidata/edex-docker">https://github.com/Unidata/edex-docker</a></p>
 <hr />
 <p>EDEX can be run inside a docker container, which allows you to process data into an AWIPS system without requiring accessing and altering the machine's native CentOS installation and configuration.</p>
-<p>The <a href="https://github.com/Unidata/edex-docker">EDEX Docker Image</a> is built on CentOS 7 and contains the latest Unidata AWIPS release (18.1.1).  </p>
+<p>The <a href="https://github.com/Unidata/edex-docker">EDEX Docker Image</a> is built on CentOS 7 and contains the latest NSF Unidata AWIPS release (18.1.1).  </p>
 <p>This container is an <strong>ingest-only</strong> install, meaning there is <strong>no database or request server</strong>.  This example requires a Database/Request server be configured for you to access remotely.  See the <a href="https://unidata.github.io/awips2/edex/distributed-computing/"><strong>Distributed EDEX</strong></a> document for more. </p>
 <hr />
 <h2 id="download-and-install-docker">Download and Install Docker<a class="headerlink" href="#download-and-install-docker" title="Permanent link"></a></h2>
@@ -987,7 +987,7 @@ docker-compose up -d edex-ingest
 <h3 id="etcldmdconf">etc/ldmd.conf<a class="headerlink" href="#etcldmdconf" title="Permanent link"></a></h3>
 <p>Defines which data feeds to receive. By default there is only one active request line (<code>REQUEST IDS|DDPLUS ".*" idd.unidata.ucar.edu</code>) to not overwhelm small EDEX containers ingesting large volumes of radar and gridded data files.  Any updates to the file <code>etc/ldmd.conf</code> will be read the next time you restart the container.</p>
 <h3 id="etcpqactconf">etc/pqact.conf<a class="headerlink" href="#etcpqactconf" title="Permanent link"></a></h3>
-<p>Defines how products are processed and where they are written to on the filesystem. This is the full set of pattern actions used in Unidata AWIPS, and generally you do not need to edit this file. Instead control which data feeds are requested in <code>ldmd.conf</code> (above).</p>
+<p>Defines how products are processed and where they are written to on the filesystem. This is the full set of pattern actions used in NSF Unidata AWIPS, and generally you do not need to edit this file. Instead control which data feeds are requested in <code>ldmd.conf</code> (above).</p>
 <h3 id="binsetupenv">bin/setup.env<a class="headerlink" href="#binsetupenv" title="Permanent link"></a></h3>
 <p>Defines the remote EDEX Database/Request server:</p>
 <pre><code>### EDEX localization related variables ###

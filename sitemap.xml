@@ -51,11 +51,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://unidata.github.io/awips2/cave/cave-perspectives/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>http://unidata.github.io/awips2/cave/d2d-all-tools/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
@@ -76,72 +71,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://unidata.github.io/awips2/cave/d2d-grids/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/d2d-hydro/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/d2d-map-resources/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>http://unidata.github.io/awips2/cave/d2d-perspective/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://unidata.github.io/awips2/cave/d2d-pointdata-surface-obs/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/d2d-radar/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/d2d-satellite/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/d2d-uair/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>http://unidata.github.io/awips2/cave/goes-16-17-satellite/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/hazard-services-alert/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/hazard-services-create/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/hazard-services-display/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/hazard-services-example/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/hazard-services-settings/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -161,22 +96,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://unidata.github.io/awips2/cave/ncp-perspective/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>http://unidata.github.io/awips2/cave/nsharp/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/pgen/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/cave/unused-components/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -196,47 +116,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://unidata.github.io/awips2/devguide/data-flow/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/devguide/file-system/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/devguide/linux-tools/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/devguide/regular-expressions/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/edex/archiver/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>http://unidata.github.io/awips2/edex/case-studies/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://unidata.github.io/awips2/edex/data-access-plugins/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>http://unidata.github.io/awips2/edex/data-distribution-files/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/edex/data-grids/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -247,21 +132,6 @@
     </url>
     <url>
          <loc>http://unidata.github.io/awips2/edex/data-purge/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/edex/data-radar/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/edex/data-satellite/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/edex/derived-parameters/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -281,17 +151,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>http://unidata.github.io/awips2/edex/ldm-gempak/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>http://unidata.github.io/awips2/edex/ldm/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/edex/linux-tools/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -312,11 +172,6 @@
     </url>
     <url>
          <loc>http://unidata.github.io/awips2/install/install-cave/</loc>
-         <lastmod>2023-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://unidata.github.io/awips2/install/install-distributed/</loc>
          <lastmod>2023-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
