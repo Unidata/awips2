@@ -198,7 +198,7 @@ This tool converts the units of the first column into differing units of the sec
 
 ### Text Workstation
 
-By selecting one of the "Text" buttons, a text window opens up. In National Weather Service operations, the text workstation is used to edit new warning text as well as look up past warnings, METARs, and TAFs. This functionality is **disabled** in the Unidata AWIPS version.
+By selecting one of the "Text" buttons, a text window opens up. In National Weather Service operations, the text workstation is used to edit new warning text as well as look up past warnings, METARs, and TAFs. This functionality is **disabled** in the NSF Unidata AWIPS version.
 
 ![](../images/textWorkstation.png)
 

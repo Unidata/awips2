@@ -4,7 +4,7 @@
 
 Data feeds are defined by the **ldmd.conf** file in `/awips2/ldm/etc/ldmd.conf`.  The default feeds that come "turned on" with our EDEX are the following:
 
-    REQUEST FNEXRAD ".*" idd.unidata.ucar.edu # MRMS - Unidata feed via NCEP
+    REQUEST FNEXRAD ".*" idd.unidata.ucar.edu # MRMS - NSF Unidata feed via NCEP
     REQUEST NEXRAD3 ".*" idd.unidata.ucar.edu # Radar Level3 
     REQUEST HDS "^SDUS6.*" idd.unidata.ucar.edu # Radar Level3 - specific files
     REQUEST WMO ".*" idd.unidata.ucar.edu                   # WMO Feedtype includes HDS|IDS|DDPLUS

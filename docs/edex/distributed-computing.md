@@ -1,10 +1,10 @@
 # Distributed EDEX
 
-AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS could consist of a dozen servers or more, the early Unidata releases were stripped of operations-specific configurations and plugins, and released as a standalone server. This worked, since (at the time) a single EDEX instance with an attached SSD could handle most of NOAAport. However, with GOES-R(16) coming online in 2017, and more gridded forecast models being created at finer temporal and spatial resolutions, there is now a need to distribute the data decoding across multiple machines to handle this firehose of data.
+AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS could consist of a dozen servers or more, the early NSF Unidata releases were stripped of operations-specific configurations and plugins, and released as a standalone server. This worked, since (at the time) a single EDEX instance with an attached SSD could handle most of NOAAport. However, with GOES-R(16) coming online in 2017, and more gridded forecast models being created at finer temporal and spatial resolutions, there is now a need to distribute the data decoding across multiple machines to handle this firehose of data.
 
 ---
 
-## Unidata's Current EDEX Server
+## NSF Unidata's Current EDEX Server
 
 Currently, we use a distributed architecture comprised of three machines: 1 **main EDEX** machine and 2 **ancillary EDEX** machines.  The main EDEX machine decodes and processes the majority of the data, while serving and storing all of the data.  Our two ancillary machines -- one for radar data and one for satellite data -- each decode and process a subset of the data and send it back to the main EDEX for storage and requesting.
 

@@ -2,7 +2,7 @@
 
 !!! note "These steps should be run as user *awips* with sudo.  Switch to the user by running `su - awips`."
 
-Unidata's EDEX install also comes with a [simple **`edex`** program](#edex-commands) that can help execute basic EDEX utilities.  The most basic of the commands are the following:
+NSF Unidata's EDEX install also comes with a [simple **`edex`** program](#edex-commands) that can help execute basic EDEX utilities.  The most basic of the commands are the following:
 
 To start all EDEX services:
 
@@ -67,7 +67,7 @@ If the EDEX machine is shut down abruptly, when restarted, it should start up th
 
 ## EDEX Commands
 
-Unidata's version of EDEX installs with a helpful `edex` script that can be used for basic EDEX tasks.
+NSF Unidata's version of EDEX installs with a helpful `edex` script that can be used for basic EDEX tasks.
 
 ### edex start
 

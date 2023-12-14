@@ -1,6 +1,6 @@
 # Educational Resources
 
-Here at Unidata, we want to provide as many resources as possible to make our tools and applications easy to use.  For AWIPS we currently have a new [eLearning course](#cave-elearning-course) that is specific to CAVE.  We also have a suite of [Jupyter Notebooks](#python-awips-example-notebooks) that are meant to provide a detailed overview of many capabilities of python-awips.
+Here at NSF Unidata, we want to provide as many resources as possible to make our tools and applications easy to use.  For AWIPS we currently have a new [eLearning course](#cave-elearning-course) that is specific to CAVE.  We also have a suite of [Jupyter Notebooks](#python-awips-example-notebooks) that are meant to provide a detailed overview of many capabilities of python-awips.
 
 ---
 
@@ -12,7 +12,7 @@ Here at Unidata, we want to provide as many resources as possible to make our to
 
 ### Access
 
-Please create an account on <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">Unidata eLearning</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=2" target="_blank" rel="noopener noreferrer">Learn AWIPS CAVE</a>.
+Please create an account on our <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">eLearning site</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=2" target="_blank" rel="noopener noreferrer">Learn AWIPS CAVE</a>.
 
 ### Content
 
@@ -69,7 +69,7 @@ If you experience any technical issues with our online course, please contact us
 
 ### Access
 
-Please create an account on <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">Unidata eLearning</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=4" target="_blank" rel="noopener noreferrer">Learn Python-AWIPS</a>.
+Please create an account on our <a href="https://elearning.unidata.ucar.edu/" target="_blank" rel="noopener noreferrer">eLearning site</a>, then self-enroll in <a href="https://elearning.unidata.ucar.edu/course/view.php?id=4" target="_blank" rel="noopener noreferrer">Learn Python-AWIPS</a>.
 
 ### Content
 
@@ -126,11 +126,11 @@ Our python-awips Notebooks span a wide range of topics, but generally cover the 
 
 ## YouTube Channel and Playlist
 
-Unidata has a YouTube channel where we publish videos about all of our software pacakges.  Specifically we also have a playlist dedicated to AWIPS videos.
+NSF Unidata has a YouTube channel where we publish videos about all of our software pacakges.  Specifically we also have a playlist dedicated to AWIPS videos.
 
 ### Access
 
-All [Unidata vidoes can be accessed here](https://www.youtube.com/c/unidatanews) on our channel.
+All [NSF Unidata vidoes can be accessed here](https://www.youtube.com/c/unidatanews) on our channel.
 
 All AWIPS vidoes can be found on the [AWIPS Playlist](https://www.youtube.com/watch?v=4ax6SRyaYTc&list=PLQut5OXpV-0gk9CcjfInV9hNIEAld-Tpp).
 
@@ -149,7 +149,7 @@ Our AWIPS videos cover a wide range of topics, but include some of the following
 
 ## AWIPS Tips Blog Series
 
-AWIPS Tips is a bi-weekly (every two weeks) blog series that is posted on our Unidata blogs page.  Entries in the series cover topics relating to CAVE, python-awips, EDEX, and more. 
+AWIPS Tips is a bi-weekly (every two weeks) blog series that is posted on our NSF Unidata blogs page.  Entries in the series cover topics relating to CAVE, python-awips, EDEX, and more. 
 
 ### Access
 
@@ -167,11 +167,11 @@ A full list of all released blogs can be found below:
 - [AWIPS 18.2.1 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-software)
 - [Announcing AWIPS eLearning](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course)
 - [AWIPS 18.2.1-3 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-3)
-- [Access Learn AWIPS CAVE from Unidata eLearning](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-learn-awips)
+- [Access Learn AWIPS CAVE from our eLearning Site](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-learn-awips)
 - [AWIPS 18.2.1-5 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-5)
 - [GLM DATA IDD/LDM Feed Updates](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-glm-data-idd)
 - [AWIPS 18.2.1-6 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-18-2-1-6)
-- [Unidata AWIPS Summer Internship 2022: Rhoen Fiutak](https://www.unidata.ucar.edu/blogs/news/entry/unidata-awips-summer-internship-2022)
+- [NSF Unidata AWIPS Summer Internship 2022: Rhoen Fiutak](https://www.unidata.ucar.edu/blogs/news/entry/unidata-awips-summer-internship-2022)
 - [Announcing a New eLearning Course: Learn Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/announcing-a-new-elearning-course1)
 - [Use Case Example: Texas A&M CAVE in the Classroom](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-use-case-example)
 - [AWIPS 20.3.2-0.1 Beta CAVE Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-20)
@@ -213,7 +213,7 @@ A full list of all released blogs can be found below:
 #### Python-AWIPS
 
 - [Access Model Output with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-access-model-output)
-- [Plot New GOES Products From Unidata's Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
+- [Plot New GOES Products From Our Public EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plot-new-goes)
 - [Load Map Resources and Topography using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-load-map-resources)
 - [Create a Colored Surface Temperature Plot](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-a-colored)
 - [Create Colorized Model Plots](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-create-colorized-model)
