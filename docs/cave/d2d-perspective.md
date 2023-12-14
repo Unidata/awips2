@@ -186,7 +186,7 @@ You can now set the background display color on your workstation. You can also s
 Switching perspectives in CAVE can be found in the **CAVE > Perspective** menu.
 
 D2D is one of many available CAVE perspectives.  By selecting the **CAVE** > **Perspective** menu you can switch into the **GFE**, or **Localization** perspective.
->**Note**: The **National Centers Perspective** (which is available in the **Other...** submenu) is available on the Linux version of CAVE.  And the **GFE** perspective is not available on the Windows version.
+!!! warning "The **GFE** perspective is not currently working on the direct Windows or MacOS installations of CAVE."
 
 ![image](../images/perspectivesMenu.png)
 
