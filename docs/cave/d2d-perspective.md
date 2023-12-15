@@ -43,6 +43,12 @@ The hold-right-click menu allows you to control individual resource **Image Prop
 
 This menu also gives you the option to unload **this specific product**, as opposed to removing all data prodcuts.  Simply select the **Unload** option at the bottom of the resource's hold-right-click menu.
 
+#### Unload a Single Resource
+
+To remove or "unload" a single resource, use the Resource Menu.  Open the Resource Menu on the resource you wish to remove and select **Unload**.
+
+![unload single resource](../images/unloadSingleResource.png)
+
 ---
 
 ## Display Menu

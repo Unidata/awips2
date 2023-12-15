@@ -80,9 +80,7 @@ or
 
 This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation (and is possible on Linux), and the root of the problem is not having Python installed properly for CAVE to use the packages.
 
-If the [Windows installation](install-cave.md#download-and-installation-instructions_2) was not completed properly, it is possible to see incorrect behavior when loading certain products.  These are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.
-
-The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
+There are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.  The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
 ![failed load](../images/failedJepMetarLoad.png)
 
 You may see an error that mentions the python package, **jep**.
@@ -96,12 +94,13 @@ Known datasets this can affect (this is not a comprehensive list):
 
 To correct this issue on Windows:
 
-  - Uninstall all related software (C++ Build Tools, Miniconda, Python, CAVE, pip, numpy, jep, etc)
-  - Install our [latest Windows installer](http://127.0.0.1:8000/awips2/install/install-cave/#windows) which bundles all necessary software dependencies
+  - Make sure you only have the latest version of [CAVE installed](https://unidata.github.io/awips2/install/install-cave/#method-1-direct-windows-install) (which now fully bundles the proper version of Python with the application)
+  - If you have ever previously added `PYTHONHOME`, `PYTHONPATH`, or `JAVA_HOME` to your user or system variables, please delete those.
+    - Open the Environment Variables window by typing "env" in the start bar
 
 To correct this issue on Mac:
 
- - Install the [awips-python.pkg package found on **step 1**](https://unidata.github.io/awips2/install/install-cave/#download-and-installation-instructions_3)
+ - Make sure you have the latest verison of [CAVE installed](https://unidata.github.io/awips2/install/install-cave/#macos) (which now fully bundles the proper version of Python with the application)
 
 To correct this issue on Linux:
 
