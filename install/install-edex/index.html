@@ -1206,11 +1206,11 @@
 <h3 id="1-install-edex">1. Install EDEX<a class="headerlink" href="#1-install-edex" title="Permanent link"></a></h3>
 <p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></p>
 <pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
-chmod 755 awips_install-v20.sh
-sudo ./awips_install-v20.sh --edex
+chmod 755 awips_install.sh
+sudo ./awips_install.sh --edex
 </code></pre>
 <div class="admonition note">
-<p class="admonition-title"><strong>awips_install-v20.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
+<p class="admonition-title"><strong>awips_install.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
 <ol>
 <li>Checks to see if EDEX is currently running, if so stops the processes with the <code>edex stop</code> command</li>
 <li>If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a <code>yum groupremove awips2-server</code></li>
@@ -1223,7 +1223,7 @@ sudo ./awips_install-v20.sh --edex
 </div>
 <div class="admonition warning">
 <p class="admonition-title">If you receive an error relating to yum, then please run</p>
-<p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install-v20.sh --edex"</code></p>
+<p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"</code></p>
 </div>
 <h3 id="2-edex-setup">2. EDEX Setup<a class="headerlink" href="#2-edex-setup" title="Permanent link"></a></h3>
 <p>The external and localhost addresses need to be specified in <code>/etc/hosts</code></p>
