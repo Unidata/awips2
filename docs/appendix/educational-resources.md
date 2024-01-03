@@ -37,7 +37,7 @@ Please create an account on our <a href="https://elearning.unidata.ucar.edu/" ta
 Required:
 
   - [A supported web browser](https://articulate.com/support/article/System-Requirements-for-Rise#viewing-content)
-  - CAVE version 18.2.1 installed on a [supported operating system](http://unidata.github.io/awips2/install/install-cave/)
+  - NSF Unidata's CAVE version 20.3.2 installed on a [supported operating system](http://unidata.github.io/awips2/install/install-cave/)
 
 Recommended:
   
