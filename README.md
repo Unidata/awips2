@@ -1,4 +1,4 @@
-# Unidata AWIPS
+# NSF Unidata AWIPS
 
 [https://www.unidata.ucar.edu/software/awips/](https://www.unidata.ucar.edu/software/awips/)
 
@@ -13,7 +13,7 @@ Unidata supports two data visualization frameworks: [CAVE](docs/install/install-
 > **Note**: Our version of CAVE is a **non-operational** version.  It does not support some features of NWS AWIPS.  Warnings and alerts cannot be issued from our builds of CAVE.  Additional functionality may not be available as well.
 
 
-![CAVE](https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png)
+![CAVE](https://unidata.github.io/awips2/images/Unidata_AWIPS2_CAVE.png)
 
 ---
 
