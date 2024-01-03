@@ -1,6 +1,6 @@
 # Ingest a New Grid
 
-Unrecognized grids can be decoded by EDEX simply by dropping `*.grib` or `*.grib2` files into `/awips2/data_store/ingest/`
+Unrecognized grids can be decoded by EDEX simply by dropping `*.grib` or `*.grib2` files into `/awips2/edex/data/manual/`
 
 !!! note "This page explains how to ingest `.grib2` products.  To view information about `.grib` products, [please see this page](../new-grid-grib1-old)."
 
@@ -19,11 +19,11 @@ If the parameters in the grib file haven't been previously specified, another ch
 
 ### Download Test Data
 
-Download an example grib2 file (make sure the extension is `.grib2` or the [EDEX distribution file](../data-distribution-files/#editing-an-edex-data-distribution-file) may not recognize it), and then copy to the manual ingest point `/awips2/data_store/ingest/`:
+Download an example grib2 file (make sure the extension is `.grib2` or the [EDEX distribution file](../data-distribution-files/#editing-an-edex-data-distribution-file) may not recognize it), and then copy to the manual ingest point `/awips2/edex/data/manual/`:
 
     wget https://downloads.unidata.ucar.edu/awips2/current/files/CPTI_00.50_20180502-000144.grib2 -O cpti.grib2
 
-    cp cpti.grib2 /awips2/data_store/ingest/
+    cp cpti.grib2 /awips2/edex/data/manual/
 
 ### Check Grib Logs
 
@@ -31,10 +31,10 @@ Confirm that the grib file decodes in the grib log file.
     
 Look in the current log file (/awips2/edex/logs/edex-ingestGrib-[YYYYMMDD].log) for the following:
 
-    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1200 (sec) Latency: 21.8080 (sec)
-    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.1180 (sec) Latency: 21.8140 (sec)
-    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.4230 (sec) Latency: 21.8360 (sec)
-    INFO [Ingest.GribDecode] /awips2/data_store/ingest/cpti.grib2 processed in: 0.2240 (sec) Latency: 21.9140 (sec)
+    INFO [Ingest.GribDecode] /awips2/edex/data/manual/cpti.grib2 processed in: 0.1200 (sec) Latency: 21.8080 (sec)
+    INFO [Ingest.GribDecode] /awips2/edex/data/manual/cpti.grib2 processed in: 0.1180 (sec) Latency: 21.8140 (sec)
+    INFO [Ingest.GribDecode] /awips2/edex/data/manual/cpti.grib2 processed in: 0.4230 (sec) Latency: 21.8360 (sec)
+    INFO [Ingest.GribDecode] /awips2/edex/data/manual/cpti.grib2 processed in: 0.2240 (sec) Latency: 21.9140 (sec)
     
     ...
     
@@ -42,7 +42,7 @@ Look in the current log file (/awips2/edex/logs/edex-ingestGrib-[YYYYMMDD].log) 
 
 <pre>
 INFO  2020-07-20 20:34:17,710 2565 [GribPersist-1] GridDao: EDEX - Discarding record due to missing or unknown parameter mapping: /grid/2018-05-02_00:01:44.0_(0)/GribModel:161:0:97/null/null/403/Missing/FH/500.0/-999999.0
-INFO  2020-07-20 20:34:17,710 2566 [GribPersist-1] Ingest: EDEX: Ingest - grib2:: /awips2/data_store/ingest/CPTI_00.50_20180502-000144.grib2 processed in: 2.3550 (sec)
+INFO  2020-07-20 20:34:17,710 2566 [GribPersist-1] Ingest: EDEX: Ingest - grib2:: /awips2/edex/data/manual/CPTI_00.50_20180502-000144.grib2 processed in: 2.3550 (sec)
 INFO  2020-07-20 20:34:17,827 2567 [Ingest.GribDecode-6] grib: EDEX - No parameter information for center[161], subcenter[0], tableName[4.2.209.3], parameter value[61]
 </pre>
     
@@ -333,7 +333,7 @@ After you have confirmed that the grid was ingested with the given name, you can
 
 The [ingest method](#download-test-data) mentioned earlier is strictly meant to only be used during testing and development of ingesting new grid data.  The reasoning is because the manual end point is very inefficent during its ingest.  It creates copies of the data file and uses more resources than you'd want in a production process.
 
-Once you are satisfied with the data ingest and display in CAVE, then we highly recommend you implement a production process for ingest that does not involve the manual directory (`/awips2/data_store/ingest/`). 
+Once you are satisfied with the data ingest and display in CAVE, then we highly recommend you implement a production process for ingest that does not involve the manual directory (`/awips2/edex/data/manual/`). 
 
 The recommended way is to make use of a Python script we distribute with AWIPS (EDEX).  This script is called `notifyAWIPS2-unidata.py` and located in th `/awips2/ldm/dev/` directory.  If you are already using a script to manually gather the data, then adding an additional call like the one below, should ingest your data to EDEX in an efficient manner:
 ```
