@@ -51,12 +51,12 @@ Download and run the installer: [**awips_install.sh** <i class="fa fa-download">
 
 ```
 wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
-chmod 755 awips_install-v20.sh
-sudo ./awips_install-v20.sh --edex
+chmod 755 awips_install.sh
+sudo ./awips_install.sh --edex
 ```
 
 
-!!! note "**awips_install-v20.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
+!!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 
        1. Checks to see if EDEX is currently running, if so stops the processes with the `edex stop` command
        2. If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a `yum groupremove awips2-server`
@@ -69,7 +69,7 @@ sudo ./awips_install-v20.sh --edex
 !!! warning "If you receive an error relating to yum, then please run"
 
     ```
-    sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install-v20.sh --edex"
+    sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"
     ```
 
 
