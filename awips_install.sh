@@ -434,7 +434,9 @@ case $key in
         yum install awips2-*post* -y 
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
-        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+        sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml
+        sed -i 's/HDS	ANY/ANY/' /awips2/ldm/etc/pqact*
+        sed -i 's/TI\[A-T\]/TI\[A-Q\]/' /awips2/ldm/etc/pqact* 
         echo "EDEX server has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --database)
@@ -443,6 +445,8 @@ case $key in
         disable_ndm_update
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+        sed -i 's/HDS	ANY/ANY/' /awips2/ldm/etc/pqact*
+        sed -i 's/TI\[A-T\]/TI\[A-Q\]/' /awips2/ldm/etc/pqact* 
         echo "EDEX database has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --ingest)
@@ -451,6 +455,8 @@ case $key in
         disable_ndm_update
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
+        sed -i 's/HDS	ANY/ANY/' /awips2/ldm/etc/pqact*
+        sed -i 's/TI\[A-T\]/TI\[A-Q\]/' /awips2/ldm/etc/pqact* 
         echo "EDEX ingest has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     -h|--help)
