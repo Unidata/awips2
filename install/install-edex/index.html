@@ -1167,6 +1167,9 @@
 <p>EDEX is the <strong>E</strong>nvironmental <strong>D</strong>ata <strong>Ex</strong>change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at <a href="../../edex/distributed-computing/">Distributed EDEX, Installing Across Multiple Machines</a></p>
 <hr />
 <h2 id="latest-version">Latest Version<a class="headerlink" href="#latest-version" title="Permanent link"></a></h2>
+<div class="admonition warning">
+<p class="admonition-title">We are aware of an issue with pqact.conf.priority file in 20.3.2-1 and are working on an updated release, in the meantime, please replace the file (/awips2/ldm/etc/) with this file located at https://github.com/Unidata/awips2/raw/unidata_20.3.2/rpms/awips2.upc/Installer.ldm/patch/etc/pqact.conf.priority</p>
+</div>
 <p><strong>20.3.2-1</strong></p>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
 <div class="admonition note">
