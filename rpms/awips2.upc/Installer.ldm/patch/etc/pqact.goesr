@@ -74,7 +74,7 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/(
 # NPP/VIIRS
 #
 # Polar products
-NOTHER	^(TI[A-W]...) (KNES) (......)
+NOTHER	^(TI[A-Q]...) (KNES) (......)
 	FILE	-close -edex	/awips2/data_store/viirs/\1_\2_\3
 
 #  GOES East Derived Products      WMO Header    Regions

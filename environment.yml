@@ -1,0 +1,11 @@
+# Create full conda environment for development, including some useful tools
+name: awips-docs
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - mkdocs
+    - mkdocs-unidata
+    - fontawesome_markdown
