@@ -179,6 +179,7 @@ A full list of all released blogs can be found below:
 - [AWIPS 20.3.2-0.3 Beta CAVE Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-202)
 - [AWIPS 20.3.2-0.4 Beta Software Release - with EDEX!](https://www.unidata.ucar.edu/blogs/news/entry/unidata-awips-20-3-2)
 - [AWIPS 20.3.2-1 Production AWIPS Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-203)
+- [Changes Related to v20.3.2 AWIPS Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-changes-related-to)
   
 #### CAVE
 
