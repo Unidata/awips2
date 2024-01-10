@@ -78,7 +78,7 @@ For Windows, we offer two installation options: a [**Direct Windows Installation
 
 !!! warning "The virtual machine option won't render RGB composites of satellite imagery."
 
-!!! note "For those running CAVE in a lab or needing it installed at the system level for multiple users, please contact support-awips@ucar.unidata.edu"
+!!! note "For those running CAVE in a lab or needing it installed at the system level for multiple users, please contact support-awips@unidata.ucar.edu"
 
 ### Method 1: Direct Windows Install
 
