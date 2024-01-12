@@ -195,6 +195,7 @@
 007 General Purpose MCP or PCD
 008 General Purpose MCP or PCD
 009 General Purpose MCP or PCD
+00U Big Horn County Airport, Hardin, MT
 01M Tishomingo Cnty AP, Belmont, MS
 01R Clairborn Gunnry Rng., Alexandria, LA
 01T High Island, LA

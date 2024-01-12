@@ -943,6 +943,7 @@
 0000060015|GCXO | 28.48 | -16.33 |  618|Tenerife/Los Rodeos                 |CR|MTR
 0000060156|GMMN | 33.37 |  -7.58 |  206|Nouasseur/Casablanca                |MC|MTR
 0000060230|GMMX | 31.62 |  -8.03 |  466|Marrakech/Manara                    |MC|MTR
+0000000000|K00U | 45.74439|-107.66044| 922|Big Horn Cnty Arpt, Hardin, MT   |US|MTR
 0000000000|K01M | 34.4917| -88.2011| 176|Tishomingo Cnty AP, Belmont, MS    |US|MTR
 0000074755|K01R | 31.18 | -92.63 |   57|CLAIBORNE, LA                       |US|MTR
 0000000000|K01T | 28.14 | -94.41 |   30|HIGH ISLAND, LA                     |US|MTR
