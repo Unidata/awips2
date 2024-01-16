@@ -50,7 +50,7 @@ import sys
 import time
 from lib.Util import time_limit, TimeoutException
 
-from ufpy import qpidingest
+from awips import qpidingest
 
 logging.basicConfig(level=logging.INFO, datefmt='%H:%M:%S',
                         format="[%(process)s] %(asctime)s %(levelname)s: %(message)s")

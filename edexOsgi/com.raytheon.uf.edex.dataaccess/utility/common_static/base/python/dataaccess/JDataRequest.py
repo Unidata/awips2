@@ -41,7 +41,7 @@
 
 
 
-from ufpy.dataaccess import IDataRequest
+from awips.dataaccess import IDataRequest
 from com.raytheon.uf.common.dataplugin.level import Level
 import JUtil
 import jep

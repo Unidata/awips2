@@ -55,7 +55,7 @@ import errno
 import os
 import re
 
-from ufpy.dataaccess import DataAccessLayer
+from awips.dataaccess import DataAccessLayer
 
 import GridManipulation
 import HazardUtils

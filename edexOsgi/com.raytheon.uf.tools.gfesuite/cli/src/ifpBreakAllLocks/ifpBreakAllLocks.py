@@ -30,8 +30,8 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.server.reque
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 #
 # Provides a command-line utility to break all locks.

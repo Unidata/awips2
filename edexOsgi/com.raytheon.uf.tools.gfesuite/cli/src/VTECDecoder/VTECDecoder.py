@@ -9,8 +9,8 @@ import os
 import sys
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import SendPracticeProductRequest
-from ufpy import ThriftClient
-from ufpy import TimeUtil
+from awips import ThriftClient
+from awips import TimeUtil
 
 
 logging.basicConfig(level=logging.INFO)
