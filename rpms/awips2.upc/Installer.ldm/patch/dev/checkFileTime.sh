@@ -24,8 +24,7 @@ do
 #	echo ${#files[@]}
 	for file in "${files[@]}";
 	do
-		/awips2/python/bin/python /awips2/ldm/dev/notifyAWIPS2-unidata.py $file
-#		/awips2/python/bin/python /awips2/fxa/bin/src/qpidNotify.py $file
+		/awips2/python/bin/python /awips2/fxa/bin/src/qpidNotify/qpidNotify.py $file
 		echo $file
 	done
 done
