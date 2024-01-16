@@ -28,9 +28,8 @@ Requires: libpng
 Requires: glibc-common
 Requires: zlib
 Requires: awips2-python
-Requires: awips2-python-dynamicserialize
 Requires: awips2-python-numpy
-Requires: awips2-python-ufpy
+Requires: awips2-python-awips
 Requires: awips2-qpid-proton-python
 Requires: awips2-watchdog
 

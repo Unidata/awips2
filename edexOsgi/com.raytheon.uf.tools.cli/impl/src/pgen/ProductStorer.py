@@ -1,5 +1,5 @@
 import os
-from ufpy import ThriftClient
+from awips import ThriftClient
 #from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage.records import ByteDataRecord
 from dynamicserialize.dstypes.gov.noaa.nws.ncep.common.dataplugin.pgen.request import StoreActivityRequest
 from dynamicserialize.dstypes.gov.noaa.nws.ncep.common.dataplugin.pgen import ResponseMessageValidate

@@ -48,7 +48,7 @@ import os
 #                                              local-delivery messages
 #
 
-from ufpy import NotificationMessage 
+from awips import NotificationMessage 
 
 def usage():
   print('')
