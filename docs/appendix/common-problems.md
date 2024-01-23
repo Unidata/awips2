@@ -225,6 +225,23 @@ You may be able to fix this issue:
 
 ---
 
+### Model Data Not Rendering
+
+This behavior has appeared with MacOS Sonoma (v14) -- model data is no longer loading and you see the following errors on the screen or in the AlertView:
+> ERROR: An internal error occured during: "Initializing...".
+> 
+> ERROR: An internal error occured during: "Product Loader".
+> 
+> ERROR: An internal error occured during "Initializing...".
+
+  ![](../images/macModelFailure.png)
+  
+If you encounter this behavior, please close CAVE, [clear caveData as described above](#mac), then restart CAVE and try to load the data again.
+
+If you still experience issues, please let us know at support-awips@unidata.ucar.edu
+
+---
+
 ## Linux
 
 ### Troubleshooting Uninstalling EDEX
