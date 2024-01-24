@@ -176,7 +176,7 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 ---
 
-## MacOS
+## macOS
 
 ### Monterey CAVE Warning
 

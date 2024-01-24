@@ -51,6 +51,12 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 !!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."
 
+### Upgrade Existing Installation
+
+Whether you have CAVE currently installed or not, you can follow the [Download and Installation Instructions](#download-and-installation-instructions) below. The script will remove the old version of CAVE if needed, and install the latest version.
+
+If you would like to completely remove CAVE, please see the [uninstall instructions further down this page](#linux_1).
+
 ### Download and Installation Instructions
 
 1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
@@ -78,9 +84,20 @@ For Windows, we offer two installation options: a [**Direct Windows Installation
 
 !!! warning "The virtual machine option won't render RGB composites of satellite imagery."
 
-!!! note "For those running CAVE in a lab or needing it installed at the system level for multiple users, please contact support-awips@unidata.ucar.edu"
-
 ### Method 1: Direct Windows Install
+
+We offer CAVE installers at both the user-level (no administrative permissions needed), and the system-level (useful in a lab setting for instance).  If you need the system-level installer, please skip to the [System-Level Installation section](#system-level-installation), otherwise simply proceed with the next sections.
+
+#### Upgrade Existing Installation
+
+If you do not currently have CAVE installed, please go directly to the [Download and Installation Instructions](#download-and-installation-instructions_1).
+
+If you already have CAVE installed:
+
+1. First remove it by going to the **Installed Apps** settings dialog.  You can access this window by: Start bar > Settings > Apps > Installed Apps.
+    - *Typing "remove" in the start bar should bring you to this screen as well*
+2. Find AWIPS CAVE, click on it, and click Uninstall.
+3. Once the uninstall is finished, simply [download and install the latest version](#download-and-installation-instructions_1) as instructed below.
 
 #### Download and Installation Instructions
 
@@ -93,6 +110,12 @@ To run CAVE, either:
 - Double click on the CAVE icon on your desktop
 - Type "cave" in the start bar and hit enter
 - Find and run CAVE app in the file browser:  `C:\Users\%USER%\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.bat`
+
+#### System-Level Installation
+
+If you need a system-level installation of CAVE, please fill out [this brief access form](https://docs.google.com/forms/d/e/1FAIpQLScLLR1JGh_DHESBSc6W0TVlslhNojT5OJF3WiTCajXg7CjWTA/viewform?usp=sf_link) for the .msi, and then proceed with installation similar to that described above.
+
+---
 
 ### Method 2: Linux Virtual Machine
 
@@ -109,6 +132,17 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
      1. Check the "High DPI scaling ovveride" checkbox and choose "Application" in the enabled dropdown
      
       ![VMWare Workstation Player DPI Setting](../images/vmwareplayer-update-dpi.png)
+      
+#### Upgrade Existing Installation
+
+If you do not currently have CAVE installed, please go directly to the [Download and Installation Instructions](#download-and-installation-instructions_2).
+
+If you already have CAVE installed you can either:
+
+- Download the new Virtual Machine ([as described below](#download-and-installation-instructions_2)) and you will see the new VM in VMware, similar to this screenshot:
+    ![](../images/workstationPlayer.png)
+
+- Upgrade the version of CAVE within the Virtual Machine by following the [Linux instructions](#upgrade-existing-installation)
 
 
 #### Download and Installation Instructions
@@ -137,6 +171,16 @@ Once inside the VM, to run CAVE either:
 ### System Requirements
 
 - Nvidia Graphics Card (Some Intel Graphics cards seem to work as well)
+
+### Upgrade Existing Installation
+
+If you do not currently have CAVE installed, please go directly to the [Download and Installation Instructions](#download-and-installation-instructions_3).
+
+If you already have CAVE installed:
+
+1. Remove the existing installation by locating it (it maybe be in your **Applications** folder), and dragging it to the trash.
+2. Clear CAVE's cache by removing caveData (<a href="/awips2/appendix/common-problems#mac" target="_blank">see these instructions for removal</a>).
+3. Follow the [Download and Installation Instructions](#download-and-installation-instructions_3) from below to install the newest version of CAVE.
 
 ### Download and Installation Instructions
 
@@ -177,7 +221,10 @@ You can reset CAVE by removing the **caveData** directory and reconnecting to an
 
 ---
 
-## Uninstalling CAVE (Linux)
+## Uninstalling CAVE
+
+### Linux
+
 These are instructions to manually uninstall CAVE. However, the [`awips_install.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
 
 **1. Make sure you have exited out of any CAVE sessions**
@@ -208,3 +255,17 @@ sudo yum remove awips2-*
 rm -rf /awips2/cave
 rm -rf ~/caveData
 ```
+
+### Windows
+
+To completely remove CAVE:
+
+1. Type "remove" in the search bar and select **Add or remove programs**.  This will open the Applications settings.
+2. From here, find **AWIPS CAVE** and select "Uninstall".
+
+### macOS
+
+To completely remove CAVE:
+
+1. Find where it is installed (might be the **Applications** folder) and drag into the trash. 
+2. Then <a href="/awips2/appendix/common-problems#mac" target="_blank">remove caveData</a>.
