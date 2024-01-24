@@ -53,9 +53,9 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ### Upgrade Existing Installation
 
-If you do not currently have CAVE installed, please go directly to the [Download and Installation Instructions](#download-and-installation-instructions).
+Whether you have CAVE currently installed or not, you can follow the [Download and Installation Instructions](#download-and-installation-instructions) below. The script will remove the old version of CAVE if needed, and install the latest version.
 
-If you already have CAVE installed, following the [Download and Installation Instructions](#download-and-installation-instructions) below will also properly take care of your existing install.
+If you would like to completely remove CAVE, please see the [uninstall instructions further down this page](#linux_1).
 
 ### Download and Installation Instructions
 
@@ -260,7 +260,7 @@ rm -rf ~/caveData
 
 To completely remove CAVE:
 
-1. Type "remove" in the search bar and select the first option that comes up.  This will open the Applications settings.
+1. Type "remove" in the search bar and select **Add or remove programs**.  This will open the Applications settings.
 2. From here, find **AWIPS CAVE** and select "Uninstall".
 
 ### macOS
