@@ -465,7 +465,6 @@
 3K3 Syracuse, KS
 3K8 Coldwater, KS
 3KK Kankakee, IL
-3KM Wichita, KS
 3L4 Little Pecan Island Airport, Grand Chenier, LA
 3LF Litchfield Muni, IL
 3N8 Mahnomen Cnty AP, Mahnomen, MN
@@ -667,7 +666,6 @@
 93Q Pigeon Point CGS, Pescadero, CA
 96D Walhalla Muni, Walhalla, ND
 97Q Point Reyes, CA
-99Q Port Chicago, CA
 9A4 Lawrence Cnty AP, Courtland, AL
 9A5 Barwick Lafayette AP, LaFayette, GA
 9B2 Saint Johnsbury, VT

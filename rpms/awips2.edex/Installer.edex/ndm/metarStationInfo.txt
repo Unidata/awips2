@@ -1112,7 +1112,6 @@
 0000000000|K3I2 | 38.915| -82.099|  196|Mason Cnty AP, Pt Pleasant, WV      |US|MTR
 0000000000|K3K3 | 37.922|-101.746| 1013|Syracuse, KS                        |US|MTR
 0000000000|K3K8 | 37.22333|-99.33167| 636|Coldwater, KS                     |US|MTR
-0000000000|K3KM | 37.75 | -97.20 |  433|WICHITA, KS                         |US|MTR
 0000000000|K3L4 | 29.79968|-92.80354| 2|Little Pecan AP, Grand Chenier, LA  |US|MTR
 0000000000|K3LF | 39.163| -89.675|  210|Litchfield Muni AP, Litchfield, IL  |US|MTR
 0000000000|K3MW | 40.46 |-106.76 | 3241|Mount Werner, CO (Pass)             |US|MTR
@@ -1253,7 +1252,6 @@
 0000000000|K92S | 42.83 |-124.57 |   33|Cape Blanco, OR                     |US|MTR
 0000000000|K96D | 48.94057| -97.902775| 290|Walhalla Muni, Walhalla, ND     |US|MTR
 0000000000|K97Q | 38.01 |-123.02 |   87|POINT REYES, CA                     |US|MTR
-0000000000|K99Q | 38.04 |-122.04 |   12|PORT CHICAGO, CA                    |US|MTR
 0000000000|K9A4 | 34.65939| -87.34883| 179|Lawrence Cnty AP, Courtland, AL  |US|MTR
 0000000000|K9A5 | 34.6885| -85.2903| 237|Barwick Lafayette AP, LaFayette, GA|US|MTR
 0000072612|K9B2 | 44.43 | -72.02 |  217|SAINT JOHNSBURY, VT                 |US|MTR
