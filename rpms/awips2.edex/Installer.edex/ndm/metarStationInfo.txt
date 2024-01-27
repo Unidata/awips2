@@ -25,7 +25,6 @@
 #
 #  number   ID     lat      lon    elev           station name            country
 #   (10)    (5)  (sn2.3) (sn3.3)    (5)               (36)                  (2)
-0000000000| 5GN | 61.82 |-147.56 |  900|TAHNETA PASS, AK                    |US|MTR
 0000070279| 5HN | 60.23 |-146.65 |   56|CAPE HINCHINBROOK, AK               |US|MTR
 0000070218| 5NV | 60.01 |-166.00 |   15|NUNIVAK ISLAND, AK                  |US|MTR
 0000000000| 5TK | 65.12 |-147.48 |  197|CHATANIKA/POKER, AK                 |US|MTR
@@ -2754,7 +2753,6 @@
 0000000000|KMPV | 44.21 | -72.57 |  343|MONTPELIER/KNAPP, VT                |US|MTR
 0000000000|KMPZ | 40.95 | -91.51 |  224|Mount Pleasant Muni, IA             |US|MTR
 0000000000|KMQB | 40.52 | -90.65 |  215|Macomb, IL                          |US|MTR
-0000000000|KMQE | 42.21 | -71.11 |  200|East Milton/Blue Hill Obsrv, MA     |US|MTR
 0000000000|KMQI | 35.918983|-75.695536| 4|MANTEO/DARE CO R, NC              |US|MTR
 0000000000|KMQJ | 39.844| -85.897|  263|Mount Comfort, IN                   |US|MTR
 0000000000|KMQM | 44.58 |-112.32 | 2068|MONIDA, MT                          |US|MTR

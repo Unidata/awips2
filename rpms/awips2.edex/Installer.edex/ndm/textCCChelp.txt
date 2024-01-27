@@ -3014,7 +3014,6 @@ MPV Barre-Montpelier, VT
 MPX WFO Minneapolis/Twin Cities, Chanhassen, MN WSR-88D
 MPZ Mount Pleasant Muni, IA
 MQB Macomb, IL
-MQE East Milton/Blue Hill Obsrv, MA
 MQI Manteo/Dare Co Regnl, NC
 MQJ Mount Comfort, IN
 MQM Monida, MT
