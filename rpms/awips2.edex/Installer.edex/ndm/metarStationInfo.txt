@@ -1022,6 +1022,7 @@
 0000000000|K1JW | 40.96088|-103.19967| 1383|4.6W of Peetz, CO               |US|MTR
 0000000000|K1K1 | 37.77444|-97.11322| 416|Benton, KS                        |US|MTR
 0000072460|K1K5 | 37.01 |-101.89 | 1102|ELKHART (AMOS), KS                  |US|MTR
+0000000000|K1K8 | 36.543| -95.012| 234|Ketchum/S Grand Lake Arpt, OK        |US|MTR
 0000000000|K1KM | 46.44414| -109.801| 1332|Harlowton, MT                    |US|MTR
 0000000000|K1KN | 48.55139|-102.121| 693|Donnybrook 2, ND                   |US|MTR
 0000000000|K1KW | 41.1370| -103.4884| 147|6 miles south of Dix, NE          |US|MTR
@@ -1873,6 +1874,7 @@
 0000000000|KE38 | 30.384|-103.684| 1376|Casparis Muni, Alpine, TX           |US|MTR
 0000000000|KE41 | 31.19775|-101.47540| 825|Reagan Cnty AP, Big Lake, TX     |US|MTR
 0000000000|KE42 | 36.22100|-101.19450| 942|Samuel B Cornelius, Spearman, TX |US|MTR
+0000000000|KE57 | 32.976| -102.843| 1090|Denver City Arpt, TX               |US|MTR
 0000000000|KE74 | 32.83 |-109.68 |  900|SAFFORD, AZ                         |US|MTR
 0000000000|KE77 | 32.6364|-110.6472|  997|San Manuel Arpt, San Manuel, AZ   |US|MTR
 0000000000|KEAN | 42.05553| -104.92861| 1456|Phifer Airfield, Wheatland, WY |US|MTR
@@ -2199,6 +2201,7 @@
 0000074724|KGXF | 32.888|-112.72 |  269|Gila Bend AF Aux AP, Gila Bend, AZ  |US|MTR
 0000000000|KGXY | 40.43441|-104.62967| 1420|GREELEY, CO                     |US|MTR
 0000000000|KGYB | 30.169| -96.980|  148|Giddings-Lee Cnty AP, Giddings, TX  |US|MTR
+0000000000|KGYF | 26.133|  -94.9|   65|Alaminos C, TX                       |US|MTR
 0000000000|KGYH | 34.758| -82.376|  291|Donaldson Cntr AP, Greenville, SC   |US|MTR
 0000000000|KGYI | 33.73 | -96.67 |  228|Denison/Sherman, TX                 |US|MTR
 0000000000|KGYL | 44.757| -94.082|  302|Glencoe Muni, MN                    |US|MTR
@@ -2543,6 +2546,7 @@
 0000000000|KLKU | 38.011| -77.978|  120|Louisa Co/Freeman Fld, VA           |US|MTR
 0000000000|KLKV | 42.161|-120.399| 1433|Lakeview, OR                        |US|MTR
 0000000000|KLLJ | 44.523|-114.215| 1536|Challis, ID                         |US|MTR
+0000000000|KLLN | 33.556| -102.375| 1071|Levelland Muni, TX                 |US|MTR
 0000000000|KLLQ | 33.64 | -91.75 |   82|Monticello Muni/Ellis Fld, AR       |US|MTR
 0000000000|KLMO | 40.16116|-105.16046|1538|Vance Brand AP, Longmont, CO     |US|MTR
 0000000000|KLMS | 33.16 | -89.07 |  175|LOUISVILLE/WNSTN, MS                |US|MTR
@@ -2965,6 +2969,7 @@
 0000072308|KORF | 36.90 | -76.20 |    9|NORFOLK REGIONAL, VA                |US|MTR
 0000000000|KORG | 30.069| -93.804|    4|Orange Cnty AP, Orange, TX          |US|MTR
 0000000000|KORH | 42.28 | -71.87 |  308|WORCESTER, MA                       |US|MTR
+0000000000|KORK | 34.833| -92.2557|  166|N Little Rock Muni, AR             |US|MTR
 0000000000|KORL | 28.54652|-81.33543| 34|Orlando/Executive, FL              |US|MTR
 0000000000|KORS | 48.71 |-122.90 |    4|EASTSND/ORCAS IS, WA                |US|MTR
 0000000000|KOSA | 33.096| -94.962|  111|Mount Pleasant, TX                  |US|MTR
@@ -3434,6 +3439,7 @@
 0000074516|KSUU | 38.28 |-121.93 |   19|TRAVIS AFB/FAIRF, CA                |US|MTR
 0000000000|KSUW | 46.69 | -92.095|  206|Superior, WI                        |US|MTR
 0000072557|KSUX | 42.41 | -96.38 |  336|Sioux City Muni, IA                 |US|MTR
+0000000000|KSUZ | 34.5862| -92.4802|  114|Benton/Saline Cnty, AR            |US|MTR
 0000072272|KSVC | 32.6309|-108.1466| 1659|Grant Cnty AP, Silver City, NM    |US|MTR
 0000000000|KSVE | 40.37569 |-120.57269 | 1265|Susanville Municipal AP, CA   |US|MTR
 0000000000|KSVH | 35.76 | -80.96 |  294|Statesville Muni, NC                |US|MTR
