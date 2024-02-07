@@ -1,0 +1,108 @@
+site_name: NSF Unidata AWIPS Manual
+site_url: http://unidata.github.io/awips2/
+site_description: Documentation for all things AWIPS.
+site_author: support-awips@unidata.ucar.edu
+theme:
+  name: unidata
+  search_index_only: true
+repo_url: https://github.com/Unidata/awips2
+edit_uri: edit/unidata_20.3.2/docs/
+site_favicon: images/favicon.ico
+remote_name: unidata
+
+# Options
+extra:
+  palette:
+    primary: 'blue grey'
+    accent: 'light blue'
+  corner_logo: 'images/cave.png'
+  feature:
+    tabs: false
+  social:
+    - type: globe
+      link: https://www.unidata.ucar.edu/software/awips2
+    - type: github-alt
+      link: https://github.com/Unidata/awips2
+    - type: twitter
+      link: https://twitter.com/Unidata
+    - type: facebook
+      link: https://facebook.com/Unidata
+  logo: 'images/home.png'
+
+nav:
+  - Home: index.md
+  - Install CAVE: install/install-cave.md
+  - Install EDEX: install/install-edex.md
+  - Common Problems: appendix/common-problems.md
+  - CAVE User Manual:
+      - D2D Perspective: cave/d2d-perspective.md
+      - Maps, Views, Projections: cave/maps-views-projections.md
+      - Displays and Procedures: cave/bundles-and-procedures.md
+      - Localization Perspective: cave/localization-perspective.md
+  #    - NCP Perspective: cave/ncp-perspective.md
+      - NSHARP: cave/nsharp.md
+      - WarnGen Walkthrough: cave/warngen.md
+      # - GOES 16/17: cave/goes-16-17-satellite.md
+      - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
+      - Volume Browser: cave/d2d-gridded-models.md
+      - Tools: cave/d2d-all-tools.md
+      - Editing Menus: cave/d2d-edit-menus.md
+      - Change Localization: cave/cave-localization.md
+      - Import/Export: cave/import-export.md
+  - EDEX User Manual:
+      - EDEX Basic Commands: install/start-edex.md
+      - EDEX Settings: edex/settings.md
+      - Distributed EDEX: edex/distributed-computing.md
+      - Docker EDEX: edex/edex-ingest-docker-container.md
+      - LDM Feeds: edex/ldm.md
+      - Data Distribution Files: edex/data-distribution-files.md
+      - Ingest a New Grid: edex/new-grid.md
+      - Purging and Retention: edex/data-purge.md
+      - Monitor Users: edex/edex-users.md
+      - Data Plugins: edex/data-plugins.md
+      - Archive Case Studies: edex/case-studies.md
+  - Python-AWIPS: python/overview.md
+  - Educational Resources: appendix/educational-resources.md
+  #- Hazard Services:
+  #    - CAVE Display: cave/hazard-services-display.md
+  #    - Hazard Creation: cave/hazard-services-create.md
+  #    - Hazard Alerts: cave/hazard-services-alert.md
+  #    - Hazard Settings: cave/hazard-services-settings.md
+  #    - Examples: cave/hazard-services-example.md
+  # - Supported Data Types:
+  #     - Gridded Model Display: cave/d2d-grids.md
+  #     - Surface Obs: cave/d2d-pointdata-surface-obs.md
+  #     - Satellite Imagery: cave/d2d-satellite.md
+  #     - NEXRAD Radar: cave/d2d-radar.md
+  #     - Upper Air: cave/d2d-uair.md
+  #     - NCEP/Hydro: cave/d2d-hydro.md
+  #     - Map Overlays: cave/d2d-map-resources.md
+  - Development: dev/awips-development-environment.md
+      # - Overview: python/python-awips-data-access.md
+      # - AWIPS Grids and Cartopy: python/awips-grids-and-cartopy.md
+      # - Satellite Imagery: python/satellite-imagery.md
+      # - NEXRAD Level 3 Radar: python/nexrad-level-3-radar.md
+      # - Upper air BUFR Soundings: python/upper-air-bufr-soundings.md
+      # - Model Sounding Data: python/model-sounding-data.md
+      # - Map Resources and Topography: python/map-resources-and-topography.md
+      # - Surface Obs Plot with MetPy: python/surface-obs-plot-metpy.md
+  - Appendix:
+      - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
+      - Maps Database: appendix/maps-database.md
+      - Acronyms and Abbreviations: appendix/appendix-acronyms.md
+      # - COTS and FOSS: appendix/appendix-cots.md
+      - WSR-88D Product Table: appendix/appendix-wsr88d.md
+      - Keyboard Shortcuts: cave/cave-keyboard-shortcuts.md
+      - "Raytheon: CAVE User's Manual": raytheon/cave_d2d.md
+      - "Raytheon: AWIPS System Manager's Manual": raytheon/smm.md
+
+extra_css:
+    - css/extra.css
+
+markdown_extensions:
+    - fontawesome_markdown:
+    - toc:
+        permalink: 
+    - admonition:
+
+copyright: Copyright &copy; 2023 NSF Unidata Program Center.

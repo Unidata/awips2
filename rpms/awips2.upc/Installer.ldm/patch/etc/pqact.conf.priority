@@ -216,7 +216,7 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/(
 # NPP/VIIRS
 #
 # Polar products
-NOTHER	^(TI[A-T]...) (KNES) (......)
+NOTHER	^(TI[A-Q]...) (KNES) (......)
 	FILE	-close -edex	/awips2/data_store/viirs/\1_\2_\3
 #
 # NEXRAD3 GEMPAK-generated national composite (1-4km)
@@ -760,7 +760,7 @@ FNMOC	^US058.*0110_0240_(.*)_(.*)_(.*)-(.*)
 ANY	^(LDIZ[1-9][1-9]) (KWNS) (..)(..)(..)
 	FILE	-edex -log -close	/awips2/data_store/spc/(\2:yyyy)(\2:mm)(\2:dd)(\2:hh)_\1_svr_outlook.grib2
 # Joint Fire Weather and Dry Thunderstorm Grids
-HDS	ANY	^(Y[YZ]U[D-I]3[3-8]) (KWNS) (..)(..)(..)
+ANY	^(Y[YZ]U[D-I]3[3-8]) (KWNS) (..)(..)(..)
 	FILE	-edex -log -close	/awips2/data_store/spc/(\2:yyyy)(\2:mm)(\2:dd)(\2:hh)_\1_fw_outlook.grib2
 # UKMET
 #
