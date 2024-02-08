@@ -195,6 +195,7 @@
 007 General Purpose MCP or PCD
 008 General Purpose MCP or PCD
 009 General Purpose MCP or PCD
+00U Big Horn County Airport, Hardin, MT
 01M Tishomingo Cnty AP, Belmont, MS
 01R Clairborn Gunnry Rng., Alexandria, LA
 01T High Island, LA
@@ -332,6 +333,7 @@
 1JW 4.6W of Peetz, CO
 1K1 Benton, KS
 1K5 Elkhart, KS
+1K8 Ketchum/S Grand Lake Arpt, OK
 1KM Harlowton, MT
 1KN Donnybrook 2, ND
 1KW 6 miles south of Dix, NE
@@ -464,7 +466,6 @@
 3K3 Syracuse, KS
 3K8 Coldwater, KS
 3KK Kankakee, IL
-3KM Wichita, KS
 3L4 Little Pecan Island Airport, Grand Chenier, LA
 3LF Litchfield Muni, IL
 3N8 Mahnomen Cnty AP, Mahnomen, MN
@@ -666,7 +667,6 @@
 93Q Pigeon Point CGS, Pescadero, CA
 96D Walhalla Muni, Walhalla, ND
 97Q Point Reyes, CA
-99Q Port Chicago, CA
 9A4 Lawrence Cnty AP, Courtland, AL
 9A5 Barwick Lafayette AP, LaFayette, GA
 9B2 Saint Johnsbury, VT
@@ -1573,6 +1573,7 @@ E33 Chama, NM
 E38 Casparis Muni, Alpine, TX
 E41 Reagan County Airport, Big Lake, TX
 E42 Samuel B Cornelius Airport, Spearman, TX
+E57 Denver City Arpt, TX
 E74 Safford, AZ
 E77 San Manuel Airport, San Manuel, AZ
 EAN Phifer Airfield, Wheatland, WY
@@ -1999,6 +2000,7 @@ GXA Gray Butte Fld AP, Palmdale, CA
 GXF Gila Bend USAF Aux AP, Gila Bend, AZ
 GXY Greeley, CO
 GYB Giddings-Lee Cnty AP, Giddings, TX
+GYF Alaminos C, TX
 GYH Donaldson Cntr AP, Greenville, SC
 GYI Sherman-Denison, TX
 GYL Glencoe Muni, MN
@@ -2714,6 +2716,7 @@ LKR Lancaster, SC
 LKU Louisa Co/Freeman Fld, VA
 LKV Lakeview, OR
 LLJ Challis, ID
+LLN Levelland Muni, TX
 LLQ Monticello Muni/Ellis Fld, AR
 LLS Low-Level Sounding
 LMK WFO Louisville, KY
@@ -3015,7 +3018,6 @@ MPV Barre-Montpelier, VT
 MPX WFO Minneapolis/Twin Cities, Chanhassen, MN WSR-88D
 MPZ Mount Pleasant Muni, IA
 MQB Macomb, IL
-MQE East Milton/Blue Hill Obsrv, MA
 MQI Manteo/Dare Co Regnl, NC
 MQJ Mount Comfort, IN
 MQM Monida, MT
@@ -3339,6 +3341,7 @@ ORE Orange, MA
 ORF Norfolk, VA
 ORG Orange Cnty AP, Orange, TX
 ORH Worcester, MA
+ORK N Little Rock Muni, AR
 ORL Orlando, FL
 ORN Lower Mississippi RFC, Slidell, LA
 ORS East Sound/Orcas Is, WA
@@ -3948,6 +3951,7 @@ SUT K-Southport/Brunswick Co, NC;  Southern Utah Basins
 SUU Travis AFB, Fairfield, CA
 SUW Superior, WI or Suwannee River 
 SUX Sioux City, IA
+SUZ Benton/Saline Cnty, AR
 SVC Grant Cnty AP, Silver City, NM
 SVE Susanville Muni AP, CA
 SVH Statesville Muni, NC

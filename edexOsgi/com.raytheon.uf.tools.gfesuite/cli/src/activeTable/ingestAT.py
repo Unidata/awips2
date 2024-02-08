@@ -39,8 +39,8 @@ import logging
 import os
 
 import MergeVTEC
-from ufpy import TimeUtil
-from ufpy import UsageArgumentParser
+from awips import TimeUtil
+from awips import UsageArgumentParser
 
 
 

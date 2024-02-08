@@ -132,7 +132,6 @@ function build_ade(){
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-python-six"
    buildRPM "awips2-python-tempora"
-   buildRPM "awips2-python-thrift"
    buildRPM "awips2-python-zc.lockfile"
    buildRPM "awips2-qpid-proton"
 #PREV awips2-qpid-lib
@@ -140,15 +139,14 @@ function build_ade(){
 }
 function build_python(){
    buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-netcdf4"
    buildRPM "awips2-python-pyshp"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-stomp.py"
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-ufpy"
    buildRPM "awips2-python-werkzeug"
+   buildRPM "awips2-python-awips"
 }
 function build_qpid(){
    buildRPM "awips2-qpid-proton"

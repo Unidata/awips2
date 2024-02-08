@@ -41,7 +41,7 @@
 
 
 
-from ufpy.dataaccess import IGeometryData
+from awips.dataaccess import IGeometryData
 import JData
 
 class JGeometryData(IGeometryData, JData.JData):

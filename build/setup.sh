@@ -52,7 +52,7 @@ fi
 #
 imgname=tiffanym13/awips-ade
 imgvers=20.3.2
-sudo docker run --entrypoint=/bin/bash --privileged -d -ti -e "container=docker" $dirs $imgname-$imgvers-1:$imgvers-$os_version
+sudo docker run --entrypoint=/bin/bash --privileged -d -ti -e "container=docker" $dirs $imgname-$imgvers-2:$imgvers-$os_version
 dockerID=$(sudo docker ps | grep awips-ade | awk '{print $1}' | head -1 )
 sudo docker logs $dockerID
 sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/build_rpms.sh $os_version $rpmname";
@@ -77,11 +77,13 @@ if [[ $(whoami) == "awips" ]]; then # local build
   sudo mv dist/${os_version}-dev dist/${os_version}-dev-${date}
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
-  echo "rsync -aP dist/${os_version}-dev-${date}"
-  #echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"
-  #rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
+  echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"
+  rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
+  cmd="cd /share/awips2/${AWIPSII_VERSION}/linux ; find ${os_version}-dev-${date} -type f | ../../git_nexus_tool/nexus-tools/bash/nexus-upload.sh -t downloads -u tiffanym -o awips2 -v ${AWIPSII_VERSION}/linux/rpms/"
+  echo "Need to run ssh@tiffanym '${cmd}' and provide -p [password]"
+
   #rsync -aP dist/${os_version}-dev-${date} awips@edex3:/awips2/dev
-  rsync -aP dist/${os_version}-dev-${date} awips@hardy:/awips2/dev
+  #rsync -aP dist/${os_version}-dev-${date} awips@hardy:/awips2/dev
   #repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   #
   # Push to web server

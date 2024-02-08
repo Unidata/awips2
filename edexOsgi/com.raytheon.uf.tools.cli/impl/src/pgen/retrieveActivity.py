@@ -23,7 +23,7 @@
 import logging
 from tkinter import *
 
-from ufpy import UsageArgumentParser
+from awips import UsageArgumentParser
 import ProductRetriever
 import ActivityUtil
 

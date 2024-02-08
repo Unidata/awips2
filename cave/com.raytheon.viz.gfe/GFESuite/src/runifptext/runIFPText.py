@@ -55,7 +55,7 @@ def runFormatter(args):
 
     from com.raytheon.viz.gfe.core import DataManagerUIFactory
     from com.raytheon.viz.gfe.core import DataManager
-    from ufpy.UsageArgumentParser import TIME_FORMAT
+    from awips.UsageArgumentParser import TIME_FORMAT
     from com.raytheon.viz.gfe.core import DataManagerFactory
 
     LOGGER.info("TextFormatter Starting")
@@ -88,10 +88,10 @@ def validateArgs(args=None, parents=[]):
     # imports required for this method must be here so it can be invoked
     # from gfeClient.py
     ############################################################################
-    from ufpy import UsageArgumentParser
-    from ufpy.UsageArgumentParser import StoreDatabaseIDAction
-    from ufpy.UsageArgumentParser import StoreTimeAction
-    from ufpy.UsageArgumentParser import TIME_FORMAT
+    from awips import UsageArgumentParser
+    from awips.UsageArgumentParser import StoreDatabaseIDAction
+    from awips.UsageArgumentParser import StoreTimeAction
+    from awips.UsageArgumentParser import TIME_FORMAT
     import time
 
     parser = UsageArgumentParser.UsageArgumentParser(conflict_handler="resolve",

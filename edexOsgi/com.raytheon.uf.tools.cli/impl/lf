@@ -34,7 +34,7 @@
 
 import sys
 import argparse
-from ufpy.localization.LocalizationFileManager import (LocalizationFileManager,
+from awips.localization.LocalizationFileManager import (LocalizationFileManager,
                                                        NON_EXISTENT_CHECKSUM,
                                                        LocalizationFileIsNotDirectoryException)
 
