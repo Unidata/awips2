@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-$date="20221018";
+$date="20240108";
 
 $path="/awips2/repo/awips2/dist/el7-dev-$date";
 

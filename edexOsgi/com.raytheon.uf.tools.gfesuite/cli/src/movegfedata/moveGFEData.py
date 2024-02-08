@@ -31,10 +31,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
-from ufpy.localization import LocalizationUtil
-from ufpy.localization.LocalizationFileManager import LocalizationFileVersionConflictException
+from awips import ThriftClient
+from awips import UsageArgumentParser
+from awips.localization import LocalizationUtil
+from awips.localization.LocalizationFileManager import LocalizationFileVersionConflictException
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 

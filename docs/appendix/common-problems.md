@@ -176,7 +176,7 @@ These errors are actually happening because the Windows machine is using IPv6, w
 
 ---
 
-## MacOS
+## macOS
 
 ### Monterey CAVE Warning
 
@@ -222,6 +222,23 @@ You may be able to fix this issue:
     - 2: integrated GPU 
     
     !!! note "It may be smart to run `pmset -g` first, so you can see what the current `gpuswitch` setting is (likely `1`), that way you can revert the settings if you want them back to how they were, when not using CAVE."
+
+---
+
+### Model Data Not Rendering
+
+This behavior has appeared with MacOS Sonoma (v14) -- model data is no longer loading and you see the following errors on the screen or in the AlertView:
+> ERROR: An internal error occured during: "Initializing...".
+> 
+> ERROR: An internal error occured during: "Product Loader".
+> 
+> ERROR: An internal error occured during "Initializing...".
+
+  ![](../images/macModelFailure.png)
+  
+If you encounter this behavior, please close CAVE, [clear caveData as described above](#mac), then restart CAVE and try to load the data again.
+
+If you still experience issues, please let us know at support-awips@unidata.ucar.edu
 
 ---
 

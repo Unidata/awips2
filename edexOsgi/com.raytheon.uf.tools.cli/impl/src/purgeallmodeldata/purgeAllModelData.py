@@ -37,8 +37,8 @@
 import logging
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.grid.request import DeleteAllGridDataRequest
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 logger = None
 def __initLogger():
