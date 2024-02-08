@@ -1697,7 +1697,7 @@ def refresh_impl(args, dry_run=False, rsync_dry_run=False,
                                     continue
                                 dst_path = join(path, 'passwords.properties')
                                 # need full python path since this is run as root, which doesn't have appropriate path vars set
-                                cmd = ['ssh', host, f"/awips2/python/bin/python -c \"from ufpy import ignite_password; ignite_password.updateIgnitePasswords('{keystore_password}', '{truststore_password}', '{dst_path}')\""]
+                                cmd = ['ssh', host, f"/awips2/python/bin/python -c \"from awips import ignite_password; ignite_password.updateIgnitePasswords('{keystore_password}', '{truststore_password}', '{dst_path}')\""]
                                 if not dry_run:
                                     try:
                                         run(cmd, echo_stdout=verbose, echo_stderr_filtered=True)

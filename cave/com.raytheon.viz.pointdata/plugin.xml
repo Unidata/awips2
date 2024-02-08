@@ -75,22 +75,4 @@
             name="Plot Models"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
-   <extension
-         point="com.raytheon.viz.ui.contextualMenu">
-      <contextualMenu
-            actionClass="com.raytheon.viz.pointdata.def.ui.EditPlotResourceAction"
-            capabilityClass="com.raytheon.viz.pointdata.rsc.PlotResource"
-            name="com.raytheon.viz.pointdata.def.ui.EditPlotResourceAction"
-            sortID="600">
-      </contextualMenu>
-   </extension>
-   <extension
-         point="com.raytheon.viz.ui.contextualMenu">
-      <contextualMenu
-            actionClass="com.raytheon.viz.pointdata.def.ui.EditPlotBlendedResourceAction"
-            capabilityClass="com.raytheon.viz.pointdata.rsc.PlotBlendedResource"
-            name="com.raytheon.viz.pointdata.def.ui.EditPlotBlendedResourceAction"
-            sortID="601">
-      </contextualMenu>
-   </extension>
 </plugin>
