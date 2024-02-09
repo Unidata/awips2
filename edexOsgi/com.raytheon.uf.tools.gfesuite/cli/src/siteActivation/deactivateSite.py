@@ -34,8 +34,8 @@ import time
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import DeactivateSiteRequest
 
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 from ActivationTopicListener import ActivationTopicListener
 

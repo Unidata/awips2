@@ -32,3 +32,4 @@ build/deploy.ignite.awips2
 ../awips2-ogc/foss/*
 ../awips2-ogc/edex/*
 ../awips2-ogc/features/*
+../python-awips

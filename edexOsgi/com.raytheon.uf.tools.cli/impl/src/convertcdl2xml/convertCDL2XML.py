@@ -43,7 +43,7 @@ import sys
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 
-from ufpy import UsageArgumentParser
+from awips import UsageArgumentParser
 
 import netCDF4
 

@@ -21,7 +21,7 @@
 import shlex
 import subprocess
 
-from ufpy import UsageArgumentParser
+from awips import UsageArgumentParser
 
 
 #
