@@ -40,9 +40,9 @@ import sys
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import PurgeGfeGridsRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
-from ufpy.UsageArgumentParser import StoreDatabaseIDAction as StoreDatabaseIDAction
+from awips import ThriftClient
+from awips import UsageArgumentParser
+from awips.UsageArgumentParser import StoreDatabaseIDAction as StoreDatabaseIDAction
 
 
 logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 

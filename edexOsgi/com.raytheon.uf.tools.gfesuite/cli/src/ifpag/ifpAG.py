@@ -32,9 +32,9 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request impo
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import SaveASCIIGridsRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
-from ufpy.localization import LocalizationUtil
+from awips import ThriftClient
+from awips import UsageArgumentParser
+from awips.localization import LocalizationUtil
 
 
 ##

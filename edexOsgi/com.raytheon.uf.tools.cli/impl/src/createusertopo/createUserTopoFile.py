@@ -41,7 +41,7 @@ import numpy as np
 from scipy import ndimage
 import netCDF4
 
-from ufpy import UsageArgumentParser
+from awips import UsageArgumentParser
 
 
 

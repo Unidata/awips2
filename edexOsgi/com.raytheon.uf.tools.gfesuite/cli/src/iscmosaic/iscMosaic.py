@@ -22,10 +22,10 @@ import logging
 import os
 import sys
 
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
-from ufpy.UsageArgumentParser import StoreDatabaseIDAction as StoreDatabaseIDAction
-from ufpy.UsageArgumentParser import AppendParmNameAndLevelAction as AppendParmNameAndLevelAction
+from awips import ThriftClient
+from awips import UsageArgumentParser
+from awips.UsageArgumentParser import StoreDatabaseIDAction as StoreDatabaseIDAction
+from awips.UsageArgumentParser import AppendParmNameAndLevelAction as AppendParmNameAndLevelAction
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import ExecuteIscMosaicRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId

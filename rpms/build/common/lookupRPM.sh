@@ -25,7 +25,6 @@ function lookupRPM()
    awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_core_dir="${rpms_dir}/awips2.core"
    awips2_upc_dir="${rpms_dir}/awips2.upc"
-   python_site__dir="${rpms_dir}/python.site-packages"
 
    installer_dir="${rpms_dir}/../installers/RPMs"
 
@@ -42,10 +41,6 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-python-cherrypy" ]; then
       export RPM_SPECIFICATION="${installer_dir}/cherrypy"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-dynamicserialize" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.dynamicserialize"
       return 0
    fi
    if [ "${1}" = "awips2-python-h5py" ]; then
@@ -96,16 +91,8 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/tables/"
       return 0
    fi
-   if [ "${1}" = "awips2-python-thrift" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/thrift"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-tpg" ]; then
       export RPM_SPECIFICATION="${installer_dir}/tpg"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-ufpy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.ufpy"
       return 0
    fi
    if [ "${1}" = "awips2-python-werkzeug" ]; then
@@ -366,6 +353,10 @@ function lookupRPM()
    # Unidata additions
    if [ "${1}" = "awips2-ldm" ]; then
       export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.ldm"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-awips" ]; then
+      export RPM_SPECIFICATION="/awips2/repo/python-awips/rpm"
       return 0
    fi
 

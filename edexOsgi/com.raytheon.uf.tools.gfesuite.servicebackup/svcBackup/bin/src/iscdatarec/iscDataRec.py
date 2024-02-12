@@ -24,7 +24,7 @@ import os
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import IscDataRecRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from ufpy import ThriftClient
+from awips import ThriftClient
 
 #
 # CLI tool to process incoming ISC requests. Receives incoming request via MHS
