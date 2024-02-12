@@ -70,14 +70,14 @@
                 <includeMode>goesrExclude</includeMode>
                 <exclude>.*(airmet|atcf|aww|convsigmet|gfe|grid|hydro|intlsigmet|modis|ncpafm|ncuair|profiler|netcdf-grid).*</exclude>
                 <exclude>.*(nonconvsigmet|satellite|sgwh|ssha|stats|stormtrack|textlightning_ep|useradmin|wcp).*</exclude>
-                <exclude>purge.*</exclude>
+                <exclude>purge-spring.*</exclude>
         </mode>
 
         <mode name="ingestGoesR">
                 <includeMode>ingest</includeMode>
                 <includeMode>pluginExclude</includeMode>
                 <includeMode>radarExclude</includeMode>
-                <exclude>purge.*</exclude>
+                <exclude>purge-spring.*</exclude>
         </mode>
 
         <mode name="ingestGrids">
@@ -85,7 +85,7 @@
                 <includeMode>pluginModelSoundingExclude</includeMode>
                 <includeMode>radarExclude</includeMode>
                 <includeMode>goesrExclude</includeMode>
-                <exclude>purge.*</exclude>
+                <exclude>purge-spring.*</exclude>
         </mode>
 
         <mode name="pluginExclude">
