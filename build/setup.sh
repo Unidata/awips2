@@ -80,7 +80,7 @@ if [[ $(whoami) == "awips" ]]; then # local build
   echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"
   rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
   cmd="cd /share/awips2/${AWIPSII_VERSION}/linux ; find ${os_version}-dev-${date} -type f | ../../git_nexus_tool/nexus-tools/bash/nexus-upload.sh -t downloads -u tiffanym -o awips2 -v ${AWIPSII_VERSION}/linux/rpms/"
-  echo "Need to run ssh@tiffanym '${cmd}' and provide -p [password]"
+  echo "Need to run ssh tiffanym@fserv '${cmd}' and provide -p [password]"
 
   #rsync -aP dist/${os_version}-dev-${date} awips@edex3:/awips2/dev
   #rsync -aP dist/${os_version}-dev-${date} awips@hardy:/awips2/dev
