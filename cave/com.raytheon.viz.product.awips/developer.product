@@ -52,7 +52,7 @@
       startupProgressRect="3,234,413,13"
       startupMessageRect="7,252,445,20"
       startupForegroundColor="000000" />
-   <launcher name="cave">
+   <launcher name="no_env">
       <win useIco="false">
          <bmp/>
       </win>
