@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Check for necessary named pipes (FIFOs)
+
+myhost=`hostname -s | cut -d- -f1`
+
+echo "It seems like host(`hostname`) is NOT a downlink CP."
+echo "Do you still want to start LDM (y/n) [default=n]?"
+read ch
+if [ $ch != 'y' -o $ch != 'Y' ];then
+  echo "Exiting."
+  exit 1
+
+# Start LDM
+
+su - ldm -c "ldmadmin start"
+
+# Pass SIGUSR2 signal to pqact to enable logging into ldmd.log (INFO log level)
+
+echo "Fetching pid for pqact process"
+pid=`ps --no-headers -C pqact |awk '{print $1}'`
+su - ldm -c "kill -s USR2 $pid"
+
+echo "Done."
+
