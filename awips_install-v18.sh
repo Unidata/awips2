@@ -3,7 +3,7 @@
 # devorg: Unidata Program Center
 # author: Michael James, Tiffany Meyer
 # maintainer: <support-awips@unidata.ucar.edu>
-# Date Updated: 2/13/2024
+# Date Updated: 7/5/2023
 # use: ./awips_install.sh (--cave|--edex|--database|--ingest|--help)
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
@@ -35,7 +35,7 @@ function check_yumfile {
     cp /etc/yum.repos.d/awips2.repo /etc/yum.repos.d/awips2.repo-${date}
   fi
 
-  wget_url="https://downloads.unidata.ucar.edu/awips2/current/linux/${repofile}"
+  wget_url="https://downloads.unidata.ucar.edu/awips2/20.3.2/linux/${repofile}"
   echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
   wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
 
@@ -89,14 +89,6 @@ function check_git {
   fi
 }
 
-function check_wgrib2 {
-  if ! [[ $(rpm -qa | grep ^wgrib2) ]]; then
-    # install wgrib2 if not installed
-    yum install wgrib2 -y
-
-  fi
-}
-
 function check_cave {
   if [[ $(rpm -qa | grep awips2-cave-20) ]]; then
     echo $'\n'CAVE is currently installed and needs to be removed before installing.
@@ -104,10 +96,9 @@ function check_cave {
     pkill -f 'cave/cave.sh'
     remove_cave
   fi
+  check_edex
   if [[ $(rpm -qa | grep awips2-cave-18) ]]; then
   while true; do
-    pkill run.sh
-    pkill -f 'cave/run.sh'
     read -p "Version 18.* of CAVE is currently installed and needs to be removed before installing the Beta Version 20.* of CAVE. Do you wish to remove CAVE? (Please type yes or no) `echo $'\n> '`" yn
     case $yn in
       [Yy]* ) remove_cave; break;;
@@ -117,10 +108,17 @@ function check_cave {
   done
   fi
 }
+function check_cave {
+  if [[ $(rpm -qa | grep awips2-cave) ]]; then
+    echo $'\n'CAVE is currently installed and needs to be removed before installing.
+    pkill cave.sh
+    pkill -f 'cave/run.sh'
+    remove_cave
+  fi
+}
 
 function remove_cave {
   yum groupremove awips2-cave -y
-  #yum remove awips2-* -y
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
     echo "
@@ -365,7 +363,7 @@ function remove_edex {
        ex. yum groups mark remove 'AWIPS EDEX Server'"
      exit
   else
-    awips2_dirs=("cave" "data" "database" "data_store" "edex" "etc" "hdf5" "hdf5_locks" "httpd_pypies" "ignite" "java" "ldm" "netcdf" "postgres" "psql" "pypies" "python" "qpid" "tmp" "tools" "yajsw")
+    awips2_dirs=("cave" "data" "database" "data_store" "edex" "hdf5" "httpd_pypies" "java" "ldm" "postgres" "psql" "pypies" "python" "qpid" "tmp" "tools" "yajsw")
     for dir in ${awips2_dirs[@]}; do
       if [ $dir != dev ] ; then
         echo "Removing /awips2/$dir"
@@ -390,13 +388,12 @@ function server_prep {
   check_yumfile
   stop_edex_services
   check_limits
-  check_epel
   check_netcdf
   check_wget
   check_rsync
   check_edex
   check_git
-  check_wgrib2
+  check_epel
 }
 
 function disable_ndm_update {
@@ -431,7 +428,6 @@ case $key in
         ;;
     --server|--edex)
         server_prep
-        yum install awips2-*post* -y 
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
@@ -461,3 +457,5 @@ esac
 
 PATH=$PATH:/awips2/edex/bin/
 exit
+
+

@@ -70,8 +70,8 @@ else
   su - awips -c "/bin/bash $buildsh -server"
   su - awips -c "/bin/bash $buildsh -database"
   su - awips -c "/bin/bash $buildsh -edex"
-  su - awips -c "/bin/bash $buildsh -httpd"
   su - awips -c "/bin/bash $buildsh -cave"
+  #su - awips -c "/bin/bash $buildsh -pypies"
   #su - awips -c "/bin/bash $buildsh -localization"
 
 fi
