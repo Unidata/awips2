@@ -3,7 +3,7 @@
 # devorg: Unidata Program Center
 # author: Michael James, Tiffany Meyer
 # maintainer: <support-awips@unidata.ucar.edu>
-# Date Updated: 2/13/2024
+# Date Updated: 2/16/2024
 # use: ./awips_install.sh (--cave|--edex|--database|--ingest|--help)
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
@@ -36,13 +36,13 @@ function check_yumfile {
   fi
 
   wget_url="https://downloads.unidata.ucar.edu/awips2/current/linux/${repofile}"
-  echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
-  wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
+  #echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
+  #wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
 
   sed -i 's/enabled=0/enabled=1/' /etc/yum.repos.d/awips2.repo
 
-  yum clean all --enablerepo=awips2repo --disablerepo="*" 1>> /dev/null 2>&1
-  yum --enablerepo=awips2repo clean metadata
+  yum --enablerepo=awips2repo --disablerepo="*" --disableexcludes=main clean all 1>> /dev/null 2>&1
+  yum --enablerepo=awips2repo --disableexcludes=main clean metadata
 }
 
 function check_limits {
@@ -119,7 +119,7 @@ function check_cave {
 }
 
 function remove_cave {
-  yum groupremove awips2-cave -y
+  yum --disableexcludes=main groupremove awips2-cave -y
   #yum remove awips2-* -y
 
   if [[ $(rpm -qa | grep awips2-cave) ]]; then
@@ -345,8 +345,8 @@ function remove_edex {
     echo "Now removing EDEX"
   fi
 
-  yum groupremove awips2-server awips2-database awips2-ingest awips2-cave -y
-  yum remove awips2-* -y
+  yum --disableexcludes=main groupremove awips2-server awips2-database awips2-ingest awips2-cave -y
+  yum --disableexcludes=main remove awips2-* -y
 
   if [[ $(rpm -qa | grep awips2 | grep -v cave) ]]; then
     echo "
@@ -425,21 +425,21 @@ fi
 case $key in
     --cave)
         cave_prep
-        yum groupinstall awips2-cave -y 2>&1 | tee -a /tmp/awips-install.log
+        yum  --disableexcludes=main groupinstall awips2-cave -y 2>&1 | tee -a /tmp/awips-install.log
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         echo "CAVE has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --server|--edex)
         server_prep
-        yum install awips2-*post* -y 
-        yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
+        yum --disableexcludes=main install awips2-*post* -y 
+        yum --disableexcludes=main groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
         echo "EDEX server has finished installing, the install log can be found in /tmp/awips-install.log"
         ;;
     --database)
         server_prep
-        yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
+        yum  --disableexcludes=main groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
         disable_ndm_update
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
@@ -447,7 +447,7 @@ case $key in
         ;;
     --ingest)
         server_prep
-        yum groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
+        yum  --disableexcludes=main groupinstall awips2-ingest -y 2>&1 | tee -a /tmp/awips-install.log
         disable_ndm_update
         sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/awips2.repo
         sed -i 's/@LDM_PORT@/388/' /awips2/ldm/etc/registry.xml 
