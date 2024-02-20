@@ -40,7 +40,7 @@ Exporrt KML     | Ctrl+K
 | Increase Loop Speed          | Page Up          |
 | Decrease Loop Speed          | Page Down        |
 | Toggle Time Options          | Ctrl + Shift + T |
-| Toggle Image Combination     | Ctrl + Shift + L |
+| Toggle Image Combination     | Ctrl + Shift + I |
 | Open Loop Properties         | Ctrl + L         |
 | Open Image Properties        | Ctrl + I         |
 | Show Print Dialog            | Ctrl + P         |
