@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 20.3.2-1**](#linux)
-- [**Windows: 20.3.2-1**](#windows)
-- [**Mac: 20.3.2-1**](#macos)
+- [**Linux: 20.3.2-2**](#linux)
+- [**Windows: 20.3.2-2**](#windows)
+- [**Mac: 20.3.2-2**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -42,7 +42,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 20.3.2-1**
+**Latest Version: 20.3.2-2**
 
 ### System Requirements
 
@@ -78,7 +78,7 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 20.3.2-1**
+**Latest Version: 20.3.2-2**
 
 For Windows, we offer two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
@@ -147,9 +147,9 @@ If you already have CAVE installed you can either:
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-1** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
+1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-1.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-2.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips"
      - The root password is "unidataAWIPS" if ever needed
@@ -166,7 +166,7 @@ Once inside the VM, to run CAVE either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 20.3.2-1**
+**Latest Version: 20.3.2-2**
 
 ### System Requirements
 

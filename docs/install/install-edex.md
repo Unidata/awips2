@@ -6,9 +6,9 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Latest Version
 
-!!! warning "We are aware of an issue with pqact.conf.priority file in 20.3.2-1 and are working on an updated release, in the meantime, please replace the file (/awips2/ldm/etc/) with this file located at https://github.com/Unidata/awips2/raw/unidata_20.3.2/rpms/awips2.upc/Installer.ldm/patch/etc/pqact.conf.priority"
+!!! warning "We are aware of an issue with pqact.conf.priority file in 20.3.2-2 and are working on an updated release, in the meantime, please replace the file (/awips2/ldm/etc/) with this file located at https://github.com/Unidata/awips2/raw/unidata_20.3.2/rpms/awips2.upc/Installer.ldm/patch/etc/pqact.conf.priority"
 
-**20.3.2-1**
+**20.3.2-2**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
