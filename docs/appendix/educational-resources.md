@@ -181,6 +181,7 @@ A full list of all released blogs can be found below:
 - [AWIPS 20.3.2-1 Production AWIPS Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-203)
 - [Changes Related to v20.3.2 AWIPS Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-changes-related-to)
 - [AMS 2024 Highlight](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ams-2024-highlight)
+- [AWIPS 20.3.2-2 AWIPS Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-awips-20-3)
   
 #### CAVE
 
