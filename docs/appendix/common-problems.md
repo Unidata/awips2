@@ -92,15 +92,21 @@ Known datasets this can affect (this is not a comprehensive list):
   - METAR Station Plot
   - GFS Precip Type
 
+#### Windows
+
 To correct this issue on Windows:
 
   - Make sure you only have the latest version of [CAVE installed](https://unidata.github.io/awips2/install/install-cave/#method-1-direct-windows-install) (which now fully bundles the proper version of Python with the application)
   - If you have ever previously added `PYTHONHOME`, `PYTHONPATH`, or `JAVA_HOME` to your user or system variables, please delete those.
     - Open the Environment Variables window by typing "env" in the start bar
 
+#### Mac
+
 To correct this issue on Mac:
 
  - Make sure you have the latest verison of [CAVE installed](https://unidata.github.io/awips2/install/install-cave/#macos) (which now fully bundles the proper version of Python with the application)
+
+#### Linux
 
 To correct this issue on Linux:
 
