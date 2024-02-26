@@ -381,6 +381,10 @@ NGRID	^[LM].Q... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{2})(
 # --------------------------------------------------
 # - North American Mesoscale Forecast System (NAM) -
 # --------------------------------------------------
+# NAM AK data
+NGRID	^[LM].S... KWBE ...... !grib2/ncep/NAM_84/#242/(............)(F...)/(.*)/.*
+	FILE	-edex -close
+	/awips2/data_store/grid/AK-NAM/NAM_Alaska_\2_\3_\4_\5-(seq).grib2
 #
 # NAM CONUS 12 km (NAM12) - NOAAport
 #
