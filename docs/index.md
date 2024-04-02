@@ -1,3 +1,5 @@
+!!! warning "Planned EDEX Outage (4/12-4/15): Our public EDEX will be unavailable from the afternoon of Friday, April 12th, until Monday, April 15th.  We apologize for the inconvenience."
+
 # NSF Unidata AWIPS Manual
 
 [https://www.unidata.ucar.edu/software/awips2](https://www.unidata.ucar.edu/software/awips2) 

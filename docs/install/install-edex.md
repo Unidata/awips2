@@ -1,3 +1,5 @@
+!!! warning "Planned EDEX Outage (4/12-4/15): Our public EDEX will be unavailable from the afternoon of Friday, April 12th, until Monday, April 15th.  We apologize for the inconvenience."
+
 # Install EDEX
 
 EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at [Distributed EDEX, Installing Across Multiple Machines](../../edex/distributed-computing/)

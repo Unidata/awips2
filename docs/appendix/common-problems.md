@@ -1,3 +1,5 @@
+!!! warning "Planned EDEX Outage (4/12-4/15): Our public EDEX will be unavailable from the afternoon of Friday, April 12th, until Monday, April 15th.  We apologize for the inconvenience."
+
 # Common Problems
 
 ## All Operating Systems
