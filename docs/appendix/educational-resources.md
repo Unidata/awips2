@@ -1,3 +1,5 @@
+!!! warning "Planned EDEX Outage (4/12-4/15): Our public EDEX will be unavailable from the afternoon of Friday, April 12th, until Monday, April 15th.  We apologize for the inconvenience."
+
 # Educational Resources
 
 Here at NSF Unidata, we want to provide as many resources as possible to make our tools and applications easy to use.  For AWIPS we currently have a new [eLearning course](#cave-elearning-course) that is specific to CAVE.  We also have a suite of [Jupyter Notebooks](#python-awips-example-notebooks) that are meant to provide a detailed overview of many capabilities of python-awips.
