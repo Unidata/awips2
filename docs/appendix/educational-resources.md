@@ -1,4 +1,4 @@
-!!! warning "Planned EDEX Outage (4/12-4/15): Our public EDEX will be unavailable from the afternoon of Friday, April 12th, until Monday, April 15th.  We apologize for the inconvenience."
+!!! warning "EDEX Outage: Our public EDEX is currently unavailable because of unexpected outages from our cloud provider after scheduled maintenance we hope to bring them back online on Tuesday, 4/16/24."
 
 # Educational Resources
 
