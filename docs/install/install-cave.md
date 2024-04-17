@@ -1,4 +1,4 @@
-!!! warning "EDEX Outage: Our public EDEX is currently unavailable because of unexpected outages from our cloud provider after scheduled maintenance. We hope to bring them back online on Tuesday, 4/16/24."
+!!! warning "EDEX Outage [as of 4/17/24]: Our public EDEX is currently unavailable because of unexpected outages from our cloud provider after scheduled maintenance. We are standing by, ready to bring them back online as soon as the issues are resolved by our cloud provider. We apologize for this inconvenience."
 
 # Install CAVE
 
