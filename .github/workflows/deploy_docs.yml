@@ -27,8 +27,8 @@ jobs:
 
       - name: Create mkdocs_requirements.txt
         run: |
-          echo "markdown==3.3.7" >> mkdocs_requirements.txt
-          echo "mkdocs" >> mkdocs_requirements.txt
+          echo "markdown==3.3.4" >> mkdocs_requirements.txt
+          echo "mkdocs==1.3.0" >> mkdocs_requirements.txt
           echo "mkdocs-unidata" >> mkdocs_requirements.txt
           echo "fontawesome_markdown" >> mkdocs_requirements.txt
 
