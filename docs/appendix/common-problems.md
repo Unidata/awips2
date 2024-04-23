@@ -1,5 +1,3 @@
-!!! warning "EDEX Outage [as of 4/17/24 11:00 MDT]: Our public EDEX back online, however there may still be some lingering issues from the cloud maintenance. If you experience any strange behavior please notify us via support-awips@ucar.edu. Thank you."
-
 # Common Problems
 
 ## All Operating Systems
@@ -126,8 +124,8 @@ If you start up CAVE in Windows and notice the map is showing up only in the bot
 
 Try following these steps to fix your issue:
 
-- Right-click on the CAVE.exe, select Properties
-!!! note "This is not the batch file (CAVE.bat) that gets installed as the CAVE shortcut on the Desktop, the CAVE.exe is located in `C:\Users\[your_username]\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.exe`."
+- Right-click on the no_env.exe, select Properties
+!!! note "This is not the batch file (CAVE.bat) that gets installed as the CAVE shortcut on the Desktop, the no_env.exe is located in `C:\Users\[your_username]\AppData\Roaming\UCAR Unidata\AWIPS CAVE\no_env.exe`."
 - Select the Compatibility tab
 - Click "Change High DPI Settings"
 - At the bottom enable "Override High DPI scaling behavior"
