@@ -1,3 +1,5 @@
+!!! warning "EDEX Outage [as of 4/17/24 11:00 MDT]: Our public EDEX back online, however there may still be some lingering issues from the cloud maintenance. If you experience any strange behavior please notify us via support-awips@ucar.edu. Thank you."
+
 # Install CAVE
 
 CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.

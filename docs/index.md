@@ -1,3 +1,5 @@
+!!! warning "EDEX Outage [as of 4/17/24 11:00 MDT]: Our public EDEX back online, however there may still be some lingering issues from the cloud maintenance. If you experience any strange behavior please notify us via support-awips@ucar.edu. Thank you."
+
 # NSF Unidata AWIPS Manual
 
 [https://www.unidata.ucar.edu/software/awips2](https://www.unidata.ucar.edu/software/awips2) 

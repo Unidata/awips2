@@ -1,3 +1,5 @@
+!!! warning "EDEX Outage [as of 4/17/24 11:00 MDT]: Our public EDEX back online, however there may still be some lingering issues from the cloud maintenance. If you experience any strange behavior please notify us via support-awips@ucar.edu. Thank you."
+
 # Educational Resources
 
 Here at NSF Unidata, we want to provide as many resources as possible to make our tools and applications easy to use.  For AWIPS we currently have a new [eLearning course](#cave-elearning-course) that is specific to CAVE.  We also have a suite of [Jupyter Notebooks](#python-awips-example-notebooks) that are meant to provide a detailed overview of many capabilities of python-awips.
@@ -215,7 +217,6 @@ A full list of all released blogs can be found below:
 - [Measuring Up - Distance Tools in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-measuring-up-distance)
 - [New RAWS Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-new-raws-data)
 - [Customized Contours](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-customized-contours)
-- [Using the Text Workstation](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-text)
 
 #### Python-AWIPS
 
