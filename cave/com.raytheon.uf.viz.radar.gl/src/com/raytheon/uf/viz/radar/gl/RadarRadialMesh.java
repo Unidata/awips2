@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.radar.gl;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.media.opengl.GL;
+import com.jogamp.opengl.GL2;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -53,6 +53,7 @@ import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension.RadialMeshData;
  * Oct 09, 2012  15018    kshresth
  * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
  *                                    Mesh
+ * Jan 19, 2023			srcarter@ucar Add MJ's change to GL2  
  * </pre>
  * 
  * @author mschenke
@@ -117,7 +118,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
     public RadarRadialMesh(RadialMeshData data,
             GeneralGridGeometry targetGeometry, CacheKey cacheKey)
             throws VizException {
-        super(GL.GL_TRIANGLE_STRIP);
+        super(GL2.GL_TRIANGLE_STRIP);
         this.data = data;
         this.cacheKey = cacheKey;
         ProjectedCRS crs = CRSCache.getInstance().constructStereographic(

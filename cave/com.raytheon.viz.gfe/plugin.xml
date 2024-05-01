@@ -1911,21 +1911,6 @@
             name="GFEPerspectiveManager">
         </perspectiveManager>
     </extension>
-    <extension point="org.eclipse.ui.perspectives">
-        <perspective class="com.raytheon.viz.gfe.perspective.GFEPerspective"
-            icon="icons/gfe.gif" id="com.raytheon.viz.ui.GFEPerspective" name="GFE">
-        </perspective>
-    </extension>
-    <extension point="org.eclipse.ui.perspectiveExtensions">
-        <perspectiveExtension targetID="com.raytheon.viz.ui.GFEPerspective">
-            <actionSet id="com.raytheon.viz.gfe.GFEActionSet">
-            </actionSet>
-        </perspectiveExtension>
-        <perspectiveExtension targetID="*">
-            <perspectiveShortcut id="com.raytheon.viz.ui.GFEPerspective">
-            </perspectiveShortcut>
-        </perspectiveExtension>
-    </extension>
     <extension
            point="com.raytheon.uf.viz.core.component">
            <component key="gfeclient" class="com.raytheon.viz.gfe.gfeclient.GfeClient"/>

@@ -8,9 +8,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.truecolor,
  com.raytheon.viz.core.gl,
- javax.media.opengl,
  com.raytheon.uf.common.util,
- com.raytheon.uf.common.colormap
+ com.raytheon.uf.common.colormap,
+ com.jogamp.jogl;bundle-version="2.3.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: com.raytheon.uf.viz.truecolor.gl.jar

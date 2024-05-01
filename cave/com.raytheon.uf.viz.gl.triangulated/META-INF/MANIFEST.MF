@@ -9,6 +9,7 @@ Require-Bundle: com.raytheon.uf.viz.drawables.triangulated,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.colormap,
  com.raytheon.viz.core.gl,
- javax.measure
+ javax.measure,
+ com.jogamp.jogl;bundle-version="2.3.2"
 Import-Package: org.locationtech.jts.algorithm,
  org.locationtech.jts.geom
