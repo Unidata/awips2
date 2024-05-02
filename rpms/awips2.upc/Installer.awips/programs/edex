@@ -249,15 +249,15 @@ edit_setup() {
 edex_setup() {
    echo ''
 
-   svc=`systemctl -t service | grep postgresql@awips.service | awk '{ print $1}'`
+   svc=`find /etc/systemd/system -type d -printf "%f\n" | grep postgresql\@awips.service`
    if [ $svc ]; then
       systemctl enable postgresql@awips
    fi
-   svc=`systemctl -t service | grep httpd-pypies.service | awk '{ print $1}'`
+   svc=` find /usr/lib/systemd/system -type f -printf "%f\n" | grep httpd-pypies.service`
    if [ $svc ]; then
       systemctl enable httpd-pypies
    fi
-   svc=`systemctl -t service | grep qpidd.service | awk '{ print $1}'`
+   svc=` find /usr/lib/systemd/system -type f -printf "%f\n" | grep qpidd`
    if [ $svc ]; then
       systemctl enable qpidd
    fi
@@ -315,18 +315,22 @@ edex_start() {
       fi
    done
 
-   svc=`systemctl -t service | grep postgresql@awips.service | awk '{ print $1}'`
+   svc=`find /etc/systemd/system -type d -printf "%f\n" | grep postgresql\@awips.service`
    if [ $svc ]; then
+      echo "Starting postgresql@awips"
       systemctl start postgresql@awips
    fi
-   svc=`systemctl -t service | grep httpd-pypies.service | awk '{ print $1}'`
+   svc=` find /usr/lib/systemd/system -type f -printf "%f\n" | grep httpd-pypies.service`
    if [ $svc ]; then
+      echo "Starting httpd-pypies"
       systemctl start httpd-pypies
    fi
-   svc=`systemctl -t service | grep qpidd.service | awk '{ print $1}'`
+   svc=` find /usr/lib/systemd/system -type f -printf "%f\n" | grep qpidd`
    if [ $svc ]; then
+      echo "Starting qpidd"
       systemctl start qpidd
    fi
+
    edex_purge_reset
 
    
@@ -335,6 +339,7 @@ edex_start() {
    fi
 
    for service in ${SERVICES[*]}; do
+      echo "Starting edex_camel@$service\n"
       systemctl start edex_camel@$service
    done
    ldm_start
@@ -345,21 +350,32 @@ edex_start() {
 #
 edex_stop() {
    ldm_stop
-   systemctl stop edex_camel@*
 
+   if [ $# -gt 0 ]; then
+      SERVICES=("$@")
+   fi
 
-   svc=`systemctl -t service | grep postgresql@awips.service | awk '{ print $1}'`
+   for service in ${SERVICES[*]}; do
+      echo "Stopping edex_camel@$service"
+      systemctl stop edex_camel@$service
+   done
+
+   svc=`find /etc/systemd/system -type d -printf "%f\n" | grep postgresql\@awips.service`
    if [ $svc ]; then
+      echo "Stopping postgresql@awips"
       systemctl stop postgresql@awips
    fi
-   svc=`systemctl -t service | grep httpd-pypies.service | awk '{ print $1}'`
+   svc=` find /usr/lib/systemd/system -type f -printf "%f\n" | grep httpd-pypies.service`
    if [ $svc ]; then
+      echo "Stopping httpd-pypies"
       systemctl stop httpd-pypies
    fi
-   svc=`systemctl -t service | grep qpidd.service | awk '{ print $1}'`
+   svc=` find /usr/lib/systemd/system -type f -printf "%f\n" | grep qpidd`
    if [ $svc ]; then
+      echo "Stopping qpidd"
       systemctl stop qpidd
    fi
+
    edex_status;
 }
 
@@ -373,6 +389,7 @@ edex_restart() {
 
    for service in ${SERVICES[*]};
       do
+         echo "Restarting edex_camel@$service"
          systemctl restart edex_camel@$service
    done
    edex_status;

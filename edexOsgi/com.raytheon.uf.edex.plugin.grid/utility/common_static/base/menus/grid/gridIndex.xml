@@ -74,6 +74,16 @@
     <contribute xsi:type="subinclude" subMenu = "Comparison Families" 
              fileName="menus/grid/baseComparisonFamilies.xml">
     </contribute>
+    
+    <contribute xsi:type="separator" id="MySeparatorId"/>
+
+    <contribute xsi:type="subinclude" subMenu = "NSEA Digital Cursor Readouts" 
+             fileName="menus/grid/NSEA/NSEA_Base.xml">
+           	<substitute key="RAP13model" value="RAP13" />
+    </contribute>
+        <contribute xsi:type="subinclude" subMenu = "Standard Env Package" 
+             fileName="menus/grid/baseStdEnvPackage.xml">
+    </contribute>
 
     <contribute xsi:type="separator" id="MySeparatorId"/>
 

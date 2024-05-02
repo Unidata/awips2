@@ -20,17 +20,23 @@
 package com.raytheon.uf.viz.d2d.nsharp.display;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
 import com.raytheon.viz.ui.tools.ModalToolManager;
 
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 
 /**
@@ -47,6 +53,8 @@ import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
  * ------------- -------- --------- ------------------------------------------
  * May 12, 2011  9249     bsteffen  Initial creation
  * Apr 29, 2016  5607     bsteffen  Fix modal tool manipulation in eclipse 4.
+ * Apr 10, 2024       srcarter@ucar From MJ: Use NCEP NSHARP Dialog for load
+ * Apr 11, 2024       srcarter@ucar Added new NWS load functionality as an additional button
  * 
  * </pre>
  * 
@@ -58,6 +66,12 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
 
     private AbstractModalTool lastTool = null;
 
+    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+
+    D2DNsharpLoadDialog loadDia = D2DNsharpLoadDialog.getInstance(shell);
+
+    private Button loadToolsBtn;
+    
     @Override
     public void init(IViewSite site) {
         super.init(site);
@@ -104,11 +118,48 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
 
             @Override
             public void handleEvent(Event event) {
-                D2DNsharpHandleArchiveFile.openArchiveFile(getViewSite()
-                        .getShell());
+                if (loadDia != null) {
+                    loadDia.open();
+                }
             }
         });
+        
+        // create second load button
+        loadToolsBtn = new Button(textModeGp, SWT.PUSH);
+        loadToolsBtn.moveBelow(loadBtn);
+        loadToolsBtn.setFont(newFont);
+        loadToolsBtn.setText("  Load Tools  ");
+        loadToolsBtn.setEnabled(true);
+        // Brought over from com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow
+        loadToolsBtn.addListener(SWT.MouseUp, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                clearEditors();
 
+                Shell shell = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell();
+                com.raytheon.uf.viz.d2d.nsharp.tool.D2DNsharpLoadDialog d2dLoadDlg = com.raytheon.uf.viz.d2d.nsharp.tool.D2DNsharpLoadDialog
+                        .getInstance(shell);
+                if (d2dLoadDlg != null) {
+                    // select first sounding type
+                    d2dLoadDlg.setActiveLoadSoundingType(0);
+                    d2dLoadDlg.open();
+                }
+            }
+        });
+    }
+    
+    // Brought over from com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow
+    public void clearEditors() {
+        if (EditorUtil.getActiveEditor() instanceof NsharpEditor) {
+            IEditorPart part = EditorUtil.getActiveEditor();
+            part.getSite().getPage().closeEditor(part, false);
+        }
+        if (EditorUtil.getActiveEditor() instanceof VizMapEditor) {
+            VizMapEditor mapEditor = (VizMapEditor) EditorUtil
+                    .getActiveEditor();
+            mapEditor.clear();
+        }
     }
 
 }

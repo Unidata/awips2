@@ -10,7 +10,7 @@
                 <exclude>ebxml.*\.xml</exclude>
                 <exclude>grib-decode.xml</exclude>
                 <exclude>grid-staticdata-process.xml</exclude>
-                <exclude>.*(dpa|taf|nctext).*</exclude>
+                <exclude>.*dpa.*</exclude>
                 <exclude>webservices.xml</exclude>
                 <exclude>ebxml.*\.xml</exclude>
                 <exclude>.*datadelivery.*</exclude>
@@ -32,7 +32,6 @@
                 <exclude>ohd-common-database.xml</exclude>
                 <exclude>satpre-spring.xml</exclude>
                 <exclude>ncgrib-file-endpoint.xml</exclude>
-                <exclude>text-subscription.*</exclude>
         </mode>
 
         <mode name="ingestGrib">
