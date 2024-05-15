@@ -249,4 +249,5 @@ A full list of all released blogs can be found below:
 - [Removing Model Data from EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-removing-model-data)
 - [LDM Usage in AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ldm-usage-in)
 - [All About EDEX Modes](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-all-about-edex)
-- [Distributed EDEX Architecture](https://unidata.github.io/awips2/appendix/educational-resources/#edex)
+- [Distributed EDEX Architecture](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-distributed-edex-architecture)
+- [Inserting Data into EDEX with Python](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-inserting-data-into)
