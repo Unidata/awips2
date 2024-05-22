@@ -1,6 +1,6 @@
 # GOES East/West Satellite Products
 
-The ***goesr*** EDEX plugin decoder supports the ingest of GOES products coming over NOAAPort and Unidata's IDD. These products include:
+The ***goesr*** EDEX plugin decoder supports the ingest of GOES products coming over NOAAPort and NSF Unidata's IDD. These products include:
 - [single channel imagery](#individual-channels)
 - [derived products](#derived-products) (Level 2b netCDF files)
 - [CIRA created RGB](#cira-geocolor) specific products
@@ -36,7 +36,7 @@ Each sector submenu has products for individual channels and vertical profiles, 
 
 ## LDM Pattern Actions
 
-The Unidata IDD redistributes both the NOAAPort/SBN GOES tiled products as well as stitched together GOES products. While Unidata's AWIPS can decode and ingest both, it's important to only be requesting from one or the other so you aren't creating duplicate processing.  The entries that should be used for GOES data are shown below which is found in the LDM's pqact.conf.priority file, located in `/awips2/ldm/etc`.   (For the full list of pqact entries, you can view [this](https://github.com/Unidata/awips2/blob/unidata_20.3.2/rpms/awips2.upc/Installer.ldm/patch/etc/pqact.goesr) file).
+NSF Unidata's IDD redistributes both the NOAAPort/SBN GOES tiled products as well as stitched together GOES products. While our AWIPS can decode and ingest both, it's important to only be requesting from one or the other so you aren't creating duplicate processing.  The entries that should be used for GOES data are shown below which is found in the LDM's pqact.conf.priority file, located in `/awips2/ldm/etc`.   (For the full list of pqact entries, you can view [this](https://github.com/Unidata/awips2/blob/unidata_20.3.2/rpms/awips2.upc/Installer.ldm/patch/etc/pqact.goesr) file).
 
     # GOES 16/17 Single Channel (ABI) via Unidata IDD -(using)
     NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
@@ -311,7 +311,7 @@ The current products offered in CAVE are listed below and to the right is which 
 
 ## Geostationary Lightning Mapper (GLM)
 
-Currently, the 1-min GLM gridded products are coming over the SBN and operational sites are calculating the 5-min GLM gridded products locally. At Unidata, we are receiving the 1 and 5-min gridded tiles from ISatSS (NWS) on the GOES East and West Full Disk scale, and we're stitching the tiles together locally before redistributing the full domain over our IDD/LDM feed. Current gridded products are available on the GOES East and West Full Disk Sectors:
+Currently, the 1-min GLM gridded products are coming over the SBN and operational sites are calculating the 5-min GLM gridded products locally. At NSF Unidata, we are receiving the 1 and 5-min gridded tiles from ISatSS (NWS) on the GOES East and West Full Disk scale, and we're stitching the tiles together locally before redistributing the full domain over our IDD/LDM feed. Current gridded products are available on the GOES East and West Full Disk Sectors:
 
 * Minimum Flash Area
 * Flash Extent Density
