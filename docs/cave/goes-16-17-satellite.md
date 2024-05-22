@@ -38,11 +38,11 @@ Each sector submenu has products for individual channels and vertical profiles, 
 
 NSF Unidata's IDD redistributes both the NOAAPort/SBN GOES tiled products as well as stitched together GOES products. While our AWIPS can decode and ingest both, it's important to only be requesting from one or the other so you aren't creating duplicate processing.  The entries that should be used for GOES data are shown below which is found in the LDM's pqact.conf.priority file, located in `/awips2/ldm/etc`.   (For the full list of pqact entries, you can view [this](https://github.com/Unidata/awips2/blob/unidata_20.3.2/rpms/awips2.upc/Installer.ldm/patch/etc/pqact.goesr) file).
 
-    # GOES 16/17 Single Channel (ABI) via Unidata IDD -(using)
+    # GOES 16/17 Single Channel (ABI) via Unidata IDD
     NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
 	    FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CMI-IDD/\5\6\7\8.nc4
 
-    # GOES 16/17 derived products + derived motion wind via SBN - (using)
+    # GOES 16/17 derived products + derived motion wind via SBN
     HDS	^(IXT.[8-9]9) (KNES) (..)(..)(..)
 	    FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
     NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
@@ -56,7 +56,7 @@ NSF Unidata's IDD redistributes both the NOAAPort/SBN GOES tiled products as wel
     NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
         FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/CloudSnow/\5\6\7\8.nc4
 
-    #GOES GLM Stitched gridded products via ISatSS (using)
+    #GOES GLM Stitched gridded products via ISatSS
     SPARE|NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/GLMISatSS/Level[23]/([^/]*)/([0-9]{8})/(OR_GLM-L[23]-GLMF-M6_G(..)_s(.......)(..).*)
         FILE	-close -edex	/awips2/data_store/GOES/\3/\7/GLMISatSS-Stitched/\4
 ---
