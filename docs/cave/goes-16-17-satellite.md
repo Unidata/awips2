@@ -1,6 +1,7 @@
 # GOES East/West Satellite Products
 
 The ***goesr*** EDEX plugin decoder supports the ingest of GOES products coming over NOAAPort and NSF Unidata's IDD. These products include:
+
 - [single channel imagery](#individual-channels)
 - [derived products](#derived-products) (Level 2b netCDF files)
 - [CIRA created RGB](#cira-geocolor) specific products
@@ -8,6 +9,7 @@ The ***goesr*** EDEX plugin decoder supports the ingest of GOES products coming 
 - Using derived parameters, additional [RGB](#rgb-composites) and [channel difference](#channel-differences) products can be loaded.
 
 The ***dmw*** EDEX plugin decoder supports the ingest of GOES:
+
   - [derived motion winds](#derived-motion-winds)
   - [Geostationary Lightning Mapper](#geostationary-lightning-mapper-glm) (GLM) gridded products
   - GLM Parallax corrected Flash Points
