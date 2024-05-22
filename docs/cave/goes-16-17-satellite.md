@@ -10,7 +10,7 @@ The ***goesr*** EDEX plugin decoder supports the ingest of GOES products coming 
 The ***dmw*** EDEX plugin decoder supports the ingest of GOES:
   - [derived motion winds](#derived-motion-winds)
   - [Geostationary Lightning Mapper](#geostationary-lightning-mapper-glm) (GLM) gridded products
-  - GLM Parralax corrected Flash Points
+  - GLM Parallax corrected Flash Points
 
 ![](../images/GOESEW.png)
 
@@ -254,11 +254,9 @@ These are the channel differences currently available in CAVE:
 
 ## Derived Products
 
-Derived products are also known as **Level 2+** products. Each sector has a different set of products available. To find out some more information on some of the products please the [**Quick Guides**](http://rammb.cira.colostate.edu/training/visit/quick_guides/) compiled by CIRA.
+Derived products are also known as **Level 2+** products. Not all sectors have the same set of products available. To find out some more information on some of the products visit the [**Quick Guides**](http://rammb.cira.colostate.edu/training/visit/quick_guides/) compiled by CIRA.
 
-!!! note "These may not all be available for each sector."
-
-The current products offered in CAVE are listed below and to the right is which GOES East sector they are available for (F=Full Disk, C=CONUS, M=Mesoscale):
+The current products offered in CAVE are listed below and to the right is which GOES East/West sector they are available for (F=Full Disk, C=CONUS, M=Mesoscale):
 
 |Derived Product|East|West|
 | ------------- | ---- | ---- |
@@ -313,12 +311,11 @@ The current products offered in CAVE are listed below and to the right is which 
 
 ## Geostationary Lightning Mapper (GLM)
 
-As of May 2024, the 1-min GLM gridded products are coming over the SBN and operational sites are calculating the 5-min GLM gridded products locally. At Unidata, we are receiving the 1 and 5-min gridded tiles from ISatSS (NWS) on the GOES East and West Full Disk scale, and we're stitching the tiles together locally before redistributing the full domain over our IDD/LDM feed. Current gridded products are:
+Currently, the 1-min GLM gridded products are coming over the SBN and operational sites are calculating the 5-min GLM gridded products locally. At Unidata, we are receiving the 1 and 5-min gridded tiles from ISatSS (NWS) on the GOES East and West Full Disk scale, and we're stitching the tiles together locally before redistributing the full domain over our IDD/LDM feed. Current gridded products are available on the GOES East and West Full Disk Sectors:
 
 * Minimum Flash Area
 * Flash Extent Density
 * Total Optical Energy
-
 
 Additionally GLM flash points are available to plot as well. These are parallax corrected locations instead of the raw locations.
 
@@ -330,7 +327,7 @@ GLM data are located in the menu structure: **Satellite** > **GOES-[East/West] F
 
 ## Derived Motion Winds
 
-Derived Motion Wind Vectors are produced using sequential CONUS sector ABI images and can provide information about winds at different levels. The wind vectors are computed using both visible and infrared imagery. Winds can be plotted by different pressure layers or individual channels. More information can be found [here](http://cimss.ssec.wisc.edu/goes/OCLOFactSheetPDFs/ABIQuickGuide_BaselineDerivedMotionWinds.pdf). Below is an image of the winds at different pressure layers.
+Derived Motion Wind Vectors are produced using sequential CONUS sector goesABI images and can provide information about winds at different levels. The wind vectors are computed using both visible and infrared imagery. Winds can be plotted by different pressure layers or individual channels. More information can be found [here](http://cimss.ssec.wisc.edu/goes/OCLOFactSheetPDFs/ABIQuickGuide_BaselineDerivedMotionWinds.pdf). Below is an image of the winds at different pressure layers.
 
 ![](../images/dmw.png)
 
