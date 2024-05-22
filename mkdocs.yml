@@ -42,7 +42,7 @@ nav:
   #    - NCP Perspective: cave/ncp-perspective.md
       - NSHARP: cave/nsharp.md
       - WarnGen Walkthrough: cave/warngen.md
-      # - GOES 16/17: cave/goes-16-17-satellite.md
+      - GOES 16/17: cave/goes-16-17-satellite.md
       - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
       - Volume Browser: cave/d2d-gridded-models.md
       - Tools: cave/d2d-all-tools.md
