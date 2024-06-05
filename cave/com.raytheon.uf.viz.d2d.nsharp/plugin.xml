@@ -9,24 +9,13 @@
             restorable="false"
             class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
-            name="NSHARP(D2D)"/>
-   </extension> 
-   
-   <extension 
-         point="org.eclipse.ui.views">
-           <view 
-            category="com.raytheon.viz.ui"
-            allowMultiple="false"
-            restorable="false"
-            class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow"
-            id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow"
-            name="NSHARP(TOOL)"/>
+            name="NSHARP"/>
    </extension> 
    
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow"
+            id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             name="Nsharp">
       </command>
     </extension>    
@@ -34,17 +23,17 @@
          point="org.eclipse.ui.handlers">
         <handler
              class="com.raytheon.uf.viz.d2d.nsharp.rsc.action.D2DNsharpViewAction"
-             commandId="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow">
+             commandId="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow">
        </handler>      
     </extension>
     
     <extension
        point="org.eclipse.ui.menus">
        <menuContribution
-           locationURI="menu:tools?after=tools.Pg">
+           locationURI="menu:tools?after=tools.N">
            <command
-                   commandId="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow"
-                   id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow"
+                   commandId="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
+                   id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
                    label="NSHARP"
                    tooltip="nsharp">
              </command>

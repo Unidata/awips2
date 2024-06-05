@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="titleItem" titleText="------ METAR / Synoptic ------"
+	<contribute xsi:type="titleItem" titleText="------ METAR / TAF / Synoptic ------"
 		id="sfcMenuMetar" />
 	<contribute xsi:type="bundleItem" file="bundles/SurfaceColorTemp.xml" 
 		menuText="Surface Temperature" id="MetarPlot">
@@ -10,6 +10,9 @@
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
 			menuText="METAR Station Plot" id="MetarPlot">
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/TafPlot.xml"
+        menuText="TAF Station Plot" id="nctaf">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml"
         menuText="60 min RAWS Plot" id="local60minstnplot">
@@ -62,24 +65,32 @@
 	</contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 24hr Precip" id="24HrPrecip">
+        <substitute key="legend" value="METAR 24hr Precip (in)" />
+        <substitute key="svg" value="metarPrcp24HrDesign.svg"/>
         <substitute key="duration" value="24"/>
         <substitute key="posOffset" value="21600"/>
         <substitute key="negOffset" value="0"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 6hr Precip" id="6HrPrecip">
+        <substitute key="legend" value="METAR 6hr Precip (in)" />
+        <substitute key="svg" value="metarPrcp6HrDesign.svg"/>
 		<substitute key="duration" value="6"/>
         <substitute key="posOffset" value="10800"/>
         <substitute key="negOffset" value="10800"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 3hr Precip" id="3HrPrecip">
+        <substitute key="legend" value="METAR 3hr Precip (in)" /> 
+        <substitute key="svg" value="metarPrcp3HrDesign.svg"/>  
         <substitute key="duration" value="3"/>
         <substitute key="posOffset" value="1800"/>
         <substitute key="negOffset" value="9000"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 1hr Precip" id="1HrPrecip">
+        <substitute key="legend" value="METAR 1hr Precip (in)" />
+        <substitute key="svg" value="metarPrcp1HrDesign.svg"/>
         <substitute key="duration" value="1"/>
         <substitute key="posOffset" value="1800"/>
         <substitute key="negOffset" value="1800"/>       

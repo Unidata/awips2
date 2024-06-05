@@ -97,7 +97,10 @@ public class RadarMapMouseHandler extends InputAdapter {
             RadarStation pt = getPtWithinMinDist(pts, loc);
             
             Shell shell = ((Control) e.widget).getShell();
-            Cursor cursor = null;
+            Cursor cursor = shell.getCursor();
+            if(cursor != null) {
+                cursor.dispose();
+            }
             
             if (pt != null) {
             	cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_HAND);

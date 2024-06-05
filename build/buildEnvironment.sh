@@ -1,7 +1,7 @@
 #!/bin/bash
 # Version
 export AWIPSII_VERSION="23.4.1"
-export AWIPSII_RELEASE="1"
+export AWIPSII_RELEASE="0.1"
 export AWIPSII_BUILD_DATE=`date`
 export AWIPSII_BUILD_SYS=`cat /etc/system-release`
 # Author

@@ -37,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
  * Date           Ticket#  Engineer  Description
  * -------------  -------- --------- ----------------------------
  * Apr 03,2020    73172    smanoj    Initial creation
+ * Apr 11,2024         srcarter@ucar Load the regular D2DNSharpPaletteWindow
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ public class D2DNsharpViewAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException { 
         // The viewID string is in the XML file for NSHARP extension point.
-        String viewid = "com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpToolPaletteWindow";
+        String viewid = "com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow";
 
         IWorkbenchPage wpage = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <bundle name="2 Panel WSR-88D KGGW">
+        <bundle name="2 Panel WSR-88D KGGW" horizontalLayout="true">
             <displayList>
                 <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D KGGW" mapCenter="-106.6247 48.2064 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">

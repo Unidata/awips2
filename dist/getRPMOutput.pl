@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
-$date="20240108";
+$date="20240521";
 
-$path="/awips2/repo/awips2/dist/el7-dev-$date";
-$path="~/dev/awips2_rh8/awips2";
+$path="/awips2/repo/awips2/dist/el8-dev-$date";
+#$path="~/dev/awips2_rh8/awips2";
 
 @repos=("noarch","x86_64");
 
