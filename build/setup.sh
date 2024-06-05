@@ -74,8 +74,11 @@ if [[ $(whoami) == "awips" ]]; then # local build
  
   #For testing, copy el7-test.repo to robin with updated path
   #sed -i 's/el7-dev-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/el7-dev-${date}/' dist/el7-test.repo
- 
+
   sudo mv dist/${os_version}-dev dist/${os_version}-dev-${date}
+#Add new path and rsync command to copy over NWS built rpms that we are having trouble building in v23.4.1
+  nwsPath="/home/awips/dev/awips2_rh8/awips2/x86_64" 
+  sudo rsync -aP ${nwsPath}/awips2-postgis* ${nwsPath}/awips2-python-proj* ${nwsPath}/awips2-python-pyproj* /awips2/repo/awips2/dist/${os_version}-dev-${date}/x86_64/
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
   echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"

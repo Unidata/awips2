@@ -131,6 +131,7 @@
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-gfe</packagereq>
+	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
@@ -273,6 +274,7 @@
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
+	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
          <packagereq type="mandatory">awips2-edex-satellite</packagereq>
@@ -345,7 +347,7 @@
       <id>awips2-cave</id>
       <name>AWIPS CAVE</name>
       <default>true</default>
-      <description>This Will Install The AWIPS II Visualization Environment Including: CAVE, AlertViz, ...</description>
+      <description>This Will Install The AWIPS II Visualization Environment Including: CAVE</description>
       <uservisible>true</uservisible>
       <packagelist>
          <packagereq type="mandatory">awips2</packagereq>
@@ -355,15 +357,19 @@
          <packagereq type="mandatory">awips2-python</packagereq>
          <packagereq type="mandatory">awips2-python-jep</packagereq>
          <packagereq type="mandatory">awips2-psql</packagereq>
+<!--
          <packagereq type="mandatory">pgadmin4-desktop</packagereq>
          <packagereq type="mandatory">pgadmin4-server</packagereq>
          <packagereq type="mandatory">awips2-bmh-shure</packagereq>
+-->
          <packagereq type="mandatory">awips2-cave</packagereq>
          <packagereq type="mandatory">awips2-cave-wrapper</packagereq>
          <packagereq type="mandatory">awips2-gfesuite</packagereq>
 
          <packagereq type="mandatory">awips2-cli</packagereq>
+<!--
          <packagereq type="mandatory">awips2-notification</packagereq>
+-->
          <packagereq type="mandatory">awips2-thrift</packagereq>
 
          <packagereq type="mandatory">awips2-python-numpy</packagereq>
@@ -396,11 +402,12 @@
          <packagereq type="mandatory">awips2-localapps-environment</packagereq>
          <packagereq type="mandatory">awips2-watchdog</packagereq>
          <packagereq type="mandatory">awips2-g2c</packagereq>
-         <packagereq type="mandatory">awips2-ecpg-compat</packagereq>
+         <!--<packagereq type="mandatory">awips2-ecpg-compat</packagereq>
          <packagereq type="mandatory">awips2-expect-libs</packagereq>
          <packagereq type="mandatory">awips2-netcdf-cxx</packagereq>
          <packagereq type="mandatory">awips2-netcdf-fortran</packagereq>
          <packagereq type="mandatory">awips2-udunits</packagereq>
+         -->
       </packagelist>
    </group>
 

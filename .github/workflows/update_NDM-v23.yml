@@ -1,4 +1,4 @@
-name: update station info v20
+name: update station info v23
 
 on:
   workflow_dispatch:
@@ -13,10 +13,10 @@ jobs:
     steps:
       # Checkout this repo
       # this gets the latest code (and is run on the default branch)
-      - name: Checkout awips2
+      - name: Checkout awips2-private
         uses: actions/checkout@v3
         with:
-          ref: unidata_20.3.2
+          ref: unidata_23.4.1
       # Do individual pulls for all the files in the ndm directory
       - name: Pull latest from vlab svn repo
         run: |
