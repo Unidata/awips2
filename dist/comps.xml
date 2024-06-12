@@ -131,6 +131,7 @@
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-gfe</packagereq>
+	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
@@ -273,6 +274,7 @@
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
+	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
          <packagereq type="mandatory">awips2-edex-satellite</packagereq>
@@ -345,7 +347,7 @@
       <id>awips2-cave</id>
       <name>AWIPS CAVE</name>
       <default>true</default>
-      <description>This Will Install The AWIPS II Visualization Environment Including: CAVE, AlertViz, ...</description>
+      <description>This Will Install The AWIPS II Visualization Environment Including: CAVE</description>
       <uservisible>true</uservisible>
       <packagelist>
          <packagereq type="mandatory">awips2</packagereq>

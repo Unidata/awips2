@@ -1517,6 +1517,7 @@ DRI Beauregard Rgnl AP, De Ridder, LA
 DRK U.S. Drought Outlook Discussion
 DRM Drummond Is AP, Drummond Is, MI
 DRO Durango-La Plata Cnty AP, Durango, CO; Drought Summary
+DRP Delta Regional Airport, Colt, AR
 DRT Del Rio, TX
 DSD Santa Domingo, DR
 DSF Mississippi Canyon 650, LA

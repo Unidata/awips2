@@ -244,7 +244,7 @@ edit_setup() {
 
 #
 # Initial EDEX setup, run as "edex setup", to set init run levels and hostname definitions
-# This is executed after both awips2 and awips2-ldm RPMs are installed/updatedi
+# This is executed after both awips2 and awips2-ldm RPMs are installed/updated
 #
 edex_setup() {
    echo ''
@@ -267,7 +267,7 @@ edex_setup() {
    fi
 
    for service in ${SERVICES[*]}; do
-      systemctl start edex_camel@$service
+      systemctl enable edex_camel@$service
    done
 
    # check files exist
@@ -339,7 +339,7 @@ edex_start() {
    fi
 
    for service in ${SERVICES[*]}; do
-      echo "Starting edex_camel@$service\n"
+      echo "Starting edex_camel@$service"
       systemctl start edex_camel@$service
    done
    ldm_start
