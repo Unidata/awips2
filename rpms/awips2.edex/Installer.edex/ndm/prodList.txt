@@ -2,6 +2,7 @@
 # 10/25/2021 scn21-96 Implement RC 17698
 # 04/21/2021 scn21-36 stop collecting products 34, 136, 171,
 #            19, 20, and 27
+# 05/16/2023 scn22-111 Collect product 197
 # 08/14/2023 scn23-09 Stop collecting products 78, 80, 81, 82
 #            138, 174, and 175
 # 10/16/2023 reverted removal of product 81
@@ -185,3 +186,4 @@
    172        0            DTA          SDUS8
    176        0            DPR          SDUS8
    177        0            HHC          SDUS8
+   197        0            NRR          SDUS8

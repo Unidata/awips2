@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <bundle name="2 Panel WSR-88D KLIX" horizontalLayout="true">
+        <bundle name="2 Panel WSR-88D KHDC" horizontalLayout="true">
             <displayList>
-                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D KLIX" mapCenter="-89.8254 30.3367 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D KHDC" mapCenter="-90.4074 30.5193 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">
                         <resource>
                             <loadProperties loadWithoutData="true">
@@ -24,7 +24,7 @@
                                         <constraint constraintType="IN" constraintValue="${product1}"/>
                                     </mapping>
                                     <mapping key="icao">
-                                        <constraint constraintType="EQUALS" constraintValue="klix"/>
+                                        <constraint constraintType="EQUALS" constraintValue="khdc"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="radar"/>
@@ -141,7 +141,7 @@
                         </gridGeometry>
                     </descriptor>
                 </displays>
-                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D KLIX" mapCenter="-89.8254 30.3367 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D KHDC" mapCenter="-90.4074 30.5193 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">
                         <resource>
                             <loadProperties loadWithoutData="true">
@@ -164,7 +164,7 @@
                                         <constraint constraintType="IN" constraintValue="${product2}"/>
                                     </mapping>
                                     <mapping key="icao">
-                                        <constraint constraintType="EQUALS" constraintValue="klix"/>
+                                        <constraint constraintType="EQUALS" constraintValue="khdc"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="radar"/>
