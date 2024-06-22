@@ -2343,6 +2343,7 @@
 0000000000|KI23 |39.57040|-83.42052| 299|Fayette County Airport, OH         |US|MTR
 0000000000|KI26 | 37.82 | -87.69 |  117|HENDERSON CITY, KY                  |US|MTR
 0000000000|KI35 | 36.8593| -83.35847| 473|Tucker-Guthrie Mem AP, Harlan, KY |US|MTR
+0000000000|KI40 | 40.31017|-81.85242| 298|Richard Downing AP, Coshocton, OH |US|MTR
 0000000000|KI63 | 39.988| -90.804|  223|Mt Sterling Muni, Mt Sterling, IL   |US|MTR
 0000000000|KI67 | 39.2593| -84.7743| 178|Cincinnati W AP, Harrison, OH      |US|MTR
 0000000000|KI69 | 39.0784| -84.2102| 257|Clermont Cnty AP, Batavia, OH      |US|MTR

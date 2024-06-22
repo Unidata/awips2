@@ -2190,6 +2190,7 @@ I18 New Castle, IN
 I19 Greene Co-Lewis Jackson AP, Dayton, OH
 I23 Fayette County Airport, OH
 I35 Tucker-Guthrie Mem AP, Harlan, KY
+I40 Richard Downing Airport, Coshocton, OH
 I63 Mt. Sterling Muni, IL
 I67 Cincinnati W AP, Harrison, OH
 I69 Clermont Cnty AP, Batavia, OH
