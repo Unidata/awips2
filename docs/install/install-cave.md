@@ -9,7 +9,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 - [**Linux: 20.3.2-2**](#linux)
 - [**Windows: 20.3.2-2**](#windows)
 - [**Mac: 20.3.2-2**](#macos)
-- [**BETA Version 23.4.1-0.2**](instsall-cave-beta-v23.md) (Compatible with RHEL/Rocky8)
+- [**BETA Version 23.4.1-0.2**](install-cave-beta-v23.md) (Compatible with RHEL/Rocky8)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -128,9 +128,9 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
 - For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player
      1. Create a desktop shortcut for VMWare Workstation Player
      1. Right-click the shortcut and select Properties
-     1. Open the Compatability Tab
+     1. Open the Compatibility Tab
      1. Select the "Change high DPI settings" button
-     1. Check the "High DPI scaling overide" checkbox and choose "Application" in the enabled dropdown
+     1. Check the "High DPI scaling override" checkbox and choose "Application" in the enabled dropdown
      
       ![VMWare Workstation Player DPI Setting](../images/vmwareplayer-update-dpi.png)
       
