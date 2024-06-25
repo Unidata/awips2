@@ -138,12 +138,11 @@ If you already have CAVE installed you can either:
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/Rocky8-NSFUnidata-CAVE-23.4.1-0.2.zip)
+1. Download the zipped file containing the virtual machine: [**Rocky8-NSFUnidata-CAVE-23.4.1-0.2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/Rocky8-NSFUnidata-CAVE-23.4.1-0.2.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-2.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **Rocky8-NSFUnidata-CAVE-23.4.1-0.2.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
-     - There will be a user in the Linux machine named "awips" and the password is "awips"
-     - The root password is "unidataAWIPS" if ever needed
+     - There will be a user in the Linux machine named "awips" and the password is "awips" with sudo access
 
 #### Run CAVE 
 
