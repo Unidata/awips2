@@ -898,6 +898,47 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#macos" title="macOS " class="md-nav__link">
+    macOS 
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-requirements_2" title="System Requirements" class="md-nav__link">
+    System Requirements
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-existing-installation_2" title="Upgrade Existing Installation" class="md-nav__link">
+    Upgrade Existing Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-and-installation-instructions_3" title="Download and Installation Instructions" class="md-nav__link">
+    Download and Installation Instructions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-cave_3" title="Run CAVE" class="md-nav__link">
+    Run CAVE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#edex-connection" title="EDEX Connection" class="md-nav__link">
     EDEX Connection
   </a>
@@ -942,6 +983,7 @@
 <ul>
 <li><a href="#linux"><strong>Linux: 23.4.1-0.2</strong></a></li>
 <li><a href="#windows"><strong>Windows: 23.4.1-0.2</strong></a></li>
+<li><a href="#macos"><strong>Mac: 23.4.1-0.2</strong></a></li>
 </ul>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
 <div class="admonition note">
@@ -1078,6 +1120,40 @@
 <li>Use the terminal and type the command <code>cave</code></li>
 <li>Find the application in the Linux Desktop menu: Applications &gt; Internet &gt; AWIPS CAVE</li>
 </ul>
+<hr />
+<h2 id="macos">macOS <i class="fa fa-apple"></i><a class="headerlink" href="#macos" title="Permanent link"></a></h2>
+<p><strong>Latest Version: 23.4.1-0.2</strong></p>
+<h3 id="system-requirements_2">System Requirements<a class="headerlink" href="#system-requirements_2" title="Permanent link"></a></h3>
+<ul>
+<li>Nvidia Graphics Card (Some Intel Graphics cards seem to work as well)</li>
+</ul>
+<h3 id="upgrade-existing-installation_2">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation_2" title="Permanent link"></a></h3>
+<p>If you do not currently have CAVE installed, please go directly to the <a href="#download-and-installation-instructions_3">Download and Installation Instructions</a>.</p>
+<p>If you already have CAVE installed:</p>
+<ol>
+<li>Remove the existing installation by locating it (it maybe be in your <strong>Applications</strong> folder), and dragging it to the trash.</li>
+<li>Clear CAVE's cache by removing caveData (<a href="/awips2/appendix/common-problems#mac" target="_blank">see these instructions for removal</a>).</li>
+<li>Follow the <a href="#download-and-installation-instructions_3">Download and Installation Instructions</a> from below to install the newest version of CAVE.</li>
+</ol>
+<h3 id="download-and-installation-instructions_3">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_3" title="Permanent link"></a></h3>
+<ol>
+<li>Download and install CAVE: <a href="https://downloads.unidata.ucar.edu/awips2/23.4.1/mac/awips-cave-23.4.1-0.2.dmg">awips-cave.dmg</a>
+    <img alt="Cave System Install" src="../../images/mac-install.png" /><ul>
+<li>You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges</li>
+<li>You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges</li>
+</ul>
+</li>
+</ol>
+<h3 id="run-cave_3">Run CAVE<a class="headerlink" href="#run-cave_3" title="Permanent link"></a></h3>
+<p>To run CAVE either:</p>
+<ul>
+<li>Use the System Menu Go &gt; Applications &gt; CAVE</li>
+<li>Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit <strong>enter</strong> to run it</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:</p>
+</div>
+<p><img alt="internet warning" src="../../images/mac-cave-internet-download2.png" /></p>
 <hr />
 <h2 id="edex-connection">EDEX Connection<a class="headerlink" href="#edex-connection" title="Permanent link"></a></h2>
 <p>Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter <strong>edex-beta.unidata.ucar.edu</strong>.</p>
