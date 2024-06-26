@@ -8,6 +8,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 - [**Linux: 23.4.1-0.2**](#linux)
 - [**Windows: 23.4.1-0.2**](#windows)
+- [**Mac: 23.4.1-0.2**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -151,6 +152,44 @@ Once inside the VM, to run CAVE either:
 - Use the desktop icon 
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
+
+
+---
+
+## macOS <i class="fa fa-apple"></i> 
+
+**Latest Version: 23.4.1-0.2**
+
+### System Requirements
+
+- Nvidia Graphics Card (Some Intel Graphics cards seem to work as well)
+
+### Upgrade Existing Installation
+
+If you do not currently have CAVE installed, please go directly to the [Download and Installation Instructions](#download-and-installation-instructions_3).
+
+If you already have CAVE installed:
+
+1. Remove the existing installation by locating it (it maybe be in your **Applications** folder), and dragging it to the trash.
+2. Clear CAVE's cache by removing caveData (<a href="/awips2/appendix/common-problems#mac" target="_blank">see these instructions for removal</a>).
+3. Follow the [Download and Installation Instructions](#download-and-installation-instructions_3) from below to install the newest version of CAVE.
+
+### Download and Installation Instructions
+
+1. Download and install CAVE: [awips-cave.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.1/mac/awips-cave-23.4.1-0.2.dmg)
+    ![Cave System Install](../images/mac-install.png)
+     - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
+     - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges
+
+### Run CAVE
+
+To run CAVE either:
+
+- Use the System Menu Go > Applications > CAVE
+- Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit **enter** to run it
+
+!!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:"
+![internet warning](../images/mac-cave-internet-download2.png)
 
 ---
 
