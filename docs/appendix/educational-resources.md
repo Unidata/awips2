@@ -218,6 +218,7 @@ A full list of all released blogs can be found below:
 - [Customized Contours](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-customized-contours)
 - [Using the Text Workstation](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-text)
 - [Saving User Configurations Locally](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-saving-user-configurations)
+- [Using Hotkeys in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-hotkeys-in)
 
 #### Python-AWIPS
 
