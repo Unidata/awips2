@@ -37,7 +37,7 @@ Default projections and areas available in the menu
 
 ### Adding a New Map Editor
 
-This can be done in two ways: using the **file menu** and **right clicking** on the tab bar.
+This can be done in a few ways: using the **file menu**, **right clicking** on the tab bar, or using the **Ctrl+T** keyboard shortcut.
 
 Using the file menu, simply go to: **File > New Map**.
 
