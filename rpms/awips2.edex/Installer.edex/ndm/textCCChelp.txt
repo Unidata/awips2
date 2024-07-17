@@ -1771,6 +1771,7 @@ FGN Flag Is, MN
 FGX Fleming-Mason AP, Flemingsburg, KY
 FGZ WFO Flagstaff/Belemont, AZ
 FHB Fernandina Beach Muni, FL
+FHM Frank Hotchkin Memorial Training Center, Los Angeles, CA
 FHR Friday Harbor, WA
 FHU Fort Huachuca, Sierra Vista, AZ
 FIG Clearfield-Lawrence, PA

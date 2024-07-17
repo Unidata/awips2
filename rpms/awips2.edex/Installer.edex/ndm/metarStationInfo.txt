@@ -2019,6 +2019,7 @@
 0000000000|KFGX | 38.5418| -83.7434| 278|Fleming-Mason AP, Flemingsburg, KY |US|MTR
 0000072376|KFGZ | 35.23 |-111.82 | 2180|Flagstaff/Belemont, AZ              |US|MTR
 0000000000|KFHB | 30.61183| -81.461194| 5|Fernandina Beach Muni, FL         |US|MTR
+0000000000|KFHM | 34.06778|-118.24167| 126|Frank Hotchkin Mem, Los Angeles, CA|US|MTR
 0000000000|KFHR | 48.52 |-123.02 |   33|FRIDAY HARBOR, WA                   |US|MTR
 0000072273|KFHU | 31.58 |-110.33 | 1422|FORT HUACHUCA, AZ                   |US|MTR
 0000000000|KFIG | 41.047| -78.412|  462|Clearfield-Lawrence, PA             |US|MTR
