@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+  viirs flood map description that leverages the <default> description to
+  create a new <parameter> for each region (001 - 009) in the dataset.
+
+Ingest:
+
+  datasets whose "id" field matches the regex "VIIRS-Flood-NWS.*"
+
+  12/7/2022  Update to add masterLevels by region 
+  12/6/2023  Remove debug tags -->
+
+<gridProductDescriptions>
+
+  <!-- This is the default description, it is used to fill in any missing
+  gaps in the descriptions defined under the `<description>` tags -->
+  <default>
+
+    <matches>
+      <match pattern="VIIRS_Flood_NWS.*">
+        <attribute name="title"/>
+      </match>
+    </matches>
+
+    <!-- using end time for consistency -->
+    <dataTime>
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss'Z'">
+        <attribute name="time_coverage_end" />
+      </formattedRefTime>
+    </dataTime>
+
+    <!-- if level is the same for all regions, this can be defaulted -->
+    <level>
+      <masterLevel>
+        <value value="SFC" />
+      </masterLevel>
+      <levelOneValue>
+        <value value="0.0" />
+      </levelOneValue>
+    </level> 
+
+    <!--    
+      <coverage coverageFile="netcdf/grids/BlendedGridCoverage.xml" /> 
+    -->
+
+    <!-- use lat and lon from file -->
+    <coverage>
+      <latLonGridCoverage />
+      <coordinateLists>
+        <latitude>
+          <variable name="lat" />
+        </latitude>
+        <longitude>
+          <variable name="lon" />
+        </longitude>
+      </coordinateLists>
+    </coverage>
+
+  </default>
+
+  <!-- mc: think we may actually need to define a product description, as the <default> is not
+       actually used to create a product description, only to fill in gaps 
+  -->
+
+<!--      <pattern inputPattern="^VIIRS-Flood-NWS(\d{3}).*" outputFormat="ViirsFloodwater%s"> -->
+  <!-- this is a description which only keeps the values 100-200 from the variable (I think?) -->
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS_Flood_NWS001.*" outputFormat="VIIRS_Flood_Alaska">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS_Flood_NWS002.*" outputFormat="VIIRS_Flood_North_East">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS_Flood_NWS003.*" outputFormat="VIIRS_Flood_North_Central">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS-Flood_NWS004.*" outputFormat="VIIRS_Flood_South_East">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS_Flood_NWS005.*" outputFormat="VIIRS_Flood_Missouri_Basin">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS_Flood_NWS006.*" outputFormat="VIIRS_Flood_West_Gulf">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS_Flood_NWS007.*" outputFormat="VIIRS_Flood_North_West">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^VIIRS_Flood_NWS008.*" outputFormat="VIIRS_Flood_South_West">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+</gridProductDescriptions>

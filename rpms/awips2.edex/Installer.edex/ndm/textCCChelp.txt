@@ -1771,6 +1771,7 @@ FGN Flag Is, MN
 FGX Fleming-Mason AP, Flemingsburg, KY
 FGZ WFO Flagstaff/Belemont, AZ
 FHB Fernandina Beach Muni, FL
+FHM Frank Hotchkin Memorial Training Center, Los Angeles, CA
 FHR Friday Harbor, WA
 FHU Fort Huachuca, Sierra Vista, AZ
 FIG Clearfield-Lawrence, PA
@@ -2190,6 +2191,7 @@ I18 New Castle, IN
 I19 Greene Co-Lewis Jackson AP, Dayton, OH
 I23 Fayette County Airport, OH
 I35 Tucker-Guthrie Mem AP, Harlan, KY
+I40 Richard Downing Airport, Coshocton, OH
 I63 Mt. Sterling Muni, IL
 I67 Cincinnati W AP, Harrison, OH
 I69 Clermont Cnty AP, Batavia, OH

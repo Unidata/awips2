@@ -38,8 +38,10 @@
      -->
 <!-- L. Byerle 09/24/2019 modify so that new global blended Hydro in netcdfgrid plugin are distinct from this plugin.
           Specifically, to ensure that if the 4th digit is X then it will not be picked up by the satellite gini plugin 
-     L. Byerle 5/8/2020 Separate TICF* into its own pattern to distinguish any gini from new TICF* entry in netcdfGrid.xml
+     L. Byerle 5/8/2020 Separate TICF* into its own pattern to distinguish from new TICF* in grid format (see netcdfgrid.xml
 -->
+    <!--<regex>TI[CGT]... ....</regex> -->
+<!--    <regex>TI[CGT][A-WYZ].. ....</regex> -->
 <!-- Account for legacy multi-sat comp only (TICF*), but not new multi-sat comp used by netcdfgrid plugin -->
     <regex>TI[GT][A-WYZ].. ....</regex>
     <regex>TICF0[134] ....</regex>

@@ -18,10 +18,18 @@
     See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
     further_licensing_information.
 -->
-    <!--
-        This is an absolute override file, indicating that a higher priority
-        version of the file will completely replace a lower priority version
-        of the file.
+    <!-- TOWRdocs Header
+    -->
+    <!-- TOWRdocs Description
+        Edex Description for global mosaic imagery. 
+   -->
+    <!-- TOWRdocs Status
+         12/26/2019 Mercator grid coverage
+         1/6/2020   Use instrument_name match pattern
+        10/22/2020 set units to "" (reads the product units val of none by default)
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 10/22/2020
     -->
 <gridProductDescriptions>
   <default>
@@ -67,7 +75,7 @@
         <value value="Global Composite WV" /> <!--Appears in CAVE display legend -->
       </name>
       <units>
-        <value value="" />  <!-- With "" the unit specified in product is read (currently set to none) -->
+        <value value="" />  <!-- units must match those of netCDF file, set as desired in style rules -->
       </units>
     </parameter>
   </description>
