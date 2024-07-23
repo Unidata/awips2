@@ -18,24 +18,64 @@
     See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
     further_licensing_information.
 -->
-    <!--
-        This is an absolute override file, indicating that a higher priority
-        version of the file will completely replace a lower priority version
-        of the file.
+    <!-- TOWRdocs Header
+         
+    -->
+    <!-- TOWRdocs Description
+         Provides descriptions for the Blended TPW products.
+         This file references the information in the product netCDF file. It follows
+         after base files under ./common_static/base/grid/netcdf/ncom/, for example.
+
+        dateFormat and attribute name match the formats in the netCDF file.
+        datasedID is an arbitrary name that will appear in the Product Browser 
+        coverageFile is a pre-specified grid and dimensions file, not currentl used
+
+        Set "pattern" to match that of the pattern in .../common_static/distribution/netcdfgrid distribution file
+   -->
+    <!-- TOWRdocs Status
+         A new netcdfGrid plugin descriptions file for blended hydro
+         Current sat numbers are sampled in CAVE. They are:
+         19(NOAA19) 20(NOAA20) 101(MetopA) 102(MetopB) 301(SNPP) 401(GCOM) 501(GPM) 1001(GPS)
+         10/18/2019  use time_coverage_end             
+         9/23/2021 Use a pattern element and format to omit the dash if it is present. The datFormat can then part the 
+         normalized input. Contributed by Ben Steffesnmeier         
+         9/28/2021 Flex on Metadata_Link or metadata_link
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 9/28/2021
     -->
 <gridProductDescriptions>
   <default>
-    <matches>
+<!--    <matches>
       <match pattern="^BHP-TPW_v\d\dr\d_blend.*"> 
       <attribute name="Metadata_Link"/>
       </match>
-    </matches>
+    </matches> -->
+
+   <matches type="OR">
+      <match pattern="^BHP-TPW_v\d\dr\d_blend.*">
+        <attribute name="Metadata_Link" />
+      </match>
+      <matches>
+        <match pattern="^BHP-TPW_v\d\dr\d_blend.*">
+           <attribute name="metadata_link" />
+        </match>
+      </matches>
+   </matches>
 
     <dataTime>
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss'Z'">
+       <pattern inputPattern="(\d{4}-\d{2}-\d{2})-?(T\d{2}:\d{2}:\d{2}Z)" outputFormat="%s%s">
+        <attribute name="time_coverage_end" />
+       </pattern>
+      </formattedRefTime>
+    </dataTime>
+
+<!--    <dataTime>
       <formattedRefTime dateFormat="yyyy-MM-dd-'T'HH:mm:ss'Z'">
         <attribute name="time_coverage_end" />
       </formattedRefTime>
-    </dataTime>
+    </dataTime> -->
 
     <level>
       <masterLevel>
@@ -50,6 +90,7 @@
       <value value="BLENDED-TPW-Sat" />
     </datasetId>
 
+<!--    <coverage coverageFile="netcdf/grids/BlendedGridCoverage.xml" /> -->
 
 <!--use lat and lon from file-->
     <coverage>
@@ -79,7 +120,7 @@
         <value value="Blended Total Precipitable Water" /> <!--Appears in CAVE display legend -->
       </name>
       <units>
-        <value value="mm" />  
+        <value value="mm" />  <!-- units must match those of netCDF file, set as desired in style rules -->
       </units>
     </parameter>
   </description>
@@ -97,7 +138,7 @@
         <value value="Age of Obs (Analysis time minus Obs time)" /> <!--Appears in CAVE display legend -->
       </name>
       <units>
-        <value value="hr" />  
+        <value value="hr" />  <!-- units must match those of netCDF file, set as desired in style rules -->
       </units>
     </parameter>
   </description>
@@ -115,7 +156,7 @@
         <value value="Satellite" /> <!--Appears in CAVE display legend -->
       </name>
       <units>
-        <value value="" />  
+        <value value="" />  <!-- units must match those of netCDF file, set as desired in style rules -->
       </units>
     </parameter>
   </description>

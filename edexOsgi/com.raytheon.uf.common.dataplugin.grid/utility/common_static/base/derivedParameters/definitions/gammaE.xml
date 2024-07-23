@@ -35,4 +35,19 @@
         <Field level="lower" abbreviation="GH" />
         <Field level="upper" abbreviation="GH" />
     </Method>
+    <Method levels="S" name="LapseRate">
+        <Field abbreviation="EPT" />
+        <Field abbreviation="P" />
+        <Field level="upper" abbreviation="EPT" />
+        <Field level="upper" abbreviation="P" />
+    </Method>
+    <Method levels="C" name="LapseRate">
+        <Field level="lower" abbreviation="EPT" />
+        <Field level="lower" abbreviation="P" />
+        <Field level="upper" abbreviation="EPT" />
+        <Field level="upper" abbreviation="P" />
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="0FHAG" abbreviation="gammaE" />
+    </Method>
 </DerivedParameter>

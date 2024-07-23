@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGridCoverage>
+    <name>LCast_West</name>
+
+    <!-- GOES-W common grid -->
+    <la1>64.95</la1>
+    <lo1>-174.95</lo1>
+    <nx>850</nx>
+    <ny>650</ny>
+    <dx>0.1</dx>
+    <dy>0.1</dy>
+
+    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>
+

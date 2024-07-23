@@ -18,12 +18,54 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-
-    <!--
-        This is an absolute override file, indicating that a higher priority
-        version of the file will completely replace a lower priority version
-        of the file.
+    <!-- TOWRdocs Header
+         AMSR2 Pointset plugin product descriptions.
     -->
+    <!-- TOWRdocs Description
+         Provides descriptions for AMSR2 products handled by the pointset plugin. 
+
+         The data name, time_coverage_start, dateFormat, and instrument_name refer to
+         expected fields from each of the instrument netCDF files.
+
+         parameterValue must match a parameter defined in the ../../parameter/definition/ files. 
+         "EA" refers to entire atmosphere.
+
+         The following products are currently described by this file:
+
+         GCOM-W1 AMSR2 36.5GHz Horizontal/Vertical -A
+         GCOM-W1 AMSR2 89.0GHz Horizontal/Vertical -B
+         GCOM-W1 AMSR2 Surface Wind Speed (WSPD)
+         GCOM-W1 AMSR2 Cloud Liquid Water (CLW)
+         GCOM-W1 AMSR2 TPW 
+         GCOM-W1 AMSR2 Sea Surface Temp (SST)
+         GCOM-W1 AMSR2 rain rates (Rain_Rate)
+
+         The formattedRefTime for AMSR2 and GMI/ATMS are different.
+         AMSR2: yyyy-MM-dd'T'HH:mm:ss.S'Z'
+         GMI, ATMS: yyyy-MM-dd'T'HH:mm:ss'Z'
+
+         Corresponding parameter abbreviations listed for each variable are located
+         under ../../parameter/definition/amsr2_microwave_parameters.xml.
+         That file contains param defs for AMSR2, ATMS, and GMI fields.
+         Restart edex for the changes in this file to go into affect.
+
+
+         Restart edex for the changes in this file to go into affect.
+    
+   -->
+    <!-- TOWRdocs Status
+         Update this file as needed when adding AMSR2 products for ingest using the pointset plugin.  
+	 Updated to replace RR with Rain_Rain; avoids conflict with RR derived param radar reflectivity
+         1/6/2020 Commented out TPW, Rain Rate, SST, CLW, WSPD_QC for performance testing
+         3/2/2020 Commented out 12 MW Channels not used for current OTE evaluations. Kept 89AH, 89AV, 36H, 36V
+         9/5/2023 Changes NASA_Team_2_Ice_Concentration parameter abbrev from ICEC to SeaIce per Carl Dierking/Alaska Region
+         9/5/2023 Changes NASA_Team_2_Multiyear_Ice parameter abbrev from MYICE to Multiyear Ice per Carl Dierking/Alaska Region
+         9/14/2023 Added Snow_Depth for Alaska Region
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle  9/14/2023
+    -->
+
 <pointSetProductDescriptions>
   <default>
     <matches>
@@ -54,7 +96,19 @@
     </level>
   </default>
 
-  <description>
+<!-- L. Byerle added 8/2/2019 for testing -->
+<!--  <description>
+    <data>
+      <variable name="WSPD_QC" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="WSPD_QC" />
+      </abbreviation>
+    </parameter>
+  </description> -->
+
+<!--  <description>
     <data>
       <variable name="WSPD" />
     </data>
@@ -63,20 +117,25 @@
         <value value="WS" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
   <description>
     <data>
-      <variable name="CLW" />
+      <variable name="WSPD" />
+      <discreteMask name="WSPD_QC" value="0" keep="true">
+      <fillFloat>NaN</fillFloat>
+      </discreteMask>
     </data>
     <parameter>
       <abbreviation>
-        <value value="CLW" />
+        <value value="WS" />
       </abbreviation>
     </parameter>
   </description>
+<!-- L. Byerle added 8/2/2019 above for testing -->
 
-  <description>
+<!-- L. Byerle commented all BT channels except 89-AH, 89-AV, 36H and 36V -->
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_10_GHzH" />
     </data>
@@ -85,9 +144,9 @@
         <value value="BT10.7H" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_10_GHzV" />
     </data>
@@ -96,9 +155,9 @@
         <value value="BT10.7V" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_18_GHzH" />
     </data>
@@ -107,9 +166,9 @@
         <value value="BT18.7H" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_18_GHzV" />
     </data>
@@ -118,9 +177,9 @@
         <value value="BT18.7V" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_23_GHzH" />
     </data>
@@ -129,9 +188,9 @@
         <value value="BT23.8H" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_23_GHzV" />
     </data>
@@ -140,7 +199,7 @@
         <value value="BT23.8V" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
   <description>
     <data>
@@ -164,7 +223,7 @@
     </parameter>
   </description>
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_6_GHzH" />
     </data>
@@ -173,9 +232,9 @@
         <value value="BT6.9H" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_6_GHzV" />
     </data>
@@ -184,9 +243,9 @@
         <value value="BT6.9V" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_7_GHzH" />
     </data>
@@ -195,9 +254,9 @@
         <value value="BT7.3H" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_7_GHzV" />
     </data>
@@ -206,7 +265,7 @@
         <value value="BT7.3V" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
   <description>
     <data>
@@ -230,7 +289,7 @@
     </parameter>
   </description>
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_89_GHz_BH" />
     </data>
@@ -239,9 +298,9 @@
         <value value="BT89.0BH" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
+<!--  <description>
     <data>
       <variable name="Brightness_Temperature_89_GHz_BV" />
     </data>
@@ -250,32 +309,22 @@
         <value value="BT89.0BV" />
       </abbreviation>
     </parameter>
-  </description>
-<!--4/19/2019 Lee Byerle added -->
-  <description>
+  </description> -->
+
+<!-- Added 23 Sep 2016 -->
+
+<!--  <description>
     <data>
-      <variable name="TPW" />
+      <variable name="CLW" />
     </data>
     <parameter>
       <abbreviation>
-        <value value="TPW" />
+        <value value="CLW" />
       </abbreviation>
     </parameter>
-  </description>
+  </description> -->
 
-  <description>
-    <data>
-      <variable name="Rain_Rate" />
-    </data>
-    <parameter>
-      <abbreviation>
-       <!-- do not use RR to avoid conflict with radar refl RR /> -->
-        <value value="Rain_Rate" />
-      </abbreviation>
-    </parameter>
-  </description>
-
-  <description>
+<!--  <description>
     <data>
       <variable name="SST" />
     </data>
@@ -284,5 +333,98 @@
         <value value="SST" />
       </abbreviation>
     </parameter>
+  </description> -->
+
+<!--  <description>
+    <data>
+      <variable name="Rain_Rate" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="Rain_Rate" /> 
+      </abbreviation>
+    </parameter>
+  </description> -->
+
+<!--  <description>
+    <data>
+      <variable name="TPW" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="TPW" />
+      </abbreviation>
+    </parameter>
+  </description> -->
+
+  <!-- AMSR2-PRECIP_v2r1_GW1 files -->
+  <description>
+    <data>
+      <variable name="ProbabilityOfPrecip" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="ProbTP" />
+      </abbreviation>
+    </parameter>
   </description>
+
+  <description>
+    <data>
+      <variable name="convectPrecipitation" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="CP" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <!-- AMSR2-SEAICE-NH_v2ro files -->
+  <description>
+    <data>
+      <variable name="NASA_Team_2_Ice_Concentration" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="SeaIce" />
+        <!--<value value="ICEC" /> -->
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="NASA_Team_2_Multiyear_Ice" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="Multiyear Ice" />
+        <!--<value value="MYICE" /> -->
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Range_of_Ice_Concentration" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="ICECR" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Snow_Depth" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="Snow_Depth" />
+      </abbreviation>
+    </parameter>
+  </description> 
+
 </pointSetProductDescriptions>

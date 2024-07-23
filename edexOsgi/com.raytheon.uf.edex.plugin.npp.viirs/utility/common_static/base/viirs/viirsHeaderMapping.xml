@@ -24,6 +24,9 @@
         of the file. 
     -->
     <!-- Updated 1/2/2018 Lee Byerle -->
+    <!-- Updated Oct. 2021 John Evans -->
+    <!-- Updated Oct. 2021 Lee Byerle comment out un-needed NCC ChannelInfo  -->
+	
 <viirsHeaderMapping>
   <!-- Alaska region -->
   <regionInfo id="TIPB">
@@ -74,7 +77,10 @@
     <region>Global</region>
   </regionInfo>
 
-  <!-- I1 -->
+<!-- Channel details. 
+     Note that not all of these are available to a given AIWPS site as of Oct. 2021. -->
+ 
+ <!-- I1 -->
   <channelInfo id="01">
     <channelType>Imagery</channelType>
     <wavelength>0.64</wavelength>
@@ -117,18 +123,51 @@
   </channelInfo>
   
     <!-- NCC -->
-  <channelInfo id="10">
+<!--  <channelInfo id="10">
     <channelType>NCC</channelType>
     <wavelength>0.7</wavelength>
     <channel>0</channel>
     <resolution>750.0</resolution>
+  </channelInfo> -->
+ 
+  <!-- Oct. 2021  / John Evans: Band M1 -->
+  <channelInfo id="11">
+    <channelType>Moderate</channelType>
+    <wavelength>0.412</wavelength>
+    <channel>11</channel>
+    <resolution>750.0</resolution>
   </channelInfo>
-  
+ 
+  <!-- Oct. 2021  / John Evans: Band M2 -->
+  <channelInfo id="12">
+    <channelType>Moderate</channelType>
+    <wavelength>0.445</wavelength>
+    <channel>12</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+ 
+  <!-- Oct. 2021  / John Evans: Band M3 -->
+  <channelInfo id="13">
+    <channelType>Moderate</channelType>
+    <wavelength>0.488</wavelength>
+    <channel>13</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+ 
+  <!-- Sept. 2021  / John Evans: Band M4 -->
+  <channelInfo id="14">
+    <channelType>Moderate</channelType>
+    <wavelength>0.555</wavelength>
+    <channel>4</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+
+
     <!--March 13 2016 added by TOWR-S for implementation  M5 -->
   <channelInfo id="15">
     <channelType>Moderate</channelType>
       <wavelength>0.672</wavelength>
-      <channel>5</channel>
+      <channel>15</channel>
       <resolution>750.0</resolution>
   </channelInfo>
 
@@ -136,7 +175,23 @@
   <channelInfo id="16">
     <channelType>Moderate</channelType>
     <wavelength>0.746</wavelength>
-    <channel>1</channel>
+    <channel>16</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+ 
+  <!-- Oct. 2021  / John Evans: Band M7 -->
+  <channelInfo id="17">
+    <channelType>Moderate</channelType>
+    <wavelength>0.865</wavelength>
+    <channel>17</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+ 
+  <!-- Oct. 2021  / John Evans: Band M8 -->
+  <channelInfo id="18">
+    <channelType>Moderate</channelType>
+    <wavelength>1.24</wavelength>
+    <channel>18</channel>
     <resolution>750.0</resolution>
   </channelInfo>
   
@@ -144,7 +199,32 @@
   <channelInfo id="19">
     <channelType>Moderate</channelType>
     <wavelength>1.378</wavelength>
-    <channel>2</channel>
+    <channel>19</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+ 
+  <!-- Oct. 2021  / John Evans: Band M10 -->
+  <channelInfo id="20">
+    <channelType>Moderate</channelType>
+    <wavelength>1.61</wavelength>
+    <channel>20</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+ 
+  <!-- Oct. 2021  / John Evans: Band M11 -->
+  <channelInfo id="21">
+    <channelType>Moderate</channelType>
+    <wavelength>2.25</wavelength>
+    <channel>21</channel>
+    <resolution>750.0</resolution>
+  </channelInfo>
+ 
+  <!-- Oct. 2021  / John Evans: Band M12 -->
+  <channelInfo id="22">
+    <channelType>Moderate</channelType>
+    <wavelength>3.70</wavelength>
+    <channel>22</channel>
+    <unit>K</unit>
     <resolution>750.0</resolution>
   </channelInfo>
   
@@ -152,25 +232,25 @@
   <channelInfo id="23">
     <channelType>Moderate</channelType>
     <wavelength>4.05</wavelength>
-    <channel>3</channel>
+    <channel>23</channel>
     <unit>K</unit>
     <resolution>750.0</resolution>
   </channelInfo>
 
-    <!-- M14 -->
-    <channelInfo id="24">
-        <channelType>Moderate</channelType>
-        <wavelength>8.55</wavelength>
-        <channel>6</channel>
-        <unit>K</unit>
-        <resolution>750.0</resolution>
-    </channelInfo>
+  <!-- M14 -->
+  <channelInfo id="24">
+    <channelType>Moderate</channelType>
+    <wavelength>8.55</wavelength>
+    <channel>24</channel>
+    <unit>K</unit>
+    <resolution>750.0</resolution>
+  </channelInfo>
   
   <!-- M15 -->
   <channelInfo id="25">
     <channelType>Moderate</channelType>
     <wavelength>10.763</wavelength>
-    <channel>4</channel>
+    <channel>25</channel>
     <unit>K</unit>
     <resolution>750.0</resolution>
   </channelInfo>
@@ -179,12 +259,12 @@
   <channelInfo id="26">
     <channelType>Moderate</channelType>
     <wavelength>12.013</wavelength>
-    <channel>5</channel>
+    <channel>26</channel>
     <unit>K</unit>
     <resolution>750.0</resolution>
   </channelInfo>
   
-    <!-- DNB/NCC -->
+  <!-- DNB/NCC -->
   <!-- TOWR-S add -->
     <channelInfo id="10">
         <channelType>Moderate</channelType>

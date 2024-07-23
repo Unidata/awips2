@@ -61,4 +61,18 @@
       </abbreviation>
     </parameter>
   </description>
+<!-- 9/16/2019 add ice map -->
+  <description>
+    <data>
+      <variable name="IceMap" />
+      <discreteMask name="SummaryQC_Ice_Concentration" value="0" keep="true">
+      <fillByte>-3</fillByte>
+      </discreteMask> 
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="ICEMAP" />
+      </abbreviation>
+    </parameter>
+  </description>
 </pointSetProductDescriptions>

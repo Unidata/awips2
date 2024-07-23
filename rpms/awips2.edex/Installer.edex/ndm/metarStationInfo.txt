@@ -2019,6 +2019,7 @@
 0000000000|KFGX | 38.5418| -83.7434| 278|Fleming-Mason AP, Flemingsburg, KY |US|MTR
 0000072376|KFGZ | 35.23 |-111.82 | 2180|Flagstaff/Belemont, AZ              |US|MTR
 0000000000|KFHB | 30.61183| -81.461194| 5|Fernandina Beach Muni, FL         |US|MTR
+0000000000|KFHM | 34.06778|-118.24167| 126|Frank Hotchkin Mem, Los Angeles, CA|US|MTR
 0000000000|KFHR | 48.52 |-123.02 |   33|FRIDAY HARBOR, WA                   |US|MTR
 0000072273|KFHU | 31.58 |-110.33 | 1422|FORT HUACHUCA, AZ                   |US|MTR
 0000000000|KFIG | 41.047| -78.412|  462|Clearfield-Lawrence, PA             |US|MTR
@@ -2343,6 +2344,7 @@
 0000000000|KI23 |39.57040|-83.42052| 299|Fayette County Airport, OH         |US|MTR
 0000000000|KI26 | 37.82 | -87.69 |  117|HENDERSON CITY, KY                  |US|MTR
 0000000000|KI35 | 36.8593| -83.35847| 473|Tucker-Guthrie Mem AP, Harlan, KY |US|MTR
+0000000000|KI40 | 40.31017|-81.85242| 298|Richard Downing AP, Coshocton, OH |US|MTR
 0000000000|KI63 | 39.988| -90.804|  223|Mt Sterling Muni, Mt Sterling, IL   |US|MTR
 0000000000|KI67 | 39.2593| -84.7743| 178|Cincinnati W AP, Harrison, OH      |US|MTR
 0000000000|KI69 | 39.0784| -84.2102| 257|Clermont Cnty AP, Batavia, OH      |US|MTR

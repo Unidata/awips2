@@ -24,6 +24,7 @@
         version of the file will completely replace a lower priority version
         of the file.
     -->
+<!-- L. Byerle 1/17/2020 Added Snowfall Rate (e.g. ATMS SFR), TSkin, add SICP which spells percent, adds Ice Concentration name spelled out  -->
 <parameterList>
   <parameter>
     <name>Ash</name>
@@ -116,10 +117,23 @@
     <unit>mm/hr</unit>
   </parameter>
   <parameter>
-    <name>SIce</name>
+    <name>Ice Concentration</name>
     <abbreviation>SIC</abbreviation>
     <unit>%</unit>
   </parameter>
+
+  <parameter>
+    <name>Ice Concentration</name>
+    <abbreviation>SICP</abbreviation>
+    <unit>percent</unit>
+  </parameter>
+
+  <parameter>
+    <name>Skin Temperature</name>
+    <abbreviation>TSkin</abbreviation>
+    <unit>K</unit>
+  </parameter>
+
   <parameter>
     <name>SWE</name>
     <abbreviation>SWE</abbreviation>
@@ -131,8 +145,24 @@
     <unit>1</unit>
   </parameter>
   <parameter>
+    <name>Snow Fall Rate</name>
+    <abbreviation>SFR</abbreviation>
+    <unit>mm/hr</unit>
+  </parameter>
+  <parameter>
     <name>TPW</name>
     <abbreviation>TPW</abbreviation>
     <unit>mm</unit>
+  </parameter>
+<!-- 9/16/2019 add Ice map -->
+  <parameter>
+    <name>IceMap</name>
+    <abbreviation>ICEMAP</abbreviation>
+    <unit>1</unit>
+  </parameter>
+  <parameter>
+    <name>SummaryQC_Ice_Concentration</name>
+    <abbreviation>SummaryQC_Ice_Conc</abbreviation>
+    <unit>1</unit>
   </parameter>
 </parameterList>

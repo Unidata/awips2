@@ -137,6 +137,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00 IN"/>
   <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="group2" parseString="4.00 IN"/>  
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="group2" parseString="4.50 IN"/>  
+  <bullet bulletName="dvdHail" bulletText="DVD size hail (5&quot;)" bulletGroup="group2" parseString="5.00 IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
   <bullet bulletName="extraReportTornado" bulletText="Select to include additional tornado/damage information..."/>  

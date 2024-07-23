@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" ?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -7,7 +7,7 @@
         This_software_product_contains_export-restricted_data_whose
         export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
         to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
+        an_export_license_or_other_authorization..
         
         Contractor_Name:________Raytheon_Company
         Contractor_Address:_____6825_Pine_Street,_Suite_340
@@ -18,85 +18,171 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+   <!-- TOWRdocs Header
+        Imagery style rules for pointset plugin products.
+   -->
+   <!-- TOWRdocs Description
+        This file sets pointset plugin style rules, including display parameters, legends, and units. It
+        is an update to the baseline file, and is currently used to set select AMSR2, SAR, ATMS, and GPM  parameters.  
+    This file has the following changes/additions: 
+
+        Wind speeds are changed from m/s in the base to knots, 
+        and the range from 0-75 m/s to 0-150 kt, increments in 20
+
+        SST, CLW, TPW, Rain Rate rules were added
+        by SpORT EPDT (Dec 1-3 2015)
+
+        Modifed colormaps to point to those for GOES-R in this repo for
+        RR, TPW, SST.
+
+        creatingEntity entries match those of the the NetCDF file attribute
+        instrument_name, and correspond to the Pacific, CONUS, Alaska, Puerto
+        Rico regions.
+
+        Precipitation increments are changed to inches/hour, consistent w/GOES-R baseline
+        RRQPE product in the goes-r wfo collection.
+
+        Added style rules for GMI Imagery CH 06-09.
+        Added style rules Jason-2 wave heights in the case the pointset plugin is used.
+
+	Added colormap for MW imagery 36.5 and 89GHz, contributed by SpORT 18 Apr 2016
+
+         The color map for TPW has two options, color-pw10-10, and color-pw8-10.  The latter is commented
+         out, currently.
+         Contributors: Tim Schmit and Jordan Gerth
+        
+		9 Sep 2016 adds ATMS SIce, TSkin, SWE
+		3 Oct 2016 modifies TPW range, consistent w/that of other TPW products
+
+        Many style rules that are commented out have been tested but are not currently
+        implemented in this collection for that particular product.  
+
+        See the netcdfGrid style rules for the IMERG product.
+    
+        Restart CAVE whenever making changes to this file. 
+
+   -->
     <!-- 
         This is an incremental override file, indicating that the files
         at different localization levels will be combined. 
     -->
+   <!-- TOWRdocs Status
+    This file is a modification to the baseline pointset imagery style rule file of the same 
+    name, to include updated colormaps, units, and display ranges.
+
+	Updated ATMS rain rate parameter, avoids conflict with radar reflectivity (RR) derivedParameter
+	in the baseline for radar data.
+       
+       Added Ice Concentration, Ice Map from NPP JRR product 9/16/2019
+       1/16/2020 Update path to MW_Imagery. Add snow fall rate for ATMS
+       1/20/2020 Use SICP, update displayUnits for ATMS Ice Concentration
+       2/6/2020 added ATMS SNOW
+       3/2/2020 Updated AMSR2 MW MBT colormaps
+       5/7/2021 moves Beaufort_Wind cmap to Sat/MW/
+       9/28/2021 moves Beaufort_Wind cmap to Sat/ to match base
+   -->
+   <!-- TOWRdocs POC
+        Lee Byerle 9/28/2021
+   -->
 <styleRuleset>
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>RADARSAT-2</creatingEntity>
-            <creatingEntity>SENTINEL-1A</creatingEntity>
-            <creatingEntity>AMSR2</creatingEntity>
-            <parameter>WS</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <displayUnits>m/s</displayUnits>
-            <displayFlags>NoPlane</displayFlags>
-            <range scale="LINEAR">
-                <minValue>0</minValue>
-                <maxValue>75</maxValue>
-            </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
-            <colorbarLabeling>
-                <increment>10</increment>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>AMSR2</creatingEntity>
-            <parameter>BT10.7H</parameter>
-            <parameter>BT10.7V</parameter>
-            <parameter>BT18.7H</parameter>
-            <parameter>BT18.7V</parameter>
-            <parameter>BT23.8H</parameter>
-            <parameter>BT23.8V</parameter>
-            <parameter>BT36.5H</parameter>
-            <parameter>BT36.5V</parameter>
-            <parameter>BT6.9H</parameter>
-            <parameter>BT6.9V</parameter>
-            <parameter>BT7.3H</parameter>
-            <parameter>BT7.3V</parameter>
-            <parameter>BT89.0AH</parameter>
-            <parameter>BT89.0AV</parameter>
-            <parameter>BT89.0BH</parameter>
-            <parameter>BT89.0BV</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <displayUnits>C</displayUnits>
-            <range scale="LINEAR">
-                <minValue>-210</minValue>
-                <maxValue>0</maxValue>
-            </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
-            <colorbarLabeling>
-                <increment>50</increment>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-<!--4/19/2019 Lee Byerle added below -->
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>RADARSAT-2</creatingEntity>
+      <creatingEntity>SENTINEL-1A</creatingEntity>
+      <creatingEntity>AMSR2</creatingEntity>
+      <parameter>WS</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>kts</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>125</maxValue>
+      </range>
+      <defaultColormap>Sat/Beaufort_Winds</defaultColormap>
+      <colorbarLabeling>
+        <values>7 11 17 22 28 34 41 48 56 64</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+<!--  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>AMSR2</creatingEntity>
+      <creatingEntity>GMI</creatingEntity>
+      <parameter>BT10.7H</parameter>
+      <parameter>BT10.7V</parameter>
+      <parameter>BT18.7H</parameter>
+      <parameter>BT18.7V</parameter>
+      <parameter>BT23.8H</parameter>
+      <parameter>BT23.8V</parameter>
+      <parameter>BT36.5H</parameter>
+      <parameter>BT36.5V</parameter>
+      <parameter>BT6.9H</parameter>
+      <parameter>BT6.9V</parameter>
+      <parameter>BT7.3H</parameter>
+      <parameter>BT7.3V</parameter>
+      <parameter>BT89.0AH</parameter>
+      <parameter>BT89.0AV</parameter>
+      <parameter>BT89.0BH</parameter>
+      <parameter>BT89.0BV</parameter>
+      <parameter>GMIBT36.5H</parameter>
+      <parameter>GMIBT36.5V</parameter>
+      <parameter>GMIBT89.0H</parameter>
+      <parameter>GMIBT89.0V</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>K</displayUnits>
+      <range scale="LINEAR">
+        <minValue>80</minValue>
+        <maxValue>300</maxValue>
+      </range>
+      <defaultColormap>Sat/MW/MW_Imagery</defaultColormap>
+      <colorbarLabeling>
+        <increment>10</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule> -->
+<!-- L. Byerle 3/2/2020 36.5 GHz and 89GHz separate colormaps -->
   <styleRule>
     <paramLevelMatches>
       <creatingEntity>AMSR2</creatingEntity>
-      <parameter>SST</parameter>
+      <parameter>BT36.5H</parameter>
+      <parameter>BT36.5V</parameter>
     </paramLevelMatches>
     <imageStyle>
-      <displayUnits>C</displayUnits>
-      <displayFlags>NoPlane</displayFlags>
+      <displayUnits>K</displayUnits>
       <range scale="LINEAR">
-        <minValue>-5</minValue>
-        <maxValue>40</maxValue>
+        <minValue>150</minValue>
+        <maxValue>270</maxValue>
       </range>
-      <defaultColormap>GOES-R/GOESR-L2/VTRSB</defaultColormap>
+      <defaultColormap>Sat/MW/nrl_micro37ghz_swaths</defaultColormap>
       <colorbarLabeling>
-        <values>-5 0 10 15 20 25 30 35 40</values>
+        <increment>10</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>AMSR2</creatingEntity>
+      <parameter>BT89.0AH</parameter>
+      <parameter>BT89.0AV</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>K</displayUnits>
+      <range scale="LINEAR">
+        <minValue>180</minValue>
+        <maxValue>280</maxValue>
+      </range>
+      <defaultColormap>Sat/MW/nrl_micro89ghz_swaths</defaultColormap>
+      <colorbarLabeling>
+        <increment>10</increment>
       </colorbarLabeling>
     </imageStyle>
   </styleRule>
 
   <styleRule>
     <paramLevelMatches>
+      <creatingEntity>ATMS</creatingEntity>
       <creatingEntity>AMSR2</creatingEntity>
       <parameter>TPW</parameter>
     </paramLevelMatches>
@@ -113,23 +199,195 @@
       </colorbarLabeling>
     </imageStyle>
   </styleRule>
-
+  <!-- ATMS RR added 15 Mar 2016 -->
+  <!-- reset RR as Rain_Rate to solve conflict with radar refl RR derived param abbrev -->
   <styleRule>
     <paramLevelMatches>
-      <creatingEntity>AMSR2</creatingEntity>
-      <parameter>Rain_Rate</parameter>
+       <creatingEntity>ATMS</creatingEntity>
+      <parameter>Rain_Rate</parameter> 
     </paramLevelMatches>
     <imageStyle>
        <displayUnits>in/hr</displayUnits>
       <displayFlags>NoPlane</displayFlags>
       <range scale="LINEAR">
         <minValue>0</minValue>
-        <maxValue>6</maxValue>
+        <maxValue>3</maxValue>
       </range>
-      <defaultColormap>GOES-R/GOESR-L2/RRQPE</defaultColormap>
+      <defaultColormap>Sat/MW/nrlmicrorain_swaths</defaultColormap>
       <colorbarLabeling>
-         <values>0.01 0.02 0.03 0.05 0.08 0.1 0.3 0.4 0.5 0.75 1 1.2 1.4 1.6 2 3 4 6</values>
+         <values>0 0.25 0.5 0.75 1.0 1.25 1.50 1.75 2.0 2.25 2.50 2.75 3.0</values>
       </colorbarLabeling>
     </imageStyle>
   </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>ATMS</creatingEntity>
+      <parameter>SICP</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits label="%">*1</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>100</maxValue>
+      </range>
+      <defaultColormap>GOES-R/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+         <increment>10</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>ATMS</creatingEntity>
+      <parameter>SFR</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>in/hr</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>0.5</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+         <increment>0.1</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>ATMS</creatingEntity>
+      <parameter>SWE</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>in</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>10</maxValue>
+      </range>
+      <defaultColormap>GOES-R/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+         <increment>2</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>ATMS</creatingEntity>
+      <parameter>TSkin</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>F</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>-10</minValue>
+        <maxValue>110</maxValue>
+      </range>
+      <defaultColormap>GOES-R/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>-10 0 10 20 30 40 50 60 70 80 90 100 110</values> 
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+
+<!-- SST and CLW added by EPDT 12/03/2015 -->
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>AMSR2</creatingEntity>
+      <parameter>SST</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>C</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>-5</minValue>
+        <maxValue>40</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+        <values>-5 0 10 15 20 25 30 35 40</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>AMSR2</creatingEntity>
+      <parameter>CLW</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>mm</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>3</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+         <increment>0.5</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>VIIRS</creatingEntity>
+      <parameter>ICN</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>%</displayUnits>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>100</maxValue>
+      </range>
+      <defaultColormap>Sat/GOESR-L2/VTRSB</defaultColormap>
+      <colorbarLabeling>
+         <increment>10</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>VIIRS</creatingEntity>
+      <parameter>ICEMAP</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>1</maxValue>
+      </range>
+      <defaultColormap>GOES-R/GOESR-L2/FSC</defaultColormap>
+      <colorbarLabeling>
+         <values>0 1</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>ATMS</creatingEntity>
+      <parameter>SNOW</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayFlags>NoPlane</displayFlags>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>1</maxValue>
+      </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+      <colorbarLabeling>
+        <values>1</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
 </styleRuleset>
