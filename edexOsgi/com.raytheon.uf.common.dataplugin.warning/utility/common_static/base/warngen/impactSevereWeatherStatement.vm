@@ -793,6 +793,19 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
+#if($bullets.contains("dvdHail"))
+  #set($hailThreat = "dvd size") 
+  #set($hailLead = "large destructive hail up to ") 
+  #set($hailHazard = "dvd size hail")
+  #set($hailTrail = "")
+  #set($hailSize = 5.00)  
+  #set($hailTag = "5.00 IN")
+  #if(${stormType} == "line")
+  #set($pdssvr = "These are very dangerous storms.")
+  #else
+  #set($pdssvr = "This is a very dangerous storm.")
+  #end
+#end
 #####################################
 ## Check for Observed Wind or Hail ##
 #####################################

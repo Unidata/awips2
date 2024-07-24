@@ -38,9 +38,13 @@
         Update to baseline file to add blended hydro style rules
         Ensure units for hours is the letter "h"
         Labels for satellite number
+        11/19/2022 add flood maps
+        7/28/2023  dataMapping add NOAA-21,Metop-C, rm Metop-A, rm GPS (Rain Rate) Blended Hydro. 
+        9/5/2023   Include CMORPH2 (for Alaska Region only currently) 
+        4/17/2024 Added comment Floodwater field works for both VIIRS and ABI flood maps
    -->
    <!-- TOWRdocs POC
-        Lee Byerle 8/26/2019
+        Lee Byerle 4/17/2024
    -->
 <styleRuleset>
    <!-- Blended Hydro products -->
@@ -94,8 +98,9 @@
       <dataMapping>
                 <entry pixelValue='19'   displayValue='19'   label="NOAA-19" />
                 <entry pixelValue='20'   displayValue='20'   label="NOAA-20" />
-                <entry pixelValue='101'  displayValue='101'  label="Metop-A" />
+                <entry pixelValue='21'   displayValue='21'   label="NOAA-21" />
                 <entry pixelValue='102'  displayValue='102'  label="Metop-B" />
+                <entry pixelValue='103'  displayValue='103'  label="Metop-C" />
                 <entry pixelValue='301'  displayValue='301'  label="S-NPP" />
                 <entry pixelValue='401'  displayValue='401'  label="GCOM" />
                 <entry pixelValue='501'  displayValue='501'  label="GPM" />
@@ -154,14 +159,14 @@
       <dataMapping>
                 <entry pixelValue='19'  displayValue='19'    label="NOAA-19" />
                 <entry pixelValue='20'  displayValue='20'    label="NOAA-20" />
-                <entry pixelValue='101' displayValue='101'   label="Metop-A" />
+                <entry pixelValue='21'  displayValue='21'    label="NOAA-21" />
                 <entry pixelValue='102' displayValue='102'   label="Metop-B" />
+                <entry pixelValue='103' displayValue='103'   label="Metop-C" />
                 <entry pixelValue='217' displayValue='217'   label="SSMIS-F17" />
                 <entry pixelValue='218' displayValue='218'   label="SSMIS-F18" />
                 <entry pixelValue='301' displayValue='301'   label="S-NPP" />
                 <entry pixelValue='401' displayValue='401'   label="GCOM" />
                 <entry pixelValue='501' displayValue='501'   label="GPM" />
-                <entry pixelValue='1001' displayValue='1001' label="GPS" />
       </dataMapping>
     </imageStyle>
     </styleRule>
@@ -202,7 +207,7 @@
     </styleRule>
 <!--End of blended hydro products -->
 
-<!--Global Multi-sat Geostationary composites -->
+<!--Global GOES 5-sat composites -->
 
  <styleRule>
     <paramLevelMatches>
@@ -258,5 +263,152 @@
       </colorbarLabeling>
     </imageStyle>
   </styleRule>
+
+<!-- VIIRS and ABI Flood Maps -->
+   <styleRule>
+     <paramLevelMatches>
+       <parameter>Floodwater</parameter>
+     </paramLevelMatches>
+     <imageStyle>
+       <interpolate>false</interpolate>
+       <brightness>1.0</brightness>
+       <displayUnits label="">*1</displayUnits>
+       <range>
+         <minValue>0</minValue>
+         <maxValue>200</maxValue>
+       </range>
+      <dataMapping>
+         <entry pixelValue='1'   displayValue='1'   label="NVD" />
+         <entry pixelValue='15'  displayValue='15'  label="No Retrieval" />
+         <entry pixelValue='16'  displayValue='16'  label="Bareland" />
+         <entry pixelValue='17'  displayValue='17'  label="Vegetation" />
+         <entry pixelValue='20'  displayValue='20'  label="Snow Ice" />
+         <entry pixelValue='27'  displayValue='27'  label="River/Lake Ice" />
+         <entry pixelValue='30'  displayValue='30'  label="Cloud" />
+         <entry pixelValue='38'  displayValue='38'  label="Supar-snow/Ice water/mixed" />
+         <entry pixelValue='50'  displayValue='50'  label="Shadow" />
+         <entry pixelValue='99'  displayValue='99'  label="Normal Water" />
+         <entry pixelValue='101'   displayValue='101'  label='1%'/>
+         <entry pixelValue='102'   displayValue='102'  label='2%'/>
+         <entry pixelValue='103'   displayValue='103'  label='3%'/>
+         <entry pixelValue='104'   displayValue='104'  label='4%'/>
+         <entry pixelValue='105'   displayValue='105'  label='5%'/>
+         <entry pixelValue='106'   displayValue='106'  label='6%'/>
+         <entry pixelValue='107'   displayValue='107'  label='7%'/>
+         <entry pixelValue='108'   displayValue='108'  label='8%'/>
+         <entry pixelValue='109'   displayValue='109'  label='9%'/>
+         <entry pixelValue='110'   displayValue='110'  label='10%'/>
+         <entry pixelValue='111'   displayValue='111'  label='11%'/>
+         <entry pixelValue='112'   displayValue='112'  label='12%'/>
+         <entry pixelValue='113'   displayValue='113'  label='13%'/>
+         <entry pixelValue='114'   displayValue='114'  label='14%'/>
+         <entry pixelValue='115'   displayValue='115'  label='15%'/>
+         <entry pixelValue='116'   displayValue='116'  label='16%'/>
+         <entry pixelValue='117'   displayValue='117'  label='17%'/>
+         <entry pixelValue='118'   displayValue='118'  label='18%'/>
+         <entry pixelValue='119'   displayValue='119'  label='19%'/>
+         <entry pixelValue='120'   displayValue='120'  label='20%'/>
+         <entry pixelValue='121'   displayValue='121'  label='21%'/>
+         <entry pixelValue='122'   displayValue='122'  label='22%'/>
+         <entry pixelValue='123'   displayValue='123'  label='23%'/>
+         <entry pixelValue='124'   displayValue='124'  label='24%'/>
+         <entry pixelValue='125'   displayValue='125'  label='25%'/>
+         <entry pixelValue='126'   displayValue='126'  label='26%'/>
+         <entry pixelValue='127'   displayValue='127'  label='27%'/>
+         <entry pixelValue='128'   displayValue='128'  label='28%'/>
+         <entry pixelValue='129'   displayValue='129'  label='29%'/>
+         <entry pixelValue='130'   displayValue='130'  label='30%'/>
+         <entry pixelValue='131'   displayValue='131'  label='31%'/>
+         <entry pixelValue='132'   displayValue='132'  label='32%'/>
+         <entry pixelValue='133'   displayValue='133'  label='33%'/>
+         <entry pixelValue='134'   displayValue='134'  label='34%'/>
+         <entry pixelValue='135'   displayValue='135'  label='35%'/>
+         <entry pixelValue='136'   displayValue='136'  label='36%'/>
+         <entry pixelValue='137'   displayValue='137'  label='37%'/>
+         <entry pixelValue='138'   displayValue='138'  label='38%'/>
+         <entry pixelValue='139'   displayValue='139'  label='39%'/>
+         <entry pixelValue='140'   displayValue='140'  label='40%'/>
+         <entry pixelValue='141'   displayValue='141'  label='41%'/>
+         <entry pixelValue='142'   displayValue='142'  label='42%'/>
+         <entry pixelValue='143'   displayValue='143'  label='43%'/>
+         <entry pixelValue='144'   displayValue='144'  label='44%'/>
+         <entry pixelValue='145'   displayValue='145'  label='45%'/>
+         <entry pixelValue='146'   displayValue='146'  label='46%'/>
+         <entry pixelValue='147'   displayValue='147'  label='47%'/>
+         <entry pixelValue='148'   displayValue='148'  label='48%'/>
+         <entry pixelValue='149'   displayValue='149'  label='49%'/>
+         <entry pixelValue='150'   displayValue='150'  label='50%'/>
+         <entry pixelValue='151'   displayValue='151'  label='51%'/>
+         <entry pixelValue='152'   displayValue='152'  label='52%'/>
+         <entry pixelValue='153'   displayValue='153'  label='53%'/>
+         <entry pixelValue='154'   displayValue='154'  label='54%'/>
+         <entry pixelValue='155'   displayValue='155'  label='55%'/>
+         <entry pixelValue='156'   displayValue='156'  label='56%'/>
+         <entry pixelValue='157'   displayValue='157'  label='57%'/>
+         <entry pixelValue='158'   displayValue='158'  label='58%'/>
+         <entry pixelValue='159'   displayValue='159'  label='59%'/>
+         <entry pixelValue='160'   displayValue='160'  label='60%'/>
+         <entry pixelValue='161'   displayValue='161'  label='61%'/>
+         <entry pixelValue='162'   displayValue='162'  label='62%'/>
+         <entry pixelValue='163'   displayValue='163'  label='63%'/>
+         <entry pixelValue='164'   displayValue='164'  label='64%'/>
+         <entry pixelValue='165'   displayValue='165'  label='65%'/>
+         <entry pixelValue='166'   displayValue='166'  label='66%'/>
+         <entry pixelValue='167'   displayValue='167'  label='67%'/>
+         <entry pixelValue='168'   displayValue='168'  label='68%'/>
+         <entry pixelValue='169'   displayValue='169'  label='69%'/>
+         <entry pixelValue='170'   displayValue='170'  label='70%'/>
+         <entry pixelValue='171'   displayValue='171'  label='71%'/>
+         <entry pixelValue='172'   displayValue='172'  label='72%'/>
+         <entry pixelValue='173'   displayValue='173'  label='73%'/>
+         <entry pixelValue='174'   displayValue='174'  label='74%'/>
+         <entry pixelValue='175'   displayValue='175'  label='75%'/>
+         <entry pixelValue='176'   displayValue='176'  label='76%'/>
+         <entry pixelValue='177'   displayValue='177'  label='77%'/>
+         <entry pixelValue='178'   displayValue='178'  label='78%'/>
+         <entry pixelValue='179'   displayValue='179'  label='79%'/>
+         <entry pixelValue='180'   displayValue='180'  label='80%'/>
+         <entry pixelValue='181'   displayValue='181'  label='81%'/>
+         <entry pixelValue='182'   displayValue='182'  label='82%'/>
+         <entry pixelValue='183'   displayValue='183'  label='83%'/>
+         <entry pixelValue='184'   displayValue='184'  label='84%'/>
+         <entry pixelValue='185'   displayValue='185'  label='85%'/>
+         <entry pixelValue='186'   displayValue='186'  label='86%'/>
+         <entry pixelValue='187'   displayValue='187'  label='87%'/>
+         <entry pixelValue='188'   displayValue='188'  label='88%'/>
+         <entry pixelValue='189'   displayValue='189'  label='89%'/>
+         <entry pixelValue='190'   displayValue='190'  label='90%'/>
+         <entry pixelValue='191'   displayValue='191'  label='91%'/>
+         <entry pixelValue='192'   displayValue='192'  label='92%'/>
+         <entry pixelValue='193'   displayValue='193'  label='93%'/>
+         <entry pixelValue='194'   displayValue='194'  label='94%'/>
+        <entry pixelValue='195'   displayValue='195'  label='95%'/>
+         <entry pixelValue='196'   displayValue='196'  label='96%'/>
+         <entry pixelValue='197'   displayValue='197'  label='97%'/>
+         <entry pixelValue='198'   displayValue='198'  label='98%'/>
+         <entry pixelValue='199'   displayValue='199'  label='99%'/>
+         <entry pixelValue='200'   displayValue='200'  label='100%'/>
+       </dataMapping>
+       <defaultColormap>Floodmaps/FloodMapCast</defaultColormap>
+     </imageStyle>
+   </styleRule>
+
+<!-- Global CMORPH2 Precipitation -->
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>RR_CMORPH</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>in/hr</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>1.6</maxValue>
+      </range>
+       <defaultColormap>CMORPH_Rain_Rate</defaultColormap>
+       <colorbarLabeling>
+        <values>0 .01 .05 .1 .2 .5 .75 1 1.2 1.4 1.6</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
 
 </styleRuleset>

@@ -308,6 +308,9 @@
     	<antcall target="build">
     				<param name="feature" value="gov.noaa.nws.edex.nsea.feature"/>
     	</antcall>
+    	<antcall target="build">
+    				<param name="feature" value="gov.noaa.nws.obs.edex.geodb.feature"/>
+    	</antcall>
         <!-- SPECIAL CASE -->
         <if>
             <equals arg1="${lightning}" arg2="false" />

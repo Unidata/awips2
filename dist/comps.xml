@@ -132,6 +132,7 @@
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-gfe</packagereq>
 	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
+         <packagereq type="mandatory">awips2-edex-geodb</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
@@ -273,6 +274,7 @@
          <packagereq type="mandatory">awips2-edex-foss-ucar-nc2</packagereq>
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
+         <packagereq type="mandatory">awips2-edex-geodb</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
 	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>

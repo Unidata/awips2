@@ -23,6 +23,7 @@
         version of the file will completely replace a lower priority version
         of the file.
     -->
+<!-- L. Byerle 1/16/20 Update MIRS ATMS for n20 or npp file arrival -->
 <requestPatterns plugin="pointset">
   <!--JPSS-RR Volcanic Ash-->
   <regex>^JRR-VolcanicAsh_v\dr\d_(npp|j01)_s\d{15}_e\d{15}_c\d{15}.nc$</regex> 
@@ -33,6 +34,7 @@
   <!--JPSS-RR Ice Concentration-->
   <regex>^JRR-\w+_v\dr\d_(npp|j01)_s\d{15}_e\d{15}_c\d{15}.nc$</regex>
   <!--NPR-MIRS-->
-  <regex>^NPR-MIRS-IMG_\d\dmin_v\d\d_npp_s\d{15}_e\d{15}_c\d{15}</regex>
+<!--  <regex>^NPR-MIRS-IMG_\d\dmin_v\d\d_npp_s\d{15}_e\d{15}_c\d{15}</regex> -->
+   <regex>^NPR-MIRS-IMG_\d\dmin_v\d\d_n.*</regex>
 </requestPatterns>
 
