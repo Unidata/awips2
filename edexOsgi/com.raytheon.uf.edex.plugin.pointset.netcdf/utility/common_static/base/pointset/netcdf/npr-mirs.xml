@@ -23,6 +23,10 @@
         version of the file will completely replace a lower priority version
         of the file.
     -->
+<!-- L. Byerle 1/16/2020 added snowfall rate SFR (e.g. ATMS SFR). Define SICP for SIce. SICP is parameter with units
+                          percent (vs %), to match ATMS files
+      2/6/2020 removed erroneous abbreviation tag 
+      1/1/2023 remove triangulation to fix occn'l plot issue found most recently by Carl Dierking w/SFR -->
 <pointSetProductDescriptions>
   <default>
     <matches>
@@ -38,7 +42,7 @@
     <datasetId>
       <attribute name="instrument_name"/>
     </datasetId>
-    <triangulation type="grid"/>
+<!--    <triangulation type="grid"/> -->
     <latitude name="Latitude"/>
     <longitude name="Longitude"/>
     <level>
@@ -69,20 +73,24 @@
     </data>
     <parameter>
       <abbreviation>
-        <value value="RR"/>
+      <!--  <value value="RR" /> -->
+      <!-- Avoids conflict with radar reflectivity RR derived parameter 11/14/2016 -->
+        <value value="Rain_Rate" />
       </abbreviation>
     </parameter>
   </description>
+
   <description>
     <data>
       <variable name="SIce"/>
     </data>
     <parameter>
       <abbreviation>
-        <value value="SIC"/>
+        <value value="SICP"/>
       </abbreviation>
     </parameter>
   </description>
+
   <description>
     <data>
       <variable name="SWE"/>
@@ -100,6 +108,26 @@
     <parameter>
       <abbreviation>
         <value value="SNOW"/>
+      </abbreviation>
+    </parameter>
+  </description>
+  <description>
+    <data>
+      <variable name="SFR" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="SFR" />
+      </abbreviation>
+    </parameter>
+  </description>
+  <description>
+    <data>
+      <variable name="TSkin" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="TSkin" />
       </abbreviation>
     </parameter>
   </description>

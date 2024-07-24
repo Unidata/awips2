@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 12/19/2023 Initial description for ABI Flood map 
+     For Hourly products    
+     Region 1 is for GOES-West
+     Regions 2,3,4 for GOES-East
+-->
+<gridProductDescriptions>
+
+  <default>
+
+    <matches>
+      <match pattern="ABI_Flood_HCOM.*">
+        <attribute name="title"/>
+      </match>
+    </matches>
+
+    <dataTime>
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss'Z'">
+        <attribute name="time_coverage_end" />
+      </formattedRefTime>
+    </dataTime>
+
+    <level>
+      <masterLevel>
+        <value value="SFC" />
+      </masterLevel>
+      <levelOneValue>
+        <value value="0.0" />
+      </levelOneValue>
+    </level> 
+
+    <!-- use lat and lon from file -->
+    <coverage>
+      <latLonGridCoverage />
+      <coordinateLists>
+        <latitude>
+          <variable name="lat" />
+        </latitude>
+        <longitude>
+          <variable name="lon" />
+        </longitude>
+      </coordinateLists>
+    </coverage>
+
+  </default>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^ABI_Flood_HCOM_AOI001" outputFormat="ABI_Flood_West-Reg001">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^ABI_Flood_HCOM_AOI002" outputFormat="ABI_Flood_East-Reg002">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^ABI_Flood_HCOM_AOI003" outputFormat="ABI_Flood_East-Reg003">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+  <description>
+    <datasetId>
+      <pattern inputPattern="^ABI_Flood_HCOM_AOI004" outputFormat="ABI_Flood_East-Reg004">
+          <attribute name="title"/>
+      </pattern>
+    </datasetId>
+    <data>
+      <variable name="WaterDetection" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="Floodwater" />
+      </abbreviation>
+      <name>
+        <value value="Floodwater" />
+      </name>
+    </parameter>
+  </description>
+
+</gridProductDescriptions>

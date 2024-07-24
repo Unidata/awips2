@@ -56,6 +56,7 @@ import tech.units.indriya.unit.Units;
  * May 04, 2015  4444     bsteffen    Fix typo in addRelativeHumidity
  * May 11, 2015  4445     bsteffen    Add another way to calculate dewpoint
  * Apr 15, 2019  7596     lsingh      Upgraded units framework to JSR-363.
+ * Jul 11, 2024         srcarter@ucar Added NaN catch for dewpoint
  * 
  * </pre>
  * 
@@ -224,7 +225,9 @@ public class SoundingLayerBuilder {
         } else if (specificHumidity != null && pressure != null) {
             Quantity<Temperature> dewpoint = Dewpoint.calculateFromPandSH(
                     pressure, specificHumidity);
-            layer.setDewpoint(dewpoint.to(NC_DEWPOINT_UNIT).getValue().floatValue());
+            if(!Float.isNaN(dewpoint.getValue().floatValue())) {
+                layer.setDewpoint(dewpoint.to(NC_DEWPOINT_UNIT).getValue().floatValue());
+            }
         } else if (temperature != null && relativeHumidity != null) {
             Quantity<Temperature> dewpoint = Dewpoint.calculateFromTandRH(
                     temperature, relativeHumidity);

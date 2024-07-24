@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gridProductDescriptions>
+    <default>
+        <matches>
+            <match pattern="NOAA/CIMSS LightningCast">
+                <attribute name="title"/>
+            </match>
+
+            <match pattern="GOES-West">
+                <attribute name="orbital_slot"/>
+            </match>
+        </matches>
+
+        <dataTime>
+            <formattedRefTime dateFormat="yyyyMMdd'-'HHmmss' UTC'">
+                <attribute name="time_coverage_start" />
+            </formattedRefTime>
+        </dataTime>
+
+        <datasetId>
+            <value value="LightningCast" />
+        </datasetId>
+
+        <coverage coverageFile="netcdf/grids/LightningCast_LatLon_West.xml" />
+    </default>
+
+    <description>
+        <data>
+            <variable name="PLTG_60min" />  <!-- netCDF file variable -->
+        </data>
+
+        <parameter>
+            <abbreviation>
+                <value value="LCastW" /> <!-- Arbitrary assigned parameter, point to this in netcdfGrid style rules -->
+            </abbreviation>
+
+            <name>
+                <value value="60-min Probability" /> <!-- Appears in CAVE display legend -->
+            </name>
+
+            <units>
+                <value value="%" />  <!-- units must match those of netCDF file, set as desired in style rules -->
+            </units>
+        </parameter>
+    
+        <level>
+            <masterLevel>
+                <attribute name="sector_id" />
+            </masterLevel>
+
+            <levelOneValue>
+                <value value="0.0" />
+            </levelOneValue>
+        </level>
+    </description>
+
+    <description>
+        <data>
+            <variable name="PLTG_60min_plax" />  <!-- netCDF file variable -->
+        </data>
+
+        <parameter>
+            <abbreviation>
+                <value value="LCastWPlax" /> <!--Arbitrary assigned parameter, point to this in netcdfGrid style rules -->
+            </abbreviation>
+            <name>
+                <value value="60-min Probability (plax-corr)" /> <!--Appears in CAVE display legend -->
+            </name>
+            <units>
+                <value value="%" />  <!-- units must match those of netCDF file, set as desired in style rules -->
+            </units>
+        </parameter>
+    
+        <level>
+            <masterLevel>
+                <attribute name="sector_id" />
+            </masterLevel>
+
+            <levelOneValue>
+                <value value="0.0" />
+            </levelOneValue>
+        </level>
+    </description>
+</gridProductDescriptions>
+

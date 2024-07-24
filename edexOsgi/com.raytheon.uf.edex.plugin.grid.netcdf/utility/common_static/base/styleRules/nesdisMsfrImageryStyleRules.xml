@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleRuleset>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>Merged Snowfall Rate, Liq. Equiv.</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits> </displayUnits>
+            <displayLegend>${creatingEntity} ${physicalElement} in/hr</displayLegend>
+            <range>
+                <minValue>-3</minValue>
+                <maxValue>0.41</maxValue>
+            </range>
+            <dataMapping>
+                <entry pixelValue="0" displayValue="-3" sample="" label=""/>
+                <!--   not used     -->
+                <entry pixelValue="1" displayValue="-2" sample="NoSatRetrvl/BadRadar" label=""/>
+                <!--   -88(NESDIS)  -->
+                <entry pixelValue="2" displayValue="-1" sample="NoSatRetrvl/MissingOrTooCold" label=""/>
+                <!--   -87(NESDIS)  -->
+                <entry pixelValue="3" displayValue="0" sample="Radar-NoSnow" label="0in/hr"/>
+                <!--     0(NESDIS)  -->
+                <entry pixelValue="4" displayValue="0.00"  operator="=" sample="Trace" label="" />
+                <entry pixelValue="5" displayValue="0.00"  operator="=" sample="Trace" label="" />
+                <entry pixelValue="6" displayValue="0.00"  operator="=" sample="Trace" label="" />
+                <entry pixelValue="7" displayValue="0.01"  operator="=" sample="0.01" label="" />
+                <entry pixelValue="8" displayValue="0.01"  operator="=" sample="0.01" label="" />
+                <entry pixelValue="9" displayValue="0.01"  operator="=" sample="0.01" label="" />
+                <entry pixelValue="10" displayValue="0.01"  operator="=" sample="0.01" label="" />
+                <entry pixelValue="11" displayValue="0.01"  operator="=" sample="0.01" label="" />
+                <entry pixelValue="12" displayValue="0.01"  operator="=" sample="0.01" label="" />
+                <entry pixelValue="13" displayValue="0.02" sample="0.02" label="" />
+                <entry pixelValue="14" displayValue="0.02" sample="0.02" label="" />
+                <entry pixelValue="15" displayValue="0.02" sample="0.02" label="" />
+                <entry pixelValue="16" displayValue="0.02" sample="0.02" label="" />
+                <entry pixelValue="17" displayValue="0.02" sample="0.02" label="" />
+                <entry pixelValue="18" displayValue="0.02" sample="0.02" label="" />
+                <entry pixelValue="19" displayValue="0.03" sample="0.03" label="" />
+                <entry pixelValue="20" displayValue="0.03" sample="0.03" label="" />
+                <entry pixelValue="21" displayValue="0.03" sample="0.03" label="" />
+                <entry pixelValue="22" displayValue="0.03" sample="0.03" label="" />
+                <entry pixelValue="23" displayValue="0.03" sample="0.03" label="" />
+                <entry pixelValue="24" displayValue="0.03" sample="0.03" label="" />
+                <entry pixelValue="25" displayValue="0.03" sample="0.03" label="" />
+                <entry pixelValue="26" displayValue="0.04" sample="0.04" label="" />
+                <entry pixelValue="27" displayValue="0.04" sample="0.04" label="" />
+                <entry pixelValue="28" displayValue="0.04" sample="0.04" label="0.04" />
+                <entry pixelValue="29" displayValue="0.04" sample="0.04" label="" />
+                <entry pixelValue="30" displayValue="0.04" sample="0.04" label="" />
+                <entry pixelValue="31" displayValue="0.04" sample="0.04" label="" />
+                <entry pixelValue="32" displayValue="0.05" sample="0.05" label="" />
+                <entry pixelValue="33" displayValue="0.05" sample="0.05" label="" />
+                <entry pixelValue="34" displayValue="0.05" sample="0.05" label="" />
+                <entry pixelValue="35" displayValue="0.05" sample="0.05" label="" />
+                <entry pixelValue="36" displayValue="0.05" sample="0.05" label="" />
+                <entry pixelValue="37" displayValue="0.05" sample="0.05" label="" />
+                <entry pixelValue="38" displayValue="0.06" sample="0.06" label="" />
+                <entry pixelValue="39" displayValue="0.06" sample="0.06" label="" />
+                <entry pixelValue="40" displayValue="0.06" sample="0.06" label="" />
+                <entry pixelValue="41" displayValue="0.06" sample="0.06" label="" />
+                <entry pixelValue="42" displayValue="0.06" sample="0.06" label="" />
+                <entry pixelValue="43" displayValue="0.06" sample="0.06" label="" />
+                <entry pixelValue="44" displayValue="0.06" sample="0.06" label="" />
+                <entry pixelValue="45" displayValue="0.07" sample="0.07" label="" />
+                <entry pixelValue="46" displayValue="0.07" sample="0.07" label="" />
+                <entry pixelValue="47" displayValue="0.07" sample="0.07" label="" />
+                <entry pixelValue="48" displayValue="0.07" sample="0.07" label="" />
+                <entry pixelValue="49" displayValue="0.07" sample="0.07" label="" />
+                <entry pixelValue="50" displayValue="0.07" sample="0.07" label="" />
+                <entry pixelValue="51" displayValue="0.08" sample="0.08" label="" />
+                <entry pixelValue="52" displayValue="0.08" sample="0.08" label="" />
+                <entry pixelValue="53" displayValue="0.08" sample="0.08" label="" />
+                <entry pixelValue="54" displayValue="0.08" sample="0.08" label="0.08" />
+                <entry pixelValue="55" displayValue="0.08" sample="0.08" label="" />
+                <entry pixelValue="56" displayValue="0.08" sample="0.08" label="" />
+                <entry pixelValue="57" displayValue="0.09" sample="0.09" label="" />
+                <entry pixelValue="58" displayValue="0.09" sample="0.09" label="" />
+                <entry pixelValue="59" displayValue="0.09" sample="0.09" label="" />
+                <entry pixelValue="60" displayValue="0.09" sample="0.09" label="" />
+                <entry pixelValue="61" displayValue="0.09" sample="0.09" label="" />
+                <entry pixelValue="62" displayValue="0.09" sample="0.09" label="" />
+                <entry pixelValue="63" displayValue="0.09" sample="0.09" label="" />
+                <entry pixelValue="64" displayValue="0.10" sample="0.10" label="" />
+                <entry pixelValue="65" displayValue="0.10" sample="0.10" label="" />
+                <entry pixelValue="66" displayValue="0.10" sample="0.10" label="" />
+                <entry pixelValue="67" displayValue="0.10" sample="0.10" label="" />
+                <entry pixelValue="68" displayValue="0.10" sample="0.10" label="" />
+                <entry pixelValue="69" displayValue="0.10" sample="0.10" label="" />
+                <entry pixelValue="70" displayValue="0.11" sample="0.11" label="" />
+                <entry pixelValue="71" displayValue="0.11" sample="0.11" label="" />
+                <entry pixelValue="72" displayValue="0.11" sample="0.11" label="" />
+                <entry pixelValue="73" displayValue="0.11" sample="0.11" label="" />
+                <entry pixelValue="74" displayValue="0.11" sample="0.11" label="" />
+                <entry pixelValue="75" displayValue="0.11" sample="0.11" label="" />
+                <entry pixelValue="76" displayValue="0.11" sample="0.11" label="" />
+                <entry pixelValue="77" displayValue="0.12" sample="0.12" label="" />
+                <entry pixelValue="78" displayValue="0.12" sample="0.12" label="" />
+                <entry pixelValue="79" displayValue="0.12" sample="0.12" label="0.12" />
+                <entry pixelValue="80" displayValue="0.12" sample="0.12" label="" />
+                <entry pixelValue="81" displayValue="0.12" sample="0.12" label="" />
+                <entry pixelValue="82" displayValue="0.12" sample="0.12" label="" />
+                <entry pixelValue="83" displayValue="0.13" sample="0.13" label="" />
+                <entry pixelValue="84" displayValue="0.13" sample="0.13" label="" />
+                <entry pixelValue="85" displayValue="0.13" sample="0.13" label="" />
+                <entry pixelValue="86" displayValue="0.13" sample="0.13" label="" />
+                <entry pixelValue="87" displayValue="0.13" sample="0.13" label="" />
+                <entry pixelValue="88" displayValue="0.13" sample="0.13" label="" />
+                <entry pixelValue="89" displayValue="0.14" sample="0.14" label="" />
+                <entry pixelValue="90" displayValue="0.14" sample="0.14" label="" />
+                <entry pixelValue="91" displayValue="0.14" sample="0.14" label="" />
+                <entry pixelValue="92" displayValue="0.14" sample="0.14" label="" />
+                <entry pixelValue="93" displayValue="0.14" sample="0.14" label="" />
+                <entry pixelValue="94" displayValue="0.14" sample="0.14" label="" />
+                <entry pixelValue="95" displayValue="0.14" sample="0.14" label="" />
+                <entry pixelValue="96" displayValue="0.15" sample="0.15" label="" />
+                <entry pixelValue="97" displayValue="0.15" sample="0.15" label="" />
+                <entry pixelValue="98" displayValue="0.15" sample="0.15" label="" />
+                <entry pixelValue="99" displayValue="0.15" sample="0.15" label="" />
+                <entry pixelValue="100" displayValue="0.15" sample="0.15" label="" />
+                <entry pixelValue="101" displayValue="0.15" sample="0.15" label="" />
+                <entry pixelValue="102" displayValue="0.16" sample="0.16" label="" />
+                <entry pixelValue="103" displayValue="0.16" sample="0.16" label="" />
+                <entry pixelValue="104" displayValue="0.16" sample="0.16" label="0.16" />
+                <entry pixelValue="105" displayValue="0.16" sample="0.16" label="" />
+                <entry pixelValue="106" displayValue="0.16" sample="0.16" label="" />
+                <entry pixelValue="107" displayValue="0.16" sample="0.16" label="" />
+                <entry pixelValue="108" displayValue="0.17" sample="0.17" label="" />
+                <entry pixelValue="109" displayValue="0.17" sample="0.17" label="" />
+                <entry pixelValue="110" displayValue="0.17" sample="0.17" label="" />
+                <entry pixelValue="111" displayValue="0.17" sample="0.17" label="" />
+                <entry pixelValue="112" displayValue="0.17" sample="0.17" label="" />
+                <entry pixelValue="113" displayValue="0.17" sample="0.17" label="" />
+                <entry pixelValue="114" displayValue="0.17" sample="0.17" label="" />
+                <entry pixelValue="115" displayValue="0.18" sample="0.18" label="" />
+                <entry pixelValue="116" displayValue="0.18" sample="0.18" label="" />
+                <entry pixelValue="117" displayValue="0.18" sample="0.18" label="" />
+                <entry pixelValue="118" displayValue="0.18" sample="0.18" label="" />
+                <entry pixelValue="119" displayValue="0.18" sample="0.18" label="" />
+                <entry pixelValue="120" displayValue="0.18" sample="0.18" label="" />
+                <entry pixelValue="121" displayValue="0.19" sample="0.19" label="" />
+                <entry pixelValue="122" displayValue="0.19" sample="0.19" label="" />
+                <entry pixelValue="123" displayValue="0.19" sample="0.19" label="" />
+                <entry pixelValue="124" displayValue="0.19" sample="0.19" label="" />
+                <entry pixelValue="125" displayValue="0.19" sample="0.19" label="" />
+                <entry pixelValue="126" displayValue="0.19" sample="0.19" label="" />
+                <entry pixelValue="127" displayValue="0.20" sample="0.20" label="" />
+                <entry pixelValue="128" displayValue="0.20" sample="0.20" label="" />
+                <entry pixelValue="129" displayValue="0.20" sample="0.20" label="" />
+                <entry pixelValue="130" displayValue="0.20" sample="0.20" label="0.20" />
+                <entry pixelValue="131" displayValue="0.20" sample="0.20" label="" />
+                <entry pixelValue="132" displayValue="0.20" sample="0.20" label="" />
+                <entry pixelValue="133" displayValue="0.20" sample="0.20" label="" />
+                <entry pixelValue="134" displayValue="0.21" sample="0.21" label="" />
+                <entry pixelValue="135" displayValue="0.21" sample="0.21" label="" />
+                <entry pixelValue="136" displayValue="0.21" sample="0.21" label="" />
+                <entry pixelValue="137" displayValue="0.21" sample="0.21" label="" />
+                <entry pixelValue="138" displayValue="0.21" sample="0.21" label="" />
+                <entry pixelValue="139" displayValue="0.21" sample="0.21" label="" />
+                <entry pixelValue="140" displayValue="0.22" sample="0.22" label="" />
+                <entry pixelValue="141" displayValue="0.22" sample="0.22" label="" />
+                <entry pixelValue="142" displayValue="0.22" sample="0.22" label="" />
+                <entry pixelValue="143" displayValue="0.22" sample="0.22" label="" />
+                <entry pixelValue="144" displayValue="0.22" sample="0.22" label="" />
+                <entry pixelValue="145" displayValue="0.22" sample="0.22" label="" />
+                <entry pixelValue="146" displayValue="0.23" sample="0.23" label="" />
+                <entry pixelValue="147" displayValue="0.23" sample="0.23" label="" />
+                <entry pixelValue="148" displayValue="0.23" sample="0.23" label="" />
+                <entry pixelValue="149" displayValue="0.23" sample="0.23" label="" />
+                <entry pixelValue="150" displayValue="0.23" sample="0.23" label="" />
+                <entry pixelValue="151" displayValue="0.23" sample="0.23" label="" />
+                <entry pixelValue="152" displayValue="0.23" sample="0.23" label="" />
+                <entry pixelValue="153" displayValue="0.24" sample="0.24" label="" />
+                <entry pixelValue="154" displayValue="0.24" sample="0.24" label="" />
+                <entry pixelValue="155" displayValue="0.24" sample="0.24" label="0.24" />
+                <entry pixelValue="156" displayValue="0.24" sample="0.24" label="" />
+                <entry pixelValue="157" displayValue="0.24" sample="0.24" label="" />
+                <entry pixelValue="158" displayValue="0.24" sample="0.24" label="" />
+                <entry pixelValue="159" displayValue="0.25" sample="0.25" label="" />
+                <entry pixelValue="160" displayValue="0.25" sample="0.25" label="" />
+                <entry pixelValue="161" displayValue="0.25" sample="0.25" label="" />
+                <entry pixelValue="162" displayValue="0.25" sample="0.25" label="" />
+                <entry pixelValue="163" displayValue="0.25" sample="0.25" label="" />
+                <entry pixelValue="164" displayValue="0.25" sample="0.25" label="" />
+                <entry pixelValue="165" displayValue="0.26" sample="0.26" label="" />
+                <entry pixelValue="166" displayValue="0.26" sample="0.26" label="" />
+                <entry pixelValue="167" displayValue="0.26" sample="0.26" label="" />
+                <entry pixelValue="168" displayValue="0.26" sample="0.26" label="" />
+                <entry pixelValue="169" displayValue="0.26" sample="0.26" label="" />
+                <entry pixelValue="170" displayValue="0.26" sample="0.26" label="" />
+                <entry pixelValue="171" displayValue="0.26" sample="0.26" label="" />
+                <entry pixelValue="172" displayValue="0.27" sample="0.27" label="" />
+                <entry pixelValue="173" displayValue="0.27" sample="0.27" label="" />
+                <entry pixelValue="174" displayValue="0.27" sample="0.27" label="" />
+                <entry pixelValue="175" displayValue="0.27" sample="0.27" label="" />
+                <entry pixelValue="176" displayValue="0.27" sample="0.27" label="" />
+                <entry pixelValue="177" displayValue="0.27" sample="0.27" label="" />
+                <entry pixelValue="178" displayValue="0.28" sample="0.28" label="" />
+                <entry pixelValue="179" displayValue="0.28" sample="0.28" label="" />
+                <entry pixelValue="180" displayValue="0.28" sample="0.28" label="" />
+                <entry pixelValue="181" displayValue="0.28" sample="0.28" label="" />
+                <entry pixelValue="182" displayValue="0.28" sample="0.28" label="" />
+                <entry pixelValue="183" displayValue="0.28" sample="0.28" label="" />
+                <entry pixelValue="184" displayValue="0.29" sample="0.29" label="" />
+                <entry pixelValue="185" displayValue="0.29" sample="0.29" label="" />
+                <entry pixelValue="186" displayValue="0.29" sample="0.29" label="" />
+                <entry pixelValue="187" displayValue="0.29" sample="0.29" label="" />
+                <entry pixelValue="188" displayValue="0.29" sample="0.29" label="" />
+                <entry pixelValue="189" displayValue="0.29" sample="0.29" label="" />
+                <entry pixelValue="190" displayValue="0.29" sample="0.29" label="" />
+                <entry pixelValue="191" displayValue="0.30" sample="0.30" label="" />
+                <entry pixelValue="192" displayValue="0.30" sample="0.30" label="" />
+                <entry pixelValue="193" displayValue="0.30" sample="0.30" label="0.30" />
+                <entry pixelValue="194" displayValue="0.30" sample="0.30" label="" />
+                <entry pixelValue="195" displayValue="0.30" sample="0.30" label="" />
+                <entry pixelValue="196" displayValue="0.30" sample="0.30" label="" />
+                <entry pixelValue="197" displayValue="0.31" sample="0.31" label="" />
+                <entry pixelValue="198" displayValue="0.31" sample="0.31" label="" />
+                <entry pixelValue="199" displayValue="0.31" sample="0.31" label="" />
+                <entry pixelValue="200" displayValue="0.31" sample="0.31" label="" />
+                <entry pixelValue="201" displayValue="0.31" sample="0.31" label="" />
+                <entry pixelValue="202" displayValue="0.31" sample="0.31" label="" />
+                <entry pixelValue="203" displayValue="0.31" sample="0.31" label="" />
+                <entry pixelValue="204" displayValue="0.32" sample="0.32" label="" />
+                <entry pixelValue="205" displayValue="0.32" sample="0.32" label="" />
+                <entry pixelValue="206" displayValue="0.32" sample="0.32" label="" />
+                <entry pixelValue="207" displayValue="0.32" sample="0.32" label="" />
+                <entry pixelValue="208" displayValue="0.32" sample="0.32" label="" />
+                <entry pixelValue="209" displayValue="0.32" sample="0.32" label="" />
+                <entry pixelValue="210" displayValue="0.33" sample="0.33" label="" />
+                <entry pixelValue="211" displayValue="0.33" sample="0.33" label="" />
+                <entry pixelValue="212" displayValue="0.33" sample="0.33" label="" />
+                <entry pixelValue="213" displayValue="0.33" sample="0.33" label="" />
+                <entry pixelValue="214" displayValue="0.33" sample="0.33" label="" />
+                <entry pixelValue="215" displayValue="0.33" sample="0.33" label="" />
+                <entry pixelValue="216" displayValue="0.34" sample="0.34" label="" />
+                <entry pixelValue="217" displayValue="0.34" sample="0.34" label="" />
+                <entry pixelValue="218" displayValue="0.34" sample="0.34" label="" />
+                <entry pixelValue="219" displayValue="0.34" sample="0.34" label="0.34" />
+                <entry pixelValue="220" displayValue="0.34" sample="0.34" label="" />
+                <entry pixelValue="221" displayValue="0.34" sample="0.34" label="" />
+                <entry pixelValue="222" displayValue="0.34" sample="0.34" label="" />
+                <entry pixelValue="223" displayValue="0.35" sample="0.35" label="" />
+                <entry pixelValue="224" displayValue="0.35" sample="0.35" label="" />
+                <entry pixelValue="225" displayValue="0.35" sample="0.35" label="" />
+                <entry pixelValue="226" displayValue="0.35" sample="0.35" label="" />
+                <entry pixelValue="227" displayValue="0.35" sample="0.35" label="" />
+                <entry pixelValue="228" displayValue="0.35" sample="0.35" label="" />
+                <entry pixelValue="229" displayValue="0.36" sample="0.36" label="" />
+                <entry pixelValue="230" displayValue="0.36" sample="0.36" label="" />
+                <entry pixelValue="231" displayValue="0.36" sample="0.36" label="" />
+                <entry pixelValue="232" displayValue="0.36" sample="0.36" label="" />
+                <entry pixelValue="233" displayValue="0.36" sample="0.36" label="" />
+                <entry pixelValue="234" displayValue="0.36" sample="0.36" label="" />
+                <entry pixelValue="235" displayValue="0.37" sample="0.37" label="" />
+                <entry pixelValue="236" displayValue="0.37" sample="0.37" label="" />
+                <entry pixelValue="237" displayValue="0.37" sample="0.37" label="" />
+                <entry pixelValue="238" displayValue="0.37" sample="0.37" label="" />
+                <entry pixelValue="239" displayValue="0.37" sample="0.37" label="" />
+                <entry pixelValue="240" displayValue="0.37" sample="0.37" label="" />
+                <entry pixelValue="241" displayValue="0.37" sample="0.37" label="" />
+                <entry pixelValue="242" displayValue="0.38" sample="0.38" label="" />
+                <entry pixelValue="243" displayValue="0.38" sample="0.38" label="" />
+                <entry pixelValue="244" displayValue="0.38" sample="0.38" label="0.38" />
+                <entry pixelValue="245" displayValue="0.38" sample="0.38" label="" />
+                <entry pixelValue="246" displayValue="0.38" sample="0.38" label="" />
+                <entry pixelValue="247" displayValue="0.38" sample="0.38" label="" />
+                <entry pixelValue="248" displayValue="0.39" sample="0.39" label="" />
+                <entry pixelValue="249" displayValue="0.39" sample="0.39" label="" />
+                <entry pixelValue="250" displayValue="0.39" sample="0.39" label="" />
+                <entry pixelValue="251" displayValue="0.39" sample="0.39" label="" />
+                <entry pixelValue="252" displayValue="0.39" sample="0.39" label="" />
+                <entry pixelValue="253" displayValue="0.39" sample="0.39" label="" />
+                <entry pixelValue="254" displayValue="0.40" sample="NoSatRetrvl/NoRadar" label=""/>
+                <!--   -89(NESDIS)  -->
+                <entry pixelValue="255" displayValue="0.41" sample="SatAndRadar-NoSnow" label=""/>
+                <!-- 10000(NESDIS)  -->
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>Merged Snowfall Rate (10:1)</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits> </displayUnits>
+            <displayLegend>${creatingEntity} ${physicalElement} in/hr</displayLegend>
+            <range>
+                <minValue>-3</minValue>
+                <maxValue>4.1</maxValue>
+            </range>
+            <dataMapping>
+                <entry pixelValue="0" displayValue="-3" label="" sample=""/>
+                <!--   not used     -->
+                <entry pixelValue="1" displayValue="-2" label="" sample="NoSatRetrvl/BadRadar"/>
+                <!--   -88(NESDIS)  -->
+                <entry pixelValue="2" displayValue="-1" label="" sample="NoSatRetrvl/MissingOrTooCold"/>
+                <!--   -87(NESDIS) can't find  -->
+                <entry pixelValue="3" displayValue="0" label="0in/hr" sample="Radar-NoSnow"/>
+                <!--     0(NESDIS)  -->
+                <entry pixelValue="4"   displayValue="0"    operator="&gt;"  label="0.0"    sample="Trace" />
+                <entry pixelValue="9"   displayValue="0.1"  operator="&gt;"  label=""    sample="0.1in/hr" />
+                <entry pixelValue="16"  displayValue="0.2"  operator="&gt;"  label="0.2"    sample="0.2in/hr" />
+                <entry pixelValue="22"  displayValue="0.3"  operator="&gt;"  label=""    sample="0.3in/hr" />
+                <entry pixelValue="28"  displayValue="0.4"  operator="&gt;"  label="0.4"    sample="0.4in/hr" />
+                <entry pixelValue="35"  displayValue="0.5"  operator="&gt;"  label=""    sample="0.5in/hr" />
+                <entry pixelValue="41"  displayValue="0.6"  operator="&gt;"  label="0.6"    sample="0.6in/hr" />
+                <entry pixelValue="47"  displayValue="0.7"  operator="&gt;"  label=""    sample="0.7in/hr" />
+                <entry pixelValue="54"  displayValue="0.8"  operator="&gt;"  label="0.8"    sample="0.8in/hr" />
+                <entry pixelValue="60"  displayValue="0.9"  operator="&gt;"  label=""    sample="0.9in/hr" />
+                <entry pixelValue="66"  displayValue="1.0"  operator="&gt;"  label="1.0"    sample="1.0in/hr" />
+                <entry pixelValue="73"  displayValue="1.1"  operator="&gt;"  label=""    sample="1.1in/hr" />
+                <entry pixelValue="79"  displayValue="1.2"  operator="&gt;"  label="1.2"    sample="1.2in/hr" />
+                <entry pixelValue="85"  displayValue="1.3"  operator="&gt;"  label=""    sample="1.3in/hr" />
+                <entry pixelValue="92"  displayValue="1.4"  operator="&gt;"  label="1.4"    sample="1.4in/hr" />
+                <entry pixelValue="98"  displayValue="1.5"  operator="&gt;"  label=""    sample="1.5in/hr" />
+                <entry pixelValue="104" displayValue="1.6"  operator="&gt;"  label="1.6"    sample="1.6in/hr" />
+                <entry pixelValue="111" displayValue="1.7"  operator="&gt;"  label=""    sample="1.7in/hr" />
+                <entry pixelValue="117" displayValue="1.8"  operator="&gt;"  label="1.8"    sample="1.8in/hr" />
+                <entry pixelValue="123" displayValue="1.9"  operator="&gt;"  label=""    sample="1.9in/hr" />
+                <entry pixelValue="130" displayValue="2.0"  operator="&gt;"  label="2.0"    sample="2.0in/hr" />
+                <entry pixelValue="143" displayValue="2.2"  operator="&gt;"  label="2.2"    sample="2.2in/hr" />
+                <entry pixelValue="155" displayValue="2.4"  operator="&gt;"  label="2.4"    sample="2.4in/hr" />
+                <entry pixelValue="168" displayValue="2.6"  operator="&gt;"  label="2.6"    sample="2.6in/hr" />
+                <entry pixelValue="181" displayValue="2.8"  operator="&gt;"  label="2.8"    sample="2.8in/hr" />
+                <entry pixelValue="193" displayValue="3.0"  operator="&gt;"  label="3.0"    sample="3.0in/hr" />
+                <entry pixelValue="225" displayValue="3.5"  operator="&gt;"  label="3.5"    sample="3.5in/hr" />
+                <entry pixelValue="250" displayValue="3.9"  operator="&gt;"  label="3.9"    sample="3.9in/hr" />
+                <entry pixelValue="254" displayValue="4.0"  operator="="     label=""       sample="NoSatRetrvl/NoRadar"/>
+                <!--   -89(NESDIS)  -->
+                <entry pixelValue="255" displayValue="4.1"  operator="="     label=""       sample="SatAndRadar-NoSnow"/>
+                <!-- 10000(NESDIS)  -->
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>Merged Snowfall Rate (18:1)</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits> </displayUnits>
+            <displayLegend>${creatingEntity} ${physicalElement} in/hr</displayLegend>
+            <range>
+                <minValue>-3</minValue>
+                <maxValue>7.2</maxValue>
+            </range>
+            <dataMapping>
+                <entry pixelValue="0" displayValue="-3" label="" sample=""/>
+                <!--   not used     -->
+                <entry pixelValue="1" displayValue="-2" label="" sample="NoSatRetrvl/BadRadar"/>
+                <!--   -88(NESDIS)  -->
+                <entry pixelValue="2" displayValue="-1" label="" sample="NoSatRetrvl/MissingOrTooCold"/>
+                <!--   -87(NESDIS) can't find  -->
+                <entry pixelValue="3" displayValue="0" label="0in/hr" sample="Radar-NoSnow"/>
+                <!--     0(NESDIS)  -->
+                <entry pixelValue="4"   displayValue="0"    operator="&gt;"  label="0"   sample="Trace" />
+                <entry pixelValue="6"   displayValue="0.1"  operator="&gt;"  label="0.1"      sample="0.1in/hr" />
+                <entry pixelValue="20"  displayValue="0.5"  operator="&gt;"  label="0.5"      sample="0.5in/hr" />                    
+                <entry pixelValue="38"  displayValue="1.0"  operator="&gt;"  label="1.0"      sample="1.0in/hr" />
+                <entry pixelValue="56"  displayValue="1.5"  operator="&gt;"  label="1.5"      sample="1.5in/hr" />
+                <entry pixelValue="73"  displayValue="2.0"  operator="&gt;"  label="2.0"      sample="2.0in/hr" />
+                <entry pixelValue="91"  displayValue="2.5"  operator="&gt;"  label="2.5"      sample="2.5in/hr" />
+                <entry pixelValue="109" displayValue="3.0"  operator="&gt;"  label="3.0"      sample="3.0in/hr" />
+                <entry pixelValue="126" displayValue="3.5"  operator="&gt;"  label="3.5"      sample="3.5in/hr" />
+                <entry pixelValue="144" displayValue="4.0"  operator="&gt;"  label="4.0"      sample="4.0in/hr" />
+                <entry pixelValue="179" displayValue="5.0"  operator="&gt;"  label="5.0"      sample="5.0in/hr" />
+                <entry pixelValue="214" displayValue="6.0"  operator="&gt;"  label="6.0"      sample="6.0in/hr" />
+                <entry pixelValue="250" displayValue="7.0"  operator="&gt;"  label="7.0"      sample="7.0in/hr" />
+                <entry pixelValue="254" displayValue="7.1"  operator="="     label=""         sample="NoSatRetrvl/NoRadar"/>
+                <!--   -89(NESDIS)  -->
+                <entry pixelValue="255" displayValue="7.2"  operator="="     label=""         sample="SatAndRadar-NoSnow"/>
+                <!-- 10000(NESDIS)  -->
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>Merged Snowfall Rate (35:1)</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits> </displayUnits>
+            <displayLegend>${creatingEntity} ${physicalElement} in/hr</displayLegend>
+            <range>
+                <minValue>-3</minValue>
+                <maxValue>13.9</maxValue>
+            </range>
+            <dataMapping>
+                <entry pixelValue="0" displayValue="-3" label="" sample=""/><!--   not used     -->
+                <entry pixelValue="1" displayValue="-2" label="" sample="NoSatRetrvl/BadRadar"/><!--   -88(NESDIS)  -->
+                <entry pixelValue="2" displayValue="-1" label="" sample="NoSatRetrvl/MissingOrTooCold"/><!--   -87(NESDIS) can't find  -->
+                <entry pixelValue="3" displayValue="0" label="0in/hr" sample="Radar-NoSnow"/><!--     0(NESDIS)  -->
+                <entry pixelValue="4"   displayValue="0"    operator="="    label="0in/hr"   sample="Trace" />
+                <entry pixelValue="5"   displayValue="0.1"  operator="&gt;" label="0.1in/hr" sample="0.1in/hr" />
+                <entry pixelValue="12"  displayValue="0.5"  operator="&gt;" label="0.5"      sample="0.5in/hr" />
+                <entry pixelValue="21"  displayValue="1.0"  operator="&gt;" label="1.0"      sample="1.0in/hr" />
+                <entry pixelValue="39"  displayValue="2.0"  operator="&gt;" label="2.0"      sample="2.0in/hr" />
+                <entry pixelValue="57"  displayValue="3.0"  operator="&gt;" label="3.0"      sample="3.0in/hr" />
+                <entry pixelValue="75"  displayValue="4.0"  operator="&gt;" label="4.0"      sample="4.0in/hr" />
+                <entry pixelValue="93"  displayValue="5.0"  operator="&gt;" label="5.0"      sample="5.0in/hr" />
+                <entry pixelValue="112" displayValue="6.0"  operator="&gt;" label="6.0"      sample="6.0in/hr" />
+                <entry pixelValue="148" displayValue="8.0"  operator="&gt;" label="8.0"      sample="8.0in/hr" />
+                <entry pixelValue="184" displayValue="10.0" operator="&gt;" label="10.0"     sample="10.0in/hr" />
+                <entry pixelValue="220" displayValue="12.0" operator="&gt;" label="12.0"     sample="12.0in/hr" />
+                <entry pixelValue="250" displayValue="13.6" operator="&gt;" label="13.6"     sample="13.6in/hr" />
+                <entry pixelValue="254" displayValue="13.7"  operator="="   label=""         sample="NoSatRetrvl/NoRadar"/><!--   -89(NESDIS)  -->
+                <entry pixelValue="255" displayValue="13.9"  operator="="   label=""         sample="SatAndRadar-NoSnow"/><!-- 10000(NESDIS)  -->
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+</styleRuleset>

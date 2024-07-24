@@ -1,30 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
+<!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+    
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+    
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+    
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+-->
+    <!-- TOWRdocs Header
+         Polar product parameters definition file.
     -->
+   <!-- TOWRdocs Description
+         Defines parameters to enable ingest of AMSR2, GPM Imagery, and ATMS products. The abbreviation and units
+         need to match that of the input netcdf file.  This file has been edited from the baseline file of the same name.
+         The defintion of wind speed, WS, used by SAR and AMSR2, is defined in the baseline file parameters.xml
+		 Although this file contains AMSR2 in the name, products from both AMSR2 and other instruments are defined.
 
-    <!--
-        This is an absolute override file, indicating that a higher priority
-        version of the file will completely replace a lower priority version
-        of the file.
+		 9 Sep 2016 Added add'l MIRS ATMS parameters SIce, SWE, TSkin.
+		 24 Sep 2016 updates to names of GMI imagery.
+		 
+     -->
+    <!-- TOWRdocs Status
+         Update this file as needed for use of the pointset plugin in 16.4.1 and beyond.  This file is a modification to the
+         base file of the same name to add new parameters. Check parameters.xml and any other parameter definition files in this
+         or base-level directories for redundancies before adding to this file.
+         Redefine ATMS rain rate as Rain_Rate to avoid potential conflict with radar refl (RR) in baseline
+         Contributors: SPoRT EPDT members (Dec 1-3 2015).
+         10/7/2019 Added WSPD_QC
     -->
+    <!-- TOWRdocs POC
+         Lee Byerle 10/7/2019
+   -->
 <parameterList>
+<!-- AMSR2 -->
   <parameter>
     <name>Brightness Temperature (10.7GHz,H)</name>
     <abbreviation>BT10.7H</abbreviation>
@@ -105,22 +124,79 @@
     <abbreviation>BT89.0BV</abbreviation>
     <unit>K</unit>
   </parameter>
-<!--4/19/2019 Lee Byerle added below -->
+<!-- Added by EPDT 12/3/2016 -->
   <parameter>
-    <name>Total Precipitable Water </name>
-    <abbreviation>TPW</abbreviation>
+    <name>Cloud Liquid Water</name>
+    <abbreviation>CLW</abbreviation>
     <unit>mm</unit>
   </parameter>
-
-  <parameter>
-    <name>Rain Rate</name>
-    <abbreviation>Rain_Rate</abbreviation>
-    <unit>mm/hr</unit>
-  </parameter>
-
   <parameter>
     <name>Sea Surface Temperature</name>
     <abbreviation>SST</abbreviation>
     <unit>K</unit>
+  </parameter>
+
+<!-- AMSR2 TPW  -->
+  <parameter>
+    <name>Total Precipitable Water </name>
+    <abbreviation>TPW</abbreviation>
+    <unit>mm</unit>
+  </parameter> 
+
+<!-- S-NPP ATMS adds SIce, SWE, TSKIN 9 Sep 2016 -->
+<!-- Specifiy as Rain_Rate, conflicts with radar refl RR in baseline, 14 Nov 2016 -->
+  <parameter>
+    <name>Rain Rate</name>
+    <abbreviation>Rain_Rate</abbreviation>
+    <!-- <abbreviation>RR</abbreviation> -->
+    <unit>mm/hr</unit>
+  </parameter>
+<!--  <parameter>
+    <name>Sea Ice Concentration</name>
+    <abbreviation>SIce</abbreviation>
+    <unit>%</unit>
+  </parameter> -->
+  <parameter>
+    <name>Skin Temperature</name>
+    <abbreviation>TSkin</abbreviation>
+    <unit>K</unit>
+  </parameter>
+<!--  <parameter>
+    <name>Snow Water Equivalent</name>
+    <abbreviation>SWE</abbreviation>
+    <unit>cm</unit>
+  </parameter> -->
+<!-- GPM Microwave Imagery  names updated 9/24/2016 -->
+  <parameter>
+    <name>GMI Brightness Temperature (36.5GHz,H)</name>
+     <abbreviation>GMIBT36.5H</abbreviation>
+    <unit>K</unit>
+  </parameter>
+  <parameter>
+    <name>GMI Brightness Temperature (36.5GHz,V)</name>
+    <abbreviation>GMIBT36.5V</abbreviation>
+    <unit>K</unit>
+  </parameter>
+  <parameter>
+    <name>GMI Brightness Temperature (89.0GHz,H)</name>
+    <abbreviation>GMIBT89.0H</abbreviation>
+    <unit>K</unit>
+  </parameter>
+  <parameter>
+    <name>GMI Brightness Temperature (89.0GHz,V)</name>
+    <abbreviation>GMIBT89.0V</abbreviation>
+    <unit>K</unit>
+  </parameter>
+<!-- L. Byerle added on 10/7/2019 -->
+  <parameter>
+    <name>EDR Wind Speed QC</name>
+    <abbreviation>WSPD_QC</abbreviation>
+    <unit>1</unit>
+  </parameter>
+<!-- L. Byerle added on 9/15/2023 -->
+  <parameter>
+    <name>Snow Depth</name>
+    <abbreviation>Snow_Depth</abbreviation>
+    <unit>cm</unit>
   </parameter>
 </parameterList>

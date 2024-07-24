@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<styleRuleset>
+
+    <!-- SSEC LightningCast Style Rules -->
+    
+    <!-- Single layer product -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>LCastE</parameter>
+            <parameter>LCastEPlax</parameter>
+            <parameter>LCastW</parameter>
+            <parameter>LCastWPlax</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>%</displayUnits>
+            <contourLabeling>
+                <values color="blue" lineStyle="SOLID" thickness="3">10.0</values>
+                <values color="cyan" lineStyle="SOLID" thickness="3">25.0</values>
+                <values color="green" lineStyle="SOLID" thickness="5">50.0</values>
+                <values color="magenta" lineStyle="SOLID" thickness="5">75.0</values>
+            </contourLabeling>
+            <!-- LeeB testing smoothing-->
+         <!--   <smoothingDistance>100</smoothingDistance> -->
+        </contourStyle>
+    </styleRule>
+
+</styleRuleset>

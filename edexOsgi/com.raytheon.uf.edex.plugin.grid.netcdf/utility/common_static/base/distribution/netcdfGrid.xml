@@ -33,9 +33,10 @@
          5/23/20 Remove TICF07/SWIR for multi-sat comp
          3/18/22 Add LightningCast
          1/15/23 Add VIIRS Flood Maps
+         4/14/24 Add ABI Flood Maps
     -->
     <!-- TOWRdocs POC
-         Lee Byerle 1/15/2023
+         Lee Byerle 4/14/2024
     -->
 <requestPatterns xmlns:ns2="group">
     <!-- NOS (three below are in 16.4.1 baseline -->
@@ -58,4 +59,5 @@
     <regex>^GLOBCOMP(WV|SIR|LIR|VIS)_nc.*</regex>
     <regex>LightningCast</regex>
     <regex>^VIIRS-Flood-NWS.*</regex>
+    <regex>^ABI-Flood-[HD]COM-.*</regex>
 </requestPatterns>

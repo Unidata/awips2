@@ -2,29 +2,65 @@
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-
+        
         U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
         This_software_product_contains_export-restricted_data_whose
         export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
         to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
         an_export_license_or_other_authorization.
-
+        
         Contractor_Name:________Raytheon_Company
         Contractor_Address:_____6825_Pine_Street,_Suite_340
         ________________________Mail_Stop_B8
         ________________________Omaha,_NE_68106
         ________________________402.291.0100
-
+        
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- TOWRdocs Header
+         Pointset GCOM-W1 AMSR2, SNPP ATMS, GPM Imagery product distribution file. 
+    -->
+    <!-- TOWRdocs Description
+         Distribution file for AMSR2 and other products. It contains the regular expressions
+         which search the file name patterns for ingest into edex.
 
-    <!--
-        This is an absolute override file, indicating that a higher priority
-        version of the file will completely replace a lower priority version
-        of the file.
+            Patterns reserved for GCOM AMSR-2
+                TIOB99
+            Patterns reserved for GCOM AMSR-2 Microwave Imagery
+                TIAB99
+            SNPP ATMS TPW and Rain Rate
+                TIMB99
+            GPM Imagery 36.5GHz V,H, 89.0GHz V,H for Channel 6-9
+                TINB06-09
+                TINC06-09
+                TINI06-09
+                TINQ06-09
+
+    RADARSAT-2 and Sentinel-1A are handled in pointset-satellite-sar.xml.
+    VIIRS Red Visible Band (0.67 micron) is handled in /edex_static/distribution/viirs.
+
+    AMSR2 products are available as version 1 and 2 (v1/v2), and the regex expressions are updated
+    below to account for both versions.
+    -->
+    <!-- TOWRdocs Status
+       Update for different versions of product 
+       10/26/2020 comment out wmo headers setction
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 10/26/2020
     -->
 <requestPatterns plugin="pointset">
-    <regex>^AMSR2-OCEAN_v\dr\d_GW1_s\d{15}_e\d{15}_c\d{15}\.nc$</regex>
-    <regex>^AMSR2-MBT_v\dr\d_GW1_s\d{15}_e\d{15}_c\d{15}\.nc$</regex>
+<!-- AMSR2 Updates -->
+     <regex>^AMSR2-OCEAN_v\dr\d_GW1_s\d{15}_e\d{15}_c\d{15}\.nc$</regex>
+     <regex>^AMSR2-MBT_v\dr\d_GW1_s\d{15}_e\d{15}_c\d{15}\.nc$</regex>
+     <regex>^AMSR2-PRECIP_v\dr\d_GW1_s\d{15}_e\d{15}_c\d{15}\.nc$</regex>
+  
+    <!-- GPM GMI -->
+<!--    <regex>^1B\.GPM\.GMI\.TB\d{4}\.\d{8}-S\d{6}-E\d{6}\.*</regex> -->
+    <!-- <regex>^1B.GPM.GMI.TB</regex> -->
+
+    <!-- WMO headers for polar described above -->
+<!--    <regex>^TI[AMNO]</regex> -->
+
 </requestPatterns>

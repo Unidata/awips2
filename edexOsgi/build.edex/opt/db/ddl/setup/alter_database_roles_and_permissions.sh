@@ -1,5 +1,6 @@
 #!/bin/bash
 # alters all database objects to be owned by awips admin. Gives CRUD roles to pg_user and awips accounts.
+#20240626 - Update script to work either as awips user or to switch user to awips (tmeyer)
 
 PSQL='/awips2/psql/bin/psql'
 adminUser='awipsadmin'
@@ -29,11 +30,21 @@ trap - SIGINT SIGTERM
 
 if [ ${i} -gt 0 ]; then
    echo -e "\t\tUpdating $i ${fieldType}s"
-   ${as_awips} ${PSQL} -U ${adminUser} -d $database -q << EOF
+    if [[ $USER == "awips" ]]; then
+        ${PSQL} -U ${adminUser} -d $database -q << EOF
 BEGIN TRANSACTION;
 ${stmt[@]}
 COMMIT TRANSACTION;
 EOF
+
+    else
+        ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q << EOF
+BEGIN TRANSACTION;
+${stmt[@]}
+COMMIT TRANSACTION;
+EOF"
+
+    fi
 else
    echo -e "\t\tNo ${fieldType}s to update"
 fi
@@ -46,7 +57,11 @@ local database=$1
 local schema=$2
 
 echo -e "\tUpdating privileges on schema $schema"
-${as_awips} ${PSQL} -U ${adminUser} -d $database -qc "ALTER SCHEMA \"${schema}\" owner to ${adminUser};"
+if [ $USER == "awips" ]; then
+    ${PSQL} -U ${adminUser} -d $database -qc "ALTER SCHEMA \"${schema}\" owner to ${adminUser};"
+else
+    ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -qc \"ALTER SCHEMA \"${schema}\" owner to ${adminUser};\""
+fi
 
 # Update ownership of all tables to admin account
 scanAndUpdate $database $schema table "select quote_ident(tablename) from pg_tables where schemaname = '${schema}' and tableowner != '${adminUser}';"
@@ -62,7 +77,8 @@ scanAndUpdate $database $schema function "SELECT  quote_ident(p.proname) || '(' 
 
 for user in ${users[@]}; do
     echo -e "\t\tGranting CRUD privileges to $user"
-   ${as_awips} ${PSQL} -U ${adminUser} -d $database -q << EOF
+    if [ $USER == "awips" ]; then
+       ${PSQL} -U ${adminUser} -d $database -q << EOF
 BEGIN TRANSACTION;
 GRANT USAGE ON SCHEMA "${schema}" TO $user;
 GRANT SELECT, INSERT, UPDATE, DELETE, TRIGGER, TRUNCATE ON ALL TABLES IN SCHEMA "$schema" TO $user;
@@ -74,6 +90,20 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON FUNCTIONS TO $user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON TYPES TO $user;
 COMMIT TRANSACTION;
 EOF
+    else
+       ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q << EOF
+BEGIN TRANSACTION;
+GRANT USAGE ON SCHEMA "${schema}" TO $user;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRIGGER, TRUNCATE ON ALL TABLES IN SCHEMA "$schema" TO $user;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA "${schema}" TO $user;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA "${schema}" TO $user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT, INSERT, UPDATE, DELETE, TRIGGER, TRUNCATE ON TABLES TO $user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON SEQUENCES TO $user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON FUNCTIONS TO $user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON TYPES TO $user;
+COMMIT TRANSACTION;
+EOF"
+    fi
 done
 }
 
@@ -91,34 +121,60 @@ for user in ${users[@]}; do
     stmt[$i]="GRANT CONNECT, TEMPORARY ON DATABASE \"${database}\" TO $user;"
 done
 
-${as_awips} ${PSQL} -U ${adminUser} -d $database -q << EOF
+if [[ $USER == "awips" ]]; then
+    ${PSQL} -U ${adminUser} -d $database -q << EOF
 BEGIN TRANSACTION;
 ${stmt[@]}
 COMMIT TRANSACTION;
 EOF
 
-schemas=$(${as_awips} ${PSQL} -d $database -U ${adminUser} -qtAc "select nspname from pg_namespace where nspname not like 'pg_%' and  nspname not in ('information_schema')")
+else
+    ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q << EOF
+BEGIN TRANSACTION;
+${stmt[@]}
+COMMIT TRANSACTION;
+EOF"
+
+fi
+
+if [ $USER == "awips" ]; then
+    schemas=$(${PSQL} -d $database -U ${adminUser} -qtAc "select nspname from pg_namespace where nspname not like 'pg_%' and  nspname not in ('information_schema')")
+else
+    schemas=$(${as_awips} -c "${PSQL} -d $database -U ${adminUser} -qtAc \"select nspname from pg_namespace where nspname not like 'pg_%' and  nspname not in ('information_schema')\"")
+fi 
 
 for schema in $schemas; do
     grantForSchema $database $schema
 done
 }
 
-
 if [[ "$1" == "" ]]; then
-    databases=$(${as_awips} ${PSQL} -d metadata -U ${adminUser} -Aqtc "
-        select datname
-        from pg_database
-        where datistemplate = false
-        and datname not in ('awips', 'postgres')
-        ")
+    if [ $USER == "awips" ]; then
+        databases=$(${PSQL} -d metadata -U ${adminUser} -Aqtc "
+            select datname
+            from pg_database
+            where datistemplate = false
+            and datname not in ('awips', 'postgres')
+            ")
+    else
+        databases=$(${as_awips} -c "${PSQL} -d metadata -U ${adminUser} -Aqtc \"
+            select datname
+            from pg_database
+            where datistemplate = false
+            and datname not in ('awips', 'postgres')
+            \"")
+    fi
 else
     databases="$1"
 fi
 
 for database in ${databases}; do
     if [[ "${database}" == "metadata" ]]; then
-        ${as_awips} ${PSQL} -d metadata -U ${adminUser} -qc "ALTER DATABASE metadata SET search_path = awips, public, topology;"
+        if [ $USER == "awips" ]; then
+            ${PSQL} -d metadata -U ${adminUser} -qc "ALTER DATABASE metadata SET search_path = awips, public, topology;"
+        else
+            ${as_awips} -c "${PSQL} -d metadata -U ${adminUser} -qc \"ALTER DATABASE metadata SET search_path = awips, public, topology;\""
+        fi
     fi
 
     grantForDatabase $database

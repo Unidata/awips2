@@ -186,6 +186,13 @@
   #set($hailTag = "4.50 IN")
   #set($hailHazard = "grapefruit size hail")
 #end
+#if($bullets.contains("dvdHail"))
+  #set($hailThreat = "dangerous and extremely large destructive hail up to dvd size") 
+  #set($hailSize = 5.00)  
+  #set($hailTag = "5.00 IN")
+  #set($hailHazard = "dvd size hail")
+#end
+
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 ${productId}${siteId}
 ${ugcline}

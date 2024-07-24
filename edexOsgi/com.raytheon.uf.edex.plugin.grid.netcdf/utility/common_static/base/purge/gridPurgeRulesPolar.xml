@@ -35,9 +35,23 @@
         period is the amount of time to keep file (must have this and/or versionsToKeep)
         modTimeToWait will increase the versionsToKeep by 1 if data matching this rule has been stored within modTimeToWait (optional, should only be specified with versionsToKeep)
         ruleDescription is the description of this rule (optional)
-
-        New entries for netcdfgrid plugin products
-        BLENDED- is for the global blended hydro products
+    -->
+    <!-- TOWRdocs Header
+        Defining purge Rules for blended hydro products
+        used in the netcdfGrid plugin.
+    -->
+    <!-- TOWRdocs Description
+        This file defines the site-level rules for purging products
+        from the grid table in the Postgres Database. The default rule
+        keeps 2 versions, up to 7 days, unchanged here from the baseline gridPurgeRules.xml.  
+        This file adds purge rules for blended hyddro netcdfGrid records 
+    -->
+    <!-- TOWRdocs Status
+        New entries for netcdfgrid plugin polar products
+        7/12/2019 do not use default purge rule
+    -->
+    <!-- TOWRdocs POC
+        Lee Byerle 7/12/2019
     -->
 	<rule>
 		<keyValue>BLENDED-PCT_TPW-Sat</keyValue>

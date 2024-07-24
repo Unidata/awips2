@@ -93,7 +93,7 @@
         </mode>
 
         <mode name="pluginExclude">
-                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|geodb|goessounding|lma|lsr|modelsounding|nucaps|obs|poes|redbook|sfcobs|svrwx|tc|vaa|viirs|warning).*</exclude>
+                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|goessounding|lma|lsr|modelsounding|nucaps|obs|poes|redbook|sfcobs|svrwx|tc|vaa|warning).*</exclude>
         </mode>
 
         <mode name="pluginModelSoundingExclude">
@@ -101,7 +101,7 @@
         </mode>
 
         <mode name="goesrExclude">
-                <exclude>^(binlightning|dmw|goesr|glm).*</exclude>
+                <exclude>^(binlightning|dmw|geodb|goesr|glm|viirs).*</exclude>
         </mode>
 
         <mode name="radarExclude">
