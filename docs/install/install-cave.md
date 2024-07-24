@@ -9,7 +9,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 - [**Linux: 20.3.2-2**](#linux)
 - [**Windows: 20.3.2-2**](#windows)
 - [**Mac: 20.3.2-2**](#macos)
-- [**BETA Version 23.4.1-0.2**](install-cave-beta-v23.md) (Compatible with RHEL/Rocky8)
+- [**BETA Version 23.4.1-0.3**](install-cave-beta-v23.md) (Compatible with RHEL/Rocky8)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -19,7 +19,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Functionality/Reporting
 
-If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6jyZtbh49g-GCBoAQYzTVwAIf_aKz0QOeAr7gDVFhPrjAmw/viewform?usp=sf_link" target="_blank">report it using this short form</a>.
+If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSehkNYMNb5G-_kfAEWN1sEPfcePawmN4kUp4IyIoWqRXtoZCw/viewform?usp=sf_link" target="_blank">report it using this short form</a>.
 
 ---
 

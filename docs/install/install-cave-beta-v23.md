@@ -6,9 +6,9 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 ## Latest CAVE Versions
 
-- [**Linux: 23.4.1-0.2**](#linux)
-- [**Windows: 23.4.1-0.2**](#windows)
-- [**Mac: 23.4.1-0.2**](#macos)
+- [**Linux: 23.4.1-0.3**](#linux)
+- [**Windows: 23.4.1-0.3**](#windows)
+- [**Mac: 23.4.1-0.3**](#macos)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -42,7 +42,7 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 23.4.1-0.2**
+**Latest Version: 23.4.1-0.3**
 
 ### System Requirements
 
@@ -63,6 +63,7 @@ To run CAVE either:
 
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
+- Double click on the Desktop icon labeled "AWIPS CAVE"
 
 Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-machine) on Linux.
 
@@ -70,7 +71,7 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 23.4.1-0.2**
+**Latest Version: 23.4.1-0.3**
 
 For Windows, we offer two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
@@ -93,7 +94,7 @@ If you already have CAVE installed:
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/awips-cave-23.4.1-0.2.msi)
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/awips-cave-23.4.1-0.3.msi)
 
 #### Run CAVE
 
@@ -139,9 +140,9 @@ If you already have CAVE installed you can either:
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**Rocky8-NSFUnidata-CAVE-23.4.1-0.2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/Rocky8-NSFUnidata-CAVE-23.4.1-0.2.zip)
+1. Download the zipped file containing the virtual machine: [**Rocky8-NSFUnidata-CAVE-23.4.1-0.3** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/Rocky8-NSFUnidata-CAVE-23.4.1-0.3.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **Rocky8-NSFUnidata-CAVE-23.4.1-0.2.vmx"**.
+3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **Rocky8-NSFUnidata-CAVE-23.4.1-0.3.vmx"**.
 4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
      - There will be a user in the Linux machine named "awips" and the password is "awips" with sudo access
 
@@ -158,7 +159,7 @@ Once inside the VM, to run CAVE either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 23.4.1-0.2**
+**Latest Version: 23.4.1-0.3**
 
 ### System Requirements
 
@@ -176,7 +177,7 @@ If you already have CAVE installed:
 
 ### Download and Installation Instructions
 
-1. Download and install CAVE: [awips-cave.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.1/mac/awips-cave-23.4.1-0.2.dmg)
+1. Download and install CAVE: [awips-cave.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.1/mac/awips-cave-23.4.1-0.3.dmg)
     ![Cave System Install](../images/mac-install.png)
      - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
      - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges
@@ -211,8 +212,8 @@ You can reset CAVE by removing the **caveData** directory and reconnecting to an
 
 ---
 
-## Uninstalling CAVE (Linux)
-These are instructions to manually uninstall CAVE. However, the [`awips_install-v23.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
+## Uninstalling CAVE (Linux) 
+These are instructions to manually uninstall CAVE manually. However, the [`awips_install-v23.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
 
 **1. Make sure you have exited out of any CAVE sessions**
 
