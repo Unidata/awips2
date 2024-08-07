@@ -3609,6 +3609,7 @@
 0000000000|KUUU | 41.54 | -71.28 |   52|NEWPORT, RI                         |US|MTR
 0000000000|KUUV | 38.23347|-91.16428| 284|Sullivan Rgnl, Sullivan, MO       |US|MTR
 0000000000|KUVA | 29.211| -99.744|  287|Garner Fld AP, Uvalde, TX           |US|MTR
+0000000000|KUWL | 39.87672|-85.32527| 332|New Castle Henry Cnty Arpt, IN    |US|MTR
 0000000000|KUXL | 30.13144| -93.37617| 3|Southland Fld AP, Sulphur, LA      |US|MTR
 0000000000|KUYF | 39.9327| -83.462| 330|Madison Cnty AP, London, OH         |US|MTR
 0000000000|KUZA | 34.9836| -81.0566| 202|Rock Hill/York Co/Bryant Fld, SC   |US|MTR
