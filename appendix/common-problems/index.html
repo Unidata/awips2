@@ -439,6 +439,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#issue-starting-cave-rockyrhel8" title="Issue Starting CAVE (Rocky/RHEL8)" class="md-nav__link">
+    Issue Starting CAVE (Rocky/RHEL8)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#troubleshooting-uninstalling-edex" title="Troubleshooting Uninstalling EDEX" class="md-nav__link">
     Troubleshooting Uninstalling EDEX
   </a>
@@ -1131,6 +1138,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#issue-starting-cave-rockyrhel8" title="Issue Starting CAVE (Rocky/RHEL8)" class="md-nav__link">
+    Issue Starting CAVE (Rocky/RHEL8)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#troubleshooting-uninstalling-edex" title="Troubleshooting Uninstalling EDEX" class="md-nav__link">
     Troubleshooting Uninstalling EDEX
   </a>
@@ -1357,6 +1371,28 @@ There is a good chance we can recover your settings.  To do so, please send a sh
 <p>If you still experience issues, please let us know at support-awips@unidata.ucar.edu</p>
 <hr />
 <h2 id="linux_2">Linux<a class="headerlink" href="#linux_2" title="Permanent link"></a></h2>
+<h3 id="issue-starting-cave-rockyrhel8">Issue Starting CAVE (Rocky/RHEL8)<a class="headerlink" href="#issue-starting-cave-rockyrhel8" title="Permanent link"></a></h3>
+<p>If you are running CAVE on RHEL or Rocky 8 and are getting an error when CAVE starts up: <code>Error instantiating workbench</code> or if you look in <code>~/caveData/cave_*_console.log</code> and see an error: <code>org.eclipse.swt.SWTException: Unsupported color depth</code> then you may need to change your display from "Wayland" to "X11".</p>
+<p><img alt="" src="../../images/caveError.png" /></p>
+<p>To change your default display, you can edit the <code>/etc/gdm/custom.conf</code> and uncomment the <code>WaylandEnable</code> line like below and reboot.</p>
+<pre><code># GDM configuration storage
+
+[daemon]
+# Uncomment the line below to force the login screen to use Xorg
+WaylandEnable=false
+
+[security]
+
+[xdmcp]
+
+[chooser]
+
+[debug]
+# Uncomment the line below to turn on debugging
+#Enable=true
+</code></pre>
+<p>To temporarily change your display, logout of your user. Before logging in, select your user and click on the gear/settings icon and select an <code>X11 display</code>.</p>
+<p><img alt="" src="../../images/displayType.png" /></p>
 <h3 id="troubleshooting-uninstalling-edex">Troubleshooting Uninstalling EDEX<a class="headerlink" href="#troubleshooting-uninstalling-edex" title="Permanent link"></a></h3>
 <p>Sometimes yum can get in a weird state and not know what AWIPS groups have been installed. For example if you are trying to remove AWIPS you may see an error:</p>
 <pre><code>yum groupremove &quot;AWIPS EDEX Server&quot;
