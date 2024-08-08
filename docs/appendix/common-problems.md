@@ -250,6 +250,36 @@ If you still experience issues, please let us know at support-awips@unidata.ucar
 
 ## Linux
 
+### Issue Starting CAVE (Rocky/RHEL8)
+
+If you are running CAVE on RHEL or Rocky 8 and are getting an error when CAVE starts up: `Error instantiating workbench` or if you look in `~/caveData/cave_*_console.log` and see an error: `org.eclipse.swt.SWTException: Unsupported color depth` then you may need to change your display from "Wayland" to "X11".
+
+![](../images/caveError.png)
+
+To change your default display, you can edit the `/etc/gdm/custom.conf` and uncomment the `WaylandEnable` line like below and reboot.
+
+```
+# GDM configuration storage
+
+[daemon]
+# Uncomment the line below to force the login screen to use Xorg
+WaylandEnable=false
+
+[security]
+
+[xdmcp]
+
+[chooser]
+
+[debug]
+# Uncomment the line below to turn on debugging
+#Enable=true
+```
+To temporarily change your display, logout of your user. Before logging in, select your user and click on the gear/settings icon and select an `X11 display`.
+
+![](../images/displayType.png)
+
+
 ### Troubleshooting Uninstalling EDEX
 
 Sometimes yum can get in a weird state and not know what AWIPS groups have been installed. For example if you are trying to remove AWIPS you may see an error:
