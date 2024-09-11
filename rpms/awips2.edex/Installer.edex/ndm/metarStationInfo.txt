@@ -1138,6 +1138,7 @@
 0000000000|K48A | 32.40066|-83.27841| 115|Cochran AP, Cochran, GA           |US|MTR
 0000000000|K48I | 38.687| -80.652|  387|Braxton Cnty AP, Sutton, WV         |US|MTR
 0000000000|K49A | 34.6282| -84.5266| 453|Gilmer Cnty AP, Ellijay, GA        |US|MTR
+0000000000|K49B | 44.41868|-103.37772| 992|Sturgis Muni Arpt, Sturgis, SD   |US|MTR
 0000000000|K49T | 32.77172|-96.80206| 146|Dallas CBD Heliport, Dallas, TX   |US|MTR
 0000000000|K49Y | 43.68 | -92.18 |  389|Preston/Fillmore Co, MN             |US|MTR
 0000000000|K4A6 | 34.6887| -86.0059| 198|Scottsboro Muni, Scottsboro, AL    |US|MTR
@@ -2755,6 +2756,7 @@
 0000000000|KMOR | 36.1794| -83.3754|400|Moore-Murrell AP, Morristown, TN    |US|MTR
 0000000000|KMOT | 48.28 |-101.28 |  523|MINOT INTL, ND                      |US|MTR
 0000000000|KMOX | 45.57 | -95.97 |  344|MORRIS MUNI, MN                     |US|MTR
+0000000000|KMPE | 32.79921|-89.12610| 140|Philadelphia Muni Arpt, MS        |US|MTR
 0000000000|KMPO | 41.14 | -75.38 |  577|Mt Pocono/Pocono Mtns Muni, PA      |US|MTR
 0000000000|KMPR | 38.35244|-97.69131| 457|McPherson, KS                     |US|MTR
 0000000000|KMPV | 44.21 | -72.57 |  343|MONTPELIER/KNAPP, VT                |US|MTR
@@ -3398,6 +3400,7 @@
 0000072561|KSNY | 41.11 |-102.98 | 1307|SIDNEY MUNI, NE                     |US|MTR
 0000000000|KSOA | 30.586|-100.649|  652|Sonora Muni, Sonora, TX             |US|MTR
 0000000000|KSOP | 35.24 | -79.41 |  141|SOUTHERN PINES A, NC                |US|MTR
+0000000000|KSOU | 43.25846|-100.85949| 830|Rosebud Sioux Tribal Airport, SD |US|MTR
 0000000000|KSOW | 34.265|-110.006| 1955|Show Low, AZ                        |US|MTR
 0000000000|KSPA | 34.916| -81.957|  244|Spartanburg Downtown Mem AP, SC     |US|MTR
 0000000000|KSPB | 45.769|-122.862|   15|Scappoose Industrial Airpark, OR    |US|MTR

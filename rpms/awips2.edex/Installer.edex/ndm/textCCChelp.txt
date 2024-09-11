@@ -508,6 +508,7 @@
 48A Cochran Airport, Cochran, GA
 48I Braxton Cnty AP, Sutton, WV
 49A Gilmer Cnty AP, Ellijay, GA
+49B Sturgis Muni Airport, Sturgis, SD
 49D Cloquet, MN
 49J Hilton Head Island, SC
 49T Dallas CBD Heliport, Dallas, TX
@@ -3012,6 +3013,7 @@ MOX K-Morris Muni, MN; M-Oaxaca/Xoxocotlan, MX
 MPA Poza Rica, MX
 MPB Puebla, MX
 MPD Mesoscale Precipitation Discussion
+MPE Philadelphia Muni Airport, Philadelphia, MS
 MPG Piedras Negras, MX
 MPN Uruapan/Gen Rayon, MX
 MPO Mt Pocono/Pocono Mtns Muni, PA
@@ -3884,6 +3886,7 @@ SNT Stanley Ranger Station, ID
 SNY Sidney, NE
 SOA Sonora Muni, TX
 SOP Southern Pines, NC
+SOU Rosebud Sioux Tribal Airport, SD
 SOW Show Low, AZ
 SOX Santa Ana Mountains, CA WSR-88D
 SP1 Spanish TCP
