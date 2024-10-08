@@ -18,6 +18,10 @@ Uninstall with yum:
 Check to make sure all rpms have been removed:
       
     rpm -qa | grep awips2
+
+Remove any lingering awips2 rpms
+      
+    yum remove awips2-*
             
 Remove the awips2 directory:
           
@@ -47,7 +51,7 @@ proxy=_none_
 
 ## 3. Install the ADE
 
-Install the AWIPS Development Environment (ADE) using yum.  This will install Eclipse (4.6.1), Java (1.8), Ant (1.9.6), Python 2.7 and its modules (Numpy, Matplotlib, Shapely, Jep, and others). 
+Install the AWIPS Development Environment (ADE) using yum.  This will install Eclipse (4.17), Java (11), Ant, Python 3.8.2 and its modules (Numpy, Matplotlib, Shapely, Jep, and others). 
 
     yum clean all
     yum groupinstall awips2-ade
@@ -68,12 +72,12 @@ Next clone all of the required repositories for AWIPS:
     git clone https://github.com/Unidata/awips2-cimss.git
     git clone https://github.com/Unidata/awips2-core.git
     git clone https://github.com/Unidata/awips2-core-foss.git
-    git clone https://github.com/Unidata/awips2-drawing.git
     git clone https://github.com/Unidata/awips2-foss.git
     git clone https://github.com/Unidata/awips2-goesr.git
     git clone https://github.com/Unidata/awips2-gsd.git
     git clone https://github.com/Unidata/awips2-ncep.git
     git clone https://github.com/Unidata/awips2-nws.git
+    git clone https://github.com/Unidata/awips2-ogc.git
     
 !!! note "Make sure to run `git checkout` in each repo if you'd wish to develop from a branch different from the default.  It's best to do this before importing the repos into eclipse."
 
@@ -166,5 +170,5 @@ Select **Debug** > **Eclipse Application**
 
 ## Troubleshooting
 
-* If you are getting a lot of errors, try changing your Java Compiler to 1.7, build the project, then change back to 1.8 and rebuild.
+* If you are getting a lot of errors, try changing your Java Compiler to 1.8, build the project, then change back to 11 and rebuild.
     * **Window** > Preferences > Java > Compiler > **Compiler compliance level** setting
