@@ -477,7 +477,6 @@
 3S2 Aurora, OR
 3S8 Grants Pass Airport, Grants Pass, OR
 3SE Spencer, IA
-3SZ St. Charles, MO
 3T5 La Grange/Fayette Regnl, TX 
 3U3 Bowman Field Airport, Anaconda, MT
 3V6 Crested Butte, CO
@@ -633,7 +632,6 @@
 7B5 West Cameron 587, LA
 7BM Cottonwood Pass, CO
 7F9 Comanche County-City AP, Comanche, TX
-7G2 Ashtabula, OH
 7L2 Linton Muni, Linton, ND
 7LI Joseph, UT
 7N0 Downtown Heliport, New Orleans, LA

@@ -1122,7 +1122,6 @@
 0000000000|K3S2 | 45.26 |-122.75 |    8|AURORA, OR                          |US|MTR
 0000000000|K3S8 | 42.5101|-123.388| 345|Grants Pass AP, Grants Pass, OR     |US|MTR
 0000072650|K3SE | 43.18 | -95.15 |  404|SPENCER, IA                         |US|MTR
-0000000000|K3SZ | 38.93 | -90.43 |  133|St. Charles, MO                     |US|MTR
 0000000000|K3T5 | 29.91 | -96.95 |   99|La Grange/Fayette Regnl, TX         |US|MTR
 0000000000|K3U3 | 46.15341|-112.86773| 1534|Bowman Field Arpt, Anaconda, MT |US|MTR
 0000000000|K3V9 | 39.29 |-106.87 | 2270|ASPEN, CO                           |US|MTR
@@ -1220,7 +1219,6 @@
 0000000000|K79S | 47.84419|-110.63686| 874|Fort Benton Arpt, Fort Benton, MT|US|MTR
 0000000000|K7B5 | 28.09 | -93.21 |    1|WEST CAMERON 587, LA                |US|MTR
 0000000000|K7BM | 38.799|-106.218| 2995|Cottonwood Pass, CO                 |US|MTR
-0000000000|K7G2 | 41.78 | -80.70 |  282|Ashtabula Co, OH                    |US|MTR
 0000000000|K7L2 | 46.221|-100.246|  542|Linton Muni, Linton, ND             |US|MTR
 0000000000|K7LI | 38.61 |-112.30 | 1656|JOSEPH, UT                          |US|MTR
 0000000000|K7N0 | 29.9527| -90.0827|  9|Downtown Heliport, New Orleans, LA  |US|MTR
@@ -1867,7 +1865,6 @@
 0000000000|KDYT | 46.72 | -92.04 |  186|Duluth/Sky Harbor, MN               |US|MTR
 0000000000|KDZB | 30.527| -98.359|  333|Horseshoe Bay, TX                   |US|MTR
 0000000000|KDZJ | 34.8544| -83.9973| 582|Blairsville, GA                    |US|MTR
-0000000000|KE02 | 31.92 |-102.39 |  915|Odessa/Schlemeyer Field, TX         |US|MTR
 0000000000|KE11 | 32.331|-102.5295| 967|Andrews Cnty AP, Andrews, TX        |US|MTR
 0000000000|KE12 | 28.08 | -92.70 |   -0|E. CAMERON 345, LA                  |US|MTR
 0000000000|KE16 | 37.08159|-121.59681| 86|South Cnty AP, San Martin, CA     |US|MTR
@@ -2338,7 +2335,7 @@
 0000000000|KHZL | 40.9868| -75.9949|489|Hazleton Muni, Hazleton, PA         |US|MTR
 0000000000|KHZR | 30.7183| -91.4787| 12|New Roads, LA                       |US|MTR
 0000000000|KHZX | 46.619| -93.310|  374|Isedor Iverson AP, McGregor, MN     |US|MTR
-0000000000|KHZY | 41.779| -80.697|  277|Ashtabula Co, OH                    |US|MTR
+0000000000|KHZY | 41.77778|-80.69678| 282|Ashtabula Co, OH                  |US|MTR
 0000000000|KI16 | 37.600| -81.559|  544|Kee Fld AP, Pineville, WV           |US|MTR
 0000000000|KI18 | 38.92978| -81.81947| 231|Jackson Cnty Arpt, Ravenswood, WV|US|MTR
 0000000000|KI19 | 39.69103| -83.99199| 289|Greene Co-Lewis Jackson AP, Dayton, OH|US|MTR
@@ -2914,7 +2911,7 @@
 0000000000|KOCH | 31.57 | -94.70 |  108|NACOGDOCHES, TX                     |US|MTR
 0000000000|KOCQ | 44.87401| -87.90977|184|JW Bake Mem AP, Oconto, WI        |US|MTR
 0000000000|KOCW | 35.57 | -77.05 |   12|Washington/Warren Field, NC         |US|MTR
-0000000000|KODO | 31.921|-102.392|  915|Odessa/Schlemeyer Field, TX         |US|MTR
+0000000000|KODO | 31.92142|-102.38713| 915|Odessa/Schlemeyer Field, TX      |US|MTR
 0000000000|KODX | 41.62 | -98.95 |  629|ORD/SHARP, NE                       |US|MTR
 0000000000|KOEB | 41.93 | -85.05 |  292|Coldwater, MI                       |US|MTR
 0000000000|KOEL | 39.112|-100.817|  928|Oakley, KS                          |US|MTR
@@ -3334,7 +3331,7 @@
 0000072260|KSEP | 32.215| -98.178|  403|Stephenville/Clark Muni, TX         |US|MTR
 0000000000|KSEQ | 29.56579| -97.90834| 160|Randolph AFB Aux Field, Seguin, TX |US|MTR
 0000000000|KSER | 38.925| -85.908|  178|Seymour, IN                         |US|MTR
-0000000000|KSET | 38.931| -90.43 |  134|St Charles/Smartt, MO               |US|MTR
+0000000000|KSET | 38.92969|-90.42997| 133|St Charles/Smartt, MO             |US|MTR
 0000000000|KSEZ | 34.849|-111.788| 1472|Sedona AP, Sedona, AZ               |US|MTR
 0000000000|KSFB | 28.77952|-81.24355| 17|Orlando/Sanford, FL                |US|MTR
 0000000000|KSFF | 47.68 |-117.32 |  595|Spokane/Felts Fld, WA               |US|MTR
