@@ -37,52 +37,19 @@ class LdadMesoPlotDelegate(PlotDelegate):
         s = rec.getString("stationId")
         s += ","
         s += str(datetime.datetime.utcfromtimestamp(rec.getLong("observationTime")/1000))
-        s += ","
-        s += getFloatAsString(rec, "temperature", "%.2f", 1.8, -459.67)
-        s += ","
-        s += getFloatAsString(rec, "dewpoint", "%.2f", 1.8, -459.67)
-        s += ","
+        s += "\n---------------\nTemp: "
+        s += getFloatAsString(rec, "temperature", "%.0f", 1.8, -459.67)
+        s += "°F\nDewpoint: "
+        s += getFloatAsString(rec, "dewpoint", "%.0f", 1.8, -459.67)
+        s += "°F\nRelH: "
         s += getFloatAsString(rec, "relHumidity", "%.0f")
-        s += ","
-        s += getFloatAsString(rec, "wetBulbTemperature", "%.2f")
-        s += ","
+        s += "%\nWind Speed: "
+        s += getFloatAsString(rec, "windSpeed", "%.0f",2.23694)
+        s += "mph\nWind Dir: "
         s += getFloatAsString(rec, "windDir", "%.0f")
-        s += ","
-        s += getFloatAsString(rec, "windSpeed", "%.2f")
-        s += ","
-        s += getFloatAsString(rec, "windGust", "%.2f")
-        s += ","
-        s += getFloatAsString(rec, "pressure", "%.2f")
-        s += ","
-        s += getFloatAsString(rec, "stationPressure", "%.2f")
-        s += ","
-        s += getFloatAsString(rec, "altimeter", "%.2f")
-        s += ","
-        s += getFloatAsString(rec, "seaLevelPressure", "%.2f", 0.01)
-        s += ","
-        s += getIntAsString(rec, "pressChangeChar", "%d")
-        s += ","
-        s += getFloatAsString(rec, "pressChange3Hour", "%.2f")
-        s += ","
-        s += getFloatAsString(rec, "precipAccum", "%.2f")
-        s += ","
-        s += getIntAsString(rec, "precipIntensity", "%d")
-        s += ","
-        s += getIntAsString(rec, "precipType", "%d")
-        s += ","
-        s += getFloatAsString(rec, "totalCloudCover", "%.2f")
-        s += ","
-        s += rec.getString("skyCover")
-        s += ","
-        s += getFloatAsString(rec, "skyLayerBase", "%.2f")
-        s += ","
-        s += getIntAsString(rec, "cloudBaseHeight", "%d")
-        s += ","
-        s += getFloatAsString(rec, "visibility", "%.2f")
-        s += ","
-        s += rec.getString("visibilityStatus")
-        s += ","
-        s += rec.getString("presWeather")
+        s += "°\nWind Gust: "
+        s += getFloatAsString(rec, "windGust", "%.0f",2.23694)
+        s += "mph"
         return s
         
 def getFloatAsString(rec, key, format, scale=1, offset=0):
@@ -125,17 +92,13 @@ plotDelegate = LdadMesoPlotDelegate()
             </text>
             <text id="sampleParamsOther" plotMode="SAMPLE" plotParam="totalCloudCover,skyCover,skyLayerBase,cloudBaseHeight,visibility,visibilityStatus,presWeather" x="0" y="0">
             </text>
-            <g id="windVaneText" plotParam="windSpeed,windDir,windGust (kts)" transform="rotate(0,0,0)" x="0" y="0">
-                <text class="arrow" id="windVaneText" x="0" y="0">
-                </text>
-                <text class="barb" id="windArrowText" x="0" y="0">arrow
-                </text>
-                <text class="text" id="windGustText" style="text-anchor: middle" x="0" y="32">
-                </text>
-            </g>
             <text id="tempText" plotParam="temperature (°F)" style="text-anchor: end;" x="-10px" y="-10px">75</text>
             <text id="dewText" plotParam="DpT (°F)" style="text-anchor: end;" x="-10px" y="10px">59</text>
             <text id="pressure" plotParam="seaLevelPressure (daPa)" style="text-anchor: start;" x="10px" y="-10px">018</text>
+            <g id="windBarb (mph)" class="text" plotParam="windBarb (mph)" stroke-width="1.5px" transform="rotate(0,0,0)" x="0" y="0">
+          	<text class="barb" id="windArrowText" x="0" y="0" >15</text>
+            </g>
+            <text class="text" id="windGust (mph)" plotParam="windGust (mph)" x="0" y="-20">8</text>
             <text class="marker" id="marker" plotParam="Marker" x="-20px" y="-20px"> </text>
 </symbol>
     </defs>

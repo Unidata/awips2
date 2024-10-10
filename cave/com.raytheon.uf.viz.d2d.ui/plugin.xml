@@ -464,6 +464,18 @@
                   </visibleWhen>
                </command>
                <command
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+                   id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
+                   label="Load Mode"
+                   style="pulldown"
+                   tooltip="Load Mode">
+                <visibleWhen>
+                   <reference
+                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                   </reference>
+                </visibleWhen>
+               </command>
+               <command
                      commandId="com.raytheon.viz.ui.clear"
                      label="Clear"
                      style="push">
@@ -484,21 +496,6 @@
                      </reference>
                   </visibleWhen>
                </command>
-            </toolbar>
-            <toolbar
-                  id="d2d-1">
-                <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
-                   id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
-                   label="Load Mode"
-                   style="pulldown"
-                   tooltip="Load Mode">
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-                </command>
             </toolbar>
             <toolbar
                   id="loopControls">
@@ -606,6 +603,8 @@
                   </reference>
                </visibleWhen>
             </command>
+        </toolbar>
+        <toolbar id="frames">
             <command
                   commandId="com.raytheon.viz.ui.actions.framesbutton"
                   id="com.raytheon.viz.ui.actions.frames"
@@ -617,6 +616,8 @@
                   </reference>
                </visibleWhen>
             </command>
+            </toolbar>
+            <toolbar id="mags">
             <command
                   commandId="com.raytheon.viz.ui.actions.magnificationbutton"
                   id="com.raytheon.viz.ui.actions.magnification"

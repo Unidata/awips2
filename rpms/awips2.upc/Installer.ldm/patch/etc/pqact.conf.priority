@@ -16,14 +16,27 @@
 #                       GOES16 GLM data coming from Unidata's IDD via Texas Tech
 #                       CIRA RGB GOES Satellite products added
 # 20230321      20.3.2  Update WW3 regex lines so we get the data
+# 20230620      20.3.2  LDM Version Update 6.13.14 -> 6.14.5 (this also updated the default pqact.conf --> pqact.conf.priority)
 # 20231004	20.3.2	Add RAWS data 
 #			Add additioanl NBM data
-# 20231109      20.3.2  Add HREF/HiResW model
+# 20231109      20.3.2  Updates to Unidata LDM based on NWS Change Log:
+#                       Add HREF/HiResW model
 #                       Update National Blended model entries, including adding standard deviations
 #                       Update RTOFS entry
 #                       Update SPCGuide gridded products to include Fire Weather and Dry Thunderstorm grids
 #                       Update level3 radar product entry
+# 20231120      20.3.2  V24 TWORS Updates
 #                       Update viirs polar product entry
+#                       Comment out TT GLM as it's now depricated and replaced by Unidata's
+# 20240105      20.3.2  Fix pqact error in Fire Weather and Dry Thunderstorm grids
+#                       Update viirs polar product entry
+# 20240226      20.3.2  Add Alaska regional NAM entry
+# 20240722      23.4.1  V25 TOWRS Updates
+#                       Update viirs polar product entry (split up)
+#                       Update nucaps sounding entry
+#                       Add Wave Altimetery entry
+# 20240917      23.4.1  New entries for SSEC/CIMSS GOES Products (Lightning Cast and Turbulence)
+# 20241010      23.4.1  Add new entry for mPING data (NOAA/OU/CIWRO)
 
 # USPLN
 LIGHTNING	USPLN1EX
@@ -106,6 +119,11 @@ IDS|DDPLUS	^(UB.{4}) (.{4}) (..)(..)(..)
 #
 EXP	^RAWS ...... (raws_ldad_)(........)(..)(..)(.xml)
 	FILE	-overwrite -close -edex	/awips2/data_store/ldadmesonet/\2/\3/\1\2\3\4\5
+#
+# mPING
+#
+EXP	^mPING XML (........)_(..)(..)(_mping.xml)
+	FILE	-overwrite -close -edex	/awips2/data_store/mping/\1/\2/\1_\2\3\4
 #
 # ACARS
 #
@@ -212,6 +230,17 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DebraDust/([^/]*)/(
 	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/DebraDust/\5\6\7\8.nc4
 NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
 	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/CloudSnow/\5\6\7\8.nc4
+
+# GOES CIMSS/SSEC Products
+#UWSSEC_AWIPS_LightningCast_GOES-18_RadM1_20240822-170028.nc.gz
+EXP	(UWSSEC_AWIPS_LightningCast_GOES.*)
+	FILE	-close	/awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/LightningCast/\1
+EXP	(UWSSEC_AWIPS_LightningCast_GOES.*)
+	EXEC	/awips2/ldm/dev/gunzip.py /awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/LightningCast/\1
+
+#UWSSEC_AWIPS_L2-GRIDTURBF-M6_G16_s20242351640205_e20242351649513_c20242351649557.nc
+EXP	(UWSSEC_AWIPS_L2-GRIDTURB.*)
+	FILE	-close -edex	/awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/Turbulence/\1
 #
 # NPP/VIIRS
 #
@@ -458,6 +487,11 @@ NGRID	^[LM].Q... KWBR ...... !grib2/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{2})(
 # --------------------------------------------------
 # - North American Mesoscale Forecast System (NAM) -
 # --------------------------------------------------
+#
+# NAM AK data
+NGRID	^[LM].S... KWBE ...... !grib2/ncep/NAM_84/#242/(............)(F...)/(.*)/.*
+	FILE	-edex -close
+	/awips2/data_store/grid/AK-NAM/NAM_Alaska_\2_\3_\4_\5-(seq).grib2
 #
 # NAM CONUS 12 km (NAM12) - NOAAport
 #

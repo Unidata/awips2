@@ -58,6 +58,7 @@
     <regex>^TICF(02|08|14).*</regex>
     <regex>^GLOBCOMP(WV|SIR|LIR|VIS)_nc.*</regex>
     <regex>LightningCast</regex>
+    <regex>^UWSSEC_AWIPS_L2-GRIDTURBF.*</regex>
     <regex>^VIIRS-Flood-NWS.*</regex>
     <regex>^ABI-Flood-[HD]COM-.*</regex>
 </requestPatterns>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+    Gridded Turbulence Imagery Style Rules
+-->
+
+<styleRuleset>
+
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>GridTurbGOESEast</parameter>
+            <parameter>GridTurbGOESWest</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <range scale="LINEAR">
+                <minValue>0.</minValue>
+                <maxValue>100.</maxValue>
+            </range>
+            <defaultColormap>Grid/lowrange enhanced</defaultColormap>
+            <colorbarLabeling>
+                <values>0. 10. 20. 30. 40. 50. 60. 70. 80. 90. 100.</values>
+            </colorbarLabeling>
+        </imageStyle>
+  </styleRule>
+
+</styleRuleset>

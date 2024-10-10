@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGridCoverage>
+    <name>GridTurb_GOESWest</name>
+
+    <!-- GOES-W lat/lon grid -->
+    <la1>70.00</la1>
+    <lo1>-180.00</lo1>
+    <nx>321</nx>
+    <ny>561</ny>
+    <dx>0.25</dx>
+    <dy>0.25</dy>
+
+    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>
