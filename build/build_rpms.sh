@@ -71,8 +71,8 @@ else
   /bin/bash $buildsh -database
   /bin/bash $buildsh -edex
   /bin/bash $buildsh -cave
-  #/bin/bash $buildsh -pypies
-  #/bin/bash $buildsh -localization
+  ##/bin/bash $buildsh -pypies
+  ##/bin/bash $buildsh -localization
 
 fi
 
