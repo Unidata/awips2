@@ -81,10 +81,10 @@ if [[ $(whoami) == "awips" ]]; then # local build
   sudo rsync -aP ${nwsPath}/awips2-postgis* ${nwsPath}/awips2-python-proj* ${nwsPath}/awips2-python-pyproj* /awips2/repo/awips2/dist/${os_version}-dev-${date}/x86_64/
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
-  echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/"
-  rsync -aP dist/${os_version}-dev-${date} tiffanym@fserv:/share/awips2/${AWIPSII_VERSION}/linux/
+  echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@mochrie:/share/awips2/${AWIPSII_VERSION}/linux/"
+  rsync -aP dist/${os_version}-dev-${date} tiffanym@mochrie:/share/awips2/${AWIPSII_VERSION}/linux/
   cmd="cd /share/awips2/${AWIPSII_VERSION}/linux ; find ${os_version}-dev-${date} -type f | ../../git_nexus_tool/nexus-tools/bash/nexus-upload.sh -t downloads -u tiffanym -o awips2 -v ${AWIPSII_VERSION}/linux/rpms/"
-  echo "Need to run ssh tiffanym@fserv '${cmd}' and provide -p [password]"
+  echo "Need to run ssh tiffanym@mochrie '${cmd}' and provide -p [password]"
 
   #rsync -aP dist/${os_version}-dev-${date} awips@edex3:/awips2/dev
   #rsync -aP dist/${os_version}-dev-${date} awips@hardy:/awips2/dev

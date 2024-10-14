@@ -1,4 +1,10 @@
 #
+# Unidata AWIPS LDM Radar Specific Pattern Actions (this is to be used on an ancillary ingest only EDEX for gridded products - the pqact on the main EDEX should be edited to not have any duplicate actions from this file)
+#
+# 20231109      20.3.2  Updates to Unidata LDM based on NWS Change Log:
+#                       Update level3 radar product entry to include SDUS4
+
+#
 # NEXRAD3 site products
 #
 NEXRAD3|HDS	^SDUS[2345678]. (....) (..)(..)(..).*/p(...)(...)

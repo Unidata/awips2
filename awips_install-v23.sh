@@ -3,9 +3,11 @@
 # devorg: Unidata Program Center
 # author: Michael James, Tiffany Meyer
 # maintainer: <support-awips@unidata.ucar.edu>
-# Date Updated: 7/23/2024
+# Date Updated: 8/8/2024
 # use: ./awips_install-v23.sh (--cave|--edex|--database|--ingest|--help)
-# BETA CAVE ONLY INSTALL
+# BETA INSTALL
+#
+# 8/8/24 (tmeyer) - Added checks for mesa-libGLU (CAVE), SELINUX (EDEX), RHEL8 specific repos, postgres
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
 
@@ -47,23 +49,47 @@ function check_yumfile {
   yum --enablerepo=awips2repo --disableexcludes=main clean metadata
 }
 
+function check_powertools { 
+  if [[ $(grep "Red Hat Enterprise" /etc/redhat-release) ]]; then
+    yum config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms
+  else
+    # rocky
+    yum config-manager --set-enabled powertools
+  fi
+}
+
+function check_selinux {
+  if [[ $(grep SELINUX=enforcing /etc/selinux/config) ]] ; then
+    echo "
+SELINUX is currently enabled. EDEX will not install properly if enabled. Please disable SELINUX if you want to install EDEX
+    You can do this by editing /etc/selinux/config and setting SELINUX=disabled AND rebooting
+
+"
+    exit
+  fi
+}
 function check_limits {
   if [[ ! $(grep awips /etc/security/limits.conf) ]]; then
-    echo "Checking /etc/security/limits.conf for awips: Not found. Adding..."
+    echo "
+    Checking /etc/security/limits.conf for awips: Not found. Adding..."
     printf "awips soft nproc 65536\nawips soft nofile 65536\n" >> /etc/security/limits.conf
   fi
 }
 
 function check_epel {
   if [[ ! $(rpm -qa | grep epel-release) ]]; then
-    yum install epel-release -y
+
+    if [[ $(grep "Red Hat Enterprise" /etc/redhat-release) ]]; then
+      yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
+    else
+      yum install epel-release -y
+    fi
     yum clean all
   fi
 }
 
 function check_postgres {
   if [[ ! $(rpm -qa | grep postgresql) ]]; then
-    yum config-manager --set-enabled powertools
     yum module enable postgresql:12 -y
     yum install postgresql -y
   fi
@@ -79,6 +105,12 @@ function check_bc {
   if ! [[ $(rpm -qa | grep ^bc) ]]; then
     # install bc if not installed
     yum install bc -y
+  fi
+}
+function check_mesa {
+  if ! [[ $(rpm -qa | grep ^mesa-libGLU) ]]; then
+    # install mesa-libGLU if not installed
+    yum install mesa-libGLU -y
   fi
 }
 
@@ -393,7 +425,9 @@ function server_prep {
   check_users
   check_yumfile
   stop_edex_services
+  check_selinux
   check_limits
+  check_powertools
   check_epel
   check_netcdf
   check_wget
@@ -402,6 +436,7 @@ function server_prep {
   check_edex
   check_git
   check_wgrib2
+  check_postgres
   if [ ! -d "/awips2/dev" ] ; then
       mkdir -p /awips2/dev
   fi
@@ -419,11 +454,13 @@ function cave_prep {
   check_users
   check_yumfile
   check_cave
+  check_powertools
   check_netcdf
   check_wget
   check_bc
   check_epel
   check_postgres
+  check_mesa
   rm -rf /home/awips/caveData 
   if [ ! -d "/awips2/dev" ] ; then
       mkdir -p /awips2/dev

@@ -477,7 +477,6 @@
 3S2 Aurora, OR
 3S8 Grants Pass Airport, Grants Pass, OR
 3SE Spencer, IA
-3SZ St. Charles, MO
 3T5 La Grange/Fayette Regnl, TX 
 3U3 Bowman Field Airport, Anaconda, MT
 3V6 Crested Butte, CO
@@ -508,6 +507,7 @@
 48A Cochran Airport, Cochran, GA
 48I Braxton Cnty AP, Sutton, WV
 49A Gilmer Cnty AP, Ellijay, GA
+49B Sturgis Muni Airport, Sturgis, SD
 49D Cloquet, MN
 49J Hilton Head Island, SC
 49T Dallas CBD Heliport, Dallas, TX
@@ -632,7 +632,6 @@
 7B5 West Cameron 587, LA
 7BM Cottonwood Pass, CO
 7F9 Comanche County-City AP, Comanche, TX
-7G2 Ashtabula, OH
 7L2 Linton Muni, Linton, ND
 7LI Joseph, UT
 7N0 Downtown Heliport, New Orleans, LA
@@ -3012,6 +3011,7 @@ MOX K-Morris Muni, MN; M-Oaxaca/Xoxocotlan, MX
 MPA Poza Rica, MX
 MPB Puebla, MX
 MPD Mesoscale Precipitation Discussion
+MPE Philadelphia Muni Airport, Philadelphia, MS
 MPG Piedras Negras, MX
 MPN Uruapan/Gen Rayon, MX
 MPO Mt Pocono/Pocono Mtns Muni, PA
@@ -3884,6 +3884,7 @@ SNT Stanley Ranger Station, ID
 SNY Sidney, NE
 SOA Sonora Muni, TX
 SOP Southern Pines, NC
+SOU Rosebud Sioux Tribal Airport, SD
 SOW Show Low, AZ
 SOX Santa Ana Mountains, CA WSR-88D
 SP1 Spanish TCP
@@ -3959,6 +3960,7 @@ SVC Grant Cnty AP, Silver City, NM
 SVE Susanville Muni AP, CA
 SVH Statesville Muni, NC
 SVN Hunter Army Air Field, GA
+SVR South Valley Regional Airport (AKA KU42), West Jordan, UT
 SWA Swan Island, Caribbean Sea
 SWB Southwestern Boroughs/Kodiak Zones, AK
 SWF Newburgh, NY
@@ -4133,7 +4135,7 @@ U17 Bullfrog, UT
 U24 Delta, UT
 U28 Green River, UT
 U31 Austin, NV
-U42 S Valley Rgnl AP, Salt Lake City, UT
+U42 South Valley Regional Airport (AKA KSVR), West Jordan, UT
 U52 Beaver Municipal Airport, Beaver, UT
 U55 Panguitch Municipal Airport, Panguitch, UT
 U67 Roosevelt, UT
@@ -4193,6 +4195,7 @@ UUU Newport, RI
 UUV Sullivan Rgnl, Sullivan, MO
 UVA Garner Fld AP, Uvalde, TX
 UVR M-Varadero, CU
+UWL New Castle Henry County Airport, New Castle, IN
 UXL Southland Fld AP, Sulphur, LA
 UYF Madison Cnty AP, London, OH
 UZA Rock Hill, SC
