@@ -131,6 +131,7 @@
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-gfe</packagereq>
+         <packagereq type="default">awips2-edex-mping</packagereq>
 	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
          <packagereq type="mandatory">awips2-edex-geodb</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
@@ -274,6 +275,7 @@
          <packagereq type="mandatory">awips2-edex-foss-ucar-nc2</packagereq>
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
+         <packagereq type="default">awips2-edex-mping</packagereq>
          <packagereq type="mandatory">awips2-edex-geodb</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
 	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
@@ -555,6 +557,7 @@
          <packagereq type="default">awips2-edex-dat</packagereq>
          <packagereq type="default">awips2-edex-datadelivery-client</packagereq>
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
+         <packagereq type="default">awips2-edex-mping</packagereq>
          <packagereq type="default">awips2-edex-gfe</packagereq>
          <packagereq type="default">awips2-edex-griddednucaps</packagereq>
          <packagereq type="default">awips2-edex-hydro</packagereq>
@@ -960,6 +963,7 @@
          <packagereq type="mandatory">awips2-edex-dataplugins</packagereq>
          <packagereq type="mandatory">awips2-edex-dataprovideragent</packagereq>
          <packagereq type="mandatory">awips2-edex-grid</packagereq>
+         <packagereq type="default">awips2-edex-mping</packagereq>
          <packagereq type="mandatory">awips2-edex-ogc-core</packagereq>
          <packagereq type="mandatory">awips2-edex-ogc-wfs</packagereq>
          <packagereq type="mandatory">awips2-edex</packagereq>
@@ -1080,6 +1084,7 @@
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
          <packagereq type="default">awips2-edex-gfe</packagereq>
          <packagereq type="default">awips2-edex-hydro</packagereq>
+         <packagereq type="default">awips2-edex-mping</packagereq>
          <packagereq type="default">awips2-edex-ost</packagereq>
          <packagereq type="default">awips2-edex-probsevere</packagereq>
          <packagereq type="default">awips2-edex-radar</packagereq>
@@ -1361,6 +1366,7 @@
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
          <packagereq type="default">awips2-edex-binlightning</packagereq>
          <packagereq type="default">awips2-edex-hydro</packagereq>
+         <packagereq type="default">awips2-edex-mping</packagereq>
          <packagereq type="default">awips2-edex-text</packagereq>
          <packagereq type="default">awips2-edex-warning</packagereq>
          <packagereq type="default">awips2-edex-radar</packagereq>

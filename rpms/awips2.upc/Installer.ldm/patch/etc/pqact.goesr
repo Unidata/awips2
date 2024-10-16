@@ -1,8 +1,5 @@
 #
-# Unidata AWIPS LDM Default Pattern Actions
-#
-# USPLN1EX and LIGHTNING feeds are disabled in ldmd.conf by default
-# Regional grids are disabled (AK, HI, GU, PR, Pacific, etc.)
+# Unidata AWIPS LDM GOES/Satellite Specific Pattern Actions (this is to be used on an ancillary ingest only EDEX for gridded products - the pqact on the main EDEX should be edited to not have any duplicate actions from this file)
 #
 # 20160521	16.1.5	ESRL/GSD exp. HRRR added (HRRRX)
 # 20160801	16.2.2	"GFS" is now 0.25deg global (previously 0.5deg which is now named "GFS0p5")
@@ -15,6 +12,15 @@
 #                       GOES16 Derived products coming from NOAAPort
 #                       GOES16 GLM data coming from Unidata's IDD via Texas Tech
 #                       CIRA RGB GOES Satellite products added
+# 20231120      20.3.2  V24 TWORS Updates
+#                       Move viirs products from main to goes pqact
+#                       Update viirs polar product entry
+#                       Comment out TT GLM as it's now depricated and replaced by Unidata's
+# 20240105      20.3.2  Update viirs polar product entry
+# 20240722      23.4.1  V25 TOWRS Updates
+#                       Update viirs polar product entry (split up)
+#                       Update nucaps sounding entry
+# 20240917      23.4.1  New entries for SSEC/CIMSS GOES Products (Lightning Cast and Turbulence)
 
 ##########################
 #
@@ -69,6 +75,17 @@ NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/DebraDust/([^/]*)/(
 	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/DebraDust/\5\6\7\8.nc4
 NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudSnow/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
 	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CIRA/CloudSnow/\5\6\7\8.nc4
+
+# GOES CIMSS/SSEC Products
+#UWSSEC_AWIPS_LightningCast_GOES-18_RadM1_20240822-170028.nc.gz
+EXP	(UWSSEC_AWIPS_LightningCast_GOES.*)
+	FILE	-close	/awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/LightningCast/\1
+EXP	(UWSSEC_AWIPS_LightningCast_GOES.*)
+	EXEC	/awips2/ldm/dev/gunzip.py /awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/LightningCast/\1
+
+#UWSSEC_AWIPS_L2-GRIDTURBF-M6_G16_s20242351640205_e20242351649513_c20242351649557.nc
+EXP	(UWSSEC_AWIPS_L2-GRIDTURB.*)
+	FILE	-close -edex	/awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/Turbulence/\1
 
 #
 # NPP/VIIRS
