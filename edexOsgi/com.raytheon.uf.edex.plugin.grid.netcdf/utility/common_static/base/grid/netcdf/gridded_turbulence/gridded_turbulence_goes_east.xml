@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- L. Byerle 11/11/2022 Update datasetId no spaces -->
+<gridProductDescriptions>
+    <default>
+        <matches>
+            <match pattern="UWSSEC_AWIPS_L\d-GRIDTURBF-M\d_G16_s\d{14}_e\d{14}_c\d{14}.nc">
+                <attribute name="dataset_name"/>
+            </match>
+
+            <match pattern="G16">
+                <attribute name="platform_ID"/>
+            </match>
+        </matches>
+
+        <dataTime>
+            <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss'Z'">
+                <attribute name="time_coverage_start" />
+            </formattedRefTime>
+        </dataTime>
+
+        <datasetId>
+		<value value="GOES-East_Gridded_Turbulence" />
+		<!--<value value="GOES-East Gridded Turbulence" /> -->
+        </datasetId>
+
+        <coverage coverageFile="netcdf/grids/GriddedTurbulence_LatLon_GOESEast.xml" />
+    </default>
+
+    <description>
+        <data>
+            <variable name="probability_30-33" />  <!-- netCDF file variable -->
+        </data>
+
+        <parameter>
+            <abbreviation>
+                <value value="GridTurbGOESEast" /> <!-- Arbitrary assigned parameter, point to this in netcdfGrid style rules -->
+            </abbreviation>
+
+            <name>
+                <value value="Turbulence Probability" /> <!-- Appears in CAVE display legend -->
+            </name>
+        </parameter>
+    
+        <level>
+            <masterLevel>
+                <value value="30-33kft" />
+            </masterLevel>
+
+            <levelOneValue>
+                <value value="0.0" />
+            </levelOneValue>
+        </level>
+    </description>
+
+    <description>
+        <data>
+            <variable name="probability_34-37" />  <!-- netCDF file variable -->
+        </data>
+
+        <parameter>
+            <abbreviation>
+                <value value="GridTurbGOESEast" /> <!-- Arbitrary assigned parameter, point to this in netcdfGrid style rules -->
+            </abbreviation>
+
+            <name>
+                <value value="Turbulence Probability" /> <!-- Appears in CAVE display legend -->
+            </name>
+        </parameter>
+    
+        <level>
+            <masterLevel>
+                <value value="34-37kft" />
+            </masterLevel>
+
+            <levelOneValue>
+                <value value="0.0" />
+            </levelOneValue>
+        </level>
+    </description>
+
+    <description>
+        <data>
+            <variable name="probability_38-41" />  <!-- netCDF file variable -->
+        </data>
+
+        <parameter>
+            <abbreviation>
+                <value value="GridTurbGOESEast" /> <!-- Arbitrary assigned parameter, point to this in netcdfGrid style rules -->
+            </abbreviation>
+
+            <name>
+                <value value="Turbulence Probability" /> <!-- Appears in CAVE display legend -->
+            </name>
+        </parameter>
+    
+        <level>
+            <masterLevel>
+                <value value="38-41kft" />
+            </masterLevel>
+
+            <levelOneValue>
+                <value value="0.0" />
+            </levelOneValue>
+        </level>
+    </description>
+</gridProductDescriptions>
+

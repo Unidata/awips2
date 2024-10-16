@@ -16,7 +16,7 @@
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml"
         menuText="60 min RAWS Plot" id="local60minstnplot">
-        <substitute key="svg" value="ldadMesoDesign.svg" />
+        <substitute key="svg" value="ldadMesoDesign_new.svg" />
         <substitute key="legend" value="60 min RAWS Data Plot" />
         <substitute key="posOffset" value="1800" />
         <substitute key="negOffset" value="1800" />
@@ -24,28 +24,28 @@
     <contribute xsi:type="subMenu" menuText="Other RAWS Plots">
         <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml"
         menuText="30 min RAWS Plot" id="local30minstnplot">
-        <substitute key="svg" value="ldadMesoDesign.svg" />
+        <substitute key="svg" value="ldadMesoDesign_new.svg" />
         <substitute key="legend" value="30 min RAWS Data Plot" />
         <substitute key="posOffset" value="900" />
         <substitute key="negOffset" value="900" />
     	</contribute>
         <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml"
             menuText="15 min stn plot" id="local15minstnplot">
-            <substitute key="svg" value="ldadMesoDesign.svg" />
+            <substitute key="svg" value="ldadMesoDesign_new.svg" />
             <substitute key="legend" value="15 min RAWS Data Plot" />
             <substitute key="posOffset" value="450" />
             <substitute key="negOffset" value="450" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml"
             menuText="5 min stn plot" id="local5minstnplot">
-            <substitute key="svg" value="ldadMesoDesign.svg" />
+            <substitute key="svg" value="ldadMesoDesign_new.svg" />
             <substitute key="legend" value="5 min RAWS Data Plot" />
             <substitute key="posOffset" value="150" />
             <substitute key="negOffset" value="150" />
         </contribute>
         <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml"
             menuText="1 min stn plot" id="local1minstnplot">
-            <substitute key="svg" value="ldadMesoDesign.svg" />
+            <substitute key="svg" value="ldadMesoDesign_new.svg" />
             <substitute key="legend" value="1 min RAWS Data Plot" />
             <substitute key="posOffset" value="30" />
             <substitute key="negOffset" value="30" />

@@ -36,6 +36,12 @@
 # 10/2018  mjames  Check for edex_ldm on LDM start/stop                 #
 # 12/2018  mjames  Find a log file to tail if running modes other       #
 #                  than ingest                                          #
+# 04/2024  tmeyer  Transition to Rocky/RHEL8 (v23)			#
+#                    - update EDEX services to use systemctl now        #
+#                    - new edexServiceList location instead of in /etc  #
+#			 (/awips2/edex/conf/edexServiceList)		#
+# 08/2024  tmeyer  Update `edex users` to print out correct users and   #
+#			new "total users" for each day			#	
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -449,11 +455,13 @@ edex_users(){
         if [ "${args[1]}" != '' ]; then
                 YMD=${args[1]}
         fi
-        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep ":CAVE:"|cut -d "[" -f 3| cut -d ":" -f 1|grep -v pluginName| grep -v ThriftSrvRequestLogger |sort | uniq)
+        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep "Handled Request"|cut -d "[" -f 3| cut -d ":" -f 1|grep -v pluginName| grep -v ThriftSrvRequestLogger |sort | uniq)
         echo ""
         echo " -- EDEX Users ${YMD} --"
         echo "$userList"
-        echo ""
+        echo "----------"
+        userCount=$(echo "$userList" | wc -l)
+        echo "$userCount users today!"
 }
 
 #
