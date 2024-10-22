@@ -151,6 +151,7 @@ If you already have CAVE installed you can either:
 4. This will open a new tab in VMWare Workstation, click "Power on this virtual machine".  If it asks if it's been moved or copied, select **"I Copied It"**.
 
     ![alt text](../images/newVM.png)
+
 5. There will be a user on the Linux machine named "awips" and the password is "awips" with sudo access
 
 #### Run CAVE 
