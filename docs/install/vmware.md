@@ -4,7 +4,7 @@ In 2024, Broadcom bought VMware and since then the download process of the free 
 
 1. First you must [register](https://profile.broadcom.com/web/registration) and create an account with broadcom.
 
-![alt text](../images/register.png)
+    ![alt text](../images/register.png)
 
 2. After entering in your email, you will receive an email from Broadcom with a verification code to continue with the account creation.
 3. Complete your registration by entering in your information, password, and accepting the terms of use.
@@ -12,10 +12,10 @@ In 2024, Broadcom bought VMware and since then the download process of the free 
 5. Go to the [VMWare Workstation Pro Downloads page](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware+Workstation+Pro)
 6. Select the arrow next to the "VMware Workstation Pro for Personal Use" and select the version you want to download.
 
-![alt text](../images/downloadVersion.png)
+    ![alt text](../images/downloadVersion.png)
 
 7. At this point, if this is your first time, you won't be able to actually download the product until you go through the very simple screening process. Start by checking the "I agree to Terms and Conditions" and then the Download button.
 
-![alt text](../images/screening.png)
+    ![alt text](../images/screening.png)
 
 8. Complete the rest of the verification and then you'll be able to download the installer.
