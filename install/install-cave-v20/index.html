@@ -10,7 +10,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/install/install-cave/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/install/install-cave-v20/">
       
       
         <meta name="author" content="support-awips@unidata.ucar.edu">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Install CAVE - NSF Unidata AWIPS Manual</title>
+        <title>Install CAVE (v20 EOL) - NSF Unidata AWIPS Manual</title>
       
     
     
@@ -93,7 +93,7 @@
               
             
             
-              Install CAVE
+              Install CAVE (v20 EOL)
             
           
         </span>
@@ -215,252 +215,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        Install CAVE
-      </label>
-    
-    <a href="./" title="Install CAVE" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../install-cave/" title="Install CAVE" class="md-nav__link">
       Install CAVE
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#latest-cave-versions" title="Latest CAVE Versions" class="md-nav__link">
-    Latest CAVE Versions
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#functionalityreporting" title="Functionality/Reporting" class="md-nav__link">
-    Functionality/Reporting
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#general-requirements" title="General Requirements" class="md-nav__link">
-    General Requirements
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#linux" title="Linux " class="md-nav__link">
-    Linux 
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#system-requirements" title="System Requirements" class="md-nav__link">
-    System Requirements
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#download-and-installation-instructions" title="Download and Installation Instructions" class="md-nav__link">
-    Download and Installation Instructions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-cave" title="Run CAVE" class="md-nav__link">
-    Run CAVE
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#windows" title="Windows " class="md-nav__link">
-    Windows 
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#method-1-direct-windows-install" title="Method 1: Direct Windows Install" class="md-nav__link">
-    Method 1: Direct Windows Install
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#upgrade-existing-installation" title="Upgrade Existing Installation" class="md-nav__link">
-    Upgrade Existing Installation
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#download-and-installation-instructions_1" title="Download and Installation Instructions" class="md-nav__link">
-    Download and Installation Instructions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-cave_1" title="Run CAVE" class="md-nav__link">
-    Run CAVE
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#system-level-installation" title="System-Level Installation" class="md-nav__link">
-    System-Level Installation
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#method-2-virtual-machine-running-rocky8" title="Method 2: Virtual Machine running Rocky8" class="md-nav__link">
-    Method 2: Virtual Machine running Rocky8
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#system-requirements_1" title="System Requirements" class="md-nav__link">
-    System Requirements
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upgrade-existing-installation_1" title="Upgrade Existing Installation" class="md-nav__link">
-    Upgrade Existing Installation
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#download-and-installation-instructions_2" title="Download and Installation Instructions" class="md-nav__link">
-    Download and Installation Instructions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-cave_2" title="Run CAVE" class="md-nav__link">
-    Run CAVE
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#macos" title="macOS " class="md-nav__link">
-    macOS 
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#system-requirements_2" title="System Requirements" class="md-nav__link">
-    System Requirements
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upgrade-existing-installation_2" title="Upgrade Existing Installation" class="md-nav__link">
-    Upgrade Existing Installation
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#download-and-installation-instructions_3" title="Download and Installation Instructions" class="md-nav__link">
-    Download and Installation Instructions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-cave_3" title="Run CAVE" class="md-nav__link">
-    Run CAVE
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#edex-connection" title="EDEX Connection" class="md-nav__link">
-    EDEX Connection
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-cache" title="Local Cache" class="md-nav__link">
-    Local Cache
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#uninstalling-cave-linux" title="Uninstalling CAVE (Linux)" class="md-nav__link">
-    Uninstalling CAVE (Linux)
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
     
@@ -1025,6 +784,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#upgrade-existing-installation" title="Upgrade Existing Installation" class="md-nav__link">
+    Upgrade Existing Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#download-and-installation-instructions" title="Download and Installation Instructions" class="md-nav__link">
     Download and Installation Instructions
   </a>
@@ -1060,7 +826,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#upgrade-existing-installation" title="Upgrade Existing Installation" class="md-nav__link">
+  <a href="#upgrade-existing-installation_1" title="Upgrade Existing Installation" class="md-nav__link">
     Upgrade Existing Installation
   </a>
   
@@ -1093,8 +859,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#method-2-virtual-machine-running-rocky8" title="Method 2: Virtual Machine running Rocky8" class="md-nav__link">
-    Method 2: Virtual Machine running Rocky8
+  <a href="#method-2-linux-virtual-machine" title="Method 2: Linux Virtual Machine" class="md-nav__link">
+    Method 2: Linux Virtual Machine
   </a>
   
     <nav class="md-nav">
@@ -1108,7 +874,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#upgrade-existing-installation_1" title="Upgrade Existing Installation" class="md-nav__link">
+  <a href="#upgrade-existing-installation_2" title="Upgrade Existing Installation" class="md-nav__link">
     Upgrade Existing Installation
   </a>
   
@@ -1154,7 +920,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#upgrade-existing-installation_2" title="Upgrade Existing Installation" class="md-nav__link">
+  <a href="#upgrade-existing-installation_3" title="Upgrade Existing Installation" class="md-nav__link">
     Upgrade Existing Installation
   </a>
   
@@ -1194,9 +960,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#uninstalling-cave-linux" title="Uninstalling CAVE (Linux)" class="md-nav__link">
-    Uninstalling CAVE (Linux)
+  <a href="#uninstalling-cave" title="Uninstalling CAVE" class="md-nav__link">
+    Uninstalling CAVE
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linux_1" title="Linux" class="md-nav__link">
+    Linux
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windows_1" title="Windows" class="md-nav__link">
+    Windows
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macos_1" title="macOS" class="md-nav__link">
+    macOS
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1214,29 +1007,29 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_20.3.2/docs/install/install-cave.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_20.3.2/docs/install/install-cave-v20.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="install-cave-beta-version">Install CAVE - BETA Version<a class="headerlink" href="#install-cave-beta-version" title="Permanent link"></a></h1>
+                <h1 id="install-cave-v20-eol">Install CAVE (v20 EOL)<a class="headerlink" href="#install-cave-v20-eol" title="Permanent link"></a></h1>
 <p>CAVE is the <strong>C</strong>ommon <strong>A</strong>WIPS <strong>V</strong>isualization <strong>E</strong>nvironment that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.</p>
-<blockquote>
-<p>Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.</p>
-</blockquote>
 <hr />
 <h2 id="latest-cave-versions">Latest CAVE Versions<a class="headerlink" href="#latest-cave-versions" title="Permanent link"></a></h2>
+<blockquote>
+<p>Note: Version 20* of CAVE and EDEX runs on CentOS7 which was End of Life (EOL) on Jun 30, 2024. Unidata is still running a public version 20.3.2 EDEX and has CAVE installers available for the time being until we can officially release version 23 in a non-beta form. This will happen once the National Weather Service (NWS) officially releases 23.4.1 to operations.</p>
+</blockquote>
 <ul>
-<li><a href="#linux"><strong>Linux: 23.4.1-0.4</strong></a></li>
-<li><a href="#windows"><strong>Windows: 23.4.1-0.4</strong></a></li>
-<li><a href="#macos"><strong>Mac: 23.4.1-0.4</strong></a></li>
-<li><a href="../install-cave-v20/"><strong>20.3.2</strong></a> (Compatible with EOL CentOS/Redhat 7)</li>
+<li><a href="#linux"><strong>Linux: 20.3.2-2</strong></a></li>
+<li><a href="#windows"><strong>Windows: 20.3.2-2</strong></a></li>
+<li><a href="#macos"><strong>Mac: 20.3.2-2</strong></a></li>
+<li><a href="../install-cave/"><strong>BETA Version 23.4.1-0.3</strong></a> (Compatible with RHEL/Rocky8)</li>
 </ul>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
 <div class="admonition note">
-<p class="admonition-title">Version 23.* of CAVE is not compatible with Version 20.* EDEX and vice versa, Version 20.* of CAVE is not compatible with Version 23.* EDEX.</p>
+<p class="admonition-title">Major versions of CAVE and EDEX are not always cross compatible. Please use the same version CAVE to connect to the same version EDEX to ensure proper functionality.</p>
 </div>
 <hr />
 <h2 id="functionalityreporting">Functionality/Reporting<a class="headerlink" href="#functionalityreporting" title="Permanent link"></a></h2>
-<p>If you come across issues/bugs/missing functionality, we encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLScqWZho98cI8ByYTe99YRidfiYK_VeHvjsAculZmiVdWGwUnw/viewform?usp=sf_link" target="_blank">report it using this short form</a> or emailing at support-awips@unidata.ucar.edu.</p>
+<p>If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSehkNYMNb5G-_kfAEWN1sEPfcePawmN4kUp4IyIoWqRXtoZCw/viewform?usp=sf_link" target="_blank">report it using this short form</a>.</p>
 <hr />
 <h2 id="general-requirements">General Requirements<a class="headerlink" href="#general-requirements" title="Permanent link"></a></h2>
 <p>Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:</p>
@@ -1244,7 +1037,7 @@
 <li>
 <p>Local machine</p>
 <div class="admonition error">
-<p class="admonition-title">Running CAVE via X11 forwarding or ssh tunneling is <strong>not</strong> supported. Using a [remote desktop connection like VNC is the only remote option(../appendix/common-problems.md#remotely-connecting-to-cave), but may result in worse performance than running locally.</p>
+<p class="admonition-title">Running CAVE via X11 forwarding or ssh tunneling is <strong>not</strong> supported. Using a <a href="../../appendix/common-problems/#remotely-connecting-to-cave">VNC connection is the only remote option</a>, and may result in worse performance than running locally.</p>
 </div>
 </li>
 <li>
@@ -1262,18 +1055,24 @@
 </ul>
 <hr />
 <h2 id="linux">Linux <i class="fa fa-linux"></i><a class="headerlink" href="#linux" title="Permanent link"></a></h2>
-<p><strong>Latest Version: 23.4.1-0.4</strong></p>
+<p><strong>Latest Version: 20.3.2-2</strong></p>
 <h3 id="system-requirements">System Requirements<a class="headerlink" href="#system-requirements" title="Permanent link"></a></h3>
 <ul>
-<li>64 bit Rocky/Red Hat 8</li>
+<li>64 bit CentOS/Red Hat 7</li>
 <li>Bash shell environment</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024.</p>
+</div>
+<h3 id="upgrade-existing-installation">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation" title="Permanent link"></a></h3>
+<p>Whether you have CAVE currently installed or not, you can follow the <a href="#download-and-installation-instructions">Download and Installation Instructions</a> below. The script will remove the old version of CAVE if needed, and install the latest version.</p>
+<p>If you would like to completely remove CAVE, please see the <a href="#linux_1">uninstall instructions further down this page</a>.</p>
 <h3 id="download-and-installation-instructions">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions" title="Permanent link"></a></h3>
 <ol>
-<li>Download the following installer: <a href="https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh"><strong>awips_install-v23.sh</strong> <i class="fa fa-download"></i></a></li>
+<li>Download the following installer: <a href="https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></li>
 <li>In a terminal, go to the download directory </li>
-<li>Make the installer an executable by running: <code>chmod 755 awips_install-v23.sh</code></li>
-<li>Run the installer: <code>sudo ./awips_install-v23.sh --cave</code><ul>
+<li>Make the installer an executable by running: <code>chmod 755 awips_install.sh</code></li>
+<li>Run the installer: <code>sudo ./awips_install.sh --cave</code><ul>
 <li>This will install the application in <code>/awips2/cave/</code> and set the local cache to <code>~/caveData/</code></li>
 </ul>
 </li>
@@ -1283,19 +1082,18 @@
 <ul>
 <li>Use the terminal and type the command <code>cave</code></li>
 <li>Find the application in the Linux Desktop menu: Applications &gt; Internet &gt; AWIPS CAVE</li>
-<li>Double click on the Desktop icon labeled "AWIPS CAVE"</li>
 </ul>
 <p>Additionally users can choose to run a <a href="#linux-virtual-machine">virtual machine (VM)</a> on Linux.</p>
 <hr />
 <h2 id="windows">Windows <i class="fa fa-windows"></i><a class="headerlink" href="#windows" title="Permanent link"></a></h2>
-<p><strong>Latest Version: 23.4.1-0.4</strong></p>
+<p><strong>Latest Version: 20.3.2-2</strong></p>
 <p>For Windows, we offer two installation options: a <a href="#method-1-direct-windows-install"><strong>Direct Windows Installation</strong></a>, or a  <a href="#method-2-linux-virtual-machine"><strong>Linux Virtual Machine</strong></a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">The virtual machine option won't render RGB composites of satellite imagery.</p>
 </div>
 <h3 id="method-1-direct-windows-install">Method 1: Direct Windows Install<a class="headerlink" href="#method-1-direct-windows-install" title="Permanent link"></a></h3>
 <p>We offer CAVE installers at both the user-level (no administrative permissions needed), and the system-level (useful in a lab setting for instance).  If you need the system-level installer, please skip to the <a href="#system-level-installation">System-Level Installation section</a>, otherwise simply proceed with the next sections.</p>
-<h4 id="upgrade-existing-installation">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation" title="Permanent link"></a></h4>
+<h4 id="upgrade-existing-installation_1">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation_1" title="Permanent link"></a></h4>
 <p>If you do not currently have CAVE installed, please go directly to the <a href="#download-and-installation-instructions_1">Download and Installation Instructions</a>.</p>
 <p>If you already have CAVE installed:</p>
 <ol>
@@ -1308,7 +1106,7 @@
 </ol>
 <h4 id="download-and-installation-instructions_1">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_1" title="Permanent link"></a></h4>
 <ol>
-<li>Download and install: <a href="https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/awips-cave-23.4.1-0.4.msi"><strong>awips-cave.msi</strong> <i class="fa fa-download"></i></a></li>
+<li>Download and install: <a href="https://downloads.unidata.ucar.edu/awips2/current/windows/awips-cave.msi"><strong>awips-cave.msi</strong> <i class="fa fa-download"></i></a>    </li>
 </ol>
 <h4 id="run-cave_1">Run CAVE<a class="headerlink" href="#run-cave_1" title="Permanent link"></a></h4>
 <p>To run CAVE, either:</p>
@@ -1318,59 +1116,63 @@
 <li>Find and run CAVE app in the file browser:  <code>C:\Users\%USER%\AppData\Roaming\UCAR Unidata\AWIPS CAVE\CAVE.bat</code></li>
 </ul>
 <h4 id="system-level-installation">System-Level Installation<a class="headerlink" href="#system-level-installation" title="Permanent link"></a></h4>
-<p>If you need a system-level installation of CAVE, please fill out <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQ0ZBf-zq-S50nXV1R3spa6nEnZ7VTEHO8r1iW604QF-vHbA/viewform?usp=sf_link">this brief access form</a> for the .msi, and then proceed with installation similar to that described above.</p>
+<p>If you need a system-level installation of CAVE, please fill out <a href="https://docs.google.com/forms/d/e/1FAIpQLScLLR1JGh_DHESBSc6W0TVlslhNojT5OJF3WiTCajXg7CjWTA/viewform?usp=sf_link">this brief access form</a> for the .msi, and then proceed with installation similar to that described above.</p>
 <hr />
-<h3 id="method-2-virtual-machine-running-rocky8">Method 2: Virtual Machine running Rocky8<a class="headerlink" href="#method-2-virtual-machine-running-rocky8" title="Permanent link"></a></h3>
-<p>This virtual machine can be installed on Windows or Linux. Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).</p>
+<h3 id="method-2-linux-virtual-machine">Method 2: Linux Virtual Machine<a class="headerlink" href="#method-2-linux-virtual-machine" title="Permanent link"></a></h3>
+<p>Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).</p>
 <h4 id="system-requirements_1">System Requirements<a class="headerlink" href="#system-requirements_1" title="Permanent link"></a></h4>
 <ul>
-<li>VMWare Workstation Pro (Free for personal use, but requires <a href="https://profile.broadcom.com/web/registration">creating an account</a> with Broadcom) For more information on how to download click <a href="../vmware/">here</a>.
-    OR</li>
-<li>VMWare Workstation Player - <a href="https://downloads.unidata.ucar.edu/awips2/current/windows/VMware-player-17.5.2-23775571.exe">Version 17.5.2</a> (this is an older version)</li>
-<li>For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player<ol>
+<li><a href="https://downloads.unidata.ucar.edu/awips2/current/windows/VMware-player-17.5.2-23775571.exe">VMWare Workstation Player</a> must be installed (free software):</li>
+<li>
+<p>For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player</p>
+<ol>
 <li>Create a desktop shortcut for VMWare Workstation Player</li>
 <li>Right-click the shortcut and select Properties</li>
 <li>Open the Compatibility Tab</li>
 <li>Select the "Change high DPI settings" button</li>
 <li>Check the "High DPI scaling override" checkbox and choose "Application" in the enabled dropdown</li>
 </ol>
+<p><img alt="VMWare Workstation Player DPI Setting" src="../../images/vmwareplayer-update-dpi.png" /></p>
 </li>
 </ul>
-<p><img alt="VMWare Workstation Player DPI Setting" src="../../images/vmware-update-dpi.png" /></p>
-<h4 id="upgrade-existing-installation_1">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation_1" title="Permanent link"></a></h4>
+<h4 id="upgrade-existing-installation_2">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation_2" title="Permanent link"></a></h4>
 <p>If you do not currently have CAVE installed, please go directly to the <a href="#download-and-installation-instructions_2">Download and Installation Instructions</a>.</p>
 <p>If you already have CAVE installed you can either:</p>
 <ul>
-<li>Download a new Virtual Machine Image (<a href="#download-and-installation-instructions_2">as described below</a>)
-  OR</li>
-<li>Upgrade the version of CAVE within the Virtual Machine by following the <a href="#upgrade-existing-installation">Linux instructions</a></li>
+<li>
+<p>Download the new Virtual Machine (<a href="#download-and-installation-instructions_2">as described below</a>) and you will see the new VM in VMware, similar to this screenshot:
+    <img alt="" src="../../images/workstationPlayer.png" /></p>
+</li>
+<li>
+<p>Upgrade the version of CAVE within the Virtual Machine by following the <a href="#upgrade-existing-installation">Linux instructions</a></p>
+</li>
 </ul>
 <h4 id="download-and-installation-instructions_2">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_2" title="Permanent link"></a></h4>
 <ol>
-<li>Download the zipped file containing the virtual machine: <a href="https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/Rocky8-NSFUnidata-CAVE-23.4.1-0.4.zip"><strong>Rocky8-NSFUnidata-CAVE-23.4.1-0.4</strong> <i class="fa fa-download"></i></a></li>
+<li>Download the zipped file containing the virtual machine: <a href="https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip"><strong>CentOS7-Unidata-CAVE-20.3.2-2</strong> <i class="fa fa-download"></i></a></li>
 <li>Unzip the folder.</li>
-<li>Open VMWare Workstation and go to <strong>File...</strong> &gt; <strong>Open</strong> and locate the folder that was created from the downloaded unzipped file.  Select the file called <strong>Rocky8-NSFUnidata-CAVE-23.4.1-0.4.vmx"</strong>.</li>
-<li>
-<p>This will open a new tab in VMWare Workstation, click "Power on this virtual machine".  If it asks if it's been moved or copied, select <strong>"I Copied It"</strong>.</p>
-<p><img alt="alt text" src="../../images/newVM.png" />
-5. There will be a user on the Linux machine named "awips" and the password is "awips" with sudo access</p>
+<li>Open VMWare Player and go to <strong>Player</strong> &gt; <strong>File...</strong> &gt; <strong>Open</strong> and locate the folder that was created from the downloaded zipped file.  Select the file called <strong>"CentOS 7 - Unidata CAVE 20.3.2-2.vmx"</strong>.</li>
+<li>Run this new VM option.  If it asks if it's been moved or copied, select <strong>"I Copied It"</strong>.<ul>
+<li>There will be a user in the Linux machine named "awips" and the password is "awips"</li>
+<li>The root password is "unidataAWIPS" if ever needed</li>
+</ul>
 </li>
 </ol>
 <h4 id="run-cave_2">Run CAVE<a class="headerlink" href="#run-cave_2" title="Permanent link"></a></h4>
 <p>Once inside the VM, to run CAVE either:</p>
 <ul>
-<li>Use the desktop icon</li>
+<li>Use the desktop icon </li>
 <li>Use the terminal and type the command <code>cave</code></li>
 <li>Find the application in the Linux Desktop menu: Applications &gt; Internet &gt; AWIPS CAVE</li>
 </ul>
 <hr />
 <h2 id="macos">macOS <i class="fa fa-apple"></i><a class="headerlink" href="#macos" title="Permanent link"></a></h2>
-<p><strong>Latest Version: 23.4.1-0.4</strong></p>
+<p><strong>Latest Version: 20.3.2-2</strong></p>
 <h3 id="system-requirements_2">System Requirements<a class="headerlink" href="#system-requirements_2" title="Permanent link"></a></h3>
 <ul>
 <li>Nvidia Graphics Card (Some Intel Graphics cards seem to work as well)</li>
 </ul>
-<h3 id="upgrade-existing-installation_2">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation_2" title="Permanent link"></a></h3>
+<h3 id="upgrade-existing-installation_3">Upgrade Existing Installation<a class="headerlink" href="#upgrade-existing-installation_3" title="Permanent link"></a></h3>
 <p>If you do not currently have CAVE installed, please go directly to the <a href="#download-and-installation-instructions_3">Download and Installation Instructions</a>.</p>
 <p>If you already have CAVE installed:</p>
 <ol>
@@ -1380,7 +1182,7 @@
 </ol>
 <h3 id="download-and-installation-instructions_3">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions_3" title="Permanent link"></a></h3>
 <ol>
-<li>Download and install CAVE: <a href="https://downloads.unidata.ucar.edu/awips2/23.4.1/mac/awips-cave-23.4.1-0.4.dmg">awips-cave.dmg</a>
+<li>Download and install CAVE: <a href="https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave.dmg">awips-cave.dmg</a>
     <img alt="Cave System Install" src="../../images/mac-install.png" /><ul>
 <li>You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges</li>
 <li>You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges</li>
@@ -1399,18 +1201,21 @@
 <p><img alt="internet warning" src="../../images/mac-cave-internet-download2.png" /></p>
 <hr />
 <h2 id="edex-connection">EDEX Connection<a class="headerlink" href="#edex-connection" title="Permanent link"></a></h2>
-<p>Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter <strong>edex-beta.unidata.ucar.edu</strong>.</p>
-<p><center><img alt="EDEX in the cloud" src="../../images/edex-beta-connection.png" /></center></p>
+<p>NSF Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter <strong>edex-cloud.unidata.ucar.edu</strong>.</p>
+<p><img alt="EDEX in the cloud" src="../../images/connectWindow.png" /></p>
 <hr />
 <h2 id="local-cache">Local Cache<a class="headerlink" href="#local-cache" title="Permanent link"></a></h2>
 <p>After connecting to an EDEX server, you will have a local directory named <strong>caveData</strong> which contains files synced from EDEX as well as a client-side cache for data and map resources.</p>
 <p>You can reset CAVE by removing the <strong>caveData</strong> directory and reconnecting to an EDEX server. Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local <strong>~/caveData</strong> (bundles, colormaps, etc.).</p>
 <ul>
 <li>Linux: <code>/home/&lt;user&gt;/caveData/</code></li>
+<li>macOS: <code>/Users/&lt;user&gt;/Library/caveData/</code></li>
+<li>Windows: <code>C:\Users\&lt;user&gt;\caveData\</code></li>
 </ul>
 <hr />
-<h2 id="uninstalling-cave-linux">Uninstalling CAVE (Linux)<a class="headerlink" href="#uninstalling-cave-linux" title="Permanent link"></a></h2>
-<p>These are instructions to manually uninstall CAVE manually. However, the <a href="#download-and-installation-instructions"><code>awips_install-v23.sh</code></a> script will do these steps for you if you are installing a newer version of CAVE.</p>
+<h2 id="uninstalling-cave">Uninstalling CAVE<a class="headerlink" href="#uninstalling-cave" title="Permanent link"></a></h2>
+<h3 id="linux_1">Linux<a class="headerlink" href="#linux_1" title="Permanent link"></a></h3>
+<p>These are instructions to manually uninstall CAVE. However, the <a href="#download-and-installation-instructions"><code>awips_install.sh</code></a> script will do these steps for you if you are installing a newer version of CAVE.</p>
 <p><strong>1. Make sure you have exited out of any CAVE sessions</strong></p>
 <div class="admonition note">
 <p class="admonition-title">Check to make sure your <code>/etc/yum.repos.d/awips2.repo</code> file has <code>enabled=1</code>.</p>
@@ -1432,6 +1237,18 @@ sudo yum groupremove &quot;AWIPS CAVE&quot;
 <pre><code>rm -rf /awips2/cave
 rm -rf ~/caveData
 </code></pre>
+<h3 id="windows_1">Windows<a class="headerlink" href="#windows_1" title="Permanent link"></a></h3>
+<p>To completely remove CAVE:</p>
+<ol>
+<li>Type "remove" in the search bar and select <strong>Add or remove programs</strong>.  This will open the Applications settings.</li>
+<li>From here, find <strong>AWIPS CAVE</strong> and select "Uninstall".</li>
+</ol>
+<h3 id="macos_1">macOS<a class="headerlink" href="#macos_1" title="Permanent link"></a></h3>
+<p>To completely remove CAVE:</p>
+<ol>
+<li>Find where it is installed (might be the <strong>Applications</strong> folder) and drag into the trash. </li>
+<li>Then <a href="/awips2/appendix/common-problems#mac" target="_blank">remove caveData</a>.</li>
+</ol>
                 
                   
                 
@@ -1446,41 +1263,6 @@ rm -rf ~/caveData
       
         
 <footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid">
-        
-          <a href="" title="Home" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
-            </div>
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                Home
-              </span>
-            </div>
-          </a>
-        
-        
-          <a href="install/install-edex/" title="Install EDEX" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Install EDEX
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">

@@ -1175,42 +1175,37 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_20.3.2/docs/install/install-edex.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="install-edex">Install EDEX<a class="headerlink" href="#install-edex" title="Permanent link"></a></h1>
+                <h1 id="install-edex-beta-version">Install EDEX - BETA Version<a class="headerlink" href="#install-edex-beta-version" title="Permanent link"></a></h1>
 <p>EDEX is the <strong>E</strong>nvironmental <strong>D</strong>ata <strong>Ex</strong>change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at <a href="../../edex/distributed-computing/">Distributed EDEX, Installing Across Multiple Machines</a></p>
 <hr />
 <h2 id="latest-version">Latest Version<a class="headerlink" href="#latest-version" title="Permanent link"></a></h2>
-<ul>
-<li><strong>20.3.2-2</strong></li>
-<li><a href="../install-edex-beta-v23/"><strong>BETA Version 23.4.1-0.3</strong></a> (Compatible with RHEL/Rocky8)</li>
-</ul>
+<blockquote>
+<p>Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
+- <strong>23.4.1-0.4</strong>
+- <a href="../install-edex-v20/"><strong>20.3.2</strong></a> (Compatible with EOL CentOS/Redhat 7)</p>
+</blockquote>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
 <div class="admonition note">
 <p class="admonition-title">Version 23.* of CAVE is not compatible with Version 20.* EDEX and vice versa, Version 20.* of CAVE is not compatible with Version 23.* EDEX.</p>
 </div>
 <hr />
 <h2 id="functionalityreporting">Functionality/Reporting<a class="headerlink" href="#functionalityreporting" title="Permanent link"></a></h2>
-<p>If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6jyZtbh49g-GCBoAQYzTVwAIf_aKz0QOeAr7gDVFhPrjAmw/viewform?usp=sf_link">report it using this short form</a>.</p>
+<p>If you come across issues/bugs/missing functionality, we encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLScqWZho98cI8ByYTe99YRidfiYK_VeHvjsAculZmiVdWGwUnw/viewform?usp=sf_link" target="_blank">report it using this short form</a> or emailing at support-awips@unidata.ucar.edu.</p>
 <hr />
 <h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link"></a></h2>
 <ul>
-<li>64-bit CentOS/RHEL 7</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024.</p>
-</div>
-<ul>
+<li>64-bit Rocky/RHEL 8</li>
 <li>Bash shell environment</li>
-<li>16+ CPU cores (each CPU core can run a decorder in parallel)</li>
+<li>16+ CPU cores (each CPU core can run a decoder in parallel)</li>
 <li>24GB RAM</li>
 <li>700GB+ Disk Space</li>
-<li>gcc-c++ package</li>
 <li>A <strong>Solid State Drive (SSD)</strong> is recommended<ul>
 <li>A SSD should be mounted either to <code>/awips2</code> (to contain the entire EDEX system) or to <code>/awips2/edex/data/hdf5</code> (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.</li>
 </ul>
 </li>
 </ul>
 <div class="admonition note">
-<p class="admonition-title">EDEX is only supported for 64-bit CentOS and RHEL 7 Operating Systems.</p>
+<p class="admonition-title">EDEX is only supported for 64-bit Rocky and RHEL 8 Operating Systems.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">EDEX is <strong>not</strong> supported in Debian, Ubuntu, SUSE, Solaris, macOS, or Windows. You may have luck with Fedora Core 12 to 14 and Scientific Linux, but we will not provide support.</p>
@@ -1219,8 +1214,8 @@
 <h2 id="download-and-installation-instructions">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions" title="Permanent link"></a></h2>
 <p>The first 3 steps should all be run as <strong>root</strong></p>
 <h3 id="1-install-edex">1. Install EDEX<a class="headerlink" href="#1-install-edex" title="Permanent link"></a></h3>
-<p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></p>
-<pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
+<p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh"><strong>awips_install-v23.sh</strong> <i class="fa fa-download"></i></a></p>
+<pre><code>wget https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh
 chmod 755 awips_install.sh
 sudo ./awips_install.sh --edex
 </code></pre>
@@ -1312,10 +1307,12 @@ service iptables restart
 <pre><code>edex start
 </code></pre>
 <p>To manually start, stop, and restart:</p>
-<pre><code>service edex_postgres start
-service httpd-pypies start
-service qpidd start
-service edex_camel start
+<pre><code>systemctl start postgres@awips
+systemctl start httpd-pypies
+systemctl start qpidd
+systemctl start edex_camel@ingest
+systemctl start edex_camel@ingestGrib
+systemctl start edex_camel@request
 </code></pre>
 <p>The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. Start ldm manually:</p>
 <pre><code>service edex_ldm start
