@@ -1,25 +1,27 @@
-# Install CAVE
+# Install CAVE - BETA Version
 
 CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
+
+>Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
 
 ---
 
 ## Latest CAVE Versions
 
-- [**Linux: 20.3.2-2**](#linux)
-- [**Windows: 20.3.2-2**](#windows)
-- [**Mac: 20.3.2-2**](#macos)
-- [**BETA Version 23.4.1-0.3**](install-cave-beta-v23.md) (Compatible with RHEL/Rocky8)
+- [**Linux: 23.4.1-0.4**](#linux)
+- [**Windows: 23.4.1-0.4**](#windows)
+- [**Mac: 23.4.1-0.4**](#macos)
+- [**20.3.2**](install-cave-v20.md) (Compatible with EOL CentOS/Redhat 7)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
-!!! note "Major versions of CAVE and EDEX are not always cross compatible. Please use the same version CAVE to connect to the same version EDEX to ensure proper functionality."
+!!! note "Version 23.\* of CAVE is not compatible with Version 20.\* EDEX and vice versa, Version 20.\* of CAVE is not compatible with Version 23.\* EDEX."
 
 ---
 
 ## Functionality/Reporting
 
-If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSehkNYMNb5G-_kfAEWN1sEPfcePawmN4kUp4IyIoWqRXtoZCw/viewform?usp=sf_link" target="_blank">report it using this short form</a>.
+If you come across issues/bugs/missing functionality, we encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLScqWZho98cI8ByYTe99YRidfiYK_VeHvjsAculZmiVdWGwUnw/viewform?usp=sf_link" target="_blank">report it using this short form</a> or emailing at support-awips@unidata.ucar.edu.
 
 ---
 
@@ -29,8 +31,8 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 - Local machine
 
-    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [VNC connection is the only remote option](../appendix/common-problems.md#remotely-connecting-to-cave), and may result in worse performance than running locally."
-  
+    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [remote desktop connection like VNC is the only remote option(../appendix/common-problems.md#remotely-connecting-to-cave), but may result in worse performance than running locally."
+
 - OpenGL 2.0 Compatible Devices
 - At least 4GB RAM
 - At least 2GB Disk Space for Caching
@@ -43,27 +45,19 @@ Regardless of what Operating System CAVE is running on, these general requiremen
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 20.3.2-2**
+**Latest Version: 23.4.1-0.4**
 
 ### System Requirements
 
-- 64 bit CentOS/Red Hat 7
+- 64 bit Rocky/Red Hat 8
 - Bash shell environment
-
-!!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."
-
-### Upgrade Existing Installation
-
-Whether you have CAVE currently installed or not, you can follow the [Download and Installation Instructions](#download-and-installation-instructions) below. The script will remove the old version of CAVE if needed, and install the latest version.
-
-If you would like to completely remove CAVE, please see the [uninstall instructions further down this page](#linux_1).
 
 ### Download and Installation Instructions
 
-1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
+1. Download the following installer: [**awips_install-v23.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh)
 2. In a terminal, go to the download directory 
-3. Make the installer an executable by running: `chmod 755 awips_install.sh`
-4. Run the installer: `sudo ./awips_install.sh --cave`
+3. Make the installer an executable by running: `chmod 755 awips_install-v23.sh`
+4. Run the installer: `sudo ./awips_install-v23.sh --cave`
      - This will install the application in `/awips2/cave/` and set the local cache to `~/caveData/`
 
 ### Run CAVE
@@ -72,6 +66,7 @@ To run CAVE either:
 
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
+- Double click on the Desktop icon labeled "AWIPS CAVE"
 
 Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-machine) on Linux.
 
@@ -79,7 +74,7 @@ Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-mac
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 20.3.2-2**
+**Latest Version: 23.4.1-0.4**
 
 For Windows, we offer two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-linux-virtual-machine).
 
@@ -102,7 +97,7 @@ If you already have CAVE installed:
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/awips-cave.msi)    
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/awips-cave-23.4.1-0.4.msi)
 
 #### Run CAVE
 
@@ -114,17 +109,19 @@ To run CAVE, either:
 
 #### System-Level Installation
 
-If you need a system-level installation of CAVE, please fill out [this brief access form](https://docs.google.com/forms/d/e/1FAIpQLScLLR1JGh_DHESBSc6W0TVlslhNojT5OJF3WiTCajXg7CjWTA/viewform?usp=sf_link) for the .msi, and then proceed with installation similar to that described above.
+If you need a system-level installation of CAVE, please fill out [this brief access form](https://docs.google.com/forms/d/e/1FAIpQLSfQ0ZBf-zq-S50nXV1R3spa6nEnZ7VTEHO8r1iW604QF-vHbA/viewform?usp=sf_link) for the .msi, and then proceed with installation similar to that described above.
 
 ---
 
-### Method 2: Linux Virtual Machine
+### Method 2: Virtual Machine running Rocky8 
 
-Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).
+This virtual machine can be installed on Windows or Linux. Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images).
 
 #### System Requirements
 
-- [VMWare Workstation Player](https://downloads.unidata.ucar.edu/awips2/current/windows/VMware-player-17.5.2-23775571.exe) must be installed (free software):
+- VMWare Workstation Pro (Free for personal use, but requires [creating an account](https://profile.broadcom.com/web/registration) with Broadcom) For more information on how to download click [here](vmware.md).
+    OR
+- VMWare Workstation Player - [Version 17.5.2](https://downloads.unidata.ucar.edu/awips2/current/windows/VMware-player-17.5.2-23775571.exe) (this is an older version)
 - For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player
      1. Create a desktop shortcut for VMWare Workstation Player
      1. Right-click the shortcut and select Properties
@@ -132,7 +129,8 @@ Please note, running CAVE in a Virtual Machine does have reduced functionality t
      1. Select the "Change high DPI settings" button
      1. Check the "High DPI scaling override" checkbox and choose "Application" in the enabled dropdown
      
-      ![VMWare Workstation Player DPI Setting](../images/vmwareplayer-update-dpi.png)
+
+![VMWare Workstation Player DPI Setting](../images/vmware-update-dpi.png)
       
 #### Upgrade Existing Installation
 
@@ -140,26 +138,26 @@ If you do not currently have CAVE installed, please go directly to the [Download
 
 If you already have CAVE installed you can either:
 
-- Download the new Virtual Machine ([as described below](#download-and-installation-instructions_2)) and you will see the new VM in VMware, similar to this screenshot:
-    ![](../images/workstationPlayer.png)
-
+- Download a new Virtual Machine Image ([as described below](#download-and-installation-instructions_2))
+  OR
 - Upgrade the version of CAVE within the Virtual Machine by following the [Linux instructions](#upgrade-existing-installation)
 
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**CentOS7-Unidata-CAVE-20.3.2-2** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/unidata_cave.zip)
+1. Download the zipped file containing the virtual machine: [**Rocky8-NSFUnidata-CAVE-23.4.1-0.4** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/windows/Rocky8-NSFUnidata-CAVE-23.4.1-0.4.zip)
 2. Unzip the folder.
-3. Open VMWare Player and go to **Player** > **File...** > **Open** and locate the folder that was created from the downloaded zipped file.  Select the file called **"CentOS 7 - Unidata CAVE 20.3.2-2.vmx"**.
-4. Run this new VM option.  If it asks if it's been moved or copied, select **"I Copied It"**.
-     - There will be a user in the Linux machine named "awips" and the password is "awips"
-     - The root password is "unidataAWIPS" if ever needed
+3. Open VMWare Workstation and go to **File...** > **Open** and locate the folder that was created from the downloaded unzipped file.  Select the file called **Rocky8-NSFUnidata-CAVE-23.4.1-0.4.vmx"**.
+4. This will open a new tab in VMWare Workstation, click "Power on this virtual machine".  If it asks if it's been moved or copied, select **"I Copied It"**.
+
+    ![alt text](../images/newVM.png)
+5. There will be a user on the Linux machine named "awips" and the password is "awips" with sudo access
 
 #### Run CAVE 
 
 Once inside the VM, to run CAVE either:
 
-- Use the desktop icon 
+- Use the desktop icon
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
 
@@ -167,7 +165,7 @@ Once inside the VM, to run CAVE either:
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 20.3.2-2**
+**Latest Version: 23.4.1-0.4**
 
 ### System Requirements
 
@@ -185,7 +183,7 @@ If you already have CAVE installed:
 
 ### Download and Installation Instructions
 
-1. Download and install CAVE: [awips-cave.dmg](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave.dmg)
+1. Download and install CAVE: [awips-cave.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.1/mac/awips-cave-23.4.1-0.4.dmg)
     ![Cave System Install](../images/mac-install.png)
      - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
      - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges
@@ -204,9 +202,9 @@ To run CAVE either:
 
 ## EDEX Connection
 
-NSF Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter **edex-cloud.unidata.ucar.edu**.
+Unidata and Jetstream2 have partnered to offer a EDEX data server in the cloud, open to the public.  Select the server in the Connectivity Preferences dialog, or enter **edex-beta.unidata.ucar.edu**.
 
-![EDEX in the cloud](../images/connectWindow.png)
+<center>![EDEX in the cloud](../images/edex-beta-connection.png)</center>
 
 ---
 
@@ -217,16 +215,11 @@ After connecting to an EDEX server, you will have a local directory named **cave
 You can reset CAVE by removing the **caveData** directory and reconnecting to an EDEX server. Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local **~/caveData** (bundles, colormaps, etc.).
 
 - Linux: `/home/<user>/caveData/`
-- macOS: `/Users/<user>/Library/caveData/`
-- Windows: `C:\Users\<user>\caveData\`
 
 ---
 
-## Uninstalling CAVE
-
-### Linux
-
-These are instructions to manually uninstall CAVE. However, the [`awips_install.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
+## Uninstalling CAVE (Linux) 
+These are instructions to manually uninstall CAVE manually. However, the [`awips_install-v23.sh`](#download-and-installation-instructions) script will do these steps for you if you are installing a newer version of CAVE.
 
 **1. Make sure you have exited out of any CAVE sessions**
 
@@ -256,17 +249,3 @@ sudo yum remove awips2-*
 rm -rf /awips2/cave
 rm -rf ~/caveData
 ```
-
-### Windows
-
-To completely remove CAVE:
-
-1. Type "remove" in the search bar and select **Add or remove programs**.  This will open the Applications settings.
-2. From here, find **AWIPS CAVE** and select "Uninstall".
-
-### macOS
-
-To completely remove CAVE:
-
-1. Find where it is installed (might be the **Applications** folder) and drag into the trash. 
-2. Then <a href="/awips2/appendix/common-problems#mac" target="_blank">remove caveData</a>.
