@@ -3530,6 +3530,7 @@
 0000000000|KTQE | 41.76 | -96.18 |  313|Tekamah, NE                         |US|MTR
 0000000000|KTQH | 35.93 | -95.00 |  266|Tahlequah Muni, OK                  |US|MTR
 0000000000|KTQK | 38.47503| -100.88444| 905|Scott City AP, Scott City, KS   |US|MTR
+0000000000|KTQS | 34.633  | -120.617|  34|Vandenberg SFB/South, CA          |US|MTR
 0000000000|KTQV | 36.00704|-78.93733| 157|Duke Univ N Heliport, Durham, NC  |US|MTR
 0000000000|KTRI | 36.48 | -82.40 |  474|TRI-CITY/BRISTOL, TN                |US|MTR
 0000000000|KTRK | 39.32 |-120.13956 | 1798|Truckee-Tahoe AP, CA             |US|MTR

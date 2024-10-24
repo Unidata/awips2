@@ -4077,6 +4077,7 @@ TPP M-Port-Au-Prince, HA; T-Piarco Intl Arpt, TD
 TQE Tekamah, NE
 TQH Tahlequah Muni, OK
 TQK Scott City Airport, Scott City, KS
+TQS Vandenberg SFB/South, CA
 TQV Duke University North Heliport, Durham, NC
 TRI Bristol, TN
 TRK Truckee-Tahoe AP, CA
