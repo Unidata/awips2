@@ -3631,6 +3631,7 @@
 0000000000|KVER | 38.9467| -92.6827| 218|J Viertel Mem AP, Boonville, MO    |US|MTR
 0000000000|KVES | 40.204| -84.532|  307|Versailles, OH                      |US|MTR
 0000000000|KVGC | 42.84344|-75.56119| 347|Hamilton Muni AP, Hamilton, NY    |US|MTR
+0000000000|KVGN | 34.8494 |-120.6 | 93|Vandenberg SFB/North, CA             |US|MTR
 0000000000|KVGT | 36.21 |-115.20 |  671|North Las Vegas, NV                 |US|MTR
 0000000000|KVHN | 31.05783|-104.78381| 1206|Culberson Cnty AP, Van Horn, TX |US|MTR
 0000000000|KVIH | 38.14 | -91.77 |  350|VICHY/ROLLA, MO                     |US|MTR

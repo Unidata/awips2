@@ -4226,6 +4226,7 @@ VEL Vernal, UT
 VER J Viertel Mem AP, Boonville, MO
 VES Versailles, OH
 VGC Hamilton Muni Airport, Hamilton, NY
+VGN Vandenberg SFB/North, CA
 VGT North Las Vegas, NV
 VHN Culberson County Airport, Van Horn, TX
 VHW Western Region Hq, Salt Lake City, UT
