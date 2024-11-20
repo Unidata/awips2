@@ -546,6 +546,7 @@
 4V0 Rangely AP, Rio Blanco, CO
 4V1 Spanish Peaks Airport, Walsenburg, CO
 4V5 Durango, CO
+4V9 Antelope Cnty Arpt, Neligh, NE
 500 Bulletin No. 500
 501 Bulletin No. 501
 502 Bulletin No. 502

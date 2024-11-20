@@ -1054,6 +1054,7 @@
 0000000000|TCVF1| 25.210| -80.533|    0|Trout Cove, FL NPS                  |US|BOY
 0000000000|TDPC1| 41.055|-124.147|   -0|Trinidad Pier, CA Cen/Northern OOS  |US|BOY
 0000000000|TESL1| 29.667| -91.237|   -0|Tesoro Marine Terminal, Berwick, LA |US|BOY
+0000000000|TGXA2| 59.055|-160.334|    4|Togiak, AK Marine Exchange          |US|BOY
 0000000000|THLO1| 41.826| -83.194|  174|Toledo Light #2, OH GLERL           |US|BOY
 0000000000|THRO1| 41.693| -83.471|   -0|Toledo Harbor, OH                   |US|BOY
 0000000000|TIBC1| 37.89 |-122.45 |   -0|SF State U, Tiburon Pier SF Bay, CA |US|BOY
