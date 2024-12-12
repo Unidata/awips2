@@ -559,7 +559,7 @@
 0000000000|CRVA2| 60.557|-145.755|   13|9454050 Cordova, AK NOS             |US|BOY
 0000000000|CRYV2| 36.888| -76.338|   -0|NWLON South Craney Island, VA       |US|BOY
 0000000000|CSBF1| 29.67 | -85.36 |    3|Cape San Blas, FL/V                 |US|BOY
-0000000000|CSPA2| 58.21 |-136.63 |   -0|Cape Spencer, AK                    |US|BOY
+0000000000|CSPA2| 56.397|-160.142|   58|Cape Seniavin, AK Marine Exchange   |US|BOY
 0000000000|CSXA2| 58.199|-136.641|   22|Cape Spencer WX, AK Marine Exchange |US|BOY
 0000000000|CTGM1| 44.642| -67.297|    5|8411250 Cutler, ME NOS              |US|BOY
 0000000000|CWAF1| 25.30 | -81.01 |   -0|Clearwater Pass, FL                 |US|BOY
