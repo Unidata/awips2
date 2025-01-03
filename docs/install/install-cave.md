@@ -2,7 +2,7 @@
 
 CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
 
->Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
+!!! Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
 
 ---
 
@@ -11,7 +11,6 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 - [**Linux: 23.4.1-0.4**](#linux)
 - [**Windows: 23.4.1-0.4**](#windows)
 - [**Mac: 23.4.1-0.4**](#macos)
-- [**20.3.2**](install-cave-v20.md) (Compatible with EOL CentOS/Redhat 7)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
