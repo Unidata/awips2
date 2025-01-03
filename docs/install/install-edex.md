@@ -8,7 +8,6 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 >Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
 - **23.4.1-0.4**
-- [**20.3.2**](install-edex-v20.md) (Compatible with EOL CentOS/Redhat 7)
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
@@ -49,12 +48,12 @@ Download and run the installer: [**awips_install-v23.sh** <i class="fa fa-downlo
 
 ```
 wget https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh
-chmod 755 awips_install.sh
-sudo ./awips_install.sh --edex
+chmod 755 awips_install-v23.sh
+sudo ./awips_install-v23.sh --edex
 ```
 
 
-!!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
+!!! note "**awips_install-v23.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 
        1. Checks to see if EDEX is currently running, if so stops the processes with the `edex stop` command
        2. If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a `yum groupremove awips2-server`
