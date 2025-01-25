@@ -3585,7 +3585,7 @@
 0000072385|KUCC | 36.96 |-116.05 | 1195|YUCCA FLAT, NV                      |US|MTR
 0000000000|KUCP | 41.025| -80.413|  327|New Castle Muni, PA                 |US|MTR
 0000000000|KUCY | 36.37974| -88.9857| 105|Union City/Everett-Stewart, TN    |US|MTR
-0000000000|KUDG | 34.45 | -79.89 |   59|Darlington Co Jetport, SC           |US|MTR
+0000000000|KUDG | 34.44749|-79.88642| 59|Darlington Co Jetport, SC          |US|MTR
 0000000000|KUDX | 44.13 |-102.84 |  919|RAPID CITY, SD                      |US|MTR
 0000000000|KUES | 43.04103| -88.23706| 278|WAUKESHA, WI                     |US|MTR
 0000000000|KUGN | 42.42 | -87.87 |  222|Waukegan Regnl, IL                  |US|MTR

@@ -452,7 +452,7 @@
 0000000000|ANVC1| 38.91 |-123.71 |   -0|Arena Cove, CA                      |US|BOY
 0000000000|APAM2| 38.983| -76.48 |   -0|8575512 Annapolis, MD NOS           |US|BOY
 0000000000|APCF1| 29.73 | -84.98 |   -0|Apalachicola, FL NOS                |US|BOY
-0000000000|APMA2| 61.239|-149.889|    6|Anchorage Port, AK Marine Exchange  |US|BOY
+0000000000|APMA2| 61.238|-149.888|    6|Anchorage Port, AK Marine Exchange  |US|BOY
 0000000000|APNM4| 45.05 | -83.45 |  179|Alpena, MI Water Plant (GLERL)      |US|BOY
 0000000000|APRP7| 13.442| 144.653|   -0|NWLON Apra Harbor, Guam 1630000     |US|BOY
 0000000000|APXF1| 29.79 | -84.88 |   -0|Apalachicola NERR, FL               |US|BOY
