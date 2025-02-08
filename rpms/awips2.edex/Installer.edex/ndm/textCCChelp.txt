@@ -277,6 +277,7 @@
 150 Bulletin No. 150
 151 Bulletin No. 151
 10G Holmes County Airport, Millersburg, OH
+10U Owyhee Airport, Owyhee, NV
 11R Brenham Muni, TX
 12N Andover/Aeroflex, Andover, NJ
 13A Nogales, AZ
@@ -359,6 +360,7 @@
 1S0 Pierce Cnty AP, Puyallup, WA
 1S3 Tillitt Field Airport, Forsyth, MT
 1S5 Sunnyside Muni, WA
+1U7 Bear Lake Airport, Paris, ID
 1V1 Rifle, CO
 1V4 St. Johnsbury, VT
 1V6 Fremont Cnty AP, Canon City, CO
@@ -464,6 +466,7 @@
 3HT Harlowton, MT
 3I2 Mason Cnty AP, Pt Pleasant, WV
 3K3 Syracuse, KS
+3K7 Mark Hoard Memorial Airport, Leoti, KS
 3K8 Coldwater, KS
 3KK Kankakee, IL
 3L4 Little Pecan Island Airport, Grand Chenier, LA
@@ -1729,6 +1732,7 @@ F44 Athens Muni, Athens, TX
 F45 N Palm Beach Cnty Airport, West Palm Beach, FL
 F46 Rockwall Muni, Rockwall, TX
 F70 French Valley AP, Murrieta/Temecula, CA
+F95 Calhoun County Airport, Blountstown, FL
 FAF Fort Eustis, VA
 FAI Fairbanks, AK
 FAK Alaskan MOS Forecast

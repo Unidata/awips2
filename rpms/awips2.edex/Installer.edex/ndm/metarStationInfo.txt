@@ -968,6 +968,7 @@
 0000000000|K0VG | 36.6541| -83.2178| 430|Lee Cnty AP, Jonesville, VA        |US|MTR
 0000000000|K0W8 | 37.94 | -75.39 |    2|CHINCOTEAGUE, VA                    |US|MTR
 0000000000|K10G | 40.53670|-81.95594| 374|Holmes Cnty AP, Millersburg, OH   |US|MTR
+0000000000|K10U | 41.95361|-116.18194| 1639|Owyhee Airport, Owyhee, NV      |US|MTR
 0000000000|K11R | 30.219| -96.374|   94|Brenham Muni, TX                    |US|MTR
 0000000000|K12N | 41.01 | -74.74 |  178|Andover/Aeroflex-Andover, NJ        |US|MTR
 0000000000|K13G | 43.27 | -79.07 |   82|NIAGARA (CGS), NY                   |US|MTR
@@ -1047,6 +1048,7 @@
 0000000000|K1R8 | 30.87033|-87.81933| 76|Bay Minette MuniAP, Bay Minette, AL|US|MTR
 0000000000|K1S3 | 46.27115|-106.62390| 832|Tillitt Field Airport, Forsyth, MT|US|MTR
 0000000000|K1S5 | 46.3271|-119.9704| 234|Sunnyside Muni, Sunnyside, WA      |US|MTR
+0000000000|K1U7 | 42.24976|-111.34163| 1808|Bear Lake Airport, Paris, ID    |US|MTR
 0000000000|K1V1 | 39.54 |-107.80 | 1646|RIFLE, CO                           |US|MTR
 0000072614|K1V4 | 44.42 | -72.02 |  217|St. Johnsbury, VT                   |US|MTR
 0000000000|K1V6 | 38.4284|-105.106| 1659|Fremont Cnty AP, Canon City, CO    |US|MTR
@@ -1111,6 +1113,7 @@
 0000000000|K3HT | 46.44 |-109.84 | 1268|HARLOWTON, MT                       |US|MTR
 0000000000|K3I2 | 38.915| -82.099|  196|Mason Cnty AP, Pt Pleasant, WV      |US|MTR
 0000000000|K3K3 | 37.922|-101.746| 1013|Syracuse, KS                        |US|MTR
+0000000000|K3K7 | 38.45649|-101.35263| 1007|Mark Hoard Mem Arpt, Leoti, KS  |US|MTR
 0000000000|K3K8 | 37.22333|-99.33167| 636|Coldwater, KS                     |US|MTR
 0000000000|K3L4 | 29.79968|-92.80354| 2|Little Pecan AP, Grand Chenier, LA  |US|MTR
 0000000000|K3LF | 39.163| -89.675|  210|Litchfield Muni AP, Litchfield, IL  |US|MTR
@@ -1986,6 +1989,7 @@
 0000000000|KF45 | 26.84592|-80.22233| 7|N Palm Beach Cnty AP, West Palm Beach, FL|US|MTR
 0000000000|KF46 | 32.9306| -96.435| 175|Rockwall Muni, Rockwall, TX         |US|MTR
 0000000000|KF70 | 33.5742|-117.1285| 412|French Vy AP, Murrieta/Temecula, CA|US|MTR
+0000000000|KF95 | 30.48703|-85.11379| 37|Calhoun Cnty Arpt, Blountstown, FL |US|MTR
 0000000000|KFAF | 37.14 | -76.62 |    4|FT EUSTIS/FELKER, VA                |US|MTR
 0000000000|KFAM | 37.76 | -90.43 |  288|Farmington Regnl, MO                |US|MTR
 0000072753|KFAR | 46.91 | -96.80 |  277|FARGO/HECTOR FIE, ND                |US|MTR
