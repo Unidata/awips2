@@ -548,6 +548,7 @@
 0000000000|CNDO1| 41.540| -81.635|   -0|NWLON Cleveland, OH                 |US|BOY
 0000000000|CNII2| 41.856| -87.609|  180|Northerly Island, IL GLOS           |US|BOY
 0000000000|COVM2| 38.432| -76.387|   -0|Cove Point, MD 8577018 NOS          |US|BOY
+0000000000|COXA2| 60.542|-145.766|    8|Cordova, AK Marine Exchange         |US|BOY
 0000000000|CPMW1| 48.860|-122.756|    5|Cherry Point South Dock, WA         |US|BOY
 0000000000|CPNT2| 28.118| -97.022|   -0|NWLON Copano Bay, TX                |US|BOY
 0000000000|CPTR1| 41.72 | -71.34 |    5|Conimicut Light, RI                 |US|BOY
@@ -778,6 +779,7 @@
 0000000000|MCYF1| 27.91 | -82.425|   -0|McKay Bay Entrance (Tampa), FL NOS  |US|BOY
 0000000000|MCYI3| 41.73 | -86.93 |  176|Michigan City, IN (GLERL)           |US|BOY
 0000000000|MDRM1| 43.97 | -68.13 |   16|Mt Desert Rock, ME/D                |US|BOY
+0000000000|MDXA2| 59.438|-146.327|   43|Middleton Island, AK Marine Exchange|US|BOY
 0000000000|MEEM4| 44.248| -86.346|  178|NWSCR Manistee Harbor, MI           |US|BOY
 0000000000|MEYC1| 36.61 |-121.89 |   -0|Monterey, CA                        |US|BOY
 0000000000|MGIP4| 17.97 | -67.047|   -0|Magueyes Islands, PR NOS            |US|BOY
