@@ -74,7 +74,7 @@
 0000000000|42024| 27.46 | -84.22 |   -0|USF, COMPS C16                      |US|BOY
 0000000000|42035| 29.246| -94.410|    0|3D36 /D GALVESTON                   |US|BOY
 0000000000|42036| 28.506| -84.510|    0|3D32 /D W. TAMPA                    |US|BOY
-0000000000|42038| 27.42 | -92.58 |    0|3D35 /A North Mid Gulf of Mexico    |US|BOY
+0000000000|42038| 27.42 | -92.58 |    0|3D35 /A North Mid Gulf of America   |US|BOY
 0000000000|42039| 28.785| -86.038|    0|3D20 /D PENSACOLA                   |US|BOY
 0000000000|42040| 29.203| -88.203|    0|MOBILE SOUTH 64NM S of Dauphin Is,AL|US|BOY
 0000000000|42041| 27.220| -90.420|    0|3DV08/D NORTH MID GULF              |US|BOY
@@ -653,7 +653,7 @@
 0000000000|GPOM6| 30.230| -88.982|    0|Gulfport Outer Range, MS NOS 8744707|US|BOY
 0000000000|GBXA2| 63.777|-171.715|   10|Gambell, AK Marine Exchange         |US|BOY
 0000000000|GEXA2| 58.213|-136.381|   11|George Island, AK Marine Exchange   |US|BOY
-0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier, Gulf of Mexico|US|BOY
+0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier,Gulf of America|US|BOY
 0000000000|GPXA2| 58.062|-134.051|   12|Grave Point, AK Marine Exchange     |US|BOY
 0000000000|GRBL1| 29.101| -89.978|   -0|Grand Isle Blocks, LA CSI/LSU       |US|BOY
 0000000000|GRIM4| 46.721| -87.412|  199|Granite Island, MI                  |US|BOY

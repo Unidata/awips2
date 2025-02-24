@@ -92,7 +92,7 @@
  GA Georgia
  GB Gambia
  GT Great Lakes
- GX Gulf of Mexico
+ GX Gulf of America
  HI Hawaii
  HW Hawaii
  IA Iowa
@@ -128,7 +128,7 @@
  ND North Dakota
  NE Nebraska
  NF Newfoundland
- NG Northern Gulf of Mexico
+ NG Northern Gulf of America
  NH New Hampshire
  NJ New Jersey
  NM New Mexico
@@ -524,7 +524,7 @@
 4BM Wilkerson Pass, CO
 4BQ Broadus, MT
 4BW Burns, OR
-4C0 722339 Oil Platform, Gulf of Mexico
+4C0 722339 Oil Platform, Gulf of America
 4CR Corona, NM
 4DG Douglas, WY
 4F2 Panola County Airport-Sharpe Field, Carthage, TX
@@ -1219,14 +1219,14 @@ CA1 Northern Calif; PTWC Segm TSU W/W/A Eng & SPN
 CA2 Southern California
 CAD Cadillac/Wexford, MI
 CAE WFO Columbia, SC WSR-88D
-CAF Gulf of Mexico, Caribbean, Atlantic areas (Earthquake Info, English)
+CAF Gulf of America, Caribbean, Atlantic areas (Earthquake Info, English)
 CAG Craig, CO
 CAK Akron, OH
 CAN Canadian Forecast
 CAO Clayton, NM
 CAR K-WFO Caribou, ME; PTWC TSU for P Rico, US & British Virgin Is.
 CAV Clarion, IA
-CAX Gulf of Mexico, Caribbean, Atlantic areas (Earthquake info)
+CAX Gulf of America, Caribbean, Atlantic areas (Earthquake info)
 CBE Greater Cumberland Rgnl AP, MD
 CBF Council Bluffs, IA
 CBG Cambridge Muni, MN
@@ -3928,7 +3928,7 @@ SSB MRP Storm Surge Bering Sea
 SSC K-Shaw AFB, Sumter, SC; MRP Storm Surge Gulf of Alaska
 SSE MRP Storm Surge East Coast
 SSF Stinson Field, San Antonio, TX
-SSG MRP Storm Surge Gulf of Mexico
+SSG MRP Storm Surge Gulf of America
 SSI Brunswick, GA
 SSP MRP Storm Surge West Coast
 SSR Specialized Scientific Report
@@ -4115,7 +4115,7 @@ TWB AK Bering, Beaufort, Chukchi Sea Coasts SHEF-Encoded ETSS
 TWC K-WFO Tucson, AZ; Gulf of Alaska SHEF-Encoded ETSS
 TWE East Coast SHEF-Encoded ETSS
 TWF Twin Falls, ID
-TWG Gulf of Mexico SHEF-Encoded ETSS
+TWG Gulf of America SHEF-Encoded ETSS
 TWM Two Harbors, MN
 TWP West Coast SHEF-Encoded ETSS
 TWT Sturgis Muni Airport, Sturgis, KY
