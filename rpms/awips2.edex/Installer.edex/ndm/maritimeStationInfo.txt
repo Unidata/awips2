@@ -66,8 +66,8 @@
 0000000000|42012| 30.065| -87.555|    0|Orange Beach, AL Buoy               |US|BOY
 0000000000|42013| 27.16 | -82.95 |   -0|USF, COMPS C10                      |US|BOY
 0000000000|42014| 25.25 | -82.21 |   -0|USF, COMPS C17                      |US|BOY
-0000000000|42019| 27.916| -95.350|    0|3D41 /D Freeport, TX                |US|BOY
-0000000000|42020| 26.920| -96.700|    0|3D19 /D Corpus Christi, TX          |US|BOY
+0000000000|42019| 27.916| -95.350|    0|LLNR 1285, 60 NM S of Freeport, TX  |US|BOY
+0000000000|42020| 26.920| -96.700|    0|LLNR 1405,60NM SSEofCorpusChristi,TX|US|BOY
 0000000000|42021| 28.3  | -83.3  |   -0|USF, COMPS C14                      |US|BOY
 0000000000|42022| 27.50 | -83.72 |   -0|USF, COMPS C12                      |US|BOY
 0000000000|42023| 26.05 | -83.07 |   -0|USF, COMPS C13                      |US|BOY
@@ -124,7 +124,7 @@
 0000000000|44017| 40.690| -72.050|    0|South of MONTAUK POINT              |US|BOY
 0000000000|44018| 42.126| -69.630|    0|24 NM East of Provincetown, MA      |US|BOY
 0000000000|44020| 41.443| -70.186|    0|NANTUCKET SOUND                     |US|BOY
-0000000000|44021| 43.763| -69.998|    2|Buoy D New Meadows Riv, Gulf of MEX |US|BOY
+0000000000|44021| 43.763| -69.998|    2|Buoy D New Meadows River, ME        |US|BOY
 0000000000|44022| 40.88 | -73.73 |    4|Execution Rocks                     |US|BOY
 0000000000|44023| 47.27 | -88.607|  183|Portage Canal Mich Tech Univ        |US|BOY
 0000000000|44024| 42.31 | -65.93 |    0|Buoy N - Northeast Channel          |US|BOY
