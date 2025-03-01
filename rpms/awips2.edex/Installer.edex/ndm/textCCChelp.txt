@@ -62,7 +62,6 @@
  10 Bulletin No. 10
 10G Holmes County Airport, Millersburg, OH
 10U Owyhee Airport, Owyhee, NV
-10U Owyhee, NV
 110 Bulletin No. 110
 111 Bulletin No. 111
 112 Bulletin No. 112
@@ -855,7 +854,7 @@ ATG Togiak Village, AK
 ATK Talkeetna, AK
 ATL K-Hartsfield-Jackson Atlanta IAP, GA; P-Tatalina, AK
 ATO Portage Glacier Visitor Cntr, AK
-ATP GOMEX Green Canyon 787, LA AWOS3
+ATP Green Canyon 787, LA AWOS3
 ATQ P-Ed Burnell Mem AP, Atqasuk, AK
 ATS K-Artesia, NM;  K-Southern Atlantic Ocean Area
 ATT Austin/Camp Mabry, TX
@@ -922,7 +921,7 @@ BAX Bad Axe, MI
 BAZ New Braunfels National Airport, TX
 BBB Benson Muni, MN
 BBD Curtis Fld AP, Brady, TX
-BBF GOMEX Brazos 133, TX AWOS-3
+BBF Brazos 133, TX AWOS-3
 BBG Branson, MO
 BBL Blue River Basin
 BBP Bennettsville, SC
@@ -1278,7 +1277,7 @@ CQX Chatham, MA
  CR Columbia River Estuary
 CRE North Myrtle Beach/Grand Strand, SC
 CRG Craig Muni, Jacksonville, FL; N-Rarotonga, Cook Is
-CRH K-GOMEX W Cameron 368A, LA AWOS3; Central Region Headquarters
+CRH W Cameron 368A, LA AWOS3; Central Region Headquarters
 CRN Central Region Network
 CRP WFO Corpus Christi, TX WSR-88D
 CRQ Carlsbad, CA
@@ -1403,7 +1402,7 @@ DLH WFO Duluth, MN WSR-88D
 DLL Baraboo/Wisconsin Dells, WI
 DLN Dillon, MT
 DLO Delano, CA
-DLP GOMEX West Delta, MS AWOS-3
+DLP West Delta, MS AWOS-3
 DLR La Romana Intl, DR
 DLS The Dalles, OR
 DLZ Delaware Muni, Delaware, OH
@@ -1534,7 +1533,7 @@ EGI Duke Field/Eglin, FL
 EGT Wellington, KS
 EGV Eagle River/Union, WI
 EHA Elkhart, KS
-EHC GOMEX East Cameron 278, LA AWOS-3
+EHC East Cameron 278, LA AWOS-3
 EHO Shelby Muni, NC
 EHR Henderson City, KY
 EHT East Hartford, CT
@@ -1563,7 +1562,7 @@ ELV Elfin Cove, AK
 ELY Ely, NV
 ELZ Wellsville, NY
 EMI Westminster, MD
-EMK GOMEX East Breaks, TX AWOS-3
+EMK East Breaks, TX AWOS-3
 EMM Kemmerer Muni, Kemmerer, WY
 EMP Emporia, KS
 EMT El Monte, CA
@@ -1810,7 +1809,7 @@ GBD Great Bend, KS
  GB Gambia
 GBG Galesburg, IL
 GBH Galbraith Lake, AK
-GBK GOMEX Magnolia, LA AWOS-3
+GBK Magnolia, LA AWOS-3
 GCC Gillette, WY
 GCD Grant Cnty Rgnl, John Day, OR
 GCK Garden City, KS
@@ -1842,7 +1841,7 @@ GGI Grinnell Rgnl AP, Grinnell, IA
 GGP Logansport, IN
 GGT Aurora, Guatemala
 GGW WFO Glasgow, MT WSR-88D
-GHB GOMEX GB172/Salsa (Shell E-P), LA
+GHB GB172/Salsa (Shell E-P), LA
 GHG Harlow Fld, Marshfield Muni, MA
 GHW Glenwood, MN
 GIC Idaho Cnty AP, Grangeville, ID
@@ -1897,7 +1896,7 @@ GRN Gordon Municipal Airport, Gordon, NE
 GRN Green River
 GRO P-Rota Intl, MY
 GRR WFO Grand Rapids, MI WSR-88D
-GRY GOMEX Green Canyon 338/Front Runner
+GRY Green Canyon 338/Front Runner
 GSB Seymour Johnson AFB, Goldsboro, NC
 GSH Goshen, IN
 GSL F-Malabo/Fernando, GQ, W Africa
@@ -1916,7 +1915,7 @@ GTU Georgetown, TX
 GTW P-Joint Typhoon Warning Ctr (JTWC)
 GUA K-Guadalupe and San Antonio Rivers; P-Andersen AFB, GUAM WSR-88D
 GUC Gunnison, CO
-GUL GOMEX Gunnison, TX AWOS-3
+GUL Gunnison, TX AWOS-3
 GUM P-WFO Guam (Agana) Tiyan, GU; Guam Intl AP, GU
 GUN Gunbarrel, WY
 GUP Gallup, NM
@@ -1929,7 +1928,7 @@ GVL Gainsville/Gilmer, GA
 GVQ Genesee County Airport, Batavia, NY
 GVT Greenville, TX
 GVW Galveston 209B Oil Platform, Gulf
-GVX GOMEX Galveston 424, TX AWOS-3
+GVX Galveston 424, TX AWOS-3
 GWB Auburn, IN
 GWO Greenwood, MS
 GWR Gw-Roger Melroe AP, Gwinner, ND
@@ -2003,7 +2002,7 @@ HHG Huntington Muni, Huntington, IN
 HHI Wheeler AFB, HI
 HHN Hana, HI
 HHR Hawthorne, CA
-HHV GOMEX AC25/Hoover-Diana (ExxonMobile), TX
+HHV AC25/Hoover-Diana (ExxonMobile), TX
 HHW Stan Stamper Muni, Hugo, OK
 HIB Hibbing, MN
 HIE Whitefield, NH
@@ -2067,7 +2066,7 @@ HPN White Plains, NY
 HPT Hampton Muni, Hampton, IA
 HPX Fort Campbell, KY WSR-88D RPG
 HQG Hugoton, KS
-HQI GOMEX High Is 376, TX AWOS-3
+HQI High Is 376, TX AWOS-3
 HQM Hoquiam, WA
 HQU Thomson-McDuffie Co AP, Thomson, GA
 HQZ Mesquite, TX
@@ -2285,7 +2284,7 @@ IKM United Republic of Cameroon
 IKN Kenya
 IKO Nikolski AFS, AK
 IKR Korea
-IKT GOMEX MC 474/NaKika (BP), LA
+IKT MC 474/NaKika (BP), LA
 IKU Cook Islands
 IKV Ankeny, IA
 IKW K-Jack Barstow AP, Midland, MI; Kuwait
@@ -2365,7 +2364,7 @@ IPJ Lincolnton, NC
 IPK Pakistan
 IPL Imperial, CA
 IPM Panama
-IPN North Pacific; K-GOMEX Independence, LA AWOS-3
+IPN North Pacific; Independence, LA AWOS-3
 IPO Portugal
 IPQ Western North Pacific
 IPR Peru
@@ -2850,7 +2849,7 @@ MD1 Rivers in Maryland
 MDC Marias Des Cygnes
 MDD Midland Airpark, Midland, TX
 MDH Carbondale/Murphysboro, IL
-MDJ GOMEX Mississippi Canyon, LA AWOS-3
+MDJ Mississippi Canyon, LA AWOS-3
  MD Maryland
 MDN Jefferson Proving Ground, IN
 MDO Durango Arpt, MX
@@ -2913,7 +2912,7 @@ MIM Miami River
 MIN Minnesota, Mississippi Above St Paul
 MIO MIAMI Regional Airport, OK
 MIO Saltillo, MX
-MIS K-GOMEX MP 140B (Apache Corp); Mississippi Mainstem, LA
+MIS MP 140B (Apache Corp); Mississippi Mainstem, LA
 MIT Ixtepec, OX, MX
 MIV Millville, NJ
 MIW Marshalltown, IA
@@ -3801,7 +3800,7 @@ SBY Salisbury, MD
 SC1 South Central US; South Carolina Rivers
 SCC Storm Summary
 SCD Merkel Fld Sylacauga Muni AP, Sylacauga, AL
-SCF GOMEX South Marsh 268, LA AWOS-3
+SCF South Marsh 268, LA AWOS-3
 SCH Schenectady, NY
 SCI Scioto
 SCK Stockton, CA
@@ -3936,11 +3935,11 @@ SPI Springfield, IL
 SPK Spanish Fork Municipal Airport, Spanish Fork, UT
 SPL K-South Padre Island, TX; South Platte Basin
 SPN Spanish Language Products
-SPR GOMEX Ship Shoal, LA AWOS-3
+SPR Ship Shoal, LA AWOS-3
  SP Spokane River; Spain; South Pacific
 SPS Sheppard AFB, TX
 SPW Spencer, IA
-SQE Ship Shoal 354 GOMEX (Fieldwood Energy), LA
+SQE Ship Shoal 354 (Fieldwood Energy), LA
 SQI Sterling Rockfalls, IL
 SQL San Carlos, CA
 SRB Upper Cumberland Reg AP, Sparta, TN
@@ -3980,7 +3979,7 @@ STS Santa Rosa, CA
 STT Charlotte Amalie, VI
 STU N-American Samoa
 STX Christiansted, Saint Croix, VI
-STZ GOMEX ST 301 (Shell E-P), LA
+STZ ST 301 (Shell E-P), LA
 SUA Stuart/Witham, FL
 SUE Sturgeon Bay, WI
 SUN Friedman Mem AP, Hailey, ID
@@ -4261,7 +4260,7 @@ VAS C-Ashcroft, BC
 VAX Moody AFB, GA WSR-88D RPG
 VAY Mount Holly, NJ
 VBG Vandenberg AFB, Lompoc, CA
-VBS GOMEX Sabine 13B, LA AWOS-3
+VBS Sabine 13B, LA AWOS-3
 VBT Bentonville, AR
 VBW Bridgewater Air Pk, Bridgewater, VA
 VBX Vandenberg AFB, CA WSR-88D RPG
@@ -4290,10 +4289,10 @@ VLD Valdosta, GA
 VLL Oakland/Troy AP, Troy, MI
 VMR Vermillion, SD
 VNC Venice, FL
-VNP GOMEX Vermillion 26, LA AWOS-3
+VNP Vermillion 26, LA AWOS-3
 VNW Van Wert County Airport, Van Wert, OH
 VNY Van Nuys, CA
-VOA GOMEX VK 786/Petronius (Chevron), LA
+VOA VK 786/Petronius (Chevron), LA
 VOK Camp Douglas, WI
 VPC Cartersville, GA
 VPS Eglin AFB, Valparaiso, FL
@@ -4322,7 +4321,7 @@ VWS P-Valdez, AK
 VWU Waskish Muni, MN
 VWX Evansville, IN WSR-88D
 VYS Peru, IL
-VZA GOMEX VR 380A (Mariner Energy), LA
+VZA VR 380A (Mariner Energy), LA
 VZY C-Mackenzie Auto, BC
 W06 Crisfield CGLS, MD
 W13 Eagle's Nest AP, Waynesboro, VA
@@ -4788,7 +4787,7 @@ XHF High Falls, QC
 XHM Hamilton RBG CS, ON
 XHR C-Hussar AGDM, AB
 XIB Ingonish Beach CS, NS
-XIH GOMEX High Is 179A (Apache Corp)
+XIH High Is 179A (Apache Corp)
 XKA Kapuskasing CDA, ON
 XKE C-Kemptville, ON
 XKF T-Bermuda NAS/Kindley Field, BE
