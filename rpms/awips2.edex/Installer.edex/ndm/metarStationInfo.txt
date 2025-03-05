@@ -3767,6 +3767,7 @@
 0000000000|KXLL | 40.570| -75.488|  122|Queen Cty AP, Allentown, PA         |US|MTR
 0000074794|KXMR | 28.468| -80.567|    3|Cape Canaveral AF SS, Cocoa Bch, FL |US|MTR
 0000000000|KXNA | 36.282| -94.307|  392|Northwest Arkansas National ARPT, AR|US|MTR
+0000000000|KXNI | 35.06068|-108.93759| 1942|Andrew Othole Mem Arpt, Zuni, NM|US|MTR
 0000000000|KXNT |42.50840| -78.65808| 424|Bertrand Chaffe, Springville, NY  |US|MTR
 0000000000|KXNX | 36.37508| -86.40842| 178|Sumner Cnty AP, Gallatin, TN     |US|MTR
 0000000000|KXPY | 29.123| -90.202|   -0|Port Fourchon, LA AWOS3             |US|MTR
