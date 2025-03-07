@@ -1384,7 +1384,7 @@
 0000000000|KARA | 30.03 | -91.88 |    7|New Iberia/Acadiana Regnl, LA       |US|MTR
 0000000000|KARB | 42.22 | -83.75 |  256|Ann Arbor Muni, MI                  |US|MTR
 0000000000|KARG | 36.14 | -90.92 |   83|WALNUT RIDGE, AR                    |US|MTR
-0000000000|KARL | 41.71 |-106.21 | 2194|Arlington, WY                       |US|MTR
+0000000000|KARL | 41.59806|-106.21487|2194|Arlington, WY                    |US|MTR
 0000000000|KARM | 29.254| -96.154|   31|Wharton Rgnl AP, Wharton, TX        |US|MTR
 0000000000|KARR | 41.77 | -88.47 |  215|Aurora Muni, IL                     |US|MTR
 0000000000|KART | 44.01 | -76.02 |   99|WATERTOWN INTL A, NY                |US|MTR
@@ -3389,7 +3389,7 @@
 0000000000|KSFQ | 36.68 | -76.60 |   22|Suffolk Muni, VA                    |US|MTR
 0000000000|KSFY | 42.046| -90.108|  188|Tri-Township AP, Savanna, IL        |US|MTR
 0000000000|KSFZ | 41.91 | -71.40 |  134|PAWTUCKET, RI                       |US|MTR
-0000000000|KSGE | 41.79 |-110.50 | 2371|Sage, WY                            |US|MTR
+0000000000|KSGE | 41.82447|-110.90764|2371|Sage, WY                         |US|MTR
 0000072440|KSGF | 37.23 | -93.40 |  390|SPRINGFLD MUNI, MO                  |US|MTR
 0000000000|KSGH | 39.84 | -83.83 |  321|SPRINGFIELD, OH                     |US|MTR
 0000000000|KSGJ | 29.959| -81.3397|   3|NE FL Rgnl AP, St Augustine, FL     |US|MTR
@@ -3447,7 +3447,6 @@
 0000072561|KSNY | 41.11 |-102.98 | 1307|SIDNEY MUNI, NE                     |US|MTR
 0000000000|KSOA | 30.586|-100.649|  652|Sonora Muni, Sonora, TX             |US|MTR
 0000000000|KSOP | 35.24 | -79.41 |  141|SOUTHERN PINES A, NC                |US|MTR
-0000000000|KSOU | 43.25846|-100.85949| 830|Rosebud Sioux Tribal Airport, SD |US|MTR
 0000000000|KSOW | 34.265|-110.006| 1955|Show Low, AZ                        |US|MTR
 0000000000|KSPA | 34.916| -81.957|  244|Spartanburg Downtown Mem AP, SC     |US|MTR
 0000000000|KSPB | 45.769|-122.862|   15|Scappoose Industrial Airpark, OR    |US|MTR
@@ -3487,7 +3486,7 @@
 0000000000|KSUA | 27.18076|-80.22324| 5|Stuart/Witham, FL                   |US|MTR
 0000000000|KSUE | 44.84367|-87.42153| 219|STURGEON BAY, WI                  |US|MTR
 0000000000|KSUN | 43.504|-114.296| 1622|Friedman Mem AP, Hailey, ID         |US|MTR
-0000000000|KSUO |43.2585|-100.8595| 823|Rosebud, SD                         |US|MTR
+0000000000|KSUO | 43.25846|-100.85949| 830|Rosebud Sioux Tribal Airport, SD |US|MTR
 0000000000|KSUS | 38.66 | -90.63 |  141|ST LOUIS/SPIRIT, MO                 |US|MTR
 0000000000|KSUT | 33.93 | -78.07 |    8|Southport/Brunswick Co, NC          |US|MTR
 0000074516|KSUU | 38.28 |-121.93 |   19|TRAVIS AFB/FAIRF, CA                |US|MTR

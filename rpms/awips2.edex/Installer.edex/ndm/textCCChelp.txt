@@ -3917,7 +3917,6 @@ SNT Stanley Ranger Station, ID
 SNY Sidney, NE
 SOA Sonora Muni, TX
 SOP Southern Pines, NC
-SOU Rosebud Sioux Tribal Airport, SD
 SOW Show Low, AZ
 SOX Santa Ana Mountains, CA WSR-88D
 SP1 Spanish TCP
@@ -3983,7 +3982,7 @@ STZ ST 301 (Shell E-P), LA
 SUA Stuart/Witham, FL
 SUE Sturgeon Bay, WI
 SUN Friedman Mem AP, Hailey, ID
-SUO Rosebud, SD
+SUO Rosebud Sioux Tribal Airport, SD
 SUQ Susquehanna Basins
 SUS Saint Louis/Spirit, MO
 SUT K-Southport/Brunswick Co, NC;  Southern Utah Basins
