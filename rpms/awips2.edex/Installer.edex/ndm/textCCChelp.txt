@@ -2794,7 +2794,6 @@ M46 Colstrip AP, Colstrip, MT
 M52 Lexington/Franklin Wilkins, TN
 M54 Lebanon Muni Airport, Lebanon, TN
 M58 Monett, MO
-M63 McGregor Range Base Camp, NM
 M75 Malta Airport, Malta, MT
 M89 Florence Mem AP, Arkadelphia, AR
 M91 Springfield Robertson Cnty AP, Springfield, TN

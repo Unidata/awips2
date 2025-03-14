@@ -1796,6 +1796,7 @@
 0000072547|KDBQ | 42.41 | -90.70 |  329|DUBUQUE MUNICIPA, IA                |US|MTR
 0000072405|KDCA | 38.85144 | -77.03772 |   4| WASHINGTON/NATIO, VA          |US|MTR
 0000000000|KDCM | 34.789| -81.196|  200|Chester, SC                         |US|MTR
+0000000000|KDCP | 39.76808|-104.86951| 1592|Denver Central Park, CO         |US|MTR
 0000000000|KDCU | 34.66 | -86.94 |  181|DECATUR, AL                         |US|MTR
 0000000000|KDCY | 38.7004|-87.12973| 143|Daviess Cnty AP, Washington, IN    |US|MTR
 0000072451|KDDC | 37.78 | -99.97 |  790|DODGE CITY(AWOS), KS                |US|MTR
@@ -2667,7 +2668,6 @@
 0000000000|KM46 | 45.85285|-106.70927|1044|Colstrip AP, Colstrip, MT        |US|MTR
 0000000000|KM52 | 35.651| -88.379|  157|Lexington/Franklin Wilkins, TN      |US|MTR
 0000000000|KM54 | 36.19041|-86.31569| 179|Lebanon Muni AP, Lebanon, TN      |US|MTR
-0000000000|KM63 | 32.07 |-106.15 | 1283|McGregor Range Base Camp, NM        |US|MTR
 0000000000|KM75 | 48.36694|-107.91933| 687|Malta AP, Malta, MT              |US|MTR
 0000000000|KM91 | 36.5367| -86.9212|215|Springfield Robertson Cnty AP, TN   |US|MTR
 0000000000|KMAE | 36.99 |-120.11 |   77|Madera Muni, CA                     |US|MTR
