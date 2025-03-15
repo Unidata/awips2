@@ -1115,6 +1115,7 @@
 0000000000|K3FC | 40.09 | -95.60 |  445|FALLS CITY, NE                      |US|MTR
 0000000000|K3HT | 46.44 |-109.84 | 1268|HARLOWTON, MT                       |US|MTR
 0000000000|K3I2 | 38.915| -82.099|  196|Mason Cnty AP, Pt Pleasant, WV      |US|MTR
+0000000000|K3J1 | 32.49685|-80.99315| 26|Ridgeland-Claude Dean Arpt, Ridgeland, SC |US|MTR
 0000000000|K3K3 | 37.922|-101.746| 1013|Syracuse, KS                        |US|MTR
 0000000000|K3K7 | 38.45649|-101.35263| 1007|Mark Hoard Mem Arpt, Leoti, KS  |US|MTR
 0000000000|K3K8 | 37.22333|-99.33167| 636|Coldwater, KS                     |US|MTR
@@ -1537,7 +1538,6 @@
 0000000000|KBPG | 32.213|-101.522|  784|Big Spring/McMahon-Wrinkle, TX      |US|MTR
 0000072671|KBPI | 42.58 |-110.10 | 2124|BIG PINEY (AMOS), WY                |US|MTR
 0000000000|KBPK | 36.37 | -92.47 |  283|Mountain Home/Baxter Co Regnl, AR   |US|MTR
-0000000000|KBPP | 46.18699|-103.42808| 902|Bowman Muni, Bowman, ND          |US|MTR
 0000072241|KBPT | 29.95 | -94.02 |    7|BEAUMONT/PORT AR, TX                |US|MTR
 0000000000|KBQK | 31.2589| -81.4664|  6|Brunswick Golden Isles AP, GA       |US|MTR
 0000000000|KBQP | 32.756| -91.881|   51|Morehouse Mem AP, Bastrop, LA       |US|MTR
@@ -1574,7 +1574,7 @@
 0000000000|KBWG | 36.96 | -86.42 |  167|Bowling Green, KY                   |US|MTR
 0000072406|KBWI | 39.17573 | -76.66899 |   44|BALTIMORE/WASH I, MD          |US|MTR
 0000000000|KBWP | 46.244| -96.607|  295|Harry Stern AP, Wahpeton, ND        |US|MTR
-0000000000|KBWW |46.1655|-103.3007| 895|Bowman, ND                          |US|MTR
+0000000000|KBWW |46.16552|-103.30074| 904|Bowman Regional Arpt, Bowman, ND  |US|MTR
 0000000000|KBXA | 30.8137| -89.86496| 36|Carr Mem Air Fld, Bogalusa, LA     |US|MTR
 0000000000|KBXK | 33.42 |-112.69 |  315|Buckeye Muni, Buckeye, AZ           |US|MTR
 0000000000|KBXM |43.8923| -69.9388|  19|Brunswick, ME                       |US|MTR
@@ -2617,7 +2617,7 @@
 0000000000|KLSB | 32.33346|-108.69174| 1307|Lordsburg Muni, NM              |US|MTR
 0000000000|KLSD | 38.04 | -84.62 |  299|LEXINGTON/CREECH, KY                |US|MTR
 0000072643|KLSE | 43.88 | -91.25 |  202|LA CROSSE MUNICI, WI                |US|MTR
-0000072225|KLSF | 32.34 | -85.00 |  130|Fort Moore, GA                      |US|MTR
+0000072225|KLSF | 32.34 | -85.00 |  130|Fort Benning, GA                    |US|MTR
 0000000000|KLSK | 42.7538|-104.4046|1514|Lusk Muni, Lusk, WY                |US|MTR
 0000000000|KLSV | 36.23 |-115.03 |  570|LAS VEGS/NELIS AF,NV                |US|MTR
 0000072352|KLTS | 34.68 | -99.27 |  420|ALTUS AFB, OK                       |US|MTR

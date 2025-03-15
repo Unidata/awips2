@@ -326,6 +326,7 @@
 3HA Chicago, IL
 3HT Harlowton, MT
 3I2 Mason Cnty AP, Pt Pleasant, WV
+3J1 Ridgeland-Claude Dean Airport, Ridgeland, SC
 3K3 Syracuse, KS
 3K7 Mark Hoard Memorial Airport, Leoti, KS
 3K8 Coldwater, KS
@@ -1032,7 +1033,6 @@ BPC Mesa Vista Ranch AP, Pampa, TX
 BPG Big Spring/McMahon-Wrinkle, TX
 BPI Big Piney-Marbleton AP, WY
 BPK Mountain Home/Baxter Co Regnl, AR
-BPP Bowman Muni, Bowman, ND
 BPT Beaumont, TX
 BPV Providenciales, BA
 BQK Brunswick/Glynco GA
@@ -1076,7 +1076,7 @@ BWD Brownwood Airport, Brownwood, TX
 BWG Bowling Green, KY
 BWI Baltimore Intl, MD
 BWP Harry Stern AP, Wahpeton, ND
-BWW Bowman, ND
+BWW Bowman Regional Airport, Bowman, ND
 BXA Carr Mem Air Fld, Bogalusa, LA
 BXK Buckeye Muni, Buckeye AZ
 BXM Brunswick, ME
@@ -2728,7 +2728,7 @@ LSB Lordsburg Muni, NM
 LSC Lower Sacramento River
 LSD Lexington/Creech, KY
 LSE La Crosse, WI
-LSF Fort Moore, Columbus, GA
+LSF Fort Benning, Columbus, GA
 LSK Lusk Muni, Lusk, WY
  LS Lower Snake River; Lake Superior
 LST Lone Star, TX
