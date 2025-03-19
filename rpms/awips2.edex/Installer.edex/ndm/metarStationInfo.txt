@@ -3497,6 +3497,7 @@
 0000000000|KSVE | 40.37569 |-120.57269 | 1265|Susanville Municipal AP, CA   |US|MTR
 0000000000|KSVH | 35.76 | -80.96 |  294|Statesville Muni, NC                |US|MTR
 0000000000|KSVN | 32.03 | -81.15 |   13|HUNTER AFF, GA                      |US|MTR
+0000000000|KSVR | 40.62 |-111.9929| 1404|S Valley Rgnl AP, Salt Lake Cty, UT|US|MTR
 0000000000|KSWF | 41.51 | -74.10 |  143|STEWART/NEWBURGH, NY                |US|MTR
 0000000000|KSWO | 36.16 | -97.09 |  291|Stillwater Muni, OK                 |US|MTR
 0000000000|KSWW | 32.47 |-100.47 |  727|Sweetwater/Avenger Fld, TX          |US|MTR
