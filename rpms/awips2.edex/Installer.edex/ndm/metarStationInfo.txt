@@ -1132,7 +1132,7 @@
 0000000000|K3T5 | 29.91 | -96.95 |   99|La Grange/Fayette Regnl, TX         |US|MTR
 0000000000|K3U3 | 46.15341|-112.86773| 1534|Bowman Field Arpt, Anaconda, MT |US|MTR
 0000000000|K3V9 | 39.29 |-106.87 | 2270|ASPEN, CO                           |US|MTR
-0000000000|K3W7 |47.922 |-119.083|  490|Electric City, WA                   |US|MTR
+0000000000|K3W7 |47.92206|-119.083| 486|Grand Coulee Dam, Electric City, WA |US|MTR
 0000000000|K40B | 46.62 | -69.52 |  314|CLAYTON LAKE, ME                    |US|MTR
 0000000000|K40G | 35.65 |-112.13 | 1829|GRND CANYN/VALLE, AZ                |US|MTR
 0000000000|K40U |40.9861|-109.6785|1873|Manilla, CO                         |US|MTR

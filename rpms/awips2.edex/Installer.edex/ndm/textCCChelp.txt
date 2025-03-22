@@ -346,7 +346,7 @@
 3U3 Bowman Field Airport, Anaconda, MT
 3V6 Crested Butte, CO
 3V9 Aspen, CO
-3W7 Electric City, WA
+3W7 Grand Coulee Dam, Electric City, WA
 3WO Shawano, WI
 400 Bulletin No. 400
 401 Bulletin No. 401
