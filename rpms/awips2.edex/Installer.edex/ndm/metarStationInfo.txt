@@ -2860,7 +2860,7 @@
 0000000000|KMZZ | 40.490| -85.680|  262|Marion Muni, Marion, IN             |US|MTR
 0000000000|KN00 | 43.36 | -76.39 |  145|Fulton, NY                          |US|MTR
 0000000000|KN03 | 42.5926| -76.2149| 365|Chase Fld, Cortland, NY            |US|MTR
-0000000000|KN24 |36.8   |-105.6   |2333|Questa, NM                          |US|MTR
+0000000000|KN24 |36.80031|-105.59750|2344|Questa Muni Airport, Questa, NM   |US|MTR
 0000000000|KN27 | 41.7400|-76.4471| 223|Bradford County Airport, PA         |US|MTR
 0000000000|KN38 | 41.7279| -77.3965| 577|Wellsb Johnst AP, Wellsboro, PA    |US|MTR
 0000000000|KN60 | 47.61 |-101.40 |  582|Garrison, ND                        |US|MTR

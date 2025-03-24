@@ -3086,7 +3086,7 @@ N00 Fulton, NY
 N03 Chase Fld, Cortland, NY
 N10 Collegeville, PA
 N11 New Haven CGS, New Haven, CT
-N24 Questa, NM
+N24 Questa Municipal Airport, Questa, NM
 N27 Bradford County Airport, PA
 N38 Wellsboro Johnstone AP, Wellsboro, PA
 N40 Pittstown, NJ
