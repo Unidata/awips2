@@ -16,7 +16,6 @@
 01T High Island, LA
  02 Bulletin No. 02
  03 Bulletin No. 03
-03Y Hallock, MN
  04 Bulletin No. 04
 04V Saguache Muni, Saguache, CO
 04W Field of Dreams AP, Hinckley, MN
@@ -1775,7 +1774,6 @@ FWA Fort Wayne, IN
 FWB Branson West Muni, Branson, MO
 FWC Fairfield, IL
 FWD WFO Dallas/Fort Worth, TX
-FWH Carswell AFB, Fort Worth, TX
 FWN Sussex, NJ
 FWQ Rostraver AP, Monongahela, PA
 FWR West Gulf RFC, Ft Worth, TX
@@ -1975,7 +1973,7 @@ HBT Humboldt River
 HBV Jim Hogg Cnty AP, Hebbronville, TX
 HCA K-Big Spring, TX: M-Le Esperanze, H0
 HCD Hutchinson, MN
-HCO Hallock, MN
+HCO Hallock Municipal Airport, Hallock, MN
 HCR Heber City Minicipal Airport, Heber, UT
 HDC Hammond Muni, LA
 HDE Holdrege, NE
@@ -3095,7 +3093,6 @@ N66 Oneonta, NY
 N79 Shamokin, PA
 N84 Execution Rocks CGS, Bronx, NY
 N87 Robbinsville, NJ
-N91 Cape May CGS, NJ
 NAH National Agricultural Weather Highlights
 NAK Annapolis, MD
  NA North America
@@ -3428,7 +3425,7 @@ PAE Everett, WA
 PAH WFO Paducah, KY WSR-88D
 PAM Tyndall AFB, Panama City, FL
 PAN K-Payson, AZ; Pan American
-PAO Palo Alto, CA
+PAO Palo Alto Airport, Palo Alto, CA
  PA Pennsylvania
 PAQ Palmer, AK
 PAT Pathfinder Hill, WY
@@ -3730,7 +3727,6 @@ RVF Ruby Valley Field Airport, Twin Bridges, MT
 RVJ Swinton Smith Field, Reidsville, GA
 RVL Reedsville, PA
 RVS Tulsa Riverside Arpt, OK
-RWC Redwood City, CA
 RWF Redwood Falls, MN
 RWI Rocky Mount, NC
 RWL Rawlins, WY
@@ -4691,7 +4687,7 @@ WVY Lemieux, QC
 WVZ Ile Charron, QC
 WWA West Vancouver, BC
 WWB Burlington Piers, ON
-WWD Wildwood, NJ
+WWD Cape May County Airport, Wildwood, NJ
   W Western
 WWE Western Head, NS
 WWF Weyburn, SK

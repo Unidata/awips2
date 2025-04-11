@@ -945,7 +945,6 @@
 0000000000|K01M | 34.4917| -88.2011| 176|Tishomingo Cnty AP, Belmont, MS    |US|MTR
 0000074755|K01R | 31.18 | -92.63 |   57|CLAIBORNE, LA                       |US|MTR
 0000000000|K01T | 28.14 | -94.41 |   30|HIGH ISLAND, LA                     |US|MTR
-0000000000|K03Y | 48.79 | -96.95 |  250|HALLOCK, MN                         |US|MTR
 0000000000|K04V | 38.097|-106.169| 2385|Saguache Muni, Saguache, CO         |US|MTR
 0000000000|K04W | 46.023| -92.895|  311|Field of Dreams AP, Hinckley, MN    |US|MTR
 0000000000|K05U | 39.60375|-116.0036| 1816|Eureka AP, Eureka, NV            |US|MTR
@@ -2105,7 +2104,6 @@
 0000072533|KFWA | 41.01 | -85.20 |  252|FORT WAYNE/BAER, IN                 |US|MTR
 0000000000|KFWB | 36.6985| -93.40225|411|Branson W Muni, Branson West, MO   |US|MTR
 0000000000|KFWC | 38.38 | -88.42 |  133|Fairfield, IL                       |US|MTR
-0000000000|KFWH | 32.77 | -97.45 |  198|CARSWELL AFB, TX                    |US|MTR
 0000000000|KFWN | 41.21 | -74.63 |  128|SUSSEX, NJ                          |US|MTR
 0000000000|KFWQ | 40.2097| -79.8314| 374|Monongahela, PA                    |US|MTR
 0000000000|KFWS | 32.565| -97.308|  213|Fort Worth/Spinks AP, TX            |US|MTR
@@ -2258,7 +2256,7 @@
 0000000000|KHBR | 35.01 | -99.05 |  477|HOBART, OK                          |US|MTR
 0000000000|KHBV | 27.350| -98.737|  202|Jim Hogg Cnty AP, Hebbronville, TX  |US|MTR
 0000000000|KHCD | 44.87 | -94.39 |  323|HUTCHINSON, MN                      |US|MTR
-0000000000|KHCO | 48.79 | -96.95 |  250|HALLOCK, MN                         |US|MTR
+0000000000|KHCO | 48.75273|-96.94300| 250|Hallock Muni Arpt, Hallock, MN    |US|MTR
 0000000000|KHCR | 40.48181|-111.42881| 1718|Heber City Muni AP, Heber, UT   |US|MTR
 0000000000|KHDC | 30.52 | -90.42 |   13|Hammond Muni, LA                    |US|MTR
 0000000000|KHDE | 40.45 | -99.33 |  705|Holdrege, NE                        |US|MTR
@@ -2866,7 +2864,6 @@
 0000000000|KN60 | 47.61 |-101.40 |  582|Garrison, ND                        |US|MTR
 0000000000|KN79 |40.8369| -76.5525| 262|Shamokin, PA                        |US|MTR
 0000000000|KN87 | 40.23 | -74.61 |   36|ROBBINSVILLE, NJ                    |US|MTR
-0000000000|KN91 | 38.96 | -74.89 |    2|CAPE MAY (CGS), NJ                  |US|MTR
 0000000000|KNAE | 29.15 | -81.63 |   29|Pinecastle, FL                      |US|MTR
 0000000000|KNAK | 38.99 | -76.49 |    2|Annapolis, MD                       |US|MTR
 0000000000|KNAO | 32.86 | -79.95 |    1|CHARLESTON NS, SC                   |US|MTR
@@ -2882,7 +2879,7 @@
 0000000000|KNFE | 36.69204|-76.13456| 5|Fentress NAF, Fentress, VA          |US|MTR
 0000000000|KNFG | 33.30 |-117.35 |   24|CAMP PENDLETON M, CA                |US|MTR
 0000000000|KNFL | 39.43 |-118.70 | 1199|FALLON NAS, NV                      |US|MTR
-0000072133|KNFW | 32.80 | -97.40 |  198|NASJRB Fort Worth, TX               |US|MTR
+0000072133|KNFW | 32.76919|-97.44153| 198|NASJRB Fort Worth, TX             |US|MTR
 0000000000|KNGP | 27.693| -97.291|    6|Truax Fld, NAS Corpus Christi, TX   |US|MTR
 0000000000|KNGU | 36.938| -76.289|    5|NAS Chambers Fld, Norfolk, VA       |US|MTR
 0000000000|KNGW | 27.700| -97.434|    9|Cabaniss Fld, Corpus Christi, TX    |US|MTR
@@ -3075,7 +3072,7 @@
 0000072435|KPAH | 37.07 | -88.77 |  126|PADUCAH/BARKLEY, KY                 |US|MTR
 0000074775|KPAM | 30.07 | -85.59 |    5|TYNDALL AFB, FL                     |US|MTR
 0000000000|KPAN | 34.257|-111.339| 1572|Payson AP, AZ                       |US|MTR
-0000000000|KPAO | 37.48 |-122.12 |    1|PALO ALTO, CA                       |US|MTR
+0000000000|KPAO | 37.46112|-122.11505| 2|Palo Alto Airport, Palo Alto, CA   |US|MTR
 0000000000|KPAT | 42.56 |-106.85 | 1926|Pathfinder Hill, WY                 |US|MTR
 0000000000|KPBF | 34.18 | -91.93 |   65|PINE BLUFF/GRIDR, AR                |US|MTR
 0000000000|KPBG | 44.651| -73.468|   71|Plattsburgh Intl AP, NY             |US|MTR
@@ -3300,7 +3297,6 @@
 0000000000|KRVJ | 32.05949| -82.15357| 60|Swinton Smith Field, Reidsville, GA|US|MTR
 0000000000|KRVL | 40.67739|-77.62683| 250|Reedsville, PA                    |US|MTR
 0000000000|KRVS | 36.04 | -95.98 |  191|TULSA RIVERSIDE ARPT, OK            |US|MTR
-0000000000|KRWC | 37.51 |-122.17 |    5|REDWOOD CITY, CA                    |US|MTR
 0000000000|KRWF | 44.55 | -95.08 |  311|REDWOOD FALLS, MN                   |US|MTR
 0000000000|KRWI | 35.86 | -77.88 |   48|ROCKY MT.WILSON, NC                 |US|MTR
 0000000000|KRWL | 41.80 |-107.20 | 2068|RAWLINS, WY                         |US|MTR
@@ -3752,7 +3748,7 @@
 0000000000|KWTR | 41.41 |-104.87 | 1890|Whitaker, WY                        |US|MTR
 0000000000|KWVI | 36.94 |-121.79 |   49|Watsonville Muni, CA                |US|MTR
 0000000000|KWVL | 44.54 | -69.69 |  101|Waterville, ME                      |US|MTR
-0000000000|KWWD | 39.01 | -74.90 |   23|Wildwood, NJ                        |US|MTR
+0000000000|KWWD | 39.00837|-74.90851| 7|Cape May Cnty Arpt, Wildwood, NJ    |US|MTR
 0000000000|KWWR | 36.44 | -99.52 |  667|West Woodward, OK                   |US|MTR
 0000000000|KWYS | 44.6884|-111.1176|2027|Yellowstone AP, W Yellowstone, MT  |US|MTR
 0000000000|KX07 | 27.89389|-81.62042| 39|Lake Wales Muni AP, Lake Wales, FL |US|MTR
