@@ -1051,7 +1051,6 @@
 0000000000|K1S5 | 46.3271|-119.9704| 234|Sunnyside Muni, Sunnyside, WA      |US|MTR
 0000000000|K1U7 |42.2497|-111.3416|1807|Bear Lake County, ID                |US|MTR
 0000000000|K1U7 | 42.24976|-111.34163| 1808|Bear Lake Airport, Paris, ID    |US|MTR
-0000000000|K1V1 | 39.54 |-107.80 | 1646|RIFLE, CO                           |US|MTR
 0000072614|K1V4 | 44.42 | -72.02 |  217|St. Johnsbury, VT                   |US|MTR
 0000000000|K1V6 | 38.4284|-105.106| 1659|Fremont Cnty AP, Canon City, CO    |US|MTR
 0000074004|K1Y7 | 32.85 |-114.40 |   98|Yuma Proving Ground, AZ             |US|MTR
@@ -1120,7 +1119,6 @@
 0000000000|K3K8 | 37.22333|-99.33167| 636|Coldwater, KS                     |US|MTR
 0000000000|K3L4 | 29.79968|-92.80354| 2|Little Pecan AP, Grand Chenier, LA  |US|MTR
 0000000000|K3LF | 39.163| -89.675|  210|Litchfield Muni AP, Litchfield, IL  |US|MTR
-0000000000|K3MW | 40.46 |-106.76 | 3241|Mount Werner, CO (Pass)             |US|MTR
 0000000000|K3N8 | 47.2605| -95.9281| 379|Mahnomen Cnty AP, Mahnomen, MN     |US|MTR
 0000000000|K3OI | 40.62 | -93.93 |  342|LAMONI, IA                          |US|MTR
 0000000000|K3R0 | 28.362| -97.791|   82|Beeville Muni, Beeville, TX         |US|MTR
@@ -1130,7 +1128,6 @@
 0000072650|K3SE | 43.18 | -95.15 |  404|SPENCER, IA                         |US|MTR
 0000000000|K3T5 | 29.91 | -96.95 |   99|La Grange/Fayette Regnl, TX         |US|MTR
 0000000000|K3U3 | 46.15341|-112.86773| 1534|Bowman Field Arpt, Anaconda, MT |US|MTR
-0000000000|K3V9 | 39.29 |-106.87 | 2270|ASPEN, CO                           |US|MTR
 0000000000|K3W7 |47.92206|-119.083| 486|Grand Coulee Dam, Electric City, WA |US|MTR
 0000000000|K40B | 46.62 | -69.52 |  314|CLAYTON LAKE, ME                    |US|MTR
 0000000000|K40G | 35.65 |-112.13 | 1829|GRND CANYN/VALLE, AZ                |US|MTR
@@ -1391,7 +1388,7 @@
 0000000000|KARV | 45.93 | -89.73 |  496|Arbor Vitae/Lakeland-NFLee Fld, WI  |US|MTR
 0000000000|KARW | 32.412| -80.634|    3|Beaufort, SC                        |US|MTR
 0000000000|KASD | 30.35 | -89.82 |    9|Slidell, LA                         |US|MTR
-0000000000|KASE | 39.22 |-106.87 | 2382|Aspen-Pitkin Co/Sardy Field, CO     |US|MTR
+0000000000|KASE | 39.22188|-106.86823| 2389|Aspen-Pitkin Co/Sardy Field, CO |US|MTR
 0000000000|KASG | 36.19 | -94.12 |  412|SPRINGDALE MUNI, AR                 |US|MTR
 0000000000|KASH | 42.79 | -71.52 |   61|NASHUA/BOIRE FIE, NH                |US|MTR
 0000000000|KASJ | 36.30 | -77.17 |   21|Ahoskie/Tri-County, NC              |US|MTR
@@ -1783,7 +1780,6 @@
 0000000000|KD68 | 34.1294|-109.3109| 2150|Springerville Muni, AZ            |US|MTR
 0000000000|KD73 | 33.78253|-83.69281|267|Monroe-Walton Co AP, Monroe, GA    |US|MTR
 0000000000|KD95 | 43.06648| -83.27154| 255|Dupont-Lapeer AP, Lapeer, MI     |US|MTR
-0000000000|KD97 | 44.85 | -93.15 |  250|SOUTH ST PAUL, MN                   |US|MTR
 0000000000|KDAA | 38.73 | -77.18 |   21|DAVSN/FT BELVOIR, VA                |US|MTR
 0000000000|KDAB | 29.17354|-81.07188| 12|DAYTONA BEACH, FL                  |US|MTR
 0000000000|KDAG | 34.88 |-116.78 |  588|DAGGETT, CA                         |US|MTR
@@ -2811,7 +2807,7 @@
 0000000000|KMSL | 34.75 | -87.61 |  168|Muscle Shoals, AL                   |US|MTR
 0000072641|KMSN | 43.1407|-89.3452| 262|MADISON/DANE RGN, WI                |US|MTR
 0000072773|KMSO | 46.92 |-114.09 |  976|MISSOULA/JOHNSON, MT                |US|MTR
-0000072658|KMSP | 44.89 | -93.22 |  256|MINNEAPOLIS-ST P, MN                |US|MTR
+0000072658|KMSP |44.88197|-93.22178| 257|Minneapolis-St Paul Int Airport, MN|US|MTR
 0000000000|KMSS | 44.94 | -74.85 |   65|MASSENA/RICHARDS, NY                |US|MTR
 0000000000|KMSV | 41.705602|-74.800381| 428|MONTICELLO/SLLVN, NY            |US|MTR
 0000072231|KMSY | 29.98 | -90.25 |    9|NEW ORLEANS INTL, LA                |US|MTR
@@ -3239,7 +3235,7 @@
 0000072401|KRIC | 37.51 | -77.31 |   50|RICHMOND/BYRD FI, VA                |US|MTR
 0000000000|KRID |39.75608|-84.84269| 347|Richmond Muni AP, Richmond, IN     |US|MTR
 0000000000|KRIF |38.73411|-112.10158| 1621|Richfield Muni AP, Richfield, UT |US|MTR
-0000000000|KRIL | 39.54 |-107.72 | 1691|RIFLE/GARFIELD R, CO                |US|MTR
+0000000000|KRIL |39.52661|-107.72799| 1688|Rifle Garfield Cnty Arpt, Rifle, CO|US|MTR
 0000000000|KRIM | 43.10 |-110.32 | 2310|Rim, WY                             |US|MTR
 0000072286|KRIV | 33.89 |-117.27 |  469|MARCH AFB/RIVERS, CA                |US|MTR
 0000072672|KRIW | 43.05 |-108.45 | 1697|RIVERTON, WY                        |US|MTR
@@ -3352,7 +3348,7 @@
 0000072535|KSBN | 41.71 | -86.32 |  236|SOUTH BEND/ST. J, IN                |US|MTR
 0000000000|KSBO | 32.6091| -82.3699| 100|Emanuel Cnty AP, Swainsboro, GA    |US|MTR
 0000000000|KSBP | 35.24 |-120.64 |   64|San Luis Obispo/McChesney Field, CA |US|MTR
-0000000000|KSBS | 40.48 |-106.82 | 2097|STEAMBOAT SPRNGS, CO                |US|MTR
+0000000000|KSBS | 40.51626|-106.86630| 2098|Steamboat Springs Airport, CO   |US|MTR
 0000000000|KSBX | 48.54069|-111.87125|1049|Shelby Airport, Shelby, MT       |US|MTR
 0000000000|KSBY | 38.34 | -75.50 |   16|SALISBURY, MD                       |US|MTR
 0000000000|KSCD | 33.1718| -86.3055| 173|Merkel Sylacauga AP, Sylacauga, AL |US|MTR

@@ -199,7 +199,6 @@
 1S5 Sunnyside Muni, WA
 1U7 Bear Lake Airport, Paris, ID
 1U7 Bear Lake County, ID
-1V1 Rifle, CO
 1V4 St. Johnsbury, VT
 1V6 Fremont Cnty AP, Canon City, CO
 1Y7 Yuma Proving Ground, AZ
@@ -332,7 +331,6 @@
 3KK Kankakee, IL
 3L4 Little Pecan Island Airport, Grand Chenier, LA
 3LF Litchfield Muni, IL
-3MW Mount Werner, CO (Pass)
 3N8 Mahnomen Cnty AP, Mahnomen, MN
 3OI Lamoni, IA
 3R0 Beeville Muni, Beeville, TX
@@ -344,7 +342,6 @@
 3T5 La Grange/Fayette Regnl, TX 
 3U3 Bowman Field Airport, Anaconda, MT
 3V6 Crested Butte, CO
-3V9 Aspen, CO
 3W7 Grand Coulee Dam, Electric City, WA
 3WO Shawano, WI
 400 Bulletin No. 400
@@ -823,7 +820,7 @@ AS6 Atlantic Ship Bulletin No. 6
 ASA Savoonga Arpt, AK
 ASC Deadhorse, AK
 ASD K-Slidell, LA; P-Sand Point, AK
-ASE Aspen, CO
+ASE Aspen-Pitkin County Airport, Aspen, CO
 ASG Springdale, AR
 ASH K-Nashua/Boire Fld, NH; P-Shishmaref, AK
 ASI Sitka/Japonski Arpt, AK
@@ -3657,7 +3654,7 @@ RHV San Jose, CA
 RIC Richmond, VA
 RID Richmond Muni Airport, Richmond, IN
 RIF Richfield Muni Airport, Richfield, UT
-RIL Rifle/Garfield Regnl, CO
+RIL Rifle Garfield County Airport, Rifle, CO
 RIM Radar Echo Intensity Map; K-Rim, WY
 RIP Radar Regional Intensity Plot (RIP)
  RI Rhode Island
@@ -3789,7 +3786,7 @@ SBM Sheboygan, WI
 SBN South Bend, IN
 SBO Emanuel Cnty AP, Swainsboro, GA
 SBP San Luis Obispo, CA
-SBS Steamboat Springs, CO
+SBS Steamboat Springs Airport, CO
 SBX Shelby Airport, Shelby, MT
 SBY Salisbury, MD
 SC1 South Central US; South Carolina Rivers
