@@ -1928,7 +1928,7 @@
 0000000000|KEHA | 37.01 |-101.88 | 1102|ELKHART, KS                         |US|MTR
 0000000000|KEHC | 28.429| -92.878|   -0|East Cameron 278B, LA AWOS-3        |US|MTR
 0000000000|KEHO | 35.256| -81.601|  258|Shelby Muni, NC                     |US|MTR
-0000000000|KEHR | 37.82 | -87.69 |  117|HENDERSON CITY, KY                  |US|MTR
+0000000000|KEHR | 37.80783|-87.68569| 118|Henderson Airport, Henderson, KY  |US|MTR
 0000000000|KEHY | 41.725278| -106.45944| 2225|Elk Mountain AWOS, WY         |US|MTR
 0000000000|KEIK | 40.01165|-105.05033| 1551|Erie Muni, Erie, CO             |US|MTR
 0000000000|KEIR | 28.634| -91.489|   -0|Eugene Is 215, LA                   |US|MTR
@@ -2366,7 +2366,6 @@
 0000000000|KI18 | 38.92978| -81.81947| 231|Jackson Cnty Arpt, Ravenswood, WV|US|MTR
 0000000000|KI19 | 39.69103| -83.99199| 289|Greene Co-Lewis Jackson AP, Dayton, OH|US|MTR
 0000000000|KI23 |39.57040|-83.42052| 299|Fayette County Airport, OH         |US|MTR
-0000000000|KI26 | 37.82 | -87.69 |  117|HENDERSON CITY, KY                  |US|MTR
 0000000000|KI35 | 36.8593| -83.35847| 473|Tucker-Guthrie Mem AP, Harlan, KY |US|MTR
 0000000000|KI40 | 40.31017|-81.85242| 298|Richard Downing AP, Coshocton, OH |US|MTR
 0000000000|KI63 | 39.988| -90.804|  223|Mt Sterling Muni, Mt Sterling, IL   |US|MTR
