@@ -964,7 +964,7 @@
 0000000000|K0S9 | 48.0538|-122.8106| 34|Jefferson Co Int, Port Townsend, WA |US|MTR
 0000000000|K0V4 | 37.1417| -79.0164| 182|Brookn/Campbell AP, Brookneal, VA  |US|MTR
 0000000000|K0VG | 36.6541| -83.2178| 430|Lee Cnty AP, Jonesville, VA        |US|MTR
-0000000000|K0W3 |39.5682| -76.203 | 120|Churchville, DC                     |US|MTR
+0000000000|K0W3 |39.56790|-76.20305| 126|Harford Cnty Arpt, Churchville, MD |US|MTR
 0000000000|K0W8 | 37.94 | -75.39 |    2|CHINCOTEAGUE, VA                    |US|MTR
 0000000000|K10G | 40.53670|-81.95594| 374|Holmes Cnty AP, Millersburg, OH   |US|MTR
 0000000000|K10U | 41.95361|-116.18194| 1639|Owyhee Airport, Owyhee, NV      |US|MTR
@@ -1843,7 +1843,7 @@
 0000072387|KDRA | 36.62 |-116.02 | 1009|MERCURY/DESERT R, NV                |US|MTR
 0000000000|KDRC | 42.83 |-105.86 | 1554|Deer Creek, WY                      |US|MTR
 0000000000|KDRI | 30.832| -93.340|   62|Beauregard Rgnl AP, De Ridder, LA   |US|MTR
-0000000000|KDRM | 46.009| -83.744|  204|Drummond Is AP, MI                  |US|MTR
+0000000000|KDRM | 46.00931|-83.74393| 204|Drummond Arpt, Drummond Island, MI|US|MTR
 0000000000|KDRO | 37.16 |-107.75 | 2037|DUR-LA PLATA ARPT, CO               |US|MTR
 0000000000|KDRP | 35.12005|-90.82650| 73|Delta Regional Arpt, Colt, AR      |US|MTR
 0000072261|KDRT | 29.38 |-100.92 |  313|DEL RIO INTL, TX                    |US|MTR
@@ -3775,7 +3775,6 @@
 0000000000|KY51 | 43.579| -90.896|  394|Viroqua Muni, Viroqua, WI           |US|MTR
 0000072734|KY62 | 44.91 | -84.72 |  447|SAULT STE MARIE, MI                 |US|MTR
 0000000000|KY63 | 45.986| -95.992|  367|Elbow Lake Muni, Elbox Lake, MN     |US|MTR
-0000000000|KY66 | 46.009| -83.744|  204|Drummond Is AP, Drummond Is, MI     |US|MTR
 0000000000|KY69 | 45.14 | -94.52 |  340|LITCHFIELD, MN                      |US|MTR
 0000000000|KY70 | 42.938| -85.061|  249|Ionia Cnty AP, Ionia, MI            |US|MTR
 0000000000|KYIP | 42.23 | -83.53 |  218|Detroit/Willow Run, MI              |US|MTR

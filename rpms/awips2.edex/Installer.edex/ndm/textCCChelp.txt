@@ -45,7 +45,7 @@
 0S9 Jefferson Co Intl, Port Townsend, WA
 0V4 Brookneal/Campbell Cnty AP, Brookneal, VA
 0VG Lee Cnty AP, Jonesville, VA
-0W3 Churchville, DC
+0W3 Harford County Airport, Churchville, MD
 0W4 Kent Island, MD
 0W8 Chincoteague, VA
 100 Bulletin No. 100
@@ -1428,7 +1428,7 @@ DRA Desert Rock, NV
 DRC Deer Creek, WY
 DRI Beauregard Rgnl AP, De Ridder, LA
 DRK U.S. Drought Outlook Discussion
-DRM Drummond Is AP, Drummond Is, MI
+DRM Drummond Island Airport, Drummond Island, MI
 DRO Durango-La Plata Cnty AP, Durango, CO; Drought Summary
 DRP Delta Regional Airport, Colt, AR
 DRT Del Rio, TX
@@ -4825,7 +4825,6 @@ Y50 Wautoma Muni, Wautoma, WI
 Y51 Viroqua Muni, Viroqua, WI
 Y62 Sault Ste Marie, MI
 Y63 Elbow Lake Muni, MN
-Y66 Drummond Is AP, Drummond Is, MI
 Y68 Tracy Muni, Tracy, MN
 Y69 Litchfield, MN
 Y70 Ionia Cnty AP, Ionia, MI
