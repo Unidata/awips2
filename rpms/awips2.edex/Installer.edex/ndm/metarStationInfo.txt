@@ -3016,7 +3016,6 @@
 0000000000|KOTG | 43.66 | -95.58 |  480|WORTHINGTON, MN                     |US|MTR
 0000000000|KOTH | 43.43 |-124.25 |    4|NORTH BEND, OR                      |US|MTR
 0000000000|KOTM | 41.10080|-92.44454| 258|OTTUMWA INDSTRL, IA               |US|MTR
-0000072786|KOTX | 47.68 |-117.63 |  727|SPOKANE INTL ARPT, WA               |US|MTR
 0000072357|KOUN | 35.246| -97.472|  360|Norman/OU Westheimer, OK            |US|MTR
 0000000000|KOV7 | 36.71 |-110.20 | 1741|KAYENTA, AZ                         |US|MTR
 0000000000|KOVE | 39.49 |-121.62 |   59|Oroville Muni, CA                   |US|MTR
