@@ -1196,7 +1196,6 @@
 0000000000|K5SM | 39.426|-107.379| 3232|Sunlight, CO (Pass)                 |US|MTR
 0000000000|K5T9 | 28.8571|-100.5135|270|Maverick Cnty Int AP, Eagle Pass, TX|US|MTR
 0000000000|K60R | 30.36714| -96.11294| 70|Navasota Muni Arprt, Navasota, TX |US|MTR
-0000000000|K62Y | 47.11 | -91.75 |  328|TWO HARBORS, MN                     |US|MTR
 0000072787|K63S | 48.54539|-117.88079|  574|Colville AP, Colville, WA       |US|MTR
 0000000000|K65S | 48.726|-116.295|  712|Boundary Cnty AP, Bonners Ferry, ID |US|MTR
 0000000000|K66R | 29.6415| -96.5160| 74|Robert Wells AP, Columbus, TX       |US|MTR
@@ -1257,7 +1256,6 @@
 0000000000|K8T6 | 28.36281|-98.11647| 39|Live Oak Cnty AP, George West, TX  |US|MTR
 0000000000|K8V7 |37.4587|-102.618| 1338|Springfield, CO                     |US|MTR
 0000000000|K8W2 | 38.6560| -78.7085| 293|New Market AP, New Market, VA      |US|MTR
-0000000000|K8Y8 | 48.28 | -92.48 |  341|CRANE LAKE, MN                      |US|MTR
 0000000000|K90J | 29.12 | -81.57 |   33|ASTOR NAS, FL                       |US|MTR
 0000000000|K92S | 42.83 |-124.57 |   33|Cape Blanco, OR                     |US|MTR
 0000000000|K96D | 48.94057| -97.902775| 290|Walhalla Muni, Walhalla, ND     |US|MTR
@@ -1612,7 +1610,7 @@
 0000000000|KCCY | 43.07 | -92.62 |  343|Charles City, IA                    |US|MTR
 0000000000|KCDA | 44.569| -72.018|  362|Caledonia Cnty AP, Lyndonville, VT  |US|MTR
 0000000000|KCDC | 37.70 |-113.10 | 1715|Cedar City Regnl, UT                |US|MTR
-0000000000|KCDD | 48.27 | -92.57 |  350|Crane Lake, MN                      |US|MTR
+0000000000|KCDD | 48.26657|-92.48349|341|Scotts Seaplane Base, Crane Lake, MN|US|MTR
 0000000000|KCDH | 33.623| -92.763|   40|Harrell Fld AP, Camden, AR          |US|MTR
 0000000000|KCDI | 39.97503|-81.57758| 244|Cambridge Muni AP, Cambridge, OH  |US|MTR
 0000000000|KCDJ | 39.82 | -93.58 |  254|Chillicothe/Litton Ag Sci, MO       |US|MTR
@@ -3596,7 +3594,7 @@
 0000000000|KTVR | 32.35 | -91.03 |   26|Tallulah, LA/Vicksburg, MS          |US|MTR
 0000000000|KTVY | 40.6126|-112.3508|1317|Bolinder Fld-Tooele Valley AP,  UT |US|MTR
 0000000000|KTWF | 42.4785|-114.4774| 1265|TWIN FALLS, ID                    |US|MTR
-0000000000|KTWM | 47.05 | -91.75 |  328|TWO HARBORS, MN                     |US|MTR
+0000000000|KTWM | 47.04914|-91.74522|327|Richard Helgeson AP, Two Harbors, MN|US|MTR
 0000000000|KTWT | 37.54178|-87.95436| 113|Sturgis Muni AP, Sturgis, KY      |US|MTR
 0000000000|KTXK | 33.46 | -94.00 |  122|TEXARKANA MUNI, AR                  |US|MTR
 0000000000|KTXW | 26.17871|-97.97401| 21|Mid Valley Airport, Weslaco, TX    |US|MTR

@@ -471,7 +471,6 @@
 60R Navasota Muni Airport, Navasota, TX
 60Y Slayton Muni, Slayton, MN
 62M 12 HR RGL WND 12K FT
-62Y Two Harbors, MN
 63S Colville Airport, Colville, WA
 65S Boundary Cnty AP, Bonners Ferry, ID
 66R Robert Wells AP, Columbus, TX
@@ -539,7 +538,6 @@
 8T6 Live Oak County Airport, George West, TX
 8V7 Springfield, CO
 8W2 New Market AP, New Market, VA
-8Y8 Crane Lake, MN
 90J Astor NAS, FL
 92S Sixes, OR
 93Q Pigeon Point CGS, Pescadero, CA
@@ -1140,7 +1138,7 @@ CCY Charles City, IA
 CDA Caledonia Cnty AP, Lyndonville, VT
 CDB Cold Bay, AK
 CDC Cedar City, UT
-CDD Crane Lake, MN
+CDD Scotts Seaplane Base, Crane Lake, MN
 CDE Cape Decision CGS, Cape Decision, AK
 CDH Harrell Fld AP, Camden, AR
 CDI Cambridge Muni AP, Cambridge, OH
@@ -4144,7 +4142,7 @@ TWC K-WFO Tucson, AZ; Gulf of Alaska SHEF-Encoded ETSS
 TWE East Coast SHEF-Encoded ETSS
 TWF Twin Falls, ID
 TWG Gulf of America SHEF-Encoded ETSS
-TWM Two Harbors, MN
+TWM Richard B Helgeson Airport, Two Harbors, MN
 TWP West Coast SHEF-Encoded ETSS
 TWT Sturgis Muni Airport, Sturgis, KY
 TWX Great Falls, MT WSR-88D
