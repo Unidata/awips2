@@ -26,7 +26,11 @@ Require-Bundle: org.eclipse.ui,
  javax.xml.bind,
  com.raytheon.viz.awipstools,
  org.apache.commons.collections4,
- com.raytheon.uf.common.localization
-Export-Package: com.raytheon.uf.viz.grid.radar
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.dataquery,
+ com.google.guava,
+ com.raytheon.uf.viz.core.rsc
+Export-Package: com.raytheon.uf.viz.grid.radar,
+ com.raytheon.uf.viz.grid.radar.util
 Import-Package: com.raytheon.uf.common.wxmath,
  org.apache.commons.lang3.tuple

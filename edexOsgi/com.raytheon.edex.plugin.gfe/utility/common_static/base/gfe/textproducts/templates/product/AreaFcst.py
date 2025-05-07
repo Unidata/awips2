@@ -25,6 +25,8 @@
 # May 01, 2015  17421    ryu       Changed analysis methods for StormTotalSnow
 # Mar 23, 2021  8397     randerso  Removed FA.W and FA.Y from allowedHazards
 # May 18, 2021  DCS22297 dkingfiel Add CW.Y, XH.A, and XH.W
+# Sep 04, 2024 DR2036917 dkingfiel Remove HZ.A, HZ.W, WC.A, WC.W, WC.Y from
+#                                  allowedHazards
 #
 ##
 
@@ -1470,9 +1472,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('WS.W', allActions, 'WinterWx'),     # WINTER STORM WARNING
             ('WW.Y', allActions, 'WinterWx'),     # WINTER WEATHER ADVISORY
             ('WS.A', allActions, 'WinterWx'),     # WINTER STORM WATCH
-            ('WC.W', allActions, 'WindChill'),    # WIND CHILL WARNING
-            ('WC.Y', allActions, 'WindChill'),    # WIND CHILL ADVISORY
-            ('WC.A', allActions, 'WindChill'),    # WIND CHILL WATCH
             ('DU.W', allActions, 'Dust'),         # BLOWING DUST WARNING
             ('DU.Y', allActions, 'Dust'),         # BLOWING DUST ADVISORY
             ('EC.W', allActions, 'Cold'),         # EXTREME COLD WARNING
@@ -1484,10 +1483,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('XH.A', allActions, 'Heat'),         # EXTREME HEAT WATCH
             ('HT.Y', allActions, 'Heat'),         # HEAT ADVISORY
             ('FG.Y', allActions, 'Fog'),          # DENSE FOG ADVISORY
-            ('HZ.W', allActions, 'FrostFreeze'),  # HARD FREEZE WARNING
             ('FZ.W', allActions, 'FrostFreeze'),  # FREEZE WARNING
             ('FR.Y', allActions, 'FrostFreeze'),  # FROST ADVISORY
-            ('HZ.A', allActions, 'FrostFreeze'),  # HARD FREEZE WATCH
             ('FZ.A', allActions, 'FrostFreeze'),  # FREEZE WATCH
             ('HW.W', allActions, 'Wind'),         # HIGH WIND WARNING
             ('WI.Y', allActions, 'Wind'),         # WIND ADVISORY

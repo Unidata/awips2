@@ -7,11 +7,14 @@
 ##          Evan Bookbinder 09-18-2013 Implemented config.vm
 ##          Dave Tomalak 3-25/26-2015 Mixed Case
 ##          Mike Dangelo 10-22-2015 checked for mixed case = passed
-##          Bookbinder 1-30-2017 capitalization of emphasis phrase DR19358 ##
-##          Mike Rega  4/24/2018 DR 20671 add && to end of full CON PPA
-##          Bookbinder 9-21-2023 Force selection of CTA for && break point ##
-##                               DR 2036278   ##
-################################################
+##          Bookbinder 1-30-2017 capitalization of emphasis phrase DR19358
+##          Mike Rega  4-24-2018 DR 20671 add && to end of full CON PPA
+##          Bookbinder 9-21-2023 Force selection of CTA for && break point
+##                               DR2036278 
+##          Bookbinder 2-16-2024 misplaced end tag in WATCHES section of 
+##                               EWW SVS EXP section DR2036922
+##
+##################################################
 ##
 #parse("config.vm")
 ### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
@@ -541,7 +544,6 @@ THIS IS A TEST MESSAGE.##
 #if($includedWatches.contains("SV.A"))
 #insertsvrwatches(${watches}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#end
 
 
 #if(${productClass}=="T")
@@ -550,6 +552,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #end
 
 &&
+#end
 
 
 #printcoords(${areaPoly})

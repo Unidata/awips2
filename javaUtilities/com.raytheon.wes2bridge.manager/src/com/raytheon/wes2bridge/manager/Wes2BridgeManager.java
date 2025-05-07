@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,6 +84,9 @@ import com.raytheon.wes2bridge.configuration.jaxb.Wes2BridgeJaxbManager;
  *                                     Major code cleanup
  * Jun 01, 2021 8475       dgilling    Have reconfigureQPID use initialConfig.json instead
  *                                     of config.json.
+ * Dec 19, 2022 23367      zalberts    Added --oldest flag to camel_pid pgrep to prevent it
+ *                                     from returning multiple pids
+ * Sep 12, 2024 2030328    smoorthy    Adjust for systemd files replacing initd startup scripts.
  *
  * </pre>
  *
@@ -371,35 +375,59 @@ public class Wes2BridgeManager {
     private void updateEdexCamel(Path edexDirectory)
             throws FileNotFoundException, IOException {
 
-        Path srcedex_camel = AWIPSII_WES2BRIDGE_SCRIPTS.resolve("edex_camel");
-        Path edex_camel = this.wes2BridgeScripts.resolve("edex_camel");
+        final String envName = this.wes2BridgeCase.getName();
+        final String envHome = WES2BRIDGE_DIRECTORY.resolve(envName).toString();
+
+        Path srcedex_camel = AWIPSII_WES2BRIDGE_SCRIPTS.resolve("edex_camel@.service");
+        Path edex_camel = this.wes2BridgeScripts.resolve("edex_camel_" + envName.toLowerCase() + "@.service");
+
+        Path srcedex_watchdog = AWIPSII_WES2BRIDGE_SCRIPTS.resolve("edex_camel_watchdog.sh");
+        Path edex_watchdog = this.wes2BridgeScripts.resolve("edex_camel_" + envName.toLowerCase() +"_watchdog.sh");
+
+        Path srcedex_target = AWIPSII_WES2BRIDGE_SCRIPTS.resolve("edex_camel.target");
+        Path edex_target = this.wes2BridgeScripts.resolve("edex_camel_" + envName.toLowerCase() + ".target");
+
 
         try (BufferedReader br = Files.newBufferedReader(srcedex_camel);
                 BufferedWriter bw = Files.newBufferedWriter(edex_camel)) {
 
-            final String line1 = "export EDEX_INSTALL=";
-            final String line2 = "export DATA_ARCHIVE_ROOT=";
-            final String line3 = "CAMELPROCESS=`ps -ef | grep \"aw.site.identifier\"|grep -c \"edex.run.mode=${1} \" `";
-            final String line4 = "_camel_pid=`pgrep -f  -u $EDEXUSER \"java -Dedex.run.mode=${1} \"`";
-
             String line = StringUtils.EMPTY;
             while ((line = br.readLine()) != null) {
-                if (line.trim().startsWith(line1)) {
-                    line = line1 + edexDirectory;
-                } else if (line.trim().startsWith(line2)) {
-                    line = line2 + this.wes2BridgeCase.getDataArchiveRoot();
-                } else if (line.trim().startsWith(line3)) {
-                    line = "CAMELPROCESS=`ps -ef | "
-                            + "grep \"wes2bridge.instance="
-                            + this.wes2BridgeCase.getName() + "\" | "
-                            + "grep -c \"edex.run.mode=${1} \" `";
-                } else if (line.trim().startsWith(line4)) {
-                    line = "_camel_pid=`pgrep -f \"java.*-Dedex.run.mode=${1} -Daw.site.identifier=.+ -Dwes2bridge.instance="
-                            + this.wes2BridgeCase.getName() + " \"`";
+                if (line.contains("EDEX_INSTALL") || line.contains("POSTGRESQL_INSTALL") 
+                        || line.contains("ExecStart")) {
+                    line = line.replace("/awips2", envHome);
                 }
-
+                if (line.contains("PATH")){
+                    line = line.replace("/awips2/GFESuite/bin", envHome + "/GFESuite/bin");
+                    line = line.replace("/awips2/postgresql/bin", envHome + "/postgresql/bin");
+                }
+                if (line.contains("PartOf") || line.contains("Before") || line.contains("WantedBy")) {
+                    line = line.replace("edex_camel", "edex_camel_" + envName.toLowerCase());
+                }
                 bw.write(line + "\n");
             }
+        }
+
+        try (BufferedReader br = Files.newBufferedReader(srcedex_watchdog);
+                BufferedWriter bw = Files.newBufferedWriter(edex_watchdog)) {
+            String line = StringUtils.EMPTY;
+            while ((line = br.readLine()) != null) {
+                if (line.contains("/awips2/edex")){
+                    line = line.replace("/awips2", envHome);
+                }
+
+                if (line.contains("edexServiceList")){
+                    line = "SERVICES=( 'request' 'ingest' 'ingestGrib' 'ingestDat' 'registry')";
+                }
+                if (line.contains("edex_camel")) {
+                    line = line.replace("edex_camel", "edex_camel_" + envName.toLowerCase());
+                }
+                bw.write(line + "\n");
+            }
+        }
+
+        try (OutputStream os = Files.newOutputStream(edex_target)) {
+            Files.copy(srcedex_target, os);
         }
     }
 
@@ -415,30 +443,42 @@ public class Wes2BridgeManager {
 
     private void updateEdexPostgres(Path postgresqlRootDirectory)
             throws FileNotFoundException, IOException {
+
+        final String envName = this.wes2BridgeCase.getName();
+        final String envHome = WES2BRIDGE_DIRECTORY.resolve(envName).toString();
+
         Path srcedex_postgres = AWIPSII_WES2BRIDGE_SCRIPTS
-                .resolve("edex_postgres");
-        Path edex_postgres = this.wes2BridgeScripts.resolve("edex_postgres");
+                .resolve("30-postgresql-setup.conf");
+        Path edex_postgres = this.wes2BridgeScripts.resolve("postgresql@awips_" 
+                + envName.toLowerCase() + ".service.d").resolve("30-postgresql-setup.conf");
+
+        Path srcpostgres_watchdog = AWIPSII_WES2BRIDGE_SCRIPTS
+                .resolve("postgres_watchdog.sh");
+        Path postgres_watchdog = this.wes2BridgeScripts.resolve("postgres_" + envName.toLowerCase() + "_watchdog.sh");
+
+
+        Files.createDirectories(edex_postgres.getParent());
 
         try (BufferedReader br = Files.newBufferedReader(srcedex_postgres);
                 BufferedWriter bw = Files.newBufferedWriter(edex_postgres)) {
 
-            final String line1 = "POSTGRESQL_INSTALL=";
-            final String line2 = "PGDATA_DIR=";
-
             String line = StringUtils.EMPTY;
             while ((line = br.readLine()) != null) {
-                if (line.startsWith(line1)) {
-                    line = line1 + "\""
-                            + postgresqlRootDirectory.resolve("postgresql")
-                            + "\"";
-                }
-                if (line.startsWith(line2)) {
-                    line = line2 + "\"" + postgresqlRootDirectory
-                            .resolve(Paths.get("database", "data")) + "\"";
-                }
-
+                line = line.replace("/awips2", envHome);
                 bw.write(line + "\n");
             }
+        }
+
+        try (BufferedReader br = Files.newBufferedReader(srcpostgres_watchdog);
+                BufferedWriter bw = Files.newBufferedWriter(postgres_watchdog)) {
+            String line = StringUtils.EMPTY;
+            while ((line = br.readLine()) != null) {
+                if (line.contains("systemd_action")) {
+                    line = line.replace("postgresql@awips", "postgresql@awips_" + envName.toLowerCase());
+                }
+                bw.write(line + "\n");
+            }
+
         }
     }
 
@@ -465,11 +505,9 @@ public class Wes2BridgeManager {
                 if (matcher.matches()) {
                     stringBuilder.append(matcher.group(1));
                     stringBuilder.append(this.wes2BridgeCase.getDatabasePort());
-                    stringBuilder.append(matcher.group(3));
 
                     line = stringBuilder.toString();
                 }
-
                 bw.write(line + "\n");
             }
         }
@@ -522,27 +560,54 @@ public class Wes2BridgeManager {
 
     private void updateQPIDD(Path qpidDirectory)
             throws FileNotFoundException, IOException {
-        Path srcqpidd = AWIPSII_WES2BRIDGE_SCRIPTS.resolve("qpidd");
-        Path qpidd = this.wes2BridgeScripts.resolve("qpidd");
+        String qpidd_env_name = "qpidd_" +this.wes2BridgeCase.getName().toLowerCase();
+        String qpidd_env_name_svc =  qpidd_env_name +".service";
+        String qpid_watchdog_env_name = "qpid_" + 
+            this.wes2BridgeCase.getName().toLowerCase() + "_watchdog.sh";
+
+        Path srcqpidd = AWIPSII_WES2BRIDGE_SCRIPTS.resolve("qpidd.service");
+        Path qpidd = this.wes2BridgeScripts.resolve(qpidd_env_name_svc);
+
+        Path srcQpidWatchdog = AWIPSII_WES2BRIDGE_SCRIPTS.resolve("qpid_watchdog.sh");
+        Path qpidWatchdog = this.wes2BridgeScripts.resolve(qpid_watchdog_env_name);
 
         try (BufferedReader br = Files.newBufferedReader(srcqpidd);
                 BufferedWriter bw = Files.newBufferedWriter(qpidd)) {
 
-            final String line1 = "QPID_HOME=";
+            final String line1 = "ExecStart=";
+            final String line2 = "remove_watchdog_bypass";
+            final String line3 = "bypass_watchdog";
 
             String line = StringUtils.EMPTY;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith(line1)) {
-                    line = line1 + qpidDirectory;
+                    line = line1 + qpidDirectory + "/bin/qpid-wrapper -noConsole";
                 }
+                if (line.contains(line2) || line.contains(line3)) {
+                    line = line.replace("qpidd", qpidd_env_name);
+                }
+                bw.write(line + "\n");
+            }
+        }
 
+        try (BufferedReader br = Files.newBufferedReader(srcQpidWatchdog);
+                BufferedWriter bw = Files.newBufferedWriter(qpidWatchdog)) {
+
+            final String line1 = "systemd_action";
+
+            String line = StringUtils.EMPTY;
+            while ((line = br.readLine()) != null) {
+                if (line.contains(line1)) {
+                    line = line.replace("qpidd", qpidd_env_name);
+                }
                 bw.write(line + "\n");
             }
         }
     }
 
     /*
-     * This method will: 1) update pypies.cfg 2) update httpd.conf
+     * This method will: 1) update pypies.cfg 2) update httpd.conf 3) update httpd_pypies_env 
+     * 4) update httpd-pypies.service and httpd-pypies-logging.service
      */
     private void reconfigurePypies() throws FileNotFoundException, IOException {
         Path srcPypiesDirectory = AWIPSII.resolve("pypies");
@@ -555,6 +620,7 @@ public class Wes2BridgeManager {
 
         this.updatePypiesCfg(srcPypiesDirectory, pypiesDirectory);
         this.updateHttpdConf(srcHttpdPypiesDirectory, httpdPypiesDirectory);
+        this.updatePypiesEnv(srcHttpdPypiesDirectory, httpdPypiesDirectory);
         this.updateHttpdPypies(httpdPypiesDirectory, pypiesDirectory);
     }
 
@@ -616,6 +682,10 @@ public class Wes2BridgeManager {
         final Path serverRoot = httpdPypiesDirectory
                 .resolve(Paths.get("etc", "httpd"));
 
+        final String envName = this.wes2BridgeCase.getName();
+        final String envPidLoc = "/run/" + envName; 
+        final String envHome = WES2BRIDGE_DIRECTORY.resolve(envName).toString();
+
         try (BufferedReader br = Files.newBufferedReader(srcHttpdConf);
                 BufferedWriter bw = Files.newBufferedWriter(httpdConf)) {
 
@@ -635,6 +705,10 @@ public class Wes2BridgeManager {
                     line = matcher2.group(GROUP_INDEX_ONE);
                     line += serverRoot;
                     line += matcher2.group(GROUP_INDEX_TWO);
+                } else if (line.stripLeading().startsWith("PidFile")) {
+                    line = line.replace("/run", envPidLoc);
+                } else if (line.stripLeading().startsWith("ErrorLog") || line.stripLeading().startsWith("CustomLog")) {
+                    line = line.replace("/awips2", envHome);
                 }
 
                 bw.write(line + "\n");
@@ -647,40 +721,98 @@ public class Wes2BridgeManager {
         }
     }
 
+    private void updatePypiesEnv(Path srcHttpdPypiesDirectory,
+            Path httpdPypiesDirectory) throws IOException, FileNotFoundException {
+        final Path pypiesEnvSuffix = Paths.get("bin", "httpd_pypies_env");
+        final Path srcPypiesEnv = srcHttpdPypiesDirectory
+                .resolve(pypiesEnvSuffix);
+        final Path pypiesEnv = httpdPypiesDirectory
+                .resolve(pypiesEnvSuffix);
+
+        final String envName = this.wes2BridgeCase.getName();
+        final String envPidLoc = "/run/" + envName; 
+        final String envHome = WES2BRIDGE_DIRECTORY.resolve(envName).toString();
+
+        try (BufferedReader br = Files.newBufferedReader(srcPypiesEnv);
+                BufferedWriter bw = Files.newBufferedWriter(pypiesEnv)) {
+            String line = StringUtils.EMPTY;
+            while ((line = br.readLine()) != null) {
+                if (line.contains("PYPIES_CFG")) {
+                    line = line.replace("/awips2", envHome);
+                }
+                bw.write(line + "\n");
+            }
+        }
+    }
+
+
     private void updateHttpdPypies(Path httpdPypiesDirectory,
             Path pypiesDirectory) throws IOException, FileNotFoundException {
 
+        final String envName = this.wes2BridgeCase.getName();
+        final String envPidLoc = "/run/" + envName; 
+        final String envHome = WES2BRIDGE_DIRECTORY.resolve(envName).toString();
+        
+        
         Path srchttpd_pypies = AWIPSII_WES2BRIDGE_SCRIPTS
-                .resolve("httpd-pypies");
-        Path httpd_pypies = this.wes2BridgeScripts.resolve("httpd-pypies");
+                .resolve("httpd-pypies.service");
+        Path httpd_pypies = this.wes2BridgeScripts.resolve("httpd-pypies_" + envName.toLowerCase() + ".service");
+
+        Path srchttpd_pypies_logging = AWIPSII_WES2BRIDGE_SCRIPTS
+                .resolve("httpd-pypies-logging.service");
+        Path httpd_pypies_logging = this.wes2BridgeScripts.resolve("httpd-pypies-logging_" + envName.toLowerCase() + ".service");
+
+        Path srcpypies_watchdog = AWIPSII_WES2BRIDGE_SCRIPTS
+                .resolve("pypies_watchdog.sh");
+        Path pypies_watchdog = this.wes2BridgeScripts.resolve("pypies_" + envName.toLowerCase() + "_watchdog.sh");
+
+        try (BufferedReader br = Files.newBufferedReader(srchttpd_pypies_logging);
+                BufferedWriter bw = Files.newBufferedWriter(httpd_pypies_logging)) {
+            String line = StringUtils.EMPTY;
+            while ((line = br.readLine()) != null) {
+
+
+                line = line.replace("/awips2", envHome);
+                line = line.replace("/run", envPidLoc);
+
+                if (line.contains("BindsTo")) {
+                    line = line.replace("httpd-pypies.service", httpd_pypies.getFileName().toString());
+                }
+                bw.write(line + "\n");
+
+            }
+        }
 
         try (BufferedReader br = Files.newBufferedReader(srchttpd_pypies);
                 BufferedWriter bw = Files.newBufferedWriter(httpd_pypies)) {
 
-            final String httpdPypiesInstallPattern = "(HTTPD_PYPIES_INSTALL=).+";
-            final String loggingCommandPattern = "( *nohup su awips -c \"\\$loggingCmd > /tmp/pypiesLoggingService)(.log 2>&1\" > /dev/null &)";
-            final String pypiesConfigurationPattern = "(export PYPIES_CFG=).+";
-            final Pattern pattern1 = Pattern.compile(httpdPypiesInstallPattern);
-            final Pattern pattern2 = Pattern.compile(loggingCommandPattern);
-            final Pattern pattern3 = Pattern
-                    .compile(pypiesConfigurationPattern);
+            String line = StringUtils.EMPTY;
+            while ((line = br.readLine()) != null) {
+
+                if (line.contains("ExecStartPre=+mkdir -p /run/httpd_pypies/")) {
+                    String newLine = "ExecStartPre=+mkdir -p " + envPidLoc;
+                    bw.write(newLine + "\n");
+                }
+
+                if (line.contains("Requires")) {
+                    line = line.replace("httpd-pypies-logging.service", httpd_pypies_logging.getFileName().toString());
+                }
+
+                line = line.replace("/awips2", envHome);
+                line = line.replace("/run", envPidLoc);
+
+                bw.write(line + "\n");
+            }
+        }
+
+        try (BufferedReader br = Files.newBufferedReader(srcpypies_watchdog);
+                BufferedWriter bw = Files.newBufferedWriter(pypies_watchdog)) {
 
             String line = StringUtils.EMPTY;
             while ((line = br.readLine()) != null) {
-                Matcher matcher1 = pattern1.matcher(line);
-                Matcher matcher2 = pattern2.matcher(line);
-                Matcher matcher3 = pattern3.matcher(line);
 
-                if (matcher1.matches()) {
-                    line = matcher1.group(GROUP_INDEX_ONE);
-                    line += httpdPypiesDirectory;
-                } else if (matcher2.matches()) {
-                    line = matcher2.group(GROUP_INDEX_ONE);
-                    line += this.wes2BridgeCase.getName();
-                    line += matcher2.group(GROUP_INDEX_TWO);
-                } else if (matcher3.matches()) {
-                    line = matcher3.group(GROUP_INDEX_ONE) + pypiesDirectory
-                            .resolve(Paths.get("conf", "pypies.cfg"));
+                if (line.contains("service_action")) {
+                    line = line.replace("httpd-pypies", "httpd-pypies_" + envName.toLowerCase());
                 }
 
                 bw.write(line + "\n");

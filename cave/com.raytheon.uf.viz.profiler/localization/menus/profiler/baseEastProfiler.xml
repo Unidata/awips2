@@ -21,9 +21,9 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
             <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
-                        menuText="Norman OK (ROCO2)" id="profNorman_OK">
-                <substitute key="wmoid" value="74989"/>
-                <substitute key="productURI" value="/profiler/%/3000/74989/%"/>
+                        menuText="Block Island RI (BIDR1)" id="profBlockIsland_RI">
+                <substitute key="wmoid" value="74973"/>
+                <substitute key="productURI" value="/profiler/%/3000/74973/%"/>
             </contribute>
 			
             <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
@@ -32,28 +32,16 @@
                 <substitute key="productURI" value="/profiler/%/3000/74986/%"/>
             </contribute>
 			
-            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
-                        menuText="Columbia LA (CLBL1)" id="profColumbia_LA">
-                <substitute key="wmoid" value="74976"/>
-                <substitute key="productURI" value="/profiler/%/3000/74976/%"/>
-            </contribute>
-			
-            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
-                        menuText="Oakdale LA (ACPL1)" id="profOakdale_LA">
-                <substitute key="wmoid" value="74984"/>
-                <substitute key="productURI" value="/profiler/%/3000/74984/%"/>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Nantucket MA (NTEM3)" id="profNantucket_MA">
+                <substitute key="wmoid" value="74974"/>
+                <substitute key="productURI" value="/profiler/%/3000/74974/%"/>
             </contribute>
 			
             <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
                         menuText="Starkville MS (SVLM6)" id="profStarkville_MS">
                 <substitute key="wmoid" value="74975"/>
                 <substitute key="productURI" value="/profiler/%/3000/74975/%"/>
-            </contribute>
-			
-            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
-                        menuText="Greenwood MS (GWOM6)" id="profGreenwood_MS">
-                <substitute key="wmoid" value="74977"/>
-                <substitute key="productURI" value="/profiler/%/3000/74977/%"/>
             </contribute>
 			
 </menuTemplate>

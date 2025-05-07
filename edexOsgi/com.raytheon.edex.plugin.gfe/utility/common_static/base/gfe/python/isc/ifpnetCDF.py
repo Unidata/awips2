@@ -70,6 +70,10 @@
 # May 19, 2022  8749     randerso  Add projection attributes back in for Topo
 #                                  and lat/lon grids. Renamed storeProjectionAttributes
 #                                  to getProjectionAttributes since it no longer stores.
+# Feb 06, 2024 2036800   fcamacho  Fixed deprecated warning messages as seen in 
+#                                  edex-request-wrapper log file
+# Oct 04, 2024 2038100   njensen   Synchronize around calls to netCDF4 library since the
+#                                  library is not thread safe
 #
 ##
 
@@ -110,6 +114,13 @@ LocalizationLevel = LocalizationContext.LocalizationLevel
 BATCH_WRITE_COUNT = 20
 BATCH_DELAY = 0.0
 ifpNetcdfLogger = None
+
+# The lock object can be any object that can be shared amongst all
+# sub-interpreters, so we get a Java singleton. The same lock must be
+# used in other Python scripts using the netCDF4 package, i.e.
+# iscMosaic.
+from com.raytheon.edex.plugin.gfe.isc import Netcdf4LibraryLock
+nclock = Netcdf4LibraryLock.getLock()
 
 
 ## Logging methods ##
@@ -385,7 +396,7 @@ def getDims(cdfFile, dimSizes, dimNames):
 def getMaskGrid(ifpServer, editAreaName, dbId):
     #make a mask with all bits set (y,x)
     domain = ifpServer.getConfig().dbDomain()
-    mask = numpy.ones((int(domain.getNy()), int(domain.getNx())), dtype=numpy.bool)
+    mask = numpy.ones((int(domain.getNy()), int(domain.getNx())), dtype=bool)
 
     if editAreaName == "":
         return mask
@@ -394,7 +405,7 @@ def getMaskGrid(ifpServer, editAreaName, dbId):
     try:
         mask = iscUtil.getEditArea(editAreaName, DatabaseID(dbId).getSiteId())
         mask.setGloc(domain)
-        mask = mask.getGrid().getNDArray().astype(numpy.bool)
+        mask = mask.getGrid().getNDArray().astype(bool)
     except:
         logProblem("Edit area:", editAreaName, "not found. Storing entire grid.", traceback.format_exc())
 
@@ -1007,7 +1018,7 @@ def storeVectorWE(we, trList, cdfFile, timeRange,
 def collapseKey(grid, keys):
     #make list of unique indexes in the grid
     flatGrid = grid.flat
-    used = numpy.zeros((len(keys)), dtype=numpy.bool)
+    used = numpy.zeros((len(keys)), dtype=bool)
     for n in range(flatGrid.__array__().shape[0]):
         used[0xFF & flatGrid[n]] = True
 
@@ -1425,57 +1436,64 @@ def main(outputFilename, parmList, databaseID, startTime,
 
     partial_complete = False
     try:
-        # Open the netCDF file
-        with netCDF4.Dataset(argDict['outputFilename'], 'w', format='NETCDF3_CLASSIC', diskless=True, persist=True) as cdfFile:
-            totalGrids = 0
-            for p in argDict['parmList']:
-                try:
-                    we = db.getItem(p)
-                    #determine inventory that we want to keep
-                    t0 = time.perf_counter()
-                    parmTimes = we.getKeys()
-                    t1 = time.perf_counter()
-                    logDebug(f"main(): Time to retrieve inventory for ParmID [{p}]: {t1-t0}")
-                    logDebug(f"main(): ParmID [{p}], len(parmTimes): {len(parmTimes)}")
-                    t0 = time.perf_counter()
-                    weInv = determineSamplingValues(samplingDef, p, parmTimes, time.time())
-                    t1 = time.perf_counter()
-                    logDebug(f"main(): Time to call determineSamplingValues for ParmID [{p}]: {t1-t0}")
-                    logDebug(f"main(): ParmID [{p}], len(weInv): {len(weInv)}")
-                    t0 = time.perf_counter()
-                    gridType = str(we.getGpi().getGridType())
-                    if gridType == "SCALAR":
-                        nGrids = storeScalarWE(we, weInv, cdfFile, timeRange,
-                          argDict['databaseID'], invMask, argDict['trim'], clipArea,
-                          argDict['krunch'], argDict['siteIdOverride'])
-                    elif gridType == "VECTOR":
-                        nGrids = storeVectorWE(we, weInv, cdfFile, timeRange,
-                          argDict['databaseID'], invMask, argDict['trim'], clipArea,
-                          argDict['krunch'], argDict['siteIdOverride'])
-                    elif gridType == "WEATHER":
-                        nGrids = storeWeatherWE(we, weInv, cdfFile, timeRange,
-                          argDict['databaseID'], invMask, clipArea, argDict['siteIdOverride'])
-                    elif gridType == "DISCRETE":
-                        nGrids = storeDiscreteWE(we, weInv, cdfFile, timeRange,
-                          argDict['databaseID'], invMask, clipArea, argDict['siteIdOverride'])
-                    else:
-                        s = "Grids of type: " + we.gridType + " are not supported, " + \
-                          "parm=" + p
-                        logProblem(s)
-                        raise Exception(s)
-                    t1 = time.perf_counter()
-                    logDebug(f"main(): Time to store grids for ParmID [{p}]: {t1-t0}")
-                    totalGrids = totalGrids + nGrids
-                except:
-                    logException("Could not process parm [" + p + "]: ")
-                    partial_complete = True
-            # store the topo and lat, lon grids if the -g was present
-            if argDict["geoInfo"]:
-                storeTopoGrid(ifpServer, cdfFile, clipArea)
-                storeLatLonGrids(ifpServer, cdfFile, argDict['krunch'], clipArea)
-                totalGrids += 3
+        with nclock.synchronized():
+            # Open the netCDF file
+            with netCDF4.Dataset(argDict['outputFilename'], 'w', format='NETCDF3_CLASSIC', diskless=True, persist=True) as cdfFile:
 
-            storeGlobalAtts(cdfFile, argDict)
+                totalGrids = 0
+                for p in argDict['parmList']:
+                    try:
+                        we = db.getItem(p)
+
+                        #determine inventory that we want to keep
+                        t0 = time.perf_counter()
+                        parmTimes = we.getKeys()
+                        t1 = time.perf_counter()
+                        logDebug(f"main(): Time to retrieve inventory for ParmID [{p}]: {t1-t0}")
+                        logDebug(f"main(): ParmID [{p}], len(parmTimes): {len(parmTimes)}")
+
+                        t0 = time.perf_counter()
+                        weInv = determineSamplingValues(samplingDef, p, parmTimes, time.time())
+                        t1 = time.perf_counter()
+                        logDebug(f"main(): Time to call determineSamplingValues for ParmID [{p}]: {t1-t0}")
+                        logDebug(f"main(): ParmID [{p}], len(weInv): {len(weInv)}")
+
+                        t0 = time.perf_counter()
+                        gridType = str(we.getGpi().getGridType())
+                        if gridType == "SCALAR":
+                            nGrids = storeScalarWE(we, weInv, cdfFile, timeRange,
+                              argDict['databaseID'], invMask, argDict['trim'], clipArea,
+                              argDict['krunch'], argDict['siteIdOverride'])
+                        elif gridType == "VECTOR":
+                            nGrids = storeVectorWE(we, weInv, cdfFile, timeRange,
+                              argDict['databaseID'], invMask, argDict['trim'], clipArea,
+                              argDict['krunch'], argDict['siteIdOverride'])
+                        elif gridType == "WEATHER":
+                            nGrids = storeWeatherWE(we, weInv, cdfFile, timeRange,
+                              argDict['databaseID'], invMask, clipArea, argDict['siteIdOverride'])
+                        elif gridType == "DISCRETE":
+                            nGrids = storeDiscreteWE(we, weInv, cdfFile, timeRange,
+                              argDict['databaseID'], invMask, clipArea, argDict['siteIdOverride'])
+                        else:
+                            s = "Grids of type: " + we.gridType + " are not supported, " + \
+                              "parm=" + p
+                            logProblem(s)
+                            raise Exception(s)
+
+                        t1 = time.perf_counter()
+                        logDebug(f"main(): Time to store grids for ParmID [{p}]: {t1-t0}")
+                        totalGrids = totalGrids + nGrids
+                    except:
+                        logException("Could not process parm [" + p + "]: ")
+                        partial_complete = True
+
+                # store the topo and lat, lon grids if the -g was present
+                if argDict["geoInfo"]:
+                    storeTopoGrid(ifpServer, cdfFile, clipArea)
+                    storeLatLonGrids(ifpServer, cdfFile, argDict['krunch'], clipArea)
+                    totalGrids += 3
+
+                storeGlobalAtts(cdfFile, argDict)
     except:
         logException("Error creating cdfFile: %s " % argDict['outputFilename'])
 

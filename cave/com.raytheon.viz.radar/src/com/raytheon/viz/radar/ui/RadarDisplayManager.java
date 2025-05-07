@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,8 +28,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -41,27 +39,31 @@ import com.raytheon.viz.radar.rsc.image.RadarSRMResource.SRMSource;
 
 /**
  * Singleton controls for the values needed by radar and SCAN
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 13, 2015 4461       bsteffen    Add option for sails.
  * Jul 13, 2016 ASM #18863 D. Friedman Synchronize getInstance.
- * 
+ * May 22, 2024 2037092    mapeters    Add virtual volume option
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
-
 public class RadarDisplayManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarDisplayManager.class);
 
+    private static final String VIRTUAL_VOLUME_PREF = "VirtualVolume";
+
     public enum TrackTypes {
-        NONE("no tracks"), PAST("past"), FORECAST("forecast"), PAST_AND_FORECAST(
-                "past & fcst");
+        NONE("no tracks"),
+        PAST("past"),
+        FORECAST("forecast"),
+        PAST_AND_FORECAST("past & fcst");
 
         private String s;
 
@@ -69,11 +71,6 @@ public class RadarDisplayManager {
             this.s = s;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Enum#toString()
-         */
         @Override
         public String toString() {
             return this.s;
@@ -90,7 +87,7 @@ public class RadarDisplayManager {
             return trackType;
         }
 
-    };
+    }
 
     private Job saveJob = new Job("Saving Radar Config") {
 
@@ -124,22 +121,16 @@ public class RadarDisplayManager {
     private static volatile RadarDisplayManager manager = null;
 
     private RadarDisplayManager() {
-        configListeners = new ArrayList<IRadarConfigListener>();
+        configListeners = new ArrayList<>();
         saveJob.setSystem(true);
         Activator.getDefault().getPreferenceStore()
-                .addPropertyChangeListener(new IPropertyChangeListener() {
-
-                    @Override
-                    public void propertyChange(PropertyChangeEvent event) {
-                        retrieveDefaultSettings();
-                    }
-                });
+                .addPropertyChangeListener(event -> retrieveDefaultSettings());
     }
 
     /**
      * Singleton pattern for _values creating a singleton holding values to pass
      * through jvm
-     * 
+     *
      * @return
      */
     public static RadarDisplayManager getInstance() {
@@ -197,7 +188,7 @@ public class RadarDisplayManager {
     public void displayConfigUpdated() {
         save();
         synchronized (configListeners) {
-            List<IRadarConfigListener> listeners = new ArrayList<IRadarConfigListener>(
+            List<IRadarConfigListener> listeners = new ArrayList<>(
                     configListeners);
             for (IRadarConfigListener currListener : listeners) {
                 currListener.updateConfig();
@@ -231,6 +222,8 @@ public class RadarDisplayManager {
         prefs.setValue("SRM_Speed", currentValues.getSrmSpeed());
         prefs.setValue("SAILS_FrameCoordinator",
                 currentValues.isSailsFrameCoordinator());
+        prefs.setValue(VIRTUAL_VOLUME_PREF, currentValues.isVirtualVolumeEnabled());
+
         // Put the IO on a different thread to avoid hanging.
         saveJob.schedule();
     }
@@ -253,27 +246,28 @@ public class RadarDisplayManager {
         }
         // Load the current values from the preferences store
         currentVals.setStiNumStorms(prefs.getInt("STI_NumStorms"));
-        currentVals.setStiTrackType(TrackTypes.valueOf(prefs
-                .getString("STI_TrackType")));
+        currentVals.setStiTrackType(
+                TrackTypes.valueOf(prefs.getString("STI_TrackType")));
         currentVals.setHiPOHLow(prefs.getInt("HI_POHLow"));
         currentVals.setHiPOHHigh(prefs.getInt("HI_POHHigh"));
         currentVals.setHiPOSHLow(prefs.getInt("HI_POSHLow"));
         currentVals.setHiPOSHHigh(prefs.getInt("HI_POSHHigh"));
         currentVals.setTvsShowElevated(prefs.getBoolean("TVS_ShowElevated"));
-        currentVals.setDmdMdTvsShowExtrapolated(prefs
-                .getBoolean("DMD_ShowExtrapolated"));
-        currentVals.setDmdMinFeatureStrength(prefs
-                .getInt("DMD_MinFeatureStrength"));
-        currentVals.setDmdShowOverlapping(prefs
-                .getBoolean("DMD_ShowOverlapping"));
-        currentVals.setDmdTrackType(TrackTypes.valueOf(prefs
-                .getString("DMD_TrackType")));
-        currentVals.setSrmSource(SRMSource.valueOf(prefs
-                .getString("SRM_Source")));
+        currentVals.setDmdMdTvsShowExtrapolated(
+                prefs.getBoolean("DMD_ShowExtrapolated"));
+        currentVals.setDmdMinFeatureStrength(
+                prefs.getInt("DMD_MinFeatureStrength"));
+        currentVals
+                .setDmdShowOverlapping(prefs.getBoolean("DMD_ShowOverlapping"));
+        currentVals.setDmdTrackType(
+                TrackTypes.valueOf(prefs.getString("DMD_TrackType")));
+        currentVals
+                .setSrmSource(SRMSource.valueOf(prefs.getString("SRM_Source")));
         currentVals.setSrmDir(prefs.getInt("SRM_Direction"));
         currentVals.setSrmSpeed(prefs.getInt("SRM_Speed"));
-        currentVals.setSailsFrameCoordinator(prefs
-                .getBoolean("SAILS_FrameCoordinator"));
+        currentVals.setSailsFrameCoordinator(
+                prefs.getBoolean("SAILS_FrameCoordinator"));
+        currentVals.setVirtualVolumeEnabled(prefs.getBoolean(VIRTUAL_VOLUME_PREF));
         currentValues = currentVals;
     }
 

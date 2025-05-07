@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="common-dataplugin-radar-test" default="suite">
+    <property name="plugin.name" value="com.raytheon.uf.common.dataplugin.radar"/>
+
+    <path id="classpath.test">
+        <!-- these are required to run the tests -->
+        <fileset dir="${eclipse.plugins.dir}">
+            <include name="org.junit*.jar"/>
+            <include name="org.hamcrest.core*.jar"/>
+            <include name="org.opentest4j*.jar"/>
+        </fileset>
+        <!-- Mockito needs to be ahead of the FOSS jars on the classpath so the
+             classloader picks up Mockito's ByteBuddy jar ahead of Hibernate's
+             ByteBuddy jar. Hopefully this will be fixed after Hibernate and
+             ByteBuddy are upgraded where there will only be one ByteBuddy jar
+             in our system.  -->
+        <fileset dir="${baseline.dir}/org.mockito/">
+            <include name="*.jar"/>
+        </fileset>
+        <!-- this includes the FOSS jars -->
+        <fileset dir="${test.lib.dir}/dependencies">
+             <include name="**/*.jar"/>
+        </fileset>
+        <!-- this includes the compiled AWIPS classes -->
+        <fileset dir="${test.lib.dir}/plugins">
+             <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath.compiled">
+        <pathelement location="${test.build.dir}"/>
+    </path>
+
+    <target name="suite">
+        <dirname property="this.dir.name" file="${ant.file}"/>
+        <property name="test.src.dir" value="${this.dir.name}/tests"/>
+        <property name="test.build.dir" value="${this.dir.name}/bin-tests"/>
+        <echo message="Running ${plugin.name} suite"/>
+
+        <antcall target="test"/>
+    </target>
+
+    <target name="test-compile">
+        <mkdir dir="${test.build.dir}"/>
+        <!-- we want debug information to get helpful stacktraces -->
+        <javac srcdir="${test.src.dir}" destdir="${test.build.dir}" includeantruntime="false" debug="true" debuglevel="lines,vars,source">
+            <classpath refid="classpath.test"/>
+        </javac>
+    </target>
+
+    <target name="test" depends="test-compile">
+        <junitlauncher printsummary="true" haltonfailure="${halt.on.failure}">
+            <classpath>
+                <path refid="classpath.test"/>
+                <path refid="classpath.compiled"/>
+            </classpath>
+            <testclasses outputdir="${junit.output.dir}/xml">
+                <fork dir="${this.dir.name}">
+                    <!-- silence "Sharing is only supported for boot loader
+                         classes because bootstrap classpath has been appended"
+                         warning -->
+                    <jvmarg value="-Xshare:off"/>
+                </fork>
+                <fileset dir="${test.build.dir}"/>
+                <listener type="legacy-xml"/>
+            </testclasses>
+        </junitlauncher>
+    </target>
+
+</project>
+

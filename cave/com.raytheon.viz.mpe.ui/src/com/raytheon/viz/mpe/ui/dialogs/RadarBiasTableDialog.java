@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarData;
-import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarData.RadarAvailability;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
 import com.raytheon.viz.ui.dialogs.DialogUtil;
@@ -92,6 +91,8 @@ import com.raytheon.viz.ui.dialogs.DialogUtil;
  * May 01, 2018  7027     mduff     Added isDisposed and toFront methods.
  * Aug 23, 2018  6953     tgurney   Fix the Other Office column, fill it in even
  *                                  if no bias value exists for a given radar
+ * Sep 05, 2024  2037782  jsebahar  Remove data retrieval from DPAAdapt table, part of
+ *                                  DPARadar removal.
  *
  * </pre>
  *
@@ -386,21 +387,6 @@ public class RadarBiasTableDialog extends Dialog {
 
             if (radarresultdata == null) {
                 continue;
-            }
-            if (!radarresultdata.getRadAvail()
-                    .equals(RadarAvailability.MISSING)) {
-                float[] dpaz = new float[2];
-                try {
-                    dpaz = ReadBiasTableParam.getDpaadaptcoef(rid, dt);
-                } catch (VizException e1) {
-                    statusHandler
-                            .error("Failed to retrieve the dpaadapt cofficients for radar: "
-                                    + radIds[i] + ". Defaulting to 0.", e1);
-                }
-                if (dpaz.length != 0) {
-                    abzerocoef.mlt_zrcoef = dpaz[0];
-                    abzerocoef.pwr_zrcoef = dpaz[1];
-                }
             }
 
             // -----------------------------------------------------

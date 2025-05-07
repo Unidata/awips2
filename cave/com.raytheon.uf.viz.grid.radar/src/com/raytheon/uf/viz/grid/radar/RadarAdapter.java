@@ -40,7 +40,6 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.request.GetRadarDataTreeRequest;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
@@ -57,7 +56,6 @@ import com.raytheon.uf.common.inventory.tree.DataTree;
 import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.inventory.tree.ParameterNode;
 import com.raytheon.uf.common.inventory.tree.SourceNode;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -66,12 +64,10 @@ import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.style.level.Level.LevelType;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.grid.data.TopoRequestableData;
-import com.raytheon.viz.radar.util.StationUtils;
+import com.raytheon.viz.radar.util.RadarAsGridUtil;
 
 import si.uom.SI;
 
@@ -100,6 +96,11 @@ import si.uom.SI;
  *                                   environment variable settings.
  * Sep 28, 2022  8937     mapeters   Ensure coverages that we pass to
  *                                   CoverageUtils are in DB
+ * May 07, 2024  2036516  bines      Get all radar from db instead of just
+ *                                   the local radars in radarsInUse.txt
+ * May 22, 2024  2037092  mapeters   Set up virtual volume derived parameters
+ * Oct 11, 2024  2037939  mapeters   Add icao param to timeInvariantQuery() and
+ *                                   move DB query logic into RadarUpdater
  *
  * </pre>
  *
@@ -113,7 +114,7 @@ public class RadarAdapter {
 
     public static final String CUBE_MASTER_LEVEL_NAME = "TILT";
 
-    private static final String PLUGIN_NAME_QUERY = "pluginName";
+    public static final String PLUGIN_NAME_QUERY = "pluginName";
 
     public static final String ICAO_QUERY = "icao";
 
@@ -121,7 +122,7 @@ public class RadarAdapter {
 
     public static final String TILT_QUERY = "primaryElevationAngle";
 
-    private static final String RDA_ID_QUERY = "location.rdaId";
+    public static final String SCAN_TYPE_QUERY = "scanType";
 
     private static final String RADAR_ADAPTER_GRID_SPACING = "RADAR_ADAPTER_GRID_SPACING";
 
@@ -174,19 +175,17 @@ public class RadarAdapter {
     }
 
     private boolean checkConfiguredRadars() {
-        Set<String> localRadars = new HashSet<>(RadarsInUseUtil.getSite(
-                LocalizationManager.getContextName(LocalizationLevel.SITE),
-                RadarsInUseUtil.LOCAL_CONSTANT));
+        Set<String> allRadarsRdaId = RadarUtil.getAllRadarsRdaId();
+        boolean status = allRadarsRdaId.equals(configuredRadars.keySet());
 
-        boolean status = localRadars.equals(configuredRadars.keySet());
         if (!status) {
             configuredRadars.clear();
             coverages.clear();
+            Set<RadarStation> allRadarStations = RadarUtil.getAllRadars();
 
-            for (String icao : localRadars) {
-                icao = icao.toLowerCase();
-                RadarStation station = StationUtils.getInstance()
-                        .getRadarStation(icao);
+            for (RadarStation station : allRadarStations) {
+                String icao = station.getRdaId().toLowerCase();
+
                 if (station != null) {
                     RadarUpdater.getInstance().clearCache();
                     ProjectedCRS crs = RadarUtil.constructCRS(station.getLat(),
@@ -230,7 +229,7 @@ public class RadarAdapter {
                             .setCoverage(RADAR_SOURCE + "-" + icao, dbCoverage);
                 }
             }
-            status = localRadars.equals(configuredRadars.keySet());
+            status = allRadarsRdaId.equals(configuredRadars.keySet());
         }
         return status;
     }
@@ -248,12 +247,10 @@ public class RadarAdapter {
 
         DataTree radarTree = null;
         GetRadarDataTreeRequest request = new GetRadarDataTreeRequest();
-        request.setSiteId(
-                LocalizationManager.getContextName(LocalizationLevel.SITE));
 
         try {
             Object response = ThriftClient.sendRequest(request);
-            if (response != null && response instanceof DataTree) {
+            if (response instanceof DataTree) {
                 radarTree = (DataTree) response;
             }
         } catch (Exception e) {
@@ -270,7 +267,7 @@ public class RadarAdapter {
             icao = entry.getKey();
             SourceNode sNode = entry.getValue();
 
-            String radarSource = RADAR_SOURCE + "-" + icao;
+            String radarSource = RadarAsGridUtil.getModelNameForIcao(icao);
             SourceNode gridSourceNode = new SourceNode();
             gridSourceNode.setValue(radarSource);
             gridSourceNode.setDt(60);
@@ -279,12 +276,18 @@ public class RadarAdapter {
 
             initTopoParam(sNode);
 
-            Set<String> parameterAbbrevs = pCodeMapping.getParameterAbbrevs();
-            // Generate the projection information for the radar and set into
-            // each of the nodes...
-            for (String paramAbbrev : parameterAbbrevs) {
+            Set<String> paramAbbrevs = RadarAsGridUtil
+                    .addVirtualVolumeParamAbbrevs(
+                            pCodeMapping.getParameterAbbrevs());
+            /*
+             * Generate the projection information for the radar and set into
+             * each of the nodes...
+             */
+            for (String paramAbbrev : paramAbbrevs) {
                 List<Integer> productCodes = pCodeMapping
-                        .getProductCodesForAbbrev(paramAbbrev);
+                        .getProductCodesForAbbrev(RadarAsGridUtil
+                                .getStandardParamAbbrev(paramAbbrev));
+
                 ParameterNode gridParameterNode = new ParameterNode();
                 gridParameterNode.setValue(paramAbbrev);
                 DerivParamDesc desc = derParLibrary.get(paramAbbrev);
@@ -315,23 +318,15 @@ public class RadarAdapter {
                                 method.setName("Supplement");
                                 gridLevelNode = new OrLevelNode(l, desc, method,
                                         radarSource,
-                                        new ArrayList<AbstractRequestableNode>(
-                                                productCodes.size()),
+                                        new ArrayList<AbstractRequestableNode>(),
                                         false);
                                 gridParameterNode.addChildNode(gridLevelNode);
                             }
 
-                            Map<String, RequestConstraint> rcMap = new HashMap<>();
-                            rcMap.put(PLUGIN_NAME_QUERY,
-                                    new RequestConstraint(RADAR_SOURCE));
-                            rcMap.put(ICAO_QUERY, new RequestConstraint(icao));
-                            rcMap.put(PRODUCT_CODE_QUERY, new RequestConstraint(
-                                    pCodeParamNode.getValue()));
-                            rcMap.put(TILT_QUERY, new RequestConstraint(
-                                    Double.toString(l.getLevelonevalue())));
-
                             RadarRequestableLevelNode radarLevelNode = new RadarRequestableLevelNode(
-                                    pCodeLevelNode, rcMap, paramAbbrev,
+                                    pCodeLevelNode, icao,
+                                    Integer.parseInt(pCodeParamNode.getValue()),
+                                    paramAbbrev,
                                     gridParameterNode.getParameterName());
                             ((OrLevelNode) gridLevelNode)
                                     .addNodeToOrList(radarLevelNode);
@@ -374,31 +369,14 @@ public class RadarAdapter {
         modelNameNode.addChildNode(topoParam);
     }
 
-    public Set<DataTime> timeInvariantQuery() throws VizException {
-        Set<DataTime> lastTimeQuery = RadarUpdater.getInstance()
-                .getGlobalTimes();
-        if (lastTimeQuery != null) {
-            return lastTimeQuery;
-        }
-        Set<DataTime> rval = null;
-        if (!configuredRadars.isEmpty()) {
-            Map<String, RequestConstraint> newQuery = new HashMap<>();
-            newQuery.put(PLUGIN_NAME_QUERY,
-                    new RequestConstraint(RADAR_SOURCE));
-            newQuery.put(RDA_ID_QUERY,
-                    new RequestConstraint(configuredRadars.keySet()));
-
-            DataTime[] times = CatalogQuery.performTimeQuery(newQuery, false,
-                    null);
-            if (times != null) {
-                rval = new HashSet<>();
-                for (DataTime time : times) {
-                    rval.add(time);
-                }
-            }
-        }
-        RadarUpdater.getInstance().setGlobalTimes(rval);
-        return rval;
+    /**
+     * @param icao
+     *            radar station icao
+     * @return all volume scan times for the radar station with the given icao
+     * @throws VizException
+     */
+    public Set<DataTime> timeInvariantQuery(String icao) throws VizException {
+        return RadarUpdater.getInstance().getStationTimes(icao);
     }
 
     public static int getGridSize() {

@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
 import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
 import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
+import com.raytheon.uf.viz.d2d.core.legend.IExtraLegendTextGeneratingResource;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.grid.GridExtensionManager;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
@@ -126,14 +127,14 @@ import tech.units.indriya.AbstractUnit;
  *                                     of GridResource
  * Dec 20, 2023  2036519  mapeters     Records are now passed into resource constructor
  *                                     instead of being stored in resource data
- *
+ * Jul 15, 2024  2037624  mapeters     Implement IExtraLegendTextGeneratingResource
  *
  * </pre>
  *
  * @author bsteffen
  */
 public class D2DGridResource extends IntermediateGridResource
-        implements IGridNameResource {
+        implements IGridNameResource, IExtraLegendTextGeneratingResource {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DGridResource.class);
@@ -461,6 +462,12 @@ public class D2DGridResource extends IntermediateGridResource
     }
 
     @Override
+    public String getExtraLegendText(DataTime time) {
+        GridRecord record = getFirstGridRecord(getPluginDataObjects(time));
+        return resourceData.getExtraLegendText(record);
+    }
+
+    @Override
     public String getName() {
         if (resourceData == null) {
             return super.getName();
@@ -497,5 +504,4 @@ public class D2DGridResource extends IntermediateGridResource
             }
         }
     }
-
 }

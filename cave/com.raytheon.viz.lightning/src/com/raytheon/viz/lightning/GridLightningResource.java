@@ -96,6 +96,7 @@ import tech.units.indriya.unit.Units;
  * Aug 29, 2019  67962    tjensen   Update for GeneralGridData refactor
 
  * Sep 10, 2019  7922     bsteffen  Better mixing of persisted colormap parameters.
+ * Jul 15, 2024  2037624  mapeters  Make getPluginDataObjects public
  *
  * </pre>
  *
@@ -187,8 +188,7 @@ public class GridLightningResource
          */
         float minRange = Float.NaN;
         ColorMapParameters rval;
-        if (stylePreferences != null
-                && stylePreferences instanceof ImagePreferences) {
+        if (stylePreferences instanceof ImagePreferences) {
             ImagePreferences imgPrefs = (ImagePreferences) stylePreferences;
             DataScale dataScale = imgPrefs.getDataScale();
             if (dataScale != null) {
@@ -441,7 +441,7 @@ public class GridLightningResource
     }
 
     @Override
-    protected List<PluginDataObject> getPluginDataObjects(DataTime time) {
+    public List<PluginDataObject> getPluginDataObjects(DataTime time) {
         return new ArrayList<>(recordMap.get(time));
     }
 

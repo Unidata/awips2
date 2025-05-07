@@ -16,14 +16,19 @@ To stop all EDEX services:
 
 ## Service and Boot Settings
 
-These commands will start and stop five EDEX service files installed into **/etc/init.d/**, four of which are run on boot:
+The main EDEX services are now stopped/started using systemd (`systemctl`). The services that used to be **/etc/init.d/**, have been removed starting in v23.4.1 (Redhat/Rocky8). Additionally, the each edex_camel service needs to be started manually. The services below are set to start up on boot.
 
-    service postgres start
-    service httpd-pypies start
-    service qpidd start
-    service edex_camel start
+To manually start, stop, and restart:
+```
+systemctl start postgres@awips
+systemctl start httpd-pypies
+systemctl start qpidd
+systemctl start edex_camel@ingest
+systemctl start edex_camel@ingestGrib
+systemctl start edex_camel@request
+```
 
-The fifth, `edex_ldm`, does **not run at boot** to prevent filling up disk space if EDEX is not running:
+The last service, `edex_ldm`, does **not run at boot** to prevent filling up disk space if EDEX is not running:
 
     service edex_ldm start
 
@@ -176,11 +181,13 @@ To see a list of clients connecting to your EDEX server, use the `edex users [YY
 
     edex users
     
-     -- EDEX Users 20160826 --
-    user@101.253.20.225
-    user@192.168.1.67
-    awips@0.0.0.0
-    awips@sdsmt.edu
+  
+        -- EDEX Users 20241022 --
+        angel@192.168.1.158
+        awips@192.168.1.1
+        WeatherCenter@10.196.1.34
+        ----------
+        3 users today!
 
 ---
 

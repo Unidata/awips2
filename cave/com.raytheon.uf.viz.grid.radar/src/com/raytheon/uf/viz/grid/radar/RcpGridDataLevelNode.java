@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.viz.grid.radar;
 
-import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.StaticGridDataLevelNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.viz.radar.util.RadarAsGridUtil;
 
 /**
  * A LevelNode for the pressure at the height of a radar tilt. The data will be
@@ -36,29 +34,20 @@ import com.raytheon.viz.radar.util.RadarAsGridUtil;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- ----------------------------------------
  * Sep 08, 2021  8652     njensen   Initial creation
+ * Oct 14, 2024  2037939  mapeters  Extend TiltTemporalGridDataLevelNode
+ *                                  to calculate from true elevation angle
  *
  * </pre>
  *
  */
-public class RcpGridDataLevelNode extends StaticGridDataLevelNode {
+public class RcpGridDataLevelNode extends TiltTemporalGridDataLevelNode {
 
-    public RcpGridDataLevelNode(String source, String dataType, Level level) {
-        super(source, dataType, level);
+    public RcpGridDataLevelNode(String modelName, Level primaryAngleLevel) {
+        super(modelName, primaryAngleLevel);
     }
 
     @Override
-    protected AbstractRequestableData createRequestableData(
-            GridCoverage coverage) {
-        if (RadarAsGridUtil.RCP.equals(dataType)) {
-            return new RcpRequestableData(source, level, coverage);
-        }
-        return super.createRequestableData(coverage);
+    protected AbstractRequestableData buildData(TimeAndSpace tas) {
+        return new RcpRequestableData(modelName, level, tas);
     }
-
-    @Override
-    public String toString() {
-        return "RcpGridDataLevelNode [dataType=" + dataType + ", source="
-                + source + ", level=" + level + "]";
-    }
-
 }

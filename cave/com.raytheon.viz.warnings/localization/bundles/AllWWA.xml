@@ -96,7 +96,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Winter Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="BZ.A,BZ.W,WS.A,WS.W,WW.Y,SQ.W,EC.A,EC.W,FR.Y,FZ.A,FZ.W,HZ.A,HZ.W,IS.W,WC.A,WC.W,WC.Y,ZF.Y,ZR.Y"/>
+                                        <constraint constraintType="IN" constraintValue="BZ.A,BZ.W,CW.Y,WS.A,WS.W,WW.Y,SQ.W,EC.A,EC.W,FR.Y,FZ.A,FZ.W,IS.W,ZF.Y,ZR.Y"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>
@@ -150,7 +150,7 @@
                             <resourceData xsi:type="wwaResourceData" name="Other Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
                                 <metadataMap>
                                     <mapping key="phensig">
-                                        <constraint constraintType="IN" constraintValue="AQ.Y,AS.O,AS.Y,DS.W,DU.Y,EH.A,EH.W,FG.Y,FW.A,FW.W,RF.W,FR.W,HT.Y,MF.Y,MH.W,MH.Y,MS.Y,SM.Y"/>
+                                        <constraint constraintType="IN" constraintValue="AQ.Y,AS.O,AS.Y,DS.W,DU.Y,EH.A,EH.W,FG.Y,FW.A,FW.W,RF.W,FR.W,HT.Y,MF.Y,MH.W,MH.Y,MS.Y,SM.Y,XH.W,XH.A"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="warning"/>

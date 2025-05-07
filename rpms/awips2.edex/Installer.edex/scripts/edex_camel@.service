@@ -3,10 +3,15 @@
 # sudo systemctl start edex_camel@request
 # or
 # sudo systemctl start edex_camel@ingest
+# or start any services that are enabled using:
+# sudo systemctl start edex_camel.target     
+# see edex_camel.target file for more details 
 
 [Unit]
 Description=EDEX for AWIPS2
 After=network-online.target remote-fs.target
+PartOf=edex_camel.target
+Before=edex_camel.target
 
 [Service]
 User=awips
@@ -35,6 +40,7 @@ ExecStart=/awips2/edex/bin/start.sh -noConsole %I
 ExecStop=/bin/bash -c '\
 	source /etc/watchdog.d/utilities/watchdogutils.sh; \
 	bypass_watchdog %N'
+TimeoutStopSec=310s
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target edex_camel.target

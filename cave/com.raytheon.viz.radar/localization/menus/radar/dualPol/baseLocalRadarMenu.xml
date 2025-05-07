@@ -50,6 +50,8 @@
             fileName="menus/radar/dualPol/baseRadarDataQuality.xml" />
         <contribute xsi:type="subinclude" subMenu="${icao} 4-bit/Legacy Prods"
             fileName="menus/radar/dualPol/baseRadarLegacy.xml" />
+        <contribute xsi:type="subinclude" subMenu="${icao} Cross Sections"
+            fileName="menus/radar/dualPol/baseRadarCrossSections.xml" />
         <!--  <contribute xsi:type="subinclude" subMenu="${icao} Obsolete Products"
             fileName="menus/radar/dualPol/baseRadarObsolete.xml" />  -->
     </contribute>

@@ -25,6 +25,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    03/15/2020      DCS21339      NFTF           Updated for HazSimp format
 #    05/18/2021      DCS22297      dkingfiel      Add CW.Y, XH.A, and XH.W
+#    09/04/2024      DR2036917     dkingfiel      Remove references to hard freeze (HZ)
+#                                                 add 'CW' and 'XH' to _bulletDict()
 #
 ##
 # This is a base file that is not intended to be overridden.
@@ -108,17 +110,15 @@ class TextProduct(GenericHazards.TextProduct):
             ("DU.Y", allActions, "Dust"),           # BLOWING DUST ADVISORY
             ("EC.W", allActions, "Cold"),           # EXTREME COLD WARNING
             ("EC.A", allActions, "Cold"),           # EXTREME COLD WATCH
-            ('CW.Y', allActions, 'Cold'),           # COLD WEATHER ADVISORY
+            ("CW.Y", allActions, "Cold"),           # COLD WEATHER ADVISORY
             ("EH.W", allActions, "Heat"),           # EXCESSIVE HEAT WARNING
             ("EH.A", allActions, "Heat"),           # EXCESSIVE HEAT WATCH
-            ('XH.W', allActions, 'Heat'),           # EXTREME HEAT WARNING
-            ('XH.A', allActions, 'Heat'),           # EXTREME HEAT WATCH
+            ("XH.W", allActions, "Heat"),           # EXTREME HEAT WARNING
+            ("XH.A", allActions, "Heat"),           # EXTREME HEAT WATCH
             ("HT.Y", allActions, "Heat"),           # HEAT ADVISORY
             ("FG.Y", allActions, "Fog"),            # DENSE FOG ADVISORY
-            ("HZ.W", allActions, "FrostFreeze"),    # HARD FREEZE WARNING
             ("FZ.W", allActions, "FrostFreeze"),    # FREEZE WARNING
             ("FR.Y", allActions, "FrostFreeze"),    # FROST ADVISORY
-            ("HZ.A", allActions, "FrostFreeze"),    # HARD FREEZE WATCH
             ("FZ.A", allActions, "FrostFreeze"),    # FREEZE WATCH
             ("HW.W", allActions, "Wind"),           # HIGH WIND WARNING
             ("WI.Y", allActions, "Wind"),           # WIND ADVISORY
@@ -146,8 +146,9 @@ class TextProduct(GenericHazards.TextProduct):
             "AF": (bulletList),  # Ashfall
             "AS": (bulletList),  # Air Stagnation
             "EH": (bulletList),  # Excessive Heat
+            "XH": (bulletList),  # Extreme Heat
             "EC": (bulletList),  # Excessive Cold
-            "HZ": (bulletList),  # Hard Freeze
+            "CW": (bulletList),  # Cold Weather
             "ZF": (bulletList),  # Freezing Fog
             "FR": (bulletList),  # Frost
             "HT": (bulletList),  # Heat

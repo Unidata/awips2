@@ -32,6 +32,8 @@ import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.units.PrimitiveAddConverter;
+import com.raytheon.uf.common.units.PrimitiveMultiplyConverter;
 
 import tech.units.indriya.AbstractUnit;
 import tech.units.indriya.format.SimpleUnitFormat;
@@ -49,6 +51,8 @@ import tech.units.indriya.format.SimpleUnitFormat;
  * Mar 30, 2020 8083    randerso    Default getRecordUnits() to ONE instead of null
  * May  6, 2020 8083    tgurney     Revert previous change under this ticket,
  *                                  breaks D2D display
+ * Feb 20, 2024 2036778 mapeters    Update getDataUnit to use custom converters
+ *                                  for performance
  *
  * </pre>
  *
@@ -113,13 +117,14 @@ public class SatelliteUnitsUtil {
             if (offset != null) {
                 double offsetVal = offset.doubleValue();
                 if (offsetVal != 0.0) {
-                    units = units.shift(offsetVal);
+                    units = units.transform(new PrimitiveAddConverter(offsetVal));
                 }
             }
             if (scale != null) {
                 double scaleVal = scale.doubleValue();
                 if (scaleVal != 0.0) {
-                    units = units.multiply(scaleVal);
+                    units = units
+                            .transform(new PrimitiveMultiplyConverter(scaleVal));
                 }
             }
         }

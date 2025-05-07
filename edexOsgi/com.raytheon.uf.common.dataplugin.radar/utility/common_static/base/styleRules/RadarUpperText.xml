@@ -362,7 +362,7 @@
         <productDependent format='MX: %.2f Deg/km' index='4' multiplier='0.05' />
         <productDependentRepElev />
     </upperText>
-    <upperText productCodes='168'>
+    <upperText productCodes='168 198'>
         <vcp />
         <resolution />
         <productDependentRepElev />

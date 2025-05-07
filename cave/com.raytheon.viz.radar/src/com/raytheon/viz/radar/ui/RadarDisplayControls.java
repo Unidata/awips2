@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,20 +24,19 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager.TrackTypes;
 
 /**
  * Singleton controls for the values needed by radar and SCAN
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11/06/2014   DCS 16776  zwang       Add control for MBA
  * May 13, 2015 4461       bsteffen    Add option for sails.
- * 
+ * May 22, 2024 2037092    mapeters    Add virtual volume option
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
-
 public class RadarDisplayControls {
     private int stiNumStorms;
 
@@ -60,7 +59,7 @@ public class RadarDisplayControls {
     private boolean dmdShowOverlapping;
 
     private TrackTypes dmdTrackType = TrackTypes.PAST_AND_FORECAST;
-    
+
     private boolean mbaShowWindShear;
 
     private SRMSource srmSource;
@@ -76,6 +75,8 @@ public class RadarDisplayControls {
     private boolean showAll;
 
     private boolean sailsFrameCoordinator;
+
+    protected boolean virtualVolumeEnabled;
 
     public RadarDisplayControls() {
     }
@@ -206,7 +207,6 @@ public class RadarDisplayControls {
         }
     }
 
-
     /**
      * @return the mbaShowWindShear
      */
@@ -224,7 +224,7 @@ public class RadarDisplayControls {
             RadarDisplayManager.getInstance().displayConfigUpdated();
         }
     }
-    
+
     /**
      * @return the srmSource
      */
@@ -398,4 +398,14 @@ public class RadarDisplayControls {
         }
     }
 
+    public boolean isVirtualVolumeEnabled() {
+        return virtualVolumeEnabled;
+    }
+
+    public void setVirtualVolumeEnabled(boolean virtualVolumeEnabled) {
+        if (virtualVolumeEnabled != this.virtualVolumeEnabled) {
+            this.virtualVolumeEnabled = virtualVolumeEnabled;
+            RadarDisplayManager.getInstance().displayConfigUpdated();
+        }
+    }
 }

@@ -4,7 +4,7 @@ Bundle-Name: Profiler Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.profiler;singleton:=true
 Bundle-Version: 1.21.1.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.15.0",

@@ -24,6 +24,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/15/2020      DCS21339      NFTF           Updated for HazSimp format
+#    09/04/2024      DR2036917     dkingfiel      Remove references to wind chill (WC)
 #
 ##
 # This is a base file that is not intended to be overridden.
@@ -109,9 +110,6 @@ class TextProduct(GenericHazards.TextProduct):
             ("WS.W", allActions, "WinterWx"),   # WINTER STORM WARNING
             ("WW.Y", allActions, "WinterWx"),   # WINTER WEATHER ADVISORY
             ("WS.A", allActions, "WinterWx"),   # WINTER STORM WATCH
-            ("WC.W", allActions, "WindChill"),  # WIND CHILL WARNING
-            ("WC.Y", allActions, "WindChill"),  # WIND CHILL ADVISORY
-            ("WC.A", allActions, "WindChill"),  # WIND CHILL WATCH
         ]
 
     def _bulletDict(self):
@@ -125,7 +123,6 @@ class TextProduct(GenericHazards.TextProduct):
             "BZ": (bulletList),  # Blizzard
             "ZR": (bulletList),  # Freezing Rain
             "IS": (bulletList),  # Ice Storm
-            "WC": (bulletList),  # Wind Chill
         }
 
     def _bulletOrder(self):

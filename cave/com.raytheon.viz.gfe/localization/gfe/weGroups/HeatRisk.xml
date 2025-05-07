@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This software was developed and / or modified by NOAA/NWS/OCP/ASDT
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority version
+        of the file will completely replace a lower priority version of the file. 
+    -->
+<WEGroup name="HeatRisk">
+    <WEItem parmID="HeatImpactLevelsMaxT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="HeatImpactLevelsMinT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="MinT_SFC:SITE_GRID__Climo_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="MaxT_SFC:SITE_GRID__Climo_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="HeatRisk_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="HeatRiskWWA_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="HeatRiskWWAbyZone_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="MaxT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="MinT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+</WEGroup>

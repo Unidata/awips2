@@ -38,6 +38,8 @@
 #    09/19/23        2036183       mapeters       Add time.mktime() intercept
 #    10/12/23        2036310       mapeters       Setup intercepts in setTimeZone(), reset more
 #                                                 things in reset()
+#    02/16/24        2036854       smoorthy       Mimic os.environ functionality and return TypeError
+#                                                 if user attempts to set tz to a list.
 #
 ##
 
@@ -207,6 +209,9 @@ def getTimeZone():
 
 def setTimeZone(newTimezone):
     global tz
+
+    if isinstance(newTimezone, list):
+        raise TypeError("str expected, not list")
     tz = newTimezone
 
     _setupIntercepts()

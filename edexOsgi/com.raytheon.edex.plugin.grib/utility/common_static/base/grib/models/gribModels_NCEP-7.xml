@@ -1280,7 +1280,6 @@
             <id>116</id>
         </process>
     </model>
-
     <model>
         <name>HiResW-ARW-${REGION}</name>
         <center>7</center>
@@ -1296,7 +1295,40 @@
             <id>116</id>
         </process>
     </model>
-
+	<model>
+		<name>HiResW-ARW</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<process>
+    		<id>116</id>
+		</process>
+	</model>
+	<model>
+		<name>HiResW-FV3</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<!-- <grids> -->
+		<!-- <id>gridHiResW</id> -->
+		<!-- </grids> -->
+		<process>
+			<id>84</id>
+		</process>
+	</model>
+	<model>
+		<name>HiResW-FV3-${REGION}</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>255003</id>
+			<id>255004</id>
+			<id>255005</id>
+			<id>255006</id>
+			<id>14731025001</id>
+		</grids>
+		<process>
+			<id>84</id>
+		</process>
+	</model>
     <model>
         <name>HiResW-NMM-East</name>
         <center>7</center>

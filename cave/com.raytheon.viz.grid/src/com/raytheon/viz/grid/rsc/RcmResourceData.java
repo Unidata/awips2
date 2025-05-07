@@ -27,8 +27,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
+import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
 import com.raytheon.uf.viz.core.grid.rsc.GridLoadProperties;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Dec 16, 2009            mnash       Initial creation
  * Dec 20, 2023 2036519    mapeters    Records are now passed into resource constructor
  *                                     instead of being stored in resource data
+ * Jul 15, 2024 2037624    mapeters    Make constructResource return type more specific
  *
  * </pre>
  *
@@ -55,7 +56,7 @@ public class RcmResourceData extends GridResourceData {
     }
 
     @Override
-    protected AbstractVizResource<?, ?> constructResource(
+    protected AbstractGridResource<GridResourceData> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
         GridRecord[] records;
         if (loadProperties instanceof GridLoadProperties) {

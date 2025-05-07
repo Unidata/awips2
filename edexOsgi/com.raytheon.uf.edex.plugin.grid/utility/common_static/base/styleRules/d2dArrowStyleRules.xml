@@ -67,7 +67,7 @@
             <parameter>SWdir</parameter>
             <parameter>Swell Direction</parameter>
             <parameter>dirPW</parameter>
-            <paraemter>Prim Wave Dir</paraemter>
+            <parameter>Prim Wave Dir</parameter>
             <parameter>dirSW</parameter>
             <parameter>2nd Wave Dir</parameter>
         </paramLevelMatches>

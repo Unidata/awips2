@@ -14,7 +14,8 @@
 # Jun 23, 2017 6138       dgilling     Changes for Winter Weather VTEC
 #                                      consolidation.
 # Jan 14, 2021 DCS22296   dkingfiel    Remove Hydrology from hazardDict
-# May 10, 2021 DCS22297  dkingfiel     Remove RB.Y, SI.Y, and SW.Y
+# May 10, 2021 DCS22297   dkingfiel    Remove RB.Y, SI.Y, and SW.Y
+# Sep 04, 2024 DR2036917  dkingfiel    Remove HZ.A, HZ.W, WC.A, WC.W, WC.Y and add CW.Y
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
@@ -48,15 +49,15 @@ def sortHazardList(dict):
 from collections import OrderedDict
 hazardDict = OrderedDict([
     ('Winter Weather', ["BZ.W", "IS.W", "LE.W",
-          "WC.Y", "WC.W", "WC.A", "WS.W", "WS.A", "WW.Y"]),
+          "WS.W", "WS.A", "WW.Y"]),
     ('Fire Weather', ["FW.A", "FW.W"]),
     ('Convective Watches', ["SV.A", "TO.A"]),
     ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A",
           "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "BH.S", "RP.S"]),
-    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.W",
-          "DU.Y", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A",
-          "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A",
-          "LW.Y", "SM.Y", "WI.Y"]),
+    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "CW.Y",
+          "DU.W", "DU.Y", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W",
+          "FZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", "LW.Y", "SM.Y",
+          "WI.Y"]),
     ('Marine', ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
           "GL.A", "GL.W", "SE.A", "SE.W", "UP.A", "UP.W", "HF.A", "HF.W",
           "LO.Y", "SC.Y", "MS.Y", "SR.A", "SR.W"]),
@@ -73,10 +74,9 @@ hazardDict = OrderedDict([
 #    ('Fire Weather', ["FW.A", "FW.W"]),
 #    ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A",
 #          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S", "BH.S"]),
-#    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.W",
-#          "DU.Y", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A",
-#          "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A",
-#          "LW.Y", "SM.Y", "WI.Y"]),
+#    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "CW.Y",
+#          "DU.W", "DU.Y", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W",
+#          "FZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", "LW.Y", "SM.Y", "WI.Y"]),
 #    ('Marine', ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
 #          "GL.A", "GL.W", "SE.A", "SE.W", "UP.A", "UP.W", "HF.A", "HF.W", "LO.Y", "SC.Y",
 #          "MS.Y", "SR.A", "SR.W"]),

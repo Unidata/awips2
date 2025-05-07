@@ -27,7 +27,7 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.request.GetRadarDataTreeRequest;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.inventory.tree.DataTree;
@@ -49,6 +49,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jul 07, 2021  8576     randerso  If siteId is specified and rdaId is not,
  *                                  return information for all local radars
  *                                  defined in radarsInUse.txt
+ * May 07, 2024  2036516  bines     Get all radar from db instead of just
+ *                                  the local radars in radarsInUse.txt
  *
  * </pre>
  *
@@ -81,9 +83,9 @@ public class GetRadarDataTreeHandler
             // querying on it will be faster than rda_id
             query.addQueryParam("icao", request.getRdaId().toLowerCase());
         } else {
-            List<String> localRadars = RadarsInUseUtil.getSite(
-                    request.getSiteId(), RadarsInUseUtil.LOCAL_CONSTANT);
-            QueryParam queryParam = new QueryParam("icao", localRadars,
+            List<String> allRadars = new ArrayList<>(
+                    RadarUtil.getAllRadarsRdaId());
+            QueryParam queryParam = new QueryParam("icao", allRadars,
                     QueryOperand.IN);
             query.addQueryParam(queryParam);
         }

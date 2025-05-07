@@ -27,6 +27,7 @@ kbuf VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kbuf VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kbuf VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kbuf VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kbuf VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kbuf VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kcle
 #For the OTR of WSR-88D
@@ -45,6 +46,7 @@ kcle VCP215 storm 16 0.4 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kcle VCP221 storm 10 0.4 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kcle VCP31 clear-air 6 0.4 0.5 1.5 2.5 3.5 4.5
 kcle VCP32 clear-air 6 0.4 0.5 1.5 2.5 3.5 4.5 
+kcle VCP34 clear-air 8 0.4 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kcle VCP35 clear-air 10 0.4 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kclx
 #For the OTR of WSR-88D
@@ -63,6 +65,7 @@ kclx VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kclx VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kclx VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kclx VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kclx VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kclx VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kcri
 #For the OTR of WSR-88D
@@ -81,6 +84,7 @@ kcri VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kcri VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kcri VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kcri VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kcri VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kcri VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kcrp
 #For the OTR of WSR-88D
@@ -99,6 +103,7 @@ kcrp VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kcrp VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kcrp VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kcrp VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kcrp VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kcrp VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kdgx
 #For the OTR of WSR-88D
@@ -117,6 +122,7 @@ kdgx VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kdgx VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kdgx VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kdgx VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kdgx VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kdgx VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kdlh
 #For the OTR of WSR-88D
@@ -135,6 +141,7 @@ kdlh VCP215 storm 16 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kdlh VCP221 storm 10 0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kdlh VCP31 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5
 kdlh VCP32 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5 
+kdlh VCP34 clear-air 8 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kdlh VCP35 clear-air 10 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kfsx
 #For the OTR of WSR-88D
@@ -153,6 +160,7 @@ kfsx VCP215 storm 16 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0
 kfsx VCP221 storm 10 -0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kfsx VCP31 clear-air 6 -0.2 0.5 1.5 2.5 3.5 4.5
 kfsx VCP32 clear-air 6 -0.2 0.5 1.5 2.5 3.5 4.5 
+kfsx VCP34 clear-air 8 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kfsx VCP35 clear-air 10 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kgjx
 #For the OTR of WSR-88D
@@ -171,6 +179,7 @@ kgjx VCP215 storm 16 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kgjx VCP221 storm 10 0.0 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kgjx VCP31 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5
 kgjx VCP32 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5 
+kgjx VCP34 clear-air 8 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kgjx VCP35 clear-air 10 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kgsp
 #For the OTR of WSR-88D
@@ -189,6 +198,7 @@ kgsp VCP215 storm 16 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kgsp VCP221 storm 10 0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kgsp VCP31 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5
 kgsp VCP32 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5 
+kgsp VCP34 clear-air 8 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kgsp VCP35 clear-air 10 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # khdc
 #For the OTR of WSR-88D
@@ -207,6 +217,7 @@ khdc VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 khdc VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 khdc VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 khdc VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+khdc VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 khdc VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kicx
 #For the OTR of WSR-88D
@@ -225,6 +236,7 @@ kicx VCP215 storm 16 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kicx VCP221 storm 10 0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kicx VCP31 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5
 kicx VCP32 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5 
+kicx VCP34 clear-air 8 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kicx VCP35 clear-air 10 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # klgx
 #For the OTR of WSR-88D
@@ -243,6 +255,7 @@ klgx VCP215 storm 16 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 klgx VCP221 storm 10 0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 klgx VCP31 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5
 klgx VCP32 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5 
+klgx VCP34 clear-air 8 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 klgx VCP35 clear-air 10 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kmax
 #For the OTR of WSR-88D
@@ -261,6 +274,7 @@ kmax VCP215 storm 16 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0
 kmax VCP221 storm 10 -0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kmax VCP31 clear-air 6 -0.2 0.5 1.5 2.5 3.5 4.5
 kmax VCP32 clear-air 6 -0.2 0.5 1.5 2.5 3.5 4.5 
+kmax VCP34 clear-air 8 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kmax VCP35 clear-air 10 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kmbx
 #For the OTR of WSR-88D
@@ -279,6 +293,7 @@ kmbx VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kmbx VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kmbx VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kmbx VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kmbx VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kmbx VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kmsx
 #For the OTR of WSR-88D
@@ -297,6 +312,7 @@ kmsx VCP215 storm 16 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0
 kmsx VCP221 storm 10 -0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kmsx VCP31 clear-air 6 -0.2 0.5 1.5 2.5 3.5 4.5
 kmsx VCP32 clear-air 6 -0.2 0.5 1.5 2.5 3.5 4.5 
+kmsx VCP34 clear-air 8 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kmsx VCP35 clear-air 10 -0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kmtx
 #For the OTR of WSR-88D
@@ -315,6 +331,7 @@ kmtx VCP215 storm 16 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kmtx VCP221 storm 10 0.0 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kmtx VCP31 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5
 kmtx VCP32 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5 
+kmtx VCP34 clear-air 8 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kmtx VCP35 clear-air 10 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kmux
 #For the OTR of WSR-88D
@@ -333,6 +350,7 @@ kmux VCP215 storm 16 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kmux VCP221 storm 10 0.0 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kmux VCP31 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5
 kmux VCP32 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5 
+kmux VCP34 clear-air 8 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kmux VCP35 clear-air 10 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kpah
 #For the OTR of WSR-88D
@@ -351,6 +369,7 @@ kpah VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kpah VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kpah VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kpah VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kpah VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kpah VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kpdt
 #For the OTR of WSR-88D
@@ -369,6 +388,7 @@ kpdt VCP215 storm 16 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kpdt VCP221 storm 10 0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kpdt VCP31 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5
 kpdt VCP32 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5 
+kpdt VCP34 clear-air 8 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kpdt VCP35 clear-air 10 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # krax
 #For the OTR of WSR-88D
@@ -387,6 +407,7 @@ krax VCP215 storm 16 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 krax VCP221 storm 10 0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 krax VCP31 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5
 krax VCP32 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5 
+krax VCP34 clear-air 8 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 krax VCP35 clear-air 10 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # krgx
 #For the OTR of WSR-88D
@@ -405,6 +426,7 @@ krgx VCP215 storm 16 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 krgx VCP221 storm 10 0.0 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 krgx VCP31 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5
 krgx VCP32 clear-air 6 0.0 0.5 1.5 2.5 3.5 4.5
+krgx VCP34 clear-air 8 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 krgx VCP35 clear-air 10 0.0 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # ksgf
 #For the OTR of WSR-88D
@@ -423,6 +445,7 @@ ksgf VCP215 storm 16 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 ksgf VCP221 storm 10 0.2 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 ksgf VCP31 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5
 ksgf VCP32 clear-air 6 0.2 0.5 1.5 2.5 3.5 4.5 
+ksgf VCP34 clear-air 8 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 ksgf VCP35 clear-air 10 0.2 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4
 # kshv
 #For the OTR of WSR-88D
@@ -441,4 +464,5 @@ kshv VCP215 storm 16 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4 8.0 10.0 12.0 14.0 
 kshv VCP221 storm 10 0.3 0.5 1.5 2.4 3.4 4.3 6.0 9.9 14.6 19.5
 kshv VCP31 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5
 kshv VCP32 clear-air 6 0.3 0.5 1.5 2.5 3.5 4.5 
+kshv VCP34 clear-air 8 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.5
 kshv VCP35 clear-air 10 0.3 0.5 0.9 1.3 1.8 2.4 3.1 4.0 5.1 6.4

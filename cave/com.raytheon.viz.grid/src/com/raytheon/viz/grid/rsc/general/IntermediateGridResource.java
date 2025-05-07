@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -75,7 +75,8 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
  *                                  dataUpdateArrived()
  * Jan 09, 2023  2036695  mapeters  Fix auto-update for some non-spatial
  *                                  resources
- *
+ * Jul 15, 2024  2037624  mapeters  Override getPluginDataObjects so previousPdoMap
+ *                                  is checked for all PDO getter methods
  *
  * </pre>
  *
@@ -220,25 +221,21 @@ public class IntermediateGridResource extends GridResource<GridResourceData> {
         }
     }
 
-    /**
+    /*
      * This is overridden to keep the legend working correctly when there is no
      * data for this time in the pdoMap but there is data in the previousPdoMap.
      */
     @Override
-    public GridRecord getCurrentGridRecord() {
-        List<PluginDataObject> pdos = getCurrentPluginDataObjects();
-        if (pdos == null || pdos.isEmpty()) {
-            if (this.resourceData.isKeepDataWhileRetrievingUpdate()) {
-                DataTime time = getTimeForResource();
-                if (time != null) {
-                    pdos = previousPdoMap.get(time);
-                }
-            }
-            if (pdos == null || pdos.isEmpty()) {
-                return null;
+    public List<PluginDataObject> getPluginDataObjects(DataTime time) {
+        List<PluginDataObject> pdos = super.getPluginDataObjects(time);
+        if (CollectionUtils.isEmpty(pdos) && time != null
+                && resourceData.isKeepDataWhileRetrievingUpdate()) {
+            pdos = previousPdoMap.get(time);
+            if (pdos != null) {
+                pdos = new ArrayList<>(pdos);
             }
         }
-        return (GridRecord) pdos.get(0);
+        return pdos;
     }
 
     /**

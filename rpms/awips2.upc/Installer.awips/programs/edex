@@ -339,6 +339,10 @@ edex_start() {
 
    edex_purge_reset
 
+   version=`rpm -q awips2-version --qf %{VERSION}-%{RELEASE}`
+   install=`rpm -q awips2-version --qf %{INSTALLTIME:date}`
+   ipAdd=`curl ifconfig.me`
+   url="https://downloads.unidata.ucar.edu/awips2/edex_users"
    
    if [ $# -gt 0 ]; then
       SERVICES=("$@")
@@ -347,6 +351,8 @@ edex_start() {
    for service in ${SERVICES[*]}; do
       echo "Starting edex_camel@$service"
       systemctl start edex_camel@$service
+      output="EDEX $service version $version starting on $ipAdd - Installed on $install"
+      curl -A "$output" $url
    done
    ldm_start
 }

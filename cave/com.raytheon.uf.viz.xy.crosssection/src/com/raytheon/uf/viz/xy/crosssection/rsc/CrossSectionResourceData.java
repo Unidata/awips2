@@ -20,36 +20,30 @@
 package com.raytheon.uf.viz.xy.crosssection.rsc;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.Platform;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.RecordFactory;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
+import com.raytheon.uf.viz.core.rsc.IUpdateHandlingResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
+import com.raytheon.uf.viz.xy.crosssection.adapter.CrossSectionAdapterUtil;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 
 /**
@@ -65,16 +59,18 @@ import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
  * Mar 28, 2018 6874       dgilling    Return null in constructResource if
  *                                     there's no data.
  * Oct 29, 2022 8959       mapeters    Update how data time levels are set
+ * Apr 02, 2024 2037091    mapeters    Implement IUpdateHandlingResourceData, remove blacklisted
+ *                                     times to support auto-updating, add getAffectedLineTimes()
+ * May 22, 2024 2037092    mapeters    Extract adapter determination to CrossSectionAdapterUtil,
+ *                                     add setLineInfoFromDescriptor
  *
  * </pre>
  *
  * @author njensen
  */
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class CrossSectionResourceData extends AbstractRequestableResourceData {
-
-    private static final String CROSS_SECTION_ADAPTER_EXTENSION = "com.raytheon.uf.viz.xy.crosssection.crosssectionadapter";
+public class CrossSectionResourceData extends AbstractRequestableResourceData
+        implements IUpdateHandlingResourceData {
 
     @XmlAttribute
     protected String parameter;
@@ -89,12 +85,13 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
     private String source;
 
     @XmlTransient
-    private int numLines;
+    protected int numLines;
 
     @XmlTransient
-    private String levelType;
+    protected String levelType;
 
-    private Set<DataTime> blackListedTimes = new HashSet<>();
+    @XmlTransient
+    private boolean sendUpdateNotifications = false;
 
     public CrossSectionResourceData() {
         this.setAlertParser(new DataCubeAlertMessageParser());
@@ -105,8 +102,7 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
             IDescriptor descriptor) throws VizException {
         if (descriptor instanceof CrossSectionDescriptor) {
             CrossSectionDescriptor csDesc = (CrossSectionDescriptor) descriptor;
-            numLines = csDesc.getLines().size();
-            levelType = csDesc.getLevelType();
+            setLineInfoFromDescriptor(csDesc);
         }
         return super.construct(loadProperties, descriptor);
     }
@@ -119,15 +115,17 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
             return null;
         }
 
-        AbstractCrossSectionAdapter<?> adapter = getAdapter(objects[0]);
+        AbstractCrossSectionAdapter<?> adapter = CrossSectionAdapterUtil
+                .getAdapter(objects[0]);
         adapter.setResourceData(this);
         AbstractCrossSectionResource resource = null;
         DisplayType displayType = loadProperties.getCapabilities()
                 .getCapability(this, DisplayTypeCapability.class)
                 .getDisplayType();
         if (displayType.equals(DisplayType.IMAGE)) {
-            resource = new CrossSectionImageResource(this, loadProperties,
-                    adapter);
+            resource = new CrossSectionIntermediateImageResource(this,
+                    loadProperties, adapter);
+            sendUpdateNotifications = true;
         } else if (displayType.equals(DisplayType.ARROW)
                 || displayType.equals(DisplayType.BARB)) {
             resource = new CrossSectionVectorResource(this, loadProperties,
@@ -137,6 +135,7 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
             resource = new CrossSectionContourResource(this, loadProperties,
                     adapter);
         }
+        adapter.setResource(resource);
         for (PluginDataObject pdo : objects) {
             resource.addRecord(pdo);
         }
@@ -167,90 +166,18 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
         this.parameterName = parameterName;
     }
 
-    protected AbstractCrossSectionAdapter<?> getAdapter(PluginDataObject object)
-            throws VizException {
-        IExtensionRegistry registry = Platform.getExtensionRegistry();
-        if (registry == null) {
-            throw new VizException("Error loading ExtensionRegistry");
-        }
-        IExtensionPoint point = registry
-                .getExtensionPoint(CROSS_SECTION_ADAPTER_EXTENSION);
-        if (point == null) {
-            throw new VizException(
-                    "Error loading Extension points for Cross Section Adapters");
-        }
-        Map<String, Object> uriFields = RecordFactory.getInstance()
-                .loadMapFromUri(object.getDataURI());
-        IExtension[] extensions = point.getExtensions();
-
-        for (IExtension ext : extensions) {
-            IConfigurationElement[] config = ext.getConfigurationElements();
-
-            for (IConfigurationElement cfg : config) {
-                boolean useAdapter = false;
-                String targetClass = cfg.getAttribute("class");
-                for (Class<?> clazz : object.getClass().getInterfaces()) {
-                    if (clazz.getName().equals(targetClass)) {
-                        useAdapter = true;
-                        break;
-                    }
-                }
-                if (!useAdapter) {
-                    for (Class<?> clazz = object
-                            .getClass(); clazz != PluginDataObject.class; clazz = clazz
-                                    .getSuperclass()) {
-                        if (clazz.getName().equals(targetClass)) {
-                            useAdapter = true;
-                            break;
-                        }
-                    }
-                }
-
-                IConfigurationElement[] constraints = cfg
-                        .getChildren("constraint");
-                for (IConfigurationElement constraint : constraints) {
-                    Object value = uriFields
-                            .get(constraint.getAttribute("key"));
-                    if (value == null) {
-                        value = "null";
-                    }
-                    if (!value.toString()
-                            .equals(constraint.getAttribute("value"))) {
-                        useAdapter = false;
-                        break;
-                    }
-                }
-                if (useAdapter) {
-                    try {
-                        return (AbstractCrossSectionAdapter<?>) cfg
-                                .createExecutableExtension("adapter");
-                    } catch (CoreException e) {
-                        throw new VizException(
-                                "Error constructing Cross Section adapter", e);
-                    }
-                }
-
-            }
-        }
-
-        throw new VizException("No Cross Section adapter registered for: "
-                + object.getClass().getSimpleName());
-    }
-
     @Override
     public DataTime[] getAvailableTimes() throws VizException {
+        if (levelType == null || numLines <= 0) {
+            // We can't determine actual frame times until these are set
+            return new DataTime[0];
+        }
         DataTime[] times = super.getAvailableTimes();
         List<DataTime> newTimes = new ArrayList<>();
         for (DataTime time : times) {
-            if (!blackListedTimes.contains(time)) {
-                for (int j = 0; j < numLines; ++j) {
-                    DataTime newTime = time.clone();
-                    newTime.setLevel((double) j, levelType);
-                    newTimes.add(newTime);
-                }
-            }
+            newTimes.addAll(getAffectedFrameTimes(time));
         }
-        return newTimes.toArray(new DataTime[] {});
+        return newTimes.toArray(new DataTime[0]);
 
     }
 
@@ -294,12 +221,6 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
         this.stationIDs = stationIDs;
     }
 
-    public void blackListTime(DataTime time) {
-        DataTime cloned = time.clone();
-        cloned.clearLevel();
-        blackListedTimes.add(cloned);
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -331,4 +252,64 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
         return true;
     }
 
+    @Override
+    public void handleUpdate(AlertMessage message) {
+        DataTime time = (DataTime) message.decodedAlert
+                .get(PluginDataObject.DATATIME_ID);
+        if (sendUpdateNotifications) {
+            fireChangeListeners(ChangeType.DATA_UPDATE, time);
+        } else {
+            fireChangeListeners(ChangeType.DATA_REMOVE, time);
+        }
+    }
+
+    /**
+     * Get the frame times that are affected by an update to the given time.
+     *
+     * The frame times each have their level type set to a description of the
+     * type of lines that the resource is for (a baseline or longitude/latitude
+     * lines), and the level value is the line's index in
+     * CrossSectionDescriptor.lines.
+     *
+     * @param time
+     * @return the affected frame times
+     */
+    public Collection<DataTime> getAffectedFrameTimes(DataTime time) {
+        if (levelType == null || numLines <= 0) {
+            // We can't determine actual frame times until these are set
+            return List.of();
+        }
+
+        /*
+         * If the time's level type matches, then it is already for a single
+         * frame/line, and just that frame is affected.
+         */
+        if (levelType.equals(time.getLevelType())) {
+            return List.of(time);
+        }
+
+        /*
+         * Otherwise, assume that the time is for the underlying data that each
+         * frame is derived from, and return times for all lines.
+         */
+        List<DataTime> frameTimes = new ArrayList<>();
+        for (int i = 0; i < numLines; ++i) {
+            DataTime frameTime = time.clone();
+            frameTime.setLevel((double) i, levelType);
+            frameTimes.add(frameTime);
+        }
+        return frameTimes;
+    }
+
+    /**
+     * Update line info (number and type of lines) to match what's in the given
+     * descriptor.
+     *
+     * @param csDesc
+     *            descriptor to get line info from
+     */
+    protected void setLineInfoFromDescriptor(CrossSectionDescriptor csDesc) {
+        numLines = csDesc.getLines().size();
+        levelType = csDesc.getLevelType();
+    }
 }

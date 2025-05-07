@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,7 +22,6 @@ package com.raytheon.viz.grid.inv;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,11 +70,11 @@ import com.raytheon.viz.grid.GridExtensionManager;
 /**
  * Inventory object for calculating and managing the available grid data,
  * including any data that can be derived.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- ------------------------------------------
  * Mar 25, 2009  2149     brockwoo    Initial creation
@@ -90,9 +89,11 @@ import com.raytheon.viz.grid.GridExtensionManager;
  * Mar 03, 2016  5439     bsteffen    Split grid inventory into common and viz
  * Aug 15, 2017  6332     bsteffen    Move radar specific logic to extension
  * Aug 23, 2017  6125     bsteffen    Handle updates through super class.
- * 
+ * Oct 14, 2024  2037939  mapeters    Replace resolvePluginStaticData with more
+ *                                    general resolvePluginSpecifiedField
+ *
  * </pre>
- * 
+ *
  * @author brockwoo
  */
 
@@ -242,7 +243,7 @@ public class VizGridInventory extends CommonGridInventory
     /**
      * Prepare an alias map, from a modelName to all modelNames that it
      * includes, from highest res to lowest res
-     * 
+     *
      * @param newGridTree
      */
     private void initAliasModels(DataTree newGridTree) {
@@ -265,44 +266,39 @@ public class VizGridInventory extends CommonGridInventory
             }
         }
         for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
-            Collections.sort(aliases.getValue(), new Comparator<String>() {
-
-                @Override
-                public int compare(String model1, String model2) {
-                    try {
-                        // attempt to figure out which model is the highest
-                        // resolution.
-                        Collection<GridCoverage> coverages1 = CoverageUtils
-                                .getInstance().getCoverages(model1);
-                        Collection<GridCoverage> coverages2 = CoverageUtils
-                                .getInstance().getCoverages(model2);
-                        if (coverages1.isEmpty()) {
-                            return 1;
-                        } else if (coverages2.isEmpty()) {
-                            return -1;
-                        }
-                        double total1 = 0;
-                        double total2 = 0;
-                        for (GridCoverage coverage : coverages1) {
-                            total1 += coverage.getDx();
-                            total1 += coverage.getDy();
-                        }
-                        for (GridCoverage coverage : coverages2) {
-                            total2 += coverage.getDx();
-                            total2 += coverage.getDy();
-                        }
-                        Double res1 = total1 / coverages1.size();
-                        Double res2 = total2 / coverages2.size();
-                        return res1.compareTo(res2);
-                    } catch (DataCubeException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to create model aliases, problems with "
-                                        + model1 + " and " + model2,
-                                e);
-                        return 0;
+            Collections.sort(aliases.getValue(), (model1, model2) -> {
+                try {
+                    // attempt to figure out which model is the highest
+                    // resolution.
+                    Collection<GridCoverage> coverages1 = CoverageUtils
+                            .getInstance().getCoverages(model1);
+                    Collection<GridCoverage> coverages2 = CoverageUtils
+                            .getInstance().getCoverages(model2);
+                    if (coverages1.isEmpty()) {
+                        return 1;
+                    } else if (coverages2.isEmpty()) {
+                        return -1;
                     }
+                    double total1 = 0;
+                    double total2 = 0;
+                    for (GridCoverage coverage : coverages1) {
+                        total1 += coverage.getDx();
+                        total1 += coverage.getDy();
+                    }
+                    for (GridCoverage coverage : coverages2) {
+                        total2 += coverage.getDx();
+                        total2 += coverage.getDy();
+                    }
+                    double res1 = total1 / coverages1.size();
+                    double res2 = total2 / coverages2.size();
+                    return Double.compare(res1, res2);
+                } catch (DataCubeException e) {
+                    statusHandler.warn(
+                            "Unable to create model aliases, problems with "
+                                    + model1 + " and " + model2,
+                            e);
+                    return 0;
                 }
-
             });
         }
     }
@@ -319,7 +315,7 @@ public class VizGridInventory extends CommonGridInventory
     /**
      * Determine all level nodes that meet constraints, these nodes can than be
      * used to timeQuery or retrieveData.
-     * 
+     *
      * @param query
      * @return
      * @throws DataCubeException
@@ -432,12 +428,13 @@ public class VizGridInventory extends CommonGridInventory
     }
 
     @Override
-    protected Object resolvePluginStaticData(SourceNode sNode,
-            DerivParamField field, Level level) {
-        Object result = GridExtensionManager.resolvePluginStaticData(sNode,
-                field, level);
+    protected Object resolvePluginSpecifiedField(SourceNode sourceNode,
+            Level level, DerivParamMethod method, DerivParamField field) {
+        Object result = GridExtensionManager
+                .resolvePluginSpecifiedField(sourceNode, level, method, field);
         if (result == null) {
-            result = super.resolvePluginStaticData(sNode, field, level);
+            result = super.resolvePluginSpecifiedField(sourceNode, level,
+                    method, field);
         }
         return result;
     }

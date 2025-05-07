@@ -72,10 +72,15 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.uf.viz.d2d.core.legend.IExtraLegendTextGeneratingResource;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameExtraRenderable;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameRenderable;
 import com.raytheon.uf.viz.xy.crosssection.CrossSectionRotation;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
+import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.labeling.DoubleLabel;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
@@ -110,6 +115,18 @@ import tech.units.indriya.format.SimpleUnitFormat;
  * Feb 10, 2023  9010     mapeters  Load frames closest to current time first
  * Feb 22, 2023  9021     mapeters  Cache data as Futures
  * Dec 20, 2023  2036519  mapeters  Clear out more data on dispose
+ * Apr 03, 2024  2037091  mapeters  Auto-update as new data comes in
+ * May 22, 2024  2037092  mapeters  Put empty list in slice map for failed data load,
+ *                                  schedule data retrieval on first PDO for frame,
+ *                                  fix issue where data times' level type is wrong
+ *                                  after changing baseline
+ * May 29, 2024  2037244  mapeters  Implement redraw() so height scale changes work
+ * Jun 20, 2024  2037565  mapeters  Implement IExtraLegendTextGeneratingResource, move
+ *                                  some getName code to PointCSAdapter, fix duplicate
+ *                                  records in the adapter after data updates
+ * Aug 14, 2024  2037631  mapeters  Float data is now wrapped in a new class, prevent
+ *                                  x axis values from not displaying at all or not
+ *                                  updating when moving baseline
  *
  * </pre>
  *
@@ -117,7 +134,8 @@ import tech.units.indriya.format.SimpleUnitFormat;
  */
 public abstract class AbstractCrossSectionResource extends
         AbstractVizResource<CrossSectionResourceData, CrossSectionDescriptor>
-        implements IInsetMapResource, IGraphableResource<Double, Double> {
+        implements IInsetMapResource, IGraphableResource<Double, Double>,
+        IExtraLegendTextGeneratingResource {
 
     protected static final int GRID_SIZE = 100;
 
@@ -135,7 +153,7 @@ public abstract class AbstractCrossSectionResource extends
      * Cache of requested data. Futures are used because they make it easier to
      * invalidate in-process data requests.
      */
-    protected final Map<DataTime, RunnableFuture<List<float[]>>> sliceMap = new HashMap<>(
+    protected final Map<DataTime, Future<CrossSectionFrameData>> sliceMap = new HashMap<>(
             64);
 
     protected final Object lock = new Object();
@@ -151,7 +169,8 @@ public abstract class AbstractCrossSectionResource extends
         this.adapter = adapter;
 
         data.addChangeListener((type, object) -> {
-            if (type == ChangeType.DATA_UPDATE) {
+            if (type == ChangeType.DATA_UPDATE
+                    && object instanceof PluginDataObject[]) {
                 PluginDataObject[] pdos = (PluginDataObject[]) object;
                 synchronized (lock) {
                     for (PluginDataObject pdo : pdos) {
@@ -170,8 +189,8 @@ public abstract class AbstractCrossSectionResource extends
         synchronized (lock) {
             dataRetrievalJob.times.clear();
             dataRetrievalJob.run = false;
-            sliceMap.clear();
             adapter.dispose();
+            disposeFrames();
         }
     }
 
@@ -202,8 +221,10 @@ public abstract class AbstractCrossSectionResource extends
         }
         if (geometry == null) {
             IExtent extent = descriptor.getGraph(this).getExtent().clone();
-            // To be numerically accurate the grid geometry should be 1 grid
-            // cell larger than the graph
+            /*
+             * To be numerically accurate the grid geometry should be 1 grid
+             * cell larger than the graph
+             */
             extent.scale(1.0 + (1.0 / GRID_SIZE));
             GeneralEnvelope env = new GeneralEnvelope(
                     new double[] { extent.getMinX(), extent.getMinY() },
@@ -214,6 +235,7 @@ public abstract class AbstractCrossSectionResource extends
                     new int[] { 0, 0 }, new int[] { GRID_SIZE, GRID_SIZE },
                     false);
             geometry = new GridGeometry2D(range, env);
+
             dataRetrievalJob.schedule();
         }
         Double magnification = getCapability(MagnificationCapability.class)
@@ -225,15 +247,20 @@ public abstract class AbstractCrossSectionResource extends
     public void setDescriptor(CrossSectionDescriptor descriptor) {
         synchronized (lock) {
             adapter.setDescriptor(descriptor);
+            resourceData.setLineInfoFromDescriptor(descriptor);
             this.descriptor = descriptor;
+            IGraph graph = descriptor.getGraph(this);
+            if (graph != null) {
+                // x axis values likely changed
+                graph.reconstruct();
+            }
+            disposeFrames();
             Set<DataTime> times = new HashSet<>();
             for (DataTime time : dataTimes) {
-                for (int i = 0; i < descriptor.getLines().size(); i++) {
-                    time = time.clone();
-                    time.setLevel((double) i, descriptor.getLevelType());
-                    times.add(time);
-                    sliceMap.remove(time);
-                    dataRetrievalJob.times.add(time);
+                for (DataTime frameTime : resourceData
+                        .getAffectedFrameTimes(time)) {
+                    times.add(frameTime);
+                    dataRetrievalJob.times.add(frameTime);
                 }
             }
             dataTimes.retainAll(times);
@@ -242,16 +269,41 @@ public abstract class AbstractCrossSectionResource extends
         }
     }
 
-    protected List<float[]> loadSlice(DataTime time) throws VizException {
-        List<float[]> floatData = null;
+    /**
+     * Clear and dispose processed data/renderables for all frames, but leave
+     * underlying data in the adapter.
+     */
+    protected void disposeFrames() {
+        synchronized (lock) {
+            sliceMap.clear();
+        }
+    }
+
+    protected CrossSectionFrameData loadSlice(DataTime time)
+            throws VizException {
         CrossSectionGraph graph = ((CrossSectionGraph) descriptor
                 .getGraph(this));
-        if (graph != null) {
-            floatData = adapter.loadData(time, graph, geometry);
-        }
-        if (floatData == null) {
+        if (graph == null) {
             return null;
         }
+
+        CrossSectionFrameData frameData = adapter.loadData(time, graph,
+                geometry);
+        List<float[]> floatData = null;
+        CrossSectionFrameExtraRenderable frameInfo = null;
+        if (frameData != null) {
+            floatData = frameData.getData();
+            frameInfo = frameData.getExtraRenderable();
+        }
+        if (floatData == null || floatData.isEmpty()) {
+            /*
+             * Return a non-null value to differentiate between data we've
+             * attempted to load but couldn't (CrossSectionFrameData without
+             * data), and data we haven't attempted to load yet (null).
+             */
+            return new CrossSectionFrameData(null, frameInfo);
+        }
+
         Coordinate[] lineData = GeoUtil.splitLine(GRID_SIZE,
                 descriptor.getLine(time).getCoordinates());
         int lineLengthInMeters = (int) graph
@@ -285,7 +337,7 @@ public abstract class AbstractCrossSectionResource extends
             }
         }
 
-        return floatData;
+        return new CrossSectionFrameData(floatData, frameInfo);
     }
 
     public SingleLevel[] getLevels() {
@@ -321,59 +373,79 @@ public abstract class AbstractCrossSectionResource extends
         }
 
         adapter.addRecord(pdo);
-        if (descriptor != null) {
-            for (int i = 0; i < descriptor.getLines().size(); i++) {
-                pdoTime = pdoTime.clone();
-                pdoTime.setLevel((double) i, descriptor.getLevelType());
-                if (!dataTimes.add(pdoTime)) {
-                    // We are adding a record for a time we have, dispose of
-                    // existing time data and add to retrieval job
-                    disposeTimeData(pdoTime);
-                    dataRetrievalJob.times.add(pdoTime);
-                }
+        for (DataTime frameTime : resourceData.getAffectedFrameTimes(pdoTime)) {
+            if (!dataTimes.add(frameTime)) {
+                /*
+                 * We are adding a record for a time we have, dispose of
+                 * existing time data before adding to retrieval job
+                 */
+                disposeFrame(frameTime, true);
             }
-        } else {
-            dataTimes.add(pdoTime);
+            dataRetrievalJob.times.add(frameTime);
         }
     }
 
     @Override
     public final void remove(DataTime dataTime) {
-        synchronized (lock) {
-            sliceMap.remove(dataTime);
-            adapter.remove(dataTime);
-            dataTimes.remove(dataTime);
-            dataRetrievalJob.times.remove(dataTime);
+        super.remove(dataTime);
+        remove(dataTime, false);
+    }
 
-            boolean someLeft = false;
-            for (DataTime time : dataTimes) {
-                if (dataTime.equals(time, true)) {
-                    someLeft = true;
-                    break;
-                }
+    /**
+     * Remove the given data time.
+     *
+     * @param dataTime
+     *            the time to remove
+     * @param onUpdate
+     *            true if this is for the time's data to be recalculated on a
+     *            data update, false otherwise
+     */
+    protected final void remove(DataTime dataTime, boolean onUpdate) {
+        /*
+         * This can be called with a frame time that has its level set to a line
+         * type/index (e.g. from time matching) or with a level-less data time
+         * that's for the underlying data (e.g. from DataCubeAlertMessageParser)
+         */
+        synchronized (lock) {
+            for (DataTime frameTime : resourceData
+                    .getAffectedFrameTimes(dataTime)) {
+                disposeFrame(frameTime, onUpdate);
+                dataTimes.remove(frameTime);
+                dataRetrievalJob.times.remove(frameTime);
             }
 
-            // if there are none left with the same data time while ignoring
-            // level values then have the adapter remove all items which match
-            // the data time while ignoring the level value
-            if (!someLeft) {
+            /*
+             * If there are no frames left for the time, remove its data from
+             * the adapter as well. This needs to be done even on updates, since
+             * new records will be retrieved and added to the adapter, and we
+             * don't want the old/duplicate records still around then.
+             */
+            boolean anyFramesLeftForTime = dataTimes.stream()
+                    .anyMatch(time -> dataTime.equals(time, true));
+            if (!anyFramesLeftForTime) {
+                // Remove underlying data
                 DataTime tmp = dataTime.clone();
                 tmp.clearLevel();
                 adapter.remove(tmp);
             }
         }
-        disposeTimeData(dataTime);
+
         issueRefresh();
     }
 
     /**
-     * Dispose resource data for this time
+     * Dispose processed data/renderables for the given frame time, but leave
+     * underlying data in the adapter.
      *
-     * @param dataTime
+     * @param frameTime
+     *            the frame time to dispose data for
+     * @param onUpdate
+     *            true if this is for the time's data to be recalculated on a
+     *            data update, false otherwise
      */
-    protected void disposeTimeData(DataTime dataTime) {
+    protected void disposeFrame(DataTime frameTime, boolean onUpdate) {
         synchronized (lock) {
-            sliceMap.remove(dataTime);
+            sliceMap.remove(frameTime);
         }
     }
 
@@ -383,7 +455,7 @@ public abstract class AbstractCrossSectionResource extends
 
         LineString[] lines = new LineString[dLines.size()];
         for (int i = 0; i < lines.length; ++i) {
-            lines[i] = (LineString) dLines.get(i).clone();
+            lines[i] = (LineString) dLines.get(i).copy();
         }
         return IInsetMapResource.factory.createMultiLineString(lines);
     }
@@ -416,39 +488,32 @@ public abstract class AbstractCrossSectionResource extends
                 resourceData.getSource());
         completeName.append(" ").append(descriptor.getLineID());
 
-        // If this is point data, get the station ID
-
-        String stnID = "";
-        if (resourceData.getMetadataMap().get("location.stationId") != null) {
-
-            stnID = resourceData.getMetadataMap().get("location.stationId")
-                    .getConstraintValue();
-            if (stnID == null) {
-                stnID = "";
-            }
+        String extraText = adapter.getExtraNameText();
+        if (extraText != null && !extraText.isEmpty()) {
+            completeName.append(" ").append(extraText);
         }
-        if (!stnID.isEmpty()) {
-            if (stnID.contains(",")) {
-                // ID may be formatted point1,point2 to define a line
-                String stn = stnID.replace(",", "-");
-                // For display, need point1-point2
-                completeName.append(" ").append(stn);
-            } else {
-                completeName.append(" ").append(stnID);
-            }
-        }
+
         String parameterName = resourceData.getParameterName();
         completeName.append(" ").append(parameterName);
         if (getCapability(DisplayTypeCapability.class)
                 .getDisplayType() == DisplayType.IMAGE) {
             completeName.append(" Img");
         }
-        completeName.append(" ( ");
+        completeName.append(" (");
 
         completeName.append(getUnitString());
-        completeName.append(" ) ");
+        completeName.append(")");
 
         return completeName.toString();
+    }
+
+    @Override
+    public String getExtraLegendText(DataTime time) {
+        CrossSectionFrameRenderable frameRenderable = getFrameRenderable(time);
+        if (frameRenderable != null) {
+            return frameRenderable.getExtraLegendText();
+        }
+        return "";
     }
 
     public String getUnitString() {
@@ -485,11 +550,28 @@ public abstract class AbstractCrossSectionResource extends
 
     @Override
     public IGraphLabel<Double>[] getXRangeData() {
+        LineString currentLine = null;
         DataTime myTime = descriptor.getTimeForResource(this);
-        if (myTime == null) {
+        if (myTime != null) {
+            currentLine = descriptor.getLine(myTime);
+        } else {
+            /*
+             * Sometimes a resource with data loads without the x axis distance
+             * labels, and without the radar virtual volume line for resources
+             * where that is applicable. That appears to be because the time is
+             * null here, possibly due to a race condition with time matching.
+             * This is a hack to still display the distance labels and radar
+             * line in that case for most cross sections.
+             */
+            List<LineString> lines = descriptor.getLines();
+            if (lines != null && lines.size() == 1) {
+                currentLine = lines.get(0);
+            }
+        }
+        if (currentLine == null) {
             return new DoubleLabel[0];
         }
-        Coordinate[] coords = descriptor.getLine(myTime).getCoordinates();
+        Coordinate[] coords = currentLine.getCoordinates();
         double totalDistance = 0.0;
 
         for (int j = 0; j < (coords.length - 1); j++) {
@@ -516,8 +598,16 @@ public abstract class AbstractCrossSectionResource extends
 
     @Override
     public void redraw() {
-        // TODO Auto-generated method stub
-
+        /*
+         * Clear all processed frame data, but leave underlying data in adapter.
+         * Then recalculate frame data so that it's re-scaled correctly.
+         */
+        synchronized (lock) {
+            disposeFrames();
+            dataRetrievalJob.times.addAll(dataTimes);
+            dataRetrievalJob.schedule();
+        }
+        issueRefresh();
     }
 
     /**
@@ -528,10 +618,25 @@ public abstract class AbstractCrossSectionResource extends
      *            the time to get slice data for
      * @return the slice data if immediately available, otherwise null
      */
-    protected List<float[]> getSliceData(DataTime time) {
-        List<float[]> data = null;
+    protected CrossSectionFrameData getSliceData(DataTime time) {
+        return getSliceData(time, sliceMap);
+    }
+
+    /**
+     * Get the slice data for the given time from the given slice map. This does
+     * not wait for data retrieval to complete.
+     *
+     * @param time
+     *            the time to get slice data for
+     * @param sliceMap
+     *            the slice map to lookup the time in
+     * @return the slice data if immediately available, otherwise null
+     */
+    protected CrossSectionFrameData getSliceData(DataTime time,
+            Map<DataTime, Future<CrossSectionFrameData>> sliceMap) {
+        CrossSectionFrameData data = null;
         synchronized (lock) {
-            Future<List<float[]>> future = sliceMap.get(time);
+            Future<CrossSectionFrameData> future = sliceMap.get(time);
             if (future != null && future.isDone()) {
                 try {
                     data = future.get();
@@ -544,9 +649,17 @@ public abstract class AbstractCrossSectionResource extends
         return data;
     }
 
-    private class DataRetrievalJob extends Job {
+    /**
+     * @param frameTime
+     * @return the renderable data for the given frame time if immediately
+     *         available, otherwise null
+     */
+    protected abstract CrossSectionFrameRenderable getFrameRenderable(
+            DataTime frameTime);
 
-        protected Queue<DataTime> times = new PriorityBlockingQueue<>(12,
+    protected class DataRetrievalJob extends Job {
+
+        protected final Queue<DataTime> times = new PriorityBlockingQueue<>(12,
                 (t1, t2) -> {
                     /*
                      * Sorts times so that those closest to current time are
@@ -587,42 +700,19 @@ public abstract class AbstractCrossSectionResource extends
                     break;
                 }
                 try {
-                    RunnableFuture<List<float[]>> dataFuture = new FutureTask<>(
+                    RunnableFuture<CrossSectionFrameData> dataFuture = new FutureTask<>(
                             () -> loadSlice(time));
 
                     synchronized (lock) {
                         sliceMap.put(time, dataFuture);
                     }
 
+                    // Start data retrieval
                     dataFuture.run();
-                    List<float[]> data = dataFuture.get();
+                    // Block until completion
+                    dataFuture.get();
 
-                    boolean refresh = false;
-                    boolean noData = false;
-                    synchronized (lock) {
-                        /*
-                         * Ignore the retrieved data if our cache entry was
-                         * removed/invalidated
-                         */
-                        if (dataFuture == sliceMap.get(time)) {
-                            refresh = true;
-                            if (data == null) {
-                                sliceMap.remove(time);
-                                noData = true;
-                            }
-                        }
-                    }
-
-                    if (refresh) {
-                        if (noData) {
-                            resourceData.blackListTime(time);
-                            descriptor.getTimeMatcher().redoTimeMatching(
-                                    AbstractCrossSectionResource.this);
-                            descriptor.getTimeMatcher()
-                                    .redoTimeMatching(descriptor);
-                        }
-                        issueRefresh();
-                    }
+                    issueRefresh();
                 } catch (Exception e) {
                     if (run) {
                         statusHandler.error("Error Loading Cross Section Data",

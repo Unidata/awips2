@@ -31,6 +31,8 @@ function startEnvironmentInternal()
    #   ${1} name.
    env_name="${1}"
 
+   env_name_lowercase=$(echo ${env_name} | tr '[:upper:]' '[:lower:]')
+
    # Ensure that the environment exists.
    if [ ! -d ${EDEX_ENV_DIR}/${env_name} ]; then
       echo "ERROR: The ${env_name} environment does not exist yet."
@@ -38,19 +40,23 @@ function startEnvironmentInternal()
    fi
 
    # Verify that the environment is not missing any startup scripts.
-   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/edex_camel ]; then
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/edex_camel_${env_name_lowercase}@.service ]; then
+      echo "${EDEX_ENV_DIR}/${env_name}/edex-environment/edex_camel_${env_name_lowercase}@.service missing"
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
-   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/edex_postgres ]; then
+   if [ ! -d ${EDEX_ENV_DIR}/${env_name}/edex-environment/postgresql@awips_${env_name_lowercase}.service.d ]; then
+      echo "${EDEX_ENV_DIR}/${env_name}/edex-environment/postgresql@awips_${env_name_lowercase}.service.d missing"
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
-   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/httpd-pypies ]; then
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/httpd-pypies_${env_name_lowercase}.service ]; then
+      echo "${EDEX_ENV_DIR}/${env_name}/edex-environment/httpd-pypies_${env_name_lowercase}.service missing"
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
-   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/qpidd ]; then
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/qpidd_${env_name_lowercase}.service ]; then
+      echo "${EDEX_ENV_DIR}/${env_name}/edex-environment/qpidd_${env_name_lowercase}.service missing"
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
@@ -58,20 +64,25 @@ function startEnvironmentInternal()
    # Start the environment.
    pushd . > /dev/null 2>&1
    cd ${EDEX_ENV_DIR}/${env_name}/edex-environment
+
+
    # Start PostgreSQL.
-   /bin/bash edex_postgres start
+   sudo systemctl start postgresql@awips_${env_name_lowercase}
    echo 
    sleep 10
    # Start httpd-pypies
-   /bin/bash httpd-pypies start
+   sudo systemctl start httpd-pypies_${env_name_lowercase}
    echo
    sleep 10
    # Start QPID.
-   /bin/bash qpidd start
+   sudo systemctl start qpidd_${env_name_lowercase}
    echo
    sleep 10
    # Start EDEX (replace with wes mode when available).
-   /bin/bash edex_camel start
+   for service in 'request' 'ingest' 'ingestGrib' 'ingestDat' 'registry';
+   do
+      sudo systemctl start edex_camel_${env_name_lowercase}@$service
+   done
    echo
    popd > /dev/null 2>&1
 

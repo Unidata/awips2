@@ -46,8 +46,11 @@
 #                                  correctly in Python2 and now throws
 #                                  exceptions in Python3
 # May 10, 2021  DCS22297 dkingfiel Remove RB.Y, SI.Y, and SW.
+# Mar 04, 2024  2036874  smoorthy  Get TZ from offsetTime instead 
+#                                   of os.environ. 
 
 import GenericHazards
+import offsetTime
 import time, re, os, types, copy, LogStream
 import ModuleAccessor, SampleAnalysis
 from math import *
@@ -2735,7 +2738,7 @@ class TextProduct(GenericHazards.TextProduct):
         #  in Header.py -- it really should be put back in and used
         #  in Header.py, but to avoid confusion, I'm repeating it here
         # get this time zone
-        thisTimeZone = os.environ["TZ"]
+        thisTimeZone = offsetTime.getTimeZone()
         zoneList = []
         # check to see if we have any areas outside our time zone
         for areaName in areaList:

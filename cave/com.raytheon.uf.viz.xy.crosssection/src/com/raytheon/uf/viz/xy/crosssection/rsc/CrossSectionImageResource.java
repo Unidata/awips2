@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.IncommensurableException;
+import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
@@ -40,10 +42,13 @@ import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
+import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
+import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
 import com.raytheon.uf.common.numeric.filter.ValidRangeFilter;
 import com.raytheon.uf.common.numeric.source.DataSource;
@@ -57,7 +62,7 @@ import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.units.UnitConv;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
@@ -67,13 +72,13 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionImage;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
-import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 
 /**
  * Resource for displaying cross sections as images
@@ -108,12 +113,17 @@ import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
  * Feb 22, 2023  9021     mapeters     Use getSliceData() to access sliceMap
  * Jul 19, 2023  2035935  mapeters     Add isEmpty() checks to prevent errors
  *                                     when the line isn't near the data
+ * Apr 02, 2024  2037091  mapeters     Auto-update and refactor to support new
+ *                                     subclass
+ * Jun 30, 2024  2037476  bines        Updated to match other two FSI screens
+ * Aug 06, 2024  2037698  bines        Added conversion for HC data
+ * Aug 20, 2024  2037631  mapeters     Wrap floats and images in new classes, move
+ *                                     some paint logic into CrossSectionImage
  *
  * </pre>
  *
  * @author njensen
  */
-
 public class CrossSectionImageResource extends AbstractCrossSectionResource {
 
     /**
@@ -126,7 +136,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
     /**
      * One image per frame.
      */
-    private Map<DataTime, IImage> imageMap = new HashMap<>();
+    protected final Map<DataTime, CrossSectionImage> imageMap = new HashMap<>();
 
     /**
      * The colormap is initialized only when the first image is displayed and
@@ -139,10 +149,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
     public CrossSectionImageResource(CrossSectionResourceData resourceData,
             LoadProperties props, AbstractCrossSectionAdapter<?> adapter) {
         super(resourceData, props, adapter);
-        StyleRule styleRule = loadStyleRule();
-        if (styleRule != null) {
-            prefs = styleRule.getPreferences();
-        }
+
         if (!this.hasCapability(ImagingCapability.class)) {
             this.getCapability(ImagingCapability.class)
                     .setInterpolationState(true);
@@ -151,12 +158,25 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
                 .setAlternativeDisplayTypes(Arrays.asList(DisplayType.CONTOUR));
     }
 
+    @Override
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        StyleRule styleRule = loadStyleRule();
+        if (styleRule != null) {
+            prefs = styleRule.getPreferences();
+        }
+
+        super.initInternal(target);
+    }
+
     private StyleRule loadStyleRule() {
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
         match.setLevel(null);
         List<String> paramList = new ArrayList<>();
         paramList.add(resourceData.getParameter());
+        List<String> sourceList = new ArrayList<>();
+        sourceList.add(adapter.getCreatingEntity());
         match.setParameterName(paramList);
+        match.setCreatingEntityNames(sourceList);
         try {
             StyleRule rule = StyleManager.getInstance().getStyleRule(STYLE_TYPE,
                     match);
@@ -178,22 +198,14 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
         }
     }
 
-    @Override
-    protected void disposeInternal() {
-        super.disposeInternal();
-        disposeImages();
-    }
-
-    private void disposeImages() {
-        for (IImage image : imageMap.values()) {
-            image.dispose();
+    protected CrossSectionImage constructImage(DataTime time,
+            CrossSectionFrameData frameData, IGraphicsTarget target)
+            throws VizException {
+        List<float[]> data = frameData.getData();
+        if (data.isEmpty()) {
+            return new CrossSectionImage(null, this,
+                    frameData.getExtraRenderable());
         }
-        imageMap.clear();
-    }
-
-    private IImage constructImage(DataTime time, List<float[]> data,
-            IGraphicsTarget target) throws VizException {
-        ColorMapParameters colorMapParams;
 
         // if loaded from a procedure, the colormap is already somewhat set up
         IColorMap savedColorMap = null;
@@ -207,6 +219,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
             savedPersistedParams = cmapp.getPersisted();
         }
 
+        ColorMapParameters colorMapParams;
         if (needsColorMapInit) {
             float[] floatData = data.get(0);
             StyleRule styleRule = loadStyleRule();
@@ -272,7 +285,8 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
         }
 
         IImage image = target.getExtension(IColormappedImageExtension.class)
-                .initializeRaster(new ImageDataCallback(time), colorMapParams);
+                .initializeRaster(new ImageDataCallback(time, data),
+                        colorMapParams);
         ImagingCapability imagingCapability = getCapability(
                 ImagingCapability.class);
         image.setInterpolated(imagingCapability.isInterpolationState());
@@ -281,28 +295,6 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
         }
         image.setBrightness(imagingCapability.getBrightness());
         image.setContrast(imagingCapability.getContrast());
-        return image;
-
-    }
-
-    @Override
-    protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
-        super.paintInternal(target, paintProps);
-        DataTime currentTime = paintProps.getDataTime();
-
-        List<float[]> data = getSliceData(currentTime);
-        if (data == null || data.isEmpty()) {
-            return;
-        }
-
-        IImage image = imageMap.get(currentTime);
-        if (image == null) {
-            image = constructImage(currentTime, data, target);
-            imageMap.put(currentTime, image);
-        }
-
-        target.setupClippingPlane(descriptor.getGraph(this).getExtent());
 
         Envelope2D env = geometry.getEnvelope2D();
         Coordinate ul = new Coordinate(env.getMinX(), env.getMaxY());
@@ -310,49 +302,107 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
         Coordinate ll = new Coordinate(env.getMinX(), env.getMinY());
         Coordinate lr = new Coordinate(env.getMaxX(), env.getMinY());
         PixelCoverage cov = new PixelCoverage(ul, ur, lr, ll);
-        target.drawRaster(image, cov, paintProps);
+
+        return new CrossSectionImage(new DrawableImage(image, cov), this,
+                frameData.getExtraRenderable());
+
     }
 
     @Override
-    public void setDescriptor(CrossSectionDescriptor descriptor) {
-        super.setDescriptor(descriptor);
-        disposeImages();
+    protected void paintInternal(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        super.paintInternal(target, paintProps);
+
+        CrossSectionImage image = getOrCreateImage(target, paintProps);
+        if (image == null) {
+            return;
+        }
+        target.setupClippingPlane(descriptor.getGraph(this).getExtent());
+        image.paint(target, paintProps);
     }
 
-    @Override
-    public void resourceDataChanged(ChangeType type, Object object) {
-        super.resourceDataChanged(type, object);
-        if (type.equals(ChangeType.CAPABILITY)) {
-            if (object instanceof ImagingCapability) {
-                ImagingCapability imgcap = (ImagingCapability) object;
-                for (IImage image : imageMap.values()) {
-                    image.setBrightness(imgcap.getBrightness());
-                    image.setContrast(imgcap.getContrast());
-                    image.setInterpolated(imgcap.isInterpolationState());
+    /**
+     * Get the image to display for the current time, creating it if it is not
+     * available yet but the data is.
+     *
+     * @param target
+     * @param paintProps
+     * @return the image
+     * @throws VizException
+     */
+    protected CrossSectionImage getOrCreateImage(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        DataTime currentTime = paintProps.getDataTime();
+        if (currentTime == null) {
+            return null;
+        }
+
+        CrossSectionImage image;
+        synchronized (lock) {
+            image = imageMap.get(currentTime);
+            if (image == null) {
+                CrossSectionFrameData data = getSliceData(currentTime);
+                if (data != null) {
+                    image = constructImage(currentTime, data, target);
+                    imageMap.put(currentTime, image);
                 }
             }
         }
+        return image;
+    }
+
+    @Override
+    protected CrossSectionImage getFrameRenderable(DataTime frameTime) {
+        synchronized (lock) {
+            return imageMap.get(frameTime);
+        }
+    }
+
+    @Override
+    protected void disposeFrames() {
+        super.disposeFrames();
+        synchronized (lock) {
+            for (CrossSectionImage image : imageMap.values()) {
+                image.dispose();
+            }
+            imageMap.clear();
+        }
+    }
+
+    /**
+     * Get the data to use for inspection for the given time.
+     *
+     * @param time
+     *            the time being inspected
+     * @return the data
+     * @throws VizException
+     */
+    protected float[] getInspectData(DataTime time) {
+        CrossSectionFrameData data = getSliceData(time);
+        if (data == null || !data.hasData()) {
+            return null;
+        }
+        return data.getData().get(0);
     }
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         DataTime currentTime = descriptor.getTimeForResource(this);
 
-        List<float[]> data = getSliceData(currentTime);
-        if (data == null || data.isEmpty()) {
+        float[] sliceData = getInspectData(currentTime);
+        if (sliceData == null) {
             return "NO DATA";
         }
-        float[] sliceData = data.get(0);
-        if (sliceData == null) {
-            return null;
-        }
+
+        Interpolation interpolation = (adapter.useNearestNeighbor())
+                ? new NearestNeighborInterpolation()
+                : new BilinearInterpolation();
 
         DataSource source = new FloatBufferWrapper(sliceData,
                 geometry.getGridRange2D());
         source = ValidRangeFilter.apply(source, -9998,
                 Double.POSITIVE_INFINITY);
-        GridSampler sampler = new GridSampler(source,
-                new BilinearInterpolation());
+        GridSampler sampler = new GridSampler(source, interpolation);
         GridReprojection reproj = new GridReprojection(geometry,
                 descriptor.getGridGeometry());
 
@@ -382,10 +432,20 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
                 Unit<?> displayUnit = colorMapParams.getDisplayUnit();
                 if (displayUnit != null && dataUnit != null
                         && dataUnit.isCompatible(displayUnit)) {
-                    UnitConverter converter = UnitConv
-                            .getConverterToUnchecked(dataUnit, displayUnit);
-                    val = converter.convert(val);
-
+                    UnitConverter converter;
+                    try {
+                        converter = dataUnit.getConverterToAny(displayUnit);
+                        val = converter.convert(val);
+                    } catch (UnconvertibleException
+                            | IncommensurableException e) {
+                        statusHandler.error("Error converting data unit: "
+                                + dataUnit.getName() + " to display unit: "
+                                + displayUnit.getName(), e);
+                    }
+                }
+                String mapResult = dataMappingConversion(val);
+                if (mapResult != null && !mapResult.isEmpty()) {
+                    return mapResult;
                 }
             }
             return decimalFormat.format(val) + getUnitString();
@@ -393,38 +453,87 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
 
     }
 
+    protected String dataMappingConversion(double val) {
+        if (hasCapability(ColorMapCapability.class)) {
+            ColorMapParameters cmapp = getCapability(ColorMapCapability.class)
+                    .getColorMapParameters();
+
+            DataMappingPreferences dataMapping = cmapp.getDataMapping();
+
+            if (dataMapping != null) {
+                double imageVal = cmapp.getDisplayToColorMapConverter()
+                        .convert(val);
+                String mapResult = dataMapping
+                        .getSampleOrLabelValueForDataValue(imageVal);
+                if (mapResult != null && !mapResult.isEmpty()) {
+                    return mapResult;
+                }
+            }
+        }
+
+        return null;
+    }
+
     @Override
-    public void disposeTimeData(DataTime dataTime) {
-        super.disposeTimeData(dataTime);
-        IImage image = imageMap.remove(dataTime);
+    public void disposeFrame(DataTime frameTime, boolean onUpdate) {
+        super.disposeFrame(frameTime, onUpdate);
+        CrossSectionImage image;
+        synchronized (lock) {
+            image = imageMap.remove(frameTime);
+        }
         if (image != null) {
             image.dispose();
         }
     }
 
     /**
-     * Simple callback which just copies the data out of the sliceMap.
+     * Simple callback which just wraps the given data. Also does display to
+     * color map conversions when a converter is present.
      */
-    private class ImageDataCallback implements IColorMapDataRetrievalCallback {
+    protected class ImageDataCallback
+            implements IColorMapDataRetrievalCallback {
 
         private final DataTime time;
 
-        public ImageDataCallback(DataTime time) {
+        private final List<float[]> data;
+
+        public ImageDataCallback(DataTime time, List<float[]> data) {
             this.time = time;
+            this.data = data;
         }
 
         @Override
         public ColorMapData getColorMapData() throws VizException {
-            List<float[]> data = getSliceData(time);
             if (data == null || data.isEmpty()) {
                 throw new VizException("No Image Data available for "
                         + getSafeName() + " at " + time.getDisplayString());
             }
             int[] dims = { geometry.getGridRange().getSpan(0),
                     geometry.getGridRange().getSpan(1) };
-            return new ColorMapData(FloatBuffer.wrap(data.get(0)), dims);
+
+            float[] convertedData = convertDataToColorMap(data.get(0));
+
+            return new ColorMapData(FloatBuffer.wrap(convertedData), dims);
+        }
+
+        protected float[] convertDataToColorMap(float[] data) {
+            float[] convertedData = new float[data.length];
+
+            if (hasCapability(ColorMapCapability.class)) {
+                ColorMapParameters cmapp = getCapability(
+                        ColorMapCapability.class).getColorMapParameters();
+
+                UnitConverter converter = cmapp.getDisplayToColorMapConverter();
+                if (converter != null) {
+                    for (int i = 0; i < data.length; i++) {
+                        convertedData[i] = (float) converter.convert(data[i]);
+                    }
+                } else {
+                    convertedData = data;
+                }
+            }
+            return convertedData;
         }
 
     }
-
 }

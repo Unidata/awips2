@@ -1,41 +1,40 @@
-# Install EDEX
+# Install EDEX - BETA Version
 
 EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at [Distributed EDEX, Installing Across Multiple Machines](../../edex/distributed-computing/)
+
+> ***Note**: Access to Unidata's IDD data feed (how you receive weather data) is accessible by the University community but is not available to the public freely.
 
 ---
 
 ## Latest Version
 
-**20.3.2-2**
+>Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
+- **23.4.1-0.4**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
 
-!!! note "Version 20.\* of CAVE is not compatible with Version 18.\* EDEX and vice versa, Version 18.\* of CAVE is not compatible with Version 20.\* EDEX."
+!!! note "Version 23.\* of CAVE is not compatible with Version 20.\* EDEX and vice versa, Version 20.\* of CAVE is not compatible with Version 23.\* EDEX."
 
 ---
 
 ## Functionality/Reporting
 
-If you come across issues/bugs/missing functionality, we also encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6jyZtbh49g-GCBoAQYzTVwAIf_aKz0QOeAr7gDVFhPrjAmw/viewform?usp=sf_link">report it using this short form</a>.
+If you come across issues/bugs/missing functionality, we encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLScqWZho98cI8ByYTe99YRidfiYK_VeHvjsAculZmiVdWGwUnw/viewform?usp=sf_link" target="_blank">report it using this short form</a> or emailing at support-awips@unidata.ucar.edu.
 
 ---
 
 
 ## System requirements
 
-- 64-bit CentOS/RHEL 7
-
-!!! note "While CentOS8 has reach End of Life as of Dec. 31, 2021, CentOS7 End of Life isn't until June 30, 2024."  
-
+- 64-bit Rocky/RHEL 8
 - Bash shell environment
-- 16+ CPU cores (each CPU core can run a decorder in parallel)
+- 16+ CPU cores (each CPU core can run a decoder in parallel)
 - 24GB RAM
 - 700GB+ Disk Space
-- gcc-c++ package
 - A **Solid State Drive (SSD)** is recommended
     - A SSD should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
 
-!!! note "EDEX is only supported for 64-bit CentOS and RHEL 7 Operating Systems."
+!!! note "EDEX is only supported for 64-bit Rocky and RHEL 8 Operating Systems."
 
 !!! warning "EDEX is **not** supported in Debian, Ubuntu, SUSE, Solaris, macOS, or Windows. You may have luck with Fedora Core 12 to 14 and Scientific Linux, but we will not provide support."
 
@@ -47,16 +46,16 @@ The first 3 steps should all be run as **root**
 
 ### 1. Install EDEX
 
-Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
+Download and run the installer: [**awips_install-v23.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh)
 
 ```
-wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
-chmod 755 awips_install.sh
-sudo ./awips_install.sh --edex
+wget https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh
+chmod 755 awips_install-v23.sh
+sudo ./awips_install-v23.sh --edex
 ```
 
 
-!!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
+!!! note "**awips_install-v23.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 
        1. Checks to see if EDEX is currently running, if so stops the processes with the `edex stop` command
        2. If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a `yum groupremove awips2-server`
@@ -171,10 +170,12 @@ edex start
 ```
 To manually start, stop, and restart:
 ```
-service edex_postgres start
-service httpd-pypies start
-service qpidd start
-service edex_camel start
+systemctl start postgres@awips
+systemctl start httpd-pypies
+systemctl start qpidd
+systemctl start edex_camel@ingest
+systemctl start edex_camel@ingestGrib
+systemctl start edex_camel@request
 ```
 The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. Start ldm manually:
 ```

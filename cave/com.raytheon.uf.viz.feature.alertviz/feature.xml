@@ -515,7 +515,7 @@
          id="org.apache.xerces"
          download-size="0"
          install-size="0"
-         version="2.12.1"/>
+         version="2.12.2"/>
 
    <plugin
          id="com.raytheon.uf.common.convert"

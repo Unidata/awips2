@@ -113,6 +113,12 @@
 #
 # Aug 24, 2021  22531    tlefebvr  Added optional parameter to getTextProductFromDB to force
 #                                  use of the OPERATIONAL database.
+#
+# Sep 5, 2024   2037623  jbell     Optional timeInfluence argument for encodeEditArea() was 
+#                                  removed since it was blocking editArea from being 
+#                                  evaluated. The timeInfluence variable needs to be properly
+#                                  implemented for all of the procedures that reference 
+#                                  encodeEditArea() that intend for the edit area to be evaluated.
 ########################################################################
 
 ##
@@ -2242,30 +2248,20 @@ class SmartScript(BaseTool.BaseTool):
         return len(keys) - 1
     
     ##
-    # Returns a Numeric Python mask for the edit area. If timeInfluence is provided, 
-    #   re-evaluates an edit area query at the given time influence.
+    # Returns a Numeric Python mask for the edit area
     # "editArea" can be a named area or a ReferenceData object
-    # "timeInfluence" can be a Date or AbsTime object
     # @param editArea: An edit area to obtain a mask for
     # @type editArea: String or referenceArea
-    # @param timeInfluence: The time influence an edit area query is evaluated at
-    # @type timeInfluence: Date or AbsTime
     # @return: grid for the edit area
     # @rtype: numpy array of int8
-    def encodeEditArea(self, editArea, timeInfluence=None):
+    def encodeEditArea(self, editArea):
         # Returns a Numeric Python mask for the edit area
         # "editArea" can be a named area or a referenceData object
-        if isinstance(editArea, str):
+        if type(editArea) is str:
             editArea = self.getEditArea(editArea)
 
-        if timeInfluence is not None and editArea.isQuery():
-            if isinstance(timeInfluence, AbsTime.AbsTime):
-                timeInfluence = timeInfluence.javaDate()
-
-            elif not hasattr(timeInfluence, 'java_name') or timeInfluence.java_name != "java.util.Date":
-                raise TypeError("Argument timeInfluence must be a java.util.Date or AbsTime.")
-
-            editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery(), timeInfluence)
+        if editArea.isQuery():
+            editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery())
 
         return editArea.getGrid().getNDArray().astype(numpy.bool)
 

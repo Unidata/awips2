@@ -46,6 +46,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameRenderable;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 
 /**
@@ -65,6 +67,7 @@ import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
  * Nov 15, 2018  58492    edebebe     Enabled configurable 'Wind Barb' properties
  * Feb 28, 2019  7713     tjensen     Fix Wind Barb config to not be static
  * Feb 22, 2023  9021     mapeters    Use getSliceData() to access sliceMap
+ * Aug 20, 2024 2037631   mapeters    Wrap floats in new class
  *
  * </pre>
  *
@@ -121,12 +124,12 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
                 .getMagnification();
 
         DataTime time = paintProps.getDataTime();
-        List<float[]> data = getSliceData(time);
-        if (data == null) {
+        CrossSectionFrameData data = getSliceData(time);
+        if (data == null || !data.hasData()) {
             return;
         }
-        float[] uData = data.get(0);
-        float[] vData = data.get(1);
+        float[] uData = data.getData().get(0);
+        float[] vData = data.getData().get(1);
 
         double density = getCapability(DensityCapability.class).getDensity();
         RGB color = getCapability(ColorableCapability.class).getColor();
@@ -208,11 +211,11 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
             int y = (int) Math.round(result[1]);
             if (x > -1 && x < geometry.getGridRange().getSpan(0) && y > -1
                     && y < geometry.getGridRange().getSpan(1)) {
-                List<float[]> data = getSliceData(time);
-                if (data != null) {
+                CrossSectionFrameData data = getSliceData(time);
+                if (data != null && data.hasData()) {
                     int index = y * geometry.getGridRange().getSpan(0) + x;
-                    float[] ufd = data.get(0);
-                    float[] vfd = data.get(1);
+                    float[] ufd = data.getData().get(0);
+                    float[] vfd = data.getData().get(1);
 
                     double val = Math.hypot(ufd[index], vfd[index]);
 
@@ -226,5 +229,16 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
             return s;
         }
         return s + getUnitString();
+    }
+
+    @Override
+    protected CrossSectionFrameRenderable getFrameRenderable(
+            DataTime frameTime) {
+        /*
+         * This class doesn't cache its renderable data, and this method is only
+         * used for providing extra legend text which isn't necessary for any
+         * vector data, so just return null.
+         */
+        return null;
     }
 }

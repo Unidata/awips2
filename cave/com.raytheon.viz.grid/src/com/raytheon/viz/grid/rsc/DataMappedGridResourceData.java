@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Oct 13, 2010            bsteffen    Initial creation
  * Dec 20, 2023 2036519    mapeters    Records are now passed into resource constructor
  *                                     instead of being stored in resource data
+ * Jul 15, 2024 2037624    mapeters    Make constructResource return type more specific
  *
  * </pre>
  *
@@ -54,7 +55,7 @@ public class DataMappedGridResourceData extends GridResourceData {
     protected DecimalFormat sampleFormat = new DecimalFormat("0.00");
 
     @Override
-    protected AbstractVizResource<?, ?> constructResource(
+    protected AbstractGridResource<GridResourceData> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
         GridRecord[] records = new GridRecord[objects.length];
         for (int i = 0; i < objects.length; i++) {

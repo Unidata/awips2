@@ -43,22 +43,19 @@ import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionContour;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
-import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
+import com.raytheon.viz.core.contours.ContourGroup;
 import com.raytheon.viz.core.contours.ContourSupport;
-import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
 
 /**
  * Resource for displaying cross sections as contours
@@ -79,6 +76,9 @@ import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
  * Dec 06, 2021  8341     randerso  Added use of getResourceId for contour
  *                                  logging
  * Feb 22, 2023  9021     mapeters  Use getSliceData() to access sliceMap
+ * Apr 02, 2024  2037091  mapeters  Refactor some dispose handling
+ * Aug 20, 2024  2037631  mapeters  Wrap floats and contours in new classes and move
+ *                                  some paint/dispose logic into CrossSectionContour
  *
  * </pre>
  *
@@ -88,21 +88,9 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
 
     private ContourPreferences contourPrefs;
 
-    private Map<DataTime, ContourGroup[]> contours = new HashMap<>();
-
-    private static final double ZOOM_REACTION_FACTOR = .45;
-
-    private static final int NUMBER_CONTOURING_LEVELS = 5;
-
-    private static final double[] ZOOM_THRESHOLDS = new double[NUMBER_CONTOURING_LEVELS];
+    protected final Map<DataTime, CrossSectionContour> contours = new HashMap<>();
 
     private IFont crossSectionFont = null;
-
-    static {
-        for (int i = 0; i < NUMBER_CONTOURING_LEVELS; i++) {
-            ZOOM_THRESHOLDS[i] = Math.pow(ZOOM_REACTION_FACTOR, i);
-        }
-    }
 
     public CrossSectionContourResource(CrossSectionResourceData data,
             LoadProperties props, AbstractCrossSectionAdapter<?> adapter) {
@@ -133,15 +121,6 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
-        for (ContourGroup[] groups : contours.values()) {
-            for (ContourGroup group : groups) {
-                if (group != null) {
-                    group.posValueShape.dispose();
-                    group.negValueShape.dispose();
-                }
-            }
-        }
-        contours.clear();
 
         if (this.crossSectionFont != null) {
             this.crossSectionFont.dispose();
@@ -154,59 +133,36 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
         super.paintInternal(target, paintProps);
         DataTime currentTime = paintProps.getDataTime();
 
-        List<float[]> dataList = getSliceData(currentTime);
-        if (dataList == null) {
+        CrossSectionFrameData frameData = getSliceData(currentTime);
+        if (frameData == null || !frameData.hasData()) {
             return;
         }
-        LineStyle posLineStyle = null;
-        LineStyle negLineStyle = null;
-        OutlineCapability lineCap = getCapability(OutlineCapability.class);
-        if (lineCap.getLineStyle() == LineStyle.DEFAULT) {
-            posLineStyle = LineStyle.SOLID;
-            negLineStyle = LineStyle.DASHED_LARGE;
-        } else {
-            posLineStyle = lineCap.getLineStyle();
-            negLineStyle = lineCap.getLineStyle();
+
+        if (crossSectionFont == null) {
+            crossSectionFont = target.getDefaultFont()
+                    .deriveWithSize(target.getDefaultFont().getFontSize());
         }
+
+        List<float[]> dataList = frameData.getData();
         double density = getCapability(DensityCapability.class).getDensity();
         if (density > 4) {
             density = 4;
         }
-        ContourGroup[] cgs = contours.get(currentTime);
-        if (cgs == null) {
-            cgs = new ContourGroup[NUMBER_CONTOURING_LEVELS];
-            contours.put(currentTime, cgs);
-        }
 
-        int level = 0;
-        double zoom = paintProps.getZoomLevel();
-        for (level = NUMBER_CONTOURING_LEVELS - 1; level > 0; level--) {
-            if (zoom < ZOOM_THRESHOLDS[level]) {
-                break;
-            }
-        }
+        CrossSectionContour csContour = contours.computeIfAbsent(currentTime,
+                time -> new CrossSectionContour(this, crossSectionFont,
+                        frameData.getExtraRenderable()));
 
         IExtent viewExtent = paintProps.getView().getExtent();
-
         IExtent extent = descriptor.getGraph(this).getExtent();
-
         Envelope viewedEnv = ((PixelExtent) viewExtent.intersection(extent))
                 .getEnvelope();
 
-        if (cgs[level] == null || cgs[level].lastDensity != density
-                || !cgs[level].lastUsedPixelExtent.getEnvelope()
-                        .contains(viewedEnv)) {
+        int level = csContour.getLevel(paintProps);
+        ContourGroup cg = csContour.getContourGroup(level);
 
-            if (cgs[level] != null) {
-                // Dispose old wireframe shapes
-                if (cgs[level].posValueShape != null) {
-                    cgs[level].posValueShape.dispose();
-                }
-
-                if (cgs[level].negValueShape != null) {
-                    cgs[level].negValueShape.dispose();
-                }
-            }
+        if (cg == null || cg.lastDensity != density
+                || !cg.lastUsedPixelExtent.getEnvelope().contains(viewedEnv)) {
             GeneralGridGeometry geometry = this.geometry;
             try {
                 // Prepare math transforms
@@ -258,12 +214,6 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
                         (int) (maxCorner.x - minCorner.x),
                         (int) (minCorner.y - maxCorner.y));
 
-                // Shift to cell corner.
-                // minCorner.x -= 0.5;
-                // maxCorner.x -= 0.5;
-                // minCorner.y -= 0.5;
-                // maxCorner.y -= 0.5;
-
                 // Transform back to pixel space
                 grid2crs.transform(minCorner, minCorner);
                 grid2crs.transform(maxCorner, maxCorner);
@@ -280,34 +230,22 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
                         e);
             }
             // worry about the viewed pane? Reduce data etc?
+            Object data;
             if (getCapability(DisplayTypeCapability.class)
                     .getDisplayType() == DisplayType.STREAMLINE) {
-                dataList = Arrays.asList(dataList.get(0), dataList.get(1));
-                cgs[level] = ContourSupport.createContours(
-                        getResourceId(currentTime), dataList, level, extent,
-                        density, geometry, target, contourPrefs);
+                data = Arrays.asList(dataList.get(0), dataList.get(1));
             } else {
-                cgs[level] = ContourSupport.createContours(
-                        getResourceId(currentTime), dataList.get(0), level,
-                        extent, density, geometry, target, contourPrefs);
+                data = dataList.get(0);
             }
-            cgs[level].lastUsedPixelExtent = (PixelExtent) extent;
-        }
-
-        // Determine the magnification for the contour text
-        Double magnification = getCapability(MagnificationCapability.class)
-                .getMagnification();
-        if (this.crossSectionFont == null) {
-            this.crossSectionFont = target.getDefaultFont()
-                    .deriveWithSize(target.getDefaultFont().getFontSize());
+            cg = ContourSupport.createContours(getResourceId(currentTime), data,
+                    level, extent, density, geometry, target, contourPrefs);
+            cg.lastUsedPixelExtent = (PixelExtent) extent;
+            csContour.setContourGroup(level, cg);
         }
 
         target.clearClippingPlane();
-        this.crossSectionFont.setMagnification(magnification.floatValue());
-        cgs[level].drawContours(target,
-                getCapability(ColorableCapability.class).getColor(),
-                lineCap.getOutlineWidth(), posLineStyle, negLineStyle,
-                this.crossSectionFont, null);
+
+        csContour.paint(target, paintProps);
     }
 
     /**
@@ -329,31 +267,25 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
     }
 
     @Override
-    public void setDescriptor(CrossSectionDescriptor descriptor) {
-        super.setDescriptor(descriptor);
-        for (ContourGroup[] groups : contours.values()) {
-            for (ContourGroup group : groups) {
-                if (group != null) {
-                    group.posValueShape.dispose();
-                    group.negValueShape.dispose();
-                }
-            }
+    protected void disposeFrames() {
+        super.disposeFrames();
+        for (CrossSectionContour contour : contours.values()) {
+            contour.dispose();
         }
         contours.clear();
     }
 
     @Override
-    public void disposeTimeData(DataTime dataTime) {
-        super.disposeTimeData(dataTime);
-        ContourGroup[] contours = this.contours.remove(dataTime);
-        if (contours != null) {
-            for (ContourGroup group : contours) {
-                if (group != null) {
-                    group.posValueShape.dispose();
-                    group.negValueShape.dispose();
-                }
-            }
+    public void disposeFrame(DataTime dataTime, boolean onUpdate) {
+        super.disposeFrame(dataTime, onUpdate);
+        CrossSectionContour contour = this.contours.remove(dataTime);
+        if (contour != null) {
+            contour.dispose();
         }
     }
 
+    @Override
+    protected CrossSectionContour getFrameRenderable(DataTime frameTime) {
+        return contours.get(frameTime);
+    }
 }

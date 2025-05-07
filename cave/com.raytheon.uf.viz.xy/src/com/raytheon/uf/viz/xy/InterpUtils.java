@@ -20,6 +20,7 @@ import com.raytheon.viz.core.graphing.xy.XYData;
  * ??                      ??           Initial creation
  * Oct 02, 2012 DR 15259   M.Porricelli Interpolate below 850MB
  * Nov 14, 2022 8973       mapeters     Prevent index out of bounds error
+ * Aug 06, 2024 2037698    bines        added nearest neighbor with mapeters
  *
  * </pre>
  *
@@ -28,6 +29,8 @@ import com.raytheon.viz.core.graphing.xy.XYData;
 public class InterpUtils {
 
     /**
+     * Make columns using bilinear interpolation as default
+     *
      *
      * @param dataList
      * @param ny
@@ -41,6 +44,28 @@ public class InterpUtils {
      */
     public static float[] makeColumn(List<XYData> dataList, int ny,
             IGraph graph, boolean lowToHigh, float fillValue) {
+        return makeColumn(dataList, ny, graph, lowToHigh, fillValue, false);
+    }
+
+    /**
+     *
+     * Make column using nearest neighbor OR bilinear interpolation
+     *
+     * @param dataList
+     * @param ny
+     * @param graph
+     * @param lowToHigh
+     *            pass in true if graph y axis is labeled low on the bottom to
+     *            high on the top
+     * @param fillValue
+     *            value to fill in undefined values with ( recommend Float.NaN )
+     * @param nearestNeighbor
+     *            use nearest neighbor interpolation
+     * @return
+     */
+    public static float[] makeColumn(List<XYData> dataList, int ny,
+            IGraph graph, boolean lowToHigh, float fillValue,
+            boolean nearestNeighbor) {
 
         float[] column = new float[ny];
         if (dataList.size() <= 1) {
@@ -111,7 +136,17 @@ public class InterpUtils {
             } else if (relativeError > .000001) {
                 column[i] = fillValue;
             } else {
-                column[i] = (float) (x1 + (y - y1) * (x2 - x1) / (y2 - y1));
+                if (nearestNeighbor) {
+                    if (Math.abs(y - y1) < Math.abs(y - y2)) {
+                        // Closer to y1 so use x1 that goes with it
+                        column[i] = (float) x1;
+                    } else {
+                        // Closer to y2 so use x2
+                        column[i] = (float) x2;
+                    }
+                } else {
+                    column[i] = (float) (x1 + (y - y1) * (x2 - x1) / (y2 - y1));
+                }
             }
 
         }
@@ -210,20 +245,62 @@ public class InterpUtils {
         return result;
     }
 
+    /**
+     *
+     * Get interpolated data using bilinear interpolation as default
+     *
+     * @param Rectangle
+     *            area
+     * @param double
+     *            x
+     * @param double
+     *            y
+     * @param float[]
+     *            data
+     * @return float data
+     */
     public static float getInterpolatedData(Rectangle area, double x, double y,
             float[] data) {
-        // bilinear interpolation
+        return getInterpolatedData(area, x, y, data, false);
+    }
+
+    /**
+     *
+     * Get interpolated data using nearest neighbor OR bilinear interpolation
+     *
+     * @param Rectangle
+     *            area
+     * @param double
+     *            x
+     * @param double
+     *            y
+     * @param float[]
+     *            data
+     * @param boolean
+     *            nearestNeighbor
+     * @return float data
+     */
+    public static float getInterpolatedData(Rectangle area, double x, double y,
+            float[] data, boolean nearestNeighbor) {
         float val = 0;
         float missing = 1;
-        int[] xr = { (int) Math.ceil(x), (int) Math.floor(x) };
-        int[] yr = { (int) Math.ceil(y), (int) Math.floor(y) };
-        // this occurs when x == (int) x
-        if (xr[0] == xr[1]) {
-            xr = new int[] { xr[0] };
-        }
-        // this occurs when y == (int) y
-        if (yr[0] == yr[1]) {
-            yr = new int[] { yr[0] };
+        int[] xr;
+        int[] yr;
+        if (nearestNeighbor) {
+            xr = new int[] { (int) Math.round(x) };
+            yr = new int[] { (int) Math.round(y) };
+        } else {
+            // bilinear interpolation
+            xr = new int[] { (int) Math.ceil(x), (int) Math.floor(x) };
+            yr = new int[] { (int) Math.ceil(y), (int) Math.floor(y) };
+            // this occurs when x == (int) x
+            if (xr[0] == xr[1]) {
+                xr = new int[] { xr[0] };
+            }
+            // this occurs when y == (int) y
+            if (yr[0] == yr[1]) {
+                yr = new int[] { yr[0] };
+            }
         }
         for (int x1 : xr) {
             for (int y1 : yr) {
@@ -242,8 +319,12 @@ public class InterpUtils {
                     }
                 }
                 if (val11 > -9999) {
-                    val += (1 - Math.abs(x1 - x)) * (1 - Math.abs(y1 - y))
-                            * val11;
+                    if (nearestNeighbor) {
+                        val = val11;
+                    } else {
+                        val += (1 - Math.abs(x1 - x)) * (1 - Math.abs(y1 - y))
+                                * val11;
+                    }
                 } else {
                     missing -= (1 - Math.abs(x1 - x)) * (1 - Math.abs(y1 - y));
                 }

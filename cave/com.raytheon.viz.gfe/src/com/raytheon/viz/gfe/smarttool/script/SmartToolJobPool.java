@@ -55,7 +55,8 @@ import jep.JepException;
  * Jul 23, 2015  4263     dgilling  Support SmartToolRunnerController.
  * Sep 16, 2015  4871     randerso  Return modified varDict from Tool
  * Feb 13, 2018  6906     randerso  Updated for merged SmartToolController
- * Jul 13, 2021  21692    jrohwein  add timeout when joining jobs 
+ * Jul 13, 2021  21692    jrohwein  add timeout when joining jobs
+ * Apr 17, 2024  2037333  njensen   Extend timeout when joining jobs to 1000 ms
  *
  * </pre>
  *
@@ -153,9 +154,19 @@ public class SmartToolJobPool {
         synchronized (joinLock) {
             for (Job j : jobList) {
                 try {
-                    j.join(1,null);
+                    /*
+                     * We give it a timeout of 1000 ms to match the poll timeout
+                     * in the run(IProgressMonitor) method. This method is only
+                     * called when the job is canceled and in that case we want
+                     * to give it time to cleanly exit and close the jep
+                     * instance. Closing the Python sub-interpreter during the
+                     * final stages of the JVM shutdown can sometimes hang the
+                     * process, preventing it from successfully exiting. See
+                     * #2037333.
+                     */
+                    j.join(1000, null);
                 } catch (InterruptedException e) {
-                    // Ignore interupt
+                    // Ignore interrupt
                 }
             }
         }
@@ -384,4 +395,3 @@ public class SmartToolJobPool {
         }
     }
 }
-

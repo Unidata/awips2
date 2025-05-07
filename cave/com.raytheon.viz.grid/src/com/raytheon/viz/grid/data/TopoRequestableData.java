@@ -49,6 +49,8 @@ import com.raytheon.uf.common.topo.TopoQuery;
  * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
  *                                     and moved into common
  * Sep 09, 2014 3356       njensen     Remove CommunicationException
+ * Jan 26, 2024 2036394    fcamacho    Replace float.NaN with 0.0f to display radar data over the ocean 
+ *                                     for AGL planes loaded via the Volume Browser
  * 
  * </pre>
  * 
@@ -84,6 +86,12 @@ public class TopoRequestableData extends AbstractRequestableData {
             GridGeometry2D gridGeom = coverage.getGridGeometry();
             try {
                 float[] heights = TopoQuery.getInstance().getHeight(gridGeom);
+                // Fix DR #2036394 - replace NaN with 0
+                for (int i = 0; i < heights.length; i++) {
+                    if (Float.isNaN(heights[i])) {
+                        heights[i] = 0.0f;
+                    }
+                }
                 rval = new FloatDataRecord(null, null, heights, 2, new long[] {
                         coverage.getNx(), coverage.getNy() });
                 topoCache.put(coverage, rval);

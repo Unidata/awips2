@@ -26,8 +26,9 @@
 #                                        to StormSurgeThreat Section so it correctly populates
 #  06/28/2021 DR22698    mbelk           Fixed problem with HLS failing for intermediate advisories
 #  06/02/2023 2029646    swhite          Add required options for SGX and LOX to run HLS
+#  03/04/2024 2036874    smoorthy        Get TZ from offsetTime instead of os.environ.
 #
-# Version 2023.06.02-0
+# Version 2024.03.04-0
 
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit as JavaGrid2DBit
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
@@ -39,6 +40,7 @@ import LocalizationSupport
 import LogStream
 import ModuleAccessor
 import VTECTable
+import offsetTime
 import copy
 import functools
 import math
@@ -2504,7 +2506,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # in Header.py -- it really should be put back in and used
         # in Header.py, but to avoid confusion, I'm repeating it here
         # get this time zone
-        thisTimeZone = os.environ["TZ"]
+        thisTimeZone = offsetTime.getTimeZone()
         zoneList = []
         # check to see if we have any areas outside our time zone
         for areaName in areaList:

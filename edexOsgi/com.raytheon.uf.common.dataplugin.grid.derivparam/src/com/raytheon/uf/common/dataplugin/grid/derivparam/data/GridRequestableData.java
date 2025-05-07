@@ -55,6 +55,7 @@ import com.raytheon.uf.common.inventory.exception.DataCubeException;
  *                                  for reuse in subclasses.
  * Jan 26, 2022  8741     njensen   Renamed setDataValue() to cacheDataValue()
  * Feb 22, 2023  9021     mapeters  Cache data as Futures
+ * May 22, 2024  2037092  mapeters  Make gridSource final, remove empty constructor
  *
  * </pre>
  *
@@ -69,10 +70,7 @@ public class GridRequestableData extends AbstractRequestableData {
      */
     protected final Map<Request, SoftReference<Future<IDataRecord[]>>> cache = new HashMap<>();
 
-    protected GridRecord gridSource;
-
-    protected GridRequestableData() {
-    }
+    protected final GridRecord gridSource;
 
     public GridRequestableData(GridRecord source) {
         this.gridSource = source;
@@ -97,10 +95,6 @@ public class GridRequestableData extends AbstractRequestableData {
      */
     public GridRecord getGridSource() {
         return gridSource;
-    }
-
-    public void setGridSource(GridRecord gridSource) {
-        this.gridSource = gridSource;
     }
 
     public boolean needsRequest(Request request) {

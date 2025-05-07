@@ -41,9 +41,10 @@
 # Jun 23, 2017 6138       dgilling    Changes for Winter Weather VTEC
 #                                     consolidation.
 # Oct 12, 2017 DR20389    swhite      Remove HTI/TCV Restrictions on CFW Hazards.
-# Jan 14, 2021 DCS22296   dkingfiel   Remove FF.A and FA.A
-# May 10, 2021 DCS22297   dkingfiel   Remove RB.Y, SI.Y, and SW.Y
-# May 18, 2021 DCS22297   dkingfiel   Add CW.Y, XH.A, and XH.W
+# Jan 14, 2021 DCS22296   dkingfiel   Remove FF.A and FA.A from HazardsConflictDict
+# May 10, 2021 DCS22297   dkingfiel   Remove RB.Y, SI.Y, and SW.Y from HazardsConflictDict
+# May 18, 2021 DCS22297   dkingfiel   Add CW.Y, XH.A, and XH.W to HazardsConflictDict
+# Sep 04, 2024 DR2036917  dkingfiel   Remove HZ.A, HZ.W, WC.A, WC.W, WC.Y from HazardsConflictDict
 #
 ########################################################################
 
@@ -89,8 +90,8 @@ HazardsConflictDict = {
    "CW.Y" : ["EC.A", "EC.W"],
    "DU.W" : ["DU.Y"],
    "DU.Y" : ["DU.W"],
-   "EC.A" : ["WC.A", "EC.W", "WC.W", "CW.Y"],
-   "EC.W" : ["EC.A", "WC.A", "WC.W", "WC.Y", "CW.Y"],
+   "EC.A" : ["EC.W", "CW.Y"],
+   "EC.W" : ["EC.A", "CW.Y"],
    "EH.A" : ["EH.W", "HT.Y"],
    "EH.W" : ["EH.A", "HT.Y"],
    "FA.W" : [],
@@ -100,11 +101,11 @@ HazardsConflictDict = {
    "FL.A" : [],
    "FL.W" : [],
    "FL.Y" : [],
-   "FR.Y" : ["FZ.A", "FZ.W", "HZ.W", "HZ.A"],
+   "FR.Y" : ["FZ.A", "FZ.W"],
    "FW.A" : ["FW.W"],
    "FW.W" : ["FW.A"],
-   "FZ.A" : ["FZ.W", "FR.Y", "HZ.W", "HZ.A"],
-   "FZ.W" : ["FZ.A", "FR.Y", "HZ.W", "HZ.A"],
+   "FZ.A" : ["FZ.W", "FR.Y"],
+   "FZ.W" : ["FZ.A", "FR.Y"],
    "GL.A" : ["SR.W", "HF.W", "BW.Y", "TR.A", "TR.W", "HU.A", "HU.W",
              "SC.Y", "SE.W", "GL.W", "SR.A", "HF.A", "SE.A", "TY.A",
              "TY.W"],
@@ -122,8 +123,6 @@ HazardsConflictDict = {
              "SE.W", "GL.A", "SR.A", "HF.A", "SE.A", "HU.S"],
    "HW.A" : ["HW.W", "WI.Y"],
    "HW.W" : ["HW.A", "LW.Y", "WI.Y"],
-   "HZ.A" : ["FZ.W", "FR.Y", "FZ.A", "HZ.W"],
-   "HZ.W" : ["FZ.A", "FR.Y", "HZ.A", "FZ.W"],
    "IS.W" : ["WS.A", "BZ.W", "WS.W", "LE.W", "WW.Y"],
    "LE.W" : ["WS.A", "BZ.W", "IS.W", "WS.W", "WW.Y"],
    "LO.Y" : [],
@@ -170,9 +169,6 @@ HazardsConflictDict = {
              "GL.W", "SR.W", "HF.W", "BW.Y", "SC.Y", "SE.W",],
    "UP.W" : ["TR.A", "TR.W", "HU.A", "HU.S", "HU.W", "UP.Y"],
    "UP.Y" : ["TR.A", "TR.W", "HU.A", "HU.S", "HU.W", "UP.W"],
-   "WC.A" : ["WC.Y", "WC.W"],
-   "WC.W" : ["WC.A", "WC.Y"],
-   "WC.Y" : ["WC.A", "WC.W"],
    "WI.Y" : ["HW.A", "HW.W", "LW.Y"],
    "WS.A" : ["BZ.W", "IS.W", "WS.W", "LE.W", "WW.Y"],
    "WS.W" : ["WS.A", "BZ.W", "IS.W", "LE.W", "WW.Y"],

@@ -42,6 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Mar 26, 2018  6711     randerso    Updated GSMMessage.toString(). Code
  *                                    cleanup.
  * Feb 18, 2021  22417    jdynina     Process VMI in GSM. Code cleanup.
+ * Mar-25, 2024  2037151  jdynina     Handle MPDA with SAILS
  * </pre>
  *
  * @author mnash
@@ -655,6 +656,10 @@ public class GSMBlock extends AbstractBlock {
         int mshw = in.readUnsignedShort();
         message.numSupplementalCuts = mshw >> 9;
         message.supplementalCuts = ((mshw & 0x01FF) << 16) | lshw;
+        if ((message.buildVersion >= 230) && 
+                (message.vcpInfo & (1 << 9)) != 0) {
+            message.numSupplementalCuts = (mshw >>> 9) & ((1 << 4) - 1);
+        }
     }
 
     @Override

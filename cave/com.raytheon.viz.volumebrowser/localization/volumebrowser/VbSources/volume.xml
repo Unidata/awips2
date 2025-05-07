@@ -18,6 +18,15 @@
         further_licensing_information.
     -->
 <vbSourceList>
+    <vbSource key="HiResW-ARW-AK" category="Volume" />
+    <vbSource key="HiResW-ARW-GU" category="Volume" />
+    <vbSource key="HiResW-ARW-HI" category="Volume" />
+    <vbSource key="HiResW-ARW-SJU" category="Volume" />
+    <vbSource key="HiResW-FV3" category="Volume" />
+    <vbSource key="HiResW-FV3-AK" category="Volume" />
+    <vbSource key="HiResW-FV3-GU" category="Volume" />
+    <vbSource key="HiResW-FV3-HI" category="Volume" />
+    <vbSource key="HiResW-FV3-SJU" category="Volume" />
     <vbSource key="CMC" category="Volume" />
     <vbSource key="GFS" category="Volume" />
     <vbSource key="GFS0p5" category="Volume" />

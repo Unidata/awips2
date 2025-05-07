@@ -19,9 +19,11 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -40,6 +42,7 @@ import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -79,6 +82,10 @@ import com.raytheon.viz.grid.rsc.general.DifferenceGridResourceData;
  *                                  early if no data should be requested
  * Dec 20, 2023  2036519  mapeters  Records are now passed into resource constructor
  *                                  instead of being stored in resource data
+ * Feb 29, 2024  2036955  mapeters  Prevent getLatestPluginDataObjects() from returning
+ *                                  PDOs that don't match the requested times
+ * Jul 15, 2024  2037624  mapeters  Add getExtraLegendText, make constructResource
+ *                                  return type more specific
  *
  * </pre>
  *
@@ -130,7 +137,7 @@ public class GridResourceData extends AbstractRequestableResourceData
     }
 
     @Override
-    protected AbstractVizResource<?, ?> constructResource(
+    protected AbstractGridResource<GridResourceData> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
         GridRecord[] records = new GridRecord[objects.length];
@@ -184,7 +191,7 @@ public class GridResourceData extends AbstractRequestableResourceData
 
         GridResourceData otherObj = (GridResourceData) obj;
 
-        if (!isObjectsEqual(this.secondaryResourceData,
+        if (!Objects.equals(this.secondaryResourceData,
                 otherObj.secondaryResourceData)) {
             return false;
         }
@@ -305,6 +312,7 @@ public class GridResourceData extends AbstractRequestableResourceData
             return new PluginDataObject[0];
         }
 
+        Set<DataTime> desiredSet = new HashSet<>(desired.length);
         Set<DataTime> stripped = new HashSet<>(desired.length);
         Double levelValue = null;
         for (DataTime desiredTime : desired) {
@@ -321,18 +329,19 @@ public class GridResourceData extends AbstractRequestableResourceData
             if (found) {
                 continue;
             }
+            desiredSet.add(desiredTime);
             DataTime strip = desiredTime.clone();
             strip.clearLevel();
             stripped.add(strip);
             if (levelValue == null) {
                 levelValue = desiredTime.getLevelValue();
-            } else if (levelValue != desiredTime.getLevelValue()) {
+            } else if (!levelValue.equals(desiredTime.getLevelValue())) {
                 levelValue = Level.INVALID_VALUE;
             }
         }
 
         HashMap<String, RequestConstraint> originalMetadataMap = this.metadataMap;
-        if (levelValue != null && levelValue != Level.INVALID_VALUE) {
+        if (levelValue != null && !levelValue.equals(Level.INVALID_VALUE)) {
             this.metadataMap = new HashMap<>(this.metadataMap);
             this.metadataMap.put(GridConstants.LEVEL_ONE,
                     new RequestConstraint(levelValue.toString()));
@@ -348,12 +357,20 @@ public class GridResourceData extends AbstractRequestableResourceData
                     level);
             obj.setDataTime(time);
         }
+
+        /*
+         * We may not want all levels for all times, so filter to only the
+         * desired time/level combinations
+         */
+        objs = Arrays.stream(objs)
+                .filter(pdo -> desiredSet.contains(pdo.getDataTime()))
+                .toArray(PluginDataObject[]::new);
+
         return objs;
     }
 
     @Override
     public AbstractVizResource<?, ?> getSecondaryResource() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -365,6 +382,17 @@ public class GridResourceData extends AbstractRequestableResourceData
         } else {
             this.fireChangeListeners(ChangeType.DATA_REMOVE, time);
         }
+    }
+
+    /**
+     * Get text to append to the legend for the given grid record.
+     *
+     * @param record
+     *            grid record
+     * @return extra legend text
+     */
+    public String getExtraLegendText(GridRecord record) {
+        return "";
     }
 
     public boolean isKeepDataWhileRetrievingUpdate() {

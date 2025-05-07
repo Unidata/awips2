@@ -35,6 +35,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Mar 26, 2010  4473     rjpeter   Initial creation
  * Jul 07, 2021  8576     randerso  Added siteId field to request data for all
  *                                  local radars defined in radarsInUse.txt
+ * May 07, 2024  2036516  bines     Removed unused siteId variable and related
+ *                                  functions
  *
  * </pre>
  *
@@ -46,36 +48,17 @@ public class GetRadarDataTreeRequest implements IServerRequest {
     @DynamicSerializeElement
     private String rdaId;
 
-    @DynamicSerializeElement
-    private String siteId;
-
     public String getRdaId() {
         return rdaId;
     }
 
     /**
      * Sets the rdaId to retrieve the data tree for. If null will return a
-     * DataTree for all Local Radars configured in radarsInUse.txt for the
-     * specified site ID.
+     * DataTree for all Radar Stations
      *
      * @param rdaId
      */
     public void setRdaId(String rdaId) {
         this.rdaId = rdaId;
     }
-
-    public String getSiteId() {
-        return siteId;
-    }
-
-    /**
-     * Sets the site ID. If rdaId is null will return a DataTree for all Local
-     * Radars configured in radarsInUse.txt for the specified site ID.
-     *
-     * @param siteId
-     */
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
-
 }

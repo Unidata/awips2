@@ -46,8 +46,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineOperation;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
+import com.raytheon.viz.core.contours.ContourGroup;
 import com.raytheon.viz.core.contours.ContourSupport;
-import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
 
 /**
  * Resource for displaying cross sections as contours
@@ -68,6 +68,7 @@ import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
  * Apr 12, 2018  7264     njensen   Use OutlineCapability/LineStyle
  * Dec 06, 2021  8341     randerso  Added use of getResourceId for contour
  *                                  logging
+ * Aug 20, 2024  2037631  mapeters  Cleanup contour disposal
  *
  * </pre>
  *
@@ -128,12 +129,7 @@ public class TimeHeightContourResource extends AbstractTimeHeightResource {
                 timeHeightFont = null;
             }
             if (contours != null) {
-                for (ContourGroup cg : contours) {
-                    if (cg != null) {
-                        cg.posValueShape.dispose();
-                        cg.negValueShape.dispose();
-                    }
-                }
+                ContourSupport.disposeContourGroups(contours);
                 contours = null;
             }
             issueRefresh();
@@ -222,12 +218,7 @@ public class TimeHeightContourResource extends AbstractTimeHeightResource {
     public void setDescriptor(TimeHeightDescriptor descriptor) {
         VizApp.runAsync(() -> {
             if (contours != null) {
-                for (ContourGroup cg : contours) {
-                    if (cg != null) {
-                        cg.posValueShape.dispose();
-                        cg.negValueShape.dispose();
-                    }
-                }
+                ContourSupport.disposeContourGroups(contours);
                 contours = null;
             }
         });

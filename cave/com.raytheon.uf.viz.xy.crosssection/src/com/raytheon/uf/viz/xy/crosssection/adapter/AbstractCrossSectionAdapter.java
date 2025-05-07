@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.xy.crosssection.adapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.measure.Unit;
@@ -34,13 +33,16 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
+import com.raytheon.uf.viz.xy.crosssection.rsc.AbstractCrossSectionResource;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.viz.core.graphing.xy.XYData;
 
 /**
- * TODO Add Description
+ * Abstract class for data type-specific functionality that's needed to display
+ * data as cross sections.
  *
  * <pre>
  *
@@ -49,7 +51,14 @@ import com.raytheon.viz.core.graphing.xy.XYData;
  * ------------ ---------- ----------- --------------------------
  * Nov 23, 2009            mschenke    Initial creation
  * Dec 20, 2023 2036519    mapeters    Add dispose()
- *
+ * May 22, 2024 2037092    mapeters    Add setResource(), sync remove(time)
+ * Jun 20, 2024 2037565    mapeters    Add getExtraNameText/getExtraLegendText,
+ *                                     remove unused getParameterName
+ * Jul 03, 2024 2037476    bines       Add getCreatingEntity()
+ * Aug 09, 2024 2037698    bines       Add getParamterAbbrev() and
+ *                                     useNearestNeighbor()
+ * Aug 20, 2024 2037631    mapeters    Wrap float data in new class, remove
+ *                                     getExtraLegendText()
  * </pre>
  *
  * @author mschenke
@@ -61,9 +70,11 @@ public abstract class AbstractCrossSectionAdapter<T extends PluginDataObject>
 
     protected CrossSectionResourceData resourceData;
 
+    protected AbstractCrossSectionResource resource;
+
     protected CrossSectionDescriptor descriptor;
 
-    protected List<T> records = new ArrayList<>();
+    protected final List<T> records = new ArrayList<>();
 
     /**
      * @param resourceData
@@ -74,6 +85,14 @@ public abstract class AbstractCrossSectionAdapter<T extends PluginDataObject>
     }
 
     /**
+     * @param resource
+     *            the resource to set
+     */
+    public void setResource(AbstractCrossSectionResource resource) {
+        this.resource = resource;
+    }
+
+    /**
      * @param descriptor
      *            the descriptor to set
      */
@@ -81,13 +100,11 @@ public abstract class AbstractCrossSectionAdapter<T extends PluginDataObject>
         this.descriptor = descriptor;
     }
 
-    public abstract List<float[]> loadData(DataTime currentTime,
+    public abstract CrossSectionFrameData loadData(DataTime currentTime,
             CrossSectionGraph graph, GridGeometry2D geometry)
             throws VizException;
 
     public abstract Unit<?> getUnit();
-
-    public abstract String getParameterName();
 
     @SuppressWarnings("unchecked")
     public void addRecord(PluginDataObject pdo) {
@@ -97,11 +114,8 @@ public abstract class AbstractCrossSectionAdapter<T extends PluginDataObject>
     }
 
     public void remove(DataTime time) {
-        Iterator<T> itr = records.iterator();
-        while (itr.hasNext()) {
-            if (itr.next().getDataTime().equals(time)) {
-                itr.remove();
-            }
+        synchronized (records) {
+            records.removeIf(record -> record.getDataTime().equals(time));
         }
     }
 
@@ -116,5 +130,42 @@ public abstract class AbstractCrossSectionAdapter<T extends PluginDataObject>
 
     public void dispose() {
         records.clear();
+    }
+
+    /**
+     * Get extra text to include in the resource's name.
+     *
+     * @return extra text string
+     */
+    public String getExtraNameText() {
+        return "";
+    }
+
+    /**
+     * Get creating entity/source
+     *
+     * @return String creating entity/source
+     */
+    public String getCreatingEntity() {
+        return resourceData.getSource();
+    }
+
+    /**
+     * Get parameter abbreviation
+     *
+     * @return String parameter
+     */
+    public String getParameterAbbrev() {
+        return resourceData.getParameter();
+    }
+
+    /**
+     * Indicates whether resource should use nearest neighbor OR bilinear
+     * interpolation
+     *
+     * @return boolean
+     */
+    public boolean useNearestNeighbor() {
+        return false;
     }
 }

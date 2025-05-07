@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -42,11 +42,12 @@ import org.eclipse.swt.widgets.Spinner;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.radar.IRadarConfigListener;
 import com.raytheon.viz.radar.rsc.image.RadarSRMResource;
+import com.raytheon.viz.radar.util.RadarAsGridUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * This class displays the Radar Display Control dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -57,12 +58,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 14, 2016 5054       randerso    Made independent shell to keep same
  *                                     behavior as when parented by dummy shell
  * Jan 29, 2016 5289       tgurney     Add missing minimize button.
- * 
+ * May 22, 2024 2037092    mapeters    Add virtual volume option
+ *
  * </pre>
- * 
+ *
  * @author lvenable
- * @version 1.0
- * 
  */
 public class RadarDisplayControlDlg extends CaveSWTDialog {
 
@@ -201,9 +201,11 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
      */
     private Button enableSails;
 
+    private Button enableVirtualVolume;
+
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent shell.
      */
@@ -224,8 +226,8 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
 
-        labelFont = new Font(shell.getDisplay(), "Arial", 10, SWT.ITALIC
-                | SWT.BOLD);
+        labelFont = new Font(shell.getDisplay(), "Arial", 10,
+                SWT.ITALIC | SWT.BOLD);
 
         // Initialize all of the menus, controls, and layouts
         createStiControls();
@@ -244,27 +246,26 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         createCustomStormMotionGroup();
         addSeparator();
         createSailsControls();
+        addSeparator();
+        createVirtualVolumeControls();
         createCloseButton();
 
         updateDialogFromValues();
         // When something changes updateDialogValues in the UI Thread
-        RadarDisplayManager.getInstance().addListener(
-                new IRadarConfigListener() {
+        RadarDisplayManager.getInstance()
+                .addListener(new IRadarConfigListener() {
                     @Override
                     public void updateConfig() {
                         if (isDisposed()) {
-                            RadarDisplayManager.getInstance().removeListener(
-                                    this);
+                            RadarDisplayManager.getInstance()
+                                    .removeListener(this);
                             return;
                         }
-                        VizApp.runAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!isDisposed()) {
-                                    updateDialogFromValues();
-                                }
-
+                        VizApp.runAsync(() -> {
+                            if (!isDisposed()) {
+                                updateDialogFromValues();
                             }
+
                         });
                     }
                 });
@@ -273,38 +274,39 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
     private void updateDialogFromValues() {
         showStormScale.setSelection(values.getStiNumStorms());
         showStormLbl.setText(String.valueOf(values.getStiNumStorms()));
-        stiTrackToShowCbo.select(stiTrackToShowCbo.indexOf(values
-                .getStiTrackType().toString()));
-        lowPohCbo
-                .select(lowPohCbo.indexOf(String.valueOf(values.getHiPOHLow())));
-        lowPoshCbo.select(lowPoshCbo.indexOf(String.valueOf(values
-                .getHiPOSHLow())));
-        highPohCbo.select(highPohCbo.indexOf(String.valueOf(values
-                .getHiPOHHigh())));
-        highPoshCbo.select(highPoshCbo.indexOf(String.valueOf(values
-                .getHiPOSHHigh())));
+        stiTrackToShowCbo.select(
+                stiTrackToShowCbo.indexOf(values.getStiTrackType().toString()));
+        lowPohCbo.select(
+                lowPohCbo.indexOf(String.valueOf(values.getHiPOHLow())));
+        lowPoshCbo.select(
+                lowPoshCbo.indexOf(String.valueOf(values.getHiPOSHLow())));
+        highPohCbo.select(
+                highPohCbo.indexOf(String.valueOf(values.getHiPOHHigh())));
+        highPoshCbo.select(
+                highPoshCbo.indexOf(String.valueOf(values.getHiPOSHHigh())));
         showElevatedTvsChk.setSelection(values.isTvsShowElevated());
         showExtrapolatedChk.setSelection(values.isDmdMdTvsShowExtrapolated());
         minFeatureScale.setSelection(values.getDmdMinFeatureStrength());
-        minFeatureScaleLbl.setText(String.valueOf(values
-                .getDmdMinFeatureStrength()));
+        minFeatureScaleLbl
+                .setText(String.valueOf(values.getDmdMinFeatureStrength()));
         overlapMesosChk.setSelection(values.isDmdShowOverlapping());
-        dmdTrackToShowCbo.select(dmdTrackToShowCbo.indexOf(values
-                .getDmdTrackType().toString()));
+        dmdTrackToShowCbo.select(
+                dmdTrackToShowCbo.indexOf(values.getDmdTrackType().toString()));
         showMbaWindShear.setSelection(values.isMbaShowWindShear());
-        stormMotionRdo.setSelection(values.getSrmSource().equals(
-                RadarSRMResource.SRMSource.WARNGEN));
-        averageStormRdo.setSelection(values.getSrmSource().equals(
-                RadarSRMResource.SRMSource.STI));
-        customStormRdo.setSelection(values.getSrmSource().equals(
-                RadarSRMResource.SRMSource.CUSTOM));
+        stormMotionRdo.setSelection(values.getSrmSource()
+                .equals(RadarSRMResource.SRMSource.WARNGEN));
+        averageStormRdo.setSelection(
+                values.getSrmSource().equals(RadarSRMResource.SRMSource.STI));
+        customStormRdo.setSelection(values.getSrmSource()
+                .equals(RadarSRMResource.SRMSource.CUSTOM));
         dirScale.setSelection(values.getSrmDir());
         dirSpnr.setSelection(values.getSrmDir());
         speedScale.setSelection(values.getSrmSpeed());
         speedSpnr.setSelection(values.getSrmSpeed());
-        enableCustomStormControls(values.getSrmSource().equals(
-                RadarSRMResource.SRMSource.CUSTOM));
+        enableCustomStormControls(values.getSrmSource()
+                .equals(RadarSRMResource.SRMSource.CUSTOM));
         enableSails.setSelection(values.isSailsFrameCoordinator());
+        enableVirtualVolume.setSelection(values.isVirtualVolumeEnabled());
     }
 
     /**
@@ -336,8 +338,8 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         showStormScale.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                showStormLbl.setText(String.valueOf(showStormScale
-                        .getSelection()));
+                showStormLbl
+                        .setText(String.valueOf(showStormScale.getSelection()));
 
             }
         });
@@ -345,7 +347,8 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.keyCode == SWT.ARROW_LEFT || e.keyCode == SWT.ARROW_RIGHT) {
+                if (e.keyCode == SWT.ARROW_LEFT
+                        || e.keyCode == SWT.ARROW_RIGHT) {
                     values.setStiNumStorms(showStormScale.getSelection());
                 }
             }
@@ -441,14 +444,15 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 if (lowPohCbo.getSelectionIndex() > highPohCbo
                         .getSelectionIndex()) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
+                    MessageBox mb = new MessageBox(shell,
+                            SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Error");
-                    mb.setMessage("POH low value cannot be greater than POH high value.");
+                    mb.setMessage(
+                            "POH low value cannot be greater than POH high value.");
                     mb.open();
 
-                    lowPohCbo.select(lowPohCbo.indexOf(String.valueOf(values
-                            .getHiPOHLow())));
+                    lowPohCbo.select(lowPohCbo
+                            .indexOf(String.valueOf(values.getHiPOHLow())));
                 } else {
                     values.setHiPOHLow(Integer.parseInt(lowPohCbo.getText()));
                 }
@@ -472,14 +476,15 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 if (lowPoshCbo.getSelectionIndex() > highPoshCbo
                         .getSelectionIndex()) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
+                    MessageBox mb = new MessageBox(shell,
+                            SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Error");
-                    mb.setMessage("POSH low value cannot be greater than POSH high value.");
+                    mb.setMessage(
+                            "POSH low value cannot be greater than POSH high value.");
                     mb.open();
 
-                    lowPoshCbo.select(lowPoshCbo.indexOf(String.valueOf(values
-                            .getHiPOSHLow())));
+                    lowPoshCbo.select(lowPoshCbo
+                            .indexOf(String.valueOf(values.getHiPOSHLow())));
                 } else {
                     values.setHiPOSHLow(Integer.parseInt(lowPoshCbo.getText()));
                 }
@@ -504,14 +509,15 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 if (lowPohCbo.getSelectionIndex() > highPohCbo
                         .getSelectionIndex()) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
+                    MessageBox mb = new MessageBox(shell,
+                            SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Error");
-                    mb.setMessage("POH high value cannot be less than POH low value.");
+                    mb.setMessage(
+                            "POH high value cannot be less than POH low value.");
                     mb.open();
 
-                    highPohCbo.select(highPohCbo.indexOf(String.valueOf(values
-                            .getHiPOHHigh())));
+                    highPohCbo.select(highPohCbo
+                            .indexOf(String.valueOf(values.getHiPOHHigh())));
                 } else {
                     values.setHiPOHHigh(Integer.parseInt(highPohCbo.getText()));
                 }
@@ -534,16 +540,18 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 if (lowPoshCbo.getSelectionIndex() > highPoshCbo
                         .getSelectionIndex()) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
+                    MessageBox mb = new MessageBox(shell,
+                            SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Error");
-                    mb.setMessage("POSH high value cannot be less than POSH low value.");
+                    mb.setMessage(
+                            "POSH high value cannot be less than POSH low value.");
                     mb.open();
 
-                    highPoshCbo.select(highPoshCbo.indexOf(String
-                            .valueOf(values.getHiPOSHHigh())));
+                    highPoshCbo.select(highPoshCbo
+                            .indexOf(String.valueOf(values.getHiPOSHHigh())));
                 } else {
-                    values.setHiPOSHHigh(Integer.parseInt(highPoshCbo.getText()));
+                    values.setHiPOSHHigh(
+                            Integer.parseInt(highPoshCbo.getText()));
                 }
             }
         });
@@ -601,8 +609,8 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         showExtrapolatedChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                values.setDmdMdTvsShowExtrapolated(showExtrapolatedChk
-                        .getSelection());
+                values.setDmdMdTvsShowExtrapolated(
+                        showExtrapolatedChk.getSelection());
             }
         });
     }
@@ -633,8 +641,8 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         minFeatureScale.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                minFeatureScaleLbl.setText(String.valueOf(minFeatureScale
-                        .getSelection()));
+                minFeatureScaleLbl.setText(
+                        String.valueOf(minFeatureScale.getSelection()));
             }
         });
         minFeatureScale.addMouseListener(new MouseAdapter() {
@@ -907,12 +915,48 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
 
         enableSails = new Button(sailsComp, SWT.CHECK);
         enableSails.setText("Enable SAILS Frame Coordinator");
-        enableSails
-                .setToolTipText("The SAILS frame coordinator enables custom actions for the up/down arrows and the last frame button that");
+        // TODO finish tool tip
+        enableSails.setToolTipText(
+                "The SAILS frame coordinator enables custom actions for the up/down arrows and the last frame button that");
         enableSails.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setSailsFrameCoordinator(enableSails.getSelection());
+            }
+        });
+    }
+
+    private void createVirtualVolumeControls() {
+        Composite virtualComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(2, false);
+        virtualComp.setLayout(gl);
+
+        GridData gd = new GridData();
+        gd.horizontalSpan = 2;
+        Label virtualLbl = new Label(virtualComp, SWT.NONE);
+        virtualLbl.setFont(labelFont);
+        virtualLbl.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        virtualLbl.setText("Virtual Volumes");
+        virtualLbl.setLayoutData(gd);
+
+        gd = new GridData(60, SWT.DEFAULT);
+        Label filler = new Label(virtualComp, SWT.NONE);
+        filler.setLayoutData(gd);
+
+        enableVirtualVolume = new Button(virtualComp, SWT.CHECK);
+        enableVirtualVolume.setText("Enable Virtual Volumes");
+        String toolTip = "When enabled, higher elevation angle data from the"
+                + " previous volume scan is blended into the current scan. This"
+                + " produces a full scan of the latest data at each angle. This"
+                + " only applies to products using the virtual volume derived"
+                + " parameters, such as '"
+                + RadarAsGridUtil.getVirtualVolumeParamAbbrev("RR") + "'.";
+        enableVirtualVolume.setToolTipText(toolTip);
+        enableVirtualVolume.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                values.setVirtualVolumeEnabled(
+                        enableVirtualVolume.getSelection());
             }
         });
 
@@ -952,7 +996,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
 
     /**
      * Enables the Custom Storm Motion controls.
-     * 
+     *
      * @param flag
      *            If true the controls are enabled, disable if false.
      */
@@ -970,7 +1014,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
 
     /**
      * Fill a combo box with value from 0 to 100 with an increment of 10.
-     * 
+     *
      * @param comboBox
      *            Combo box to fill with values.
      */

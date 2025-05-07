@@ -34,27 +34,27 @@
 #############################################################
 #### CREATE BASIS WORDING ###################################
 #############################################################
-#if(${list.contains(${bullets}, "doppler")})
+#if($bullets.contains("doppler"))
   #set($report = "Doppler radar was tracking ${reportType1}")
   #set($reportAuthSVR = "capable of producing")
 #end
-#if(${list.contains(${bullets}, "stormSpotters")})
+#if($bullets.contains("stormSpotters"))
   #set($report = "trained weather spotters reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
-#if(${list.contains(${bullets}, "lawEnforcement")})
+#if($bullets.contains("lawEnforcement"))
   #set($report = "local law enforcement reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
-#if(${list.contains(${bullets}, "emergencyMgmt")})
+#if($bullets.contains("emergencyMgmt"))
   #set($report = "emergency management reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
-#if(${list.contains(${bullets}, "public")})
+#if($bullets.contains("public"))
   #set($report = "the public reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
-#if(${list.contains(${bullets}, "amateurRadio")})
+#if($bullets.contains("amateurRadio"))
   #set($report = "amateur radio operators reported ${reportType1}")
   #set($reportAuthSVR = "producing") 
 #end
@@ -62,22 +62,22 @@
 ## HANDLE WIND POSSIBILITIES ######################
 ###################################################
 #set($windSpeed = 0)
-#if(${list.contains(${bullets}, "wind30")})
+#if($bullets.contains("wind30"))
   #set($windThreat = "Winds in excess of 30 mph") 
   #set($windSpeed = 30)
   #set($windTag = "30MPH")
 #end
-#if(${list.contains(${bullets}, "wind40")})
+#if($bullets.contains("wind40"))
   #set($windThreat = "Winds in excess of 40 mph") 
   #set($windSpeed = 40)
   #set($windTag = "40MPH")
 #end
-#if(${list.contains(${bullets}, "wind50")})
+#if($bullets.contains("wind50"))
   #set($windThreat = "Wind gusts up to 50 mph") 
   #set($windSpeed = 50)
   #set($windTag = "50MPH")
 #end
-#if(${list.contains(${bullets}, "wind55")})
+#if($bullets.contains("wind55"))
   #set($windThreat = "Wind gusts of 50 to 55 mph") 
   #set($windSpeed = 50)
   #set($windTag = "55MPH")
@@ -88,22 +88,22 @@
 ###################################################
 #set($hailSize = 0)
 #set($smallHail = "")
-#if(${list.contains(${bullets}, "peaHail")})
+#if($bullets.contains("peaHail"))
   #set($hailSize = 0.25)
   #set($hailThreat = "Pea size") 
   #set($hailTrail = " hail") 
 #end
-#if(${list.contains(${bullets}, "halfHail")})
+#if($bullets.contains("halfHail"))
   #set($hailSize = 0.50)
   #set($hailThreat = "Half inch") 
   #set($hailTrail = " hail") 
 #end
-#if(${list.contains(${bullets}, "pennyHail")})
+#if($bullets.contains("pennyHail"))
   #set($hailSize = 0.75)
   #set($hailThreat = "Penny size") 
   #set($hailTrail = " hail") 
 #end
-#if(${list.contains(${bullets}, "nickelHail")})
+#if($bullets.contains("nickelHail"))
   #set($hailSize = 0.88)
   #set($hailThreat = "Nickel size") 
   #set($hailTrail = " hail") 
@@ -172,9 +172,9 @@ THIS IS A TEST MESSAGE. ##
 , ${report} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#handleClosestPoints(${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#handleClosestPoints(${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . #capitalize(${reportType2} "FIRSTONLY") nearly stationary. ${smallHail}
@@ -219,13 +219,13 @@ THIS IS A TEST MESSAGE. ##
 #set($pathcastLead = "This strong thunderstorm")
 #set($otherLead = "This storm")
 #end
-#if(${list.contains(${bullets}, "pathcast")})
+#if($bullets.contains("pathcast"))
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 #pathCast("${pathcastLead} will be near..." ${otherLead} ${pathCast} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0) 
 
-#elseif(${list.contains(${bullets}, "listofcities")})
+#elseif($bullets.contains("listofcities"))
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
@@ -240,7 +240,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 ###### SPECIAL VENUE/EVENT CASE ##############
 ##############################################
-#if(${list.contains(${bullets}, "specialEvent")})
+#if($bullets.contains("specialEvent"))
 #if(${stormType} == "line")
 Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. 
 
@@ -273,7 +273,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
  
-#if(${list.contains(${bullets}, "torrentialRainfallCTA")})
+#if($bullets.contains("torrentialRainfallCTA"))
 #if(${stormType} == "line")
 Torrential rainfall is also occurring with these storms, and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
 
@@ -283,7 +283,7 @@ Torrential rainfall is also occurring with this storm, and may lead to localized
 #end
 #end
 
-#if(${list.contains(${bullets}, "lightningCTA")})
+#if($bullets.contains("lightningCTA"))
 #if(${stormType} == "line")
 Frequent cloud to ground lightning is occurring with these storms. Lightning can strike 10 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
 
@@ -294,7 +294,7 @@ Frequent cloud to ground lightning is occurring with this storm. Lightning can s
 #end
 ##
 
-#if(${list.contains(${bullets}, "stormIntensifyCTA")})
+#if($bullets.contains("stormIntensifyCTA"))
 #if(${stormType} == "line")
 These storms may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 
@@ -305,20 +305,20 @@ This storm may intensify, so be certain to monitor local radio stations and avai
 #end
 ##
 
-#if(${list.contains(${bullets}, "lawEnforcementCTA")})
+#if($bullets.contains("lawEnforcementCTA"))
 To report severe weather, contact your nearest law enforcement agency. They will relay your report to the National Weather Service office in ${officeLoc}.
 
 #end
 ##
 
-#if(${list.contains(${bullets}, "boatersCTA")})
+#if($bullets.contains("boatersCTA"))
 If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 10 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 
 ##
 
-#if(${list.contains(${bullets}, "camperCTA")})
+#if($bullets.contains("camperCTA"))
 #if(${stormType} == "line")
 Persons in campgrounds should consider seeking sturdy shelter until these storms pass.
 
@@ -336,11 +336,11 @@ Persons in campgrounds should consider seeking sturdy shelter until this storm p
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "TO.A")} && ${list.contains(${bullets}, "includeTorWatches")})
-#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#if($includedWatches.contains("TO.A") && $bullets.contains("includeTorWatches"))
+#inserttorwatches(${watches}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "SV.A")} && ${list.contains(${bullets}, "includeSvrWatches")})
-#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#if($includedWatches.contains("SV.A") && $bullets.contains("includeSvrWatches"))
+#insertsvrwatches(${watches}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 ####################################
 #if(${productClass}=="T")
@@ -348,7 +348,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ####################################
 #end
 
-#printcoords(${areaPoly}, ${list})
+#printcoords(${areaPoly})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 

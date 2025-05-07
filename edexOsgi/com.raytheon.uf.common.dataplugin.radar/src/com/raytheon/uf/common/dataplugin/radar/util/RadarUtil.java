@@ -20,7 +20,10 @@
 
 package com.raytheon.uf.common.dataplugin.radar.util;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -28,7 +31,14 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.RadarStation;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * A series of methods to help in the processing and tiling of radar data.
@@ -45,12 +55,16 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * Mar 26, 2018  6711     randerso  Updated for RPG build 17. Added default
  *                                  value for formatBits. Code cleanup.
  * Oct 29, 2022  8959     mapeters  Added TILT
+ * May 07, 2024  2036516  bines     Added functions that help get all
+ *                                  radar stations from DB
  *
  * </pre>
  *
  * @author brockwoo
  */
 public class RadarUtil {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarUtil.class);
 
     public static final String TILT = "TILT";
 
@@ -376,5 +390,64 @@ public class RadarUtil {
                 generalEnvelope);
 
         return gridGeometry2D;
+    }
+
+    /**
+     * Sends request through RequestRouter static route method
+     *
+     * @param DbQueryRequest
+     * @return DbQueryResponse
+     */
+    protected static DbQueryResponse sendRequest(DbQueryRequest request) {
+        DbQueryResponse response;
+        try {
+            response = (DbQueryResponse) RequestRouter.route(request);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            return null;
+        }
+
+        return response;
+    }
+
+    /**
+     * Gets all radar Rda Ids from the Database
+     *
+     * @return Set<String> of Rda Ids
+     */
+    public static Set<String> getAllRadarsRdaId() {
+        String requestField = "rdaId";
+        Set<String> radarRdaIds = new HashSet<>();
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(RadarStation.class);
+        request.addRequestField(requestField);
+
+        DbQueryResponse response = sendRequest(request);
+
+        for (Map<String, Object> result : response.getResults()) {
+            String rdaId = (String) result.get(requestField);
+            radarRdaIds.add(rdaId.toLowerCase());
+        }
+        return radarRdaIds;
+    }
+
+    /**
+     * Gets all radar stations from Database
+     *
+     * @return Set<radarStation>
+     */
+    public static Set<RadarStation> getAllRadars() {
+        Set<RadarStation> radarStations = new HashSet<>();
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(RadarStation.class);
+        request.setDistinct(true);
+
+        DbQueryResponse response = sendRequest(request);
+
+        for (RadarStation radarStation : response
+                .getEntityObjects(RadarStation.class)) {
+            radarStations.add(radarStation);
+        }
+        return radarStations;
     }
 }

@@ -5,33 +5,13 @@
 <edexModes>
 
         <mode name="ingest">
-                <exclude>.*request.*</exclude>
-                <exclude>edex-security.xml</exclude>
-                <exclude>ebxml.*\.xml</exclude>
-                <exclude>grib-decode.xml</exclude>
-                <exclude>grid-staticdata-process.xml</exclude>
-                <exclude>.*dpa.*</exclude>
-                <exclude>webservices.xml</exclude>
                 <exclude>ebxml.*\.xml</exclude>
                 <exclude>.*datadelivery.*</exclude>
-                <exclude>.*bandwidth.*</exclude>
-                <exclude>.*sbn-simulator.*</exclude>
-                <exclude>hydrodualpol-ingest.xml</exclude>
-                <exclude>grid-metadata.xml</exclude>
-                <exclude>.*ogc.*</exclude>
-                <exclude>obs-ingest-metarshef.xml</exclude>
-                <exclude>ffmp-ingest.xml</exclude>
-                <exclude>scan-ingest.xml</exclude>
-                <exclude>cwat-ingest.xml</exclude>
-                <exclude>fog-ingest.xml</exclude>
-                <exclude>vil-ingest.xml</exclude>
-                <exclude>preciprate-ingest.xml</exclude>
-                <exclude>qpf-ingest.xml</exclude>
-                <exclude>fssobs-ingest.xml</exclude>
-                <exclude>cpgsrv-spring.xml</exclude>
+                <exclude>.*request.*</exclude>
+                <exclude>edex-security.xml</exclude>
+                <exclude>webservices.xml</exclude>
                 <exclude>ohd-common-database.xml</exclude>
-                <exclude>satpre-spring.xml</exclude>
-                <exclude>ncgrib-file-endpoint.xml</exclude>
+
         </mode>
 
         <mode name="ingestGrib">
@@ -55,15 +35,8 @@
         <mode name="request">
                 <include>.*request.*</include>
                 <include>.*common.*</include>
-                <exclude>grid-metadata.xml</exclude>
-                <exclude>event-datadelivery-common.xml</exclude>
-                <exclude>.*ogc.*</exclude>
-                <exclude>.*dpa.*</exclude>
                 <exclude>ohd-common-database.xml</exclude>
                 <exclude>satpre-spring.xml</exclude>
-                <exclude>derivedgrid.*</exclude>
-                <exclude>ebxml.*</exclude>
-                <exclude>registry-status-request.*</exclude>
         </mode>
 
         <mode name="ingestRadar">

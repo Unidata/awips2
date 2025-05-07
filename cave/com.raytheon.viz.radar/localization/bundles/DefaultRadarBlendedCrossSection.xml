@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle>
+    <displayList>
+        <displays xsi:type="crossSectionRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="crossSectionDescriptor" lineID="LineA">
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="imagingCapability"
+                                interpolationState="false" brightness="1.0"
+                                contrast="1.0" alpha="1.0" />
+                            <capability xsi:type="rangeRingsOverlayCapability" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true">
+                    </properties>
+                    <resourceData xsi:type="blendedResourceData">
+                        <resource>
+                            <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                                <resourceType>CROSS_SECTION</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" interpolationState="true" alpha="1.0"/>
+                                    <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+                            </properties>
+                            <resourceData xsi:type="${crossSectionResourceData1;crossSectionResourceData}" parameter="${gridParameterAbbreviation1}virt" parameterName="${gridParameterName1}" source="Radar-${icao}" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="info.parameter.abbreviation">
+                                        <constraint constraintType="EQUALS" constraintValue="${gridParameterAbbreviation1}virt"/>
+                                    </mapping>
+                                    <mapping key="info.datasetId">
+                                        <constraint constraintType="EQUALS" constraintValue="radar-${icao}"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="grid"/>
+                                    </mapping>
+                                    <mapping key="info.level.masterLevel.name">
+                                        <constraint constraintType="EQUALS" constraintValue="TILT"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                                <resourceType>CROSS_SECTION</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" interpolationState="true" alpha="1.0"/>
+                                    <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false">
+                            </properties>
+                            <resourceData xsi:type="${crossSectionResourceData2;crossSectionResourceData}" parameter="${gridParameterAbbreviation2}virt" parameterName="${gridParameterName2}" source="Radar-${icao}" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="info.parameter.abbreviation">
+                                        <constraint constraintType="EQUALS" constraintValue="${gridParameterAbbreviation2}virt"/>
+                                    </mapping>
+                                    <mapping key="info.datasetId">
+                                        <constraint constraintType="EQUALS" constraintValue="radar-${icao}"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="grid"/>
+                                    </mapping>
+                                    <mapping key="info.level.masterLevel.name">
+                                        <constraint constraintType="EQUALS" constraintValue="TILT"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                    </loadProperties>
+                    <properties isVisible="true" isMapLayer="true" isBlinking="false" isSystemResource="false" renderingOrderId="MAP_OUTLINE">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="graphResourceData" overlayMode="OVERLAY" name="Cross Section Background"/>
+                </resource>
+                <numberOfFrames>64</numberOfFrames>
+                <heightScale unit="KILOFEET AGL" name="0-60 kft AGL" minVal="0.0" maxVal="60.0" parameter="zAGL" parameterUnit="ft*1000" scale="LIN" heightType="HEIGHT_AGL"/>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

@@ -25,6 +25,10 @@ Requires: awips2-python
 Requires: awips2-java
 Requires: awips2-psql
 Requires: awips2-edex-registry
+Requires: awips2-database
+Requires: awips2-database-configuration
+Requires: awips2-httpd-pypies
+
 
 BuildRequires: awips2-ant
 BuildRequires: awips2-java
@@ -32,8 +36,8 @@ BuildRequires: awips2-java
 %description
 The edex environment version of awips2-edex consists of
 the AWIPS II edex-environment manager. The edex-environment manager exists to spawn
-and configure additional instances of the AWIPS II processing triad {postgresql,
-qpid, edex}.
+and configure additional instances of the AWIPS II processes: postgresql, qpid, pypies, and edex.
+This utilizes the wes2bridge utilities.
 
 # Disable byte-compiling of python and repacking of jar files.
 %global _python_bytecompile_extra 0
@@ -112,23 +116,70 @@ if [ $? -ne 0 ]; then
 fi
 
 RPM_PROJECT="%{_baseline_workspace}/rpms"
-QPID_INITD="%{_baseline_workspace}/installers/RPMs/qpid-broker-j/scripts/init.d/qpidd"
-EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/edex_camel"
-# TODO: httpd-pypies and PostgreSQL are now managed by systemd; the old init.d
-# scripts are gone. Update WES2Bridge to start/stop these services using
-# systemctl. See Omaha #8595
+QPID_SYSTEMD="%{_baseline_workspace}/installers/RPMs/qpid-broker-j/scripts/systemd/qpidd.service"
+QPID_WATCHDOG="%{_baseline_workspace}/installers/RPMs/qpid-broker-j/scripts/watchdog.d/qpid_watchdog.sh"
+EDEX_SYSTEMD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/edex_camel@.service"
+EDEX_TARGET="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/edex_camel.target"
+EDEX_WATCHDOG="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/edex_camel_watchdog.sh"
+HTTPD_SYSTEMD="%{_baseline_workspace}/installers/RPMs/httpd-pypies/configuration/systemd/httpd-pypies.service"
+HTTPD_LOGGING_SYSTEMD="%{_baseline_workspace}/installers/RPMs/httpd-pypies/configuration/systemd/httpd-pypies-logging.service"
+PYPIES_WATCHDOG="%{_baseline_workspace}/installers/RPMs/httpd-pypies/configuration/etc/watchdog.d/pypies_watchdog.sh"
+POSTGRES_SYSTEMD="${RPM_PROJECT}/awips2.core/Installer.database/30-postgresql-setup.conf"
+POSTGRES_WATCHDOG="${RPM_PROJECT}/awips2.core/Installer.database-server-configuration/watchdog.d/postgres_watchdog.sh"
 
 # Copy the startup scripts.
-cp ${QPID_INITD} \
+cp ${QPID_SYSTEMD} \
    %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
-cp ${EDEX_INITD} \
+cp ${QPID_WATCHDOG} \
    %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
+cp ${EDEX_SYSTEMD} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${EDEX_TARGET} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${EDEX_WATCHDOG} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${HTTPD_SYSTEMD} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${HTTPD_LOGGING_SYSTEMD} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${PYPIES_WATCHDOG} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${POSTGRES_SYSTEMD} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${POSTGRES_WATCHDOG} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+
 
 # Copy the edex-environment macro, functions, and utilities.
 DELIVERABLES="${RPM_PROJECT}/awips2.core/Installer.edex-environment/wes2bridge.files/deliverables"

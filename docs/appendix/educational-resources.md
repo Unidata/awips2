@@ -182,6 +182,10 @@ A full list of all released blogs can be found below:
 - [Changes Related to v20.3.2 AWIPS Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-changes-related-to)
 - [AMS 2024 Highlight](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ams-2024-highlight)
 - [AWIPS 20.3.2-2 AWIPS Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-awips-20-3)
+- [Upcoming CentOS7 End of Life](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-upcoming-centos7-end)
+- [AWIPS 23.4.1-0.2 Beta CAVE Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-23)
+- [AWIPS 23.4.1-0.3 Full Beta Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-awips-full-beta)
+- [AWIPS 23.4.1-0.4 Full Beta Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-awips-full-beta1)
   
 #### CAVE
 
@@ -213,6 +217,10 @@ A full list of all released blogs can be found below:
 - [Maps Database Constraints](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-maps-database-constraints)
 - [Measuring Up - Distance Tools in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-measuring-up-distance)
 - [New RAWS Data](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-new-raws-data)
+- [Customized Contours](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-customized-contours)
+- [Using the Text Workstation](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-the-text)
+- [Saving User Configurations Locally](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-saving-user-configurations)
+- [Using Hotkeys in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-using-hotkeys-in)
 
 #### Python-AWIPS
 
@@ -230,6 +238,8 @@ A full list of all released blogs can be found below:
 - [Compare Model Sounding Data in Python](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-compare-model-sounding)
 - [Beta Python-AWIPS Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-beta-python-awips)
 - [Creating New Products with Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-creating-new-products)
+- [Exploring Satellite Imagery using Python-AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-exploring-satellite-imagery)
+- [Plotting NEXRAD Data in Python](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-plotting-nexrad-data)
 
 #### EDEX
 
@@ -244,4 +254,5 @@ A full list of all released blogs can be found below:
 - [Removing Model Data from EDEX](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-removing-model-data)
 - [LDM Usage in AWIPS](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-ldm-usage-in)
 - [All About EDEX Modes](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-all-about-edex)
-- [Distributed EDEX Architecture](https://unidata.github.io/awips2/appendix/educational-resources/#edex)
+- [Distributed EDEX Architecture](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-distributed-edex-architecture)
+- [Inserting Data into EDEX with Python](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-inserting-data-into)

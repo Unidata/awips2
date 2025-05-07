@@ -50,6 +50,7 @@
 # Nov 09, 2021  8698     njensen   Replace time.clock() with os.times()
 # Jul 14, 2023  2035938  dgilling  Update xml.etree.ElementTree calls to remove 
 #                                  functions deprecated in python 3.11
+# May 01, 2024  2037489  njensen   Refactored call to iscMosaic to not use subprocess
 #
 ##
 
@@ -61,10 +62,15 @@
 
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
-import errno, os, stat, subprocess
+import errno, os, stat
 
 import IrtAccess, IrtServer
 import iscUtil
+
+from com.raytheon.uf.common.serialization.comm import RequestRouter
+from com.raytheon.uf.common.dataplugin.gfe.request import ExecuteIscMosaicRequest
+from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
+from com.raytheon.uf.common.message import WsId
 
 iscDataRecLogger = None
 
@@ -212,19 +218,9 @@ def execIscDataRec(MSGID, SUBJECT, FILES):
                 elif SUBJECT == 'GET_ACTIVE_TABLE2':
                     IrtServer.getVTECActiveTable(dataFile, xmlFileBuf)
                 elif SUBJECT in ['ISCGRIDS', 'ISCGRIDS2']:
-                    # Site ID determined from database name in Python ExecuteIscMosaicRequest constructor
-                    subprocess.check_call(
-                        [os.path.join(siteConfig.GFESUITE_HOME, 'bin', 'iscMosaic'),
-                          '-d', siteConfig.GFESUITE_SITEID + '_GRID__ISC_00000000_0000',
-                          '-b', # blankOtherPeriods
-                          '-w', 'ISC: ',
-                          '-o', # renameWE
-                          '-f', dataFile,
-                          '-T', # adjustTranslate
-                          '-k', # deleteInput
-                          '-A', srcServer.get('site'),
-                          '-y', # asynchronous
-                          ])
+                    # run ExecuteIscMosaicRequestHandler in this JVM
+                    invoke_iscmosaic_samejvm(siteConfig, dataFile, srcServer)
+
                     # Data file will be purged at the end of the mosaic processing
                     FILES.remove(dataFile)
                 elif SUBJECT == 'ISCREQUEST':
@@ -256,6 +252,93 @@ def execIscDataRec(MSGID, SUBJECT, FILES):
         # cleanup
         purgeFiles(FILES)
 
+
+def invoke_iscmosaic_samejvm(siteConfig, dataFile, srcServer):
+    # from args passed to iscMosaic
+    databaseID = siteConfig.GFESUITE_SITEID + '_GRID__ISC_00000000_0000'  # -d
+    blankOtherPeriods = True  # -b
+    announce = 'ISC: '  #  -w
+    renameWE = True  # -o
+    inFiles = [dataFile]  # -f
+    adjustTranslate = True  # -T
+    deleteInput = True  # -k
+    additionalRoutingSiteID = srcServer.get('site')  # -A
+    asynchronous = True  # -y
+
+    # from iscMosaic's defaults
+    user = 'SITE'
+    parmsToProcess = []
+    startTime = None
+    endTime = None
+    altMask = None
+    replaceOnly = False
+    eraseFirst = False
+    iscSends = False
+    ignoreMask = False
+    parmsToIgnore = []
+    gridDelay = 0.0
+    logFileName = None
+
+    req = create_iscmosaic_request(user,
+                                   databaseID,
+                                   parmsToProcess,
+                                   blankOtherPeriods,
+                                   startTime,
+                                   endTime,
+                                   altMask,
+                                   replaceOnly,
+                                   eraseFirst,
+                                   announce,
+                                   renameWE,
+                                   iscSends,
+                                   inFiles,
+                                   ignoreMask,
+                                   adjustTranslate,
+                                   deleteInput,
+                                   parmsToIgnore,
+                                   gridDelay,
+                                   logFileName,
+                                   additionalRoutingSiteID,
+                                   asynchronous)
+    RequestRouter.route(req)
+
+def create_iscmosaic_request(userID, databaseID, parmsToProcess, blankOtherPeriods,
+                            startTime, endTime, altMask, replaceOnly, eraseFirst,
+                            announce, renameWE, iscSends, inFiles, ignoreMask,
+                            adjustTranslate, deleteInput, parmsToIgnore, gridDelay,
+                            logFileName, additionalRoutingSiteID, asynchronous):
+    jdbID = DatabaseID(databaseID)
+
+    req = ExecuteIscMosaicRequest()
+    req.setUserID(userID)
+    req.setDatabaseID(jdbID)
+    req.setParmsToProcess(parmsToProcess)
+    req.setBlankOtherPeriods(blankOtherPeriods)
+    req.setStartTime(startTime)
+    req.setEndTime(endTime)
+    req.setAltMask(altMask)
+    req.setReplaceOnly(replaceOnly)
+    req.setEraseFirst(eraseFirst)
+    req.setAnnounce(announce)
+    req.setRenameWE(renameWE)
+    req.setIscSends(iscSends)
+    req.setInFiles(inFiles)
+    req.setIgnoreMask(ignoreMask)
+    req.setAdjustTranslate(adjustTranslate)
+    req.setDeleteInput(deleteInput)
+    req.setParmsToIgnore(parmsToIgnore)
+    req.setGridDelay(gridDelay)
+    req.setLogFileName(logFileName)
+    req.setAdditionalRoutingSiteID(additionalRoutingSiteID)
+    req.setAsynchronous(asynchronous)
+
+    # from ExecuteIscMosaicRequest.py's constructor
+    if userID is not None:
+        req.setWorkstationID(WsId(None, userID, 'iscMosaic'))
+    if jdbID is not None:
+        req.setSiteID(jdbID.getSiteId())
+
+    return req
 
 #--------------------------------------------------------------------
 # Main Routine

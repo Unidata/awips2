@@ -1,4 +1,5 @@
 0 * * * * /awips2/ldm/bin/ldmadmin scour >> /awips2/ldm/logs/scour.log 2>&1
+
 # rotate logs
 0 17 * * * /awips2/ldm/bin/ldmadmin newlog
 # nex2gini for daa and dta (lower case)
@@ -8,8 +9,11 @@
 #10 * * * * /awips2/ldm/bin/ascat_grib.sh >& /dev/null 2>&1
 */5 * * * * /bin/perl /awips2/ldm/dev/purgeRadar.pl >>/awips2/ldm/dev/logs/purgeRadar.log 2>&1
 */2 * * * * bash -l /awips2/ldm/dev/checkFileTime.sh >>/awips2/ldm/dev/logs/checkFileTime.log 2>&1
-30 3 * * * /bin/perl /awips2/dev/updateNDM.pl >>/awips2/dev/logs/updateNDM.log 2>&1
- 
+30 3 * * * /bin/perl /awips2/dev/programs/updateNDM.pl >>/awips2/dev/logs/updateNDM.log 2>&1
+
+# Send Unidata a push that your EDEX is running
+0 0 * * * bash -l /awips2/dev/programs/edexRunning.sh >>/awips2/dev/logs/edexRunning.log 2>$1
+
 # LDM-6.8.1+ metrics gathering
 #
 * * * * * /awips2/ldm/bin/ldmadmin addmetrics > /dev/null 2>&1

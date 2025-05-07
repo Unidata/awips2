@@ -85,9 +85,10 @@ import org.locationtech.jts.geom.Coordinate;
  * Sep 29, 2015 17975      snaples     Fixed an issue with getDateMap query sometimes throwing errors.
  * Sep 21, 2017 6407       bkowal      Cleanup.
  * Oct 06, 2017 6407       bkowal      Cleanup. Updates to support GOES-R SATPRE.
- * 
+ * Sep 05, 2024 2037782    jsebahar    Replace DPARadar table with DAAradar table.
+ *
  * </pre>
- * 
+ *
  * @author randerso
  * @version 1.0
  */
@@ -673,7 +674,7 @@ public class MPEDataManager {
 
     private static MPEDataManager instance;
 
-    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();;
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
     private final String RFC;
 
@@ -698,7 +699,7 @@ public class MPEDataManager {
 
     /**
      * Retrieve singleton instance
-     * 
+     *
      * @return singleton instance of MPEDataManager
      */
     public static synchronized MPEDataManager getInstance() {
@@ -945,9 +946,10 @@ public class MPEDataManager {
         Date productDate = null;
 
         StringBuilder query = new StringBuilder("select obstime");
-        query.append(" from dparadar where radid = '");
+        query.append(" from daaradar where radid = '");
         query.append(radarId);
-        query.append("' and supplmess in (0,4) and obstime between '");
+        query.append(
+                "' and null_product_flag = 0 and coverage_dur = 0 and obstime between'");
 
         Calendar cal = Calendar.getInstance(TimeUtil.GMT_TIME_ZONE);
         cal.setTime(date);

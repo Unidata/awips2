@@ -27,7 +27,6 @@ import java.util.concurrent.RunnableFuture;
 
 import javax.measure.IncommensurableException;
 import javax.measure.UnconvertibleException;
-import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -37,7 +36,6 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.data.GridRequestableData;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.data.SliceUtil;
@@ -51,7 +49,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
-import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
 import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
@@ -62,6 +59,7 @@ import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.IPerformanceTimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -103,6 +101,7 @@ import com.raytheon.viz.radar.util.RadarAsGridUtil;
  * Mar 14, 2023  2031675  mapeters  Improve performance of unit conversion and
  *                                  reprojection (use RadarGridReprojection)
  * Dec 20, 2023  2036519  mapeters  Remove dispose(), use DefaultVizRadarRecord
+ * May 22, 2024  2037092  mapeters  Pass grid record to super constructor
  *
  * </pre>
  *
@@ -111,41 +110,61 @@ import com.raytheon.viz.radar.util.RadarAsGridUtil;
 public class RadarRequestableData extends GridRequestableData {
 
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("RadarRequestableData");
+            .getHandler(RadarRequestableData.class.getSimpleName());
 
     protected final RadarRecord radarSource;
 
     public RadarRequestableData(RadarRecord source, String parameterAbbrev)
             throws VizException {
+        this(source,
+                buildGridRecord(source, parameterAbbrev, source.getDataTime()));
+    }
+
+    protected RadarRequestableData(RadarRecord source, GridRecord gridSource)
+            throws VizException {
+        super(gridSource);
         // Wrap record so that the raw data is cached/shared
-        this.radarSource = new DefaultVizRadarRecord(source);
         source.setAddSpatial(false);
-        // set unit converter here
-        ColorMapParameters cMapParams = RadarAdapter.getColorMap(radarSource);
-        Unit<?> unit = cMapParams.getDisplayUnit();
+        if (!(source instanceof DefaultVizRadarRecord)) {
+            source = new DefaultVizRadarRecord(source);
+        }
+        this.radarSource = source;
+    }
 
+    /**
+     * Build a grid record representing the given radar record.
+     *
+     * @param source
+     *            radar record source
+     * @param paramAbbrev
+     *            parameter abbreviation to set on the grid record
+     * @param time
+     *            time to set on the grid record
+     * @return the grid record
+     * @throws VizException
+     */
+    protected static GridRecord buildGridRecord(RadarRecord source,
+            String paramAbbrev, DataTime time) throws VizException {
+        if (time.isSpatial()) {
+            /*
+             * Clear level from time, since it's set separately on the grid
+             * record
+             */
+            time = time.clone();
+            time.clearLevel();
+        }
         String icao = source.getIcao().toLowerCase();
-        GridCoverage coverage = RadarAdapter.getInstance().getCoverage(icao);
-        this.source = RadarAsGridUtil.getModelNameForIcao(icao);
-        this.dataTime = source.getDataTime();
-        this.space = coverage;
-        this.level = LevelFactory.getInstance().getLevel(RadarUtil.TILT,
-                source.getPrimaryElevationAngle());
-
-        this.parameter = parameterAbbrev;
-        this.parameterName = "";
-        this.unit = unit;
-
         try {
             GridRecord record = new GridRecord();
-            record.setDatasetId(this.source);
-            record.setLocation(coverage);
-            record.setLevel(this.level);
-            Parameter parameter = new Parameter(parameterAbbrev,
-                    this.parameterName, unit);
+            record.setDatasetId(RadarAsGridUtil.getModelNameForIcao(icao));
+            record.setLocation(RadarAdapter.getInstance().getCoverage(icao));
+            record.setLevel(LevelFactory.getInstance().getLevel(RadarUtil.TILT,
+                    source.getPrimaryElevationAngle()));
+            Parameter parameter = new Parameter(paramAbbrev, "",
+                    RadarAdapter.getColorMap(source).getDisplayUnit());
             record.setParameter(parameter);
-            record.setDataTime(source.getDataTime());
-            setGridSource(record);
+            record.setDataTime(time);
+            return record;
         } catch (Exception e) {
             throw new VizException(e);
         }

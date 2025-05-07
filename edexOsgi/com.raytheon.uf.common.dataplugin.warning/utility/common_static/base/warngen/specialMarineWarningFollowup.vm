@@ -27,7 +27,7 @@
 ## Ashfall Warning Per the 10-313 Directive
 ################################################
 #set($warningType = "SPECIAL MARINE WARNING")
-#if(${list.contains(${bullets}, "ashfall")})
+#if($bullets.contains("ashfall"))
 	#set($warningType = "ASHFALL WARNING FOR VOLCANIC ASH AND OTHER HAZARDS")
 	#set($ashCON = "N")
 #end
@@ -190,20 +190,20 @@ ${area.name}...
         #set($pose = "pose")
 #end
 #set($eventType = "!**STORMS**! have")
-#if(${list.contains(${bullets}, "thunderstorm")})
+#if($bullets.contains("thunderstorm"))
 	#set($eventType = "thunderstorm${stormline}")
 #end
-#if(${list.contains(${bullets}, "shower")})
+#if($bullets.contains("shower"))
 	#set($eventType = "shower${stormline}")
 #end
-#if(${list.contains(${bullets}, "cloud")})
+#if($bullets.contains("cloud"))
 	#set($eventType = "cloud${stormline}")
 #end
-#if(${list.contains(${bullets}, "front")})
+#if($bullets.contains("front"))
 	#set($eventType = "front has")
         #set($pose = "poses")
 #end
-#if(${list.contains(${bullets}, "volcano")})
+#if($bullets.contains("volcano"))
 	#set($eventType = "volcano has")
         #set($pose = "poses")
 #end
@@ -212,13 +212,13 @@ ${area.name}...
 ## a better defined reason for the end to the warning.
 #######################################################################
 #set($canwarning = "The ${eventType} !** weakened / moved out of the warned area **! and no longer ${pose} a significant threat to boaters.")
-#if(${list.contains(${bullets}, "weakenedWarnEnd")})
+#if($bullets.contains("weakenedWarnEnd"))
 	#set($canwarning = "The ${eventType} weakened and no longer ${pose} a significant threat to boaters.")
 #end
-#if(${list.contains(${bullets}, "movedWarnEnd")})
+#if($bullets.contains("movedWarnEnd"))
 	#set($canwarning = "The ${eventType} moved out of the area and no longer ${pose} a significant threat to boaters.")
 #end
-#if(${list.contains(${bullets}, "volcano")})
+#if($bullets.contains("volcano"))
 	#set($canwarning = "The ${eventType} stopped erupting and no longer ${pose} a significant threat to boaters.")
 #end
 
@@ -229,11 +229,11 @@ ${canwarning}
 ###########################################
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "TO.A")})
-#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#if($includedWatches.contains("TO.A"))
+#inserttorwatches(${watches}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "SV.A")})
-#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#if($includedWatches.contains("SV.A"))
+#insertsvrwatches(${watches}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 
 ##
@@ -246,7 +246,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
 
-#printcoords(${areaPoly}, ${list})
+#printcoords(${areaPoly})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 
@@ -334,20 +334,20 @@ ${area.name}...
 ## wind and hail selections that will change wording for Severe Thunderstorms.
 #######################################################################
 #set($eventType = "thunderstorm")
-#if(${list.contains(${bullets}, "thunderstorm")})
+#if($bullets.contains("thunderstorm"))
 	#set($eventType = "thunderstorm")
 	#set($severeType = "strong")
 #end
-#if(${list.contains(${bullets}, "shower")})
+#if($bullets.contains("shower"))
 	#set($eventType = "shower")
 #end
-#if(${list.contains(${bullets}, "cloud")})
+#if($bullets.contains("cloud"))
 	#set($eventType = "cloud")
 #end
-#if(${list.contains(${bullets}, "front")})
+#if($bullets.contains("front"))
 	#set($eventType = "front")
 #end
-#if(${list.contains(${bullets}, "volcano")})
+#if($bullets.contains("volcano"))
 	#set($eventType = "volcano")
 #end
 #######################################################################
@@ -359,56 +359,56 @@ ${area.name}...
 #set($windTag = "<34")
 #set($windCTA = "gusty winds")
 #set($hailCTA = "")
-#if(${list.contains(${bullets}, "34ktWind")})
+#if($bullets.contains("34ktWind"))
 	#set($windTag = ">34")
 	#set($windType = "winds 34 knots or greater")
 	#set($windCTA = "wind gusts 34 knots or greater")
 #end
-#if(${list.contains(${bullets}, "40ktWind")})
+#if($bullets.contains("40ktWind"))
 	#set($windTag = "40")
 	#set($windType = "winds to 40 knots")
 	#set($windCTA = "wind gusts to 40 knots")
 #end
-#if(${list.contains(${bullets}, "40ktplusWind")})
+#if($bullets.contains("40ktplusWind"))
 	#set($windTag = "40")
 	#set($windType = "winds to nearly 50 knots")
 	#set($windCTA = "wind gusts to nearly 50 knots")
 #end
-#if(${list.contains(${bullets}, "50ktWind")})
+#if($bullets.contains("50ktWind"))
 	#set($windTag = "50")
 	#set($windType = "dangerous winds in excess of 50 knots")
 	#set($severeType = "severe")
 	#set($windCTA = "wind gusts in excess of 50 knots")
 #end
-#if(${list.contains(${bullets}, "65ktWind")})
+#if($bullets.contains("65ktWind"))
 	#set($windTag = "65")
 	#set($windType = "dangerous capsizing winds in excess of 65 knots")
 	#set($severeType = "severe")
 	#set($windCTA = "wind gusts in excess of 65 knots")
 #end
 #set($hailTag = "0.00")
-#if(${list.contains(${bullets}, "smallHail")})
+#if($bullets.contains("smallHail"))
 	#set($hailTag = "<.75")
 	#set($hailType = "small hail")
 	#set($hailCTA = ", ${hailType}")
 #end
-#if(${list.contains(${bullets}, "largeHail")})
+#if($bullets.contains("largeHail"))
 	#set($hailTag = ">.75")
 	#set($hailType = "large hail")
 	#set($severeType = "severe")
 	#set($hailCTA = ", ${hailType}")
 #end
-#if(${list.contains(${bullets}, "destructiveHail")})
+#if($bullets.contains("destructiveHail"))
 	#set($hailTag = ">2.0")
 	#set($hailType = "large destructive hail")
 	#set($severeType = "severe")
 	#set($hailCTA = ", ${hailType}")
 #end
-#if(${list.contains(${bullets}, "sightedSpout")})
+#if($bullets.contains("sightedSpout"))
 	#set($spoutType = "waterspouts")
 	#set($severeType = "severe")
 #end
-#if(${list.contains(${bullets}, "possibleSpout")})
+#if($bullets.contains("possibleSpout"))
 	#set($spoutType = "waterspouts")
 	#set($capable = "capable of ")
 	#set($severeType = "severe")
@@ -416,14 +416,14 @@ ${area.name}...
 ################################################
 ## Threat section for Volcanic Situations
 ################################################
-#if(${list.contains(${bullets}, "ashfall")})
+#if($bullets.contains("ashfall"))
 	#set($ashfallType = "ashfall")
 	#set($ashfallPath = "volcanic ash")
 	#set($ctaSelected = "yes")
 	#set($ashfallCTA = "Ash is an eye and respiratory irritant and is abrasive. Those with respiratory sensitivities should take extra precautions to minimize exposure. Protect electronics and cover air intakes if ashfall is expected or confirmed. Remove ash from surfaces with water if possible to prevent excessive accumulation.")
 	#set($ashfallInfo = "An ashfall warning means that the volcano is undergoing a major eruption. It is very likely that mariners will be affected by volcanic hazards in the warning areas such as significant debris, ashfall one quarter inch or greater, lava, or lahar and debris flows.")
 #end
-#if(${list.contains(${bullets}, "debrisFlow")})
+#if($bullets.contains("debrisFlow"))
 	#set($debrisflowType = "debris flow")
 	#set($debrisflowPath = "debris flow")
 	#set($debrisflowInfo = "The eruption of the volcano can cause a sudden melting of snow and ice on the mountain. This will result in a torrent of mud, ash, rock, and hot water to flow down the mountain and into the nearby waters.")
@@ -513,45 +513,45 @@ ${area.name}...
 ## and threat based on selections above. Added Satellite Imagery to basis.
 #######################################################################
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${eventType}")
-#if(${list.contains(${bullets}, "doppler")})
+#if($bullets.contains("doppler"))
   #set($capable = "capable of ")
   #set($report = "Doppler radar indicated ${stormline}, ${capable}producing ${threat}, ")
 #end
-#if(${list.contains(${bullets}, "doppler")} && ${list.contains(${bullets}, "sightedSpout")})
+#if($bullets.contains("doppler") && $bullets.contains("sightedSpout"))
   #set($report = "Doppler radar indicated ${stormline}, producing ${threat}, ")
 #end
-#if(${list.contains(${bullets}, "marineSpotter")})
+#if($bullets.contains("marineSpotter"))
   #set($report = "marine weather spotters reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "mariner")})
+#if($bullets.contains("mariner"))
   #set($report = "a mariner reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "public")})
+#if($bullets.contains("public"))
   #set($report = "the public reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "pilot")})
+#if($bullets.contains("pilot"))
   #set($report = "a pilot reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "coastGuard")})
+#if($bullets.contains("coastGuard"))
   #set($report = "the Coast Guard reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "lawEnforcement")})
+#if($bullets.contains("lawEnforcement"))
   #set($report = "law enforcement reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "emergencyManagement")})
+#if($bullets.contains("emergencyManagement"))
   #set($report = "emergency management reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "ship")})
+#if($bullets.contains("ship"))
   #set($report = "a ship reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "buoy")})
+#if($bullets.contains("buoy"))
   #set($report = "a buoy reported ${stormline}, ${capable}producing ${threat}, ") 
 #end
-#if(${list.contains(${bullets}, "satellite")})
+#if($bullets.contains("satellite"))
   #set($capable = "a pilot reported ")
   #set($report = "satellite imagery indicated ${stormline}, ${capable}producing ${threat}, ")
 #end
-#if(${list.contains(${bullets}, "satellite")} && ${list.contains(${bullets}, "sightedSpout")})
+#if($bullets.contains("satellite") && $bullets.contains("sightedSpout"))
   #set($report = "satellite imagery indicated ${stormline}, producing ${threat}, ")
 #end
 
@@ -561,9 +561,9 @@ THIS IS A TEST MESSAGE. ##
 At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${report}located ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
+#handleClosestPoints(${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
 #else
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceCell})
+#handleClosestPoints(${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${eventType} == "volcano")
 .
@@ -580,7 +580,7 @@ ${debrisflowInfo}
 #############################################
 ######## GENERATE ADDITIONAL REPORTS  #######
 #############################################
-#if(${list.contains(${bullets}, "addlRpt")})
+#if($bullets.contains("addlRpt"))
 In addition, at !**enter time, phenomena**! was reported !**enter location**!.
 #end
 
@@ -589,13 +589,13 @@ In addition, at !**enter time, phenomena**! was reported !**enter location**!.
 ###################################################
 #set($eventType = "${pathheader}")
 #set($warningType = "WARNING") 
-#if(${list.contains(${bullets}, "pathcast")})
+#if($bullets.contains("pathcast"))
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 #pathCast("${eventType} will be near..." ${eventType} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
 
-#elseif(${list.contains(${bullets}, "listoflocations")})
+#elseif($bullets.contains("listoflocations"))
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
@@ -611,7 +611,7 @@ THIS IS A TEST MESSAGE. ##
 ###### SPECIAL VENUE/EVENT CASE ##############
 ##############################################
 
-#if(${list.contains(${bullets}, "specialEvent")})
+#if($bullets.contains("specialEvent"))
 Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialEvent} and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW!
 #end
 
@@ -641,7 +641,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 ${ashfallCTA}
 
-#if(${list.contains(${bullets}, "genericCTA")})
+#if($bullets.contains("genericCTA"))
 #if(${stormType} == "line")
 As thunderstorms move over the water, boaters can expect gusty winds and high waves. Move to safe harbor or stay close to shore until these storms pass.
 
@@ -650,7 +650,7 @@ As this thunderstorm moves over the water, boaters can expect gusty winds and hi
 
 #end
 #end
-#if(${list.contains(${bullets}, "gustyWindsCTA")})
+#if($bullets.contains("gustyWindsCTA"))
 #if(${stormType} == "line")
 Mariners can expect gusty winds, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately until these storms pass.
 
@@ -659,7 +659,7 @@ Mariners can expect gusty winds, high waves, dangerous lightning, and heavy rain
 
 #end
 #end
-#if(${list.contains(${bullets}, "hailWindsCTA")})
+#if($bullets.contains("hailWindsCTA"))
 #if(${stormType} == "line")
 Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately until these storms pass.
 
@@ -668,19 +668,19 @@ Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and h
 
 #end
 #end
-#if(${list.contains(${bullets}, "nonThunderstormCTA")})
+#if($bullets.contains("nonThunderstormCTA"))
 Mariners can expect gusty winds and increasing waves. Boaters, especially those under sail, should seek safe harbor immediately until the high winds subside.
 
 #end
-#if(${list.contains(${bullets}, "waterspoutCTA")})
+#if($bullets.contains("waterspoutCTA"))
 Thunderstorms can produce sudden waterspouts. Waterspouts can easily overturn boats and create locally hazardous seas. Seek safe harbor immediately.
 
 #end
-#if(${list.contains(${bullets}, "lightningCTA")})
+#if($bullets.contains("lightningCTA"))
 Frequent lightning is occurring with this storm. If caught on the open water stay below deck if possible, keep away from ungrounded metal objects.
 
 #end
-#if(${list.contains(${bullets}, "reportCTA")})
+#if($bullets.contains("reportCTA"))
 Report severe weather to the Coast Guard or nearest law enforcement agency. They will relay your report to the National Weather Service office.
 
 #end
@@ -690,11 +690,11 @@ Report severe weather to the Coast Guard or nearest law enforcement agency. They
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "TO.A")})
-#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#if($includedWatches.contains("TO.A"))
+#inserttorwatches(${watches}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "SV.A")})
-#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#if($includedWatches.contains("SV.A"))
+#insertsvrwatches(${watches}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 ##
 ## #####################################################################
@@ -706,7 +706,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
 
-#printcoords(${areaPoly}, ${list})
+#printcoords(${areaPoly})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 ##################################################################

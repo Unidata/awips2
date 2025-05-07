@@ -12,6 +12,7 @@
 	  <entry><key>CF.W</key><value color="forestgreen" name="Coastal Flood Warning"></value></entry>
 	  <entry><key>CF.Y</key><value color="lawngreen" name="Coastal Flood Advisory"></value></entry>
 	  <entry><key>CF.S</key><value color="olivedrab" name="Coastal Flood Statement"></value></entry>
+	  <entry><key>CW.Y</key><value color="paleturquoise" name="Cold Weatherdvisory"></value></entry>
 	  <entry><key>DS.W</key><value color="bisque" name="Dust Storm Warning"></value></entry>
 	  <entry><key>DS.Y</key><value color="darkkhaki" name="Dust Advisory"></value></entry>
 	  <entry><key>DU.Y</key><value color="darkkhaki" name="Blowing Dust Advisory"></value></entry>
@@ -49,8 +50,6 @@
 	  <entry><key>HU.W</key><value color="#dc143c" name="Hurricane Warning"></value></entry>
 	  <entry><key>HW.A</key><value color="darkgoldenrod" name="High Wind Watch"></value></entry>
 	  <entry><key>HW.W</key><value color="goldenrod" name="High Wind Warning"></value></entry>
-	  <entry><key>HZ.A</key><value color="royalblue" name="Hard Freeze Watch"></value></entry>
-	  <entry><key>HZ.W</key><value color="blue" name="Hard Freeze Warning"></value></entry>
 	  <entry><key>SQ.W</key><value color="#EF2B1C" name="Snow Squall Warning"></value></entry>
 	  <entry><key>IS.W</key><value color="darkmagenta" name="Ice Storm Warning"></value></entry>
 	  <entry><key>LE.A</key><value color="LightSkyBlue" name="Lake Effect Snow Watch"></value></entry>
@@ -98,13 +97,12 @@
 	  <entry><key>UP.A</key><value color="RosyBrown" name="Heavy Freezing Spray Watch"></value></entry>
 	  <entry><key>UP.W</key><value color="#00C0FF" name="Heavy Freezing Spray Warning"></value></entry>
 	  <entry><key>UP.Y</key><value color="#00C0FF" name="Freezing Spray Advisory"></value></entry>
-	  <entry><key>WC.A</key><value color="cadetblue" name="Wind Chill Watch"></value></entry>
-	  <entry><key>WC.W</key><value color="lightsteelblue" name="Wind Chill Warning"></value></entry>
-	  <entry><key>WC.Y</key><value color="paleturquoise" name="Wind Chill Advisory"></value></entry>
 	  <entry><key>WI.Y</key><value color="tan" name="Wind Advisory"></value></entry>
 	  <entry><key>WS.A</key><value color="#4682b4" name="Winter Storm Watch"></value></entry>
 	  <entry><key>WS.W</key><value color="hotpink" name="Winter Storm Warning"></value></entry>
 	  <entry><key>WW.Y</key><value color="#7b68ee" name="Winter Weather Advisory"></value></entry>
+ 	  <entry><key>XH.A</key><value color="maroon" name="Extreme Heat Watch"></value></entry>
+	  <entry><key>XH.W</key><value color="mediumvioletred" name="Extreme Heat Warning"></value></entry>
 	  <entry><key>ZF.Y</key><value color="teal" name="Freezing Fog Advisory"></value></entry>
 	  <entry><key>ZR.Y</key><value color="orchid" name="Freezing Rain Advisory"></value></entry>
 	</map>

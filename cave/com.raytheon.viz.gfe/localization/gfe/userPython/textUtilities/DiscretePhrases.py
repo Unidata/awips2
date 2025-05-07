@@ -51,6 +51,8 @@
 #                                  national centers to issue products without hazard
 #                                  services installed
 # Oct 12, 2023  2036310  mapeters  Fix setTimeZone typo in timingWordTableDAYNIGHT
+# Mar 08, 2024  2037039  smoorthy  Keep timeZone in timingWordTable function headers
+#                                  consistent.
 #
 # #
 
@@ -1258,7 +1260,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         return zoneList
 
-    def timingWordTableEXPLICIT(self, issueTime, eventTime, timezone,
+    def timingWordTableEXPLICIT(self, issueTime, eventTime, timeZone,
       timeType='start'):
         # returns (timeValue, timeZone, descriptiveWord).
         # eventTime is either the starting or ending time, based on
@@ -1282,7 +1284,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         # determine local time
         myTimeZone = offsetTime.getTimeZone()
-        offsetTime.setTimeZone(timezone)
+        offsetTime.setTimeZone(timeZone)
         
         ltissue = time.localtime(issueTime)  # issuance local time
         ltevent = time.localtime(eventTime)  # event local time
@@ -1557,7 +1559,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         # determine local time
         myTimeZone = offsetTime.getTimeZone()
-        offsetTime.setTimeZone(timezone)
+        offsetTime.setTimeZone(timeZone)
 
 
         ltissue = time.localtime(issueTime)  # issuance local time

@@ -32,6 +32,7 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.parameter.Parameter;
@@ -40,11 +41,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
 /**
  * A PDO that extends GridRecord and wraps a AbstractRequestableData to allow
  * derived parameters to be used anywhere GridRecords can be used.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer     Description
  * ------------- -------- ------------ -----------------------------------------
  * Mar 18, 2010  4646     bsteffen     Initial creation
@@ -55,9 +56,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Apr 01, 2016  5439     bsteffen     Move import node to common.
  * Apr 20, 2017  6046     bsteffen     Change grib to grid.
  * Aug 15, 2017  6332     bsteffen     Move radar specific logic to extension
- * 
+ * May 22, 2024  2037092  mapeters     Add getTimeAndSpace
+ * Jul 15, 2024  2037624  mapeters     Add getRequester
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  */
 public class RequestableDataRecord extends GridRecord {
@@ -170,5 +173,13 @@ public class RequestableDataRecord extends GridRecord {
             }
         }
         return results;
+    }
+
+    public TimeAndSpace getTimeAndSpace() {
+        return requester.getTimeAndSpace();
+    }
+
+    public AbstractRequestableData getRequester() {
+        return requester;
     }
 }
