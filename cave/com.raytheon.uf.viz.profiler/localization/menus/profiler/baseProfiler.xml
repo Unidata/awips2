@@ -29,8 +29,6 @@
         fileName="menus/profiler/baseEastProfiler.xml" />
     <contribute xsi:type="subinclude" subMenu="West Profiler time-height" 
         fileName="menus/profiler/baseWestProfiler.xml" />
-    <contribute xsi:type="subinclude" subMenu="Alaska Profiler time-height" 
-        fileName="menus/profiler/baseAlaskaProfiler.xml" />
     <contribute xsi:type="subinclude" 
         fileName="menus/profiler/baseProfilerPlot.xml" />
 

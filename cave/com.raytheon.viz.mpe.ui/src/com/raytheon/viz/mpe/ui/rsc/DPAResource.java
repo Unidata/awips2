@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
 import javax.measure.quantity.Length;
@@ -75,7 +76,6 @@ import com.raytheon.viz.mpe.ui.dialogs.hourlyradar.RadarDataManager;
 
 import si.uom.SI;
 import systems.uom.common.USCustomary;
-import javax.measure.MetricPrefix;
 
 /**
  * The Digital Precipitation Array Resource.
@@ -94,6 +94,9 @@ import javax.measure.MetricPrefix;
  *                                  unit conversion.
  * Dec 06, 2021  8341     randerso  Added use of getResourceId for contour
  *                                  logging
+ * Sep 05, 2024 2037782   jsebahar  Remove handling of SP Radar and MFC corrected radar
+ *                                  since those are no longer displayed in Review
+ *                                  Hourly Radar dialog as part of DPA radar removal.
  *
  * </pre>
  *
@@ -115,11 +118,7 @@ public class DPAResource
 
     /** Radar types */
     public enum SingleSiteRadarType {
-        RAW_SP_RADAR("Raw SP Radar"),
-        RAW_DP_RADAR("Raw DP Radar"),
-        MEAN_FIELD_BIAS_CORRECTED_SP_RADAR(
-                "Mean Field Bias Corrected SP Radar"),
-        RADAR_COVERAGE_MAP("Radar Coverage Map");
+        RAW_DP_RADAR("Raw DP Radar"), RADAR_COVERAGE_MAP("Radar Coverage Map");
 
         private String text;
 
@@ -280,7 +279,7 @@ public class DPAResource
             Date dtg = MPEDisplayManager.getCurrent().getCurrentEditDate();
 
             // available = radar availability flag read from
-            // RWRadarResult or DAARadarResult table
+            // DAARadarResult table
             // = 0 -- field available (some values > 0.0)
             // = 1 -- field not available
             // = 2 -- field available (all values = 0.0)
@@ -305,15 +304,10 @@ public class DPAResource
             if (available == 0) {
 
                 dpaFile.load();
-                if (radarType == SingleSiteRadarType.RAW_SP_RADAR) {
-                    handler.info("Reading SP Radar Data");
-                    data = dpaFile.getStage1i();
-                } else if (radarType == SingleSiteRadarType.RAW_DP_RADAR) {
+
+                if (radarType == SingleSiteRadarType.RAW_DP_RADAR) {
                     handler.info("Reading DP Radar Data");
                     data = dpaFile.getStage1i();
-                } else if (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR) {
-                    handler.info("Reading MFB Corrected SP Radar Data");
-                    data = dpaFile.getStage1u();
                 } else {
                     data = dpaFile.getZeroData();
                 }
@@ -410,10 +404,7 @@ public class DPAResource
         allZeroStr = new DrawableString(ALL_ZERO,
                 RGBColors.getRGBColor("Green"));
 
-        if (missingData
-                && (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR
-                        || radarType == SingleSiteRadarType.RAW_SP_RADAR
-                        || radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
+        if (missingData && (radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
             missingString = new DrawableString(MISSING_DATA,
                     getCapability(ColorableCapability.class).getColor());
         }
@@ -474,13 +465,8 @@ public class DPAResource
         Date date = MPEDisplayManager.getCurrent().getCurrentEditDate();
         if (!date.equals(lastDate)) {
             // Check for ignored Radar
-            if (SingleSiteRadarType.RAW_SP_RADAR.equals(radarType)
-                    || SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR
-                            .equals(radarType)) {
-                ignored = RadarDataManager.getInstance().getIgnoreRadarSP(radId,
-                        date);
-                lastDate = date;
-            } else if (SingleSiteRadarType.RAW_DP_RADAR.equals(radarType)) {
+
+            if (SingleSiteRadarType.RAW_DP_RADAR.equals(radarType)) {
                 ignored = RadarDataManager.getInstance().getIgnoreRadarDP(radId,
                         date);
                 lastDate = date;
@@ -493,21 +479,12 @@ public class DPAResource
             target.drawStrings(missingString);
         }
 
-        if (ignored
-                && (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR
-                        || radarType == SingleSiteRadarType.RAW_SP_RADAR)) {
+        if (ignored && (radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
             ignoredStr.setCoordinates(screenExtent.getMinX() + 50,
                     screenExtent.getMaxY() - 25, 0.0);
             target.drawStrings(ignoredStr);
         }
-
-        else if (ignored && (radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
-            ignoredStr.setCoordinates(screenExtent.getMinX() + 50,
-                    screenExtent.getMaxY() - 25, 0.0);
-            target.drawStrings(ignoredStr);
-        }
-        if (available == 2 && (radarType == SingleSiteRadarType.RAW_DP_RADAR
-                || radarType == SingleSiteRadarType.RAW_SP_RADAR)) {
+        if (available == 2 && (radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
             allZeroStr.setCoordinates(screenExtent.getMinX() + 600,
                     screenExtent.getMaxY() - 25, 0.0);
             target.drawStrings(allZeroStr);

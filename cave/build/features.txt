@@ -57,3 +57,4 @@ edu.wisc.ssec.cimss.viz.probsevere.feature
 gov.noaa.nws.sti.mdl.viz.griddednucaps.feature
 com.raytheon.uf.viz.grid.radar.rsc.feature
 gov.noaa.nws.obs.viz.geodata.feature
+gov.noaa.nws.sr.oun.viz.mping.feature

@@ -1,3 +1,4 @@
+%define _component_project_dir    awips2.core/Installer.database
 #
 # AWIPS II Database Server Configuration Spec File
 #
@@ -59,6 +60,12 @@ cp -p %{_baseline_workspace}/${CONFIGURATION_DIR}/*.{key,crt} \
 cp %{_baseline_workspace}/${WATCHDOG_DIR}/postgres_watchdog.sh \
    ${RPM_BUILD_ROOT}/etc/watchdog.d
 
+# Install systemd unit file
+service_dir="${RPM_BUILD_ROOT}/etc/systemd/system/postgresql@awips.service.d"
+mkdir --parents "${service_dir}"
+cp "%{_baseline_workspace}/rpms/%{_component_project_dir}/30-postgresql-setup.conf" \
+    "${service_dir}"
+
 %pre
 rm -f /awips2/database/data/postgresql.conf
 
@@ -103,7 +110,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) /awips2/database/ssl/root.crt
 %config(noreplace) /awips2/database/ssl/server.key
 
+%defattr(644,root,root,755)
+/etc/systemd/system/postgresql@awips.service.d/30-postgresql-setup.conf
+
 %changelog
+* Wed Nov 06 2024 John Sebahar <john.sebahar@rtx.com>
+- Added systemd configuration file to installation
 * Thu Aug 31 2023 Mark Peters <mark.a.peters@rtx.com>
 - Remove central registry configuration
 * Fri May 05 2023 Tom Gurney <thomas.gurney@rtx.com>

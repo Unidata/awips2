@@ -115,6 +115,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jun 21, 2019  7629      mroos        Added setting of delta time and scan type
  *                                      for supporting product codes.
  * Jun 17, 2020  DCS22082  jdynina      Removed Product List (product code 8)
+ * Feb 12, 2024  2036875   jdynina      Added Raw ZDR
  *
  * </pre>
  *
@@ -149,7 +150,7 @@ public class Level3BaseRadar {
      * delta time denotation within productDependentValues[6]
      */
     private static final List<Integer> SCAN_TYPE_PRODVALS = Arrays.asList(94,
-            99, 153, 154, 155, 167, 168, 149, 143, 159, 161, 163, 165);
+            99, 153, 154, 155, 167, 168, 149, 143, 159, 161, 163, 165, 198);
 
     protected DataInputStream theRadarData = null;
 

@@ -16,7 +16,8 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.viz.alerts,
  com.raytheon.uf.viz.thinclient,
  com.raytheon.viz.grid,
- com.raytheon.uf.viz.grid.radar
+ com.raytheon.uf.viz.grid.radar,
+ com.raytheon.viz.radar
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.inventory.exception,

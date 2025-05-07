@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,8 +34,10 @@ import com.raytheon.uf.common.dataplugin.grid.derivparam.GridMapKey;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
 import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.inventory.tree.CubeLevel;
@@ -49,19 +51,21 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- * 
+ *
  * Loads and manages {@link GridExtension} implementations. This class provides
  * static methods mirroring GridExtension to provide a centralized point of
  * access for the extension functionality.
- * 
+ *
  * <pre>
  *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- -----------------
  * Aug 15, 2017  6332     bsteffen  Initial creation
- * 
+ * Oct 14, 2024  2037939  mapeters  Replace resolvePluginStaticData with more
+ *                                  general resolvePluginSpecifiedField
+ *
  * </pre>
  *
  * @author bsteffen
@@ -150,11 +154,16 @@ public class GridExtensionManager {
         return null;
     }
 
-    public static Object resolvePluginStaticData(SourceNode sNode,
-            DerivParamField field, Level level) {
+    /**
+     * Resolve a plugin-specified field.
+     *
+     * @see AbstractInventory#resolvePluginSpecifiedField
+     */
+    public static Object resolvePluginSpecifiedField(SourceNode sourceNode,
+            Level level, DerivParamMethod method, DerivParamField field) {
         for (GridExtension extension : getExtensions()) {
-            Object result = extension.resolvePluginStaticData(sNode, field,
-                    level);
+            Object result = extension.resolvePluginSpecifiedField(sourceNode,
+                    level, method, field);
             if (result != null) {
                 return result;
             }

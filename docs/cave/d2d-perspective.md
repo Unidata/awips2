@@ -120,7 +120,7 @@ will switch between the single page (default) view and the 5-panel WFO view (cen
 ## Options Menu
 There are several toggle options and options dialogs that are available under the **Options** menu found at the top of the application.
 
-### Time Options (Ctrl + T)
+### Time Options (Ctrl + Shift + T)
 
 This check button enables/disables the ability to select the time interval between frames of real-time or model data. This feature has the added benefit of allowing you to view extended amounts of data (temporally) but stay within the limits of 64 frames. For example, METAR surface plots, which typically display every hour, can be set to display every three hours via the Select Valid Time and Time Resolution Dialog Box.
 

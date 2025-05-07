@@ -83,6 +83,14 @@
 #                                  IscMosaicJobManager.
 # Nov 09, 2018 DR 21001  dfriedman Fix handling of renamed grids.
 # May 03, 2019 7842      dgilling  Update to use library netcdf4-python.
+# Sep 09, 2022 23257     dgilling  Add additional logging for AdditionalISCRouting
+#                                  feature.
+# Nov 07, 2022 23338     dhaines   added parameters to mergeGrid constuctor and 
+#                                  methods for additional logging
+# Feb 06, 2024 2036800   fcamacho  Fixed deprecated warning messages as seen in 
+#                                  edex-request-wrapper log file
+# Oct 04, 2024 2038100   njensen   Synchronize around calls to netCDF4 library
+#                                  since the library is not thread safe
 #
 ##
 
@@ -568,6 +576,12 @@ class IscMosaic:
         self.__parmMap = {}
 
         initLogger(self.__logFile)
+        # The lock object can be any object that can be shared amongst all
+        # sub-interpreters, so we get a Java singleton. The same lock must be
+        # used in other Python scripts using the netCDF4 package, i.e.
+        # ifpnetCDF.
+        from com.raytheon.edex.plugin.gfe.isc import Netcdf4LibraryLock
+        self.__nclock = Netcdf4LibraryLock.getLock()
         logger.info("iscMosaic Starting args: %s", str(args))
 
     # Scan the input file to determine the lock names that will be needed and
@@ -596,12 +610,13 @@ class IscMosaic:
     def __prepareInputFile(self, filename, job):
         start = now()
 
-        ncfile = self.__openNcFile(filename)
+        with self.__nclock.synchronized():
+            ncfile = self.__openNcFile(filename)
 
-        for lockName in self.__getParmMap(ncfile):
-            job.addLockName(lockName)
+            for lockName in self.__getParmMap(ncfile):
+                job.addLockName(lockName)
 
-        ncfile.close()
+            ncfile.close()
 
         stop = now()
         logger.info("Elapsed time for prepare: %-.2f", stop - start)
@@ -629,7 +644,7 @@ class IscMosaic:
                 raise
         else:
             # no errors, close and rename the file
-            os.rename(unzippedFile.name, gzipFile.filename)
+            os.rename(unzippedFile.name, gzipFile.name)
             gzipFile = unzippedFile = None
         finally:
             # close the files in case of error
@@ -699,8 +714,9 @@ class IscMosaic:
         logger.debug('processing parm for lock name %s', lockName)
         if self.__ncFile is None:
             self.__commonStartup()
-            self.__ncFile = self.__openNcFile(self.__inFile)
-            self.__parmMap = self.__getParmMap(self.__ncFile)
+            with self.__nclock.synchronized():
+                self.__ncFile = self.__openNcFile(self.__inFile)
+                self.__parmMap = self.__getParmMap(self.__ncFile)
             self.__areaMask = None
 
         # prepare for the notification message
@@ -733,7 +749,8 @@ class IscMosaic:
 
     def dispose(self):
         if self.__ncFile is not None:
-            self.__ncFile.close()
+            with self.__nclock.synchronized():
+                self.__ncFile.close()
             self.__ncFile = None
 
     def __processParm(self, parmName, ncvars, history, filename, lockName):
@@ -745,8 +762,10 @@ class IscMosaic:
         inTimesProc = []
         numFailed = 0
 
-        self.__siteID = str(ncvars[0].siteID)
-        inTimes = self.__getIncomingValidTimes(ncvars[0])
+        inTimes = []
+        with self.__nclock.synchronized():
+            self.__siteID = str(ncvars[0].siteID)
+            inTimes = self.__getIncomingValidTimes(ncvars[0])
         logger.info("Processing %s #Grids=%d Site=%s", parmName, len(inTimes), self.__siteID)
 
         if self.__blankOtherPeriods or self.__eraseFirst or len(inTimes) > 0:
@@ -759,19 +778,22 @@ class IscMosaic:
                     self.__parmName = parmName
 
                     # get general info for the parm from the input file and output db
-                    inGeoDict = self.__getInputGeoInfo(ncvars[0])
-                    inFillV = self.__determineFillValue(ncvars[0])
-
-                    gridType = ncvars[0].gridType
+                    inGeoDict = {}
+                    inFillV = None
+                    gridType = None
+                    with self.__nclock.synchronized():
+                        inGeoDict = self.__getInputGeoInfo(ncvars[0])
+                        inFillV = self.__determineFillValue(ncvars[0])
+                        gridType = ncvars[0].gridType
                     minV = self.__dbwe.getGpi().getMinValue()
                     # compute the site mask
 
                     if self.__areaMask is None:
-                        self.__areaMask = self.__computeAreaMask().getGrid().getNDArray().astype(numpy.bool)
+                        self.__areaMask = self.__computeAreaMask().getGrid().getNDArray().astype(bool)
 
                     # create the mergeGrid class
                     mGrid = mergeGrid.MergeGrid(self.__creTime, self.__siteID, inFillV,
-                      minV, self.__areaMask, gridType, self.__dbwe.getDiscreteKeys())
+                      minV, self.__areaMask, gridType, self.__dbwe.getDiscreteKeys(), parmName)
 
                     # erase all existing grids first?
                     self.__dbinv = self._wec.keys()
@@ -800,7 +822,9 @@ class IscMosaic:
                                 logger.debug("Processing Grid: %s TR=%s", parmName, printTR(tr))
 
                                 # get the grid and remap it
-                                grid = self.__getGridFromNetCDF(gridType, ncvars, i)
+                                grid = None
+                                with self.__nclock.synchronized():
+                                    grid = self.__getGridFromNetCDF(gridType, ncvars, i)
 
                                 # if WEATHER or DISCRETE, then validate and adjust keys
                                 if self.__adjustTranslate:
@@ -891,10 +915,10 @@ class IscMosaic:
                 if m[2] == 1 or (m[2] == 0 and m[0] is None):
                     if self.__replaceOnly:
                         mergedGrid = mGrid.mergeGrid(
-                          (remappedGrid, remappedHistory), None)
+                          (remappedGrid, remappedHistory), None, printTR(tr))
                     else:
                         mergedGrid = mGrid.mergeGrid (
-                          (remappedGrid, remappedHistory), (destGrid, oldHist))
+                          (remappedGrid, remappedHistory), (destGrid, oldHist), printTR(tr))
 
                 else:
                     mergedGrid = (destGrid, oldHist)
@@ -909,7 +933,7 @@ class IscMosaic:
                         adjGrid = self.__adjustForTime(tr, m[1], remappedGrid,
                           inFillV)
                         mergedGrid = mGrid.mergeGrid(
-                          (adjGrid, remappedHistory), None)
+                          (adjGrid, remappedHistory), None, printTR(tr))
                     else:
                         adjGridIn = self.__adjustForTime(tr, m[1],
                           remappedGrid, inFillV)
@@ -917,7 +941,7 @@ class IscMosaic:
                           0.0)
                         mergedGrid = mGrid.mergeGrid(\
                           (adjGridIn, remappedHistory),
-                          (adjGridDb, oldHist))
+                          (adjGridDb, oldHist), printTR(tr))
 
                 else:
                     adjGrid = self.__adjustForTime(m[0], m[1], destGrid, 0.0)
@@ -1027,7 +1051,7 @@ class IscMosaic:
         hvar = ncfile.variables[pn]
         history = []
         for i in range(0, hvar.shape[0]):
-            h = hvar[i].data.tostring().decode().rstrip('\0').strip()
+            h = hvar[i].data.tobytes().decode().rstrip('\0').strip()
             history.append(h.split('^'))
 
         # handle special cases for Vector and Wx, need to use a second
@@ -1389,7 +1413,7 @@ class IscMosaic:
     # from the netCDF file.
     #---------------------------------------------------------------------
     def __compressKey(self, keys):
-        return [s for s in (k.tostring().decode().strip('\0').strip() for k in keys) if s]
+        return [s for s in (k.tobytes().decode().strip('\0').strip() for k in keys) if s]
 
     #---------------------------------------------------------------------
     # adjust for time
@@ -1698,9 +1722,15 @@ def prepareMosaicRequest(siteID, userID, databaseID, parmsToProcess, blankOtherP
         job):
     import serverConfig
 
+    initLogger(logFileName)
+
+    logger.debug(f"additionalRoutingSiteID: {additionalRoutingSiteID}")
+    logger.debug(f"serverConfig.AdditionalISCRouting: {serverConfig.AdditionalISCRouting}")
+
     additionalISCRouting = []
     if additionalRoutingSiteID and serverConfig.AdditionalISCRouting:
         additionalISCRouting = serverConfig.AdditionalISCRouting
+    logger.debug(f"AdditionalISCRouting: {additionalISCRouting}")
 
     # convert Java types to python and send to IscMosaic for execution
     parmsToProcess = convertList(parmsToProcess)
@@ -1726,16 +1756,24 @@ def prepareMosaicRequest(siteID, userID, databaseID, parmsToProcess, blankOtherP
                 "parmsToIgnore": parmsToIgnore,
                 "gridDelay": float(gridDelay),
                 "logFileName": logFileName}
+        logger.debug(f"Calling prepareJob for standard ISC job")
         prepareJob(argv, job)
+        logger.debug(f"Prepared standard ISC job")
 
+        logger.debug(f"Preparing {len(additionalISCRouting)} AdditionalISCRouting jobs...")
         for entry in additionalISCRouting:
             (parms, dbName, editAreaPrefix) = entry
             parmNameList = [parm[0] + "_SFC" for parm in parms]
+            logger.debug(f"parmNameList: {parmNameList}")
+            logger.debug(f"dbName: {dbName}")
+            logger.debug(f"editAreaPrefix: {editAreaPrefix}")
             argv = dict(argv)
             argv['parmsToProcess'] = parmNameList
             argv['databaseID'] = siteID + "_GRID__" + dbName + "_00000000_0000"
             argv['altMask'] = editAreaPrefix + additionalRoutingSiteID
+            logger.debug(f"Preparing AdditionalISCRouting job: {argv}")
             prepareJob(argv, job)
+            logger.debug(f"Prepared AdditionalISCRouting job")
 
 lastJob = None
 lastIscMosaic = None

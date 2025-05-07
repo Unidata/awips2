@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -50,6 +50,7 @@ import com.raytheon.uf.common.units.UnitConv;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.InterpUtils;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
 import com.raytheon.uf.viz.xy.scales.HeightScale;
@@ -60,11 +61,11 @@ import tech.units.indriya.AbstractUnit;
 /**
  * Adapter for converting pdos that are compatible with the point data api into
  * data that can be used for Cross Section graphs.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Dec 04, 2009           mschenke  Initial creation
@@ -74,9 +75,11 @@ import tech.units.indriya.AbstractUnit;
  *                                  MeteolibInterpolation to support wind.
  * Apr 15, 2019 7596      lsingh    Updated units framework to JSR-363. Handled
  *                                  unit conversion.
- * 
+ * Jun 20, 2024 2037565   mapeters  Remove getParameterName, add getExtraNameText
+ * Aug 14, 2024 2037631   mapeters  Wrap float data in new class
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  */
 public class PointCSAdapter
@@ -87,18 +90,14 @@ public class PointCSAdapter
     protected Unit<?> unit = AbstractUnit.ONE;
 
     @Override
-    public String getParameterName() {
-        return resourceData.getParameter();
-    }
-
-    @Override
     public Unit<?> getUnit() {
         return unit;
     }
 
     @Override
-    public List<float[]> loadData(DataTime currentTime, CrossSectionGraph graph,
-            GridGeometry2D geometry) throws VizException {
+    public CrossSectionFrameData loadData(DataTime currentTime,
+            CrossSectionGraph graph, GridGeometry2D geometry)
+            throws VizException {
         HeightScale heightScale = descriptor.getHeightScale();
         String parameter = resourceData.getParameter();
         Map<String, RequestConstraint> constraints = new HashMap<>(
@@ -159,7 +158,7 @@ public class PointCSAdapter
                     stationDistances));
 
         }
-        return result;
+        return new CrossSectionFrameData(result, null);
     }
 
     private float[] makeGrid(String parameter, PointDataContainer pdc,
@@ -229,6 +228,25 @@ public class PointCSAdapter
          * grid of data.
          */
         return InterpUtils.makeRows(columns, xVals, nx, graph, true, Float.NaN);
+    }
+
+    @Override
+    public String getExtraNameText() {
+        String stnID = "";
+        RequestConstraint stationIdConstraint = resourceData.getMetadataMap()
+                .get(PointDataConstants.LOCATION_STATIONID);
+        if (stationIdConstraint != null
+                && stationIdConstraint.getConstraintValue() != null) {
+            stnID = stationIdConstraint.getConstraintValue();
+            if (stnID.contains(",")) {
+                /*
+                 * ID may be formatted point1,point2 to define a line. For
+                 * display, need point1-point2
+                 */
+                stnID = stnID.replace(",", "-");
+            }
+        }
+        return stnID;
     }
 
 }

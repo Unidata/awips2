@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-      <extension
+   <extension
          point="com.raytheon.uf.viz.xy.crosssection.crosssectionadapter">
       <crossSectionAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.GridCSAdapter"
             class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
             name="Grid Cross Section Adapter">
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.RadarGridCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
+            name="Radar Cross Section Adapter">
+        <constraint
+               key="info.datasetId"
+               value="radar-.*">
+        </constraint>
       </crossSectionAdapter>
       <crossSectionAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"

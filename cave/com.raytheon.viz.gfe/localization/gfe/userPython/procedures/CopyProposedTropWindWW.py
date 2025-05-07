@@ -57,6 +57,8 @@
 # Apr 13, 2022 22531      tlefebvr   Made a few changes for Python3 compatibility.
 # Sep 15, 2022 22531      santos/composano/white Fixes post 21.4.1-13 baseline.
 # Sep 29, 2023 2036298    santos/composano/white Additional fixes post 21.4.1-13 baseline.
+# Jul 12, 2024 2037586    alockleigh Added override for getIndex to treat DiscreteKeys
+#                                    with flipped subkeys as distinct.
 ################################################################################
 
 MenuItems = ["Hazards"]
@@ -295,6 +297,20 @@ class Procedure(WindWWUtils.WindWWUtils):
                 return True
 
         return False
+
+    def getIndex(self, uglyStr, keys):
+        """
+        Override of SmartScript.getIndex so that the index of the correct DiscreteKey is returned.
+        """
+        if (uglyStr in keys):
+            return keys.index(uglyStr)
+
+        if len(keys) >= 256:
+            raise IndexError("Attempting to create more than 256 hazard keys")
+
+        keys.append(uglyStr)
+        return len(keys) - 1
+
 
     # Main method that sets up the GUI and enters the event loop
     def execute(self, varDict):

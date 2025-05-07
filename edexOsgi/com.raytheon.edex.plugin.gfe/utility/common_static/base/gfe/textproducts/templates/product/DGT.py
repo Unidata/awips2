@@ -10,6 +10,7 @@
 # Date            Ticket#        Engineer    Description
 # ------------    ----------     ----------- --------------------------
 # 03/15/2020       DCS21339       NFTF        Add NFTF DGT to baseline
+# 08/12/2024       DCS2037810     NFTF        Update format per latest AFS requirements
 #
 ##
 # -------------------------------------------------------------------------
@@ -44,14 +45,15 @@
 import re
 import GenericReport
 import time
-
-
 class TextProduct(GenericReport.TextProduct):
-
     VariableList = [
-        (("Include Previous Product Text?", "includeOldText"), "No", "radio", ["Yes", "No"])
+        (
+            ("Include Previous Product Text?", "includeOldText"),
+            "No",
+            "radio",
+            ["Yes", "No"],
+        )
     ]
-
     Definition = {
         "type": "smart",
         "displayName": None,
@@ -87,46 +89,26 @@ class TextProduct(GenericReport.TextProduct):
         "purgeTime": 336,  # Default Expiration in hours
         # Define the AWIPS text database PIL used to retrieve the last issued DGT.
         "prevProdPIL": "<textdbPil>",
-        # product specific definitions
-        # "localWebsites" defines whatever local websites you would like to have in the
-        # "RELATED WEB SITES" section, Python List
-        "localWebsites": [],
-        # "acknowledgements" defines any acknowledgements to local, regional or national agencies
-        "acknowledgements": "",
-        # "addressWFO": Your local WFO address that will be appended at the bottom of the product
-        "addressWFO": "",
     }
-
     # Set mapNameForCombinations properly for zones or counties
     if Definition["areaType"] == "FIPS":
-        # Name of map background for creating Combinations
         Definition["mapNameForCombinations"] = "FIPS_<site>"
     else:
-        # Name of map background for creating Combinations
         Definition["mapNameForCombinations"] = "Zones_<site>"
-
-
     def __init__(self):
         GenericReport.TextProduct.__init__(self)
-
     def _preProcessProduct(self, fcst, argDict):
         """DGT version of GenericReport._preProcessProduct.
 
         This is an unsegmented product so don't do anything. The header will be added in
         _preProcessArea."""
-
         return fcst
-
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         """DGT version of GenericReport._preProcessArea.
 
         Creates product header for an unsegmented product."""
-
         # First, generate WMO lines
-        fcst = "{} {} {}\n{}\n".format(
-            self._wmoID, self._fullStationID, self._ddhhmmTime, self._pil
-        )
-
+        fcst = f"{self._wmoID} {self._fullStationID} {self._ddhhmmTime}\n{self._pil}\n"
         # Next, add the non-segmented UGC data
         areaHeader = self.makeAreaHeader(
             argDict,
@@ -140,105 +122,65 @@ class TextProduct(GenericReport.TextProduct):
             includeZoneNames=self._includeZoneNames,
             includeIssueTime=self._includeIssueTime,
         )
-        fcst += areaHeader + "\n"
-
+        fcst += f"{areaHeader}\n"
         # Last, add the product name/time lines
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, self._productName)
-        fcst += "{}\nNational Weather Service {}\n{}{}\n\n".format(
-            productName, self._wfoCityState, issuedByString, self._timeLabel
+        fcst += (
+            f"{productName}\nNational Weather Service {self._wfoCityState}\n"
+            f"{issuedByString}{self._timeLabel}\n\n"
         )
-
         return fcst
-
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
-        """DGT version of GenericReport._makeProduct."""
-
+        """
+        DGT version of GenericReport._makeProduct.
+        """
         # Start the product from scratch
-        if self._includeOldText == "No":
-
-            # Set up mandatory sections
-
-            # Headline
-            fcst += "|* ...INSERT MANDATORY HEADLINE... *|\n\n"
-
-            # Synopsis
-            fcst += ".SYNOPSIS:\n\n"
-
-            fcst += ".Drought intensity and extent:\n|*<Insert Text>*|\n\n"
-            fcst += ".Hydrologic conditions:\n|*<Insert Text>*|\n\n"
-
-            # Summary of impacts
-            fcst += ".SUMMARY OF IMPACTS:\n\n|*<Insert Text>*|\n\n"
-
-            # Drought Mitigation Actions
-            fcst += ".DROUGHT MITIGATION ACTIONS:\n\n|*<Insert Text>*|\n\n"
-
-            # Local Drought Outloook
-            fcst += ".LOCAL DROUGHT OUTLOOK:\n\n|*<Insert Text>*|\n\n"
-
-            # Next Issuance
-            nextMonth = str(time.strftime("%A %B %-d", time.localtime(time.time() + 28 * 86400)))
-            fcst += (
-                ".NEXT ISSUANCE DATE:\n\nThis product will be updated {} or sooner if "
-                "drought conditions change significantly.\n\n".format(nextMonth)
-            )
-
-            # Mandatory Drought Websites
-            fcst += (
-                ".RELATED WEB SITES:\n\nAdditional information on current drought "
-                "conditions may be found at the following web addresses:\n"
-                "US Drought Monitor: https://droughtmonitor.unl.edu\n"
-                "US Drought Information System: https://www.drought.gov\n"
-                "NOAA Drought Page: https://www.cpc.ncep.noaa.gov/products/Drought\n"
-            )
-
-            # Additional WFO Websites
-            for site in self._localWebsites:
-                fcst += site + "\n"
-
-            # Mandatory River Websites
-            fcst += (
-                "\nAdditional water and river information:\n"
-                "NWS: https://water.weather.gov\n"
-                "OWP: https://water.noaa.gov\n"
-                "US Geological Survey (USGS): https://water.usgs.gov\n"
-                "US Army Corps of Engineers (USACE): https://www.usace.army.mil\n\n"
-            )
-
-            # Acknowledgments
-            fcst += ".ACKNOWLEDGMENTS:\n\n" + self._acknowledgements + "\n\n"
-
-            # Questions/Comments
-            fcst += (
-                ".CONTACT INFORMATION:\n\n"
-                "If you have questions or comments about this Drought Information "
-                "Statement, please contact:\n\n"
-            ) + self._addressWFO
-
-        else:  # self._includeOldText == "Yes" - Start the product from a previous version
-            # Get previous product
+        if getattr(self, "_includeOldText", "No").lower() == "yes":
             prevProd = self.getPreviousProduct(self._prevProdPIL)
             # If we actually found the previous text
-            if prevProd != "":
+            if prevProd:
                 # Merge the forecasts
-                prod = re.compile(r"[0-9][ ][0-9][0-9][0-9][0-9]\n\n(.*?)[$$]", re.DOTALL)
+                prod = re.compile(
+                    r"[0-9][ ][0-9][0-9][0-9][0-9]\n\n(.*?)[$$]", re.DOTALL
+                )
                 product = prod.findall(prevProd)
-                fcst += product[0]
-
-        return fcst
-
+                if product:
+                    fcst += product[0]
+                    return fcst
+        # Body of product
+        bodyText = ""
+        wfoCityState = getattr(self, "_wfoCityState", "|* City State *|")
+        SID = getattr(self, "_wfoSiteID", " |* XXX *|")
+        sid = SID.lower()
+        strDate = time.strftime("%m%d%Y", time.localtime(time.time()))
+        bodyText += (
+            "For the latest Drought Information Statement from the "
+            f"National Weather Service in {wfoCityState}, see: "
+            f"www.weather.gov/media/{sid}/DGT/DGT_{SID}_|*{strDate}*|.pdf\n\n"
+        )
+        bodyText += (
+            "For the latest accessible, text-only Drought Information Statement from the "
+            f"National Weather Service in {wfoCityState}, see: "
+            f"www.weather.gov/media/{sid}/DGT/DGT_{SID}_|*{strDate}*|.txt\n\n"
+        )
+        bodyText += (
+            f"National Weather Service {wfoCityState} Drought Information Statement "
+            f"web page: www.weather.gov/{sid}/DroughtInformationStatement"
+        )
+        # Do some text cleanup
+        bodyText = self.endline(bodyText, linelength=self._lineLength)
+        return fcst + bodyText
     def _postProcessProduct(self, fcst, argDict):
         """DGT version of GenericReport._postProcessProduct.
 
-         Handles word-wrapping, line feeds."""
-
+        Handles word-wrapping, line feeds."""
         # Clean up multiple line feeds
         fixMultiLF = re.compile(r"(\n\n)\n*", re.DOTALL)
         fcst = fixMultiLF.sub(r"\1", fcst)
-
-        fcst = self.endline(fcst, linelength=self._lineLength, breakStr=[" ", "...", "-", ", "])
+        fcst = self.endline(
+            fcst, linelength=self._lineLength, breakStr=[" ", "...", "-", ", "]
+        )
         self.setProgressPercentage(100)
-        self.progressMessage(0, 100, self._displayName + " Complete")
-
+        self.progressMessage(0, 100, f"{self._displayName} Complete")
         return fcst

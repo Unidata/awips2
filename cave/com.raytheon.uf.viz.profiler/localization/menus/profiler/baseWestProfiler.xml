@@ -57,12 +57,6 @@
             </contribute>
             
             <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
-                        menuText="Platteville CO (PVLC1)" id="profPlatteville_CO">
-                <substitute key="wmoid" value="74991"/>
-                <substitute key="productURI" value="/profiler/%/3000/74991/%"/>
-            </contribute>
-
-            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
                         menuText="Point Sur CA (PTSC1)" id="profPointSur_CA">
                 <substitute key="wmoid" value="74993"/>
                 <substitute key="productURI" value="/profiler/%/3000/74993/%"/>

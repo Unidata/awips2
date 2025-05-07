@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Radar as Grid Resource
-Bundle-SymbolicName: com.raytheon.uf.viz.grid.radar.rsc
+Bundle-SymbolicName: com.raytheon.uf.viz.grid.radar.rsc;singleton:=true
 Bundle-Version: 1.23.0.qualifier
 Bundle-Vendor: RAYTHEON
 Automatic-Module-Name: com.raytheon.uf.viz.grid.radar.rsc
@@ -17,4 +17,6 @@ Require-Bundle: com.raytheon.uf.viz.xy.crosssection,
  com.raytheon.uf.viz.grid.radar,
  com.raytheon.uf.common.inventory,
  com.raytheon.uf.common.dataplugin.grid.derivparam,
- com.raytheon.uf.common.datastorage
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.viz.core.grid,
+ com.raytheon.uf.common.geospatial

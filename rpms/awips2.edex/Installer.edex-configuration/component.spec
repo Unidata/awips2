@@ -299,3 +299,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) /awips2/edex/conf/jms/auth/*.key
 %config(noreplace) /awips2/edex/conf/ignite/auth/*.crt
 %config(noreplace) /awips2/edex/conf/ignite/auth/*.key
+%defattr(754,awips,fxalpha,755)
+/awips2/edex/conf/security/keystoreUtilDoD.sh

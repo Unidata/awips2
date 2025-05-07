@@ -20,16 +20,11 @@
 package com.raytheon.viz.mpe.ui.radartable;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ListIterator;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwbiasdyn;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwbiasstat;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.RadarBiasTableDialog;
@@ -46,6 +41,8 @@ import com.raytheon.viz.mpe.ui.dialogs.RadarBiasTableDialog;
  * Aug 11, 2015 4500       rjpeter     Fix type casts.
  * Aug 23, 2018 6953       tgurney     read_bias_table_param cleanup, change
  *                                     method signature
+ * Sep 05, 2024 2037782    jsebahar    Remove DPA radar data, this includes data
+ *                                     from DPAAdapt table.
  * </pre>
  *
  * @author snaples
@@ -138,29 +135,6 @@ public class ReadBiasTableParam {
         }
 
         return;
-    }
-
-    /**
-     * This Queries the Dpaadapt table.
-     *
-     * @return ArrayList<Dpaadapt>
-     */
-    public static float[] getDpaadaptcoef(String rid, String obstime)
-            throws VizException {
-        float[] coefs = new float[2];
-        String query = String.format(
-                "select mlt_zrcoef, pwr_zrcoef from dpaadapt where radid ='%s' and obstime='%s'",
-                rid, obstime);
-        List<Object[]> rs = DirectDbQuery.executeQuery(query,
-                HydroConstants.IHFS, QueryLanguage.SQL);
-
-        coefs = new float[2];
-        for (int i = 0; i < rs.size(); i++) {
-            Object[] oa = rs.get(i);
-            coefs[0] = ((Number) oa[0]).floatValue();
-            coefs[1] = ((Number) oa[1]).floatValue();
-        }
-        return coefs;
     }
 
     public static Float get_rfc_bias_value(String rid, String officeId) {

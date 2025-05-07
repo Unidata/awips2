@@ -162,6 +162,8 @@
 #                                                 eliminate copying the netCDF file to the optimized filename
 #                                                 before calling convert_netcdf.pl as it is unnecessary;
 #                                                 replaced file paths/names with variables.
+#    08/07/24        2037695       sjohnston      Creates the /data/ldad/grid/${site} directory on ls1 if it
+#                                                 does not exist. 
 #
 ################################################################################
 
@@ -412,10 +414,20 @@ echo ... finished >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 
-# if directory to write to is not on local rysnc server, create it. DR 16464
+# if /data/ldad/grid directory to write to is not on local rysnc server, create it. DR 16464
+echo "checking for existence of ${locDirectory} on ${locServer} and creating it if it doesn't exist" >> $LOG_FILE 
 if ! ssh ${locServer} "[ -d ${locDirectory} ]" 2> /dev/null  ;then
      ssh ${locServer} mkdir ${locDirectory}
 fi
+# check again to make sure /data/ldad/grid now exists and exit if it does not, alert users of the failure
+if ! ssh ${locServer} "[ -d ${locDirectory} ]" 2> /dev/null  ;then
+     echo "Couldn't make the ${locDirectory} directory on ${locServer}. Exiting." >> $LOG_FILE
+     ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Unable to make the ${locDirectory} directory on ${locServer}. Will not be sent." -s
+     exit
+fi
+echo ...finished. >> $LOG_FILE
+echo " " >> $LOG_FILE
+
 
 # Clean up orphaned files on the local rsync server.
 echo cleaning up orphaned files on $locServer in the ${locDirectory}/${site} directory at $(date) >> $LOG_FILE
@@ -429,6 +441,21 @@ DESTFN=CurrentFcst.${site}.cdf.gz
 SYNCDIR=${locDirectory}/${site}
 SYNCFILE=${SYNCDIR}/${SYNCFN}
 SYNCCOPY=${SYNCDIR}/vtm.opt.cdf.gz
+
+# if /data/ldad/grid/${site} directory is not on local rsync server, create it. DR 2037695
+echo "checking for existence of ${SYNCDIR} on ${locServer} and creating it if it doesn't exist" >> $LOG_FILE
+if ! ssh ${locServer} "[ -d ${SYNCDIR} ]" 2> /dev/null  ;then
+     ssh ${locServer} mkdir ${SYNCDIR}
+fi
+# check again to make sure /data/ldad/grid/${site} now exists and exit if it does not, alerting the users of the failure
+if ! ssh ${locServer} "[ -d  ${SYNCDIR} ]" 2> /dev/null  ;then
+     echo "Couldn't make the ${SYNCDIR} directory on ${locServer}. Exiting." >> $LOG_FILE
+     ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Unable to make the ${SYNCDIR} directory on ${locServer}. Will not be sent." -s
+     exit
+fi
+echo ...finished. >> $LOG_FILE
+echo " " >> $LOG_FILE
+
 
 # move optimized netcdf file to the local rsync server.
 scp_success=0

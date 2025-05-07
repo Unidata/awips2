@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -32,6 +32,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
 import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.inventory.tree.CubeLevel;
@@ -45,18 +46,19 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.grid.inv.GridUpdater;
 
 /**
- * 
  * Provides a plugin based mechanism to add custom data to grid derived
  * parameters.
- * 
+ *
  * <pre>
  *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- -----------------
  * Aug 15, 2017  6332     bsteffen  Initial creation
- * 
+ * Oct 14, 2024  2037939  mapeters  Replace resolvePluginStaticData with more
+ *                                  general resolvePluginSpecifiedField
+ *
  * </pre>
  *
  * @author bsteffen
@@ -70,14 +72,14 @@ public interface GridExtension {
      * indicating that no descriptor specific customizations are necessary, in
      * which case the data will be loaded through the {@link DataCubeContainer}.
      */
-    public IDataRecord[] loadCustomData(GridRecord record,
-            IDescriptor descriptor) throws VizException;
+    IDataRecord[] loadCustomData(GridRecord record, IDescriptor descriptor)
+            throws VizException;
 
     /**
      * Modify the base grid {@link DataTree}. This method will generally add new
      * {@link AbstractBaseDataNode}s to the tree for a custom data type.
      */
-    public void addToBaseTree(DataTree dataTree,
+    void addToBaseTree(DataTree dataTree,
             Map<String, DerivParamDesc> derParLibrary);
 
     /**
@@ -87,34 +89,36 @@ public interface GridExtension {
      * that updates work for derived parameters. If the node type was not
      * created by this extension then null should be returned.
      */
-    public GridMapKey getUpdateKey(AbstractBaseDataNode node);
+    GridMapKey getUpdateKey(AbstractBaseDataNode node);
 
     /**
      * Handle a time query for a particular data source, implementation should
      * check the query to see if it applies to this extension and return null if
      * it does not.
-     * 
+     *
      * @see AbstractInventory#timeAgnosticQuery(Map)
      */
-    public Set<DataTime> timeInvariantQuery(
-            Map<String, RequestConstraint> query) throws VizException;
+    Set<DataTime> timeInvariantQuery(Map<String, RequestConstraint> query)
+            throws VizException;
 
     /**
      * Get the appropriate {@link MasterLevel} name to use for 3D data queries
      * against a particular source. If the source is not managed by a particular
      * extension then null should be returned.
      */
-    public String get3DMasterLevel(String model);
+    String get3DMasterLevel(String model);
 
     /**
      * Generate a cube node for a specific model.
      */
-    public LevelNode getCubeNode(String modelName,
+    LevelNode getCubeNode(String modelName,
             List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> cubeLevels);
 
     /**
-     * Resolve a static parameter.
+     * Resolve a plugin-specified field.
+     *
+     * @see AbstractInventory#resolvePluginSpecifiedField
      */
-    public Object resolvePluginStaticData(SourceNode sNode,
-            DerivParamField field, Level level);
+    Object resolvePluginSpecifiedField(SourceNode sourceNode, Level level,
+            DerivParamMethod method, DerivParamField field);
 }

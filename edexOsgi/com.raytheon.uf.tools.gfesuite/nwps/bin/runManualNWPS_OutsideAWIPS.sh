@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Last  Modified: 10/15/2015
+# Last  Modified: 11/04/2024
 # By: Pablo Santos and Joseph Maloney
 # Version: AWIPS 2 Version 16.2.1
 
@@ -177,7 +177,7 @@ logit "### CREATE THE WIND NETCDF FILE AND SEND OVER TO SWAN BOX FOR PROCESSING:
 logit "$Program -o $Output_File -d $DB -h $GFESERVER -g -p NWPSwind"
 $Program -o $Output_File -d $DB -h $GFESERVER -g -p NWPSwind | tee -a $logfile
 
-/usr/local/netcdf/bin/ncdump $Output_File > $textfile
+/awips2/netcdf/bin/ncdump $Output_File > $textfile
 sed -i "s/NWPSwind/Wind/g" $textfile
 cp $textfile ${NWPSLOCAL}/wcoss/${GFEDomainname}/${wcoss_textfile}
 chmod 666 ${NWPSLOCAL}/wcoss/${GFEDomainname}/${wcoss_textfile}

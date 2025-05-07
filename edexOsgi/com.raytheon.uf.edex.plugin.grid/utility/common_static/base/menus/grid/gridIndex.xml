@@ -55,6 +55,20 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </contribute>
+    <contribute xsi:type="subinclude" subMenu = "HiResW-ARW" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="HiResW-ARW" />
+             <substitute key="menuName" value="HiResW-ARW" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu = "HiResW-FV3" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="HiResW-FV3" />
+             <substitute key="menuName" value="HiResW-FV3" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
 <!-- Tiffany Meyer commented out because we aren't ignesting these models #20210507
 	<contribute xsi:type="subinclude" subMenu = "RAP 20km" 
              fileName="menus/grid/allFamilies.xml">

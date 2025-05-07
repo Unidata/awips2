@@ -103,6 +103,10 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * Sep 13, 2022 8792       mapeters   Added new methods to support combo editor
  * Oct 12, 2022 8946       mapeters   Added getCanvases(CanvasType)
  * May 11, 2023 2029803    mapeters   Add horizontal layout methods
+ * Sep 05, 2024 2037782    jsebahar   Remove the 2 panels that displayed DPA radar
+ *                                    and Dpa bias adjusted radar. Also removed menu
+ *                                    menu options for Supplemental data and
+ *                                    Adaptable params.
  *
  * </pre>
  *
@@ -157,25 +161,11 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
     /** Radar SP bias value */
     private String biasValue = null;
 
-    /** Raw SP Radar resource */
-    private DPAResource rawSPRadarRsc = null;
-
     /** Raw DP Radar resource */
     private DPAResource rawDPRadarRsc = null;
 
-    /** Bias Radar resource */
-    private DPAResource biasRadarRsc = null;
-
-    /** DPA top-of-hour datetime */
-    private Date dpaDate = null;
-
     /** DAA top-of-hour datetime */
     private Date daaDate = null;
-
-    /**
-     * Time used for the queries in the DPARadar and DPAAdapt tables
-     */
-    private Date dpaProductDateTime = null;
 
     /**
      * Time used for the query in the DAARadar table
@@ -204,13 +194,10 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
         biasValue = getBiasValue(radId);
 
         // this code is generating the TOH date/time (ex: 14:00)
-        dpaDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
         daaDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
 
-        dpaProductDateTime = RadarDataManager.getInstance()
-                .getClosestObstimeToTOH(radId, dpaDate, "DPARadar");
         daaProductDateTime = RadarDataManager.getInstance()
-                .getClosestObstimeToTOH(radId, daaDate, "DAARadar");
+                .getClosestObstimeToTOH(radId, daaDate);
 
     }
 
@@ -247,7 +234,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
         comp.setLayoutData(gd);
 
         createMenus();
-        createFourPanel(comp);
+        createTwoPanel(comp);
 
         createLowerLabels(comp);
     }
@@ -314,7 +301,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
         // Ignore Radar SP menu item
         boolean ignoreRadarSP = false;
         try {
-            ignoreRadarSP = radarDataManager.getIgnoreRadarSP(radId, dpaDate);
+            ignoreRadarSP = radarDataManager.getIgnoreRadarSP(radId, daaDate);
         } catch (VizException e) {
             statusHandler.error("Error getting Ignore SP Radar Flag from IHFS",
                     e);
@@ -330,7 +317,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
 
                 try {
                     int status = RadarDataManager.getInstance()
-                            .updateIgnoreRadarSP(radId, dpaDate, ignoreRadarSP);
+                            .updateIgnoreRadarSP(radId, daaDate, ignoreRadarSP);
                     if (status == 0) {
                         statusHandler.error(
                                 "Update of Ignore SP field not successful");
@@ -391,30 +378,6 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
             }
         });
 
-        // Display Adaptable Param menu item
-        MenuItem displayAdaptableParamMI = new MenuItem(optionsMenu, SWT.NONE);
-        displayAdaptableParamMI.setText("Display SP Adaptable Param");
-        displayAdaptableParamMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                DisplayDlg dlg = new DisplayDlg(shell, radId,
-                        dpaProductDateTime,
-                        ((MenuItem) event.getSource()).getText());
-                dlg.open();
-            }
-        });
-
-        // Display Supplemental Data menu item
-        MenuItem displaySuppDataMI = new MenuItem(optionsMenu, SWT.NONE);
-        displaySuppDataMI.setText("Display SP Supplemental Data");
-        displaySuppDataMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                DisplayDlg dlg = new DisplayDlg(shell, radId, dpaDate,
-                        ((MenuItem) event.getSource()).getText());
-                dlg.open();
-            }
-        });
     }
 
     /**
@@ -513,12 +476,12 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
     }
 
     /**
-     * Create the 4 panel display
+     * Create the 2 panel display
      *
      * @param mainComp
      *            The main composite of the dialog
      */
-    private void createFourPanel(Composite mainComp) {
+    private void createTwoPanel(Composite mainComp) {
         Composite paneComp = new Composite(mainComp, SWT.NONE);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 600;
@@ -564,7 +527,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
      * Initialize the maps.
      *
      * @param comp
-     *            The composite to hold the 4 panels
+     *            The composite to hold the 2 panels
      */
     private void initializeMaps() {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
@@ -590,18 +553,6 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
             List<Colorvalue> radCovColorSet = GetColorValues.get_colorvalues(
                     user_id, app_name, "RADCOV", 3600, "E", pColorSetGroup);
 
-            // Get the DPA Data
-
-            if (dpaProductDateTime == null) {
-                dpaProductDateTime = dpaDate;
-            }
-            String dpaFilename = radarManager.getDPAFileName(radId,
-                    dpaProductDateTime);
-            String dpaDirname = appsDefaults.getToken(DPA_GRID_DIR_TOKEN);
-
-            DPAFile dpaFile = new DPAFile(dpaDirname + "/" + dpaFilename);
-            dpaFile.setBiasValue(Double.parseDouble(biasValue));
-
             // Get the DAA Data
             if (daaProductDateTime == null) {
                 daaProductDateTime = daaDate;
@@ -622,20 +573,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
             RadarCoverageFile radCovFile = new RadarCoverageFile(
                     radCovDirname + "/" + radCovFilename);
 
-            // Pane 0 (SP radar display)
-            //
-            // note the following case :
-            // ignoreRadar flag for raw SP radar is set to ON and window is
-            // popped down
-            // then window is popped up (without rerunning MPEFieldGen)
-            // raw SP radar (pane 0) shows "Missing Data"
-            // if MPEFieldGen is rerun, then pane 0 will display raw SP radar
-            //
             int ngrd = radarManager.getNgrd(radId);
-
-            rawSPRadarRsc = new DPAResource(dpaFile, colorSet, radId,
-                    SingleSiteRadarType.RAW_SP_RADAR, ngrd);
-            panes[0].getDescriptor().getResourceList().add(rawSPRadarRsc);
 
             RadarGageOverlayRscData rscData = new RadarGageOverlayRscData(
                     "Precip Gages", null);
@@ -651,32 +589,22 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
             panes[0].getDescriptor().getResourceList().add(gageRsc,
                     gageResourceProperties);
 
-            // Pane 1 (DP radar display)
+            // Pane 0 (DP radar display)
 
             rawDPRadarRsc = new DPAResource(daaFile, colorSet, radId,
                     SingleSiteRadarType.RAW_DP_RADAR, ngrd);
 
-            panes[1].getDescriptor().getResourceList().add(rawDPRadarRsc);
-            panes[1].getDescriptor().getResourceList().add(gageRsc,
+            panes[0].getDescriptor().getResourceList().add(rawDPRadarRsc);
+            panes[0].getDescriptor().getResourceList().add(gageRsc,
                     gageResourceProperties);
 
-            // Pane 2 (MFB corrected SP radar display)
-
-            biasRadarRsc = new DPAResource(dpaFile, colorSet, radId,
-                    SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR,
-                    ngrd);
-
-            panes[2].getDescriptor().getResourceList().add(biasRadarRsc);
-            panes[2].getDescriptor().getResourceList().add(gageRsc,
-                    gageResourceProperties);
-
-            // Pane 3 (radar coverage map display)
+            // Pane 1 (radar coverage map display)
 
             RadarCoverageResource misbinRadarRsc = new RadarCoverageResource(
                     radCovFile, radCovColorSet, radId, ngrd);
 
-            panes[3].getDescriptor().getResourceList().add(misbinRadarRsc);
-            panes[3].getDescriptor().getResourceList().add(gageRsc,
+            panes[1].getDescriptor().getResourceList().add(misbinRadarRsc);
+            panes[1].getDescriptor().getResourceList().add(gageRsc,
                     gageResourceProperties);
 
             initOverlays();
@@ -796,7 +724,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
                     PixelOrientation.LOWER_LEFT);
 
             /* Get local hrap coordinate */
-            Rectangle localHrapExtent = rawSPRadarRsc.getExtent();
+            Rectangle localHrapExtent = rawDPRadarRsc.getExtent();
 
             int localX = (int) (hp.x - localHrapExtent.x);
             int localY = (int) (hp.y - localHrapExtent.y);
@@ -821,15 +749,6 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
              * locator popup
              */
             double value;
-            value = rawSPRadarRsc.getData()[localX][localY] / 100 / 25.4;
-            if (value >= 0) {
-                buffer.append("Raw SP Radar: " + String.format("%.3f", value)
-                        + " in");
-            } else {
-                buffer.append("Raw SP Radar: missing");
-            }
-
-            buffer.append(newLine);
 
             value = rawDPRadarRsc.getData()[localX][localY] / 100 / 25.4;
             if (value >= 0) {
@@ -839,15 +758,6 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
                 buffer.append("Raw DP Radar: missing");
             }
 
-            buffer.append(newLine);
-
-            value = biasRadarRsc.getData()[localX][localY] / 100 / 25.4;
-            if (value >= 0) {
-                buffer.append("Unbiased SP Radar: "
-                        + String.format("%.3f", value) + " in");
-            } else {
-                buffer.append("Unbiased SP Radar: missing");
-            }
             buffer.append(newLine);
 
             // code ported directly from OB9.X
@@ -933,7 +843,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog
      */
     private String getBiasValue(String radId) {
         MPERadarData radarData = MPEDataManager.getInstance()
-                .readSPRadarData(
+                .readDPRadarData(
                         MPEDisplayManager.getCurrent().getCurrentEditDate())
                 .get(radId);
         return String.format("%-1.2f", radarData.getRwBiasValUsed());

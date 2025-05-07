@@ -55,9 +55,9 @@
     #set($hycType = "A GLACIER-DAMMED LAKE OUTBURST")
     #set($floodReason = " Flooding due to a glacier-dammed lake outburst will continue.")
 #end
-#if(${list.contains(${bullets}, "smallstreams")})
+#if($bullets.contains("smallstreams"))
 	#set($advType = "FOR SMALL STREAMS ")
-#elseif(${list.contains(${bullets}, "urbansmallstreams")})
+#elseif($bullets.contains("urbansmallstreams"))
 	#set($advType = "FOR URBAN AREAS AND SMALL STREAMS ")
 #else
 	#set($advType = "")
@@ -180,13 +180,13 @@ ${expcanHLTag} #headlineLocList(${cancelareas} true true true false, "ALL")...
 ## EXPIRATION/CANCELLATION BODY      ##
 #######################################
 #if(${action}=="EXP" || ${action} == "CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
-#if(${list.contains(${bullets}, "recedingWater")} && ${list.contains(${bullets}, "rainEnded")})
+#if($bullets.contains("recedingWater") && $bullets.contains("rainEnded"))
 
 The heavy rain has ended and flood waters have receded, no longer posing a threat to life or property. Please continue to heed any road closures.
-#elseif(${list.contains(${bullets}, "recedingWater")})
+#elseif($bullets.contains("recedingWater"))
 
 Flood waters have receded, and are no longer expected to pose a threat to life or property. Please continue to heed any road closures.
-#elseif(${list.contains(${bullets}, "rainEnded")})
+#elseif($bullets.contains("rainEnded"))
 
 The heavy rain has ended, and flooding is no longer expected to pose a threat.
 #else
@@ -194,7 +194,7 @@ The heavy rain has ended, and flooding is no longer expected to pose a threat.
 !** The heavy rain has ended. !** OR **! The flood water is receding. Therefore, the flooding threat has ended. **!
 #end
 
-#printcoords(${areaPoly}, ${list})
+#printcoords(${areaPoly})
 
 
 $$
@@ -269,54 +269,54 @@ REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${lo
 ######## MAIN PARAGRAPH ###########
 ################################# 
 #set($rainAmount = "") 
-#if(${list.contains(${bullets}, "rain1")} )
+#if($bullets.contains("rain1") )
   #set($rainAmount = " Up to one inch of rain has already fallen.")   
 #end
-#if(${list.contains(${bullets}, "rain2")} )
+#if($bullets.contains("rain2") )
   #set($rainAmount = " Up to two inches of rain have already fallen.")   
 #end
-#if(${list.contains(${bullets}, "rain3")} )
+#if($bullets.contains("rain3") )
   #set($rainAmount = " Up to three inches of rain have already fallen.")   
 #end
-#if(${list.contains(${bullets}, "rainEdit")} )
+#if($bullets.contains("rainEdit") )
   #set($rainAmount = " !** RAINFALL AMOUNTS **! inches of rain have fallen.")   
 #end
 #set($reportBy = "!**YOU DID NOT SELECT A /SOURCE/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!")
-#if(${list.contains(${bullets}, "doppler")})
+#if($bullets.contains("doppler"))
   #set($reportBy = "Doppler radar indicated")
-#elseif(${list.contains(${bullets}, "dopplerGauge")})
+#elseif($bullets.contains("dopplerGauge"))
   #set($reportBy = "Doppler radar and automated rain gauges indicated")   
-#elseif(${list.contains(${bullets}, "satellite")})
+#elseif($bullets.contains("satellite"))
   #set($reportBy = "satellite estimates indicated")
-#elseif(${list.contains(${bullets}, "satelliteGauge")})
+#elseif($bullets.contains("satelliteGauge"))
   #set($reportBy = "satellite estimates and automated rain gauges indicated")
-#elseif(${list.contains(${bullets}, "onlyGauge")})
+#elseif($bullets.contains("onlyGauge"))
   #set($reportBy = "reporting gauges indicated") 
-#elseif(${list.contains(${bullets}, "trainedSpotters")})
+#elseif($bullets.contains("trainedSpotters"))
   #set($reportBy = "trained weather spotters reported")   
-#elseif(${list.contains(${bullets}, "lawEnforcement")})
+#elseif($bullets.contains("lawEnforcement"))
   #set($reportBy = "local law enforcement reported")   
-#elseif(${list.contains(${bullets}, "public")})
+#elseif($bullets.contains("public"))
   #set($reportBy = "the public reported")   
-#elseif(${list.contains(${bullets}, "emergencyManagement")})
+#elseif($bullets.contains("emergencyManagement"))
   #set($reportBy = "emergency management reported")   
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 ############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
-#if(${list.contains(${bullets},"stormPosition")})
+#if($bullets.contains("stormPosition"))
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 #set($phenom="")
 #set($waswere="was")
-#if(${stormType} == "line" && ${list.contains(${bullets}, "thunder")})
+#if(${stormType} == "line" && $bullets.contains("thunder"))
   #set($phenom="thunderstorms producing ")
   #set($waswere="were")
-#elseif(${list.contains(${bullets}, "thunder")})
+#elseif($bullets.contains("thunder"))
   #set($phenom="a thunderstorm producing ")
 #end
 , ${phenom}heavy rain ${waswere} located ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#handleClosestPoints(${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . Movement is stationary. ##
 #else
@@ -333,13 +333,13 @@ ${rainAmount}
 ###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
 #set($cityListLead = "Runoff from this excessive rainfall will cause ${floodType} to occur. ")
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), ##
-#if(${list.contains(${bullets}, "thunder")})
+#if($bullets.contains("thunder"))
 ${reportBy} slow moving thunderstorms with very heavy rainfall across the warned area.${rainAmount}${floodReason}
-#elseif(${list.contains(${bullets}, "plainRain")})
+#elseif($bullets.contains("plainRain"))
 ${reportBy} an area of very heavy rainfall across the warned area.${rainAmount}${floodReason}
-#elseif(${list.contains(${bullets}, "floodOccurring")})
+#elseif($bullets.contains("floodOccurring"))
 ${reportBy} ${floodType} across the warned area.${rainAmount}${floodReason} !** ENTER SPECIFIC REPORTS OF FLOODING AND EXPECTED RAINFALL AMOUNTS **!
-#elseif(${list.contains(${bullets}, "genericFlood")})
+#elseif($bullets.contains("genericFlood"))
 !** ENTER REASON AND FORECAST FOR FLOOD **!
 #else
 !** YOU DID NOT SELECT AN /EVENT/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING **!
@@ -351,7 +351,7 @@ ${reportBy} ${floodType} across the warned area.${rainAmount}${floodReason} !** 
 ######## (CITY LIST) #########
 ############################################
 ############# IF TRACK IS ENABLED AND trackStorm AND stormPosition BOTH SELECTED ###############################################
-#if(${list.contains(${bullets},"pathcast")} && ${list.contains(${bullets}, "stormPosition")})
+#if($bullets.contains("pathcast") && $bullets.contains("stormPosition"))
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
@@ -363,7 +363,7 @@ THIS IS A TEST MESSAGE. ##
 
 #end
 #end
-#if(${list.contains(${bullets}, "listofcities")})
+#if($bullets.contains("listofcities"))
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
@@ -379,15 +379,15 @@ THIS IS A TEST MESSAGE. ##
 ###### WHERE ADD INFO GOES ####
 ###############################
 
-#if(${list.contains(${bullets}, "addRainfall")})
+#if($bullets.contains("addRainfall"))
 Additional rainfall amounts of !** EDIT AMOUNT **! are possible in the warned area.
 
 #end
-#if(${list.contains(${bullets}, "specificStream")})
+#if($bullets.contains("specificStream"))
 Flood waters are moving down !**NAME OF CHANNEL**! from !**LOCATION**! to !**LOCATION**!. The flood crest is expected to reach !**LOCATION(S)**! by !**TIME(S)**!.
 
 #end
-#if(${list.contains(${bullets}, "drainages")})
+#if($bullets.contains("drainages"))
 #drainages(${riverdrainages})
 
 #end
@@ -412,55 +412,55 @@ Flood waters are moving down !**NAME OF CHANNEL**! from !**LOCATION**! to !**LOC
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
-#if(${list.contains(${bullets}, "TADD_CTA")})
+#if($bullets.contains("TADD_CTA"))
 Turn around, don't drown when encountering flooded roads. Most flood deaths occur in vehicles.
 
 #end
-#if(${list.contains(${bullets}, "actQuicklyCTA")})
+#if($bullets.contains("actQuicklyCTA"))
 Move to higher ground now. Act quickly to protect your life.
 
 #end
-#if(${list.contains(${bullets}, "childSafetyCTA")})
+#if($bullets.contains("childSafetyCTA"))
 Keep children away from storm drains, culverts, creeks and streams. Water levels can rise rapidly and sweep children away.
 
 #end
-#if(${list.contains(${bullets}, "nighttimeCTA")})
+#if($bullets.contains("nighttimeCTA"))
 Be especially cautious at night when it is harder to recognize the dangers of flooding. 
 
 #end
-#if(${list.contains(${bullets}, "urbanCTA")})
+#if($bullets.contains("urbanCTA"))
 Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, urban areas, highways, streets and underpasses as well as other drainage areas and low lying spots. 
 
 #end
-#if(${list.contains(${bullets}, "ruralCTA")})
+#if($bullets.contains("ruralCTA"))
 Excessive runoff from heavy rainfall will cause flooding of small creeks and streams, country roads, farmland, and other low lying spots.
 
 #end
-#if(${list.contains(${bullets}, "stayAwayCTA")})
+#if($bullets.contains("stayAwayCTA"))
 Stay away or be swept away. River banks and culverts can become unstable and unsafe. 
 
 #end
-#if(${list.contains(${bullets}, "lowSpotsCTA")})
+#if($bullets.contains("lowSpotsCTA"))
 In hilly terrain there are hundreds of low water crossings which are potentially dangerous in heavy rain. Do not attempt to cross flooded roads. Find an alternate route.
 
 #end
-#if(${list.contains(${bullets}, "arroyosCTA")})
+#if($bullets.contains("arroyosCTA"))
 Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
 
 #end
-#if(${list.contains(${bullets}, "burnAreasCTA")})
+#if($bullets.contains("burnAreasCTA"))
 Move away from recently burned areas. Life threatening flooding of creeks, roads and normally dry arroyos is likely. The heavy rains will likely trigger rockslides, mudslides and debris flows in steep terrain, especially in and around these areas.
 
 #end
-#if(${list.contains(${bullets}, "camperSafetyCTA")})
+#if($bullets.contains("camperSafetyCTA"))
 Flooding is occurring or is imminent. It is important to know where you are relative to streams, rivers, or creeks which can become killers in heavy rains. Campers and hikers should avoid streams or creeks.
 
 #end
-#if(${list.contains(${bullets}, "reportFloodingCTA")})
+#if($bullets.contains("reportFloodingCTA"))
 Please report flooding to your local law enforcement agency when you can do so safely. 
 
 #end
-#if(${list.contains(${bullets}, "warningMeansCTA")})
+#if($bullets.contains("warningMeansCTA"))
 A Flood Warning means that flooding is imminent or occurring. All interested parties should take necessary precautions immediately. 
 
 #end
@@ -477,7 +477,7 @@ A Flood Warning means that flooding is imminent or occurring. All interested par
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
-#printcoords(${areaPoly}, ${list})
+#printcoords(${areaPoly})
 
 
 $$

@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * Apr 20, 2017  6046     bsteffen    Throw more specific errors when getData is
  *                                    failing.
  * Aug 29, 2019  67962    tjensen     Update for GeneralGridData refactor
+ * Jul 15, 2024  2037624  mapeters    Extract code to new getFirstGridRecord()
  *
  * </pre>
  *
@@ -165,21 +166,23 @@ public class GridResource<T extends AbstractResourceData>
                 + record.getParameter().getName();
     }
 
-    public GridRecord getCurrentGridRecord() {
-        List<PluginDataObject> pdos = getCurrentPluginDataObjects();
+    protected GridRecord getFirstGridRecord(List<PluginDataObject> pdos) {
         if (pdos == null || pdos.isEmpty()) {
             return null;
         }
         return (GridRecord) pdos.get(0);
     }
 
+    public GridRecord getCurrentGridRecord() {
+        return getFirstGridRecord(getCurrentPluginDataObjects());
+    }
+
     public GridRecord getAnyGridRecord() {
         GridRecord record = getCurrentGridRecord();
         if (record == null) {
             for (DataTime time : getDataTimes()) {
-                List<PluginDataObject> pdos = getPluginDataObjects(time);
-                if (pdos != null && !pdos.isEmpty()) {
-                    record = (GridRecord) pdos.get(0);
+                record = getFirstGridRecord(getPluginDataObjects(time));
+                if (record != null) {
                     break;
                 }
             }

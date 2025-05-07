@@ -23,7 +23,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -88,6 +87,7 @@ import com.raytheon.viz.satellite.inventory.SatelliteInventory;
  * Mar 09, 2023  23414 mgamazaychikov Fix the handling of centalWaveLength functionality
  * Jul 13, 2023 2035927 mgamazaychikov Fix setting the time level value of pdos in update, and
  *                                     provide level type in setLevel method
+ * Jul 15, 2024  2037624  mapeters    Make invalidateAvailableTimesCache public
  *
  * </pre>
  *
@@ -114,9 +114,9 @@ public class SatResourceData extends AbstractRequestableResourceData {
     private DataTime latestDataTime;
 
     /**
-     * Listening SatResource instances that need to know about raw data updates to
-     * manage derived products.
-     * 
+     * Listening SatResource instances that need to know about raw data updates
+     * to manage derived products.
+     *
      * Reason for doing it this way - adding a resourceChanged handler that
      * unconditionally removes a DataTime will also be invoked by
      * D2DTimeMatcher.pruneUnusedData(), reverting the fix for DR 21057.
@@ -134,7 +134,8 @@ public class SatResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
         records = new SatelliteRecord[objects.length];
-        boolean cwf = metadataMap.containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
+        boolean cwf = metadataMap
+                .containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
         // only augment record's DataTime field for this special case
         for (int i = 0; i < objects.length; i++) {
             records[i] = (SatelliteRecord) objects[i];
@@ -152,8 +153,8 @@ public class SatResourceData extends AbstractRequestableResourceData {
         boolean issueAnUpdate = true;
         if (updateData instanceof PluginDataObject[]) {
             /*
-             * This is here because derived updates will send us records that we don't want,
-             * so filter them.
+             * This is here because derived updates will send us records that we
+             * don't want, so filter them.
              */
             PluginDataObject[] pdos = (PluginDataObject[]) updateData;
             Set<PluginDataObject> pdosToFilterOut = new LinkedHashSet<>();
@@ -164,11 +165,15 @@ public class SatResourceData extends AbstractRequestableResourceData {
 
             for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
                 try {
-                    Map<String, Object> pdoMap = RecordFactory.getInstance().loadMapFromUri(pdo.getDataURI());
-                    for (Entry<String, RequestConstraint> entry : metadataMap.entrySet()) {
-                        if (entry.getKey().equals(SatelliteDataCubeAdapter.DERIVED)) {
+                    Map<String, Object> pdoMap = RecordFactory.getInstance()
+                            .loadMapFromUri(pdo.getDataURI());
+                    for (Entry<String, RequestConstraint> entry : metadataMap
+                            .entrySet()) {
+                        if (entry.getKey()
+                                .equals(SatelliteDataCubeAdapter.DERIVED)) {
                             continue;
-                        } else if (entry.getKey().equals(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD)) {
+                        } else if (entry.getKey().equals(
+                                SatelliteInventory.CENTRAL_WAVELENGTH_FIELD)) {
                             RequestConstraint rc = entry.getValue();
                             SatelliteRecord sr = (SatelliteRecord) pdo;
                             Number cwfValue = sr.getCentralWavelength();
@@ -176,7 +181,8 @@ public class SatResourceData extends AbstractRequestableResourceData {
                                 pdosToFilterOut.add(pdo);
                                 continue;
                             } else {
-                                DataTime dtAugmented = levelAugmentedDataTime(sr);
+                                DataTime dtAugmented = levelAugmentedDataTime(
+                                        sr);
                                 pdo.setDataTime(dtAugmented);
                                 continue;
                             }
@@ -184,11 +190,14 @@ public class SatResourceData extends AbstractRequestableResourceData {
                         Object pdoItem = pdoMap.get(entry.getKey());
                         RequestConstraint rc = entry.getValue();
                         /*
-                         * Record Factory automatically replaces space with underscore, but some derived
-                         * parameters have underscore in them
+                         * Record Factory automatically replaces space with
+                         * underscore, but some derived parameters have
+                         * underscore in them
                          */
-                        String pdoItemStr = pdoItem.toString().replace(" ", "_");
-                        if (!(rc.evaluate(pdoItem) || rc.evaluate(pdoItemStr))) {
+                        String pdoItemStr = pdoItem.toString().replace(" ",
+                                "_");
+                        if ((!rc.evaluate(pdoItem)
+                                && !rc.evaluate(pdoItemStr))) {
                             DataTime time = pdo.getDataTime();
                             if (binOffset != null) {
                                 time = binOffset.getNormalizedTime(time);
@@ -198,12 +207,14 @@ public class SatResourceData extends AbstractRequestableResourceData {
                         }
                     }
                 } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
             }
 
             if (!pdosToFilterOut.isEmpty()) {
-                updateData = filterOutPdos((PluginDataObject[]) updateData, pdosToFilterOut);
+                updateData = filterOutPdos((PluginDataObject[]) updateData,
+                        pdosToFilterOut);
                 PluginDataObject[] pdosCopy = (PluginDataObject[]) updateData;
                 if (pdosCopy.length == 0) {
                     issueAnUpdate = false;
@@ -224,10 +235,12 @@ public class SatResourceData extends AbstractRequestableResourceData {
                     }
                 }
                 /*
-                 * Don't send updates for PDO's with invalidTimes, the time matcher will pull in
-                 * all the records including derived records.
+                 * Don't send updates for PDO's with invalidTimes, the time
+                 * matcher will pull in all the records including derived
+                 * records.
                  */
-                List<PluginDataObject> pdoList = new ArrayList<>(Arrays.asList(pdos));
+                List<PluginDataObject> pdoList = new ArrayList<>(
+                        Arrays.asList(pdos));
                 Iterator<PluginDataObject> it = pdoList.iterator();
                 while (it.hasNext()) {
                     DataTime t = it.next().getDataTime();
@@ -249,18 +262,21 @@ public class SatResourceData extends AbstractRequestableResourceData {
         }
         if (issueAnUpdate) {
             if (!isShowIncompleteFrames()
-                    && (updateData instanceof PluginDataObject || updateData instanceof PluginDataObject[])) {
+                    && (updateData instanceof PluginDataObject
+                            || updateData instanceof PluginDataObject[])) {
 
                 if (previousTimes != null) {
-                    List<DataTime> oldTimes = Arrays.asList(previousTimes.toArray(new DataTime[0]));
+                    List<DataTime> oldTimes = Arrays
+                            .asList(previousTimes.toArray(new DataTime[0]));
                     try {
                         super.invalidateAvailableTimesCache();
-                        List<DataTime> newTimes = new ArrayList<>(
-                                Arrays.asList(getAvailableTimes(metadataMap, binOffset)));
+                        List<DataTime> newTimes = new ArrayList<>(Arrays.asList(
+                                getAvailableTimes(metadataMap, binOffset)));
 
                         newTimes.removeAll(oldTimes);
                         if (newTimes.size() > 0) {
-                            PluginDataObject[] objs = requestPluginDataObjects(newTimes);
+                            PluginDataObject[] objs = requestPluginDataObjects(
+                                    newTimes);
                             List<PluginDataObject> newArray = new ArrayList<>();
                             if (objs != null && objs.length > 0) {
                                 newArray.addAll(Arrays.asList(objs));
@@ -268,20 +284,24 @@ public class SatResourceData extends AbstractRequestableResourceData {
 
                             if (updateData instanceof PluginDataObject) {
                                 newArray.add((PluginDataObject) updateData);
-                                updateData = newArray.toArray(new PluginDataObject[0]);
+                                updateData = newArray
+                                        .toArray(new PluginDataObject[0]);
                             } else if (updateData instanceof PluginDataObject[]) {
-                                newArray.addAll(Arrays.asList((PluginDataObject[]) updateData));
-                                updateData = newArray.toArray(new PluginDataObject[0]);
+                                newArray.addAll(Arrays.asList(
+                                        (PluginDataObject[]) updateData));
+                                updateData = newArray
+                                        .toArray(new PluginDataObject[0]);
                             }
                             invalidateAvailableTimesCache();
                         }
 
                     } catch (VizException e) {
-                        statusHandler.error("Problem recalculating new frames", e);
+                        statusHandler.error("Problem recalculating new frames",
+                                e);
                     }
                 }
             }
-            Set<Integer> gids = new HashSet<Integer>();
+            Set<Integer> gids = new HashSet<>();
             for (SatelliteRecord record : records) {
                 gids.add(record.getCoverage().getGid());
             }
@@ -314,18 +334,22 @@ public class SatResourceData extends AbstractRequestableResourceData {
                     objectsToSend.add(objectToSend);
                 }
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, "Error performing update: " + message.dataURI, e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error performing update: " + message.dataURI, e);
             }
         }
 
         if (!objectsToSend.isEmpty()) {
             Class<?> componentType = objectsToSend.get(0).getClass();
-            update(objectsToSend.toArray((Object[]) Array.newInstance(componentType, objectsToSend.size())));
+            update(objectsToSend.toArray((Object[]) Array
+                    .newInstance(componentType, objectsToSend.size())));
         }
     }
 
-    private Object filterOutPdos(PluginDataObject[] updateData, Set<PluginDataObject> pdosToFilterOutSet) {
-        Set<PluginDataObject> updateDataSet = new LinkedHashSet<>(Arrays.asList(updateData));
+    private Object filterOutPdos(PluginDataObject[] updateData,
+            Set<PluginDataObject> pdosToFilterOutSet) {
+        Set<PluginDataObject> updateDataSet = new LinkedHashSet<>(
+                Arrays.asList(updateData));
         updateDataSet.removeAll(pdosToFilterOutSet);
         return updateDataSet.toArray(new PluginDataObject[0]);
     }
@@ -376,25 +400,29 @@ public class SatResourceData extends AbstractRequestableResourceData {
             timeCache = new Pair<>(0l, new DataTime[0]);
         }
 
-        //extra flag to determine whether or not to use the cache
+        // extra flag to determine whether or not to use the cache
         boolean useCache = false;
 
-        /*Check if the latest DataTime that came in is more recent than the latest Cache time.
-         * If it is, cancel use the cache by setting useCache to 'false'.*/
+        /*
+         * Check if the latest DataTime that came in is more recent than the
+         * latest Cache time. If it is, cancel use the cache by setting useCache
+         * to 'false'.
+         */
         DataTime latestCacheTime = getLatestDataTime(timeCache.getSecond());
-        if (latestCacheTime == null || latestDataTime == null){
-            //anything null, don't cancel use of the cache
+        if (latestCacheTime == null || latestDataTime == null) {
+            // anything null, don't cancel use of the cache
             useCache = true;
-        }
-        else{
-            //true if latestCacheTime is >= latest time. Cached values are ok in this respect. Don't cancel.
-            useCache = !(latestDataTime.getRefTime().after(latestCacheTime.getRefTime()));
+        } else {
+            // true if latestCacheTime is >= latest time. Cached values are ok
+            // in this respect. Don't cancel.
+            useCache = !(latestDataTime.getRefTime()
+                    .after(latestCacheTime.getRefTime()));
         }
 
         if (timeCache.getFirst() != 0l && System.currentTimeMillis()
                 - timeCache.getFirst() > DEFAULT_CACHE_EXPIRATION) {
             invalidateAvailableTimesCache();
-        } else if (!(timeCache.getFirst() == 0l) && (timeCache != null)
+        } else if ((timeCache.getFirst() != 0l) && (timeCache != null)
                 && (timeCache.getSecond() != null) && useCache) {
             return timeCache.getSecond();
         }
@@ -411,28 +439,34 @@ public class SatResourceData extends AbstractRequestableResourceData {
             request.addRequestField("coverage.gid");
             request.setDistinct(true);
             // augment datatime request for central wavelength requests
-            if (constraintMap.containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD)) {
-                request.addRequestField(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
+            if (constraintMap
+                    .containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD)) {
+                request.addRequestField(
+                        SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
             }
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
             Map<DataTime, Integer> gidCounts = new HashMap<>();
             DataTime[] times = null;
             // augment datatime response for central wavelength requests
-            if (constraintMap.containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD)) {
-                List<DataTime> dtal = new ArrayList<DataTime>();
+            if (constraintMap
+                    .containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD)) {
+                List<DataTime> dtal = new ArrayList<>();
                 for (Map<String, Object> map : response.getResults()) {
-                    DataTime dtaug = null;
+                    DataTime dtaug;
                     dtaug = (DataTime) map.get(PluginDataObject.DATATIME_ID);
-                    Number cwl = (Number) map.get(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
+                    Number cwl = (Number) map
+                            .get(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
                     if (cwl != null) {
-                        dtaug.setLevel(cwl.doubleValue(), SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
+                        dtaug.setLevel(cwl.doubleValue(),
+                                SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
                     }
                     dtal.add(dtaug);
                 }
                 times = dtal.toArray(new DataTime[0]);
             } else {
-                times = response.getFieldObjects(PluginDataObject.DATATIME_ID, DataTime.class);
+                times = response.getFieldObjects(PluginDataObject.DATATIME_ID,
+                        DataTime.class);
             }
 
             int max = 1;
@@ -479,6 +513,7 @@ public class SatResourceData extends AbstractRequestableResourceData {
             return timeCache.getSecond();
         }
     }
+
     public boolean isShowIncompleteFrames() {
         return showIncompleteFrames;
     }
@@ -503,11 +538,14 @@ public class SatResourceData extends AbstractRequestableResourceData {
         return isIncompleteFrameSelectableProduct;
     }
 
+    @Override
     public PluginDataObject[] getLatestPluginDataObjects(DataTime[] desired,
             DataTime[] current) throws VizException {
-        PluginDataObject[] pdos = super.getLatestPluginDataObjects(desired, current);
+        PluginDataObject[] pdos = super.getLatestPluginDataObjects(desired,
+                current);
 
-        boolean cwf = metadataMap.containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
+        boolean cwf = metadataMap
+                .containsKey(SatelliteInventory.CENTRAL_WAVELENGTH_FIELD);
 
         // augment PDO's DataTime field for this special case
         if (cwf) {
@@ -519,12 +557,9 @@ public class SatResourceData extends AbstractRequestableResourceData {
                 pdo.setDataTime(sr.getDataTime());
             }
             List<PluginDataObject> pdoList = Arrays.asList(pdos);
-            Collections.sort(pdoList, new Comparator<PluginDataObject>() {
-                @Override
-                public int compare(PluginDataObject o1, PluginDataObject o2) {
-                    return o2.getDataTime().getLevelValue().compareTo(o1.getDataTime().getLevelValue());
-                }
-            });
+            Collections.sort(pdoList,
+                    (o1, o2) -> o2.getDataTime().getLevelValue()
+                            .compareTo(o1.getDataTime().getLevelValue()));
             return pdoList.toArray(new PluginDataObject[0]);
         } else {
             return pdos;
@@ -539,7 +574,8 @@ public class SatResourceData extends AbstractRequestableResourceData {
         }
         Double level = record.getCentralWavelength().doubleValue();
         if (level != null) {
-            // Using Level.INVALID_VALUE constant here since DataTime default value
+            // Using Level.INVALID_VALUE constant here since DataTime default
+            // value
             // is modeled after it. In the future will need to do it explicitly.
             if (level != Level.INVALID_VALUE) {
                 dt = dt.clone();
@@ -550,7 +586,7 @@ public class SatResourceData extends AbstractRequestableResourceData {
     }
 
     @Override
-    protected void invalidateAvailableTimesCache() {
+    public void invalidateAvailableTimesCache() {
         synchronized (satelliteTimeCache) {
             satelliteTimeCache.clear();
         }
@@ -564,38 +600,38 @@ public class SatResourceData extends AbstractRequestableResourceData {
 
     }
 
-    private void updateLatestDataTime(PluginDataObject[] times){
-        /*find the latest datatime and store it */
+    private void updateLatestDataTime(PluginDataObject[] times) {
+        /* find the latest datatime and store it */
 
-        if (times == null || times.length == 0){
-           return;
+        if (times == null || times.length == 0) {
+            return;
         }
 
         DataTime latest = times[0].getDataTime();
-        for (PluginDataObject pdo: times){
+        for (PluginDataObject pdo : times) {
             DataTime curr = pdo.getDataTime();
-            if (curr.getRefTime().after(latest.getRefTime())){
+            if (curr.getRefTime().after(latest.getRefTime())) {
                 latest = curr;
             }
         }
 
-        if (latestDataTime == null){
+        if (latestDataTime == null) {
             latestDataTime = latest;
         } else {
-            if (this.latestDataTime.getRefTime().before(latest.getRefTime())){
+            if (this.latestDataTime.getRefTime().before(latest.getRefTime())) {
                 this.latestDataTime = latest;
             }
         }
     }
 
-    private DataTime getLatestDataTime(DataTime[] times){
+    private DataTime getLatestDataTime(DataTime[] times) {
 
-        if (times == null || times.length  == 0){
+        if (times == null || times.length == 0) {
             return null;
         }
         DataTime latest = times[0];
-        for (DataTime dt: times){
-            if (dt.getRefTime().after(latest.getRefTime())){
+        for (DataTime dt : times) {
+            if (dt.getRefTime().after(latest.getRefTime())) {
                 latest = dt;
             }
         }
@@ -612,8 +648,8 @@ public class SatResourceData extends AbstractRequestableResourceData {
     }
 
     /**
-     * Remove a SatResource from the list of resources to be notified of invalidated
-     * derived product data times.
+     * Remove a SatResource from the list of resources to be notified of
+     * invalidated derived product data times.
      */
     public void removeSatResource(SatResource res) {
         satResources.remove(res);

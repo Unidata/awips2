@@ -28,6 +28,17 @@ echo "0=$AWIPSII_VERSION-$AWIPSII_RELEASE
 1=$AWIPSII_BUILD_DATE
 2=$AWIPSII_BUILD_SYS">/awips2/repo/awips2/cave/com.raytheon.viz.product.awips/about.mappings
 
+#Set EDEX Banner
+echo "**************************************************
+* Unidata AWIPS EDEX ESB Platform                *
+* Version: $AWIPSII_VERSION-$AWIPSII_RELEASE                              *
+* UCAR NSF Unidata Program Center                *
+*------------------------------------------------*
+* NON-OPERATIONAL                                *
+*                                                *
+*                                                *
+**************************************************">/awips2/repo/awips2/build/deploy.edex.awips2/esb/conf/banner.txt
+
 # If local source directories, exist, mount them to the container
 if [ $rpmname = "buildCAVE" ]; then
   for dn in `cat build/repos| grep -v static| grep -v nativelib |grep -v awips2-rpm`
@@ -81,10 +92,8 @@ if [[ $(whoami) == "awips" ]]; then # local build
   sudo rsync -aP ${nwsPath}/awips2-postgis* ${nwsPath}/awips2-python-proj* ${nwsPath}/awips2-python-pyproj* /awips2/repo/awips2/dist/${os_version}-dev-${date}/x86_64/
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
-  echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@mochrie:/share/awips2/${AWIPSII_VERSION}/linux/"
-  rsync -aP dist/${os_version}-dev-${date} tiffanym@mochrie:/share/awips2/${AWIPSII_VERSION}/linux/
-  cmd="cd /share/awips2/${AWIPSII_VERSION}/linux ; find ${os_version}-dev-${date} -type f | ../../git_nexus_tool/nexus-tools/bash/nexus-upload.sh -t downloads -u tiffanym -o awips2 -v ${AWIPSII_VERSION}/linux/rpms/"
-  echo "Need to run ssh tiffanym@mochrie '${cmd}' and provide -p [password]"
+  echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@downloads:/mnt/downloads/awips2/${AWIPSII_VERSION}/linux/rpms/"
+  rsync -aP dist/${os_version}-dev-${date} tiffanym@downloads:/mnt/downloads/awips2/${AWIPSII_VERSION}/linux/rpms/
 
   #rsync -aP dist/${os_version}-dev-${date} awips@edex3:/awips2/dev
   #rsync -aP dist/${os_version}-dev-${date} awips@hardy:/awips2/dev

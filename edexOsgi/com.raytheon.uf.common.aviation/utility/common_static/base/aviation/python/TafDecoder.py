@@ -32,6 +32,8 @@
 #                                                 conform to most recent 10-813 instructions, overall code cleanup and
 #                                                 additional documentation.
 #    Aug 15, 2022    DCS 23235     m. oberfield   Commented out PROB30 nine-hour check
+#    Nov 02, 2023    DR 2036443    m. oberfield   Fixed NIL TAF issues at WFO SJU
+#    Feb 27, 2024    DR 2036979    m. oberfield   Added new check for superfluous zero
 #
 ##
 # This is a base file that is not intended to be overridden.
@@ -101,8 +103,10 @@ class Warning1(Exception):
 _Errors = {
     0: """Missing terminating blank""",
     1: """Space required between whole number and fraction
-(NWSI 10-813, Appendix B2.6)""",
+(NWSI 10-813, Appendix B, 2.5)""",
     2: """Missing weather in this group""",
+    3: """No valid period group in NIL TAF
+(NWSI 10-813, Appendix B, 2.3; Appendix E1, Line 2)""",
 
     100: """Invalid datetime format""",
     101: """Invalid end hour""",
@@ -113,9 +117,9 @@ _Errors = {
     107: """The duration of a TAF shall not exceed 30 hours""",
     109: """Bad TEMPO/PROB group duration""",
     111: """The duration of a TEMPO group shall not exceed four
-hours (NWSI 10-813, Appendix B, 2.9.3)""",
+hours (NWSI 10-813, Section 4.12)""",
     113: """The duration of a PROB group shall not exceed six
-hours (NWSI 10-813, Appendix B, 2.9.4)""",
+hours (NWSI 10-813, Section 4.12)""",
     115: """Valid time of FM group must be greater than the
 start time of the TAF or the previous FM group""",
     117: """Valid time must be greater or equal to the valid
@@ -124,7 +128,6 @@ time of previous TEMPO or PROB group""",
 equal to the valid time of prevailing FM group""",
 
     120: """Invalid value of wind direction""",
-    121: """Invalid value of wind speed""",
     122: """Wind gust <= wind speed""",
     123: """Superfluous zero for wind speed""",
     125: """Variable wind speed must be less than 7 knots when no
@@ -135,7 +138,7 @@ Appendix E4)""",
     130: """Invalid value of visibility (NWSI 10-813, Appendix B,
 2.5)""",
     131: """Visibility above 6 statute miles shall be encoded as
-P6SM (NWSI 10-813, Appendix B2.6)""",
+P6SM (NWSI 10-813, Appendix B, 2.6)""",
     132: """Visibility <= 6SM requires forecast of significant
 weather (NWSI 10-813, Appendix B, 2.5)""",
 
@@ -170,7 +173,7 @@ E, E4)""",
 
     165: """NSW not needed""",
     166: """NSW shall not be used in the initial forecast and FM
-groups (NWSI 10-813, Appendix B2.6)""",
+groups (NWSI 10-813, Appendix B, 2.6)""",
     167: """P6SM needed with NSW in this group (NWSI 10-813,
 Appendix B, 2.6)""",
     168: """Consecutive NSW groups are not permitted (NWSI 10-813,
@@ -200,8 +203,6 @@ valid time""",
 
     200: """Only PROB30 groups are allowed (NWSI 10-813,
 Appendix B, 2.9.4)""",
-    201: """The PROB group shall not be used in the first nine
-hours of the forecast (NWSI 10-813, Appendix B, 2.9.4)""",
     240: """No more than three precip contractions can be combined
 in a group without spaces. (NWSI 10-813, Appendix B, 2.6)""",
     241: """Seriously? (NWSI 10-813, Appendix E, E3 Footnote #2)""",
@@ -235,6 +236,8 @@ should be used""",
 only when absolutely necessary (NWSI 10-813, Appendix B, 2.6)""",
     42: """Suspicious precipitation intensity with visibility
 value""",
+    44: """Use of more than two precipitation types is discouraged
+(NWSI 10-813, Appendix B, 2.6)""",
     70: """Sky forecast should not exceed three cloud layers
 (NWSI 10-813, Appendix B, 2.7.1)""",
     80: """Suspicious value of low-level wind shear speed""",
@@ -534,7 +537,7 @@ Return list: [prev, other]"""
         n += 2
 
     tokens = [s[:n + 2]]
-    tokens.extend(re.findall('..', s[n + 2:]))
+    tokens.extend(re.findall(r'\w\w', s[n + 2:]))
 
     return tokens
 
@@ -651,7 +654,7 @@ class Decoder(tpg.Parser):
         self.bad = {}
         #
         # strip trailing '=' and anything else
-        taf  = raw.partition('=')[0]
+        taf = raw.partition('=')[0]
         #
         # The parser proceeds to decode the TAF line-by-line. Each
         # line consist of several possible meteorological parameters,
@@ -693,6 +696,9 @@ class Decoder(tpg.Parser):
             else:
                 return {'index': self.bad['index'],
                         'fatal': ['Unexpected end after %s' % self.bad['text']]}
+
+        except tpg.SemanticError:
+            return self._taf
 
         except Exception:
             #
@@ -852,6 +858,8 @@ class Decoder(tpg.Parser):
                 if k in self._group:
                     add_msg(self._group[k], 'error', e)
                     break
+        except Warning1 as e:
+            add_msg(self._group['pcp'], 'warning', e)
 
         if any([x in updated_elements for x in self.precipSet | {'vsby'}]):
             try:
@@ -1082,10 +1090,19 @@ class Decoder(tpg.Parser):
         #
         # Count standalone thunderstorm as w'w'
         ww_cnt = 1 if 'tstm' in g else 0
-        if ww_cnt == 1 and 'TS' in g['pcp']['str']:
-            raise Error(_Errors[141])
-        #
         try:
+            if ww_cnt == 1 and 'TS' in g['pcp']['str']:
+                raise Error(_Errors[141])
+        except KeyError:
+            pass
+
+        try:
+            pcp = []
+            pcp_cnt = 0
+            for x in g['pcp']['str'].split():
+                pcp.extend(get_pcp_list(x))
+
+            pcp_cnt = len(pcp)
             ww_cnt += len(g['pcp']['str'].split(' '))
         except KeyError:
             pass
@@ -1102,6 +1119,9 @@ class Decoder(tpg.Parser):
 
         if ww_cnt > 3:
             raise Error(_Errors[142])
+
+        if pcp_cnt > 2:
+            raise Warning1(_Warnings[44])
 
     def check_cb_tstm(self, g):
         # NWSI 10-813, B2.7.3
@@ -1242,6 +1262,16 @@ class Decoder(tpg.Parser):
         if not self.tokenOK():
             add_msg(d, 'error', 0)
 
+    def nil(self):
+        """Note NIL keyword"""
+        self._nil = True
+        try:
+            add_msg(self._taf['vtime'], 'error', 3)
+            raise tpg.SemanticError(_Errors[3])
+
+        except KeyError:
+            pass
+
     def vtime(self, s):
         """Store time period of validity"""
         d = self._group['time'] = {'str': s, 'index': self.index()}
@@ -1359,8 +1389,7 @@ class Decoder(tpg.Parser):
         """Store start time of a new TEMPO group"""
         d = self._group['time'] = {'str': s, 'index': self.index()}
         tmp = s.split()[1]
-        sday, shour, eday, ehour = int(tmp[:2]), int(tmp[2:4]),\
-            int(tmp[5:7]), int(tmp[7:9])
+        sday, shour, eday, ehour = int(tmp[:2]), int(tmp[2:4]), int(tmp[5:7]), int(tmp[7:9])
         #
         # Catch forecaster typos
         if not 0 <= shour < 24:
@@ -1422,8 +1451,7 @@ class Decoder(tpg.Parser):
             add_msg(d, 'error', 200)
 
         tmp = s.split()[1]
-        sday, shour, eday, ehour = int(tmp[:2]), int(tmp[2:4]),\
-            int(tmp[5:7]), int(tmp[7:9])
+        sday, shour, eday, ehour = int(tmp[:2]), int(tmp[2:4]), int(tmp[5:7]), int(tmp[7:9])
         #
         # Catch forecaster typos
         if not 0 <= shour < 24:
@@ -1454,10 +1482,6 @@ class Decoder(tpg.Parser):
         # If PROB group ends after TAF ends
         if d['to'] > self._taf['vtime']['to']:
             add_msg(d, 'error', 106)
-        #
-        # PROB group cannot appear in the first 9 hours of TAF
-        #if d['from'] < 9 * 3600.0 + self._taf['vtime']['from']:
-        #    add_msg(d, 'error', 201)
         #
         # PROB group cannot exceed 6 hours in length
         if d['to'] - d['from'] > 21600.0:
@@ -1526,9 +1550,6 @@ class Decoder(tpg.Parser):
             tok = s[3:-2].split('G', 1)
             ff = d['ff'] = int(tok[0])
 
-            if ff > 199:
-                raise Error(_Errors[121])
-
             if len(tok) > 1:
                 gg = d['gg'] = int(tok[1])
                 if gg <= ff:
@@ -1543,6 +1564,9 @@ class Decoder(tpg.Parser):
                 if (dd % 10 != 0 or dd > 360 or ff == 0 and dd != 0 or
                         ff > 0 and dd == 0):
                     raise Error(_Errors[120])
+
+            if len(tok[0]) == 3 and tok[0][0] == '0':
+                raise Error(_Errors[123])
 
             if ff > 99:
                 raise Warning1(_Warnings[20])
@@ -1727,9 +1751,10 @@ class Decoder(tpg.Parser):
             add_msg(self._taf['amd'], 'error', 190)
 
     def _updateIssueValidTimes(self, bbb, fcst):
-
-        TafIdent = re.compile(r'(?P<ident>[KTPN]\w{3})\s+\d{6}Z\s+\d{4}/(?P<evtime>\d{4})\s+')
+        #
         # Updates issuance and valid times in a forecast
+        # However, valid time periods are not always present, hence optional
+        TafIdent = re.compile(r'(?P<ident>[KTPN]\w{3})\s+\d{6}Z\s+(\d{4}/(?P<evtime>\d{4}))?')
         t = time.time()
         itime = AvnLib.getFmtIssueTime(bbb, t)
 
@@ -1744,14 +1769,15 @@ class Decoder(tpg.Parser):
             else:
                 tafDuration = 24
 
-            if result:
+            if result.group('evtime') is not None:
                 vtime = AvnLib.getFmtValidTime(bbb, None, tafDuration=tafDuration,
                                                evtime=result.group('evtime'))[4:]
+                return re.sub(r' (DD|\d{2})\d{4}Z [/D\d]{6,9} ',
+                              ' %s %s ' % (itime, vtime), fcst, 1)
+            #
+            # If processing a NIL TAF, only the issuance time is present
             else:
-                vtime = AvnLib.getFmtValidTime(bbb, None, tafDuration)[4:]
-
-            return re.sub(r' (DD|\d{2})\d{4}Z [/D\d]{6,9} ',
-                          ' %s %s ' % (itime, vtime), fcst, 1)
+                return re.sub(r' (DD|\d{2})\d{4}Z ', ' %s ' % itime, fcst, 1)
 
     def splitBulletin(self, text):
 

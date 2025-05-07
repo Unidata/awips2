@@ -19,16 +19,18 @@
  **/
 package com.raytheon.uf.viz.grid.radar;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.RadarRecord.ScanType;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.inventory.TimeAndSpace;
@@ -38,10 +40,17 @@ import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.radar.ui.RadarDisplayManager;
+import com.raytheon.viz.radar.util.RadarAsGridUtil;
 
 /**
+ * A node which fulfills radar time and data requests by going to EDEX.
  *
- * A basic node which fulfills time and data requests by going to edex.
+ * This can be passed standard radar parameter abbreviations (RR) or their
+ * virtual volume versions (RRvirt). For the virtual volume versions, this
+ * filters to only {@link ScanType#NORMAL} scan data and uses a virtual volume
+ * for the latest volume scan (blends higher tilts from the previous volume scan
+ * into the current volume scan).
  *
  * <pre>
  *
@@ -54,19 +63,27 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jul 07, 2021  8576     randerso  Changed RadarAdapter to support multiple
  *                                  local radars as defined in radarsInUse.txt
  * Jul 28, 2021  8611     randerso  Use RadarRequestableDataFactory
+ * May 22, 2024  2037092  mapeters  Add virtual volume support, build constraint
+ *                                  map internally
+ * Sep 16, 2024  2037941  mapeters  Don't cache virtual availability
  *
  * </pre>
- *
  */
 public class RadarRequestableLevelNode extends AbstractBaseDataNode {
 
-    protected static final String TIME_FIELD = "dataTime";
+    protected final String icao;
 
-    protected Map<String, RequestConstraint> rcMap;
+    protected final int productCode;
 
-    protected String paramAbbrev;
+    protected final double tilt;
 
-    protected String paramName;
+    protected final String paramAbbrev;
+
+    protected final String standardParamAbbrev;
+
+    protected final String paramName;
+
+    protected final Map<String, RequestConstraint> rcMap;
 
     /**
      * Copy constructor
@@ -75,37 +92,55 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
      */
     public RadarRequestableLevelNode(RadarRequestableLevelNode that) {
         super(that);
-        this.rcMap = that.rcMap;
+        this.icao = that.icao;
+        this.productCode = that.productCode;
+        this.tilt = that.tilt;
         this.paramAbbrev = that.paramAbbrev;
+        this.standardParamAbbrev = that.standardParamAbbrev;
         this.paramName = that.paramName;
+        this.rcMap = that.rcMap;
     }
 
     /**
      * Create a new requestable Level Node that is LevelNode clone of that and
-     * uses rcMap for all Requests
+     * creates a request constraint map from the parameters to use for all
+     * requests.
      *
      * @param that
-     * @param rcMap
+     * @param icao
+     * @param productCode
+     * @param paramAbbrev
+     * @param paramName
      */
-    public RadarRequestableLevelNode(LevelNode that,
-            Map<String, RequestConstraint> rcMap, String paramAbbrev,
-            String paramName) {
+    public RadarRequestableLevelNode(LevelNode that, String icao,
+            int productCode, String paramAbbrev, String paramName) {
         super(that);
-        this.rcMap = rcMap;
+        this.icao = icao;
+        this.productCode = productCode;
+        this.tilt = that.getLevel().getLevelonevalue();
         this.paramAbbrev = paramAbbrev;
+        this.standardParamAbbrev = RadarAsGridUtil
+                .getStandardParamAbbrev(paramAbbrev);
         this.paramName = paramName;
+
+        this.rcMap = buildRcMap(icao, productCode, tilt);
     }
 
-    /**
-     * @param rcMap
-     *            the rcMap to set
-     */
-    public void setRequestConstraintMap(Map<String, RequestConstraint> rcMap) {
-        this.rcMap = rcMap;
-    }
-
-    public Map<String, RequestConstraint> getRequestConstraintMap() {
-        return rcMap;
+    protected Map<String, RequestConstraint> buildRcMap(String icao,
+            int productCode, double tilt) {
+        Map<String, RequestConstraint> rcMap = new HashMap<>();
+        rcMap.put(RadarAdapter.PLUGIN_NAME_QUERY,
+                new RequestConstraint(RadarAdapter.RADAR_SOURCE));
+        rcMap.put(RadarAdapter.ICAO_QUERY, new RequestConstraint(icao));
+        rcMap.put(RadarAdapter.PRODUCT_CODE_QUERY,
+                new RequestConstraint(Integer.toString(productCode)));
+        rcMap.put(RadarAdapter.TILT_QUERY,
+                new RequestConstraint(Double.toString(tilt)));
+        if (isVirtualVolume()) {
+            rcMap.put(RadarAdapter.SCAN_TYPE_QUERY,
+                    new RequestConstraint(ScanType.NORMAL.name()));
+        }
+        return Collections.unmodifiableMap(rcMap);
     }
 
     @Override
@@ -120,64 +155,112 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
             throws DataCubeException {
         Set<TimeAndSpace> resultsSet = RadarUpdater.getInstance()
                 .getTimes(this);
-        if (resultsSet != null) {
-            return resultsSet;
-        }
-
-        DataTime[] results;
-        try {
-            results = CatalogQuery.performTimeQuery(rcMap, false, null);
-        } catch (VizException e) {
-            throw new DataCubeException(e);
-        }
-        if (results != null) {
-            String icao = rcMap.get(RadarAdapter.ICAO_QUERY)
-                    .getConstraintValue();
-            resultsSet = new HashSet<>(results.length);
-            for (DataTime result : results) {
-                resultsSet.add(new TimeAndSpace(result,
+        if (resultsSet == null) {
+            DataTime[] times;
+            try {
+                times = CatalogQuery.performTimeQuery(rcMap, false, null);
+            } catch (VizException e) {
+                throw new DataCubeException(e);
+            }
+            resultsSet = new HashSet<>(times.length);
+            for (DataTime time : times) {
+                resultsSet.add(new TimeAndSpace(time,
                         RadarAdapter.getInstance().getCoverage(icao)));
             }
             RadarUpdater.getInstance().setTimes(this, resultsSet);
-            return resultsSet;
-        } else {
-            return null;
         }
+
+        /*
+         * Virtual availability isn't cached because it would be messy to handle
+         * the case where the first tilt comes in for a new volume scan, which
+         * may make higher tilts virtually available for that scan as well.
+         */
+        RadarVirtualTimeAndSpace virtualAvailability = getVirtualAvailability();
+        if (virtualAvailability != null) {
+            /*
+             * Ensure tilt is actually available for the previous scan in order
+             * to be blended into the current one
+             */
+            if (resultsSet.stream().anyMatch(tas -> tas.getTime()
+                    .equals(virtualAvailability.getPrevScanTime()))) {
+                resultsSet = new HashSet<>(resultsSet);
+                resultsSet.add(virtualAvailability);
+            }
+        }
+        return resultsSet;
     }
 
     @Override
     public DbQueryRequest getDataRequest(
-            Map<String, RequestConstraint> orignalConstraints,
-            Set<TimeAndSpace> availability) {
+            Map<String, RequestConstraint> originalConstraints,
+            Set<TimeAndSpace> requestedAvailability) {
         Map<String, RequestConstraint> newQuery = new HashMap<>(rcMap);
         DbQueryRequest dbRequest = new DbQueryRequest();
-        RequestConstraint dtRC = new RequestConstraint();
-        dtRC.setConstraintType(ConstraintType.IN);
-        for (TimeAndSpace ast : availability) {
-            dtRC.addToConstraintValueList(ast.getTime().toString());
+
+        RadarVirtualTimeAndSpace virtualAvailability = getVirtualAvailability();
+        Set<DataTime> times = new HashSet<>();
+        for (TimeAndSpace ast : requestedAvailability) {
+            if (virtualAvailability != null
+                    && virtualAvailability.getTime().equals(ast.getTime())) {
+                /*
+                 * We want to request data for the current volume scan, which
+                 * isn't actually available. Request the previous volume scan
+                 * data instead, so that we can create a virtual record from
+                 * that data in getData().
+                 */
+                times.add(virtualAvailability.getPrevScanTime());
+            } else {
+                times.add(ast.getTime());
+            }
         }
-        newQuery.put("dataTime", dtRC);
-        newQuery.put("pluginName", new RequestConstraint("radar"));
+
+        String[] timeStrs = times.stream().map(DataTime::toString)
+                .toArray(String[]::new);
+        newQuery.put(PluginDataObject.DATATIME_ID,
+                new RequestConstraint(timeStrs));
+
         dbRequest.setConstraints(newQuery);
         return dbRequest;
     }
 
     @Override
     public Set<AbstractRequestableData> getData(
-            Map<String, RequestConstraint> orignalConstraints,
-            Set<TimeAndSpace> availability, Object response)
+            Map<String, RequestConstraint> originalConstraints,
+            Set<TimeAndSpace> requestedAvailability, Object response)
             throws DataCubeException {
-        List<Map<String, Object>> rows = ((DbQueryResponse) response)
-                .getResults();
-        Set<AbstractRequestableData> rval = new HashSet<>(rows.size());
-        // switch to GribRequestableData and build a grib record from the radar
-        // record... won't work because of the get data call, can't be a
-        // GribRecord, needs to call getDataValue on Requestable
-        for (Map<String, Object> objMap : rows) {
+        Set<AbstractRequestableData> rval = new HashSet<>();
+
+        RadarVirtualTimeAndSpace virtualAvailability = getVirtualAvailability();
+        for (RadarRecord record : ((DbQueryResponse) response)
+                .getEntityObjects(RadarRecord.class)) {
             try {
-                rval.add(RadarRequestableDataFactory.getInstance()
-                        .getRadarRequestableData((RadarRecord) objMap.get(null),
-                                paramAbbrev));
+                RadarRequestableData rrd = RadarRequestableDataFactory
+                        .getInstance()
+                        .getRadarRequestableData(record, standardParamAbbrev);
+                if (isVirtualVolume()) {
+                    /*
+                     * Wrap without any virtual time, just so that the data uses
+                     * the virtual volume parameter version
+                     */
+                    rval.add(new RadarVirtualVolumeRequestableData(null, rrd));
+                } else {
+                    rval.add(rrd);
+                }
+
+                if (virtualAvailability != null
+                        && virtualAvailability.getPrevScanTime()
+                                .equals(record.getDataTime(), true)
+                        && requestedAvailability.stream()
+                                .anyMatch(a -> a.getTime().equals(
+                                        virtualAvailability.getTime()))) {
+                    /*
+                     * This record is for the previous scan and the current scan
+                     * was requested, create a virtual data record so that the
+                     * previous scan data gets blended in the current scan.
+                     */
+                    rval.add(new RadarVirtualVolumeRequestableData(
+                            virtualAvailability.getTime(), rrd));
+                }
             } catch (VizException e) {
                 throw new DataCubeException(e);
             }
@@ -185,8 +268,57 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
         return rval;
     }
 
+    /**
+     * Return a virtual time and space if this tilt's data from the previous
+     * volume scan should be included in the latest virtual volume. This does
+     * not check if this tilt is actually available for the previous scan.
+     *
+     * @return virtual availability if we should attempt to blend this tilt into
+     *         the virtual volume, null otherwise
+     */
+    protected RadarVirtualTimeAndSpace getVirtualAvailability() {
+        if (!isVirtualVolume() || !RadarDisplayManager.getInstance()
+                .getCurrentSettings().isVirtualVolumeEnabled()) {
+            return null;
+        }
+
+        VirtualVolumeInfo virtualVolumeInfo = RadarVolumeScanTracker
+                .getInstance(icao, standardParamAbbrev).getVirtualVolumeInfo();
+        if (virtualVolumeInfo != null) {
+            DataTime latestScan = virtualVolumeInfo.getLatestVolumeScan();
+            DataTime prevScan = virtualVolumeInfo.getPrevVolumeScan();
+            /*
+             * Only tilts in the previous scan that are higher than the current
+             * scan's latest tilt are included in the virtual volume. This is
+             * primarily because it would be difficult to indicate in the
+             * product display/legend that individual tilts are being included.
+             */
+            if (tilt > virtualVolumeInfo.getLatestTilt()) {
+                return new RadarVirtualTimeAndSpace(latestScan,
+                        RadarAdapter.getInstance().getCoverage(icao), prevScan);
+            }
+        }
+        return null;
+    }
+
+    public String getIcao() {
+        return icao;
+    }
+
+    public int getProductCode() {
+        return productCode;
+    }
+
+    public double getTilt() {
+        return tilt;
+    }
+
     public String getParamAbbrev() {
         return paramAbbrev;
+    }
+
+    public boolean isVirtualVolume() {
+        return RadarAsGridUtil.isVirtualVolume(paramAbbrev);
     }
 
     @Override
@@ -198,7 +330,8 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((rcMap == null) ? 0 : rcMap.hashCode());
+        result = prime * result + Objects.hash(icao, paramAbbrev, paramName,
+                productCode, rcMap, standardParamAbbrev, tilt);
         return result;
     }
 
@@ -214,13 +347,14 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
             return false;
         }
         RadarRequestableLevelNode other = (RadarRequestableLevelNode) obj;
-        if (rcMap == null) {
-            if (other.rcMap != null) {
-                return false;
-            }
-        } else if (!rcMap.equals(other.rcMap)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(icao, other.icao)
+                && Objects.equals(paramAbbrev, other.paramAbbrev)
+                && Objects.equals(paramName, other.paramName)
+                && productCode == other.productCode
+                && Objects.equals(rcMap, other.rcMap)
+                && Objects.equals(standardParamAbbrev,
+                        other.standardParamAbbrev)
+                && Double.doubleToLongBits(tilt) == Double
+                        .doubleToLongBits(other.tilt);
     }
 }

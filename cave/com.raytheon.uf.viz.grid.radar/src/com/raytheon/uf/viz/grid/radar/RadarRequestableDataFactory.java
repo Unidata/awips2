@@ -57,6 +57,7 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager;
  * Mar 21, 2023  2033496  mapeters  Fix cache key to differentiate SRM/RRV
  * Dec 20, 2023  2036519  mapeters  Wrap data in soft references, and move SRM config
  *                                  listening from the individual SRM data records to here
+ * Jun 17, 2024  2037092  mapeters  Move instance into LazyHolder
  *
  * </pre>
  *
@@ -70,10 +71,17 @@ public class RadarRequestableDataFactory implements INotificationObserver,
     private static final String DATAURI_PREFIX = DataURI.SEPARATOR
             + RadarConstants.PLUGIN_NAME + DataURI.SEPARATOR;
 
-    private static final RadarRequestableDataFactory instance = new RadarRequestableDataFactory();
+    /**
+     * Initialization-on-demand holder to prevent instantiation until
+     * getInstance() is actually called. Specifically needed for unit tests to
+     * be able to mock getInstance().
+     */
+    private static class LazyHolder {
+        private static final RadarRequestableDataFactory instance = new RadarRequestableDataFactory();
+    }
 
     public static RadarRequestableDataFactory getInstance() {
-        return instance;
+        return LazyHolder.instance;
     }
 
     /**

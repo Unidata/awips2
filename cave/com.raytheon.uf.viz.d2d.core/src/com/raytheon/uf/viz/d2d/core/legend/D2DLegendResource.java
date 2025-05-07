@@ -92,12 +92,13 @@ import com.raytheon.viz.ui.actions.DummyAction;
  * Mar 29, 2022 102227     achalla      Modified getLegendData() to enable Map Resources when
  *                                      in Ensemble Mode Case(LEGEND_OVERRIDE)
  * Feb 09, 2023 9011       mapeters     Remove ratio param from checkYLabelSpace
+ * Jun 20, 2024 2037565    mapeters     Add IExtraLegendTextGeneratingResource handling
+ * Jul 24, 2024 2037624    mapeters     Strip name when building legend string
  *
  * </pre>
  *
  * @author mschenke
  */
-
 public class D2DLegendResource
         extends AbstractLegendResource<GenericResourceData> {
 
@@ -383,6 +384,7 @@ public class D2DLegendResource
         if (name == null) {
             return null;
         }
+        name = name.strip();
 
         DataTime time = info.getTimeForResource(resource);
 
@@ -409,6 +411,14 @@ public class D2DLegendResource
                 }
             } else if (time == null) {
                 return NO_DATA;
+            }
+        }
+
+        if (resource instanceof IExtraLegendTextGeneratingResource) {
+            String extraText = ((IExtraLegendTextGeneratingResource) resource)
+                    .getExtraLegendText(time);
+            if (extraText != null && !extraText.isEmpty()) {
+                name += " " + extraText;
             }
         }
 

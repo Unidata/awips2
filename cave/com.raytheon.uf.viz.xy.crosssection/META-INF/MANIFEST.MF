@@ -25,7 +25,8 @@ Require-Bundle: com.raytheon.uf.common.colormap,
  com.raytheon.uf.viz.core.point,
  javax.xml.bind,
  com.raytheon.viz.awipstools;bundle-version="1.19.0",
- com.raytheon.viz.ui;bundle-version="1.16.0"
+ com.raytheon.viz.ui;bundle-version="1.16.0",
+ org.apache.commons.collections4
 Import-Package: com.raytheon.uf.common.units,
  com.raytheon.viz.core.map
 Export-Package: com.raytheon.uf.viz.xy.crosssection,

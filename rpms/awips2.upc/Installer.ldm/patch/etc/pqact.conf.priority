@@ -167,9 +167,10 @@ IDS|DDPLUS	^(W[CSV]PN[01][1-9]) (KKCI) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/intlsigmet/\1_\2_\3\4\5_(seq)
 #
 # ESRL Hourly Profiler Obs
-#
-#EXP	^/PSD/BUFR/WwWind/(IUPT02.+bufr)\.[0-9]{10}
-#	FILE	-overwrite -close -edex	/awips2/data_store/profiler/\1
+
+# INGEST NOAA/PSL WIND PROFILER BUFR DATA
+ANY	^(IUPT02) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/profiler/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 #
 # Redbook graphics

@@ -32,12 +32,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
 import com.raytheon.edex.plugin.shef.data.ShefRecord.ShefType;
-import com.raytheon.edex.plugin.shef.database.PostShef.Location;
 import com.raytheon.edex.plugin.shef.util.SHEFDate;
 import com.raytheon.edex.plugin.shef.util.ShefParm;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Duration;
@@ -65,6 +64,8 @@ import com.raytheon.uf.edex.database.dao.CoreDao;
  * Jul 17, 2018   7003     dgilling    Add tests for Apps_defaults shef_winpast
  *                                     and shef_winfuture settings.
  * Sep 23, 2021   8608     mapeters    Handle PDO.traceId changes
+ * May 24, 2024 2037337    njensen     Removed whens that weren't used and
+ *                                     caused UnnecessaryStubbingExceptions
  *
  * </pre>
  *
@@ -75,26 +76,6 @@ public class PostShefTest {
     private static final String SHEF_ON = "ON";
 
     private static final String TRACE_ID = "traceId";
-
-    private static final String INGEST_SQL = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input from IngestFilter where lid = 'DNS'";
-
-    private static final String ADJUST_PZ_SQL = "select divisor, base, multiplier, adder from adjustfactor where lid = 'DNS' and pe = 'SW' and dur = 0 and ts = 'PZ' and extremum = 'Z'";
-
-    private static final String ADJUST_RZ_SQL = "select divisor, base, multiplier, adder from adjustfactor where lid = 'DNS' and pe = 'SW' and dur = 0 and ts = 'RZ' and extremum = 'Z'";
-
-    private static final String QUALITY_SQL = "select monthdaystart, monthdayend, gross_range_min, gross_range_max, reason_range_min, reason_range_max, roc_max, alert_upper_limit, alert_roc_limit, alarm_upper_limit, alarm_roc_limit, alert_lower_limit, alarm_lower_limit, alert_diff_limit, alarm_diff_limit, pe, dur from locdatalimits where lid = 'DNS' and pe = 'SW' and dur = 0";
-
-    private static final String TELEM_QUERY = "select lid, type from telem where lid = 'DNS'";
-
-    private static final String INGEST_PE_QUERY = "select pe from IngestFilter where lid = 'DNS' and ingest = 'T'";
-
-    private static final String LOC_TEST1_INGEST_SQL = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input from IngestFilter where lid = 'TEST1'";
-
-    private static final String LOC_TEST1_ADJUST_PZ_SQL = "select divisor, base, multiplier, adder from adjustfactor where lid = 'TEST1' and pe = 'SA' and dur = 0 and ts = 'PZ' and extremum = 'Z'";
-
-    private static final String LOC_TEST1_TELEM_QUERY = "select lid, type from telem where lid = 'TEST1'";
-
-    private static final String LOC_TEST1_INGEST_PE_QUERY = "select pe from IngestFilter where lid = 'TEST1' and ingest = 'T'";
 
     @Mock
     private AppsDefaults appsDefaults;
@@ -161,28 +142,6 @@ public class PostShefTest {
 
         when(appsDefaults.getBoolean(ShefConstants.SHEF_PERFLOG, false))
                 .thenReturn(false);
-
-        when(hydroDataAccessor.checkLocation("DNS", TRACE_ID))
-                .thenReturn(Location.LOC_LOCATION);
-        when(hydroDataAccessor.checkLocation("TEST1", TRACE_ID))
-                .thenReturn(Location.LOC_LOCATION);
-
-        when(dao.executeSQLQuery(INGEST_SQL)).thenReturn(getIngestData());
-        when(dao.executeSQLQuery(ADJUST_PZ_SQL)).thenReturn(new Object[0]);
-        when(dao.executeSQLQuery(ADJUST_RZ_SQL)).thenReturn(new Object[0]);
-        when(dao.executeSQLQuery(QUALITY_SQL)).thenReturn(getQualityResults());
-        when(dao.executeSQLQuery(TELEM_QUERY)).thenReturn(getTelemResults());
-        when(dao.executeSQLQuery(INGEST_PE_QUERY))
-                .thenReturn(getIngestPeResults());
-
-        when(dao.executeSQLQuery(LOC_TEST1_INGEST_SQL))
-                .thenReturn(getLidTEST1IngestData());
-        when(dao.executeSQLQuery(LOC_TEST1_ADJUST_PZ_SQL))
-                .thenReturn(new Object[0]);
-        when(dao.executeSQLQuery(LOC_TEST1_TELEM_QUERY))
-                .thenReturn(getLidTEST1TelemResults());
-        when(dao.executeSQLQuery(LOC_TEST1_INGEST_PE_QUERY))
-                .thenReturn(getLidTEST1IngestPeResults());
     }
 
     /*

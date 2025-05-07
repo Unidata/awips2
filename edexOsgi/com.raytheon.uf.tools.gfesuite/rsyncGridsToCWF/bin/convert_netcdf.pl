@@ -35,14 +35,15 @@
 #    10/03/17        20439         ryu            use ncgen3 instaed of ncgen
 #    04/16/19        21058         ryu            check for optimized cdl file creation error;
 #                                                 remove input cdl file before running ncgen
+#    11/04/24        2038165       smoorthy       adjust paths for new netcdf location
 #
 ################################################################################
 
 ########################
 # paths to ncdump and ncgen applications
 ########################
-$ncdump = "/usr/local/netcdf/bin/ncdump";
-$ncgen = "/usr/local/netcdf/bin/ncgen3";
+$ncdump = "/awips2/netcdf/bin/ncdump";
+$ncgen = "/awips2/netcdf/bin/ncgen3";
 
 ########################
 # list of fields to shorts (integers) and bytes (0-255)

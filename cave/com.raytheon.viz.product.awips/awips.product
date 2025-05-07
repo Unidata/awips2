@@ -133,6 +133,7 @@
       <feature id="gov.noaa.nws.sti.mdl.viz.griddednucaps.feature" installMode="root"/>
       <feature id="com.raytheon.uf.viz.grid.radar.rsc.feature"/>
       <feature id="gov.noaa.nws.obs.viz.geodata.feature"/>
+      <feature id="gov.noaa.nws.sr.oun.viz.mping.feature"/>
    </features>
 
    <configurations>

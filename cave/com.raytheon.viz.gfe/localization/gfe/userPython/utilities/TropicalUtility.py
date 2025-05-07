@@ -222,73 +222,6 @@ class TropicalUtility(GridManipulation.GridManipulation):
             return ""
         else:
             return parts[1]
-    def activeSiteIDs(self):
-        return self._activeSiteIDs
-
-    # Checks the specified hazard and proposed keys over the selectedMask
-    # for any conflicting hazards. If found, returns True, otherwise
-    # return False.
-    def anyHazardConflicts(self, hazard, proposed, selectedMask):
-
-        # Make the list of tropical hazards
-        tropicalHazList = ["TR.W", "TR.A", "HU.W", "HU.A", "SS.A", "SS.W"]
-        localHazList = ["CF"]
-        hazGrid, hazKeys = hazard
-        propGrid, propKeys = proposed
-
-        # Make the list of hazard subKeys found in the hazard grid over the
-        # selectedMask
-        hazList = []
-        for hazKey in hazKeys:
-            if hazKey == "<None>":  # Ignore the <None> key
-                continue
-
-            #  Identify the area where this hazard exists
-            hazIndex = self.getIndex(hazKey, hazKeys)
-            mask = hazGrid == hazIndex
-
-            #  Check for overlapping points
-            overlap = mask & selectedMask
-
-            #  If there is any overlap
-            if overlap.any():
-
-                # These keys can have subKeys so separate those, too
-                subKeyList = self.getSubKeys(hazKey)
-                for subKey in subKeyList:
-                    if subKey not in hazList:
-                        hazList.append(subKey)
-
-        #  Look over the proposed hazards keys
-        for propKey in propKeys:
-            if propKey == "<None>":  # Ignore the <None> key
-                continue
-
-            # Check for overlapping points
-            propIndex = self.getIndex(propKey, propKeys)
-            propMask = propGrid == propIndex
-            overlap = propMask & selectedMask
-
-            if not overlap.any():  # no points in selectedMask
-                continue
-
-            # Parse the phen, sig, and ETN
-            propPhen = self.keyPhen(propKey)
-            propSig = self.keySig(propKey)
-            propETN = self.getETN(propKey)
-
-            for hazKey in hazList:
-                # See if this hazard overlaps with the current proposed hazard
-                hazIndex = self.getIndex(hazKey, hazKeys)
-                hazMask = hazGrid == hazIndex
-                hazOverlap = hazMask & propMask
-                if not hazOverlap.any():
-                    continue
-
-                # Parse the hazKey
-                hazETN = self.getETN(hazKey)
-                hazPhen = self.keyPhen(hazKey)
-                hazSig = self.keySig(hazKey)
                 if propPhen == "SS" and hazPhen in localHazList:
                     return True
 
@@ -707,12 +640,11 @@ class TropicalUtility(GridManipulation.GridManipulation):
 
         #  Process the response
         result = DataAccessLayer.getGeometryData(req)
-        self.statusBarMsg("Bad result in Map request for map: " + wfo, "S")
 
         #  Check if we got a response
         if not result:
             # What should be done in this case?
-            print("Bad result from getGeometryData.")
+            self.statusBarMsg("Bad result in Map request for map: " + wfo, "S")
 
         #  Get ready to track matching zones
         zoneSet = set()

@@ -1,3 +1,4 @@
+%define _component_project_dir    awips2.core/Installer.database
 #
 # AWIPS II Database Standalone Configuration Spec File
 #
@@ -51,6 +52,11 @@ cp %{_baseline_workspace}/${CONFIGURATION_DIR}/${CONF_FILE} \
    ${RPM_BUILD_ROOT}/awips2/database/data
 cp -p %{_baseline_workspace}/${CONFIGURATION_DIR}/*.{key,crt} \
    ${RPM_BUILD_ROOT}/awips2/database/ssl
+
+# Install systemd unit file
+service_dir="${RPM_BUILD_ROOT}/etc/systemd/system/postgresql@awips.service.d"
+mkdir --parents "${service_dir}"
+cp "%{_baseline_workspace}/rpms/%{_component_project_dir}/30-postgresql-setup.conf" "${service_dir}"
    
 %pre
 # Remove any existing postgresql.conf files
@@ -75,6 +81,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) /awips2/database/ssl/root.crt
 %config(noreplace) /awips2/database/ssl/server.key
 
+%defattr(644,root,root,755)
+/etc/systemd/system/postgresql@awips.service.d/30-postgresql-setup.conf
+
 %changelog
+* Wed Nov 06 2024 John Sebahar <john.sebahar@rtx.com>
+- Added systemd configuration file to installation
 * Thu Sep 10 2020 Ron Anderson <ron.anderson@raytheon.com> 
 - Remove /awips2/data symlink

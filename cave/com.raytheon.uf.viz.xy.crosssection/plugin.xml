@@ -24,7 +24,7 @@
    <extension
          point="com.raytheon.uf.viz.core.resource">
       <resource
-            class="com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionImageResource"
+            class="com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionIntermediateImageResource"
             name="Cross Section Image"
             renderingOrderId="IMAGE_COUNTRY"
             resourceType="CROSS_SECTION"/>

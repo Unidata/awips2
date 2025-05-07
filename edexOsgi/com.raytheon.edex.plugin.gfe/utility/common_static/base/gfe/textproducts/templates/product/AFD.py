@@ -26,6 +26,8 @@
 #                                            in allowedHazards.
 # May 10, 2021    DCS22297       dkingfiel   Remove RB.Y, SI.Y, and SW.Y
 # May 18, 2021    DCS22297       dkingfiel   Add CW.Y, XH.A, and XH.W
+# Sep 04, 2024    DR2036917      dkingfiel   Remove HZ.A, HZ.W, WC.A, WC.W, WC.Y
+#                                            from allowedHazards
 #
 ##
 
@@ -1065,9 +1067,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('WS.W', allActions, 'WinterWx3'),     # WINTER STORM WARNING
             ('WW.Y', allActions, 'WinterWx4'),     # WINTER WEATHER ADVISORY
             ('WS.A', allActions, 'WinterWx5'),     # WINTER STORM WATCH
-            ('WC.W', allActions, 'WindChill'),    # WIND CHILL WARNING
-            ('WC.Y', allActions, 'WindChill1'),    # WIND CHILL ADVISORY
-            ('WC.A', allActions, 'WindChill2'),    # WIND CHILL WATCH
             ('DU.W', allActions, 'Dust'),         # BLOWING DUST WARNING
             ('DU.Y', allActions, 'Dust1'),         # BLOWING DUST ADVISORY
             ('EC.W', allActions, 'Cold'),         # EXTREME COLD WARNING
@@ -1080,10 +1079,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('HT.Y', allActions, 'Heat2'),         # HEAT ADVISORY
             ('FG.Y', allActions, 'Fog'),          # DENSE FOG ADVISORY
             ('ZF.Y', allActions, 'Fog2'),          # FREEZING FOG ADVISORY
-            ('HZ.W', allActions, 'FrostFreeze'),  # HARD FREEZE WARNING
             ('FZ.W', allActions, 'FrostFreeze1'),  # FREEZE WARNING
             ('FR.Y', allActions, 'FrostFreeze2'),  # FROST ADVISORY
-            ('HZ.A', allActions, 'FrostFreeze3'),  # HARD FREEZE WATCH
             ('FZ.A', allActions, 'FrostFreeze4'),  # FREEZE WATCH
             ('HW.W', allActions, 'Wind'),         # HIGH WIND WARNING
             ('WI.Y', allActions, 'Wind1'),         # WIND ADVISORY

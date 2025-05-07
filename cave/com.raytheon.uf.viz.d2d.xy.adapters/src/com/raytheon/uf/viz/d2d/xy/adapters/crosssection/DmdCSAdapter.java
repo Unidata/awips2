@@ -37,6 +37,7 @@ import com.raytheon.uf.common.units.UnitConv;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.d2d.xy.tools.DmdTools;
 import com.raytheon.uf.viz.xy.InterpUtils;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
 import com.raytheon.uf.viz.xy.interp.IInterpolation;
@@ -48,8 +49,7 @@ import com.raytheon.uf.viz.xy.scales.HeightScale.ScaleType;
 import tech.units.indriya.AbstractUnit;
 
 /**
- *
- * TODO Add Description
+ * Cross section adapter for radar Digital Mesocyclone Display (DMD) data.
  *
  * <pre>
  *
@@ -61,6 +61,8 @@ import tech.units.indriya.AbstractUnit;
  *                                      that actually uses it.
  * Apr 15, 2019  7596      lsingh       Updated units framework to JSR-363.
  * Oct 29, 2022 8959       mapeters     Update how data time levels are set
+ * Jun 20, 2024 2037565    mapeters     Remove unused getParameterName()
+ * Aug 14, 2024 2037631    mapeters     Wrap float data in new class
  *
  * </pre>
  *
@@ -75,18 +77,14 @@ public class DmdCSAdapter extends AbstractCrossSectionAdapter<RadarRecord> {
     protected Unit<?> unit = AbstractUnit.ONE;
 
     @Override
-    public String getParameterName() {
-        return resourceData.getParameter();
-    }
-
-    @Override
     public Unit<?> getUnit() {
         return unit;
     }
 
     @Override
-    public List<float[]> loadData(DataTime currentTime, CrossSectionGraph graph,
-            GridGeometry2D geometry) throws VizException {
+    public CrossSectionFrameData loadData(DataTime currentTime,
+            CrossSectionGraph graph, GridGeometry2D geometry)
+            throws VizException {
         LineString line = descriptor.getLine(currentTime);
         HeightScale heightScale = descriptor.getHeightScale();
         double minY = Math.min(heightScale.getMinVal(),
@@ -159,7 +157,7 @@ public class DmdCSAdapter extends AbstractCrossSectionAdapter<RadarRecord> {
         request.setMaxY((float) graph.getExtent().getMinY());
         request.setZData(InterpUtils.convertToArray(zData));
         result.add(interpolation.interpolate(request).getValues());
-        return result;
+        return new CrossSectionFrameData(result, null);
     }
 
     private double findDistance(LineString line, Coordinate c) {

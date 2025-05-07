@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,6 +21,7 @@ package com.raytheon.uf.common.dataplugin.grid.derivparam.tree;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.CoverageUtils;
@@ -38,32 +39,34 @@ import com.raytheon.uf.common.inventory.exception.DataCubeException;
 /**
  * A LevelNode for static grid data that is either constant or can be calculated
  * based off the coverage.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- ----------------------------------------
  * Apr 13, 2012           bsteffen  Initial creation
  * Mar 03, 2016  5439     bsteffen  Allow grid derived parameters from edex
- * 
+ * Oct 14, 2024  2037939  mapeters  Add final keyword to fields, add toString
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  */
 public class StaticGridDataLevelNode extends AbstractBaseDataNode {
 
-    protected String dataType;
+    protected final String dataType;
 
-    protected String source;
+    protected final String source;
 
     public StaticGridDataLevelNode(String source, String dataType) {
         this.source = source;
         this.dataType = dataType;
     }
 
-    public StaticGridDataLevelNode(String source, String dataType, Level level) {
+    public StaticGridDataLevelNode(String source, String dataType,
+            Level level) {
         this(source, dataType);
         setLevel(level);
     }
@@ -79,8 +82,8 @@ public class StaticGridDataLevelNode extends AbstractBaseDataNode {
             Map<String, RequestConstraint> originalConstraints, Object response)
             throws DataCubeException {
         Set<TimeAndSpace> result = new HashSet<>();
-        for (GridCoverage coverage : CoverageUtils.getInstance().getCoverages(
-                source)) {
+        for (GridCoverage coverage : CoverageUtils.getInstance()
+                .getCoverages(source)) {
             result.add(new TimeAndSpace(coverage));
         }
         return result;
@@ -108,7 +111,8 @@ public class StaticGridDataLevelNode extends AbstractBaseDataNode {
             } else {
                 for (GridCoverage coverage : CoverageUtils.getInstance()
                         .getCoverages(source)) {
-                    AbstractRequestableData data = createRequestableData(coverage);
+                    AbstractRequestableData data = createRequestableData(
+                            coverage);
                     data.setDataTime(ast.getTime());
                     results.add(data);
                 }
@@ -145,24 +149,28 @@ public class StaticGridDataLevelNode extends AbstractBaseDataNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         StaticGridDataLevelNode other = (StaticGridDataLevelNode) obj;
-        if (dataType == null) {
-            if (other.dataType != null)
-                return false;
-        } else if (!dataType.equals(other.dataType))
+        if (!Objects.equals(dataType, other.dataType)) {
             return false;
-        if (source == null) {
-            if (other.source != null)
-                return false;
-        } else if (!source.equals(other.source))
+        }
+        if (!Objects.equals(source, other.source)) {
             return false;
+        }
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "StaticGridDataLevelNode [dataType=" + dataType + ", source="
+                + source + ", level=" + level + "]";
+    }
 }

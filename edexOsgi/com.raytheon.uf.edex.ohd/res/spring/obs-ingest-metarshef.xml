@@ -20,10 +20,7 @@
                     <bean ref="stringToFile" />
                     <bean ref="obsDecoder" method="decode" />
                     <bean ref="metarPointData" method="toPointData" />
-                    <multicast>
-                        <to uri="direct-vm:metarToShef" />
-                        <to uri="direct-vm:metarToHMDB" />
-                    </multicast>
+                    <to uri="direct-vm:metarToShef" />
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>

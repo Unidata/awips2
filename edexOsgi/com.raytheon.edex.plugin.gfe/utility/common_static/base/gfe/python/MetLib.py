@@ -32,7 +32,7 @@ from numpy import *
 import copy
 
 # CenteredDifference - This method performs a centered difference
-# of the specificd grid.  Edges are calculated using a forward or
+# of the specified grid.  Edges are calculated using a forward or
 # backward difference so that the grid that is returned is the same
 # size as the input grids.  In general this is a low-level method
 # intended to be used by the derivative methods d_dx, d_dy, d_dz and
@@ -53,7 +53,7 @@ def centeredDifference(grid, axis):
     for s in grid.shape:
         sliceList.append(slice(None, None, None))
 
-    # Define the slices at the specified axis.  Terms labelled with
+    # Define the slices at the specified axis.  Terms labeled with
     # "1" refer to the middle of the grid, terms with 2 the first edge
     # of the grid and terms using "3' the last edge of the grid
     t1 = copy.copy(sliceList)
@@ -77,9 +77,9 @@ def centeredDifference(grid, axis):
 
     diff = zeros(grid.shape, float64)
     # Perform the centered difference
-    diff[t1] = (grid[a1] - grid[b1]) / 2.0  # middle
-    diff[t2] = grid[a2] - grid[b2]  # first edge
-    diff[t3] = grid[a3] - grid[b3]  # last edge
+    diff[tuple(t1)] = (grid[tuple(a1)] - grid[tuple(b1)]) / 2.0  # middle
+    diff[tuple(t2)] = grid[tuple(a2)] - grid[tuple(b2)]  # first edge
+    diff[tuple(t3)] = grid[tuple(a3)] - grid[tuple(b3)]  # last edge
     return diff
 
 # Returns the forward difference derivative

@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="titleItem"
+            titleText="------ 3 Panel Combo ------"
+            id="${icao}3PanelCrossSectionProducts" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="Reflectivity" id="${icao}3PanelCrossSectionZ">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="153" />
+        <substitute key="product2" value="94" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="RR" />
+        <substitute key="gridParameterName" value="Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="Velocity" id="${icao}3PanelCrossSectionV">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="154" />
+        <substitute key="product2" value="99" />
+        <substitute key="product3" value="25" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="RRV" />
+        <substitute key="gridParameterName" value="Radial Velocity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="SRM" id="${icao}3PanelCrossSectionSRM">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="SRM8" />
+        <substitute key="product1" value="154" />
+        <substitute key="product2" value="99" />
+        <substitute key="product3" value="25" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="SRM" />
+        <substitute key="gridParameterName" value="Storm Rel Vel" />
+        <substitute key="crossSectionResourceData" value="radarSRMCrossSectionResourceData" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="Spectrum Width" id="${icao}3PanelCrossSectionSW">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="155" />
+        <substitute key="product2" value="28" />
+        <substitute key="product3" value="30" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="BASSW" />
+        <substitute key="gridParameterName" value="Spectrum Width" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarBlended3PanelCrossSection.xml"
+            menuText="Z/SRM" id="${icao}3PanelCrossSectionZSRM">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode1" value="" />
+        <substitute key="product1" value="153" />
+        <substitute key="product2" value="94" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation1" value="RR" />
+        <substitute key="gridParameterName1" value="Reflectivity" />
+        <substitute key="mode2" value="SRM8" />
+        <substitute key="product5" value="154" />
+        <substitute key="product6" value="99" />
+        <substitute key="product7" value="25" />
+        <substitute key="product8" value="" />
+        <substitute key="gridParameterAbbreviation2" value="SRM" />
+        <substitute key="gridParameterName2" value="Storm Rel Vel" />
+        <substitute key="crossSectionResourceData2" value="radarSRMCrossSectionResourceData" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="ZDR" id="${icao}3PanelCrossSectionZDR">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="159" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="ZDR" />
+        <substitute key="gridParameterName" value="Differential Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="RHO-hv (CC)" id="${icao}3PanelCrossSectionCC">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="161" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="COCO" />
+        <substitute key="gridParameterName" value="Correlation Coefficient" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="KDP" id="${icao}3PanelCrossSectionKDP">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="163" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="KDP" />
+        <substitute key="gridParameterName" value="Specific Differential Phase" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadar3PanelCrossSection.xml"
+            menuText="HCA (HC)" id="${icao}3PanelCrossSectionHC">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="165" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="HC" />
+        <substitute key="gridParameterName" value="Hydrometeor Class" />
+    </contribute>
+    
+    <contribute xsi:type="titleItem"
+            titleText="------ CAPPI ------"
+            id="${icao}CappiProducts" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="Reflectivity" id="${icao}CappiZ">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="153" />
+        <substitute key="product2" value="94" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="RR" />
+        <substitute key="gridParameterName" value="Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="Velocity" id="${icao}CappiV">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="154" />
+        <substitute key="product2" value="99" />
+        <substitute key="product3" value="25" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="RRV" />
+        <substitute key="gridParameterName" value="Radial Velocity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="SRM" id="${icao}CappiSRM">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="SRM8" />
+        <substitute key="product1" value="154" />
+        <substitute key="product2" value="99" />
+        <substitute key="product3" value="25" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="SRM" />
+        <substitute key="gridParameterName" value="Storm Rel Vel" />
+        <substitute key="crossSectionResourceData" value="radarSRMCrossSectionResourceData" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="Spectrum Width" id="${icao}CappiSW">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="155" />
+        <substitute key="product2" value="28" />
+        <substitute key="product3" value="30" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="BASSW" />
+        <substitute key="gridParameterName" value="Spectrum Width" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarBlendedCAPPI.xml"
+            menuText="Z/SRM" id="${icao}CappiZSRM">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode1" value="" />
+        <substitute key="product1" value="153" />
+        <substitute key="product2" value="94" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation1" value="RR" />
+        <substitute key="gridParameterName1" value="Reflectivity" />
+        <substitute key="mode2" value="SRM8" />
+        <substitute key="product5" value="154" />
+        <substitute key="product6" value="99" />
+        <substitute key="product7" value="25" />
+        <substitute key="product8" value="" />
+        <substitute key="gridParameterAbbreviation2" value="SRM" />
+        <substitute key="gridParameterName2" value="Storm Rel Vel" />
+        <substitute key="crossSectionResourceData2" value="radarSRMCrossSectionResourceData" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="ZDR" id="${icao}CappiZDR">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="159" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="ZDR" />
+        <substitute key="gridParameterName" value="Differential Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="RHO-hv (CC)" id="${icao}CappiCC">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="161" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="COCO" />
+        <substitute key="gridParameterName" value="Correlation Coefficient" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="KDP" id="${icao}CappiKDP">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="163" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="KDP" />
+        <substitute key="gridParameterName" value="Specific Differential Phase" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCAPPI.xml"
+            menuText="HCA (HC)" id="${icao}CappiHC">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="165" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="HC" />
+        <substitute key="gridParameterName" value="Hydrometeor Class" />
+    </contribute>
+    
+    <contribute xsi:type="titleItem"
+            titleText="------ Cross Section ------"
+            id="${icao}CrossSectionProducts" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="Reflectivity" id="${icao}CrossSectionZ">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="153" />
+        <substitute key="product2" value="94" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="RR" />
+        <substitute key="gridParameterName" value="Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="Velocity" id="${icao}CrossSectionV">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="154" />
+        <substitute key="product2" value="99" />
+        <substitute key="product3" value="25" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="RRV" />
+        <substitute key="gridParameterName" value="Radial Velocity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="SRM" id="${icao}CrossSectionSRM">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="SRM8" />
+        <substitute key="product1" value="154" />
+        <substitute key="product2" value="99" />
+        <substitute key="product3" value="25" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="SRM" />
+        <substitute key="gridParameterName" value="Storm Rel Vel" />
+        <substitute key="crossSectionResourceData" value="radarSRMCrossSectionResourceData" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="Spectrum Width" id="${icao}CrossSectionSW">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="155" />
+        <substitute key="product2" value="28" />
+        <substitute key="product3" value="30" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="BASSW" />
+        <substitute key="gridParameterName" value="Spectrum Width" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarBlendedCrossSection.xml"
+            menuText="Z/SRM" id="${icao}CrossSectionZSRM">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode1" value="" />
+        <substitute key="product1" value="153" />
+        <substitute key="product2" value="94" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation1" value="RR" />
+        <substitute key="gridParameterName1" value="Reflectivity" />
+        <substitute key="mode2" value="SRM8" />
+        <substitute key="product5" value="154" />
+        <substitute key="product6" value="99" />
+        <substitute key="product7" value="25" />
+        <substitute key="product8" value="" />
+        <substitute key="gridParameterAbbreviation2" value="SRM" />
+        <substitute key="gridParameterName2" value="Storm Rel Vel" />
+        <substitute key="crossSectionResourceData2" value="radarSRMCrossSectionResourceData" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="ZDR" id="${icao}CrossSectionZDR">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="159" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="ZDR" />
+        <substitute key="gridParameterName" value="Differential Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="RHO-hv (CC)" id="${icao}CrossSectionCC">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="161" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="COCO" />
+        <substitute key="gridParameterName" value="Correlation Coefficient" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="KDP" id="${icao}CrossSectionKDP">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="163" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="KDP" />
+        <substitute key="gridParameterName" value="Specific Differential Phase" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarCrossSection.xml"
+            menuText="HCA (HC)" id="${icao}CrossSectionHC">
+        <substitute key="icao" value="${icao}" />
+        <substitute key="mode" value="" />
+        <substitute key="product1" value="165" />
+        <substitute key="product2" value="" />
+        <substitute key="product3" value="" />
+        <substitute key="product4" value="" />
+        <substitute key="gridParameterAbbreviation" value="HC" />
+        <substitute key="gridParameterName" value="Hydrometeor Class" />
+    </contribute>
+</menuTemplate>

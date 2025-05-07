@@ -35,7 +35,9 @@
         * Jan 22, 2015 3793       rferrel     Converted tags minRetentionHours to defaultRetentionHours
         *                                      and extRetentionHours to selectedDetentionHours.
         * May 03, 2019 DCS 21055  dfriedman   Change satellite retention time to 72 hours.
-        *
+        * Jul 11, 2024 DR 2037646 sjohnston   Changed /archive to /data/local/archive and modified retention
+        *                                      times to better suit cloud archival processes.
+	*
         * @author rferrel
     -->
 
@@ -149,15 +151,30 @@
     -->
 <archive>
   <name>Processed</name>
-  <rootDir>/archive/</rootDir>
-  <defaultRetentionHours>168</defaultRetentionHours>
+  <rootDir>/data/local/archive/</rootDir>
+  <defaultRetentionHours>1</defaultRetentionHours>
   <category>
     <name>Decision Assistance</name>
     <selectedRetentionHours>168</selectedRetentionHours>
     <dataSet>
-      <dirPattern>(cwat|fog|ffmp|fssobs|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+      <dirPattern>(cwat|fog|fssobs|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
       <dateGroupIndices>2,3,4,5</dateGroupIndices>
+      <selectedDisplayName>cwat</selectedDisplayName>
+      <selectedDisplayName>fog</selectedDisplayName>
+      <selectedDisplayName>fssobs</selectedDisplayName>
+      <selectedDisplayName>preciprate</selectedDisplayName>
+      <selectedDisplayName>qpf</selectedDisplayName>/
+      <selectedDisplayName>scan</selectedDisplayName>
+      <selectedDisplayName>vil</selectedDisplayName>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(ffmp)/.*/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+      <timeType>Date</timeType>
+      <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+      <selectedDisplayName>ffmp</selectedDisplayName>
     </dataSet>
   </category>
   <category>
@@ -165,12 +182,14 @@
     <selectedRetentionHours>168</selectedRetentionHours>
     <dataSet>
       <dirPattern>gfe/(.*)/(.*)/(\d{4})_(\d{2})_(\d{2})_(\d{2})\d{2}.*</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{1} - {2}</displayLabel>
       <dateGroupIndices>3,4,5,6</dateGroupIndices>
     </dataSet>
     <dataSet>
       <dirPattern>gfe/(.*)/(.*)/.*_(\d{4})(\d{2})(\d{2})_.*</dirPattern>
       <displayLabel>{1} - {2}</displayLabel>
+      <timeType>Date</timeType>
       <dateGroupIndices>3,4,5</dateGroupIndices>
     </dataSet>
   </category>
@@ -178,9 +197,13 @@
     <name>Local</name>
     <selectedRetentionHours>168</selectedRetentionHours>
     <dataSet>
-      <dirPattern>(ldadhydro|ldadmesonet|qc)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+      <dirPattern>(ldadhydro|ldadmesonet)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+      <dirPattern>(qc)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
       <dateGroupIndices>2,3,4,5</dateGroupIndices>
+      <selectedDisplayName>ldadhydro</selectedDisplayName>
+      <selectedDisplayName>ldadmesonet</selectedDisplayName>
     </dataSet>
   </category>
   <category>
@@ -188,22 +211,24 @@
     <selectedRetentionHours>168</selectedRetentionHours>
     <dataSet>
       <dirPattern>(grid)/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{2}</displayLabel>
       <dateGroupIndices>4,5,6,7</dateGroupIndices>
     </dataSet>
-    <dataSet>
-      <dirPattern>(modelsounding)/(.*)/.*/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
-      <dirPattern>(bufrmos)(.*)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
-      <displayLabel>{1} - {2}</displayLabel>
-      <dateGroupIndices>3,4,5,6</dateGroupIndices>
-    </dataSet>
+    <selectedDisplayName>BHPE</selectedDisplayName>
+    <selectedDisplayName>HPE</selectedDisplayName>
+    <selectedDisplayName>LAPS</selectedDisplayName>
+    <selectedDisplayName>MPE-Local</selectedDisplayName>
+    <selectedDisplayName>MPE-Mosaic</selectedDisplayName>
+    <selectedDisplayName>MSAS</selectedDisplayName>
   </category>
   <category>
     <name>Products</name>
-    <selectedRetentionHours>168</selectedRetentionHours>
+    <selectedRetentionHours>0</selectedRetentionHours>
     <dataSet>
       <dirPattern>(airmet|atcf|aww|bufrncwf|ccfp|convsigmet|cwa|ffg|intlsigmet|nonconvsigmet|stormtrack|taf|tcg|tcm|tcs|text|vaa|warning|wcp)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
       <dirPattern>(bufrsigwx|redbook)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
       <dateGroupIndices>2,3,4,5</dateGroupIndices>
     </dataSet>
@@ -212,45 +237,74 @@
     <name>Observation</name>
     <selectedRetentionHours>168</selectedRetentionHours>
     <dataSet>
-      <dirPattern>(acars|airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|pirep|recco|svrwx)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})
-      </dirPattern>
+      <dirPattern>(mping)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+      <dirPattern>(obs)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
       <dirPattern>(sfcobs)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
       <dateGroupIndices>2,3,4,5</dateGroupIndices>
+      <selectedDisplayName>mping</selectedDisplayName>
+      <selectedDisplayName>obs</selectedDisplayName>
+      <selectedDisplayName>sfcobs</selectedDisplayName>
     </dataSet>
   </category>
   <category>
     <name>Satellite</name>
-    <selectedRetentionHours>72</selectedRetentionHours>
+    <selectedRetentionHours>1</selectedRetentionHours>
     <dataSet>
       <dirPattern>satellite/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
-      <dateGroupIndices>3,4,5,6</dateGroupIndices>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>3,4,5,6</dateGroupIndices>
     </dataSet>
     <dataSet>
-            <!-- Guess for mcidas and viirs is based on old example. -->
       <dirPattern>(mcidas|viirs)/.*/.*/.*/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
-      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
     </dataSet>
   </category>
   <category>
     <name>Profiles</name>
-    <selectedRetentionHours>168</selectedRetentionHours>
+    <selectedRetentionHours>1</selectedRetentionHours>
     <dataSet>
       <dirPattern>(acarssounding|bufrua|goessounding|poessounding|profiler)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
       <dateGroupIndices>2,3,4,5</dateGroupIndices>
     </dataSet>
   </category>
   <category>
-    <!-- Find mosaic dataset and add here. -->
     <name>radar</name>
     <selectedRetentionHours>168</selectedRetentionHours>
     <dataSet>
       <dirPattern>radar/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+      <timeType>Date</timeType>
       <displayLabel>{1}</displayLabel>
       <dateGroupIndices>3,4,5,6</dateGroupIndices>
     </dataSet>
+    <!-- add specific radars here -->
   </category>
+  <category>
+    <name>Hazard Services</name>
+    <selectedRetentionHours>168</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>hazardServices/.*</dirPattern>
+      <timeType>File</timeType>
+      <displayLabel>{1}</displayLabel>
+      <dateGroupIndices/>
+    </dataSet>
+  </category>
+  <!-- The following section is for any experimental products your office generates
+            an example is provided based on FWD who gets nswrc data. In a SITE override
+     uncomment the section below and adjust the dirPattern appropriately. -->
+  <!--    <category>
+                          <name>Experimental Products</name>
+                <selectedRetentionHours>0</selectedRetentionHours>
+                <dataSet>
+                        <dirPattern>nswrc_radial/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+                        <displayLabel>{1}</displayLabel>
+                        <dateGroupIndices>3,4,5,6</dateGroupIndices>
+                </dataSet>
+        </category> -->
 </archive>

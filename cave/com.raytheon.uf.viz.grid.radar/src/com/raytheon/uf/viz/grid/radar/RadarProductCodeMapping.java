@@ -59,6 +59,7 @@ import com.raytheon.viz.grid.xml.ParameterMapping;
  * Aug 15, 2017  6332     bsteffen  Move to viz.grid.radar plugin
  * Jan 09, 2024  2036695  mapeters  Support multiple params using the same
  *                                  product code (for SRM/V)
+ * Jun 17, 2024  2037092  mapeters  Move instance into LazyHolder
  *
  * </pre>
  *
@@ -71,14 +72,21 @@ public class RadarProductCodeMapping {
     private static final String LOC_PATH = LocalizationUtil
             .join("parameterMapping", "radar", "RadarProductCodes.xml");
 
-    private static final RadarProductCodeMapping instance = new RadarProductCodeMapping();
+    /**
+     * Initialization-on-demand holder to prevent instantiation until
+     * getInstance() is actually called. Specifically needed for unit tests to
+     * be able to mock getInstance().
+     */
+    private static class LazyHolder {
+        private static final RadarProductCodeMapping instance = new RadarProductCodeMapping();
+    }
 
     private Map<String, List<Integer>> parameterMappings = new HashMap<>();
 
     private Map<Integer, Set<String>> pCodeMappings = new HashMap<>();
 
     public static RadarProductCodeMapping getInstance() {
-        return instance;
+        return LazyHolder.instance;
     }
 
     private RadarProductCodeMapping() {

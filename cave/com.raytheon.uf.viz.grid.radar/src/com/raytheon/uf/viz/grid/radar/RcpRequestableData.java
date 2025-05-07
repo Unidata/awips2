@@ -19,20 +19,26 @@
  **/
 package com.raytheon.uf.viz.grid.radar;
 
+import javax.measure.MetricPrefix;
+
 import com.raytheon.uf.common.dataplugin.grid.derivparam.data.SliceUtil;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.viz.radar.util.RadarAsGridUtil;
 
 import si.uom.SI;
-import javax.measure.MetricPrefix;
 
 /**
  * Requestable Data that generates pressure at tilt heights.
+ *
+ * This extends {@link TiltTemporalRequestableData}, which converts the primary
+ * elevation angle to the appropriate true elevation angle for the radar
+ * station's Volume Coverage Pattern (VCP) at the time of this data object.
+ * Pressure is then calculated for the true elevation angle.
  *
  * <pre>
  *
@@ -41,37 +47,31 @@ import javax.measure.MetricPrefix;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Sep 08, 2021  8652     njensen   Initial creation
+ * Oct 14, 2024  2037939  mapeters  Extend TiltTemporalRequestableData to
+ *                                  calculate from true elevation angle
  *
  * </pre>
  *
  */
-public class RcpRequestableData extends AbstractRequestableData {
+public class RcpRequestableData extends TiltTemporalRequestableData {
 
-    private String icao;
-
-    public RcpRequestableData(String modelName, Level fhag,
-            GridCoverage coverage) {
-        this.source = modelName;
-        this.icao = RadarAsGridUtil.getIcaoFromModelName(modelName);
+    public RcpRequestableData(String modelName, Level primaryAngleLevel,
+            TimeAndSpace tas) {
+        super(modelName, primaryAngleLevel, tas);
         this.unit = MetricPrefix.HECTO(SI.PASCAL);
         this.parameter = RadarAsGridUtil.RCP;
         this.parameterName = "Radar Computed Pressure";
-        this.level = fhag;
-        this.space = coverage;
     }
 
     @Override
     public FloatDataRecord getDataValue(Object arg) throws DataCubeException {
         GridCoverage coverage = (GridCoverage) getSpace();
-        double tilt = level.getLevelonevalue();
         FloatDataRecord fdr = TiltUtils.getInstance().getHgt2PresGrid(icao,
-                coverage, tilt);
+                coverage, trueElevationAngle);
         if (fdr != null && arg instanceof Request) {
             return SliceUtil.slice(fdr, (Request) arg);
         } else {
             return fdr;
         }
-
     }
-
 }

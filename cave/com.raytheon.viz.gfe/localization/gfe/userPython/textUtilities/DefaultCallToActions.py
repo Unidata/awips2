@@ -51,6 +51,7 @@
 # May 10, 2021  DCS22297 dkingfiel Remove RB.Y, SI.Y, and SW.Y
 # May 18, 2021  DCS22297 dkingfiel Add CW.Y, XH.A, and XH.W. Update CTAs for EC.A,
 #                                  EC.W, EH.A, EH.W, and HT.Y.
+# Sep 04, 2024  2036917  dkingfiel Remove HZ.A, HZ.W, WC.A, WC.W, WC.Y CTAs
 # ----------------------------------------------------------------------------
 
 ##
@@ -144,8 +145,6 @@ class CallToActions(object):
          "HU.W": self.ctaHUW,
          "HW.A": self.ctaHWA,
          "HW.W": self.ctaHWW,
-         "HZ.A": self.ctaHZA,
-         "HZ.W": self.ctaHZW,
          "IS.W": self.ctaISW,
          "LE.W": self.ctaLEW,
          "LO.Y": self.ctaLOY,
@@ -171,9 +170,6 @@ class CallToActions(object):
          "UP.A": self.ctaUPA,
          "UP.W": self.ctaUPW,
          "UP.Y": self.ctaUPY,
-         "WC.A": self.ctaWCA,
-         "WC.W": self.ctaWCW,
-         "WC.Y": self.ctaWCY,
          "WI.Y": self.ctaWIY,
          "WS.A": self.ctaWSA,
          "WS.W": self.ctaWSW,
@@ -498,16 +494,6 @@ Monitor the latest forecasts and warnings for updates.""",
  """A High Wind Warning means a hazardous high wind event is expected or occurring. Sustained wind speeds of at least 40 mph or gusts of 58 mph or more can lead to property damage.""",
         ]
 
-    def ctaHZA(self):
-        return [
- """A Hard Freeze Watch means sub-freezing temperatures are possible. These conditions could kill crops and other sensitive vegetation.""",
-        ]
-
-    def ctaHZW(self):
-        return [
- """A Hard Freeze Warning means sub-freezing temperatures are imminent or highly likely. These conditions will kill crops and other sensitive vegetation.""",
-        ]
-
     def ctaISW(self):
         return [
  """An Ice Storm Warning means severe winter weather conditions are expected or occurring. Significant amounts of ice accumulations will make travel dangerous or impossible. Travel is strongly discouraged. Commerce will likely be severely impacted. If you must travel, keep an extra flashlight, food, and water in your vehicle in case of an emergency. Ice accumulations and winds will likely lead to snapped power lines and falling tree branches that add to the danger.""",
@@ -663,21 +649,6 @@ If you become caught in a rip current, yell for help. Remain calm, do not exhaus
  Stay cool, stay hydrated, stay informed.
 
  Monitor the latest forecasts and warnings for updates.""",
-        ]
-
-    def ctaWCA(self):
-        return [
- """A Wind Chill Watch means the there is the potential for a combination of very cold air and strong winds to create dangerously low wind chill values. Monitor the latest forecasts and warnings for updates on this situation.""",
-        ]
-
-    def ctaWCW(self):
-        return [
- """A Wind Chill Warning means the combination of very cold air and strong winds will create dangerously low wind chill values. This will result in frostbite and lead to hypothermia or death if precautions are not taken.""",
-        ]
-
-    def ctaWCY(self):
-        return [
- """A Wind Chill Advisory means that very cold air and strong winds will combine to generate low wind chills. This will result in frostbite and lead to hypothermia if precautions are not taken.  If you must venture outdoors, make sure you wear a hat and gloves.""",
         ]
 
     def ctaWIY(self):

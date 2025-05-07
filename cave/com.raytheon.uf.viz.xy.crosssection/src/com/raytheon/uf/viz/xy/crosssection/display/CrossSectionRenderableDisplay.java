@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -62,6 +63,7 @@ import com.raytheon.viz.awipstools.ToolsDataManager;
  *                                  associated baseline is updated.
  * Dec 20, 2023  2036519  mapeters  Don't construct the graph resource in
  *                                  customizeResourceList()
+ * May 24, 2024  2037092  mapeters  Redo time matching in updateBaseline
  *
  * </pre>
  *
@@ -210,8 +212,21 @@ public class CrossSectionRenderableDisplay extends AbstractHeightDisplay
         for (ResourcePair pair : csd.getResourceList()) {
             AbstractVizResource<?, ?> rsc = pair.getResource();
             if (rsc instanceof AbstractCrossSectionResource) {
+                /*
+                 * Tell the time matcher to update this resource's time info
+                 * whenever time matching is re-done (cached times will have
+                 * wrong levelType set on them)
+                 */
+                csd.getTimeMatcher().redoTimeMatching(rsc);
                 ((AbstractCrossSectionResource) rsc).setDescriptor(csd);
             }
+        }
+
+        try {
+            // Actually re-do time matching
+            csd.redoTimeMatching();
+        } catch (VizException e) {
+            statusHandler.error("Error updating cross section baseline", e);
         }
 
     }

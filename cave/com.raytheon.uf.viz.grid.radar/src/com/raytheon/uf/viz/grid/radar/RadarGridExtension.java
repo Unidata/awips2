@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.grid.radar;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +34,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
@@ -77,6 +77,10 @@ import com.raytheon.viz.radar.util.RadarAsGridUtil;
  * Jul 26, 2021  8600     randerso  Include icao in update key
  * Sep 08, 2021  8652     njensen   Added check for RCP to resolvePluginStaticData()
  * Nov 14, 2022  8973     mapeters  Sync access to resources' radar records
+ * May 22, 2024  2037092  mapeters  Minor cleanup in getUpdateKey()
+ * Oct 14, 2024  2037939  mapeters  Update timeInvariantQuery for radar->radar-kxxx
+ *                                  changes done under #8576, add custom
+ *                                  TiltTemporalGridDataLevelNode
  *
  * </pre>
  *
@@ -95,12 +99,16 @@ public class RadarGridExtension implements GridExtension {
     @Override
     public Set<DataTime> timeInvariantQuery(
             Map<String, RequestConstraint> query) throws VizException {
-        RequestConstraint sRC = query.get(GridConstants.DATASET_ID);
-        if (sRC != null && sRC.evaluate(RadarAdapter.RADAR_SOURCE)) {
-            return RadarAdapter.getInstance().timeInvariantQuery();
-        } else {
-            return Collections.emptySet();
+        RequestConstraint datasetIdConstraint = query
+                .get(GridConstants.DATASET_ID);
+        if (datasetIdConstraint != null) {
+            String icao = RadarAsGridUtil.getIcaoFromModelName(
+                    datasetIdConstraint.getConstraintValue());
+            if (icao != null) {
+                return RadarAdapter.getInstance().timeInvariantQuery(icao);
+            }
         }
+        return Set.of();
     }
 
     @Override
@@ -121,22 +129,23 @@ public class RadarGridExtension implements GridExtension {
     }
 
     @Override
-    public Object resolvePluginStaticData(SourceNode sNode,
-            DerivParamField field, Level level) {
+    public Object resolvePluginSpecifiedField(SourceNode sourceNode,
+            Level level, DerivParamMethod method, DerivParamField field) {
+        String sourceValue = sourceNode.getValue();
         String fieldParamAbbrev = field.getParam();
-        if (level.getMasterLevel().getName().equals(fieldParamAbbrev)) {
+        if (TILT.equals(level.getMasterLevel().getName())) {
             if (TILT.equals(fieldParamAbbrev)) {
-                return new TiltGridDataLevelNode(sNode.getValue(),
-                        fieldParamAbbrev, level);
-            }
-        } else if (sNode.getValue().startsWith(RadarAdapter.RADAR_SOURCE)
-                && TILT.equals(level.getMasterLevel().getName())) {
-            if (RadarAsGridUtil.RCP.equals(fieldParamAbbrev)) {
-                return new RcpGridDataLevelNode(sNode.getValue(),
-                        fieldParamAbbrev, level);
+                if (RadarAsGridUtil.isRadarModelName(sourceValue)) {
+                    return new TiltTemporalGridDataLevelNode(sourceValue,
+                            level);
+                } else {
+                    return new TiltStaticGridDataLevelNode(sourceValue, level);
+                }
+            } else if (RadarAsGridUtil.RCP.equals(fieldParamAbbrev)
+                    && RadarAsGridUtil.isRadarModelName(sourceValue)) {
+                return new RcpGridDataLevelNode(sourceValue, level);
             }
         }
-
         return null;
     }
 
@@ -147,9 +156,7 @@ public class RadarGridExtension implements GridExtension {
             Level level = rNode.getLevel();
             Map<String, Object> gribMap = new HashMap<>();
             gribMap.put(GridConstants.DATASET_ID,
-                    RadarAdapter.RADAR_SOURCE + "-"
-                            + rNode.getRequestConstraintMap().get("icao")
-                                    .getConstraintValue());
+                    RadarAsGridUtil.getModelNameForIcao(rNode.getIcao()));
             gribMap.put(GridConstants.PARAMETER_ABBREVIATION,
                     rNode.getParamAbbrev());
             gribMap.put(GridConstants.MASTER_LEVEL_NAME,

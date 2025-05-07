@@ -1,5 +1,4 @@
 %define _component_name           awips2-database
-%define _component_project_dir    awips2.core/Installer.database
 %define _component_default_prefix /awips2/database
 #
 # AWIPS II Database Spec File
@@ -71,12 +70,6 @@ mkdir --parents "${replication_dir}"
 cp --recursive "%{_baseline_workspace}/build.edex/opt/db/replication/"* \
     "${replication_dir}"/
 
-# Install systemd unit file
-service_dir="${RPM_BUILD_ROOT}/etc/systemd/system/postgresql@awips.service.d"
-mkdir --parents "${service_dir}"
-cp "%{_baseline_workspace}/rpms/%{_component_project_dir}/30-postgresql-setup.conf" \
-    "${service_dir}"
-
 
 # Create our installation log file.
 touch "${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/sql_install.log"
@@ -146,7 +139,3 @@ rm --recursive --force ${RPM_BUILD_ROOT}
 /awips2/database/replication/setup-standby.sh
 /awips2/database/replication/create-replication-role.sh
 /awips2/database/replication/replication-config.sh
-
-
-%defattr(644,root,root,755)
-/etc/systemd/system/postgresql@awips.service.d/30-postgresql-setup.conf

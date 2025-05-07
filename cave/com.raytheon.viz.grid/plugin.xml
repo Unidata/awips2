@@ -94,7 +94,7 @@
       <contextualMenu
             actionClass="com.raytheon.viz.grid.actions.VerticalInteractionAction"
             capabilityInterface="com.raytheon.viz.grid.rsc.general.D2DGridResource"
-            name="Enable Vertical Interaction"
+            name="Vertical Interaction"
             sortID="210">
       </contextualMenu>
    </extension>

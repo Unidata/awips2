@@ -43,8 +43,8 @@
 # Apr 9,  2021  21079    kmckellery Added missing png images script
 # May 10, 2021  DCS22297 dkingfiel Remove RB.Y, SI.Y, and SW.Y
 # May 18, 2021  DCS22297 dkingfiel Remove unused/non-working configuration entries
-# Apr 26, 2023  2033896  jkelmer   Replaced xterm call for IdM phase II compatability
-#
+# Apr 26, 2023  2033896  jkelmer   Replaced xterm call for IdM phase II compatibility
+# Sep 04, 2024  2036917  dkingfiel Remove HZ.A, HZ.W, WC.A, WC.W, WC.Y and add CW.Y hazard types
 ##
 
 ##
@@ -966,9 +966,7 @@ Hazards_commonValues = [ \
     "Watches|Non-Precipitation|EH.A",
     "Watches|Non-Precipitation|FZ.A",
     "Watches|Non-Precipitation|HW.A",
-    "Watches|Non-Precipitation|HZ.A",
     "Watches|Non-Precipitation|EC.A",
-    "Watches|Winter Storm|WC.A",
     "Watches|Winter Storm|WS.A",
     "Warnings|Fire Weather|FW.W",
     "Warnings|Coastal Flooding|CF.W",
@@ -985,12 +983,10 @@ Hazards_commonValues = [ \
     "Warnings|Non-Precipitation|EH.W",
     "Warnings|Non-Precipitation|FZ.W",
     "Warnings|Non-Precipitation|HW.W",
-    "Warnings|Non-Precipitation|HZ.W",
     "Warnings|Non-Precipitation|EC.W",
     "Warnings|Winter Storm|BZ.W",
     "Warnings|Winter Storm|IS.W",
     "Warnings|Winter Storm|LE.W",
-    "Warnings|Winter Storm|WC.W",
     "Warnings|Winter Storm|WS.W",
     "Advisories|Marine|UP.Y",
     "Advisories|Marine|LO.Y",
@@ -1005,6 +1001,7 @@ Hazards_commonValues = [ \
     "Advisories|Non-Precipitation|AS.O",
     "Advisories|Non-Precipitation|AS.Y",
     "Advisories|Non-Precipitation|AQ.Y",
+    "Advisories|Non-Precipitation|CW.Y",
     "Advisories|Non-Precipitation|DU.Y",
     "Advisories|Non-Precipitation|FG.Y",
     "Advisories|Non-Precipitation|SM.Y",
@@ -1014,7 +1011,6 @@ Hazards_commonValues = [ \
     "Advisories|Non-Precipitation|LW.Y",
     "Advisories|Non-Precipitation|AF.Y",
     "Advisories|Non-Precipitation|WI.Y",
-    "Advisories|Winter Weather|WC.Y",
     "Advisories|Winter Weather|WW.Y",
     "Statements|Coastal Flooding|CF.S",
     "Statements|Coastal Flooding|LS.S",

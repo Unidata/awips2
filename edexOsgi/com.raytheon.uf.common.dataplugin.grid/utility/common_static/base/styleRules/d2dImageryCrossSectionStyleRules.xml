@@ -52,43 +52,4 @@
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>RRV</parameter>
-            <parameter>SRM</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <interpolate>false</interpolate>
-            <brightness>1.0</brightness>
-            <displayUnits>kts</displayUnits>
-            <range scale="LINEAR">
-                <minValue>-128</minValue>
-                <maxValue>125</maxValue>
-            </range>
-            <defaultColormap>Radar/8 bit Vel</defaultColormap>
-            <colorbarLabeling>
-                <increment>20</increment>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>RR</parameter>
-            <parameter>CXR</parameter>
-            <parameter>LLR</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <interpolate>false</interpolate>
-            <brightness>1.0</brightness>
-            <displayUnits>dBZ</displayUnits>
-            <range scale="LINEAR">
-                <minValue>-34</minValue>
-                <maxValue>82</maxValue>
-            </range>
-            <defaultColormap>Radar/Storm Clear Reflectivity</defaultColormap>
-            <colorbarLabeling>
-                <increment>5</increment>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
 </styleRuleset>

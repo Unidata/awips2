@@ -29,7 +29,11 @@
 #                                  the entire forecaset for each value in the row.
 # May 11, 2023  2033877  smoorthy  Utilize timezone in offsetTime.py, as opposed to
 #                                  os.environ['TZ'].
-#
+# Feb 16, 2024  2036854  smoorthy  Create more descriptive warning message when processing
+#                                  timezones.
+# Sep 04, 2024  2036917  dkingfiel Remove HZ.A, HZ.W, WC.A, WC.W, WC.Y from allowedHazards
+#                                  and wind chill/hard freeze from _getWWAValues; add
+#                                  extreme heat (XH) to _getWWAValues
 ##
 ##
 # This is a base file that is not intended to be overridden.
@@ -438,7 +442,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     zoneTZ = localTZ
                     tzid = localTZid
                     LogStream.logEvent("WARNING: Entry " + area +
-                      " does not have time zone info in AreaDictionary. Using default time zone.", LogStream.exc())
+                      " does not have time zone info in AreaDictionary, or time zone format is invalid. Using default time zone: " + str(localTZ), LogStream.exc())
 
                 if (zoneTZ, tzid) not in tzs:
                     tzs.append((zoneTZ, tzid))
@@ -1642,17 +1646,17 @@ Found description: """ + areaLabel)
         codes = {
          "AF":"Ashfall", "AS":"Air Stag", "BS":"Blowing Snow",
          "BW":"Brisk Wind", "BZ":"Blizzard", "CF":"Coast Flood",
-         "DU":"Blowing Dust", "EC":"Extreme Cold",
+         "CW": "Cold Weather", "DU":"Blowing Dust", "EC":"Extreme Cold",
          "EH":"Excess Heat", "FA":"Flood", "FF":"Flash Flood",
          "FG":"Dense Fog", "FL": "Flood", "FR":"Frost", "FZ":"Freeze",
          "HF":"Hurr Frc Wnd", "HI":"Inland Hurr", "HS":"Heavy Snow",
-         "HT":"Heat", "HU":"Hurricane", "HW":"High Wind", "HZ": "Hard Freeze",
+         "HT":"Heat", "HU":"Hurricane", "HW":"High Wind",
          "IP":"Sleet", "IS":"Ice Storm", "LB":"LkEff SnBlSn",
          "LE":"Lk Eff Snow", "LS":"Lkshore Fld", "UP":"Ice Accre",
          "LW":"Lake Wind", "SB":"Snow BloSnow", "SM":"Dense Smoke",
          "SN":"Snow", "SU":"High Surf", "SV":"Svr Tstorm",
          "TI":"Inl Trp Strm", "TO":"Tornado", "TR":"Trop Storm",
-         "TS":"Tsunami", "TY":"Typhoon", "WC":"Wind Chill", "WI":"Wind",
+         "TS":"Tsunami", "TY":"Typhoon", "WI":"Wind", "XH": "Extreme Heat",
          "WS":"Winter Storm", "WW":"Winter Weath", "ZF":"Freezing Fog",
          "ZR":"Frzng Rain", "FW.W": "Red Flag", "FW.A": "Fire Weather",
          "ZL":"Frzg Drzl"}
@@ -1873,24 +1877,19 @@ Found description: """ + areaLabel)
             ('WS.W', allActions, 'WinterWx'),  # WINTER STORM WARNING
             ('WW.Y', allActions, 'WinterWx'),  # WINTER WEATHER ADVISORY
             ('WS.A', allActions, 'WinterWx'),  # WINTER STORM WATCH
-            ('WC.W', allActions, 'WindChill'),  # WIND CHILL WARNING
-            ('WC.Y', allActions, 'WindChill'),  # WIND CHILL ADVISORY
-            ('WC.A', allActions, 'WindChill'),  # WIND CHILL WATCH
             ('DU.W', allActions, 'Dust'),  # BLOWING DUST WARNING
             ('DU.Y', allActions, 'Dust'),  # BLOWING DUST ADVISORY
             ('EC.W', allActions, 'Cold'),  # EXTREME COLD WARNING
             ('EC.A', allActions, 'Cold'),  # EXTREME COLD WATCH
-            ('CW.Y', allActions, 'Cold'),         # COLD WEATHER ADVISORY
+            ('CW.Y', allActions, 'Cold'),  # COLD WEATHER ADVISORY
             ('EH.W', allActions, 'Heat'),  # EXCESSIVE HEAT WARNING
             ('EH.A', allActions, 'Heat'),  # EXCESSIVE HEAT WATCH
-            ('XH.W', allActions, 'Heat'),         # EXTREME HEAT WARNING
-            ('XH.A', allActions, 'Heat'),         # EXTREME HEAT WATCH
+            ('XH.W', allActions, 'Heat'),  # EXTREME HEAT WARNING
+            ('XH.A', allActions, 'Heat'),  # EXTREME HEAT WATCH
             ('HT.Y', allActions, 'Heat'),  # HEAT ADVISORY
             ('FG.Y', allActions, 'Fog'),  # DENSE FOG ADVISORY
-            ('HZ.W', allActions, 'FrostFreeze'),  # HARD FREEZE WARNING
             ('FZ.W', allActions, 'FrostFreeze'),  # FREEZE WARNING
             ('FR.Y', allActions, 'FrostFreeze'),  # FROST ADVISORY
-            ('HZ.A', allActions, 'FrostFreeze'),  # HARD FREEZE WATCH
             ('FZ.A', allActions, 'FrostFreeze'),  # FREEZE WATCH
             ('HW.W', allActions, 'Wind'),  # HIGH WIND WARNING
             ('WI.Y', allActions, 'Wind'),  # WIND ADVISORY

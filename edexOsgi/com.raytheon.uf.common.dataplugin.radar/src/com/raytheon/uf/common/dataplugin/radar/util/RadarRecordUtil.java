@@ -79,6 +79,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                     buildMeltingLayerCoordinates
  * Feb 22, 2023 9021       mapeters    Add SRM constant, remove unused
  *                                     setSRMData method
+ * Oct 23, 2024 2037939    mapeters    Add elevationNumber constant
  * </pre>
  *
  * @author mnash
@@ -90,6 +91,10 @@ public class RadarRecordUtil {
             .getHandler(RadarRecordUtil.class);
 
     public static final String SRM = "SRM";
+
+    public static final String HC = "HC";
+
+    public static final String ELEVATION_NUM = "elevationNumber";
 
     private static final String NO_STORMS_DETECTED = "NO STORMS DETECTED";
 
