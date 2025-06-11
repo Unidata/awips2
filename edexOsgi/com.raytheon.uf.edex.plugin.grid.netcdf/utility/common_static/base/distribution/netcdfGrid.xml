@@ -34,9 +34,11 @@
          3/18/22 Add LightningCast
          1/15/23 Add VIIRS Flood Maps
          4/14/24 Add ABI Flood Maps
+         11/14/2024 add ALPW TICY70
+         3/29/2025 fixed ALPW regex
     -->
     <!-- TOWRdocs POC
-         Lee Byerle 4/14/2024
+	 Lee Byerle 3/29/2025
     -->
 <requestPatterns xmlns:ns2="group">
     <!-- NOS (three below are in 16.4.1 baseline -->
@@ -61,4 +63,5 @@
     <regex>^UWSSEC_AWIPS_L2-GRIDTURBF.*</regex>
     <regex>^VIIRS-Flood-NWS.*</regex>
     <regex>^ABI-Flood-[HD]COM-.*</regex>
+    <regex>^TICY70.*</regex>
 </requestPatterns>

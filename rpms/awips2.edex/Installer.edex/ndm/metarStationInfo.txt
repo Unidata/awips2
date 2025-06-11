@@ -1023,7 +1023,6 @@
 0000000000|K1JN | 48.41174|-101.891 |  672|Donnybrook, ND                   |US|MTR
 0000000000|K1JW | 40.96088|-103.19967| 1383|4.6W of Peetz, CO               |US|MTR
 0000000000|K1K1 | 37.77444|-97.11322| 416|Benton, KS                        |US|MTR
-0000072460|K1K5 | 37.01 |-101.89 | 1102|ELKHART (AMOS), KS                  |US|MTR
 0000000000|K1K8 | 36.543| -95.012| 234|Ketchum/S Grand Lake Arpt, OK        |US|MTR
 0000000000|K1KM | 46.44414| -109.801| 1332|Harlowton, MT                    |US|MTR
 0000000000|K1KN | 48.55139|-102.121| 693|Donnybrook 2, ND                   |US|MTR
@@ -1049,7 +1048,6 @@
 0000000000|K1R8 | 30.87033|-87.81933| 76|Bay Minette MuniAP, Bay Minette, AL|US|MTR
 0000000000|K1S3 | 46.27115|-106.62390| 832|Tillitt Field Airport, Forsyth, MT|US|MTR
 0000000000|K1S5 | 46.3271|-119.9704| 234|Sunnyside Muni, Sunnyside, WA      |US|MTR
-0000000000|K1U7 |42.2497|-111.3416|1807|Bear Lake County, ID                |US|MTR
 0000000000|K1U7 | 42.24976|-111.34163| 1808|Bear Lake Airport, Paris, ID    |US|MTR
 0000072614|K1V4 | 44.42 | -72.02 |  217|St. Johnsbury, VT                   |US|MTR
 0000000000|K1V6 | 38.4284|-105.106| 1659|Fremont Cnty AP, Canon City, CO    |US|MTR
@@ -1075,7 +1073,6 @@
 0000074695|K2DP | 35.69 | -75.90 |    3|DARE CO GNRY RAN, NC                |US|MTR
 0000000000|K2G2 | 40.36061|-80.70169| 365|Jefferson Cnty AP, Steubenville, OH|US|MTR
 0000000000|K2G4 | 39.580| -79.339|  894|Garrett Cnty AP, Oakland, MD        |US|MTR
-0000000000|K2G6 | 41.64 | -80.21 |  427|MEADVILLE, PA                       |US|MTR
 0000000000|K2G9 | 40.03887|-79.01500| 693|Somerset Cnty AP, Somerset, PA    |US|MTR
 0000000000|K2GL | 29.409| -90.288|    3|Galliano Heliport, LA               |US|MTR
 0000000000|K2I0 | 37.35593| -87.39822| 134|Madisonville Muni, KY            |US|MTR
@@ -1110,7 +1107,6 @@
 0000000000|K3DU | 46.68 |-113.15 | 1202|DRUMMOND, MT                        |US|MTR
 0000000000|K3E0 | 35.714|-100.603|  829|Miami-Roberts Cnty AP, Miami, TX    |US|MTR
 0000000000|K3F3 |32.07278|-93.76561| 99|CE 'Rusty' Williams AP, Mansfield, LA|US|MTR
-0000000000|K3FC | 40.09 | -95.60 |  445|FALLS CITY, NE                      |US|MTR
 0000000000|K3HT | 46.44 |-109.84 | 1268|HARLOWTON, MT                       |US|MTR
 0000000000|K3I2 | 38.915| -82.099|  196|Mason Cnty AP, Pt Pleasant, WV      |US|MTR
 0000000000|K3J1 | 32.49685|-80.99315| 26|Ridgeland-Claude Dean Arpt, Ridgeland, SC |US|MTR
@@ -1123,7 +1119,6 @@
 0000000000|K3OI | 40.62 | -93.93 |  342|LAMONI, IA                          |US|MTR
 0000000000|K3R0 | 28.362| -97.791|   82|Beeville Muni, Beeville, TX         |US|MTR
 0000000000|K3R7 | 30.2427| -92.6735|  7|Jennings AP, Jennings, LA           |US|MTR
-0000000000|K3S2 | 45.26 |-122.75 |    8|AURORA, OR                          |US|MTR
 0000000000|K3S8 | 42.5101|-123.388| 345|Grants Pass AP, Grants Pass, OR     |US|MTR
 0000000000|K3T5 | 29.91 | -96.95 |   99|La Grange/Fayette Regnl, TX         |US|MTR
 0000000000|K3U3 | 46.15341|-112.86773| 1534|Bowman Field Arpt, Anaconda, MT |US|MTR
@@ -1148,12 +1143,10 @@
 0000000000|K4A6 | 34.6887| -86.0059| 198|Scottsboro Muni, Scottsboro, AL    |US|MTR
 0000000000|K4A9 | 34.474| -85.721|  267|Isbell Fld AP, Fort Payne, AL       |US|MTR
 0000000000|K4B8 | 41.68933|-72.86469| 62|Robertson Fld Arpt, Plainville, CT |US|MTR
-0000000000|K4BL | 37.62 |-109.47 | 1840|BLANDING, UT                        |US|MTR
 0000000000|K4BM | 39.05024|-105.51436| 3432|Wilkerson Pass, CO              |US|MTR
 0000000000|K4BQ | 45.44 |-105.40 |  922|BROADUS, MT                         |US|MTR
 0000000000|K4C0 | 29.78 | -93.18 |   -0|722339 Oil Platform, LA             |US|MTR
 0000000000|K4CR | 34.11 |-105.68 | 1981|CORONA, NM                          |US|MTR
-0000000000|K4DG | 42.76 |-105.38 | 1477|DOUGLAS, WY                         |US|MTR
 0000000000|K4F2 | 32.17608|-94.29881| 76|Panola Cnty AP, Carthage, TX       |US|MTR
 0000000000|K4I3 | 40.329| -82.526|  363|Knox Cnty, Mount Vernon, OH         |US|MTR
 0000072463|K4LJ | 38.12 |-102.60 | 1103|LAMAR, CO                           |US|MTR
@@ -1162,7 +1155,6 @@
 0000000000|K4M9 | 36.404| -90.648|   89|Corning, AR                         |US|MTR
 0000074638|K4MR | 34.30 |-103.80 | 1326|MELROSE GNRY RAN, NM                |US|MTR
 0000000000|K4O4 | 33.909| -94.859|  144|McCurtain Cnty Rg AP, Idabel, OK    |US|MTR
-0000072789|K4OM | 48.44 |-119.53 |  374|OMAK, WA                            |US|MTR
 0000000000|K4R4 | 30.461| -87.877|   28|HL Sonny Callahan AP, Fairhope, AL  |US|MTR
 0000000000|K4R5 | 46.78867|-90.75872| 198|Major Gilbert AP, La Pointe, WI   |US|MTR
 0000000000|K4S1 | 42.413|-124.424|    5|Gold Beach Muni, OR                 |US|MTR
@@ -1183,7 +1175,6 @@
 0000000000|K5A6 | 33.465| -89.7302| 111|Winona-Montgomery AP, Winona, MS    |US|MTR
 0000000000|K5A9 |32.9385| -84.6964| 265|Warm Springs, GA                    |US|MTR
 0000000000|K5B2 | 43.05 | -73.86 |  132|SARATOGA SPRINGS, NY                |US|MTR
-0000072516|K5B5 | 42.89 | -73.25 |  252|Bennington/Wm H Morse State, VT     |US|MTR
 0000000000|K5C1 | 29.724| -98.695|  422|Boerne Stage Field AP, Boerne, TX   |US|MTR
 0000000000|K5H4 | 47.791| -99.932|  490|Harvey Muni, Harvey, ND             |US|MTR
 0000000000|K5K2 | 38.45146| -101.75008| 1100|Tribune Muni Arpt, Tribune, KS |US|MTR
@@ -1198,7 +1189,6 @@
 0000000000|K6A1 | 32.5697| -84.2452| 203|Butler Muni, Butler, GA            |US|MTR
 0000000000|K6A2 | 33.227| -84.275|  292|Griffin-Spaldg Cnty AP, Griffin, GA |US|MTR
 0000000000|K6B0 | 43.9848| -73.0959| 149|Middlebury State AP, Middlebury, VT|US|MTR
-0000000000|K6B1 | 43.28 | -70.92 |  104|Rochester, NH                       |US|MTR
 0000000000|K6B4 | 43.01611|-75.16954| 404|Frankfort-Highland Arpt, NY       |US|MTR
 0000000000|K6B9 | 42.91396| -76.44077|  316|Skaneateles Aero Drome, Skaneateles, NY|US|MTR
 0000000000|K6E5 |44.433 | -97.5582| 526|Desmet, SD                          |US|MTR
@@ -1206,13 +1196,11 @@
 0000000000|K6L4 | 37.8557| -81.9159| 508|Logan Cnty AP, Logan, WV           |US|MTR
 0000000000|K6L9 | 33.66 |-118.00 |   35|HUNTINGTON BEACH, CA                |US|MTR
 0000000000|K6P9 | 32.43172|-98.59475| 450|Cook Canyon Ranch AP, Ranger, TX  |US|MTR
-0000000000|K6R0 | 30.34 | -89.82 |    8|Slidell, LA                         |US|MTR
 0000000000|K6R3 | 30.356| -95.008|   46|Cleveland Muni, Cleveland, TX       |US|MTR
 0000000000|K6R6 | 30.0465|-102.2132| 708|Dryden/Terrell Co, TX              |US|MTR
 0000000000|K6S0 | 45.80648|-109.97826| 1370|Howard Field AP, Big Timber, MT |US|MTR
 0000000000|K6S2 | 43.9828|-124.1113| 16|Florence Muni, Florence, OR         |US|MTR
 0000000000|K6S8 | 45.70518|-108.76077| 1080|Laurel Muni Airport, Laurel, MT |US|MTR
-0000000000|K6V1 | 40.55 |-101.65 | 1003|IMPERIAL, NE                        |US|MTR
 0000000000|K6V8 | 38.51 |-107.88 | 1752|MONTROSE, CO                        |US|MTR
 0000000000|K74V | 40.27842|-110.05139| 1576|Roosevelt Muni AP, Roosevelt, UT|US|MTR
 0000000000|K75S | 48.51 |-122.33 |   43|BURLINGTON/MT VR, WA                |US|MTR
@@ -1381,7 +1369,7 @@
 0000000000|KART | 44.01 | -76.02 |   99|WATERTOWN INTL A, NY                |US|MTR
 0000000000|KARV | 45.93 | -89.73 |  496|Arbor Vitae/Lakeland-NFLee Fld, WI  |US|MTR
 0000000000|KARW | 32.412| -80.634|    3|Beaufort, SC                        |US|MTR
-0000000000|KASD | 30.35 | -89.82 |    9|Slidell, LA                         |US|MTR
+0000000000|KASD | 30.34633|-89.82081| 9|Slidell Airport, Slidell, LA        |US|MTR
 0000000000|KASE | 39.22188|-106.86823| 2389|Aspen-Pitkin Co/Sardy Field, CO |US|MTR
 0000000000|KASG | 36.19 | -94.12 |  412|SPRINGDALE MUNI, AR                 |US|MTR
 0000000000|KASH | 42.79 | -71.52 |   61|NASHUA/BOIRE FIE, NH                |US|MTR
@@ -1429,13 +1417,12 @@
 0000000000|KAZC | 36.95994|-113.0139|1486|Colorado Cty AP, Colorado Cty, AZ |US|MTR
 0000000000|KAZE | 31.885| -82.647|   78|Hazlehurst AP, Hazlehurst, GA       |US|MTR
 0000000000|KAZO | 42.228253|-85.545990| 266|KALAMAZOO INTL A, MI            |US|MTR
-0000000000|KB23 | 40.61 |-116.87 | 1381|BATTLE MOUNTAIN, NV                 |US|MTR
 0000000000|KBAB | 39.14 |-121.44 |   34|BEALE AFB/MARYSV, CA                |US|MTR
 0000000000|KBAC | 46.941185| -98.018018| 427|Barnes Co Muni, Valley City, ND|US|MTR
 0000000000|KBAD | 32.51 | -93.67 |   51|BARKSDALE AFB, LA                   |US|MTR
 0000000000|KBAF | 42.16 | -72.72 |   83|Westfield/Barnes Muni, MA           |US|MTR
 0000072436|KBAK | 39.26 | -85.88 |  201|COLUMBUS, IN                        |US|MTR
-0000000000|KBAM | 40.59906|-116.87433|1283|Battle Mtn AP, Battle Mountain,NV|US|MTR
+0000000000|KBAM | 40.59906|-116.87433|1383|Battle Mtn AP, Battle Mountain,NV|US|MTR
 0000000000|KBAX | 43.79 | -82.99 |  234|Bad Axe, MI                         |US|MTR
 0000000000|KBAZ | 29.709| -98.045|  195|New Braunfels National Airport, TX  |US|MTR
 0000000000|KBBB | 45.32 | -95.65 |  317|Benson Muni, MN                     |US|MTR
@@ -1450,7 +1437,7 @@
 0000000000|KBCR | 30.84389| -85.60175| 26|Tri-County Airport, Bonifay, FL   |US|MTR
 0000000000|KBCT | 26.38 | -80.10 |    4|Boca Raton Arpt, FL                 |US|MTR
 0000000000|KBDE | 48.73 | -94.60 |  330|BAUDETTE, MN                        |US|MTR
-0000000000|KBDG | 37.5833|-109.4833|1789|Blanding Muni, Blanding, UT        |US|MTR
+0000000000|KBDG | 37.58333|-109.48328|1789|Blanding Muni Arpt, Blanding, UT |US|MTR
 0000000000|KBDH | 45.127| -95.127|  343|Willmar Muni, Willmar, MN           |US|MTR
 0000072508|KBDL | 41.94 | -72.68 |   60|HARTFORD/BRADLEY, CT                |US|MTR
 0000000000|KBDN | 44.095|-121.200| 1055|Bend AP, OR                         |US|MTR
@@ -1636,7 +1623,6 @@
 0000000000|KCGZ | 32.96 |-111.77 |  446|CASA GRANDE, AZ                     |US|MTR
 0000072324|KCHA | 35.04 | -85.20 |  210|CHATTANOOGA/LOVE, TN                |US|MTR
 0000000000|KCHD | 33.27 |-111.81 |  379|Chandler Muni, AZ                   |US|MTR
-0000074494|KCHH | 41.68 | -69.97 |   22|CHATHAM, MA                         |US|MTR
 0000000000|KCHJ | 44.75 |-109.37 | 2529|Chief Joseph, WY                    |US|MTR
 0000000000|KCHK | 35.10 | -97.97 |  351|Chickasha Muni, OK                  |US|MTR
 0000000000|KCHO | 38.14 | -78.45 |  195|Charlottesville-Albemarle, VA       |US|MTR
@@ -1709,7 +1695,7 @@
 0000000000|KCQM | 47.82 | -92.69 |  404|Cook Muni, MN                       |US|MTR
 0000000000|KCQT | 34.02 |-118.28 |   56|Los Angeles/Downtown - USC, CA      |US|MTR
 0000000000|KCQW | 34.713| -79.957|   73|Cheraw, SC                          |US|MTR
-0000000000|KCQX | 41.70 | -69.99 |   22|CHATHAM, MA                         |US|MTR
+0000000000|KCQX | 41.68830|-69.98965| 19|Chathan Muni Arpt, Chatham, MA     |US|MTR
 0000000000|KCRE | 33.81 | -78.72 |   10|North Myrtle Beach/Grand Strand, SC |US|MTR
 0000000000|KCRG | 30.33 | -81.52 |   12|JACKSNVILE-CRAIG, FL                |US|MTR
 0000072251|KCRP | 27.77 | -97.50 |   16|CORPUS CHRISTI I, TX                |US|MTR
@@ -1779,7 +1765,7 @@
 0000000000|KDAG | 34.88 |-116.78 |  588|DAGGETT, CA                         |US|MTR
 0000000000|KDAL | 32.86 | -96.85 |  149|DALLAS/LOVE, TX                     |US|MTR
 0000000000|KDAN | 36.5728 | -79.3353 |  172|DANVILLE, VA                    |US|MTR
-0000000000|KDAW | 43.278| -70.922|   98|Rochester/Skyhaven, NH              |US|MTR
+0000000000|KDAW | 43.28423|-70.92955| 98|Skyhaven Airport, Rochester, NH    |US|MTR
 0000072429|KDAY | 39.91 | -84.20 |  306|DAYTON/JAMES M C, OH                |US|MTR
 0000000000|KDBN | 32.564| -82.985|   94|W H Bud Barron AP, Dublin, GA       |US|MTR
 0000072547|KDBQ | 42.41 | -90.70 |  329|DUBUQUE MUNICIPA, IA                |US|MTR
@@ -1789,7 +1775,7 @@
 0000000000|KDCU | 34.66 | -86.94 |  181|DECATUR, AL                         |US|MTR
 0000000000|KDCY | 38.7004|-87.12973| 143|Daviess Cnty AP, Washington, IN    |US|MTR
 0000072451|KDDC | 37.78 | -99.97 |  790|DODGE CITY(AWOS), KS                |US|MTR
-0000072516|KDDH | 42.890| -73.246|  244|Bennington/Wm H Morse State, VT     |US|MTR
+0000072516|KDDH | 42.89133|-73.24640| 252|William Morse Arpt, Bennington, VT|US|MTR
 0000000000|KDEC | 39.83080|-88.87194| 207|DECATUR, IL                       |US|MTR
 0000000000|KDED | 29.06687|-81.28645| 24|Deland Muni, Deland, FL            |US|MTR
 0000000000|KDEH | 43.28 | -91.73 |  353|Decorah, IA                         |US|MTR
@@ -1799,7 +1785,7 @@
 0000000000|KDEW | 47.974|-117.428|  669|Deer Park, WA                       |US|MTR
 0000000000|KDFI | 41.34 | -84.43 |  216|Defiance Memorial, OH               |US|MTR
 0000072259|KDFW | 32.91 | -97.03 |  174|DALLAS/FT WORTH, TX                 |US|MTR
-0000000000|KDGW | 42.80 |-105.39 | 1502|Douglas/Converse Co, WY             |US|MTR
+0000000000|KDGW | 42.79719|-105.38583| 1504|Converse Cnty Arpt, Douglas, WY |US|MTR
 0000000000|KDHN | 31.32 | -85.45 |  122|DOTHAN, AL                          |US|MTR
 0000000000|KDHS | 44.21 |-106.10 | 1249|Dead Horse, WY                      |US|MTR
 0000000000|KDHT | 36.03 |-102.55 | 1216|DALHART, TX                         |US|MTR
@@ -1831,7 +1817,7 @@
 0000000000|KDOE | 46.27 | -86.67 |  247|Doe Lake, MI                        |US|MTR
 0000000000|KDOV | 39.14 | -75.47 |    9|DOVER AFB, DE                       |US|MTR
 0000000000|KDPA | 41.8964|-88.2512| 231|CHICAGO-DUPAGE, IL                  |US|MTR
-0000074003|KDPG | 40.21 |-112.93 | 1326|DUGWAY PRVG GROU, UT                |US|MTR
+0000074003|KDPG | 40.19738|-112.93505| 1326|Dugway Proving Ground, UT       |US|MTR
 0000000000|KDPL | 35.000028|-77.981667| 42|Kenansville/Duplin Co, NC        |US|MTR
 0000000000|KDQH | 31.477| -82.861|   78|Douglas Muni, Douglas, GA           |US|MTR
 0000072387|KDRA | 36.62 |-116.02 | 1009|MERCURY/DESERT R, NV                |US|MTR
@@ -1919,7 +1905,7 @@
 0000000000|KEGI | 30.65 | -86.52 |   59|DUKE FLD/EGLIN AFB, FL              |US|MTR
 0000000000|KEGT | 37.32361|-97.38833| 380|Wellington, KS                    |US|MTR
 0000000000|KEGV | 45.93 | -89.27 |  500|Eagle River/Union, WI               |US|MTR
-0000000000|KEHA | 37.01 |-101.88 | 1102|ELKHART, KS                         |US|MTR
+0000000000|KEHA | 37.00078|-101.88003| 1104|Elkhart-Morton Cnty Arpt, KS    |US|MTR
 0000000000|KEHC | 28.429| -92.878|   -0|East Cameron 278B, LA AWOS-3        |US|MTR
 0000000000|KEHO | 35.256| -81.601|  258|Shelby Muni, NC                     |US|MTR
 0000000000|KEHR | 37.80783|-87.68569| 118|Henderson Airport, Henderson, KY  |US|MTR
@@ -2034,7 +2020,7 @@
 0000072376|KFGZ | 35.23 |-111.82 | 2180|Flagstaff/Belemont, AZ              |US|MTR
 0000000000|KFHB | 30.61183| -81.461194| 5|Fernandina Beach Muni, FL         |US|MTR
 0000000000|KFHM | 34.06778|-118.24167| 126|Frank Hotchkin Mem, Los Angeles, CA|US|MTR
-0000000000|KFHR | 48.52 |-123.02 |   33|FRIDAY HARBOR, WA                   |US|MTR
+0000000000|KFHR | 48.52197|-123.02436| 34|Friday Harbor Airport, WA         |US|MTR
 0000072273|KFHU | 31.58 |-110.33 | 1422|FORT HUACHUCA, AZ                   |US|MTR
 0000000000|KFIG | 41.047| -78.412|  462|Clearfield-Lawrence, PA             |US|MTR
 0000000000|KFIN | 29.467| -81.206|   10|Flagler Cnty AP, Bunnell, FL        |US|MTR
@@ -2056,7 +2042,7 @@
 0000000000|KFMM | 40.33150|-103.80702| 1376|Fort Morgan Muni, Fort Morgan, CO |US|MTR
 0000000000|KFMN | 36.76 |-108.23 | 1677|Farmington/Four Corners Regnl, NM   |US|MTR
 0000000000|KFMY | 26.58 | -81.87 |    5|Fort Myers/Page Fld, FL             |US|MTR
-0000000000|KFNB | 40.08 | -95.58 |  300|FALLS CITY/BRNNR, NE                |US|MTR
+0000000000|KFNB | 40.07878|-95.59200| 300|Brenner Field Arpt, Falls City, NE|US|MTR
 0000000000|KFNL | 40.44267|-105.00965| 1528|Ft Collins-Loveland Muni, CO    |US|MTR
 0000072637|KFNT | 42.98 | -83.73 |  236|FLINT/BISHOP INT, MI                |US|MTR
 0000000000|KFOA | 38.66726|-88.45270| 144|Flora, IL                         |US|MTR
@@ -2149,7 +2135,7 @@
 0000000000|KGIC | 45.943|-116.123| 1010|Idaho Cnty AP, Grangeville, ID      |US|MTR
 0000000000|KGIF | 28.063| -81.753|   44|Winter Haven, FL                    |US|MTR
 0000072476|KGJT | 39.12 |-108.53 | 1452|GRAND JUNCTION, CO                  |US|MTR
-0000000000|KGKJ | 41.62 | -80.21 |  428|Meadville, PA                       |US|MTR
+0000000000|KGKJ | 41.62653|-80.21472| 427|Port Meadville Arpt, Meadville, PA|US|MTR
 0000000000|KGKT | 35.8578| -83.5287| 309|Gatlinbg-Pigeon Fg, Sevierville, TN|US|MTR
 0000000000|KGKY | 32.664| -97.096|  192|Arlington, TX                       |US|MTR
 0000072465|KGLD | 39.38 |-101.70 | 1124|GOODLAND/RENNER, KS                 |US|MTR
@@ -2401,7 +2387,7 @@
 0000000000|KILG | 39.68 | -75.60 |   24|WILMINGTON, DE                      |US|MTR
 0000000000|KILM | 34.28 | -77.92 |    9|WILMINGTON, NC                      |US|MTR
 0000072426|KILN | 39.43 | -83.80 |  328|Wilmington/Airborne Airpark, OH     |US|MTR
-0000000000|KIML | 40.54 |-101.63 | 1000|IMPERIAL, NE                        |US|MTR
+0000000000|KIML | 40.51033|-101.62015| 999|Imperial Muni Arpt, Imperial, NE |US|MTR
 0000000000|KIMM | 26.4338| -81.4014 |11|Immokalee Rgnl AP, Immokalee, FL    |US|MTR
 0000000000|KIMS | 38.7599| -85.4647| 250|Madison Muni, Madison, IN          |US|MTR
 0000000000|KIMT | 45.81 | -88.11 |  350|Iron Mountain-Kingsford/Ford, MI    |US|MTR
@@ -2569,7 +2555,7 @@
 0000000000|KLKR | 34.723| -80.855|  148|Lancaster, SC                       |US|MTR
 0000000000|KLKU | 38.011| -77.978|  120|Louisa Co/Freeman Fld, VA           |US|MTR
 0000000000|KLKV | 42.161|-120.399| 1433|Lakeview, OR                        |US|MTR
-0000000000|KLLJ | 44.523|-114.215| 1536|Challis, ID                         |US|MTR
+0000000000|KLLJ | 44.52361|-114.21794| 1547|Challis Airport, Challis, ID    |US|MTR
 0000000000|KLLN | 33.556| -102.375| 1071|Levelland Muni, TX                 |US|MTR
 0000000000|KLLQ | 33.64 | -91.75 |   82|Monticello Muni/Ellis Fld, AR       |US|MTR
 0000000000|KLMO | 40.16116|-105.16046|1538|Vance Brand AP, Longmont, CO     |US|MTR
@@ -2726,7 +2712,6 @@
 0000000000|KMIB | 48.43 |-101.35 |  508|MINOT AFB, ND                       |US|MTR
 0000000000|KMIC | 45.08 | -93.38 |  265|MINPOLIS/CRYSTAL, MN                |US|MTR
 0000000000|KMIE | 40.242| -85.396|  286|Muncie/Delaware Co-Johnson Fld, IN  |US|MTR
-0000000000|KMIJ | 40.19 |-112.93 | 1329|DUGWAY/TOOELE, UT                   |US|MTR
 0000000000|KMIO |36.90922|-94.88750| 246|MIAMI Regional Airport, OK         |US|MTR
 0000000000|KMIS | 29.296| -88.842|  -0|Main Pass 140B AWOS (Apache Corp), LA|US|MTR
 0000000000|KMIV | 39.37 | -75.07 |   26|Millville Muni, NJ                  |US|MTR
@@ -2862,7 +2847,6 @@
 0000000000|KNBT | 35.022| -76.463|    5|Piney Island, NC                    |US|MTR
 0000000000|KNCA | 34.707| -77.445|    8|New River MCAS, Jacksonville, NC    |US|MTR
 0000000000|KNDZ | 30.704| -87.023|   54|Whiting Fld-S NAS, Milton, FL       |US|MTR
-0000000000|KNED | 43.38 | -99.85 |  622|Winner/Bob Wiley Field, SD          |US|MTR
 0000072409|KNEL | 40.04 | -74.32 |   24|LAKEHURST NAS, NJ                   |US|MTR
 0000000000|KNEW | 30.04 | -90.03 |    3|New Orleans/Lakefront, LA           |US|MTR
 0000000000|KNFE | 36.69204|-76.13456| 5|Fentress NAF, Fentress, VA          |US|MTR
@@ -2878,7 +2862,6 @@
 0000074612|KNID | 35.686|-117.692|  696|China Lake NAWS, CA                 |US|MTR
 0000000000|KNIP | 30.236| -81.681|    7|JACKSONVILLE NAS, FL                |US|MTR
 0000000000|KNIR | 28.38 | -97.67 |   58|BEEVILLE/CHASE, TX                  |US|MTR
-0000000000|KNIS | 34.886| -76.863|    8|MCAS Cherry Point, Jacksonville, NC |US|MTR
 0000072281|KNJK | 32.829|-115.672|  -13|EL CENTRO NAF, CA                   |US|MTR
 0000000000|KNJM | 34.69 | -77.04 |    7|BOGUE FIELD MCAL, NC                |US|MTR
 0000000000|KNJW | 32.796| -88.832|  165|Joe Wms Outly Fld, NAS Meridian, MS |US|MTR
@@ -2976,7 +2959,7 @@
 0000000000|KOLZ | 42.68 | -91.96 |  328|Oelwen, IA                          |US|MTR
 0000072550|KOMA | 41.30 | -95.90 |  299|OMAHA/EPPLEY FIE, NE                |US|MTR
 0000000000|KOMH | 38.247| -78.046|  142|Orange/Orange Co, VA                |US|MTR
-0000000000|KOMK | 48.46 |-119.52 |  396|Omak Arpt, WA                       |US|MTR
+0000000000|KOMK | 48.46441|-119.51805| 398|Omak Airport, Omak, WA           |US|MTR
 0000000000|KOMN | 29.301| -81.114|    9|Ormond Beach Muni, FL               |US|MTR
 0000000000|KONA | 44.09 | -91.70 |  200|WINONA MUNI, MN                     |US|MTR
 0000000000|KONG | 46.89 | -89.25 |  202|Ontonagon, MI                       |US|MTR
@@ -3041,8 +3024,7 @@
 0000000000|KP08 | 32.936|-111.4265| 480|Coolidge Muni, Coolidge, AZ         |US|MTR
 0000072765|KP24 | 47.76 |-101.83 |  624|ROSEGLEN (AMOS), ND                 |US|MTR
 0000072452|KP28 | 37.30 | -98.58 |  468|MEDICINE LODGE A, KS                |US|MTR
-0000000000|KP33 | 32.24 |-109.89 | 1274|Willcox/Cochise Co, AZ              |US|MTR
-0000000000|KP33 |32.2454|-109.8946|1276|Wilcox, AZ                          |US|MTR
+0000000000|KP33 |32.24542|-109.89464|1276|Cochise Cnty Airport, Wilcox, AZ  |US|MTR
 0000000000|KP34 | 35.65 |-109.07 | 2054|Window Rock, AZ                     |US|MTR
 0000072487|KP38 | 37.62 |-114.52 | 1335|Caliente, NV                        |US|MTR
 0000000000|KP52 |34.7301|-112.0351|1079|Cottonwood, AZ                      |US|MTR
@@ -3097,7 +3079,7 @@
 0000000000|KPIB | 31.47 | -89.33 |   91|PINE BELT RGNL, MS                  |US|MTR
 0000000000|KPIE | 27.91 | -82.69 |    3|St Petersburg/Clearwater Intl, FL   |US|MTR
 0000072578|KPIH | 42.93 |-112.60 | 1365|POCATELLO MUNICI, ID                |US|MTR
-0000000000|KPIL | 26.159| -97.338|    5|Port Isabel/Cameron Co, TX          |US|MTR
+0000000000|KPIL | 26.16619|-97.34589| 6|Port Isabel-Cameron Co Airport, TX  |US|MTR
 0000000000|KPIM | 32.84069|-84.88244| 275|Harris Cnty AP, Pine Mountain, GA |US|MTR
 0000000000|KPIN | 44.53 |-106.81 | 1402|Piney Creek, WY                     |US|MTR
 0000000000|KPIR | 44.39 |-100.28 |  531|PIERRE, SD                          |US|MTR
@@ -3154,8 +3136,7 @@
 0000000000|KPSP | 33.84 |-116.50 |  146|PALM SPRINGS, CA                    |US|MTR
 0000000000|KPSX | 28.72 | -96.25 |    5|PALACIOS, TX                        |US|MTR
 0000000000|KPTB | 37.19 | -77.52 |   59|PETERSBURG, VA                      |US|MTR
-0000000000|KPTD |44.6757| -74.9469| 140|Potsdam, VT                         |US|MTR
-0000000000|KPTD | 44.68 | -74.95 |  144|DAMON FIELD, NY                     |US|MTR
+0000000000|KPTD | 44.67667|-74.94844| 144|Damon Field Airport, Potsdam, NY  |US|MTR
 0000000000|KPTK | 42.67 | -83.42 |  299|Pontiac/Oakland Co Intl, MI         |US|MTR
 0000000000|KPTN | 29.71 | -91.34 |    3|Patterson, LA                       |US|MTR
 0000000000|KPTS | 37.449| -94.731|  290|Atkinson Muni, Pittsburg, KS        |US|MTR
@@ -3189,7 +3170,6 @@
 0000000000|KPYX | 36.414|-100.750|  889|Perryton, TX                        |US|MTR
 0000000000|KPZQ | 45.407| -83.813|  204|Presque Is Cnty AP, Rogers City, MI |US|MTR
 0000000000|KRAC | 42.7611|-87.8139| 205|Racine/John H Batten, WI            |US|MTR
-0000000000|KRAD | 48.94 | -95.34 |  328|WARROAD(AWOS), MN                   |US|MTR
 0000000000|KRAL | 33.95 |-117.45 |  249|Riverside Muni, CA                  |US|MTR
 0000000000|KRAP | 44.045835|-103.054436| 966|Rapid City Reg AP, Rapid City, SD|US|MTR
 0000000000|KRAS | 27.812| -97.089|    2|Port Aransas, TX                    |US|MTR
@@ -3266,7 +3246,7 @@
 0000000000|KRQE | 35.657|-109.061| 2055|Window Rock, AZ                     |US|MTR
 0000000000|KRQO | 35.473| -98.006|  432|El Reno Muni Air Park, El Reno, OK  |US|MTR
 0000000000|KRRL | 45.20 | -89.71 |  401|Merrill Muni, WI                    |US|MTR
-0000000000|KRRT | 48.94 | -95.35 |  327|Warroad, MN                         |US|MTR
+0000000000|KRRT | 48.94147|-95.34847| 328|Warroad International Airport, MN |US|MTR
 0000000000|KRSL | 38.8761|-98.8092| 568|Russell Muni, KS                    |US|MTR
 0000000000|KRSN | 32.514| -92.588|   95|Ruston Regnl, LA                    |US|MTR
 0000000000|KRSP | 39.645| -77.468|  561|Naval Support Facility, Thurmont, MD|US|MTR
@@ -3307,7 +3287,6 @@
 0000000000|KS10 | 47.8660|-119.9427| 385|Lake Chelan AP, Chelan, WA         |US|MTR
 0000000000|KS12 | 44.63782|-123.05945| 69|Albany Muni Airport, Albany, OR   |US|MTR
 0000000000|KS14 | 44.30 |-112.10 | 1794|SPENCER, ID                         |US|MTR
-0000000000|KS19 | 48.51 |-123.00 |   37|FRIDAY HARBOR, WA                   |US|MTR
 0000000000|KS21 |43.8763|-121.4531|1267|Sunriver, OR                        |US|MTR
 0000000000|KS24 |41.2957| -83.0372| 201|Fremont, OH                         |US|MTR
 0000000000|KS25 | 47.796583|-103.255194| 643|Watford City Muni, ND          |US|MTR
@@ -3499,7 +3478,6 @@
 0000000000|KSZY | 35.20294| -88.49836| 186|Selmer/Robert Sibley, TN         |US|MTR
 0000000000|KT18 | 27.207| -98.121|   34|Falfurrias, TX                      |US|MTR
 0000000000|KT20 | 29.5291| -97.4643| 108|Dreyer Mem AP, Gonzales, TX        |US|MTR
-0000000000|KT31 | 26.17 | -97.35 |    6|Port Isabel/Cameron Co, TX          |US|MTR
 0000000000|KT35 | 30.879| -96.971|  123|Cameron Muni, Cameron, TX           |US|MTR
 0000000000|KT39 | 33.58233|-98.61867|325|Archer City Muni Arpt, Archer City, TX|US|MTR
 0000000000|KT41 | 29.66925| -95.06419| 8|La Porte Muni Airport, La Porte, TX|US|MTR
@@ -3600,7 +3578,6 @@
 0000072326|KTYS | 35.81 | -83.98 |  302|KNOXVILLE MUNICI, TN                |US|MTR
 0000000000|KTZR | 39.90 | -83.13 |  280|Columbus/Bolton, OH                 |US|MTR
 0000000000|KU14 | 39.73658|-111.87006| 1531|Nephi Muni Airport, Nephi, UT   |US|MTR
-0000000000|KU15 | 44.53 |-114.22 | 1529|CHALLIS, ID                         |US|MTR
 0000000000|KU16 | 41.05 |-113.07 | 1292|EAGLE RANGE, UT                     |US|MTR
 0000000000|KU17 | 37.51 |-110.70 | 1110|MARINA/BULLFROG, UT                 |US|MTR
 0000000000|KU24 | 39.34 |-112.59 | 1414|DELTA, UT                           |US|MTR
@@ -3609,14 +3586,13 @@
 0000000000|KU52 | 38.23058|-112.67542| 1787|Beaver Muni Airport, Beaver, UT |US|MTR
 0000000000|KU55 | 37.84522|-112.39194| 2061|Panguitch Muni AP, Panguitch, UT|US|MTR
 0000000000|KU64 |37.9324|-109.3412|2119|Monticello, CO                      |US|MTR
-0000074420|KU67 | 40.30 |-110.05 | 1556|ROOSEVELT, UT                       |US|MTR
 0000000000|KU68 | 44.9117|-108.4455|1248|N Big Horn AP, Cowley/Lov/Byr, WY  |US|MTR
 0000000000|KU69 | 40.19375|-110.38298|1777|Duchesne Muni AP, Duchesne, UT   |US|MTR
 0000000000|KU71 | 40.48 |-109.53 | 1612|VERNAL, UT                          |US|MTR
 0000000000|KU73 | 42.73 |-114.46 | 1234|Jerome, ID                          |US|MTR
 0000000000|KU78 | 42.66 |-111.58 | 1781|SODA SPRINGS, ID                    |US|MTR
 0000000000|KU96 | 37.43531|-110.56428| 1340|Cal Black Arpt, Halls Crossing, UT|US|MTR
-0000000000|KUAO | 45.2490|-122.7660| 60|Aurora, OR                          |US|MTR
+0000000000|KUAO | 45.24713|-122.77005| 61|Aurora State Airport, Aurora, OR  |US|MTR
 0000000000|KUBE | 45.50597| -91.98109| 378|Cumberland Muni, Cumberland, WI  |US|MTR
 0000072385|KUCC | 36.96 |-116.05 | 1195|YUCCA FLAT, NV                      |US|MTR
 0000000000|KUCP | 41.025| -80.413|  327|New Castle Muni, PA                 |US|MTR
@@ -3722,7 +3698,6 @@
 0000000000|KWBF | 26.931| -90.507|   10|Walker Ridge 29, LA                 |US|MTR
 0000000000|KWDG | 36.379| -97.791|  356|Enid Woodring Rgnl AP, Enid, OK     |US|MTR
 0000000000|KWDR | 33.982| -83.668|  287|Winder-Barrow, GA                   |US|MTR
-0000000000|KWEY | 44.66 |-111.10 | 2031|WEST YELLOWSTONE, MT                |US|MTR
 0000000000|KWHP | 34.26 |-118.41 |  306|Los Angeles/Whiteman, CA            |US|MTR
 0000000000|KWIN | 47.88 | -89.18 |  212|Windigo, MI                         |US|MTR
 0000000000|KWJF | 34.73 |-118.22 |  728|LANCASTER, CA                       |US|MTR
@@ -3737,7 +3712,7 @@
 0000000000|KWVL | 44.54 | -69.69 |  101|Waterville, ME                      |US|MTR
 0000000000|KWWD | 39.00837|-74.90851| 7|Cape May Cnty Arpt, Wildwood, NJ    |US|MTR
 0000000000|KWWR | 36.44 | -99.52 |  667|West Woodward, OK                   |US|MTR
-0000000000|KWYS | 44.6884|-111.1176|2027|Yellowstone AP, W Yellowstone, MT  |US|MTR
+0000000000|KWYS | 44.68839|-111.11764|2027|Yellowstone AP, W Yellowstone, MT|US|MTR
 0000000000|KX07 | 27.89389|-81.62042| 39|Lake Wales Muni AP, Lake Wales, FL |US|MTR
 0000000000|KX21 | 28.622| -80.836|    9|Arthur Dunn Air Pk, Titusville, FL  |US|MTR
 0000000000|KX26 | 27.81325| -80.49558| 7|Sebastian Muni AP, Sebastian, FL   |US|MTR
@@ -3921,8 +3896,7 @@
 0000000000|PACE | 65.574|-144.781|  286|Central AP, Central, AK             |US|MTR
 0000000000|PACM | 61.85 |-165.57 |    4|Scammon Bay AP, Scammon Bay, AK     |US|MTR
 0000070296|PACV | 60.50 |-145.50 |   13|Cordova/Mile 13, AK                 |US|MTR
-0000000000|PACX |67.2522|-150.2039| 310|Coldfoot, AK                        |US|MTR
-0000000000|PACX |67.2522|-150.2039| 310|Coldfoot, AK                        |US|MTR
+0000000000|PACX |67.25217|-150.20391| 320|Coldfoot Airport, Coldfoot, AK    |US|MTR
 0000070212|PACZ | 61.79 |-166.04 |  146|CAPE ROMANZOFF, AK                  |US|MTR
 0000000000|PADE | 66.08 |-162.75 |    9|Deering, AK                         |US|MTR
 0000000000|PADG | 68.03 |-162.90 |  295|Red Dog AP, Red Dog, AK             |US|MTR
@@ -4013,8 +3987,7 @@
 0000070232|PANI | 61.58 |-159.53 |   26|ANIAK, AK                           |US|MTR
 0000070260|PANN | 64.55 |-149.08 |  110|NENANA MUNI, AK                     |US|MTR
 0000070398|PANT | 55.04 |-131.57 |   34|ANNETTE ISLAND, AK                  |US|MTR
-0000000000|PANU |64.7294|-158.0742| 118|Nulato, AK                          |US|MTR
-0000000000|PANU |64.7294|-158.0742| 118|Nulato, AK                          |US|MTR
+0000000000|PANU |64.72933|-158.07422| 124|Nulato Airport, Nulato, AK        |US|MTR
 0000000000|PANV | 62.65 |-160.18 |   99|ANVIK, AK                           |US|MTR
 0000000000|PANW | 59.45 |-157.328|   92|New Stuyahok AP, New Stuyahok, AK   |US|MTR
 0000000000|PAOH | 58.12 |-135.45 |    0|HOONAH SEAPLANE, AK                 |US|MTR
@@ -4086,8 +4059,7 @@
 0000000000|PFCB |60.0786|-147.9947|  17|Chenega Bay, AK                     |US|MTR
 0000000000|PFCL | 58.8337|-158.5294| 24|Clarks Point AP, Clarks Point, AK   |US|MTR
 0000000000|PFEL | 64.615|-162.271|   49|Elim AP, Elim, AK                   |US|MTR
-0000000000|PFKO |63.031 |-163.533 |   1|Kotlik, AK                          |US|MTR
-0000000000|PFKO |63.031 |-163.533|    1|Kotlik, AK                          |US|MTR
+0000000000|PFKO |63.03058|-163.53264| 4|Kotlik Airport, Kotlik, AK          |US|MTR
 0000000000|PFKT | 65.331|-166.466|   12|Brevig Miss AP, Brevig Mission, AK  |US|MTR
 0000000000|PFKW | 60.7903|-161.4437|  8|Kwethluk AP, Kwethluk, AK           |US|MTR
 0000000000|PFNO | 66.82 |-161.03 |   17|Noorvik/Robert (Bob) Curtis Mem, AK |US|MTR
@@ -4095,8 +4067,7 @@
 0000000000|PFTO |63.3295|-142.9537| 501|Tok Junction, AK                    |US|MTR
 0000000000|PFWS | 58.7021|-157.0026| 49|South Naknek Nr 2 AP, S Naknek, AK  |US|MTR
 0000070194|PFYU | 66.57 |-145.27 |  131|FORT YUKON, AK                      |US|MTR
-0000000000|PFZK |60.9138|-161.4933|   4|Akiachak, AK                        |US|MTR
-0000000000|PFZK |60.9138|-161.4933|   4|Akiachak, AK                        |US|MTR
+0000000000|PFZK |60.91381|-161.49333| 7|Akiachak Airport, Akiachak, AK      |US|MTR
 0000091221|PGRO | 14.18 | 145.25 |  185|Rota Intl                           |MY|MTR
 0000091232|PGSN | 15.12 | 145.73 |   65|Saipan/Isley                        |MY|MTR
 0000091218|PGUA | 13.58 | 144.93 |  187|Guam/Andersen AFB                   |MY|MTR

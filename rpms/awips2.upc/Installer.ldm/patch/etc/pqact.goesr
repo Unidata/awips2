@@ -41,6 +41,9 @@ HDS	^(IXT.[8-9]9) (KNES) (..)(..)(..)
 	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
 NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
 	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
+# Blended Hydro Suite - Advected Layer Preciptial Water (ALPW)
+EXP	^(TICY70) (KNES) (..)(..)(..)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
 
 # GOES 16/17 derived products via Unidata IDD - (not using)
 #NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/([^/]*)/([^/]*)/([0-9]{7})/([^/]*)(c[0-9]{7})(..)(.....).nc
@@ -86,7 +89,6 @@ EXP	(UWSSEC_AWIPS_LightningCast_GOES.*)
 #UWSSEC_AWIPS_L2-GRIDTURBF-M6_G16_s20242351640205_e20242351649513_c20242351649557.nc
 EXP	(UWSSEC_AWIPS_L2-GRIDTURB.*)
 	FILE	-close -edex	/awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/Turbulence/\1
-
 #
 # NPP/VIIRS
 #
