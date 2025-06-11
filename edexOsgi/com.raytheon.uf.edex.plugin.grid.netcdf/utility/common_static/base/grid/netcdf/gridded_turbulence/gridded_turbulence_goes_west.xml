@@ -3,7 +3,7 @@
 <gridProductDescriptions>
     <default>
         <matches>
-            <match pattern="UWSSEC_AWIPS_L\d-GRIDTURBF-M\d_G18_s\d{14}_e\d{14}_c\d{14}.nc">
+            <match pattern="UWSSEC_AWIPS_L\d-TURBF-M\d_G\d{2}_s\d{14}_e\d{14}_c\d{14}.nc">
                 <attribute name="dataset_name"/>
             </match>
 

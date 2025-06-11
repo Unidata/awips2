@@ -196,6 +196,8 @@ HDS	^(IXT.[8-9]9) (KNES) (..)(..)(..)
 	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
 NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
 	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
+EXP	^(TIYC70) (KNWS) (..)(..)(..)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
 
 # GOES 16/17 derived products via Unidata IDD - (not using)
 #NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/([^/]*)/([^/]*)/([0-9]{7})/([^/]*)(c[0-9]{7})(..)(.....).nc
@@ -800,11 +802,19 @@ FNMOC	^US058.*0110_0240_(.*)_(.*)_(.*)-(.*)
 #
 # SPC Outlook Grids - http://www.nws.noaa.gov/datamgmt/doc/spc.html
 #
+# Day 1
+HDS	^LDIZ1[1-7] KWNS (..)(..)(..)
+	FILE	-edex -log -close	/awips2/data_store/spc/(\1:yyyy)(\1:mm)(\1:dd)(\1:hh).day1_outlook.grib2
+#
+# Day 4 
+HDS	^LDIZ48 KWNS (..)(..)(..)
+	FILE	-edex -log -close	/awips2/data_store/spc/(\1:yyyy)(\1:mm)(\1:dd)(\1:hh).day4_outlook.grib2
+
 # Prob of Severe Thunderstorm Grids
-ANY	^(LDIZ[1-9][1-9]) (KWNS) (..)(..)(..)
+ANY	^(LDIZ[1-9][1-9]) KWNS (..)(..)(..)
 	FILE	-edex -log -close	/awips2/data_store/spc/(\2:yyyy)(\2:mm)(\2:dd)(\2:hh)_\1_svr_outlook.grib2
 # Joint Fire Weather and Dry Thunderstorm Grids
-ANY	^(Y[YZ]U[D-I]3[3-8]) (KWNS) (..)(..)(..)
+ANY	^(Y[YZ]U[D-I]3[3-8]) KWNS (..)(..)(..)
 	FILE	-edex -log -close	/awips2/data_store/spc/(\2:yyyy)(\2:mm)(\2:dd)(\2:hh)_\1_fw_outlook.grib2
 # UKMET
 #

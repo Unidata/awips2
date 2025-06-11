@@ -35,21 +35,12 @@
         period is the amount of time to keep file (must have this and/or versionsToKeep)
         modTimeToWait will increase the versionsToKeep by 1 if data matching this rule has been stored within modTimeToWait (optional, should only be specified with versionsToKeep)
         ruleDescription is the description of this rule (optional)
-    -->
-    <!-- TOWRdocs Header
-         Defines gridded nucaps data set purge rule 
-    -->
-    <!-- TOWRdocs Description
-         New purge rule file for gridded nucaps not in current baseline
-    -->
-    <!-- TOWRdocs Status
-         Add for griddednucaps, set for a period of time
-    -->
-    <!-- TOWRdocs POC
-        Lee Byerle 10/22/2020
+
+        New entries for netcdfgrid plugin products
+	11/14/2024 NESDIS Advected Layered Precipitable Water (ALPW)
     -->
 	<rule>
-		<keyValue>griddednucaps</keyValue>
-		<period>03-00:00:00</period>
+		<keyValue>BHP-ALPW</keyValue>
+		<versionsToKeep>36</versionsToKeep>
 	</rule>
 </purgeRuleSet>

@@ -1,0 +1,274 @@
+<!-- 
+the default description applies for all subsequent descriptions and defines
+
+- match pattern
+- dataTime definition
+- master level
+- grid coverage
+
+each "product" defines two descriptions:
+
+1. data
+2. quality flags
+
+9/7/2024 quality flags commented out
+4/2/2025 use time coverage end not start
+
+-->
+
+<gridProductDescriptions>
+    <default>
+        <matches>
+            <match pattern="BHP_ALPW">
+                <attribute name="title"/>
+            </match>
+        </matches>
+
+        <dataTime>
+            <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss">
+                <attribute name="time_coverage_end" />
+            </formattedRefTime>
+        </dataTime>
+
+	<datasetId>
+	    <value value="BHP-ALPW" />
+    	</datasetId>
+
+        <coverage>
+            <latLonGridCoverage />
+            <coordinateLists>
+                <latitude>
+                    <variable name="lat"/>
+                </latitude>
+                <longitude>
+                    <variable name="lon"/>
+                </longitude>
+            </coordinateLists>
+        </coverage>
+    </default>
+
+    <!-- sfc to 850 hPa -->
+    <description>
+        <data>
+            <variable name="ALPW_SFC_850"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - surface to 850 hPa layer"/>
+            </name>
+            <units>
+                <value value="mm"/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_SFC_850_layers"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> <!-- layer btwn 2 isobaric surfaces -->
+            </masterLevel>
+            <levelOneValue>
+                <value value="0.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="850.0"/>
+            </levelOneValue>
+        </level>
+    </description>
+<!--    <description>
+        <data>
+            <variable name="ALPW_SFC_850_quality_flag"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - surface to 850 hPa layer - quality flag"/>
+            </name>
+            <units>
+                <value value=""/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_SFC_850_qf"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> 
+            </masterLevel>
+	    <levelOneValue>
+                <value value="0.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="850.0"/>
+            </levelOneValue>
+        </level>
+    </description> -->
+
+    <!-- 700 to 850 hPa -->
+    <description>
+        <data>
+            <variable name="ALPW_850_700"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - 850 to 700 hPa layer"/>
+            </name>
+            <units>
+                <value value="mm"/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_850_700"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> <!-- layer btwn 2 isobaric surfaces -->
+            </masterLevel>
+            <levelOneValue>
+                <value value="700.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="850.0"/>
+            </levelOneValue>
+        </level>
+    </description>
+<!--    <description>
+        <data>
+            <variable name="ALPW_850_700_quality_flag"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - 850 to 700 hPa layer - quality flag"/>
+            </name>
+            <units>
+                <value value=""/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_850_700_qf"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> 
+            </masterLevel>
+            <levelOneValue>
+                <value value="700.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="850.0"/>
+            </levelOneValue>
+        </level>
+    </description> -->
+
+    <!-- 500 to 700 hPa -->
+    <description>
+        <data>
+            <variable name="ALPW_700_500"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - 700 to 500 hPa layer"/>
+            </name>
+            <units>
+                <value value="mm"/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_700_500"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> <!-- layer btwn 2 isobaric surfaces -->
+            </masterLevel>
+            <levelOneValue>
+                <value value="500.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="700.0"/>
+            </levelOneValue>
+        </level>
+    </description>
+<!--    <description>
+        <data>
+            <variable name="ALPW_700_500_quality_flag"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - 700 to 500 hPa layer - quality flag"/>
+            </name>
+            <units>
+                <value value=""/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_700_500_qf"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> 
+            </masterLevel>
+            <levelOneValue>
+                <value value="500.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="700.0"/>
+            </levelOneValue>
+        </level>
+    </description> -->
+
+    <!-- 300 to 500 hPa -->
+    <description>
+        <data>
+            <variable name="ALPW_500_300"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - 500 to 300 hPa layer"/>
+            </name>
+            <units>
+                <value value="mm"/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_500_300"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> <!-- layer btwn 2 isobaric surfaces -->
+            </masterLevel>
+            <levelOneValue>
+                <value value="300.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="500.0"/>
+            </levelOneValue>
+        </level>
+    </description>
+<!--    <description>
+        <data>
+            <variable name="ALPW_500_300_quality_flag"/>
+        </data>
+        <parameter>
+            <name>
+                <value value="ALPW - 500 to 300 hPa layer - quality flag"/>
+            </name>
+            <units>
+                <value value=""/>
+            </units>
+            <abbreviation>
+                <value value="ALPW_500_300_qf"/>
+            </abbreviation>
+        </parameter>
+        <level>
+            <masterLevel>
+                <value value="LYRMB"/> 
+            </masterLevel>
+            <levelOneValue>
+                <value value="300.0"/>
+            </levelOneValue>
+            <levelOneValue>
+                <value value="500.0"/>
+            </levelOneValue>
+        </level>
+    </description> -->
+
+</gridProductDescriptions>

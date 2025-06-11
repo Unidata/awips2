@@ -42,9 +42,11 @@
         7/28/2023  dataMapping add NOAA-21,Metop-C, rm Metop-A, rm GPS (Rain Rate) Blended Hydro. 
         9/5/2023   Include CMORPH2 (for Alaska Region only currently) 
         4/17/2024 Added comment Floodwater field works for both VIIRS and ABI flood maps
+        9/7/2024  ALPW
+        1/6/2025 Fix BLENDED_RR units to display in/hour, matching colormap 
    -->
    <!-- TOWRdocs POC
-        Lee Byerle 4/17/2024
+        Lee Byerle 1/6/2025
    -->
 <styleRuleset>
    <!-- Blended Hydro products -->
@@ -114,7 +116,7 @@
           <parameter>BLENDED_RR</parameter>
         </paramLevelMatches>
     <imageStyle>
-      <displayUnits>in/h</displayUnits>
+      <displayUnits label="in/hr">*25.4</displayUnits>
       <range scale="LINEAR">
         <minValue>0</minValue>
         <maxValue>3</maxValue>
@@ -409,6 +411,86 @@
         <values>0 .01 .05 .1 .2 .5 .75 1 1.2 1.4 1.6</values>
       </colorbarLabeling>
     </imageStyle>
+    </styleRule>
+
+<!-- ALPW_SFC_850 -->
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>ALPW_SFC_850_layers</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+                <brightness>1.0</brightness>
+      <displayUnits>in</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+	<maxValue>1.5</maxValue> 
+      </range>
+      <defaultColormap>Sat/test_ALPW</defaultColormap> 
+<!--      <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>  -->
+       <colorbarLabeling>
+        <values>0 0.25 0.5 0.75 1 1.25 1.5</values> 
+      </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+
+<!-- ALPW_850_700 -->
+ <styleRule>
+         <paramLevelMatches>
+          <parameter>ALPW_850_700</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+                <brightness>1.0</brightness>
+      <displayUnits>in</displayUnits> 
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+	<maxValue>1.5</maxValue> 
+      </range>
+      <defaultColormap>Sat/test_ALPW</defaultColormap>
+      <!--<defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap> -->
+       <colorbarLabeling>
+        <values>0 0.25 0.5 0.75 1 1.25 1.5</values>
+      </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+
+<!-- ALPW_700_500 -->
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>ALPW_700_500</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+                <brightness>1.0</brightness>
+      <displayUnits>in</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+	<maxValue>1.5</maxValue> 
+      </range>
+      <defaultColormap>Sat/test_ALPW</defaultColormap>
+      <!--<defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap> -->
+       <colorbarLabeling>
+        <values>0 0.25 0.5 0.75 1 1.25 1.5</values> 
+      </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+
+<!-- ALPW_500_300 -->
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>ALPW_500_300</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+                <brightness>1.0</brightness>
+      <displayUnits>in</displayUnits> 
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+	<maxValue>1.5</maxValue> 
+      </range>
+      <defaultColormap>Sat/test_ALPW</defaultColormap>
+      <!--<defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap> -->
+       <colorbarLabeling>
+        <values>0 0.25 0.5 0.75 1 1.25 1.5</values> 
+      </colorbarLabeling>
+      </imageStyle>
     </styleRule>
 
 </styleRuleset>

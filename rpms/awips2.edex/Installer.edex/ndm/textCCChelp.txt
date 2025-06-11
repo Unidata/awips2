@@ -170,7 +170,6 @@
 1JN Donnybrook, ND
 1JW 4.6W of Peetz, CO
 1K1 Benton, KS
-1K5 Elkhart, KS
 1K8 Ketchum/S Grand Lake Arpt, OK
 1KM Harlowton, MT
 1KN Donnybrook 2, ND
@@ -198,7 +197,6 @@
 1S3 Tillitt Field Airport, Forsyth, MT
 1S5 Sunnyside Muni, WA
 1U7 Bear Lake Airport, Paris, ID
-1U7 Bear Lake County, ID
 1V4 St. Johnsbury, VT
 1V6 Fremont Cnty AP, Canon City, CO
 1Y7 Yuma Proving Ground, AZ
@@ -257,7 +255,6 @@
 2DP Stumpy Point, NC
 2G2 Jefferson Cnty AP, Steubenville, OH
 2G4 Garrett Cnty AP, Oakland, MD
-2G6 Meadville, PA
 2G9 Somerset Cnty AP, Somerset, PA
 2GL Galliano Heliport, LA
 2I0 Madisonville, KY
@@ -320,7 +317,6 @@
 3DU Drummond, MT
 3E0 Miami-Roberts Cnty AP, Miami, TX
 3F3 CE 'Rusty' Williams AP, Mansfield, LA
-3FC Falls City, NE
 3HA Chicago, IL
 3HT Harlowton, MT
 3I2 Mason Cnty AP, Pt Pleasant, WV
@@ -336,7 +332,6 @@
 3R0 Beeville Muni, Beeville, TX
 3R5 New Braunfels Muni, TX
 3R7 Jennings, LA
-3S2 Aurora, OR
 3S8 Grants Pass Airport, Grants Pass, OR
 3T5 La Grange/Fayette Regnl, TX 
 3U3 Bowman Field Airport, Anaconda, MT
@@ -385,14 +380,12 @@
 4B4 Meriden, CT
 4B8 Robertson Field Airport, Plainville, CT
 4BK Brookings, OR
-4BL Blanding, UT
 4BM Wilkerson Pass, CO
 4BQ Broadus, MT
   4 Bulletin No. 4
 4BW Burns, OR
 4C0 722339 Oil Platform, Gulf of America
 4CR Corona, NM
-4DG Douglas, WY
 4F2 Panola County Airport-Sharpe Field, Carthage, TX
 4HA Whitehall, MT
 4I3 Knox Cnty, Mount Vernon, OH
@@ -402,7 +395,6 @@
 4M9 Corning Muni, Corning, AR
 4MR Melrose Gunnery Range, NM
 4O4 McCurtain Cnty Rgnl AP, Idabel, OK
-4OM Omak, WA
 4R4 HL Sonny Callahan AP, Fairhope, AL
 4R5 Major Gilbert Field Airport, La Pointe, WI
 4S1 Gold Beach Muni, OR
@@ -435,7 +427,6 @@
 5A6 Winona-Montgomery Cnty AP, Winona, MS
 5A9 Warm Springs, GA
 5B2 Saratoga Springs, NY
-5B5 Bennington, VT
 5B8 New Bremen, NY
   5 Bulletin No. 5
 5C1 Boerne Stage Field AP, Boerne, TX
@@ -487,7 +478,6 @@
 6S0 Howard Field Airport, Big Timber, MT
 6S2 Florence Muni, Florence, OR
 6S8 Laurel Muni Airport, Laurel, MT
-6V1 Imperial, NE
 6V3 Richlands/Tazewell Co, VA
 6V8 Montrose, CO
 70A 00H ERL 700 mb Plot File
@@ -595,8 +585,7 @@ ACQ Waseca Muni, MN
 ACR Circle City, AK, P-Alaska RFC, Anchorage, AK
 ACT Waco, TX
 ACV K-Arcata, CA; P-Cordova/Mile 13, AK
-ACX Coldfoot, AK
-ACX Coldfoot, AK
+ACX Coldfoot Airport, Coldfoot, AK
 ACY Atlantic City, NJ
 ACZ Cape Romanzoff, AK
 ACZ Henderson Field Airport, Wallace, NC
@@ -754,8 +743,7 @@ ANN Annette Is, AK (Nenana Muni, AK for MTR)
 ANQ Tri-State Steuben Cnty AP, Angola, IN
 ANR Anchorage, AK
 ANT Annette Is, AK
-ANU Nulato, AK
-ANU Nulato, AK
+ANU Nulato Airport, Nulato, AK
 ANV Anvik, AK
 ANW K-Ainsworth, NE; P-New Stuyahok AP, AK
 AOA Weather Advisory for Agricltr Operations
@@ -902,7 +890,6 @@ AZC Colorado Cty AP, Colorado City, AZ
 AZE Hazlehurst, GA
 AZK Eureka, AK
 AZO Kalamazoo, MI
-B23 Battle Mountain, NV
 BAB Beale AFB, Marysville, CA
 BAC Barnes Co Muni, Valley City, ND
 BAD Barksdale AFB, LA
@@ -934,7 +921,7 @@ BCR Tri-County Airport, Bonifay, FL
 BCS Cairns to Honolulu
 BCT Boca Raton Arpt, FL
 BDE Baudette, MN
-BDG Blanding Muni, Blanding, UT
+BDG Blanding Municipal Airport, Blanding, UT
 BDH Willmar Muni, Willmar, MN
 BDL Windsor Locks, CT
 BDN Bend AP, OR
@@ -1174,7 +1161,6 @@ CGZ Casa Grande, AZ
 CHA Chattanooga, TN
 CHB Chamberlain, SD
 CHD Chandler Muni, AZ
-CHH Chatham, MA
 CHI Chicago, IL
 CHJ Chief Joseph, WY
 CHK Chickasha Muni, OK
@@ -1264,7 +1250,7 @@ CQM Cook Muni, MN
 CQT Los Angeles Downtown - USC, CA
 CQV Colville Muni, WA
 CQW Cheraw, SC
-CQX Chatham, MA
+CQX Chatham Municipal Airport, Chatham, MA
  CR Columbia River Estuary
 CRE North Myrtle Beach/Grand Strand, SC
 CRG Craig Muni, Jacksonville, FL; N-Rarotonga, Cook Is
@@ -1348,7 +1334,7 @@ DAG Daggett, CA
 DAK Dakota Tributaries
 DAL Dallas, TX
 DAN Danville, VA
-DAW Rochester/Skyhaven, NH
+DAW Skyhaven Airport, Rochester, NH
 DAX Sacramento, CA WSR-88D
 DAY Dayton, OH
  DB Delaware Bay
@@ -1361,7 +1347,7 @@ DCM Chester, SC
 DCU Decatur, AL
 DCY Daviess Cnty AP, Washington, IN
 DDC WFO Dodge City, KS WSR-88D
-DDH Bennington/Wm H Morse State, VT
+DDH William H Morse State Airport, Benningto, VT
 DEC Decatur, IL
 DED Deland Muni, Deland, FL
  DE Delaware
@@ -1374,7 +1360,7 @@ DET Detroit, MI
 DEW Deer Park, WA
 DFI Defiance Memorial, OH
 DFW Dallas-Fort Worth, TX
-DGW Douglas/Converse Co, WY
+DGW Converse County Airport, Douglas, WY
 DGX Brandon, MS WSR-88D
 DHE Santo Domingo, Herrerra, DR
 DHN Dothan, AL
@@ -1415,7 +1401,7 @@ DOX Dover AFB, DE WSR-88D
 DPA Chicago/West Chicago, IL
 DPC Punta Cana, DR
 DPD Melville, Dominica, NOTE-TDCF = Canefield Arpt, Dominica
-DPG Michael AAF, Dugway/Tooele, UT
+DPG Dugway Proving Ground, UT
 DPL Kenansville/Duplin Co, NC
 DPP Puerto Plata, DR
 DQH Douglas Muni, Douglas, GA
@@ -1523,7 +1509,7 @@ EGE Eagle, CO
 EGI Duke Field/Eglin, FL
 EGT Wellington, KS
 EGV Eagle River/Union, WI
-EHA Elkhart, KS
+EHA Elkhart-Morton County Airport, Elkhart, KS
 EHC East Cameron 278, LA AWOS-3
 EHO Shelby Muni, NC
 EHR Henderson Airport, Henderson, KY
@@ -1688,7 +1674,7 @@ FGX Fleming-Mason AP, Flemingsburg, KY
 FGZ WFO Flagstaff/Belemont, AZ
 FHB Fernandina Beach Muni, FL
 FHM Frank Hotchkin Memorial Training Center, Los Angeles, CA
-FHR Friday Harbor, WA
+FHR Friday Harbor Airport, WA
 FHU Fort Huachuca, Sierra Vista, AZ
 FIG Clearfield-Lawrence, PA
 FIN Flagler Cnty AP, Bunnell, FL
@@ -1698,8 +1684,7 @@ FKA Preston/Fillmore Co, MN
 FKF Franklin Bluffs, AK
 FKL Franklin, PA
 FKN Franklin/J B Rose, VA
-FKO Kotlik, AK
-FKO Kotlik, AK
+FKO Kotlik Airport, Kotlik, AK
 FKR Frankfort, IN
 FKS Frankfort Dow Mem Fld AP, MI
 FKT P-Brevig Mission AP, Brevig Mission, AK
@@ -1720,7 +1705,7 @@ FMM Fort Morgan Muni, Fort Morgan, CO
 FMN Farmington, NM
 FMY Fort Myers, FL
 FNA N-Nausor, Fiji
-FNB Falls City, NE
+FNB Brenner Field Airport, Falls City, NE
 FNL Ft Collins/Loveland, CO
 FNO Noorvik, AK
 FNT Flint, MI
@@ -1781,8 +1766,7 @@ FYM Fayetteville Muni, Fayetteville, TN
 FYU Fort Yukon, AK
 FYV Fayetteville, AR
 FZG Fitzgerald Muni, Fitzgerald, GA
-FZK Akiachak, AK
-FZK Akiachak, AK
+FZK Akiachak, Airport, Akiachak, AK
 FZY Fulton/Oswego Co, NY
 G01 Green Canyon Block 184, LA
 GA1 Georgia Area
@@ -1839,7 +1823,7 @@ GID WFO Hastings, NE
 GIF Winter Haven, FL
 GJT WFO Grand Junction, CO
 GJX Grand Junction, CO WSR-88D
-GKJ Meadville, PA
+GKJ Port Meadville Airport, Meadville, PA
 GKN Gulkana, AK
 GKT Gatlinburg-Pigeon Forge AP, Sevierville, TN
 GKY Arlington Muni, Arlington, TX
@@ -2180,6 +2164,7 @@ ICL Clarinda, IA
 ICM Cayman Islands
 ICN Canada
 ICO Colombia
+ICR Winner Regional Airport, Winner, SD
 ICR Canary Islands; K-Winner Regnl AP, Winner, SD
 ICS Costa Rica
 ICT WFO Wichita, KS WSR-88D
@@ -2300,7 +2285,7 @@ IME Eastern Mediterranean
 IMF St. Martin/St. Bartholomew/Guadeloupe
 IMG Madagascar
 IMI Marshall Islands
-IML Imperial, NE
+IML Imperial Municipal Airport, Imperial, NE
 IMM K-Immokalee Rgnl AP, Immokalee, FL; Mediterranean Sea
 IMN Saint Maarten/Saint Eustatius/Saba
 IMO Mongolia
@@ -2666,7 +2651,7 @@ LKO Licking River, OH
 LKR Lancaster, SC
 LKU Louisa Co/Freeman Fld, VA
 LKV Lakeview, OR
-LLJ Challis, ID
+LLJ Challis Airport, Challis, ID
 LLN Levelland Muni, TX
 LLQ Monticello Muni/Ellis Fld, AR
 LLS Low-Level Sounding
@@ -2894,7 +2879,6 @@ MIA K-Miami, FL; M-Colima, MX
 MIB Minot AFB, ND
 MIC Crystal Airport, MN
 MIE Muncie/Delaware Co-Johnson Fld, IN
-MIJ Dugway/Tooele, UT
 MIL Milk, Yellowstone
  MI Michigan
 MIM Miami River
@@ -3138,7 +3122,6 @@ NID China Lake NAWS, China Lake, CA
 NIO Northern Indian Ocean (Arabian Sea/Bay of Bengal)
 NIP Jacksonville NAS, Jacksonville, FL
 NIR Chase Field NAS, Beeville, TX
-NIS MCAS Cherry Point, Jacksonville, NC
 NJ1 Rivers in New Jersey
 NJK El Centro NAF, CA
 NJM Bogue Field MCAL, NC
@@ -3306,7 +3289,7 @@ OLZ Oelwen, IA
 OMA Omaha, NE
 OME Nome, AK
 OMH Orange/Orange Co, VA
-OMK Omak Arpt, WA
+OMK Omak Airport, Omak, WA
 OMN Ormond Beach Muni, FL
 ONA Winona, MN
 ONG Ontonagon, MI
@@ -3390,7 +3373,7 @@ P08 Coolidge Muni, Coolidge, AZ
 P0A Sfc Plot File - 3 Hrly
 P24 Roseglen, ND
 P28 Medicine Lodge, KS
-P33 Wilcox, AZ
+P33 Cochise County Airport, Wilcox, AZ
 P38 Caliente, NV
 P39 Pequot Lake, MN
 P52 Cottonwood, AZ
@@ -3466,7 +3449,7 @@ PIA Peoria, IL
 PIB Pine Belt Regnl, MS
 PIE Saint Petersburg/Clearwater, FL
 PIH WFO Pocatello, ID
-PIL Port Isabel/Cameron Co, TX
+PIL Port Isabel-Cameron County Airport, TX
 PIM Harris Cnty AP, Pine Mountain, GA
 PIN Piney Creek, WY
 PIR Pierre, SD
@@ -3543,8 +3526,7 @@ PSP Palm Springs, CA
 PSR WFO Phoenix, Tempe, AZ
 PSX Palacios, TX
 PTB Petersburg, VA
-PTD Damon Field, NY
-PTD Potsdam, VT
+PTD Damon Field Airport, Potsdam, NY
 PTH Port Heiden, AK
 PTI Puntilla Lake, AK
 PTK Pontiac, MI
@@ -3600,7 +3582,6 @@ QPF T-Anguilla, British Virgin Islands
 QQQ Moron, SP
   Q Quebec
 RAC Racine/John H Batten, WI
-RAD Warroad, MN
 RAH WFO Raleigh/Durham, NC
 RAL Riverside, CA
 RAP Rapid City, SD
@@ -3698,7 +3679,7 @@ RQE Window Rock, AZ
 RQO El Reno Muni Air Park, El Reno, OK
 RRL Merrill, WI
   R Romeo
-RRT Warroad, MN
+RRT Warroad International Airport, Warroad, MN
 RSA California Nevada RFC, Sacramento, CA 
 RSL Russell, KS
 RSN Ruston Regnl, LA
@@ -3740,7 +3721,6 @@ S06 Mullan, ID
 S10 Lake Chelan AP, Chelan, WA
 S12 Albany Municipal Airport, Albany, OR
 S14 Spencer, IA
-S19 Friday Harbor, WA
 S21 Sunriver, OR
 S22 Hermiston Muni, OR
 S24 Fremont, OH
@@ -4159,7 +4139,6 @@ TYX Fort Drum, NY WSR-88D
 TZR Columbus/Bolton, OH
 U11 Rexburg/Madison Co, ID
 U14 Nephi Municipal Airport, Nephi, UT
-U15 Challis, ID
 U16 Eagle Range, UT
 U17 Bullfrog, UT
 U24 Delta, UT
@@ -4168,13 +4147,12 @@ U31 Austin, NV
 U52 Beaver Municipal Airport, Beaver, UT
 U55 Panguitch Municipal Airport, Panguitch, UT
 U64 Monticello, CO
-U67 Roosevelt, UT
 U68 North Big Horn Cnty AP, Cowley/Lovell/Byron, WY
 U69 Duchesne Municipal Airport, Duchesne, UT
 U71 Vernal, UT
 U78 Soda Springs, ID
 U96 Cal Black Memorial Airport, Halls Crossing, UT
-UAO Aurora, OR
+UAO Aurora State Airport, Aurora, OR
 UBE Cumberland Muni, Cumberland, WI
 UCC Yucca Flat, NV
 UCM M-Camaguey Arpt, CU
@@ -4407,7 +4385,6 @@ WER Ile D'Orleans, QC
 WES Cape Scott Lgt Hse, BC
 WEU Eureka, NU
 WEW L'Assomption, QC
-WEY West Yellowstone, MT
 WEZ Saturna Island, BC
 WFD Cape Dyer Arpt, NU
 WFF Melfort, SK

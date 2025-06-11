@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <gridProductDescriptions>
-    <default>
-        <matches>
-            <match pattern="NOAA/CIMSS LightningCast">
-                <attribute name="title"/>
-            </match>
+ <default>
 
-            <match pattern="GOES-East">
-                <attribute name="orbital_slot"/>
-            </match>
-        </matches>
+  <matches>
+    <matches type="OR">
+      <match pattern="NOAA/CIMSS LightningCast">
+        <attribute name="title" />
+      </match>
+      <match pattern="NOAA LightningCast">
+          <attribute name="title" />
+      </match>
+    </matches>
+
+    <match pattern="GOES-East">
+       <attribute name="orbital_slot"/>
+    </match>
+  </matches>
 
         <dataTime>
             <formattedRefTime dateFormat="yyyyMMdd'-'HHmmss' UTC'">
@@ -22,7 +28,7 @@
         </datasetId>
 
         <coverage coverageFile="netcdf/grids/LightningCast_LatLon_East.xml" />
-    </default>
+ </default>
 
     <description>
         <data>
