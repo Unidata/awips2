@@ -511,7 +511,6 @@
 82M 12 HR RGL WND 6K FT
 82V Pine Bluffs Muni, Pine Bluffs, WY
 87Q San Simeon, CA
-8A0 Albertville Muni, Albertville, AL
 8A3 Livingston Muni AP, Livingston, TN
 8A4 Downtown Heliport, Indianapolis, IN
 8B0 Steven A Bean AP, Rangeley, ME
@@ -941,6 +940,7 @@ BFM Mobile, AL
 BFR Bedford, IN
 BFU Belle Fourche, WY
 BFW Silver Bay, MN
+BFZ Albertville Regional Airport, Albertville, AL
 BGD Borger/Hutchinson, TX
 BGE Bainbridge, GA
 BGF Winchester Muni, Winchester, TN
@@ -2464,7 +2464,7 @@ JDD Wood Cnty AP, Mineola/Quitman, TX
 JDG Naval Station Diego Garcia
 JDN Jordan, MT
 JEF Jefferson City, MO
-JER Jerome, ID
+JER Jerome County Airport, Jerome, ID
 JES Jesup-Wayne Cnty AP, Jesup, GA
 JFK New York, NY
 JFX Jasper, AL
@@ -4267,7 +4267,7 @@ VRH P-Alaska Region Hq, Anchorage, AK
 VSF Springfield, VT
 VSV T-St. Vincent, Grenadines
 VT1 Connecticut Basin
-VTA Newark/Heath, OH
+VTA Licking County Airport, Newark, OH
 VTI Vinton Veterans Mem, IA
 VTN Valentine, NE
 VTP La Veta Pass, CO
@@ -4710,6 +4710,7 @@ X21 Arthur Dunn Air Pk, Titusville, FL
 X26 Sebastian Municipal Airport, Sebastian, FL
 X53 Clewiston, FL
 X57 Marco Island, FL
+X59 Valkaria Airport, Valkaria, FL
 X60 Williston Muni, Williston, FL
 X68 NASA Shuttle Landing Facility, Titusville, FL
 XAF C-Abee AGDM, AB

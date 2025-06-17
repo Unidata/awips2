@@ -1,4 +1,4 @@
-# This file, metarStationInfo.txt, contains station information for METAR and
+ This file, metarStationInfo.txt, contains station information for METAR and
 # SAO sites. (Some Canadian station still report in SA format. Although these
 # are now converted at OSO to METAR form, we note them as SAO here.)
 #
@@ -1076,7 +1076,6 @@
 0000000000|K2G9 | 40.03887|-79.01500| 693|Somerset Cnty AP, Somerset, PA    |US|MTR
 0000000000|K2GL | 29.409| -90.288|    3|Galliano Heliport, LA               |US|MTR
 0000000000|K2I0 | 37.35593| -87.39822| 134|Madisonville Muni, KY            |US|MTR
-0000000000|K2I8 | 40.02 | -82.46 |  269|Newark/Heath, OH                    |US|MTR
 0000000000|K2IS | 26.73517|-81.05106| 6|Clewiston Airglades AP, Clewiston, FL|US|MTR
 0000000000|K2J3 | 32.98594|-82.38481| 100|Louisville Muni AP, Louisville, GA|US|MTR
 0000000000|K2J5 | 32.89303|-81.96522| 73|Millen AP, Millen, GA              |US|MTR
@@ -1227,7 +1226,6 @@
 0000000000|K82V | 41.1525|-104.1348|1570|Pine Bluffs Muni, Pine Bluffs, WY  |US|MTR
 0000000000|K85D | 47.78 | -93.65 |  409|Bigfork Muni, MN                    |US|MTR
 0000072390|K87Q | 35.68 |-121.28 |   21|PUNTA PIEDRAS, CA                   |US|MTR
-0000000000|K8A0 | 34.229| -86.256|  315|Albertville Muni, Albertville, AL   |US|MTR
 0000000000|K8A3 | 36.41350|-85.31044| 418|Livingston Muni AP, Livingston, TN|US|MTR
 0000000000|K8A4 | 39.766| -86.149|  223|Downtown Heliport, Indianapolis, IN |US|MTR
 0000000000|K8B0 | 44.99189| -70.66461| 556|Steven A Bean AP, Rangeley, ME   |US|MTR
@@ -1456,6 +1454,7 @@
 0000000000|KBFR | 38.840| -86.445|  222|Bedford, IN                         |US|MTR
 0000000000|KBFU | 43.93 |-105.44 | 1432|Belle Fourche, WY                   |US|MTR
 0000000000|KBFW | 47.21 | -91.41 |  331|SILVER BAY, MN                      |US|MTR
+0000000000|KBFZ | 34.22911|-86.25575| 315|Albertville Regional Airport, AL  |US|MTR
 0000000000|KBGD | 35.71 |-101.40 |  927|BORGER/HUTCHNSON, TX                |US|MTR
 0000000000|KBGE | 30.97 | -84.63 |   43|Bainbridge, GA                      |US|MTR
 0000000000|KBGF | 35.1775| -86.066| 298|Winchester Muni, Winchester, TN     |US|MTR
@@ -2438,7 +2437,7 @@
 0000000000|KJDD | 32.742| -95.496|  132|Wood Cnty AP, Mineola/Quitman, TX   |US|MTR
 0000000000|KJDN | 47.33 |-106.93 |  811|Jordan, MT                          |US|MTR
 0000000000|KJEF | 38.59 | -92.16 |  167|Jefferson City, MO                  |US|MTR
-0000000000|KJER | 42.7274|-114.4547| 1226|Jerome, ID                        |US|MTR
+0000000000|KJER | 42.72668|-114.45665| 1235|Jerome Cnty Airport, Jerome, ID |US|MTR
 0000000000|KJES | 31.554| -81.883|   33|Jesup-Wayne Cnty AP, Jesup, GA      |US|MTR
 0000074486|KJFK | 40.63915| -73.7639| 7|John F. Kennedy Intl Arpt, NY       |US|MTR
 0000000000|KJFX | 33.901995|-87.31417|147|Jasper, AL                        |US|MTR
@@ -3589,7 +3588,6 @@
 0000000000|KU68 | 44.9117|-108.4455|1248|N Big Horn AP, Cowley/Lov/Byr, WY  |US|MTR
 0000000000|KU69 | 40.19375|-110.38298|1777|Duchesne Muni AP, Duchesne, UT   |US|MTR
 0000000000|KU71 | 40.48 |-109.53 | 1612|VERNAL, UT                          |US|MTR
-0000000000|KU73 | 42.73 |-114.46 | 1234|Jerome, ID                          |US|MTR
 0000000000|KU78 | 42.66 |-111.58 | 1781|SODA SPRINGS, ID                    |US|MTR
 0000000000|KU96 | 37.43531|-110.56428| 1340|Cal Black Arpt, Halls Crossing, UT|US|MTR
 0000000000|KUAO | 45.24713|-122.77005| 61|Aurora State Airport, Aurora, OR  |US|MTR
@@ -3668,7 +3666,7 @@
 0000000000|KVQT | 28.270| -92.264|   -0|Vermilion 331 (Energy Res Tech), LA |US|MTR
 0000000000|KVRB | 27.65530|-80.41424| 7|VERO BEACH, FL                      |US|MTR
 0000000000|KVSF | 43.34 | -72.52 |  175|SPRINGFIELD ST, VT                  |US|MTR
-0000000000|KVTA | 40.025| -82.462|  269|Newark/Heath AP, Newark, OH         |US|MTR
+0000000000|KVTA | 40.02467| -82.46181|  269|Licking Cnty Arpt, Newark, OH   |US|MTR
 0000000000|KVTI | 42.219| -92.026|  258|Vinton Veterans Mem, IA             |US|MTR
 0000072567|KVTN | 42.86 |-100.55 |  788|VALENTINE/MILLER, NE                |US|MTR
 0000000000|KVTP | 37.512|-105.171| 3114|La Veta Pass, CO                    |US|MTR
@@ -3716,6 +3714,7 @@
 0000000000|KX07 | 27.89389|-81.62042| 39|Lake Wales Muni AP, Lake Wales, FL |US|MTR
 0000000000|KX21 | 28.622| -80.836|    9|Arthur Dunn Air Pk, Titusville, FL  |US|MTR
 0000000000|KX26 | 27.81325| -80.49558| 7|Sebastian Muni AP, Sebastian, FL   |US|MTR
+0000000000|KX59 | 27.96087|-80.55833| 8|Valkaria Airport, Valkaria, FL      |US|MTR
 0000000000|KX60 | 29.3557| -82.4719|  23|Williston, FL                      |US|MTR
 0000000000|KX68 | 28.62 | -80.68 |    4|NASA SHUTTLE FTY, FL                |US|MTR
 0000000000|KXBP | 33.175| -97.828|  260|Bridgeport Muni, TX                 |US|MTR
