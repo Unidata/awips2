@@ -20,6 +20,18 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
+<extension point="org.eclipse.ui.commands">
+   <command
+         id="com.raytheon.uf.viz.d2d.ui.openUnidata"
+         name="Open Unidata URL"
+         description="Open Unidata in web browser" />
+</extension>
+
+<extension point="org.eclipse.ui.handlers">
+   <handler
+         commandId="com.raytheon.uf.viz.d2d.ui.openUnidata"
+         class="com.raytheon.uf.viz.d2d.ui.OpenUnidataHandler" />
+</extension>
  <extension
       point="org.eclipse.ui.contexts">
    <context
@@ -675,7 +687,17 @@
 			      </visibleWhen>
             </command>
         </toolbar>
-
+         <toolbar
+               id="unidataIcon">
+            <command
+					commandId="com.raytheon.uf.viz.d2d.ui.openUnidata"
+					icon="icons/unidata_black_100.png"
+					label="Unidata"
+					tooltip="Unidata AWIPS"
+					style="push"
+					>
+				</command>
+         </toolbar>
          </menuContribution>
          <menuContribution
                locationURI="menu:com.raytheon.uf.viz.d2d.ui.actions.loadmode">

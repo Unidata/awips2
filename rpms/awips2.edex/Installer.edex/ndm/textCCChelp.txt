@@ -25,7 +25,6 @@
 06C Schaumburg Rgnl AP, Schaumburg, IL
 06D Rolla Muni, Rolla, ND
  07 Bulletin No. 07
-07S Deer Park, WA
  08 Bulletin No. 08
 08D Stanley Muni, Stanley, ND
  09 Bulletin No. 09
@@ -116,9 +115,9 @@
  15 Bulletin No. 15
 15M Iuka Airport, Iuka, MS
  16 Bulletin No. 16
+16J Dawson Minicipal Airport, Dawson, GA
  17 Bulletin No. 17
 17J Donalsonville Muni Airport, Donalsonville, GA
-17W Wadena Muni, MN
 18A 18-Hour WINTEM; K-Franklin Cnty AP, Canon, GA
  18 Bulletin No. 18
 18H Lucius Deepwater Oil and Gas Platform, Gulf
@@ -226,7 +225,6 @@
  21 Bulletin No. 21
 21D Lake Elmo AP, St. Paul, MN
  22 Bulletin No. 22
-22G Lorain/Elyria, OH
 22M 12 HR RGL WND 34K FT
 22N J Arner Mem AP, Lehighton, PA
  23 Bulletin No. 23
@@ -236,7 +234,6 @@
 24J Suwannee Cnty AP, Live Oak, FL
  25 Bulletin No. 25
  26 Bulletin No. 26
-27A Elbert Cnty AP, Elberton, GA
 27B Cape Neddick, CGL Station, ME
  27 Bulletin No. 27
 27D Myers Fld AP, Canby, MN
@@ -328,7 +325,6 @@
 3L4 Little Pecan Island Airport, Grand Chenier, LA
 3LF Litchfield Muni, IL
 3N8 Mahnomen Cnty AP, Mahnomen, MN
-3OI Lamoni, IA
 3R0 Beeville Muni, Beeville, TX
 3R5 New Braunfels Muni, TX
 3R7 Jennings, LA
@@ -374,7 +370,6 @@
 49D Cloquet, MN
 49J Hilton Head Island, SC
 49T Dallas CBD Heliport, Dallas, TX
-49Y Preston/Fillmore Co, MN
 4A6 Scottsboro Muni, Scottsboro, AL
 4A9 Isbell Fld AP, Fort Payne, AL
 4B4 Meriden, CT
@@ -421,7 +416,6 @@
 52M 12 HR RGL WND 18K FT
 54A Coral Creek AP, Placida, FL
 54J Defuniak Springs, FL
-55J Fernandina Bch Muni, FL
 55N Atlantic City Coast Guard, Atlantic City, NJ
 57C East Troy Muni AP, East Troy, WI
 5A6 Winona-Montgomery Cnty AP, Winona, MS
@@ -531,7 +525,6 @@
 97Q Point Reyes, CA
 9A4 Lawrence Cnty AP, Courtland, AL
 9A5 Barwick Lafayette AP, LaFayette, GA
-9B2 Saint Johnsbury, VT
 9BB Wells, NV
   9 Bulletin No. 9
 9D7 Cando Muni, Cando, ND
@@ -588,7 +581,7 @@ ACX Coldfoot Airport, Coldfoot, AK
 ACY Atlantic City, NJ
 ACZ Cape Romanzoff, AK
 ACZ Henderson Field Airport, Wallace, NC
-ADC Wadena Muni, MN
+ADC Wadena Muni Airport, Wadena, MN
 ADE Deering, AK
 ADF Florence Mem AP, Arkadelphia, AR
 ADG K-Adrian/Lenawee Co, MI; P-Red Dog AP, Red Dog, AK
@@ -1357,7 +1350,7 @@ DEN Denver, CO
 DEQ DeQueen/J Lynn Helms Sevier Co, AR
 DES Des Moines River Basin
 DET Detroit, MI
-DEW Deer Park, WA
+DEW Deer Park Airport, Deer Park, WA
 DFI Defiance Memorial, OH
 DFW Dallas-Fort Worth, TX
 DGW Converse County Airport, Douglas, WY
@@ -1672,7 +1665,7 @@ FGF WFO Eastern North Dakota, Grand Forks, ND
 FGN Flag Is, MN
 FGX Fleming-Mason AP, Flemingsburg, KY
 FGZ WFO Flagstaff/Belemont, AZ
-FHB Fernandina Beach Muni, FL
+FHB Fernandina Beach Muni Airport, FL
 FHM Frank Hotchkin Memorial Training Center, Los Angeles, CA
 FHR Friday Harbor Airport, WA
 FHU Fort Huachuca, Sierra Vista, AZ
@@ -1680,7 +1673,7 @@ FIG Clearfield-Lawrence, PA
 FIN Flagler Cnty AP, Bunnell, FL
 FIR First Divide, WY
 FIT Fitchburg, MA
-FKA Preston/Fillmore Co, MN
+FKA Fillmore County Airport, Preston, MN
 FKF Franklin Bluffs, AK
 FKL Franklin, PA
 FKN Franklin/J B Rose, VA
@@ -2686,7 +2679,7 @@ LOX WFO Los Angeles, Oxnard, CA
 LOZ London, KY
 LPC K-Lompoc, CA; T-Vigie, St. Lucia, LC
 LPL T-Hewanorra Intl Arpt, LC
-LPR Elyria/Lorain Co, OH
+LPR Lorain County Regional Airport, Elyria/Lorain, OH
 LQK Pickens, SC
 LRD Laredo, TX
 LRF Little Rock AFB, Jacksonville, AR
@@ -2733,7 +2726,7 @@ LVS Las Vegas, NM
 LWA K-South Haven Rgnl AP, MI; Little Wabash River
 LWB Lewisburg, WV
 LWC Lawrence, KS
-LWD Lamoni Muni, IA
+LWD Lamoni Municipal Airport, Lamoni, IA
 LWM Lawrence, MA
 LWS Lewiston, ID
 LWT Lewistown, MT
@@ -3168,7 +3161,6 @@ NT5 Atlantic #5 (E,J,O,V)
  NT Atlantic
 NTB Los Alamitos USN Stn, Los Alamitos, CA
 NTD Point Mugu NAS, Port Hueneme, CA
-NTK Tustin MCAS, CA
 NTL North Atlantic
 NTS Nevada Test Site
 NTU Oceana NAS, Oceana, VA
@@ -3872,7 +3864,7 @@ SMQ Somerville/Somerset, NJ
 SMS K-Sumter, SC
 SMT Tornado and Special Marine Warning
 SMX Santa Maria, CA
-SNA Santa Ana, CA
+SNA John Wayne Airport, Santa Ana, CA
 SNC Chester, CT
 SNE Southern New England
 SNH Savannah/Hardin Co, TN
@@ -4101,7 +4093,7 @@ TTK Kosrae AP, Kosrae Is, Micronesia
 TTN Trenton Mercer AP, NJ
 TTO N-Hao, French Polynesia
 TTP P-WSO Pohnpei, Micronesia
-TTS NASA Shuttle Facility, FL
+TTS NASA Shuttle Facility, Titusville, FL
 TUA Arkansas Red Basin RFC, Tulsa, OK
 TUL Tulsa, OK
 TUP Tupelo, MS
@@ -4712,7 +4704,6 @@ X53 Clewiston, FL
 X57 Marco Island, FL
 X59 Valkaria Airport, Valkaria, FL
 X60 Williston Muni, Williston, FL
-X68 NASA Shuttle Landing Facility, Titusville, FL
 XAF C-Abee AGDM, AB
 XAG C-Andrew AGDM, AB
 XAJ C-Atmore AGDM, AB
