@@ -2201,6 +2201,16 @@
     </model>
 
     <model>
+        <name>ESTOFS-other</name>
+        <center>7</center>
+        <subcenter>4</subcenter>
+        <grid>184</grid>
+        <process>
+            <id>21</id>
+        </process>
+    </model>
+
+    <model>
         <name>ESTOFS-Pacific</name>
         <center>7</center>
         <subcenter>4</subcenter>
@@ -2625,6 +2635,29 @@
         </grids>
         <process>
             <id>104</id>
+            <id>108</id>
+        </process>
+    </model>
+    <model>
+        <name>NationalBlend</name>
+        <center>7</center>
+        <subcenter>2</subcenter>
+        <grids>
+            <id>NBMv3</id>
+        </grids>
+        <process>
+            <id>0</id>
+        </process>
+    </model>
+    <model>
+        <name>NationalBlend</name>
+        <center>7</center>
+        <subcenter>9</subcenter>
+        <grids>
+            <id>NBMv3</id>
+        </grids>
+        <process>
+            <id>0</id>
         </process>
     </model>
 
