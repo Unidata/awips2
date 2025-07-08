@@ -38,6 +38,11 @@
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="HRRR" category="Volume" />
     <vbSource key="HRRRX" category="Volume" />
+    <vbSource key="HREF-AK" category="Volume" />
+    <vbSource key="HREF-HI" category="Volume" />
+    <vbSource key="HREF-SJU" category="Volume" />
+    <vbSource key="HREF-US" category="Volume" />
+    <vbSource key="AK-NAM11" category="Volume" />
     <vbSource key="NAM5" category="Volume" />
     <vbSource key="NAM12" category="Volume" />
     <vbSource key="NAM20" category="Volume" />
