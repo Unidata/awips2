@@ -292,15 +292,35 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-edex-setup" title="2. EDEX Setup" class="md-nav__link">
-    2. EDEX Setup
+  <a href="#2-start-edex" title="2. Start EDEX" class="md-nav__link">
+    2. Start EDEX
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-commands" title="Manual Commands" class="md-nav__link">
+    Manual Commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-edex-setup" title="3. EDEX Setup" class="md-nav__link">
+    3. EDEX Setup
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-configure-iptables" title="3. Configure iptables" class="md-nav__link">
-    3. Configure iptables
+  <a href="#4-configure-iptables" title="4. Configure iptables" class="md-nav__link">
+    4. Configure iptables
   </a>
   
     <nav class="md-nav">
@@ -349,13 +369,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-start-edex" title="4. Start EDEX" class="md-nav__link">
-    4. Start EDEX
-  </a>
   
 </li>
         
@@ -1004,15 +1017,35 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-edex-setup" title="2. EDEX Setup" class="md-nav__link">
-    2. EDEX Setup
+  <a href="#2-start-edex" title="2. Start EDEX" class="md-nav__link">
+    2. Start EDEX
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-commands" title="Manual Commands" class="md-nav__link">
+    Manual Commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-edex-setup" title="3. EDEX Setup" class="md-nav__link">
+    3. EDEX Setup
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-configure-iptables" title="3. Configure iptables" class="md-nav__link">
-    3. Configure iptables
+  <a href="#4-configure-iptables" title="4. Configure iptables" class="md-nav__link">
+    4. Configure iptables
   </a>
   
     <nav class="md-nav">
@@ -1061,13 +1094,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-start-edex" title="4. Start EDEX" class="md-nav__link">
-    4. Start EDEX
-  </a>
   
 </li>
         
@@ -1175,26 +1201,23 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_20.3.2/docs/install/install-edex.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="install-edex-beta-version">Install EDEX - BETA Version<a class="headerlink" href="#install-edex-beta-version" title="Permanent link"></a></h1>
-<p>EDEX is the <strong>E</strong>nvironmental <strong>D</strong>ata <strong>Ex</strong>change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at <a href="../../edex/distributed-computing/">Distributed EDEX, Installing Across Multiple Machines</a></p>
+                <h1 id="install-edex">Install EDEX<a class="headerlink" href="#install-edex" title="Permanent link"></a></h1>
+<p>EDEX is the <strong>E</strong>nvironmental <strong>D</strong>ata <strong>Ex</strong>change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL. It requires administrator priviledges to make root-level changes. EDEX can run on a single machine (for smaller domains) or be spread across multiple machines. To learn more about that please look at <a href="../../edex/distributed-computing/">Distributed EDEX, Installing Across Multiple Machines</a></p>
 <blockquote>
 <p><strong>*Note</strong>: Access to Unidata's IDD data feed (how you receive weather data) is accessible by the University community but is not available to the public freely.</p>
 </blockquote>
 <hr />
 <h2 id="latest-version">Latest Version<a class="headerlink" href="#latest-version" title="Permanent link"></a></h2>
-<blockquote>
-<p>Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
-- <strong>23.4.1-0.4</strong></p>
-</blockquote>
+<ul>
+<li><strong>23.4.1-1</strong></li>
+</ul>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/tags/awips-release"><strong>View release notes</strong></a></p>
-<div class="admonition note">
-<p class="admonition-title">Version 23.* of CAVE is not compatible with Version 20.* EDEX and vice versa, Version 20.* of CAVE is not compatible with Version 23.* EDEX.</p>
-</div>
 <hr />
 <h2 id="functionalityreporting">Functionality/Reporting<a class="headerlink" href="#functionalityreporting" title="Permanent link"></a></h2>
 <p>If you come across issues/bugs/missing functionality, we encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLScqWZho98cI8ByYTe99YRidfiYK_VeHvjsAculZmiVdWGwUnw/viewform?usp=sf_link" target="_blank">report it using this short form</a> or emailing at support-awips@unidata.ucar.edu.</p>
 <hr />
 <h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link"></a></h2>
+<p>NOTE: This is for a minimal set-up (running on a regional domain). To run a full EDEX processing all CONUS wide domains/datasets, please review the <a href="../../edex/distributed-computing/">Distributed EDEX</a></p>
 <ul>
 <li>64-bit Rocky/RHEL 8</li>
 <li>Bash shell environment</li>
@@ -1206,9 +1229,6 @@
 </ul>
 </li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">EDEX is only supported for 64-bit Rocky and RHEL 8 Operating Systems.</p>
-</div>
 <div class="admonition warning">
 <p class="admonition-title">EDEX is <strong>not</strong> supported in Debian, Ubuntu, SUSE, Solaris, macOS, or Windows. You may have luck with Fedora Core 12 to 14 and Scientific Linux, but we will not provide support.</p>
 </div>
@@ -1216,16 +1236,17 @@
 <h2 id="download-and-installation-instructions">Download and Installation Instructions<a class="headerlink" href="#download-and-installation-instructions" title="Permanent link"></a></h2>
 <p>The first 3 steps should all be run as <strong>root</strong></p>
 <h3 id="1-install-edex">1. Install EDEX<a class="headerlink" href="#1-install-edex" title="Permanent link"></a></h3>
-<p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh"><strong>awips_install-v23.sh</strong> <i class="fa fa-download"></i></a></p>
-<pre><code>wget https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh
-chmod 755 awips_install-v23.sh
-sudo ./awips_install-v23.sh --edex
+<p>Download and run the installer: <a href="https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh"><strong>awips_install.sh</strong> <i class="fa fa-download"></i></a></p>
+<pre><code>wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install-v23.sh
+chmod 755 awips_install.sh
+sudo ./awips_install.sh --edex
 </code></pre>
 <div class="admonition note">
-<p class="admonition-title"><strong>awips_install-v23.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
+<p class="admonition-title"><strong>awips_install.sh --edex</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
 <ol>
 <li>Checks to see if EDEX is currently running, if so stops the processes with the <code>edex stop</code> command</li>
 <li>If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a <code>yum groupremove awips2-server</code></li>
+<li>Checks to see if SELinux is disabled</li>
 <li>If the user/group awips:fxalpha does not exist, it gets created</li>
 <li>Saves the appropriate yum repo file to <code>/etc/yum.repos.d/awips2.repo</code></li>
 <li>Increases process and file limits for the the <em>awips</em> account in <code>/etc/security/limits.conf</code></li>
@@ -1237,13 +1258,38 @@ sudo ./awips_install-v23.sh --edex
 <p class="admonition-title">If you receive an error relating to yum, then please run</p>
 <p><code>sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"</code></p>
 </div>
-<h3 id="2-edex-setup">2. EDEX Setup<a class="headerlink" href="#2-edex-setup" title="Permanent link"></a></h3>
+<p>If this is the first time you are setting up EDEX on your machine before starting EDEX, follow a few more <a href="#3-edex-setup">setup instructions</a>.</p>
+<h3 id="2-start-edex">2. Start EDEX<a class="headerlink" href="#2-start-edex" title="Permanent link"></a></h3>
+<p>Note: These steps should be run as root or with sudo.</p>
+<pre><code>sudo edex start
+</code></pre>
+<p>It takes a couple minutes for EDEX to fully start up. EDEX has started correctly if you see <code>* EDEX ESB is now operational</code> in the </p>
+<pre><code>tail -f /awips2/edex/logs/*.log | grep operational
+</code></pre>
+<h4 id="manual-commands">Manual Commands<a class="headerlink" href="#manual-commands" title="Permanent link"></a></h4>
+<p>If you ever ned to manually start, stop, or restart a single process (this is not normally done, but here for reference):</p>
+<pre><code>systemctl start postgres@awips
+systemctl start httpd-pypies
+systemctl start qpidd
+systemctl start edex_camel@ingest
+systemctl start edex_camel@ingestGrib
+systemctl start edex_camel@request
+</code></pre>
+<p>The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. Start ldm manually:</p>
+<pre><code>service edex_ldm start
+</code></pre>
+<p>To restart EDEX</p>
+<pre><code>edex restart
+</code></pre>
+<p>You should be ready to connect CAVE to your EDEX! Steps 3 and 4 are only for initial setup.</p>
+<hr />
+<h3 id="3-edex-setup">3. EDEX Setup<a class="headerlink" href="#3-edex-setup" title="Permanent link"></a></h3>
 <p>The external and localhost addresses need to be specified in <code>/etc/hosts</code></p>
 <pre><code>127.0.0.1         localhost    localhost.localdomain
 XXX.XXX.XXX.XXX   edex-cloud   edex-cloud.unidata.ucar.edu
 
 </code></pre>
-<h3 id="3-configure-iptables">3. Configure iptables<a class="headerlink" href="#3-configure-iptables" title="Permanent link"></a></h3>
+<h3 id="4-configure-iptables">4. Configure iptables<a class="headerlink" href="#4-configure-iptables" title="Permanent link"></a></h3>
 <p>This should be a one time configuration change. Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data publicly to CAVE clients and the Python API.</p>
 <h4 id="open-port-9588">Open Port 9588<a class="headerlink" href="#open-port-9588" title="Permanent link"></a></h4>
 <p>If you are running a Registry (Data Delivery) server, you will also want to open port <strong>9588</strong>.</p>
@@ -1293,7 +1339,7 @@ COMMIT
 <pre><code>service iptables restart
 </code></pre>
 <h4 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link"></a></h4>
-<p>For CentOS 7 error:</p>
+<p>Error:</p>
 <pre><code>Redirecting to /bin/systemctl restart  iptables.service 
 Failed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.
 </code></pre>
@@ -1301,26 +1347,6 @@ Failed to restart iptables.service: Unit iptables.service failed to load: No suc
 <pre><code>yum install iptables-services
 systemctl enable iptables
 service iptables restart
-</code></pre>
-<h3 id="4-start-edex">4. Start EDEX<a class="headerlink" href="#4-start-edex" title="Permanent link"></a></h3>
-<div class="admonition note">
-<p class="admonition-title">These steps should be run as user <em>awips</em> with sudo.  Switch to the user by running <code>su - awips</code>.</p>
-</div>
-<pre><code>edex start
-</code></pre>
-<p>To manually start, stop, and restart:</p>
-<pre><code>systemctl start postgres@awips
-systemctl start httpd-pypies
-systemctl start qpidd
-systemctl start edex_camel@ingest
-systemctl start edex_camel@ingestGrib
-systemctl start edex_camel@request
-</code></pre>
-<p>The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. Start ldm manually:</p>
-<pre><code>service edex_ldm start
-</code></pre>
-<p>To restart EDEX</p>
-<pre><code>edex restart
 </code></pre>
 <hr />
 <h2 id="additional-notes">Additional Notes<a class="headerlink" href="#additional-notes" title="Permanent link"></a></h2>

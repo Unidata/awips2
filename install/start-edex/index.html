@@ -548,8 +548,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#edex-qpid" title="edex qpid" class="md-nav__link">
-    edex qpid
+  <a href="#sudo-edex-qpid" title="sudo edex qpid" class="md-nav__link">
+    sudo edex qpid
   </a>
   
 </li>
@@ -935,8 +935,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#edex-qpid" title="edex qpid" class="md-nav__link">
-    edex qpid
+  <a href="#sudo-edex-qpid" title="sudo edex qpid" class="md-nav__link">
+    sudo edex qpid
   </a>
   
 </li>
@@ -978,35 +978,32 @@
                 
                 
                 <h1 id="edex-basic-commands">EDEX Basic Commands<a class="headerlink" href="#edex-basic-commands" title="Permanent link"></a></h1>
-<div class="admonition note">
-<p class="admonition-title">These steps should be run as user <em>awips</em> with sudo.  Switch to the user by running <code>su - awips</code>.</p>
-</div>
 <p>NSF Unidata's EDEX install also comes with a <a href="#edex-commands">simple <strong><code>edex</code></strong> program</a> that can help execute basic EDEX utilities.  The most basic of the commands are the following:</p>
 <p>To start all EDEX services:</p>
-<pre><code>edex start
+<pre><code>sudo edex start
 </code></pre>
 <p>To stop all EDEX services:</p>
-<pre><code>edex stop
+<pre><code>sudo edex stop
 </code></pre>
 <hr />
 <h2 id="service-and-boot-settings">Service and Boot Settings<a class="headerlink" href="#service-and-boot-settings" title="Permanent link"></a></h2>
-<p>The main EDEX services are now stopped/started using systemd (<code>systemctl</code>). The services that used to be <strong>/etc/init.d/</strong>, have been removed starting in v23.4.1 (Redhat/Rocky8). Additionally, the each edex_camel service needs to be started manually. The services below are set to start up on boot.</p>
+<p>The main EDEX services are now stopped/started using systemd (<code>systemctl</code>). The services that used to be <strong>/etc/init.d/</strong>, have been removed starting in v23.4.1 (Redhat/Rocky8). Additionally, each edex_camel service needs to be started separately. The services below are set to start up on boot.</p>
 <p>To manually start, stop, and restart:</p>
-<pre><code>systemctl start postgres@awips
-systemctl start httpd-pypies
-systemctl start qpidd
-systemctl start edex_camel@ingest
-systemctl start edex_camel@ingestGrib
-systemctl start edex_camel@request
+<pre><code>sudo systemctl start postgres@awips
+sudo systemctl start httpd-pypies
+sudo systemctl start qpidd
+sudo systemctl start edex_camel@ingest
+sudo systemctl start edex_camel@ingestGrib
+sudo systemctl start edex_camel@request
 </code></pre>
 <p>The last service, <code>edex_ldm</code>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running:</p>
-<pre><code>service edex_ldm start
+<pre><code>sudo service edex_ldm start
 </code></pre>
 <p>All of these services are started and stopped by the single program: <code>edex</code> as mentioned above.</p>
 <h3 id="ldm-troubleshooting">LDM Troubleshooting<a class="headerlink" href="#ldm-troubleshooting" title="Permanent link"></a></h3>
 <p>If the EDEX machine is shut down abruptly, when restarted, it should start up the processes mentioned <a href="#service-and-boot-settings">above</a>.  If <code>sudo service edex_ldm start</code> does not start up LDM smoothly, please try these steps:</p>
 <div class="admonition note">
-<p class="admonition-title">All of the following commands should be run as user <em>awips</em> and the <code>service</code> commands may need to be run with <code>sudo</code>.</p>
+<p class="admonition-title">All of the following commands should be run as user <em>awips</em> except for the <code>service</code> command which needs <code>sudo</code> or <code>root</code>.</p>
 </div>
 <ul>
 <li>
@@ -1045,9 +1042,8 @@ sudo service edex_ldm start
 <h2 id="edex-commands">EDEX Commands<a class="headerlink" href="#edex-commands" title="Permanent link"></a></h2>
 <p>NSF Unidata's version of EDEX installs with a helpful <code>edex</code> script that can be used for basic EDEX tasks.</p>
 <h3 id="edex-start">edex start<a class="headerlink" href="#edex-start" title="Permanent link"></a></h3>
-<pre><code>edex start
-
-Starting EDEX PostgreSQL:                                  [  OK  ]
+<p>sudo edex start</p>
+<pre><code>Starting EDEX PostgreSQL:                                  [  OK  ]
 Starting httpd:                                            [  OK  ]
 Starting QPID                                              [  OK  ]
 Starting EDEX Camel (request): 
@@ -1058,11 +1054,11 @@ Starting AWIPS LDM:The product-queue is OK.
 </code></pre>
 <h3 id="edex-start-base">edex start base<a class="headerlink" href="#edex-start-base" title="Permanent link"></a></h3>
 <p>To start all EDEX services <em>except</em> the LDM:</p>
-<pre><code>edex start base
+<pre><code>sudo edex start base
 </code></pre>
 <hr />
 <h3 id="edex-stop">edex stop<a class="headerlink" href="#edex-stop" title="Permanent link"></a></h3>
-<pre><code>edex stop
+<pre><code>sudo edex stop
 
 Stopping EDEX Camel (request): 
 Stopping EDEX Camel (ingest): 
@@ -1075,7 +1071,7 @@ Stopping AWIPS LDM:Stopping the LDM server...
 </code></pre>
 <hr />
 <h3 id="edex-setup">edex setup<a class="headerlink" href="#edex-setup" title="Permanent link"></a></h3>
-<pre><code>edex setup
+<pre><code>sudo edex setup
 
 [edex] EDEX IP and Hostname Setup
  Checking /awips2/database/data/pg_hba.conf [OK]
@@ -1090,7 +1086,7 @@ Stopping AWIPS LDM:Stopping the LDM server...
 </blockquote>
 <hr />
 <h3 id="edex-log">edex log<a class="headerlink" href="#edex-log" title="Permanent link"></a></h3>
-<pre><code>edex log
+<pre><code>sudo edex log
 
 [edex] EDEX Log Viewer
 
@@ -1109,9 +1105,9 @@ edex log satellite
 edex log text
 </code></pre>
 <hr />
-<h3 id="edex-qpid">edex qpid<a class="headerlink" href="#edex-qpid" title="Permanent link"></a></h3>
+<h3 id="sudo-edex-qpid">sudo edex qpid<a class="headerlink" href="#sudo-edex-qpid" title="Permanent link"></a></h3>
 <p>Shows a list of the the Qpid message queue to monitor data ingest (messages in vs messages out, i.e. decoded):</p>
-<pre><code>[centos@js-156-89 ~]$ edex qpid
+<pre><code>[awips@edex ~]$ sudo edex qpid
 Queues
   queue                       dur  excl  msg   msgIn  msgOut  bytes  bytesIn  bytesOut  cons  bind
   ================================================================================================
@@ -1132,7 +1128,7 @@ Queues
 <hr />
 <h3 id="edex-users">edex users<a class="headerlink" href="#edex-users" title="Permanent link"></a></h3>
 <p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>[YYYYMMDD]</code> is the optional date string.</p>
-<pre><code>edex users
+<pre><code>sudo edex users
 
 
     -- EDEX Users 20241022 --
@@ -1144,7 +1140,7 @@ Queues
 </code></pre>
 <hr />
 <h3 id="edex-purge">edex purge<a class="headerlink" href="#edex-purge" title="Permanent link"></a></h3>
-<p>To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run <code>edex purge reset</code>.</p>
+<p>To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run <code>sudo edex purge reset</code>.</p>
                 
                   
                 
