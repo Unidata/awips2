@@ -1263,9 +1263,10 @@ sudo ./awips_install.sh --edex
 <p>Note: These steps should be run as root or with sudo.</p>
 <pre><code>sudo edex start
 </code></pre>
-<p>It takes a couple minutes for EDEX to fully start up. EDEX has started correctly if you see <code>* EDEX ESB is now operational</code> in the </p>
+<p>It takes a couple minutes for EDEX to fully start up. EDEX has started correctly if you see <code>* EDEX ESB is now operational</code> in the EDEX logs. You can grep for it by using the following command:</p>
 <pre><code>tail -f /awips2/edex/logs/*.log | grep operational
 </code></pre>
+<p>You should be ready to connect CAVE to your EDEX! Steps 3 and 4 are only for initial setup.</p>
 <h4 id="manual-commands">Manual Commands<a class="headerlink" href="#manual-commands" title="Permanent link"></a></h4>
 <p>If you ever ned to manually start, stop, or restart a single process (this is not normally done, but here for reference):</p>
 <pre><code>systemctl start postgres@awips
@@ -1275,13 +1276,12 @@ systemctl start edex_camel@ingest
 systemctl start edex_camel@ingestGrib
 systemctl start edex_camel@request
 </code></pre>
-<p>The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. Start ldm manually:</p>
+<p>The above services start automatically on a reboot. The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. If you need to start ldm manually:</p>
 <pre><code>service edex_ldm start
 </code></pre>
 <p>To restart EDEX</p>
 <pre><code>edex restart
 </code></pre>
-<p>You should be ready to connect CAVE to your EDEX! Steps 3 and 4 are only for initial setup.</p>
 <hr />
 <h3 id="3-edex-setup">3. EDEX Setup<a class="headerlink" href="#3-edex-setup" title="Permanent link"></a></h3>
 <p>The external and localhost addresses need to be specified in <code>/etc/hosts</code></p>
