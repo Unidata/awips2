@@ -385,6 +385,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#windows-install-error" title="Windows Install Error" class="md-nav__link">
+    Windows Install Error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#windows-cave-start-up-error" title="Windows CAVE Start Up Error" class="md-nav__link">
     Windows CAVE Start Up Error
   </a>
@@ -1084,6 +1091,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#windows-install-error" title="Windows Install Error" class="md-nav__link">
+    Windows Install Error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#windows-cave-start-up-error" title="Windows CAVE Start Up Error" class="md-nav__link">
     Windows CAVE Start Up Error
   </a>
@@ -1268,7 +1282,7 @@ There is a good chance we can recover your settings.  To do so, please send a sh
 <p><img alt="CAVE Map 1/4 of screen" src="../../images/CAVE_map.png" /></p>
 <p>Try following these steps to fix your issue:</p>
 <ul>
-<li>Right-click on the no_env.exe, select Properties</li>
+<li>Right-click on the <code>no_env.exe</code>, select Properties</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">This is not the batch file (CAVE.bat) that gets installed as the CAVE shortcut on the Desktop, the no_env.exe is located in <code>C:\Users\[your_username]\AppData\Roaming\UCAR Unidata\AWIPS CAVE\no_env.exe</code>.</p>
@@ -1278,6 +1292,17 @@ There is a good chance we can recover your settings.  To do so, please send a sh
 <li>Click "Change High DPI Settings"</li>
 <li>At the bottom enable "Override High DPI scaling behavior"</li>
 <li>Change the dropdown from Application to System</li>
+</ul>
+<hr />
+<h3 id="windows-install-error">Windows Install Error<a class="headerlink" href="#windows-install-error" title="Permanent link"></a></h3>
+<p>If you are trying to install CAVE on windows, and go to install it and get a pop-up like this:</p>
+<p><img alt="Install Error" src="../../images/install_error.png" /></p>
+<p>That means your Windows settings is blocking it, but you can work around that.</p>
+<ul>
+<li>Right click on the <code>awips-cave-23.4.1-1.msi</code> application, select Properties</li>
+<li>Check the "Unblock" checkbox</li>
+<li>Click OK</li>
+<li>Now double click on the application and you should be able to install it</li>
 </ul>
 <hr />
 <h3 id="windows-cave-start-up-error">Windows CAVE Start Up Error<a class="headerlink" href="#windows-cave-start-up-error" title="Permanent link"></a></h3>
