@@ -3062,7 +3062,6 @@ N87 Robbinsville, NJ
 NAH National Agricultural Weather Highlights
 NAK Annapolis, MD
  NA North America
-NAO Charleston USN Stn, Charleston, SC
 NAT National Product Id (PIL)
 NAU A-Nauru Arpt, Nauru
 NBC Beaufort MCAS, Beaufort, SC
@@ -4128,7 +4127,6 @@ U11 Rexburg/Madison Co, ID
 U14 Nephi Municipal Airport, Nephi, UT
 U16 Eagle Range, UT
 U17 Bullfrog, UT
-U24 Delta, UT
 U28 Green River, UT
 U31 Austin, NV
 U52 Beaver Municipal Airport, Beaver, UT

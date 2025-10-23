@@ -1616,7 +1616,7 @@
 0000000000|KCHJ | 44.75 |-109.37 | 2529|Chief Joseph, WY                    |US|MTR
 0000000000|KCHK | 35.10 | -97.97 |  351|Chickasha Muni, OK                  |US|MTR
 0000000000|KCHO | 38.14 | -78.45 |  195|Charlottesville-Albemarle, VA       |US|MTR
-0000072208|KCHS | 32.91 | -80.03 |   13|CHARLESTON AFB, SC                  |US|MTR
+0000072208|KCHS | 32.8986| -80.00405 |   14|CHARLESTON AFB, SC              |US|MTR
 0000000000|KCIC | 39.79 |-121.85 |   72|CHICO, CA                           |US|MTR
 0000072545|KCID | 41.89 | -91.70 |  265|CEDAR RAPIDS MUN, IA                |US|MTR
 0000000000|KCIN | 42.05 | -94.78 |  375|Carroll, IA                         |US|MTR
@@ -1820,7 +1820,7 @@
 0000000000|KDSF | 28.343| -88.165| 130|Mississippi Canyon 650, LA           |US|MTR
 0000072546|KDSM | 41.53395|-93.65311| 294|DES MOINES INTL, IA               |US|MTR
 0000072523|KDSV | 42.57053| -77.71327| 201|DANSVILLE MUNICI, NY             |US|MTR
-0000000000|KDTA | 39.3836|-112.5022|1451|Delta Muni, Delta, UT              |US|MTR
+0000000000|KDTA | 39.3828|-112.5022|1451|Delta Muni, Delta, UT              |US|MTR
 0000000000|KDTL | 46.83 | -95.88 |  426|DETROIT LAKES, MN                   |US|MTR
 0000000000|KDTN | 32.53 | -93.75 |   55|DNTN SHREVEPORT, LA                 |US|MTR
 0000000000|KDTO | 33.20 | -97.18 |  197|Denton, TX                          |US|MTR
@@ -2828,7 +2828,6 @@
 0000000000|KN87 | 40.23 | -74.61 |   36|ROBBINSVILLE, NJ                    |US|MTR
 0000000000|KNAE | 29.15 | -81.63 |   29|Pinecastle, FL                      |US|MTR
 0000000000|KNAK | 38.99 | -76.49 |    2|Annapolis, MD                       |US|MTR
-0000000000|KNAO | 32.86 | -79.95 |    1|CHARLESTON NS, SC                   |US|MTR
 0000000000|KNBC | 32.48 | -80.72 |   12|BEAUFORT MCAS, SC                   |US|MTR
 0000000000|KNBE | 32.73 | -96.97 |  151|HENSLEY FLD/DLLS, TX                |US|MTR
 0000000000|KNBG | 29.825| -90.035|    1|New Orleans NAS, LA                 |US|MTR
@@ -3562,7 +3561,6 @@
 0000000000|KU14 | 39.73658|-111.87006| 1531|Nephi Muni Airport, Nephi, UT   |US|MTR
 0000000000|KU16 | 41.05 |-113.07 | 1292|EAGLE RANGE, UT                     |US|MTR
 0000000000|KU17 | 37.51 |-110.70 | 1110|MARINA/BULLFROG, UT                 |US|MTR
-0000000000|KU24 | 39.34 |-112.59 | 1414|DELTA, UT                           |US|MTR
 0000000000|KU28 | 39.01 |-110.15 | 1241|GREEN RIVER, UT                     |US|MTR
 0000000000|KU31 | 39.51 |-117.09 | 2014|AUSTIN, NV                          |US|MTR
 0000000000|KU52 | 38.23058|-112.67542| 1787|Beaver Muni Airport, Beaver, UT |US|MTR
