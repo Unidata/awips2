@@ -551,6 +551,7 @@
 0000000000|COXA2| 60.542|-145.766|    8|Cordova, AK Marine Exchange         |US|BOY
 0000000000|CPMW1| 48.860|-122.756|    5|Cherry Point South Dock, WA         |US|BOY
 0000000000|CPNT2| 28.118| -97.022|   -0|NWLON Copano Bay, TX                |US|BOY
+0000000000|CPSA2| 56.397|-160.142|   61|Cape Seniavin, AK Marine Exchange   |US|BOY
 0000000000|CPTR1| 41.72 | -71.34 |    5|Conimicut Light, RI                 |US|BOY
 0000000000|CPVM2| 38.995| -76.388|    3|Chesapeake Bay Vsby NOS CMAN        |US|BOY
 0000000000|CPXA2| 53.843|-166.583|    5|Captains Bay, AK Marine Exchange    |US|BOY
@@ -560,13 +561,14 @@
 0000000000|CRVA2| 60.557|-145.755|   13|9454050 Cordova, AK NOS             |US|BOY
 0000000000|CRYV2| 36.888| -76.338|   -0|NWLON South Craney Island, VA       |US|BOY
 0000000000|CSBF1| 29.67 | -85.36 |    3|Cape San Blas, FL/V                 |US|BOY
-0000000000|CSPA2| 56.397|-160.142|   58|Cape Seniavin, AK Marine Exchange   |US|BOY
-0000000000|CSXA2| 58.199|-136.641|   22|Cape Spencer WX, AK Marine Exchange |US|BOY
+0000000000|CSPA2| 58.210|-136.630|   -0|Cape Spencer, AK                    |US|BOY
+0000000000|CSXA2| 58.199|-136.641|   20|Cape Spencer, AK Marine Exchange    |US|BOY
 0000000000|CTGM1| 44.642| -67.297|    5|8411250 Cutler, ME NOS              |US|BOY
 0000000000|CWAF1| 25.30 | -81.01 |   -0|Clearwater Pass, FL                 |US|BOY
 0000000000|CWBF1| 27.98 | -82.83 |   -0|Clearwater Bch, FL NOS              |US|BOY
 0000000000|CYGM4| 45.651| -84.472|  178|NWSCR GLOS, Cheybogan, MI           |US|BOY
 0000000000|DBLN6| 42.49 | -79.35 |  197|Dunkirk, NY/V                       |US|BOY
+0000000000|DCXA2| 58.35 |-154.127|   15|Devils Cove, AK Marine Exchange     |US|BOY
 0000000000|DELD1| 39.582| -75.590|   -0|NWLON Delaware City, DE             |US|BOY
 0000000000|DESW1| 47.68 |-124.49 |   39|Destruction Is., WA/D               |US|BOY
 0000000000|DHXA2| 70.222|-148.419|   15|Deadhorse, AK Marine Exchange       |US|BOY
@@ -592,6 +594,7 @@
 0000000000|EBSW1| 47.61 |-122.34 |   -0|Seattle, WA                         |US|BOY
 0000000000|EINL1| 29.373| -91.384|    6|N of Eugene Island, LA NOS 8764314  |US|BOY
 0000000000|ELFA2| 58.193|-136.343|    0|Elfin Cove, AK NOS 9452634          |US|BOY
+0000000000|ELXA2| 59.798| -144.60|   14|Cape St. Elias, AK Marine Exchange  |US|BOY
 0000000000|ELXC1| 36.815|-121.738|   -0|Elkhorn Slough NERR, CA             |US|BOY
 0000000000|EMAT2| 28.710| -95.914|   -0|East Matagorda, TX TCOON            |US|BOY
 0000000000|EPTT2| 29.48 | -94.92 |   -0|Eagle Point, TX NOS                 |US|BOY
@@ -1005,6 +1008,7 @@
 0000000000|SJNP4| 18.46 | -66.117|   -0|San Juan, PR NOS                    |US|BOY
 0000000000|SJOM4| 42.09 | -86.49 |  182|CR GLOS, St Joseph, MI              |US|BOY
 0000000000|SJSN4| 39.305| -75.375|   -0|NWLON Ship John Shoal, NJ           |US|BOY
+0000000000|SKDA2| 59.449|-135.331|   15|Skagway Ore Dock, AK Marine Exchange|US|BOY
 0000000000|SKMG1| 31.533| -80.233|   -0|SABSOON Tower M2/R6 (Skidaway Inst) |US|BOY
 0000000000|SKTA2| 59.450|-135.327|   -0|Skagway Tide Guage, AK NOS 9452634  |US|BOY
 0000000000|SKXA2| 59.448|-135.323|    5|Skagway MXAK, AK Marine Exchange    |US|BOY
@@ -1098,6 +1102,7 @@
 0000000000|WATS1| 34.335| -80.702|    0|WFO Columbia, Lake Wateree, SC      |US|BOY
 0000000000|WAVM6| 30.28 | -89.37 |   -0|Waveland, MS NOS                    |US|BOY
 0000000000|WAXM3| 41.582| -70.525|   10|Waquoit Bay NERR, MA                |US|BOY
+0000000000|WBXA2| 57.729|-152.516|    4|Womens Bay-Cargo, AK Marine Exchange|US|BOY
 0000000000|WBYA1| 30.417| -87.825|   -0|Weeks Bay, AL NOS WLON              |US|BOY
 0000000000|WCXA2| 55.402|-131.729|    7|Ward Cove, AK Marine Exchange       |US|BOY
 0000000000|WDEL1| 28.662| -89.551|    0|Shell West Delta 143                |US|BOY
@@ -1105,6 +1110,7 @@
 0000000000|WELM1| 43.320| -70.563|   -0|NWLON Wells, ME                     |US|BOY
 0000000000|WEXM1| 43.337| -70.55 |   19|Wells NERR, ME                      |US|BOY
 0000000000|WFPM4| 46.762| -84.966|  186|NWSCR GLOS Whitefish Point, MI      |US|BOY
+0000000000|WFXA2| 57.726|-152.519|    5|Womens Bay-Fuel, AK Marine Exchange |US|BOY
 0000000000|WGXA2| 56.467|-132.382|   15|Wrangell Harbor, AK Marine Exchange |US|BOY
 0000000000|WHRI2| 42.361| -87.813|  180|Waukegan Harbor, IL GLOS            |US|BOY
 0000000000|WIWF1| 25.585| -81.044|    0|Willy Willy, FL NPS                 |US|BOY

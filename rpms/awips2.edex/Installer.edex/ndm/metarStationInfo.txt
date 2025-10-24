@@ -1215,7 +1215,6 @@
 0000000000|K81R | 31.23520|-98.71700| 379|San Saba County Airport, TX       |US|MTR
 0000000000|K82C | 43.8388| -90.1377| 277|Mauston-New Lisbon Union AP, WI    |US|MTR
 0000000000|K82V | 41.1525|-104.1348|1570|Pine Bluffs Muni, Pine Bluffs, WY  |US|MTR
-0000000000|K85D | 47.78 | -93.65 |  409|Bigfork Muni, MN                    |US|MTR
 0000072390|K87Q | 35.68 |-121.28 |   21|PUNTA PIEDRAS, CA                   |US|MTR
 0000000000|K8A1 | 34.40619|-86.26087| 187|Guntersville Muni Arpt, AL        |US|MTR
 0000000000|K8A3 | 36.41350|-85.31044| 418|Livingston Muni AP, Livingston, TN|US|MTR
@@ -1250,8 +1249,8 @@
 0000000000|K9Y1 | 47.39133|-102.77181| 685|Weydahl Field, Killdeer, ND      |US|MTR
 0000000000|KA06 | 34.05 |-118.24 |   71|Los Angeles Civic Center, CA        |US|MTR
 0000000000|KA08 | 32.5105| -87.3848| 67|Vaiden Fld AP, Marion, AL           |US|MTR
-0000000000|KA39 | 32.99055| -111.91890| 398|Ak-Chin Regional AP, Maricopa, AZ|US|MTR
-0000000000|KAAA | 40.15885|-89.33893| 182|Lincoln/Logan Co, IL              |US|MTR
+0000000000|KA39 | 32.99055|-111.91890| 398|Ak-Chin Regional AP, Maricopa, AZ|US|MTR
+0000000000|KAAA | 40.15885| -89.33893| 182|Lincoln/Logan Co, IL             |US|MTR
 0000000000|KAAF | 29.728| -85.027|    6|Apalachicola Muni, FL               |US|MTR
 0000000000|KAAO | 37.7461|-97.2211| 433|Wichita/Col James Jabara, KS        |US|MTR
 0000000000|KAAS | 37.35828|-85.30942| 281|Taylor Cnty Arpt, Dallas, TX      |US|MTR
@@ -1465,7 +1464,7 @@
 0000000000|KBIT | 41.64 |-108.58 | 2176|Bitter Creek, WY                    |US|MTR
 0000000000|KBIV | 42.75 | -86.10 |  210|Holland/Tulip City, MI              |US|MTR
 0000000000|KBIX | 30.43 | -88.92 |   10|BILOX/KEESLER AFB,MS                |US|MTR
-0000000000|KBJC | 39.90096|-105.10420| 1694|Rocky Mt Metro AP, Broomfield, CO |US|MTR
+0000000000|KBJC | 39.90096|-105.10420| 1694|Rocky Mt Metro AP,Broomfield, CO|US|MTR
 0000072755|KBJI | 47.51 | -94.93 |  425|BEMIDJI MUNICIPA, MN                |US|MTR
 0000000000|KBJJ | 40.87 | -81.89 |  344|Wooster/Wayne Co, OH                |US|MTR
 0000000000|KBJN | 37.617|-116.264| 1756|Tonopah Test Rg 74, Nellis AFB, NV  |US|MTR
@@ -1480,7 +1479,7 @@
 0000000000|KBKV | 28.47 | -82.45 |   20|Brooksville, FL                     |US|MTR
 0000072412|KBKW | 37.79 | -81.12 |  766|BECKLEY MEMORIAL, WV                |US|MTR
 0000000000|KBKX | 44.30 | -96.80 |  499|BROOKINGS, SD                       |US|MTR
-0000000000|KBLF | 37.2978 | -81.2036 |  871|BLUEFIELD, WV                       |US|MTR
+0000000000|KBLF | 37.2978| -81.2036|  871|BLUEFIELD, WV                     |US|MTR
 0000000000|KBLH | 33.62 |-114.72 |  121|BLYTHE, CA                          |US|MTR
 0000000000|KBLI | 48.79 |-122.54 |   51|Bellingham Intl, WA                 |US|MTR
 0000000000|KBLM | 40.18 | -74.13 |   48|Belmar-Farmingdale, NJ              |US|MTR
@@ -1583,7 +1582,7 @@
 0000000000|KCCY | 43.07 | -92.62 |  343|Charles City, IA                    |US|MTR
 0000000000|KCDA | 44.569| -72.018|  362|Caledonia Cnty AP, Lyndonville, VT  |US|MTR
 0000000000|KCDC | 37.70 |-113.10 | 1715|Cedar City Regnl, UT                |US|MTR
-0000000000|KCDD | 48.26657|-92.48349|341|Scotts Seaplane Base, Crane Lake, MN|US|MTR
+0000000000|KCDD | 48.26657|-92.48349|341|Scotts Seaplane Base,Crane Lake, MN|US|MTR
 0000000000|KCDH | 33.623| -92.763|   40|Harrell Fld AP, Camden, AR          |US|MTR
 0000000000|KCDI | 39.97503|-81.57758| 244|Cambridge Muni AP, Cambridge, OH  |US|MTR
 0000000000|KCDJ | 39.82 | -93.58 |  254|Chillicothe/Litton Ag Sci, MO       |US|MTR
@@ -2029,7 +2028,7 @@
 0000000000|KFLY | 38.94575|-104.5699|2095|Colorado Springs/Meadow Lake CO   |US|MTR
 0000000000|KFME | 39.0854| -76.7594| 46|Ft Meade/Tipton, Odenton, MD        |US|MTR
 0000072506|KFMH | 41.659| -70.522|   40|Cape Cod CG Station, Falmouth, MA   |US|MTR
-0000000000|KFMM | 40.33150|-103.80702| 1376|Fort Morgan Muni, Fort Morgan, CO |US|MTR
+0000000000|KFMM | 40.33150|-103.80702| 1376|Fort Morgan Muni,Fort Morgan, CO|US|MTR
 0000000000|KFMN | 36.76 |-108.23 | 1677|Farmington/Four Corners Regnl, NM   |US|MTR
 0000000000|KFMY | 26.58 | -81.87 |    5|Fort Myers/Page Fld, FL             |US|MTR
 0000000000|KFNB | 40.07878|-95.59200| 300|Brenner Field Arpt, Falls City, NE|US|MTR
@@ -2041,7 +2040,7 @@
 0000000000|KFOK | 40.84 | -72.63 |   20|Westhampton Beach/FSGabreski, NY    |US|MTR
 0000000000|KFOM | 38.95814|-112.36314| 1519|Fillmore Muni AP, Fillmore, UT  |US|MTR
 0000000000|KFOT | 40.55394|-124.13267| 120|Rohnerville AP, Fortuna, CA      |US|MTR
-0000000000|KFOZ | 47.78 | -93.65 |  411|Bigfork Muni, MN                    |US|MTR
+0000000000|KFOZ | 47.78393| -93.65099| 412|Bigfork Muni, MN                 |US|MTR
 0000000000|KFPK | 42.57 | -84.81 |  272|Charlotte/Fitch H Beach Muni, MI    |US|MTR
 0000000000|KFPR | 27.49815|-80.37629| 7|Fort Pierce/St Lucie Co Intl, FL    |US|MTR
 0000000000|KFPY | 30.07081|-83.58154| 14|Perry-Foley Airport, Perry, FL     |US|MTR
