@@ -3130,7 +3130,7 @@
 0000000000|KPUM | 41.05 |-105.46 | 2438|Pumpkin Vine, WY                    |US|MTR
 0000000000|KPUW | 46.76 |-117.12 |  778|Pullman/Moscow Regnl, WA            |US|MTR
 0000000000|KPVB | 42.689| -90.444|  312|Platteville, WI                     |US|MTR
-0000000000|KPVC | 42.01 | -70.20 |    2|PROVINCETOWN, MA                    |US|MTR
+0000000000|KPVC | 42.0723| -70.2207|  2|PROVINCETOWN, MA                    |US|MTR
 0000072507|KPVD | 41.73 | -71.43 |   19|PROVIDENCE/GREEN, RI                |US|MTR
 0000000000|KPVE | 35.6564| -88.1954| 149|Beech Rv AP, Lexington-Parsons, TN |US|MTR
 0000000000|KPVF | 38.724|-120.753|  788|Placerville, CA                     |US|MTR
