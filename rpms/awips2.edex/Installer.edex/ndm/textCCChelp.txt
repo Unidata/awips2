@@ -521,6 +521,7 @@
 93Q Pigeon Point CGS, Pescadero, CA
 96D Walhalla Muni, Walhalla, ND
 97Q Point Reyes, CA
+98D Onida, SD
 9A4 Lawrence Cnty AP, Courtland, AL
 9A5 Barwick Lafayette AP, LaFayette, GA
 9BB Wells, NV

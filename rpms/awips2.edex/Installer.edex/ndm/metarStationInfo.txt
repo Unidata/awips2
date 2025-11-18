@@ -1233,6 +1233,7 @@
 0000000000|K92S | 42.83 |-124.57 |   33|Cape Blanco, OR                     |US|MTR
 0000000000|K96D | 48.94057| -97.902775| 290|Walhalla Muni, Walhalla, ND     |US|MTR
 0000000000|K97Q | 38.01 |-123.02 |   87|POINT REYES, CA                     |US|MTR
+0000000000|K98D | 44.70045|-100.10077| 571|Onida Muni AP, Onida, SD         |US|MTR
 0000000000|K9A4 | 34.65939| -87.34883| 179|Lawrence Cnty AP, Courtland, AL  |US|MTR
 0000000000|K9A5 | 34.6885| -85.2903| 237|Barwick Lafayette AP, LaFayette, GA|US|MTR
 0000000000|K9BB | 41.16 |-114.97 | 1723|WELLS, NV                           |US|MTR
