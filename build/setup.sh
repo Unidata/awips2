@@ -38,6 +38,11 @@ echo "**************************************************
 *                                                *
 *                                                *
 **************************************************">/awips2/repo/awips2/build/deploy.edex.awips2/esb/conf/banner.txt
+#Run LDM Merge Script
+cd /awips2/repo/awips2/rpms/awips2.upc/Installer.ldm/patch/etc
+perl merge_pqacts.pl main
+perl merge_pqacts.pl all
+cd /awips2/repo/awips2
 
 # If local source directories, exist, mount them to the container
 if [ $rpmname = "buildCAVE" ]; then

@@ -1,3 +1,15 @@
+#
+# Unidata AWIPS LDM MRMS Specific Pattern Actions (this is to be used on an ancillary ingest only EDEX for MRMS products - the pqact on the main EDEX should be edited to not have any duplicate actions from this file)
+#
+# 20210505      18.2.1  MRMS entries are now from Unidata's IDD NCO feed instead of NOAAPort
+# 20251119	23.4.1  Reformatted the MRMS pqact to match other ancillary pqacts
+
+#########################
+#
+# MRMS Products
+#
+#########################
+
 # ===============================
 # = NCEP data available via IDD =
 # ===============================
