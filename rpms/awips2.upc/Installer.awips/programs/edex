@@ -255,6 +255,10 @@ edit_setup() {
 edex_setup() {
    echo ''
 
+   if [ -f /etc/init.d/edex_ldm ]; then
+      chkconfig edex_ldm on
+   fi
+
    svc=`find /etc/systemd/system -type d -printf "%f\n" | grep postgresql\@awips.service`
    if [ $svc ]; then
       systemctl enable postgresql@awips
