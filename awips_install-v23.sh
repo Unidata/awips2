@@ -3,23 +3,25 @@
 # devorg: Unidata Program Center
 # author: Michael James, Tiffany Meyer
 # maintainer: <support-awips@unidata.ucar.edu>
-# Date Updated: 2/4/2025
-# use: ./awips_install-v23.sh (--cave|--edex|--database|--ingest|--help)
-# BETA INSTALL
-#
+# Date Updated: 11/25/2025
+# use: ./awips_install.sh (--cave|--edex|--database|--ingest|--uninstall|--help)
+
 # 8/8/24 (tmeyer) - Added checks for mesa-libGLU (CAVE), SELINUX (EDEX), RHEL8 specific repos, postgres
 # 11/18/24 (tmeyer) - Added Jetstream2 specific updates
 # 2/4/25 (tmeyer) - Added ability to install on RHEL/Rocky9 
 #                 - Fixed missing date
+# 7/8/25 (tmeyer) - No longer in beta
+# 11/25/25 (tmeyer) - Add in an uninstall flag
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
 
-usage="$(basename "$0") [-h] (--cave|--edex|--database|--ingest) #script to install Unidata AWIPS components.\n
+usage="$(basename "$0") [-h] (--cave|--edex|--database|--ingest|--uninstall) #script to install Unidata AWIPS components.\n
     -h, --help           show this help text\n
     --cave               install CAVE for x86_64 Linux\n
     --edex, --server     install EDEX Standaone Server x86_64 Linux\n
     --database           install EDEX Request/Database x86_64 Linux\n
-    --ingest             install EDEX Ingest Node Server x86_64 Linux\n"
+    --ingest             install EDEX Ingest Node Server x86_64 Linux\n
+    --uninstall          uninstall AWIPS RPM's x86_64 Linux\n"
 
 function stop_edex_services {
   for srvc in edex_ldm edex_camel qpidd httpd-pypies edex_postgres ; do
@@ -48,6 +50,10 @@ function check_yumfile {
   echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
   wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
 
+  prep_yumfile
+}
+
+function prep_yumfile {
   sed -i 's/enabled=0/enabled=1/' /etc/yum.repos.d/awips2.repo
 
   yum --enablerepo=awips2repo --disablerepo="*" --disableexcludes=main clean all 1>> /dev/null 2>&1
@@ -190,7 +196,7 @@ function remove_cave {
 }
 
 function check_edex {
-  if [[ $(rpm -qa | grep awips2-python) ]]; then
+  if [[ $(rpm -qa | grep awips2-edex) ]]; then
     echo "found EDEX RPMs installed. The current EDEX needs to be removed before installing."
     check_remove_edex
   else
@@ -218,6 +224,17 @@ function check_edex {
 function check_remove_edex {
   while true; do
     read -p "Do you wish to remove EDEX? (Please type yes or no) `echo $'\n> '`" yn
+    case $yn in
+      [Yy]* ) remove_edex; break;;
+      [Nn]* ) echo "Exiting..."; exit;;
+      * ) echo "Please answer yes or no"
+    esac
+  done
+}
+
+function check_remove_awips {
+  while true; do
+    read -p "It looks like AWIPS is only partially installed. Do you wish to remove all awips2 RPMS? (Please type yes or no) `echo $'\n> '`" yn
     case $yn in
       [Yy]* ) remove_edex; break;;
       [Nn]* ) echo "Exiting..."; exit;;
@@ -525,6 +542,23 @@ case $key in
         if [[ $HOSTNAME =~ js2local ]]; then 
           echo "Running post_install script $HOSTNAME" 
           perl  /awips2/dev/git_unidata_builds/awips-unidata-builds/linux/builds/scripts/post_install.pl
+        fi
+        ;;
+    --uninstall)
+        if [[ $(rpm -qa | grep awips2-edex) ]]; then
+          prep_yumfile
+          stop_edex_services
+          check_remove_edex
+          echo "\nAll AWIPS RPM's have been removed"
+        elif [[ $(rpm -qa | grep awips2-cave) ]]; then
+          prep_yumfile
+          remove_cave
+          echo "\nAWIPS CAVE has been removed"
+        elif [[ $(rpm -qa | grep awips2) ]]; then
+          check_remove_awips
+          echo "\nAll AWIPS RPM's have been removed"
+        else
+          echo "There are no awips2 RPM's installed, so there is nothing to remove"
         fi
         ;;
     -h|--help)
