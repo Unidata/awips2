@@ -1334,6 +1334,7 @@
 0000000000|KANK | 38.5382778|-106.0486389|2293|H Alexander AP, Salida, CO   |US|MTR
 0000000000|KANQ | 41.6397| -85.0835| 303|Tri-St Steuben Cnty AP, Angola, IN |US|MTR
 0000000000|KANW | 42.59 | -99.99 |  788|Ainsworth Muni, NE                  |US|MTR
+0000000000|KANY | 37.1598889| -98.0795278| 409|Anthony Muni, Anthony, KS    |US|MTR
 0000000000|KAOH | 40.71 | -84.03 |  297|Lima/Allen County, OH               |US|MTR
 0000000000|KAOO | 40.30 | -78.32 |  458|Altoona/Blair Co, PA                |US|MTR
 0000000000|KAPA | 39.55991|-104.84840| 1791|Denver/Centennial, CO           |US|MTR
