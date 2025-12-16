@@ -23,6 +23,10 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
+# FILE UPDATED 12/05/2025
+# FOR CHANGES TO THIS FILE PLEASE CONTACT
+# xiaobiao.fan@noaa.gov
+#
 #  number   ID     lat      lon    elev           station name            country
 #   (10)    (5)  (sn2.3) (sn3.3)    (5)               (36)                  (2)
 0000070279| 5HN | 60.23 |-146.65 |   56|CAPE HINCHINBROOK, AK               |US|MTR

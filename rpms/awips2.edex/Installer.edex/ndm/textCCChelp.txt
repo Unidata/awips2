@@ -1,3 +1,7 @@
+# THIS IS THE BASE textCCChelp.txt FILE
+# FILE UPDATED 12/05/2025
+# FOR CHANGES TO THIS FILE PLEASE CONTACT
+# xiaobiao.fan@noaa.gov
 000 Display latest version of all products.
 001 General Purpose MCP or PCD
 002 General Purpose MCP or PCD
