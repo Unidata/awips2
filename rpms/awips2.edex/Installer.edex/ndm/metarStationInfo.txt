@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 12/05/2025
+# FILE UPDATED 02/03/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1618,7 +1618,7 @@
 0000000000|KCGZ | 32.96 |-111.77 |  446|CASA GRANDE, AZ                     |US|MTR
 0000072324|KCHA | 35.04 | -85.20 |  210|CHATTANOOGA/LOVE, TN                |US|MTR
 0000000000|KCHD | 33.27 |-111.81 |  379|Chandler Muni, AZ                   |US|MTR
-0000000000|KCHJ | 44.75 |-109.37 | 2529|Chief Joseph, WY                    |US|MTR
+0000000000|KCHJ | 44.73997|-109.38088| 2465|Chief Joseph, WY                |US|MTR
 0000000000|KCHK | 35.10 | -97.97 |  351|Chickasha Muni, OK                  |US|MTR
 0000000000|KCHO | 38.14 | -78.45 |  195|Charlottesville-Albemarle, VA       |US|MTR
 0000072208|KCHS | 32.8986| -80.00405 |   14|CHARLESTON AFB, SC              |US|MTR
@@ -2056,6 +2056,7 @@
 0000072455|KFRI | 39.055| -96.765|  324|Marshall/Ft Riley, Junction Cty, KS |US|MTR
 0000000000|KFRM | 43.66 | -94.42 |  354|FAIRMONT, MN                        |US|MTR
 0000000000|KFRR | 38.9175| -78.2534| 215|F Royal-Warren AP, Front Royal, VA |US|MTR
+0000000000|KFRS | 42.10885|-109.44941| 2012|Farson, WY                      |US|MTR
 0000072651|KFSD | 43.59 | -96.74 |  435|SIOUX FALLS/FOSS, SD                |US|MTR
 0000000000|KFSE | 47.593| -95.773|  389|Fosston Muni, MN                    |US|MTR
 0000072355|KFSI | 34.66 | -98.40 |  362|FORT SILL, OK                       |US|MTR
@@ -2911,6 +2912,7 @@
 0000000000|KOCQ | 44.87401| -87.90977|184|JW Bake Mem AP, Oconto, WI        |US|MTR
 0000000000|KOCW | 35.57 | -77.05 |   12|Washington/Warren Field, NC         |US|MTR
 0000000000|KODO | 31.92142|-102.38713| 915|Odessa/Schlemeyer Field, TX      |US|MTR
+0000000000|KODV | 42.80626|-106.30813|1666|Outer Drive Casper, WY           |US|MTR
 0000000000|KODX | 41.62 | -98.95 |  629|ORD/SHARP, NE                       |US|MTR
 0000000000|KOEB | 41.93 | -85.05 |  292|Coldwater, MI                       |US|MTR
 0000000000|KOEL | 39.112|-100.817|  928|Oakley, KS                          |US|MTR
@@ -3180,6 +3182,7 @@
 0000000000|KRDM | 44.28 |-121.15 |  938|REDMOND/ROBERTS, OR                 |US|MTR
 0000000000|KRDR | 47.98 | -97.40 |  278|GRAND FORKS AFB, ND                 |US|MTR
 0000072306|KRDU | 35.88 | -78.78 |  134|RALEIGH-DURHAM, NC                  |US|MTR
+0000000000|KREC | 42.61795|-108.61093|2007|Red Canyon, WY                   |US|MTR
 0000000000|KRED | 45.19 |-109.27 | 1757|RED LODGE, MT                       |US|MTR
 0000000000|KREE | 33.61 |-102.05 | 1017|REESE AFB/LUBOCK, TX                |US|MTR
 0000000000|KREG | 30.17137|-90.94039| 4|Louisiana Regional AP, Gonzales, LA |US|MTR
@@ -3396,6 +3399,7 @@
 0000072561|KSNY | 41.11 |-102.98 | 1307|SIDNEY MUNI, NE                     |US|MTR
 0000000000|KSOA | 30.586|-100.649|  652|Sonora Muni, Sonora, TX             |US|MTR
 0000000000|KSOP | 35.24 | -79.41 |  141|SOUTHERN PINES A, NC                |US|MTR
+0000000000|KSOU | 42.47752|-108.84440|2498|South Pass WYDOT, WY             |US|MTR
 0000000000|KSOW | 34.265|-110.006| 1955|Show Low, AZ                        |US|MTR
 0000000000|KSPA | 34.916| -81.957|  244|Spartanburg Downtown Mem AP, SC     |US|MTR
 0000000000|KSPB | 45.769|-122.862|   15|Scappoose Industrial Airpark, OR    |US|MTR
@@ -3493,6 +3497,7 @@
 0000000000|KTDZ | 41.56 | -83.48 |  190|Toledo/Metcalf Field, OH            |US|MTR
 0000000000|KTEB | 40.859| -74.0561|   3|Teterboro Arpt, NJ                  |US|MTR
 0000000000|KTEW | 42.57 | -84.42 |  280|Mason/Mason Jewett Field, MI        |US|MTR
+0000000000|KTET | 43.49873|-110.95620| 2570|Teton Pass, WY                  |US|MTR
 0000000000|KTEX | 37.95383|-107.9085| 2767|Telluride, CO                    |US|MTR
 0000000000|KTFP | 27.913| -97.212|    5|T P McCampbell AP, Ingleside, TX    |US|MTR
 0000000000|KTGI | 37.82587| -75.99766| 2|Tangier Island AP, Tangier, VA     |US|MTR

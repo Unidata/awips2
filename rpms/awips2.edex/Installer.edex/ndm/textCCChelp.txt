@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 12/05/2025
+# FILE UPDATED 02/03/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 000 Display latest version of all products.
@@ -780,7 +780,7 @@ ARB Ann Arbor, MI
 ARC Arctic Village, AK
 ARD Red Dog, AK
 ARG Walnut Ridge, AR
-ARL K-Arlington, WY
+ARL Arlington, WY
 ARM Wharton Rgnl AP, TX
 ARR Aurora, IL
 ARS P-Russian Mission AP, AK
@@ -3230,6 +3230,7 @@ OCS Camp Pendleton MCALF, Oceanside, CA
 OCW Warren Fld, Washington, NC
 ODN Kadena, Japan, WSR-88D
 ODO Odessa/Schlemeyer Field, TX
+ODV Outer Drive Casper, WY
 ODX Ord, NE
 OEB Coldwater, MI
 OEL Oakley, KS
@@ -3604,6 +3605,7 @@ RDK Red Oak, IA
 RDM Redmond, OR
 RDR Grand Forks, ND
 RDU Raleigh/Durham, NC
+REC Red Canyon, WY
 RED Redefine Input
 REE Reese AFB, Lubbock, TX
 REG Louisiana Regional AP, Gonzales, LA
@@ -3876,6 +3878,7 @@ SNT Stanley Ranger Station, ID
 SNY Sidney, NE
 SOA Sonora Muni, TX
 SOP Southern Pines, NC
+SOU South Pass, WY
 SOW Show Low, AZ
 SOX Santa Ana Mountains, CA WSR-88D
 SP1 Spanish TCP
@@ -4022,6 +4025,7 @@ TDW Tradewind Airport, Amarillo, TX
 TDZ Toledo/Metcalf Field, OH
 TEB Teterboro, NJ
 TEC Technical Information
+TET Teton Pass, WY
 TEW Mason/Mason Jewett Field, MI
 TEX Telluride, CO
 TFP T P McCampbell AP, Ingleside, TX
