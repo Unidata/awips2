@@ -37,6 +37,8 @@
                 <include>.*common.*</include>
                 <exclude>ohd-common-database.xml</exclude>
                 <exclude>satpre-spring.xml</exclude>
+                <exclude>.*ebxml.*</exclude>
+                <exclude>.*registry.*</exclude>
         </mode>
 
         <mode name="ingestRadar">
