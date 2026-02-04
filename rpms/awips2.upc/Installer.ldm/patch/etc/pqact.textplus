@@ -11,6 +11,7 @@
 # 20240105      20.3.2  Fix pqact error in Fire Weather and Dry Thunderstorm grids
 # 20241010      23.4.1  Add new entry for mPING data (NOAA/OU/CIWRO)
 # 20251119	23.4.1  Reformatted the textplus pqact to match other ancillary pqacts
+# 20260204      23.4.1  Updated modelsounding feedtypes from HDS to NGRID
 
 #########################
 #
@@ -170,22 +171,22 @@ FNEXRAD	^rad/NEXRCOMP/(...)/(...)_(........)_(....)
 #
 # modelSoundings
 #
-HDS	^(JUS[ABX]4[1-9]) (KW(NO|BC)) (..)(..)(..)
+NGRID	^(JUS[ABX]4[1-9]) (KW(NO|BC)) (..)(..)(..)
 	FILE	-close	/awips2/data_store/modelsounding/staging/\1_\2_\4\5\6-concat-%Y%m%d_%H%M.bufr
 #
 # GOES soundings
 #
-HDS	^(JUTX0[1-9]) (....) (..)(..)(..)
+NGRID	^(JUTX0[1-9]) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/goessounding/\1_\2_\3\4\5_(seq).bufr
 #
 # NUCAPS soundings
 #
-HDS	^(IUTN[01][1-5]) (....) (..)(..)(..)
+HDS|NGRID	^(IUTN[01][1-5]) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/nucaps/\1_\2_\3\4\5_(seq).bufr
 #
 # POES soundings
 #
-HDS	^(IUTX0[1-9]) (....) (..)(..)(..)
+NGRID	^(IUTX0[1-9]) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/poessounding/\1_\2_\3\4\5_(seq).bufr
 #
 # BUFR MOS:

@@ -4,11 +4,17 @@
 # 20231109      20.3.2  Updates to Unidata LDM based on NWS Change Log:
 #                       Update level3 radar product entry to include SDUS4
 # 20251119      23.4.1  Reformatted the Radar pqact to match other ancillary pqacts
+# 20260204      23.4.1  Added entry for Canadian radars
 
 #########################
 #
 # NEXRAD3 site products
 #
 #########################
+# US Radars
 NEXRAD3|HDS	^SDUS[2345678]. (....) (..)(..)(..).*/p(...)(...)
 	FILE	-overwrite -close -edex	/awips2/data_store/radar/(\2:yyyy)(\2:mm)\2//\3/\6/\6_\5_(\2:yyyy)(\2:mm)\2_\3\4
+# Canada Radars
+IDS|DDPLUS	SDCN01 (....) (..)(..)(..)
+	FILE	-overwrite -close -log -edex	/awips2/data_store/cradar/(\2:yyyy)(\2:mm)\2/\3/\1_(\2:yyyy)(\2:mm)\2_\3\4_(seq)
+

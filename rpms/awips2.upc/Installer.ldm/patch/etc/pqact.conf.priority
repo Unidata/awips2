@@ -45,6 +45,8 @@
 # 20251119      23.4.1  Reformatted the Radar pqact to match other ancillary pqacts
 # 20251119      23.4.1  Update GOES Mesoscale sector to receive from SBN instead of Unidata (CONUS and FD are still the full stitched tile from Unidata)
 #			Reformatted the GOESR pqact to match other ancillary pqacts
+# 20260204      23.4.1  Added entry for Canadian radars
+# 20260204      23.4.1  Updated modelsounding feedtypes from HDS to NGRID
 
 #########################
 #
@@ -204,22 +206,22 @@ FNEXRAD	^rad/NEXRCOMP/(...)/(...)_(........)_(....)
 #
 # modelSoundings
 #
-HDS	^(JUS[ABX]4[1-9]) (KW(NO|BC)) (..)(..)(..)
+NGRID	^(JUS[ABX]4[1-9]) (KW(NO|BC)) (..)(..)(..)
 	FILE	-close	/awips2/data_store/modelsounding/staging/\1_\2_\4\5\6-concat-%Y%m%d_%H%M.bufr
 #
 # GOES soundings
 #
-HDS	^(JUTX0[1-9]) (....) (..)(..)(..)
+NGRID	^(JUTX0[1-9]) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/goessounding/\1_\2_\3\4\5_(seq).bufr
 #
 # NUCAPS soundings
 #
-HDS	^(IUTN[01][1-5]) (....) (..)(..)(..)
+HDS|NGRID	^(IUTN[01][1-5]) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/nucaps/\1_\2_\3\4\5_(seq).bufr
 #
 # POES soundings
 #
-HDS	^(IUTX0[1-9]) (....) (..)(..)(..)
+NGRID	^(IUTX0[1-9]) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex	/awips2/data_store/poessounding/\1_\2_\3\4\5_(seq).bufr
 #
 # BUFR MOS:
@@ -386,8 +388,13 @@ NOTHER	^(TIQB00) (KNES) (......)
 # NEXRAD3 site products
 #
 #########################
+# US Radars
 NEXRAD3|HDS	^SDUS[2345678]. (....) (..)(..)(..).*/p(...)(...)
 	FILE	-overwrite -close -edex	/awips2/data_store/radar/(\2:yyyy)(\2:mm)\2//\3/\6/\6_\5_(\2:yyyy)(\2:mm)\2_\3\4
+# Canada Radars
+IDS|DDPLUS	SDCN01 (....) (..)(..)(..)
+	FILE	-overwrite -close -log -edex	/awips2/data_store/cradar/(\2:yyyy)(\2:mm)\2/\3/\1_(\2:yyyy)(\2:mm)\2_\3\4_(seq)
+
 #########################
 #
 # MRMS Products
