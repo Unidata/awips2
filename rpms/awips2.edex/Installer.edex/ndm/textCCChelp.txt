@@ -2902,6 +2902,7 @@ MKQ Green Canyon Oil Platform 433, Gulf
 MKS Moncks Corner, SC
 MKT Mankato, MN
 MKU Upper Muskingum River
+MKV Marksville Regional Arpt, LA
 MKX WFO Milwaukee/Sullivan, Dousman, WI WSR-88D
 MKY Marco Is AP, Marco Island, FL
 MLB WFO Melbourne, FL WSR-88D

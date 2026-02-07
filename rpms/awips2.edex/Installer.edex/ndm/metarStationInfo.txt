@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 02/03/2026
+# FILE UPDATED 02/06/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2724,6 +2724,7 @@
 0000000000|KMKQ |27.52  | -90.0   |   0|Green Canyon Oil Platform 433, Gulf |US|MTR
 0000000000|KMKS | 33.186| -80.036|   22|Moncks Corner, SC                   |US|MTR
 0000000000|KMKT | 44.23 | -93.92 |  311|MANKATO, MN                         |US|MTR
+0000000000|KMKV | 31.0947|-92.0691|  24|Marksville Regional Airport, LA     |US|MTR
 0000000000|KMKY | 25.995| -81.6725|   2|Marco Is AP, Marco Island, FL       |US|MTR
 0000072204|KMLB | 28.09969|-80.63559| 10|MELBOURNE, FL                      |US|MTR
 0000000000|KMLC | 34.89 | -95.78 |  235|MCALESTER, OK                       |US|MTR
@@ -2790,7 +2791,6 @@
 0000000000|KMTN | 39.34 | -76.42 |    7|MARTIN/MDDLE RVR, MD                |US|MTR
 0000000000|KMTO | 39.47436|-88.27239| 220|Mattoon/Coles Co Mem, IL          |US|MTR
 0000000000|KMTP | 41.08 | -71.92 |    6|Montauk, NY                         |US|MTR
-0000000000|KMTR | 44.27 |-108.87 | 1816|Meeteese Rim, WY                    |US|MTR
 0000000000|KMTV | 36.63 | -80.02 |  287|Martinsville, VA                    |US|MTR
 0000000000|KMTW | 44.14 | -87.67 |  198|MANITOWOC, WI                       |US|MTR
 0000000000|KMUI | 40.44 | -76.57 |  149|MUIR AAF/INDIANTOWN, PA             |US|MTR
