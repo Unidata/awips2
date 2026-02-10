@@ -1,5 +1,5 @@
 # THIS IS THE BASE MTR.goodness FILE
-# FILE UPDATED 02/06/2026
+# FILE UPDATED 02/09/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 70279     5HN  60.23   -146.65      56      2500
@@ -2144,6 +2144,7 @@
     0    KMTN  39.3400  -76.4200     7      6000
     0    KMTO  39.47436 -88.27239  220     12848
     0    KMTP  41.08    -71.92       6       500
+    0    KMTR  44.2700 -108.8700  1816       500
     0    KMTV  36.6300  -80.0200   287       574
     0    KMTW  44.1400  -87.6700   198     12370
     0    KMUI  40.4400  -76.5700   149       473
