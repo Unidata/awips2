@@ -92,6 +92,7 @@ EXEC	"rtstats -h rtstats.unidata.ucar.edu"
 # DEFAULT Radar Ancillary EDEX
 REQUEST NEXRAD3 ".*" idd.unidata.ucar.edu # Radar Level3 
 REQUEST HDS "^SDUS6.*" idd.unidata.ucar.edu # Radar Level3 - specific files
+REQUEST IDS|DDPLUS ".*SDCN01.*" 10.0.0.233 # Canada Radars
 #
 #REQUEST WMO ".*" initial-secondary-host.another.domain
 #REQUEST WMO ".*" another-secondary-host.yet_another.domain:3152
