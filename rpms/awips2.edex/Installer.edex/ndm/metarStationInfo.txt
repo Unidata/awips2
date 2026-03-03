@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 02/09/2026
+# FILE UPDATED 03/02/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1351,7 +1351,7 @@
 0000000000|KAQO | 30.784| -98.662|  336|Llano Muni, Llano, TX               |US|MTR
 0000000000|KAQP | 45.23 | -96.00 |  311|Appleton Muni, MN                   |US|MTR
 0000000000|KAQR | 34.40 | -96.15 |  180|Atoka Muni, OK                      |US|MTR
-0000000000|KAQV | 31.40 | -93.27 |  111|Peason Ridge, Ft. Polk, LA          |US|MTR
+0000000000|KAQV | 31.3569| -93.1761|111|Peason Ridge, Ft. Polk, LA          |US|MTR
 0000000000|KAQW | 42.71 | -73.17 |  199|NORTH ADAMS, MA                     |US|MTR
 0000000000|KAQX | 32.9951| -81.2703| 49|Allendale Cnty AP, Allendale, SC    |US|MTR
 0000000000|KARA | 30.03 | -91.88 |    7|New Iberia/Acadiana Regnl, LA       |US|MTR
@@ -1474,7 +1474,7 @@
 0000072755|KBJI | 47.51 | -94.93 |  425|BEMIDJI MUNICIPA, MN                |US|MTR
 0000000000|KBJJ | 40.87 | -81.89 |  344|Wooster/Wayne Co, OH                |US|MTR
 0000000000|KBJN | 37.617|-116.264| 1756|Tonopah Test Rg 74, Nellis AFB, NV  |US|MTR
-0000000000|KBKB | 31.00 | -92.97 |   94|Fullerton Land Strip, Ft. Polk, LA  |US|MTR
+0000000000|KBKB | 31.0694| -92.9781| 94|Fullerton Land Strip, Ft. Polk, LA  |US|MTR
 0000000000|KBKD | 32.719| -98.891|  391|Stephens Cnty AP, Breckenridge, TX  |US|MTR
 0000000000|KBKE | 44.8430|-117.8099| 1024|BAKER, OR                         |US|MTR
 0000000000|KBKF | 39.71333|-104.75808| 1702|AURORA/BUCKLEY, CO              |US|MTR
