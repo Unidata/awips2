@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 02/03/2026
+# FILE UPDATED 03/09/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 000 Display latest version of all products.
@@ -1073,6 +1073,7 @@ C13 Caribbean Bulletin 13
 C19 Holland, MI
 C21 Caribbean Bulletin 21
 C23 Caribbean Bulletin 23
+C24 Mineral Cnty Memorial AP, Creede, CO
 C25 Caribbean Bulletin 25
 C29 Morey Fld AP, Middleton, WI
 C35 Reedsburg Muni, Reedsburg, WI
@@ -1647,7 +1648,7 @@ FCM Flying Cloud Airport, MN
 FCS Fort Carson, Colorado Springs, CO
 FCT Vagabond Army Heliport, Yakima, WA
 FCX Roanoke/Blacksburg, VA WSR-88D
-FDK Frederick Muni Apt, MD
+FDK Frederick Muni AP, MD
 FDR Frederick, OK
 FDW Winnsboro, SC
 FDY Findlay, OH
