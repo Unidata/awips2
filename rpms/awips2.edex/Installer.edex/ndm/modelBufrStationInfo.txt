@@ -1,5 +1,10 @@
 # This is the main file for model BUFR sounding ingest.  This will be clipped to the
 # regional scale for most sites to produce the file modelBufrStationInfo.txt
+#
+# FILE UPDATED 03/12/2026
+# FOR CHANGES TO THIS FILE PLEASE CONTACT
+# xiaobiao.fan@noaa.gov
+#
 #wmo          |stn  |lat     |lon        |elev |location                       |or|type
 0000000001    |YAJ  | 69.580 |-140.180   |9999 |  KOMAKUK, YT                  |US|11
 0000000002    |WRP  | 69.900 |-128.970   |9999 |  NICHOLSON, NT                |US|11
@@ -1440,7 +1445,7 @@
 0000726650    |KGCC | 44.350 |-105.530   |1230 |  GILLETTE_(AMOS)         WY   |US|10
 0000726660    |KSHR | 44.770 |-106.970   |1209 |  SHERIDAN_CO._ARPT       WY   |US|10
 0000726664    |KP60 | 44.540 |-110.420   |2388 |  LAKE YELLOWSTONE        WY   |US|12
-0000726665    |KWRL | 43.970 |-107.950   |1294 |  WORLAND_MUNICIPAL       WY   |US|10
+0000726665    |KWRL | 43.9654|-107.9502  |1288 |  WORLAND_MUNICIPAL       WY   |US|10
 0000726670    |4BQ  | 45.450 |-105.400   | 922 |  BROADUS                 MT   |US|10
 0000726676    |GDV  | 47.130 |-104.800   |9999 |  GLENDIVE                MT   |US|10
 0000726685    |KY26 | 45.530 |-100.430   | 508 |  MOBRIDGE                SD   |US|10

@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 03/04/2026
+# FILE UPDATED 03/12/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2792,7 +2792,7 @@
 0000000000|KMTN | 39.34 | -76.42 |    7|MARTIN/MDDLE RVR, MD                |US|MTR
 0000000000|KMTO | 39.47436|-88.27239| 220|Mattoon/Coles Co Mem, IL          |US|MTR
 0000000000|KMTP | 41.08 | -71.92 |    6|Montauk, NY                         |US|MTR
-0000000000|KMTR | 44.27 |-108.87 | 1816|Meeteese Rim, WY                    |US|MTR
+0000000000|KMTR | 44.2701|-108.8734| 1791|Meeteese Rim, WY                  |US|MTR
 0000000000|KMTV | 36.63 | -80.02 |  287|Martinsville, VA                    |US|MTR
 0000000000|KMTW | 44.14 | -87.67 |  198|MANITOWOC, WI                       |US|MTR
 0000000000|KMUI | 40.44 | -76.57 |  149|MUIR AAF/INDIANTOWN, PA             |US|MTR
@@ -3696,7 +3696,7 @@
 0000072583|KWMC | 40.9018|-117.8082| 1309|WINNEMUCCA MUNI, NV               |US|MTR
 0000000000|KWRB | 32.64 | -83.60 |   90|ROBINS AFB, GA                      |US|MTR
 0000000000|KWRI | 40.02 | -74.60 |   41|MCGUIRE AFB, NJ                     |US|MTR
-0000000000|KWRL | 43.98 |-107.97 | 1294|WORLAND MUNI, WY                    |US|MTR
+0000000000|KWRL | 43.9654|-107.9502| 1288|WORLAND MUNI, WY                  |US|MTR
 0000000000|KWST | 41.35 | -71.80 |   25|Westerly State, RI                  |US|MTR
 0000000000|KWTR | 41.41 |-104.87 | 1890|Whitaker, WY                        |US|MTR
 0000000000|KWVI | 36.94 |-121.79 |   49|Watsonville Muni, CA                |US|MTR
