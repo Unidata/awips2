@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 03/12/2026
+# FILE UPDATED 03/13/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -32,13 +32,13 @@
 0000070279| 5HN | 60.23 |-146.65 |   56|CAPE HINCHINBROOK, AK               |US|MTR
 0000070218| 5NV | 60.01 |-166.00 |   15|NUNIVAK ISLAND, AK                  |US|MTR
 0000000000| 5TK | 65.12 |-147.48 |  197|CHATANIKA/POKER, AK                 |US|MTR
-0000091520|AGGH | -9.42 | 160.05 |    9|Honiara/Henderson                   |SO|MTR
-0000091530|ANAU | -0.53 | 166.92 |    6|Nauru Arpt                          |NW|MTR
-0000094035|AYPY | -9.43 | 147.22 |   47|Port Moresby Intl                   |NG|MTR
-0000071038|CADN | 46.583| -66.017|   43|Doaktown Auto RCS, NB               |CN|SAO
-0000071350|CAHR | 46.350| -63.167|   54|Harrington CDA CS, PEI              |CN|SAO
-0000000000|CANH | 46.417| -63.083|    3|Stanhope CS, PEI                    |CN|SAO
-0000071757|CBBC | 52.183|-128.150|   43|Bella Bella A, BC                   |CN|MTR
+0000091520|AGGH | -9.428| 160.055|    9|Honiara Intl AP                     |SB|MTR
+0000091530|ANYN | -0.547| 166.919|    7|Nauru Intl AP                       |NR|MTR
+0000094035|AYPY | -9.443| 147.220|   38|Port Moresby Intl AP                |PG|MTR
+0000071038|CADN | 46.583| -66.017|   43|Doaktown Auto RCS, NB               |CA|SAO
+0000071350|CAHR | 46.350| -63.167|   54|Harrington CDA CS, PEI              |CA|SAO
+0000000000|CANH | 46.417| -63.083|    3|Stanhope CS, PEI                    |CA|SAO
+0000071757|CBBC | 52.185|-128.157|   43|Bella Bella AP, BC                  |CA|MTR
 0000071590|CERM | 47.417| -68.324|  157|Edmunston, NB                       |CN|SAO
 0000071212|CMFM | 47.32 | -71.15 |  673|Foret Montmorency QC                |CN|SAO
 0000000000|CMGB | 45.367| -72.767|   87|Granby, QC                          |CN|SAO
@@ -880,7 +880,7 @@
 0000071811|CYZV | 50.23 | -66.27 |   55|SEPT ILES, QC                       |CN|MTR
 0000071045|CYZW | 60.18 |-132.75 |  705|TESLIN, YK                          |CN|MTR
 0000071397|CYZX | 44.98 | -64.92 |   25|GREENWOOD, NS                       |CN|MTR
-0000071944|CYZY | 55.30 |-123.13 |  700|MACKENZIE, BC                       |CN|MTR
+0000071944|CYZY | 55.299|-123.133|  690|Mackenzie AP, BC                    |CA|MTR
 0000071574|CZBF | 47.64 | -65.75 |   59|BATHURST ARPT, NB                   |CN|MTR
 0000071948|CZCP | 70.10 |-124.72 |   93|Cape Parry, NT                      |CN|MTR
 0000071315|CZCR | 47.99 | -66.334|   42|Charlo Auto, NB                     |CN|MTR
@@ -905,25 +905,25 @@
 0000000000|CZPN | 49.51 |-114.00 | 1190|PINCHER CREEK, AB                   |CN|MTR
 0000071353|CZPS | 52.433|-113.60 |  965|Prentiss, ALTA                      |CN|MTR
 0000071983|CZRP | 75.38 |-105.72 |   15|Rhea Point NU                       |CN|SAO
-0000071098|CZSJ | 53.07 | -93.35 |  290|Sandy Lake A, ON                    |CN|MTR
+0000071098|CZSJ | 53.064| -93.344|  290|Sandy Lake AP, ON                   |CA|MTR
 0000071362|CZSM | 60.03 |-111.93 |  203|Fort Smith Climate NT               |CN|SAO
 0000071310|CZSP | 46.45 | -62.575|   30|St. Peters, PEI                     |CN|SAO
-0000071955|CZST | 55.94 |-129.98 |    7|Stewart, BC                         |CN|MTR
+0000071955|CZST | 55.933|-129.983|    7|Stewart Aerodrome, BC               |CA|MTR
 0000071667|CZTB | 48.37 | -89.33 |  199|Thunder Bay CS ON                   |CN|SAO
-0000071182|CZUM | 53.55 | -64.10 |  435|CHURCHILL FALLS, NF                 |CN|MTR
-0000000000|CZVL | 53.67 |-113.87 |  686|EDMONTON/VILLENE, AB                |CN|MTR
+0000071182|CZUM | 53.563| -64.106|  438|Churchill Falls AP, NF              |CA|MTR
+0000000000|CZVL | 53.668|-113.852|  688|Edmonton/Villeneuve AP, AB          |CA|MTR
 0000000000|CZVV | 44.76 | -81.12 |  223|WIARTON (READAC), ON                |CN|MTR
 0000071156|CZZJ | 53.35 |-116.27 |  927|Edson CR10 AB                       |CN|SAO
-0000000000|DAAT | 22.82 |   5.47 | 1377|Tamanrasset/Aguenna                 |AL|MTR
-0000010513|EDDK | 50.87 |   7.17 |   99|Koln/Bonn                           |DL|MTR
-0000010400|EDDL | 51.28 |   6.78 |   44|Dusseldorf                          |DL|MTR
-0000003740|EGDL | 51.50 |  -1.98 |  156|Lyneham RAF                         |UK|MTR
-0000003772|EGLL | 51.48 |  -0.45 |   24|London/Heathrow                     |UK|MTR
-0000003649|EGVN | 51.75 |  -1.58 |   88|Brize Norton RAF                    |UK|MTR
-0000002446|ESOW | 59.58 |  16.63 |   31|Vasteras/Hasslo AFB                 |SN|MTR
-0000002460|ESSA | 59.65 |  17.95 |   61|Stockholm/Arlanda                   |SN|MTR
-0000010514|ETHM | 50.37 |   7.32 |  191|Mendig                              |DL|MTR
-0000010502|ETNN | 50.83 |   6.67 |  135|Noervenich                          |DL|MTR
+0000000000|DAAT | 22.811|   5.451| 1377|Tamanrasset/Aguenna AP              |DZ|MTR
+0000010513|EDDK | 50.866|   7.143|   92|Cologne Bonn AP                     |DE|MTR
+0000010400|EDDL | 51.289|   6.767|   45|Dusseldorf AP                       |DE|MTR
+0000003740|EGDL | 51.505|  -1.993|  156|Royal Air Force Lyneham             |UK|MTR
+0000003772|EGLL | 51.478|  -0.461|   25|London Heathrow AP                  |UK|MTR
+0000003649|EGVN | 51.750|  -1.584|   87|Royal Air Force Brize Norton        |UK|MTR
+0000002446|ESOW | 59.589|  16.634|    6|Stockholm Vasteras AP               |SE|MTR
+0000002460|ESSA | 59.652|  17.919|   42|Stockholm Arlanda AP                |SE|MTR
+0000010514|ETHM | 50.365|   7.313|  182|Mendig Air Base                     |DE|MTR
+0000010502|ETNN | 50.832|   6.658|  116|Noervenich Air Base                 |DE|MTR
 0000068368|FAJS |-26.13 |  28.23 | 1700|Jan Smuts                           |ZA|MTR
 0000064450|FCBB | -4.25 |  15.25 |  316|Brazzaville/Maya-Ma                 |CG|MTR
 0000064400|FCPP | -4.82 |  11.90 |   17|Pointe-Noire                        |CG|MTR
@@ -3743,17 +3743,17 @@
 0000000000|KZPH | 28.228| -82.1559|  27|Zephyrhills Muni, Zephyrhills, FL   |US|MTR
 0000000000|KZSE | 47.28 |-122.18 |   99|Auburn, WA                          |US|MTR
 0000000000|KZZV | 39.94609|-81.89315| 274|Zanesville, OH                    |US|MTR
-0000015655|LBBG | 42.48 |  27.48 |   28|Burgas                              |BU|MTR
-0000008419|LEGR | 37.18 |  -3.78 |  559|Granada Arpt                        |SP|MTR
-0000008451|LEJR | 36.75 |  -6.07 |   30|Jerez                               |SP|MTR
-0000008221|LEMD | 40.45 |  -3.55 |  582|Madrid/Barajas                      |SP|MTR
-0000008482|LEMG | 36.67 |  -4.48 |    7|Malaga                              |SP|MTR
-0000008397|LEMO | 37.15 |  -5.62 |   88|Moron AFB                           |SP|MTR
-0000008160|LEZG | 41.67 |  -1.02 |  258|Zaragoza                            |SP|MTR
-0000008391|LEZL | 37.42 |  -5.90 |   31|Sevilla                             |SP|MTR
-0000071805|LFVP | 46.77 | -56.17 |    5|Ile de St Pierre (off Newfoundland) |FR|MTR
-0000016754|LGIR | 35.33 |  25.18 |   39|Iraklion                            |GR|MTR
-0000016746|LGSA | 35.48 |  24.12 |  151|Souda/Khania                        |GR|MTR
+0000015655|LBBG | 42.570|  27.515|   41|Burgas AP                           |BU|MTR
+0000008419|LEGR | 37.189|  -3.777|  567|Granada AP                          |SP|MTR
+0000008451|LEJR | 36.745|  -6.060|   28|Jerez AP                            |SP|MTR
+0000008221|LEMD | 40.472|  -3.561|  609|Madrid/Barajas AP                   |SP|MTR
+0000008482|LEMG | 36.675|  -4.499|   16|Malaga AP                           |SP|MTR
+0000008397|LEMO | 37.175|  -5.616|   87|Moron Air Base                      |SP|MTR
+0000008160|LEZG | 41.666|  -1.042|  263|Zaragoza AP                         |SP|MTR
+0000008391|LEZL | 37.418|  -5.899|   34|Sevilla AP                          |SP|MTR
+0000071805|LFVP | 46.763| -56.174|    8|St Pierre AP                        |FR|MTR
+0000016754|LGIR | 35.340|  25.180|   35|Heraklion Intl AP                   |GR|MTR
+0000016746|LGSA | 35.532|  24.150|  149|Chania Intl AP                      |GR|MTR
 0000017128|LTAC | 40.12 |  32.98 |  949|Ankara/Esenboga                     |TU|MTR
 0000017129|LTAD | 39.95 |  32.68 |  806|Ankara/Etimesgut                    |TU|MTR
 0000017350|LTAG | 37.00 |  35.42 |   66|Adana/Incirlik AFB                  |TU|MTR
@@ -4058,11 +4058,11 @@
 0000000000|PFWS | 58.7021|-157.0026| 49|South Naknek Nr 2 AP, S Naknek, AK  |US|MTR
 0000070194|PFYU | 66.57 |-145.27 |  131|FORT YUKON, AK                      |US|MTR
 0000000000|PFZK |60.91381|-161.49333| 7|Akiachak Airport, Akiachak, AK      |US|MTR
-0000091221|PGRO | 14.18 | 145.25 |  185|Rota Intl                           |MY|MTR
-0000091232|PGSN | 15.12 | 145.73 |   65|Saipan/Isley                        |MY|MTR
-0000091218|PGUA | 13.58 | 144.93 |  187|Guam/Andersen AFB                   |MY|MTR
-0000091212|PGUM | 13.48 | 144.80 |   91|Agana NAS/Brewer                    |MY|MTR
-0000091233|PGWT | 14.97 | 145.60 |   80|Peipeinimaru                        |MY|MTR
+0000091221|PGRO | 14.174| 145.243|  185|Rota Intl AP                        |MP|MTR
+0000091232|PGSN | 15.119| 145.729|   66|Saipan Intl AP                      |MP|MTR
+0000091218|PGUA | 13.576| 144.924|  188|Andersen Air Force Base             |GU|MTR
+0000091212|PGUM | 13.485| 144.798|   93|Antonio B. Won Pat Intl AP          |GU|MTR
+0000091233|PGWT | 14.999| 145.619|   82|Tinian Intl AP                      |MP|MTR
 0000091162|PHBK | 22.07 |-159.78 |    5|Barking Sands, HI                   |US|MTR
 0000091170|PHHI | 21.48 |-158.03 |  255|Wheeler AFB, HI                     |US|MTR
 0000000000|PHHN | 20.784|-156.144|   23|Hana, HI                            |US|MTR
@@ -4098,26 +4098,27 @@
 0000000000|PTTP |  6.95 | 158.25 |   46|WSO Pohnpei                         |KA|MTR
 0000091413|PTYA |  9.48 | 138.08 |   17|Yap Is                              |KA|MTR
 0000091245|PWAK | 19.28 | 166.65 |    4|Wake Is Airfield                    |WK|MTR
-0000046696|RCSS | 25.07 | 121.55 |    6|Sungshan/Taipei                     |TW|MTR
-0000047686|RJAA | 35.77 | 140.38 |   44|New Tokyo Intl                      |JP|MTR
-0000047425|RJCC | 42.80 | 141.67 |   30|Chitose                             |JP|MTR
-0000047635|RJNN | 35.25 | 136.93 |   17|Nagoya                              |JP|MTR
-0000047764|RJOI | 34.15 | 132.23 |    2|Iwacuni MCAS                        |JP|MTR
-0000047771|RJOO | 34.78 | 135.45 |   15|Osaka Intl/Itami                    |JP|MTR
-0000047671|RJTT | 35.55 | 139.78 |    8|Tokyo Intl                          |JP|MTR
-0000000000|RJTX | 35.289| 139.6801|   5|NOAC Yokosuka, JP                   |JP|MTR
-0000047642|RJTY | 35.75 | 139.35 |  139|Yokota                              |JP|MTR
-0000047141|RKJK | 35.90 | 126.62 |    9|Kunsan                              |KO|MTR
-0000047122|RKSO | 37.08 | 127.03 |   12|Osan                                |KO|MTR
-0000047110|RKSS | 37.55 | 126.80 |   19|Seoul/Kimpo Intl                    |KO|MTR
-0000047120|RKSW | 37.25 | 127.00 |   24|Suwon                               |KO|MTR
-0000047930|ROAH | 26.18 | 127.65 |    8|Naha                                |JP|MTR
-0000047931|RODN | 26.35 | 127.77 |   45|Kadena AFB                          |JP|MTR
-0000000000|ROTM | 26.271| 127.7541|  75|Futenma MCAS, Okinawa, JP           |JP|MTR
-0000087934|SAWE |-53.80 | -67.75 |   22|Rio Grande Arpt                     |AG|MTR
-0000087925|SAWG |-51.62 | -69.28 |   19|Rio Gallegos Arpt                   |AG|MTR
-0000087750|SAZB |-38.73 | -62.17 |   83|Bahia Blanca                        |AG|MTR
-0000087765|SAZR |-41.15 | -71.17 |  840|San Carlos Bariloch                 |AG|MTR
+0000046696|RCSS | 25.069| 121.552|    5|Sungshan AP                         |TW|MTR
+0000047686|RJAA | 35.765| 140.386|   41|Narita Intl AP                      |JP|MTR
+0000047425|RJCC | 42.800| 141.670|   21|New Chitose AP                      |JP|MTR
+0000047635|RJNA | 35.255| 136.924|   14|Nagoya AP                           |JP|MTR
+0000047764|RJOI | 34.145| 132.244|    3|Marine Corps Air Station Iwakuni    |JP|MTR
+0000047771|RJOO | 34.784| 135.439|   12|Osaka Itami AP                      |JP|MTR
+0000047671|RJTT | 35.553| 139.781|    6|Tokyo Intl AP                       |JP|MTR
+0000000000|RJTX | 35.290| 139.680|    5|Yokosuka Heliport                   |JP|MTR
+0000047642|RJTY | 35.749| 139.349|  141|Yokota Air Base                     |JP|MTR
+0000047141|RKJK | 35.926| 126.616|    9|Gunsan AP                           |KO|MTR
+0000047122|RKSO | 37.091| 127.030|   12|Osan Air Base                       |KO|MTR
+0000047110|RKSS | 37.558| 126.791|   18|Gimpo Intl AP                       |KO|MTR
+0000047120|RKSW | 37.239| 127.007|   27|Suwon Air Base                      |KO|MTR
+0000047930|ROAH | 26.196| 127.646|    3|Naha AP                             |JP|MTR
+0000047931|RODN | 26.352| 127.769|   44|Kadena Air Base                     |JP|MTR
+0000000000|ROTM | 26.271| 127.748|   76|Marine Corps Air Station Futenma    |JP|MTR
+0000087934|SAWE |-53.778| -67.754|   20|Hermes Quijada Intl AP              |AG|MTR
+0000087925|SAWG |-51.609| -69.313|   20|Piloto Civil Norberto Fernandez Intl|AG|MTR
+0000087750|SAZB |-38.725| -62.169|   75|Comandante Espora AP                |AG|MTR
+0000000000|SAZR |-36.592| -64.276|  192|San Rosa AP                         |AG|MTR
+0000087765|SAZS |-41.151| -71.158|  846|San Carlos de Bariloch AP           |AG|MTR
 0000000000| SKJ | 56.55 |-154.13 |   17|SITKINAK, AK                        |US|MTR
 0000078862|TAPA | 17.12 | -61.78 |   14|Coolidge Airport                    |AT|MTR
 0000078954|TBPB | 13.07 | -59.48 |   56|Barbados, Grantley Adams Intl       |BR|MTR
@@ -4139,16 +4140,16 @@
 0000078970|TTPP | 10.62 | -61.35 |   15|Piarco Intl Airport                 |TD|MTR
 0000000000|TUPJ | 18.45 | -64.53 |    4|Beef Is/Roadtown                    |VI|MTR
 0000078016|TXKF | 32.37 | -64.68 |    3|Bermuda NAS/Kindley Field           |BE|MTR
-0000036870|UAAA | 43.23 |  76.93 |  847|Almaty, AL                          |RA|MTR
-0000035188|UACC | 51.13 |  71.37 |  350|Akmola, TA                          |RA|MTR
-0000038353|UAFM | 42.85 |  74.53 |  760|Frunze, TA                          |RA|MTR
-0000038062|UAOO | 44.85 |  65.50 |  129|KZYL-ORDA, KZ                       |KZ|MTR
+0000036870|UAAA | 43.355|  77.045|  681|Almaty Intl AP                      |KZ|MTR
+0000035188|UACC | 51.022|  71.467|  355|Nursultan Nazarbayev Intl AP        |KZ|MTR
+0000038062|UAOO | 44.707|  65.593|  131|Kyzylorda Intl AP                   |KZ|MTR
 0000035108|UARR | 51.25 |  51.40 |   36|Uralsk, AL                          |RA|MTR
 0000038001|UATE | 44.55 |  50.25 |  -20|Fort Sevcenko, AL                   |RA|MTR
 0000000000|UATG | 47.12 |  51.83 |  -22|ATYRAU/KZ                           |KZ|MTR
 0000035229|UATT | 50.30 |  57.23 |  227|Aktjubinsk, AL                      |RA|MTR
 0000037864|UBBB | 40.45 |  50.07 |   -1|Baku/Bine Arpt, TB                  |RS|MTR
 0000000000|UBBG | 40.73 |  46.40 |  330|Gyanca AP, AJ                       |AJ|MTR
+0000038353|UCFM | 43.061|  74.476|  637|Manan Intl AP                       |KG|MTR
 0000024959|UEEE | 62.08 | 129.75 |  103|Jakutsk, HA                         |RA|MTR
 0000037789|UGEE | 40.13 |  44.47 |  890|Yerevan/Zvartnots, TB               |RA|MTR
 0000037549|UGGG | 41.68 |  44.95 |  467|Tblisi/Novoalexeye, TB              |RS|MTR
@@ -4174,18 +4175,18 @@
 0000000000|UNAA | 52.72 |  91.37 |  245|Abakan                              |RA|MTR
 0000029634|UNNT | 55.03 |  82.90 |  177|Novosibirsk/Tolmach, NO             |RA|MTR
 0000000000|USNN | 60.93 |  76.48 |   54|Nizhnevartovsk/RS                   |RS|MTR
-0000038880|UTAA | 37.97 |  58.33 |  210|Ashabad, TA                         |RA|MTR
-0000000000|UTAK | 40.05 |  53.02 |   85|Turkmenbashi/TR                     |TR|MTR
-0000038836|UTDD | 38.55 |  68.78 |  803|Dushanbe, TA                        |RA|MTR
-0000000000|UTDL | 40.22 |  69.70 |  442|Khudzhand/TA                        |TA|MTR
-0000000000|UTNN | 42.48 |  59.63 |   67|Karakalpakstan/UZ                   |UZ|MTR
-0000000000|UTNU | 41.58 |  60.64 |   98|Urgench/UZ                          |UZ|MTR
-0000038683|UTSB | 39.72 |  64.62 |  226|Bukhara/UZ                          |UZ|MTR
-0000038696|UTSS | 39.70 |  67.00 |  724|Samarkand, TA                       |RA|MTR
-0000038927|UTST | 37.23 |  67.27 |  302|Termez, TA                          |RA|MTR
-0000038457|UTTT | 41.27 |  69.27 |  489|Tashkent/Yuzni, TA                  |RA|MTR
-0000000000|UUEE | 55.98 |  37.50 |  190|Moscow/Sheremet'ye, MS              |RS|MTR
-0000045007|VHHH | 22.33 | 114.18 |   24|Hong Kong Intl                      |HK|MTR
-0000094578|YBBN |-27.38 | 153.10 |    5|Brisbane Intl, QU                   |AU|MTR
-0000094120|YPDN |-12.40 | 130.87 |   30|Darwin, NT                          |AU|MTR
-0000094767|YSSY |-33.95 | 151.18 |    3|Sydney Intl, NW                     |AU|MTR
+0000038880|UTAA | 37.987|  58.361|  211|Ashgabat Intl AP                    |TM|MTR
+0000000000|UTAK | 40.063|  53.007|   86|Turkmenbashi Intl AP                |TM|MTR
+0000038836|UTDD | 38.535|  68.818|  785|Dushanbe Intl AP                    |TJ|MTR
+0000000000|UTDL | 40.215|  69.695|  442|Khujand AP                          |TJ|MTR
+0000000000|UTNU | 41.584|  60.642|   98|Urgench Intl AP                     |UZ|MTR
+0000038683|UTSB | 39.775|  64.483|  229|Bukhara Intl AP                     |UZ|MTR
+0000000000|UUEE | 55.973|  37.415|  192|Sheremetyevo Intl AP                |RU|MTR
+0000000000|UZNN | 42.488|  59.623|   76|Nukus AP                            |UZ|MTR
+0000038696|UZSS | 39.701|  66.984|  678|Samarkand Intl AP                   |UZ|MTR
+0000038927|UZST | 37.287|  67.310|  313|Termez AP                           |UZ|MTR
+0000038457|UZTT | 41.258|  69.281|  432|Tashkent Intl AP                    |UZ|MTR
+0000045007|VHHH | 22.309| 113.914|    9|Hong Kong Intl AP                   |HK|MTR
+0000094578|YBBN |-27.383| 153.118|    5|Brisbane Intl AP, QU                |AU|MTR
+0000094120|YPDN |-12.415| 130.877|   31|Darwin Intl AP, NT                  |AU|MTR
+0000094767|YSSY |-33.946| 151.177|    6|Sydney Intl AP, NW                  |AU|MTR
