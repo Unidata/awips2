@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 03/13/2026
+# FILE UPDATED 03/17/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1225,7 +1225,7 @@
 0000000000|K8A4 | 39.766| -86.149|  223|Downtown Heliport, Indianapolis, IN |US|MTR
 0000000000|K8B0 | 44.99189| -70.66461| 556|Steven A Bean AP, Rangeley, ME   |US|MTR
 0000072615|K8B8 | 43.61 | -71.23 |  219|WOLFE BORO, NH                      |US|MTR
-0000000000|K8D3 | 45.67 | -97.00 |  354|Sisseton Muni, SD                   |US|MTR
+0000000000|K8D3 | 45.6690| -96.9918|  354|Sisseton Muni AP, SD              |US|MTR
 0000000000|K8D4 | 43.127| -85.678|  236|Miller-Sparta AP, Sparta, MI        |US|MTR
 0000000000|K8G2 | 41.9075| -79.6410| 1766|CORRY, PA                         |US|MTR
 0000000000|K8K2 | 37.27819|-98.04348| 435|Harper Muni AP, Harper, KS        |US|MTR
@@ -1264,7 +1264,7 @@
 0000000000|KABH | 38.75777|-104.308296|1840|Bullseye, USAF Acad, Ellicott,CO|US|MTR
 0000072266|KABI | 32.43 | -99.68 |  546|ABILENE MUNICIPA, TX                |US|MTR
 0000072365|KABQ | 35.05 |-106.62 | 1620|ALBUQUERQ/KRTLND, NM                |US|MTR
-0000072659|KABR | 45.45 | -98.43 |  397|ABERDEEN REGIONA, SD                |US|MTR
+0000072659|KABR | 45.4435| -98.4136|  397|Aberdeen Regional AP, SD          |US|MTR
 0000072216|KABY | 31.54 | -84.18 |   59|ALBANY MUNICIPAL, GA                |US|MTR
 0000000000|KACB | 44.99 | -85.20 |  190|Bellaire, MI                        |US|MTR
 0000000000|KACJ | 32.11081| -84.18886| 143|Jimmy Carter Rgnl, Americus,GA   |US|MTR
@@ -1379,7 +1379,7 @@
 0000000000|KATS | 32.85 |-104.47 | 1081|Artesia, NM                         |US|MTR
 0000072254|KATT | 30.32 | -97.77 |  198|Austin/Camp Mabry, TX               |US|MTR
 0000000000|KATW | 44.26 | -88.52 |  280|APPLETON/OUTAGAM, WI                |US|MTR
-0000000000|KATY | 44.92 | -97.16 |  533|WATERTOWN MUNICI, SD                |US|MTR
+0000000000|KATY | 44.9045| -97.1495|  533|Watertown Muni AP, SD             |US|MTR
 0000000000|KAUB | 32.61 | -85.50 |  198|AUBURN UNIV., AL                    |US|MTR
 0000000000|KAUD | 29.93 | -90.13 |    2|Audubon Park, LA                    |US|MTR
 0000000000|KAUG | 44.32 | -69.80 |  107|AUGUSTA STATE AR, ME                |US|MTR
@@ -2644,7 +2644,7 @@
 0000000000|KMAN | 43.5820| -116.5211| 773|Nampa Muni, Nampa, ID             |US|MTR
 0000000000|KMAO | 34.181| -79.335|   28|Marion, SC                          |US|MTR
 0000000000|KMAW | 36.601| -89.992|   90|Malden Muni, Malden, MO             |US|MTR
-0000000000|KMBG | 45.55 |-100.41 |  510|Mobridge Muni, SD                   |US|MTR
+0000000000|KMBG | 45.5496|-100.4086|  523|Mobridge Muni AP, SD              |US|MTR
 0000000000|KMBL | 44.28 | -86.25 |  189|MANISTEE/BLACKER, MI                |US|MTR
 0000000000|KMBO | 32.4387| -90.1031| 99|Bruce Campbell Fld AP, Madison, MS  |US|MTR
 0000000000|KMBS | 43.53 | -84.08 |  204|Saginaw/Tri City, MI                |US|MTR
@@ -3073,7 +3073,7 @@
 0000000000|KPIL | 26.16619|-97.34589| 6|Port Isabel-Cameron Co Airport, TX  |US|MTR
 0000000000|KPIM | 32.84069|-84.88244| 275|Harris Cnty AP, Pine Mountain, GA |US|MTR
 0000000000|KPIN | 44.53 |-106.81 | 1402|Piney Creek, WY                     |US|MTR
-0000000000|KPIR | 44.39 |-100.28 |  531|PIERRE, SD                          |US|MTR
+0000000000|KPIR | 44.3819|-100.2864|  531|Pierre Regional AP, SD            |US|MTR
 0000072520|KPIT | 40.48461|-80.21447| 373|PITTSBURGH INTL, PA               |US|MTR
 0000000000|KPJC | 40.80197|-80.16086| 274|Zelienople, PA                    |US|MTR
 0000000000|KPKB | 39.36 | -81.43 |  263|PARKERSBURG, WV                     |US|MTR
