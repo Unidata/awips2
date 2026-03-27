@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 03/17/2026
+# FILE UPDATED 03/26/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1300,16 +1300,16 @@
 0000000000|KAGO | 33.22747|-93.2170| 97|Ralph C Weiser AP, Magnolia, AR     |US|MTR
 0000072218|KAGS | 33.38 | -81.97 |   45|AUGUSTA/BUSH FIE, GA                |US|MTR
 0000072311|KAHN | 33.96 | -83.32 |  246|Athens/Ben Epps AP, Athens, GA      |US|MTR
-0000000000|KAHQ | 41.24061| -96.59456| 383|Wahoo Muni, Wahoo, NE            |US|MTR
-0000000000|KAIA | 42.05 |-102.80 | 1198|ALLIANCE MUNICIP, NE                |US|MTR
-0000000000|KAIB | 38.23875|-108.56328|1811|Hopkins Fld AP, Nucla, CO        |US|MTR
-0000000000|KAID | 40.12 | -85.62 |  280|ANDERSON MUNICIP, IN                |US|MTR
-0000000000|KAIG | 45.154| -89.111|  464|Langlade Cnty AP, Antigo, WI        |US|MTR
-0000000000|KAIK | 33.649| -81.685|  161|Aiken, SC                           |US|MTR
-0000000000|KAIO | 41.40 | -95.05 |  360|Atlantic, IA                        |US|MTR
-0000000000|KAIT | 46.55 | -93.69 |  367|AITKIN NDB(AWOS), MN                |US|MTR
-0000000000|KAIZ | 38.11 | -92.55 |  265|KAISER MEM, MO                      |US|MTR
-0000000000|KAJG | 38.60931|-87.72513| 131|Mt Carmel Muni, Mt Carmel, IL     |US|MTR
+0000000000|KAHQ | 41.2406| -96.5945| 374|Wahoo Muni AP, NE                  |US|MTR
+0000000000|KAIA | 42.0532|-102.8038|1198|Alliance Muni AP, NE               |US|MTR
+0000000000|KAIB | 38.2390|-108.5628|1811|Hopkins Fld AP, CO                 |US|MTR
+0000000000|KAID | 40.1086| -85.6130| 280|Anderson Muni AP, IN               |US|MTR
+0000000000|KAIG | 45.1539| -89.1106| 464|Langlade Cnty AP, WI               |US|MTR
+0000000000|KAIK | 33.6494| -81.6850| 161|Aiken Rgnl AP, SC                  |US|MTR
+0000000000|KAIO | 41.4038| -95.0488| 355|Atlantic Muni AP, IA               |US|MTR
+0000000000|KAIT | 46.5485| -93.6766| 368|Aitkin Muni AP/Steve Kurtz Fld, MN |US|MTR
+0000000000|KAIZ | 38.0960| -92.5495| 265|Lee C. Fine Memo AP, MO            |US|MTR
+0000000000|KAJG | 38.6065| -87.7267| 131|Mt Carmel Muni AP, IL              |US|MTR
 0000000000|KAJL | 43.674|-110.031| 3176|Lava Mountain, Dubois, WY           |US|MTR
 0000000000|KAJO | 33.898|-117.602|  163|Corona Muni, Corona, CA             |US|MTR
 0000000000|KAJR | 34.4998| -83.5567| 441|Habersham Cnty AP, Cornelia, GA    |US|MTR
