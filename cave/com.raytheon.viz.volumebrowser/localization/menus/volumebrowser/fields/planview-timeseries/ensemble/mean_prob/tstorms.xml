@@ -22,7 +22,7 @@
 
     <contribute xsi:type="toolbarSubMenu" menuText="Storm Scale">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/stormscale.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/stormscale.xml" />
     </contribute>
     <contribute xsi:type="menuItem" menuText="Mean Precipitable Water"
         key="PWmean" indentText="false" />

@@ -405,7 +405,44 @@
         <process>
             <id>84</id>
         </process>
+</model>
+    <model>
+	<name>GEFS</name>
+	<center>7</center>
+	<subcenter>2</subcenter>
+	<grid>4</grid>
+	<process>
+            <id>107</id>
+	</process>
     </model>
+    <model>
+	<name>AIGFS</name>
+	<center>7</center>
+	<subcenter>0</subcenter>
+	<grid>193</grid>
+	<process>
+	    <id>137</id>
+	</process>
+    </model>
+    <model>
+        <name>AIGEFS</name>
+        <center>7</center>
+        <subcenter>2</subcenter>
+        <grid>193</grid>
+        <process>
+            <id>138</id>
+        </process>
+    </model>
+    <model>
+        <name>HGEFS</name>
+        <center>7</center>
+        <subcenter>2</subcenter>
+        <grid>193</grid>
+        <process>
+            <id>139</id>
+        </process>
+    </model>
+
     <model>
         <name>GFS0p25</name> <!-- .25 deg global -->
         <center>7</center>
@@ -1959,7 +1996,7 @@
         </process>
     </model>
 		<model>
-		<name>GEFS</name>
+		<name>GEFS-idk</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grids>

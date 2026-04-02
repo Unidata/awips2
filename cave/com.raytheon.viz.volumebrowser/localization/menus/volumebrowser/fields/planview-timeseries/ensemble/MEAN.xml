@@ -21,47 +21,47 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="toolbarSubMenu" menuText="Aviation">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/aviation.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/aviation.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="Hgt/Pres">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/hgtPres.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/hgtPres.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="Moisture">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/moist.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/moist.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="Precip">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/precip.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/precip.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="Precip Type">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/ptype.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/ptype.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="Temp">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/temp.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/temp.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="T-Storms">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/tstorms.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/tstorms.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="Wind">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/wind.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/wind.xml" />
     </contribute>
 
     <contribute xsi:type="toolbarSubMenu" menuText="Misc">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/href/misc.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/mean_prob/misc.xml" />
     </contribute>
 
 </menuTemplate>

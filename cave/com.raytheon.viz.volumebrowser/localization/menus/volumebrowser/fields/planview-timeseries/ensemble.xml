@@ -24,19 +24,17 @@
         of the file. 
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="toolbarSubMenu" menuText="GFS Ensembles">
+    <contribute xsi:type="toolbarSubMenu" menuText="Ensemble Members">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/GFS.xml" />
     </contribute>
-
-    <contribute xsi:type="toolbarSubMenu" menuText="HREF Ensembles">
+    <contribute xsi:type="toolbarSubMenu" menuText="Ensemble Means">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/HREF.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/MEAN.xml" />
     </contribute>
-
-    <contribute xsi:type="toolbarSubMenu" menuText="SREF Ensembles">
+    <contribute xsi:type="toolbarSubMenu" menuText="Ensemble Spreads">
         <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/SREF.xml" />
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/SPREAD.xml" />
     </contribute>
    <!--  <contribute xsi:type="toolbarSubMenu" menuText="SREF means">
         <contribute xsi:type="subinclude"
