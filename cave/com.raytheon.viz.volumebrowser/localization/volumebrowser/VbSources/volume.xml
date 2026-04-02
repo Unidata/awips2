@@ -28,6 +28,7 @@
     <vbSource key="HiResW-FV3-HI" category="Volume" />
     <vbSource key="HiResW-FV3-SJU" category="Volume" />
     <vbSource key="CMC" category="Volume" />
+    <vbSource key="AIGFS" category="Volume" />
     <vbSource key="GFS" category="Volume" />
     <vbSource key="GFS0p5" category="Volume" />
     <vbSource key="GFS1p0" category="Volume" />
@@ -67,4 +68,10 @@
     <vbSource key="WaveWatch-WNA" category="Volume" />
     <vbSource key="WaveWatch-ENP" category="Volume" />
     <vbSource key="WaveWatch-AK" category="Volume" />
+    <vbSource key="GEFS" name="GEFS" category="Ensemble" views="PLANVIEW TIMESERIES" />
+    <vbSource key="SREF212" name="SREF" category="Ensemble" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HREF-US" name="HREF" category="Ensemble" views="PLANVIEW TIMESERIES"/>
+    <vbSource key="AIGEFS" name="AI-GEFS" category="Ensemble" views="PLANVIEW TIMESERIES"/>
+    <vbSource key="HGEFS" name="H-GEFS" category="Ensemble" views="PLANVIEW TIMESERIES"/>
+    
 </vbSourceList>

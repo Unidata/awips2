@@ -1,0 +1,140 @@
+#!/bin/sh
+
+# chkconfig: 345 95 05
+# description: Start the Unidata Local Data Manager (LDM)
+#
+# History: 20040420 - Created from copy on imogene.unidata.ucar.edu
+#          20050526 - Updated to remove pqcat checking of queue for
+#                     idd.unidata.ucar.edu cluster
+#          20080501 - Added logic to handle more potential failures
+#          20121227 - Shorten path, add restart and * cases
+
+export PATH=/bin:/usr/bin:/usr/etc
+LDMHOME=/opt/ldm
+LDMBIN=$LDMHOME/bin
+LDMADMIN=$LDMBIN/ldmadmin
+PQCHECK=$LDMBIN/pqcheck
+PQ=$LDMHOME/data/ramdisk/ldm.pq
+
+case "$1" in
+
+start)
+	logger -p local0.notice "Checking LDM for system start..."
+	if [ -x $LDMADMIN ]; then
+		if su - ldm -c "$LDMADMIN isrunning"; then
+			logger -p local0.notice "LDM system is already running."
+		else
+			if [ ! -f $PQ ]; then
+				logger -p local0.notice "Product-queue does not exist.  Creating..."
+				if ! su - ldm -c "$LDMADMIN mkqueue -f"; then
+					logger -p local0.notice "Aborting..."
+					exit 1
+				fi
+				# First do an 'ldmadmin clean'	
+				if ! su - ldm -c "$LDMADMIN clean"; then
+					logger -p local0.notice "LDM clean did NOT succeed..."
+					exit 1
+				fi
+
+				# Next, run 'ldmadmin start'
+				logger -p local0.notice "Starting LDM system..."
+				if ! su - ldm -c "$LDMADMIN start"; then
+					logger -p local0.notice "LDM start did NOT succeed..."
+					exit 1
+				else 
+					logger -p local0.notice "LDM system started..."
+				fi
+			else
+				#
+				# Test the product-queue for corruption.
+				#
+				$PQCHECK -l /dev/null -q $PQ
+				STATUS=$?
+				if [ $STATUS -ne 0 ]; then
+					case $STATUS in
+					1)  logger -p local0.notice "Error checking product-queue..."
+						logger -p local0.notice "Deleting and remaking product-queue..."
+						su - ldm -c "$LDMADMIN delqueue"
+						if ! su - ldm -c "$LDMADMIN mkqueue -f"; then
+							logger -p local0.notice "Could not make product-queue.  Aborting..."
+							exit 1
+						fi
+						;;
+					2)  logger -p local0.notice "Product queue does not have a write counter..."
+						logger -p local0.notice "Adding writer-counter to product-queue..."
+						if ! $PQCHECK -F -q $PQ; then
+							logger -p local0.notice "Aborting..."
+							exit 1
+						fi
+						;;
+					3)  logger -p local0.notice "Product-queue was incorrectly closed."
+						logger -p local0.notice "Deleting and remaking product-queue..."
+						su - ldm -c "$LDMADMIN delqueue"
+						if ! su - ldm -c "$LDMADMIN mkqueue -f"; then
+							logger -p local0.notice "Could not make product-queue.  Aborting..."
+							exit 1
+						fi
+						;;
+					4)  logger -p local0.notice "Product-queue is corrupt."
+						logger -p local0.notice "Deleting and remaking product-queue..."
+						su - ldm -c "$LDMADMIN delqueue"
+						if ! su - ldm -c "$LDMADMIN mkqueue -f"; then
+							logger -p local0.notice "Could not make product-queue.  Aborting..."
+							exit 1
+						fi
+						;;
+					*)  logger -p local0.notice "Unrecognized pqcheck status return."
+						logger -p local0.notice "Deleting and remaking product-queue..."
+						su - ldm -c "$LDMADMIN delqueue"
+						if ! su - ldm -c "$LDMADMIN mkqueue -f"; then
+							logger -p local0.notice "Could not make product-queue.  Aborting..."
+							exit 1
+						fi
+						;;
+					esac
+				fi
+
+				# First do an 'ldmadmin clean'	
+				if ! su - ldm -c "$LDMADMIN clean"; then
+					logger -p local0.notice "LDM clean did NOT succeed..."
+					exit 1
+				fi
+
+				# Next, run 'ldmadmin start'
+				logger -p local0.notice "Starting LDM system..."
+				if ! su - ldm -c "$LDMADMIN start"; then
+					logger -p local0.notice "LDM start did NOT succeed..."
+					exit 1
+				else 
+					logger -p local0.notice "LDM system started..."
+				fi
+	
+			fi
+	
+		fi
+
+	else
+		logger -p local0.notice "ldmadmin not found.  Aborting..."
+	fi
+	;;
+
+stop)
+	logger -p local0.notice "Stopping the LDM system..."
+	if [ -x $LDMADMIN ] ; then
+		su - ldm -c "$LDMADMIN stop"
+	fi
+	;;
+
+restart)
+	logger -p local0.notice "Restarting the LDM system..."
+	if [ -x $LDMADMIN ] ; then
+		su - ldm -c "$LDMADMIN restart"
+	fi
+	;;
+
+*)
+	echo $"Usage: $0 {start|stop|restart}"
+	;;
+
+esac
+

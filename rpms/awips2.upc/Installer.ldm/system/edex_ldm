@@ -1,0 +1,89 @@
+#!/bin/bash
+#
+# edex_ldm:	This starts and stops the LDM on EDEX
+#
+# chkconfig:	35 99 0
+# description:	edex_ldm starts/stops LDM software for AWIPS II and it is referenced from ldm.service systemctl
+#
+
+export LDM_INSTALL="/awips2/ldm"
+export PATH=/awips2/python/bin:/awips2/notification/bin:/awips2/java/bin:/awips2/tools/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/awips2/ldm/bin:/awips2/ldm/decoders:/awips2/ldm/util
+
+
+# Source function library.
+. /etc/init.d/functions
+
+RETVAL=0
+LDM_USER=awips
+
+case $1 in
+
+'start')
+        #check if AWIPS Processes are running
+        awipsStatus=""
+        ldmStatus=""
+
+        while IFS= read -r line ; do
+           # Trim leading/trailing spaces
+	   service=$(echo "$line" | awk '{print $1}')
+	   status=$(echo "$line" | awk -F'::' '{print $2}' | xargs)
+
+           #echo "WTF $service $status"
+           if [[ $service != "ldmadmin"  &&  $status != "running" ]] ; then
+               awipsStatus=false
+               echo $service $status $awipsStatus
+           fi
+           if [[ $service == "ldmadmin"  &&  $status == "running" ]] ; then
+               ldmStatus=true
+	       echo $service $status
+           fi
+
+        done < <(edex status | grep :)
+        #Exit because LDM doesn't need to be started
+        if [[ $awipsStatus == false ]] ; then 
+            echo "No processes are running so LDM will not try and start up"
+            exit 1 
+        fi
+        #Exit because LDM is already running
+        if [[ $ldmStatus == true ]] ; then 
+            echo "LDM is already started"
+            exit 1 
+        fi
+        awipsStatus=""
+        ldmStatus=""
+          
+        #echo "AWIPS State: $awipsStatus LDM State: $ldmStatus"
+        if [[ $awipsStatus != false && $ldmStatus != true ]] ; then
+            echo "Cleaning ldm"
+            su ${LDM_USER} -lc "${LDM_INSTALL}/bin/ldmadmin clean"
+            echo "Deleting the ldm queue"
+            su ${LDM_USER} -lc "${LDM_INSTALL}/bin/ldmadmin delqueue"
+            echo "Makinging the ldm queue"
+            su ${LDM_USER} -lc "${LDM_INSTALL}/bin/ldmadmin mkqueue"
+            echo "Starting ldm"
+            su ${LDM_USER} -lc "${LDM_INSTALL}/bin/ldmadmin start"
+        fi
+	;;
+
+'stop')
+	echo "Stopping ldm"
+	su ${LDM_USER} -lc "${LDM_INSTALL}/bin/ldmadmin stop"
+	;;
+
+'restart')
+        echo "Restarting ldm"
+	ldmadmin restart
+	;;
+
+'clean')
+	echo "Cleaning ldm"
+	ldmadmin clean
+	;;
+*)
+	echo "usage: $0 {start|stop|restart|clean}"
+	RETVAL=1
+	;;
+
+esac
+
+exit $RETVAL

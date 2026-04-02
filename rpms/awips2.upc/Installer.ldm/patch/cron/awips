@@ -10,6 +10,7 @@
 */5 * * * * /bin/perl /awips2/ldm/dev/purgeRadar.pl >>/awips2/ldm/dev/logs/purgeRadar.log 2>&1
 */2 * * * * bash -l /awips2/ldm/dev/checkFileTime.sh >>/awips2/ldm/dev/logs/checkFileTime.log 2>&1
 30 3 * * * /bin/perl /awips2/dev/programs/updateNDM.pl >>/awips2/dev/logs/updateNDM.log 2>&1
+#*/10 * * * * bash -l /awips2/ldm/dev/get_gefs.sh >>/awips2/ldm/dev/logs/gfs_cron.log  2>&1
 
 # Send Unidata a push that your EDEX is running
 0 0 * * * bash -l /awips2/dev/programs/edexRunning.sh >>/awips2/dev/logs/edexRunning.log 2>&1

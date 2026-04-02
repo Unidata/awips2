@@ -14,6 +14,13 @@
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </contribute>
+    <contribute xsi:type="subinclude" subMenu = "AI-GFS" 
+             fileName="menus/grid/allFamilies-AIGFS.xml">
+             <substitute key="modelName" value="AIGFS" />
+             <substitute key="menuName" value="AI-GFS" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
 	<contribute xsi:type="subinclude" subMenu = "GFS-LAMP" 
              fileName="menus/grid/lampFamilies.xml">
              <substitute key="modelName" value="LAMP2p5" />

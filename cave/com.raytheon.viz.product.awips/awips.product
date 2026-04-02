@@ -135,6 +135,7 @@
       <feature id="gov.noaa.nws.obs.viz.geodata.feature"/>
       <feature id="gov.noaa.nws.sr.oun.viz.mping.feature"/>
       <feature id="gov.noaa.nws.ocp.viz.odim.feature"/>
+      <feature id ="gov.noaa.gsd.viz.ensemble.feature"/>
    </features>
 
    <configurations>
