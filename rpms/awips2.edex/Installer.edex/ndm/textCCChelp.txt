@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 03/09/2026
+# FILE UPDATED 04/06/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 000 Display latest version of all products.
@@ -1795,6 +1795,7 @@ GDJ Granbury Muni, TX
 GDK Dayton, OH
 GDP Pine Springs/Guadalupe Mtns NP, TX
 GDV Glendive, MT
+GDW Gladwin Zettel Memo AP, MI
 GED Georgetown/Sussex Co, DE
 GEG Spokane, WA
 GEU Glendale Muni, AZ

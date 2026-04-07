@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 03/26/2026
+# FILE UPDATED 04/06/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2111,6 +2111,7 @@
 0000000000|KGDK |39.6907| -83.9928| 282|Dayton, OH                          |US|MTR
 0000072262|KGDP | 31.83 |-104.80 | 1662|Guadalupe Mtns NP, TX               |US|MTR
 0000000000|KGDV | 47.14 |-104.80 |  749|GLENDIVE, MT                        |US|MTR
+0000000000|KGDW | 43.9706| -84.4750|  236|Gladwin Zettle Memo AP, MI        |US|MTR
 0000000000|KGED | 38.70 | -75.36 |   16|Georgetown/Sussex Co, DE            |US|MTR
 0000072785|KGEG | 47.64 |-117.53 |  723|SPOKANE INTL ARPT, WA               |US|MTR
 0000000000|KGEU | 33.53 |-112.30 |  325|Glendale Muni, AZ                   |US|MTR
