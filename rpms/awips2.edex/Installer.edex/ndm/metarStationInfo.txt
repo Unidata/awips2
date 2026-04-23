@@ -23,7 +23,7 @@
 # In some cases, this is the lat/lon/elev, given a name, while in others, it's
 # the station name, when we know ID & location.
 #
-# FILE UPDATED 04/06/2026
+# FILE UPDATED 04/22/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1299,6 +1299,7 @@
 0000000000|KAGI |27.546 | -92.4  |   41|Garden Banks Oil Platform, Gulf     |US|MTR
 0000000000|KAGO | 33.22747|-93.2170| 97|Ralph C Weiser AP, Magnolia, AR     |US|MTR
 0000072218|KAGS | 33.38 | -81.97 |   45|AUGUSTA/BUSH FIE, GA                |US|MTR
+0000000000|KAGZ | 43.0633| -98.2962| 450|Wagner Muni AP, SD                 |US|MTR
 0000072311|KAHN | 33.96 | -83.32 |  246|Athens/Ben Epps AP, Athens, GA      |US|MTR
 0000000000|KAHQ | 41.2406| -96.5945| 374|Wahoo Muni AP, NE                  |US|MTR
 0000000000|KAIA | 42.0532|-102.8038|1198|Alliance Muni AP, NE               |US|MTR

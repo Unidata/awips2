@@ -1,5 +1,5 @@
 # THIS IS THE BASE MTR.goodness FILE
-# FILE UPDATED 04/06/2026
+# FILE UPDATED 04/22/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 70279     5HN  60.23   -146.65      56      2500
@@ -719,6 +719,7 @@
     0    KAGI  27.546   -92.44      41       500
     0    KAGO  33.22747 -93.2170    97       500
 72218    KAGS  33.3800  -81.9700    45     27101
+    0    KAGZ  43.0633  -98.2962   450       500 
 72311    KAHN  33.9600  -83.3200   246     27100
     0    KAHQ  41.2406  -96.5945   374       500
     0    KAIA  42.0532 -102.8038  1198      9695
