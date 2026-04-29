@@ -4127,7 +4127,7 @@
 0000078958|TGPY | 12.0042| -61.7861|   12|Maurice Bishop Intl AP              |GD|MTR
 0000078543|TIST | 18.3372| -64.9733|    7|Cyril E. King AP                    |VI|MTR
 0000078547|TISX | 17.7044| -64.8017|   23|Henry E. Rohlsen AP                 |VI|MTR
-0000078514|TJBQ | 18.5950| -67.1294|   72|Rafael Hernandez AP                 |PU|MTR
+0000078514|TJBQ | 18.4949| -67.1294|   73|Rafael Hernandez AP                 |PU|MTR
 0000000000|TJIG | 18.4567| -66.0983|    3|Fernando Luis Ribas Dominicci AP    |PU|MTR
 0000000000|TJMZ | 18.2556| -67.1483|    8|Eugenio Maria de Hostos AP          |PU|MTR
 0000078535|TJNR | 18.2453| -65.6433|   12|Roosevelt Roads NAS, Ceiba          |PU|MTR
