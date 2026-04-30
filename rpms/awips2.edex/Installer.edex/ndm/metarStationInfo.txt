@@ -980,7 +980,7 @@
 0000000000|K16J | 31.7433| -84.4193|  102|Dawson Muni AP, GA                  |US|MTR
 0000000000|K17J | 31.0070| -84.8776|   45|Donalsonville Muni AP, GA           |US|MTR
 0000000000|K18A | 34.3400| -83.1319|  271|Franklin Cnty AP, GA                |US|MTR
-0000000000|K18H | 26.1283| -92.0333|   30|Lucius Deepwater Oil Platform, Gulf |US|MTR
+0000000000|K18H | 26.1283| -92.0333|   30|Lucius Deepwater Oil Platform, LA   |US|MTR
 0000000000|K19S | 37.4969|-100.8329|  887|Sublette Muni AP, KS                |US|MTR
 0000000000|K1A5 | 35.2230| -83.4190|  616|Macon Cnty AP, NC                   |US|MTR
 0000000000|K1A6 | 36.6108| -83.7375|  352|Middlesboro-Bell Cnty AP, KY        |US|MTR
@@ -1296,7 +1296,7 @@
 0000000000|KAFP | 35.0206| -80.0771|   91|Anson Cnty AP/Jeff Cloud Fld, NC    |US|MTR
 0000000000|KAFW | 32.9900| -97.3200|  220|Fort Worth Alliance AP, TX          |US|MTR
 0000000000|KAGC | 40.3544| -79.9290|  382|Allegheny Cnty AP, PA               |US|MTR
-0000000000|KAGI | 27.5460| -92.4000|   41|Garden Banks Oil Platform, Gulf     |US|MTR
+0000000000|KAGI | 27.5460| -92.4000|   41|Garden Banks Oil Platform, LA       |US|MTR
 0000000000|KAGO | 33.2275| -93.2170|   97|Ralph C Weiser Fld AP, AR           |US|MTR
 0000072218|KAGS | 33.3700| -81.9645|   44|Augusta Rgnl AP/Bush Fld, GA        |US|MTR
 0000000000|KAGZ | 43.0633| -98.2962|  450|Wagner Muni AP, SD                  |US|MTR
@@ -1737,7 +1737,7 @@
 0000000000|KCXU | 31.2167| -84.2167|   51|Camilla-Mitchell Cnty AP, GA        |US|MTR
 0000000000|KCXW | 35.0199| -92.5551|   84|Cantrell Field/Conway Muni AP, AR   |US|MTR
 0000000000|KCXY | 40.2172| -76.8514|  106|Capital City AP, PA                 |US|MTR
-0000000000|KCYD | 28.1667| -89.2167|    1|MS Canyon Block 807 Platform, Gulf  |US|MTR
+0000000000|KCYD | 28.1667| -89.2167|    1|MS Canyon Block 807 Platform, LA    |US|MTR
 0000072564|KCYS | 41.1558|-104.8119| 1878|Cheyenne Rgnl AP, WY                |US|MTR
 0000000000|KCZK | 45.6769|-121.8788|   46|Cascade Locks AP, OR                |US|MTR
 0000000000|KCZL | 34.4533| -84.9372|  197|Tom B. David Fld AP, GA             |US|MTR
@@ -1973,7 +1973,7 @@
 0000072201|KEYW | 24.5561| -81.7596|    1|Key West Intl AP, FL                |US|MTR
 0000000000|KEZF | 38.2667| -77.4500|   26|Shannon AP, VA                      |US|MTR
 0000000000|KEZM | 32.2164| -83.1287|   93|Heart of Georgia Rgnl AP, GA        |US|MTR
-0000000000|KEZP | 28.2200| -92.7840|   31|E Cameron 321A Oil Platform, Gulf   |US|MTR
+0000000000|KEZP | 28.2200| -92.7840|   31|E Cameron 321A Oil Platform, LA     |US|MTR
 0000000000|KEZS | 44.7870| -88.5590|  248|Shawano Muni AP, WI                 |US|MTR
 0000000000|KEZZ | 39.7153| -94.2750|  315|Cameron Memo AP, MO                 |US|MTR
 0000000000|KF00 | 33.6131| -96.1793|  188|Jones Field AP, TX                  |US|MTR
@@ -2143,7 +2143,7 @@
 0000000000|KGLR | 45.0130| -84.7034|  405|Gaylord Rgnl AP, MI                 |US|MTR
 0000072242|KGLS | 29.2653| -94.8606|    2|Scholes Intl AP, TX                 |US|MTR
 0000000000|KGLW | 37.0324| -85.9540|  218|Glasgow Muni AP, KY                 |US|MTR
-0000000000|KGLX | 28.2300| -88.9900|   55|MS Canyon 724 Oil Platform, Gulf    |US|MTR
+0000000000|KGLX | 28.2300| -88.9900|   55|MS Canyon 724 Oil Platform, LA      |US|MTR
 0000000000|KGLY | 38.3544| -93.6814|  244|Clinton Rgnl AP, MO                 |US|MTR
 0000000000|KGMJ | 36.6068| -94.7386|  253|Grove Rgnl AP, OK                   |US|MTR
 0000000000|KGMU | 34.8479| -82.3500|  319|Greenville DT AP, SC                |US|MTR
@@ -2194,7 +2194,7 @@
 0000000000|KGVL | 34.2733| -83.8300|  389|Lee Gilmer Memo AP, GA              |US|MTR
 0000000000|KGVQ | 43.0319| -78.1799|  278|Genesee Cnty AP, NY                 |US|MTR
 0000000000|KGVT | 33.0678| -96.0653|  163|Majors AP, TX                       |US|MTR
-0000000000|KGVW | 29.1302| -94.5466|    0|Galveston 209B Oil Platform, Gulf   |US|MTR
+0000000000|KGVW | 29.1302| -94.5466|    0|Galveston 209B Oil Platform, TX     |US|MTR
 0000000000|KGVX | 28.5770| -94.9770|   -0|Galveston 424C, TX (AWOS-3)         |US|MTR
 0000000000|KGWB | 41.3016| -85.0635|  267|DeKalb Cnty AP, IN                  |US|MTR
 0000000000|KGWO | 33.4939| -90.0869|   49|Greenwood-Leflore AP, MS            |US|MTR
@@ -2458,7 +2458,7 @@
 0000000000|KJQF | 35.3878| -80.7091|  215|Concord-Padgett Rgnl AP, NC         |US|MTR
 0000000000|KJRB | 40.7011| -74.0089|    2|DT Manhattan Helioport, NY          |US|MTR
 0000000000|KJRO | 38.9814| -82.5779|  221|James A Rhodes AP, OH               |US|MTR
-0000000000|KJSL | 26.2367| -91.2567|    0|Unnamed Oil Rig, Gulf               |US|MTR
+0000000000|KJSL | 26.2367| -91.2567|    0|Unnamed Oil Rig, LA                 |US|MTR
 0000000000|KJSO | 31.8711| -95.2181|  206|Cherokee Co AP, TX                  |US|MTR
 0000000000|KJST | 40.3164| -78.8336|  696|John Muru Johnstown-Cambria AP, PA  |US|MTR
 0000000000|KJSV | 35.4400| -94.8000|  161|Sallisaw Muni AP, OK                |US|MTR
@@ -2724,7 +2724,7 @@
 0000000000|KMKL | 35.5999| -88.9156|  132|McKellar-Sipes Rgnl AP, TN          |US|MTR
 0000000000|KMKN | 31.9170| -98.6000|  423|Comanche Cnty-City AP, TX           |US|MTR
 0000000000|KMKO | 35.6669| -95.3589|  187|Muskogee-Davis Rgnl AP, OK          |US|MTR
-0000000000|KMKQ | 27.5200| -90.0000|    0|Green Canyon Oil Platform 433, Gulf |US|MTR
+0000000000|KMKQ | 27.5200| -90.0000|    0|Green Canyon Oil Platform 433, LA   |US|MTR
 0000000000|KMKS | 33.1858| -80.0353|   22|Moncks Corner Muni AP, SC           |US|MTR
 0000000000|KMKT | 44.2221| -93.9189|  311|Mankato Rgnl AP, MN                 |US|MTR
 0000000000|KMKV | 31.0947| -92.0691|   24|Marksville Rgnl AP, LA              |US|MTR
@@ -2790,7 +2790,7 @@
 0000000000|KMTC | 42.6111| -82.8353|  177|Selfridge ANGB, MI                  |US|MTR
 0000000000|KMTH | 24.7262| -81.0511|    2|The Florida Keys Marathon AP, FL    |US|MTR
 0000000000|KMTJ | 38.5089|-107.8938| 1755|Montrose Rgnl AP, CO                |US|MTR
-0000000000|KMTK | 28.6967| -89.3958|   30|South Pass 89E-B Oil Platform, Gulf |US|MTR
+0000000000|KMTK | 28.6967| -89.3958|   30|South Pass 89E-B Oil Platform, LA   |US|MTR
 0000000000|KMTN | 39.3256| -76.4136|    7|Martin State AP, MD                 |US|MTR
 0000000000|KMTO | 39.4770| -88.2783|  220|Coles Co Memo AP, IL                |US|MTR
 0000000000|KMTP | 41.1219| -71.9217|    2|Montauk AP, NY                      |US|MTR
@@ -3713,7 +3713,7 @@
 0000000000|KX60 | 29.3557| -82.4719|   23|Williston Rgnl AP, FL               |US|MTR
 0000000000|KXBP | 33.1764| -97.8286|  258|Bridgeport Muni AP, TX              |US|MTR
 0000000000|KXCN | 27.7700| -91.5200|   -0|Green Canyon 184, LA                |US|MTR
-0000000000|KXER | 27.9460| -90.9969|    0|Green Canyon 19, Gulf               |US|MTR
+0000000000|KXER | 27.9460| -90.9969|    0|Green Canyon 19, LA                 |US|MTR
 0000000000|KXIH | 29.1800| -94.5210|   -0|High Is 179A, LA (AWOS)             |US|MTR
 0000000000|KXLL | 40.5700| -75.4880|  122|Queen Cty AP, PA                    |US|MTR
 0000074794|KXMR | 28.4676| -80.5670|    3|Cape Cana Space Force Sta, FL       |US|MTR
