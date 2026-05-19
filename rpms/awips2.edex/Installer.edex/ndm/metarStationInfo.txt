@@ -1147,7 +1147,7 @@
 0000000000|K4I3 | 40.3290| -82.5260|  363|Knox Cnty AP, OH                    |US|MTR
 0000072463|K4LJ | 38.1200|-102.6000| 1103|Lamar, CO                           |US|MTR
 0000000000|K4M3 | 34.8082| -91.7121|   73|Carlisle Muni AP, AR                |US|MTR
-0000000000|K4M4 | 35.5980| -92.4520|  157|Clinton Muni AP, AR                 |US|MTR
+0000000000|K4M4 | 43.1286| -84.3813|  208|Shady Lawn Fld AP, MI               |US|MTR
 0000000000|K4M9 | 36.4040| -90.6480|   89|Corning Muni AP, AR                 |US|MTR
 0000074638|K4MR | 34.3000|-103.8000| 1326|Melrose AF Range, NM                |US|MTR
 0000000000|K4O4 | 33.9090| -94.8590|  144|McCurtain Cnty Rgnl AP, OK          |US|MTR
@@ -1258,7 +1258,7 @@
 0000000000|KAAA | 40.1589| -89.3389|  182|Lincoln/Logan Cnty AP, IL           |US|MTR
 0000000000|KAAF | 29.7280| -85.0270|    6|Apalachicola Rgnl AP, FL            |US|MTR
 0000000000|KAAO | 37.7461| -97.2211|  433|Wichita/Colonel J Jabara AP, KS     |US|MTR
-0000000000|KAAS | 37.3583| -85.3094|  281|Taylor Cnty AP, TX                  |US|MTR
+0000000000|KAAS | 37.3583| -85.3094|  281|Taylor Cnty AP, KY                  |US|MTR
 0000000000|KAAT | 41.4831|-120.5648| 1331|Alturas Muni AP, CA                 |US|MTR
 0000072517|KABE | 40.6600| -75.4300|  114|Lehigh Valley Intl AP, PA           |US|MTR
 0000000000|KABH | 38.7578|-104.3083| 1840|USAF Acad Bullseye AP, CO           |US|MTR
@@ -3560,7 +3560,7 @@
 0000000000|KTVI | 30.9022| -83.8817|   80|Thomasville Rgnl AP, GA             |US|MTR
 0000000000|KTVK | 40.6844| -92.9010|  313|Centerville Muni AP, IA             |US|MTR
 0000000000|KTVL | 38.8939|-119.9953| 1910|Lake Tahoe AP, CA                   |US|MTR
-0000000000|KTVR | 32.3533| -91.0267|   26|Vicksburg Tallulah Rgnl AP, MS      |US|MTR
+0000000000|KTVR | 32.3533| -91.0267|   26|Vicksburg Tallulah Rgnl AP, LA      |US|MTR
 0000000000|KTVY | 40.6122|-112.3517| 1317|Tooele Valley AP, UT                |US|MTR
 0000000000|KTWF | 42.4817|-114.4878| 1265|Magic Valley Rgnl AP, ID            |US|MTR
 0000000000|KTWM | 47.0491| -91.7452|  327|Richard Helgeson AP, MN             |US|MTR
@@ -3810,11 +3810,11 @@
 0000000000|MMMZ | 23.1614|-106.2661|   12|Mazatlan Intl AP                    |MX|MTR
 0000000000|MMNL | 27.4439| -99.5703|  148|Nuevo Laredo Intl AP                |MX|MTR
 0000000000|MMOX | 16.9986| -96.7260| 1521|Oaxaca Intl AP                      |MX|MTR
-0000000000|MMPA | 20.6021| -97.4606|  138|El Tajín Natl AP                    |MX|MTR
+0000000000|MMPA | 20.6021| -97.4606|  138|Poza Rica El Tajin Natl AP          |MX|MTR
 0000076685|MMPB | 19.1581| -98.3714| 2244|Puebla Intl AP                      |MX|MTR
 0000076243|MMPG | 28.6273|-100.5351|  275|Piedras Negras Intl AP              |MX|MTR
 0000000000|MMPN | 19.3967|-102.0390| 1603|Uruapan Intl AP                     |MX|MTR
-0000000000|MMPR | 20.6801|-105.2542|    7|Lic Gustavo Díaz Ordaz Intl AP      |MX|MTR
+0000000000|MMPR | 20.6801|-105.2542|    7|Lic Gustavo Diaz Ordaz Intl AP      |MX|MTR
 0000000000|MMPS | 15.8769| -97.0891|   90|Puerto Escondido Intl AP            |MX|MTR
 0000076625|MMQT | 20.6174|-100.1857| 1969|Queretaro Intl AP                   |MX|MTR
 0000000000|MMRX | 26.0086| -98.2283|   42|General Lucio Blanco Intl AP        |MX|MTR
