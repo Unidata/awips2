@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.themes">
+      <fontDefinition
+            categoryId="com.raytheon.uf.viz.core.theme"
+            id="com.raytheon.uf.viz.zoneSelectorFont"
+            label="Zone Selector Label Font"
+            value="DejaVu Sans Mono-bold-12">
+         <description>
+            The map label font for CAVE
+         </description>
+      </fontDefinition>
+   </extension>
+
+</plugin>

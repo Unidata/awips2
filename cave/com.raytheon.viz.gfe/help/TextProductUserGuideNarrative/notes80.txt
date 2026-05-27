@@ -1,0 +1,2 @@
+The setup of Local Effects for compound phrases is different from other phrases.  As usual, we must set up the "intersectAreas" in the Product Component definition.
+

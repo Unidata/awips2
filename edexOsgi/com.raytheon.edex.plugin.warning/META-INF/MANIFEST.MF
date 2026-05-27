@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Warning Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.warning
+Bundle-Version: 1.18.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.geotools,
+ jakarta.persistence,
+ com.raytheon.edex.common,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.warning,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.python.decoder,
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
+Export-Package: com.raytheon.edex.plugin.warning.tools
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: com.raytheon.uf.common.time,
+ org.hibernate.annotations

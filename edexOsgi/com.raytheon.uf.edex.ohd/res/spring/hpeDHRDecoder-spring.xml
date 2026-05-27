@@ -1,0 +1,40 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="dhrRadarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor" />
+    <bean id="dhrDecodeSrv" class="com.raytheon.uf.edex.ohd.pproc.HPEDhrSrv" />
+
+    <bean id="dhrGather" class="com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRGather" />
+    <bean id="dspGather" class="com.raytheon.uf.edex.plugin.mpe.gather.dsp.DSPGather" />
+
+    <bean id="dhrDecoder"
+        class="com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRDecoder" />
+    <bean id="dspDecoder"
+        class="com.raytheon.uf.edex.plugin.mpe.gather.dsp.DSPDecoder" />
+
+    <bean id="dhrDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="dhr" />
+        <constructor-arg value="jms-durable:queue:Ingest.dhr" />
+    </bean>
+
+    <bean id="dhrRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
+        factory-method="register">
+        <constructor-arg value="dhr" />
+        <constructor-arg value="jms-durable:queue:Ingest.dhr" />
+    </bean>
+    
+    <bean id="clusteredDhrDspRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.ClusteredDhrDspRoutes" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="nonClusteredDhrDspRoutes" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.NonClusteredDhrDspRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="tcgDecoder" class="com.raytheon.uf.edex.plugin.tcg.TCGDecoder">
+        <constructor-arg ref="tcgPluginName" />
+    </bean>
+
+    <bean id="tcgDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="tcgPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.tcg"/>
+    </bean>
+
+    <bean id="tcg-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.tcg.TCGCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

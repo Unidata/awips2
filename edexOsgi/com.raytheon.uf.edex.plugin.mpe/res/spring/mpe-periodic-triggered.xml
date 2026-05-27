@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="biasmesgen" class="com.raytheon.uf.edex.plugin.mpe.biasmesgen.Biasmesgen" />
+
+    <bean id="rocChecker" class="com.raytheon.uf.edex.plugin.mpe.rocchecker.RocChecker" />
+
+    <bean id="buildHourly" class="com.raytheon.uf.edex.plugin.mpe.buildhourly.BuildHourly" />
+
+    <bean id="hpeFieldgen" class="com.raytheon.uf.edex.plugin.mpe.fieldgen.hpe.HPEFieldgen" />
+    
+    <bean id="mpePeriodicTrigger-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.mpe.MpePeriodicTriggerRoutes">
+                <constructor-arg name="biasmesgenCron" value="${biasmesgen.cron}" />
+                <constructor-arg name="alarmwhfsCron" value="${alarmwhfs.cron}" />
+                <constructor-arg name="mpefieldgenCron" value="${mpefieldgen.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>

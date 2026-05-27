@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="lclstrmrptDecoder" class="com.raytheon.uf.edex.plugin.lsr.LSRDecoder" depends-on="lsrPluginRegistered">
+        <constructor-arg ref="lclstrmrptPluginName" />
+    </bean>
+
+    <bean id="lsrDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="lclstrmrptPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.lsr" />
+    </bean>
+
+    <bean id="lclstrmrpt-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.lsr.LclstrmrptCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

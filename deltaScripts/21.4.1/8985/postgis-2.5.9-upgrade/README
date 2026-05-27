@@ -1,0 +1,7 @@
+This directory contains scripts to handle the upgrade from PostGIS 2.4.9 or 2.5.5 to
+2.5.9. All of these scripts MUST be kept together in one directory for them
+to work.
+
+After upgrading the system's RPMs and with PostgreSQL running, run
+upgrade_postgis.sh as root. Do not interrupt the script while it is running, as
+this may prevent proper cleanup. Verify that no errors appear in the output.

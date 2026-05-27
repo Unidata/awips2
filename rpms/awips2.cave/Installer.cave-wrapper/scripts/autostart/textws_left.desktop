@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Name=Launch TextWS left monitor
+Icon=/awips/fxa/data/awips.gif
+Name[en_US]=Launch TextWS left monitor
+Icon[en_US]=/awips/fxa/data/awips.gif
+Exec=/awips2/cave/textWS.sh -monitor 1

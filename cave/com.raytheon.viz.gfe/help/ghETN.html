@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>ghETN User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">ghETN User's Guide</h1>
+<div class="1Heading">September 30, 2007</div>
+<h2 class="1Heading"><a name="TableofContents"></a>Table of Contents</h2>
+<h4 class="1Heading"><a href="#Overview">Overview</a></h4>
+<h4 class="1Heading"><a href="#Running">Running the ghETN Program</a></h4>
+<h4 class="1Heading"><a href="#ExampleData">Example Output</a></h4>
+<div class="1Heading"><hr width="100%"></div>
+<h2 class="1Heading"><a name="Overview"></a>Overview</h2>
+<div class="1Heading">The ghETN is a utility program to output the
+maximum ETN found in the VTEC active table for a specified office,
+phenenomenon, and significance. For further information on the
+meaning of the codes within the VTEC active table, refer to the <a
+href="VTEC.html">GFESuite VTEC Guide</a>.</div>
+<div class="1Heading"><hr width="100%"></div>
+<h3 class="1Heading"><a name="Running"></a>Running the ghETN Program</h3>
+<div class="1Heading">The command line syntax is:</div>
+<div class="1Heading"><tt>ghETN -w siteid -p phenomenon -s
+significance [-n tableName] [-h serverhost] [-r serverport]</tt></div>
+<div class="1Heading"><tt>ghETN -w siteid -p phenomenon -s
+significance -f VTECfilename</tt></div>
+<br>
+<div class="1Heading">A sample command line is:</div>
+<div class="1Heading"><tt>ghETN -w KGSP -p SB -s Y</tt></div>
+<br>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <th>Option Syntax</th>
+      <th>Optional or Mandatory</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>-w wfoid</td>
+      <td>Mandatory</td>
+      <td>Defines the WFOID filter. If not specified, then all records from
+all sites will be output.</td>
+    </tr>
+    <tr>
+      <td>-p phenomenon</td>
+      <td>Mandatory</td>
+      <td>Defines the VTEC phenomenon filter, e.g., "WS". If not specified,
+then all phenomena will be output.</td>
+    </tr>
+    <tr>
+      <td>-s significance</td>
+      <td>Mandatory</td>
+      <td>Defines the VTEC significance filter, e.g., "A". If not specified,
+then all significances will be output.</td>
+    </tr>
+    <tr>
+      <td>-n tableName</td>
+      <td>Optional</td>
+      <td>Determines the name of the active table to dump. Default is
+"active".</td>
+    </tr>
+    <tr>
+      <td>-f&nbsp;VTECfilename</td>
+      <td>Optional</td>
+      <td>Specifies the filename of the active table to dump.
+Note: use this option without the -h and -r options. No file locking is
+used for this scheme and the VTEC file is opened directly, i.e., the
+program does not use the ifpServer.</td>
+    </tr>
+    <tr>
+      <td>-h serverhost</td>
+      <td>Optional</td>
+      <td>Defines the server (ifpServer) host name. Ignored if the -f switch
+is used. Default is the configured ifpServer host.</td>
+    </tr>
+    <tr>
+      <td>-r serverport</td>
+      <td>Optional</td>
+      <td>Defines the server (ifpServer) port. Ignored if the -f switch is
+used. Default is the configured ifpServer port.</td>
+    </tr>
+  </tbody>
+</table>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading"><a name="ExampleData"></a>Example Execution</h3>
+<div class="1Heading">The following shows an example of running the
+ghETN program:
+<p><tt>bart &gt; ghETN -w KGSP -p SB -s Y
+<br>6
+<br>bart &gt;</tt></p>
+</div>
+</body>
+</html>

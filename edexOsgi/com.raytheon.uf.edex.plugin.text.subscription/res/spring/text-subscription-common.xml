@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="autoFaxDao" class="com.raytheon.uf.edex.plugin.text.subscription.fax.AutoFaxDao" depends-on="textRegistered">
+       <property name="autoFaxNotifyURI" value="jms-generic:topic:autofax.notify"/>
+    </bean>
+
+    <!-- define the bean that handles watch/warn script handling -->
+    <bean id="textScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner">
+        <property name="type" value="ldad" />
+    </bean>
+
+    <bean id="subscriptionDao" class="com.raytheon.uf.edex.plugin.text.subscription.dao.SubscriptionDAO">
+       <property name="subscriptionNotifyURI" value="jms-generic:topic:subscription.notify"/>
+    </bean>
+    
+    <bean id="common-subscription-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.subscription.CommonSubscriptionCamelRoutes" />
+        </constructor-arg>
+    </bean>
+    
+</beans>

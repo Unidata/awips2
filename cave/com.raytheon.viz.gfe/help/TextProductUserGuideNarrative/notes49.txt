@@ -1,0 +1,2 @@
+We may want to apply non-standard rounding.  To do this, we can specify a rounding method for the weather element in question.
+

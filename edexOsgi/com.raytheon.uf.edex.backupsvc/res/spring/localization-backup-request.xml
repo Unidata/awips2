@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="localizationFileSaveHandler" class="com.raytheon.uf.edex.backupsvc.handlers.LocalizationFileSaveHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.localization.backup.request.LocalizationFileSaveRequest"/>
+        <constructor-arg ref="localizationFileSaveHandler"/>
+    </bean>
+
+    <bean id="localizationFileDeleteHandler" class="com.raytheon.uf.edex.backupsvc.handlers.LocalizationFileDeleteHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.localization.backup.request.LocalizationFileDeleteRequest"/>
+        <constructor-arg ref="localizationFileDeleteHandler"/>
+    </bean>
+
+    <bean id="localizationBackupService" class="com.raytheon.uf.edex.backupsvc.service.LocalizationBackupService" />
+    
+    <bean id="clusteredLocalizationBackupContext" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.backupsvc.service.ClusteredLocalizationBackupContextRoutes" />
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredLocalizationBackupContext"/>
+        <constructor-arg ref="localizationBackupService"/>
+    </bean>
+
+</beans>

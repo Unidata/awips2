@@ -1,0 +1,13 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="cpgSrvDispatcher" class="com.raytheon.uf.edex.cpgsrv.CPGDispatcher" depends-on="commonTimeRegistered"/>
+
+    <bean id="clusteredCpgSrvRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.cpgsrv.ClusteredCpgSrvRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

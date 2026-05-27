@@ -1,0 +1,2 @@
+You can generate a new complete SSL/TLS certificate chain for PostgreSQL by
+running the script generate_testing_postgresql_certs.sh in this directory.

@@ -1,0 +1,33 @@
+# Product Discipline 2: Land surface products, Parameter Category 0: Vegetation/Biomass
+0:0:Land cover (0=sea, 1=land):Proportion:LAND
+1:1:Surface roughness:m:SFCR
+2:2:Soil temperature:K:TSOIL:TSOIL
+3:3:Soil moisture content:mm:SOILM:SOILM
+4:4:Vegetation:%:VEG
+5:5:Water runoff:mm:WATR
+6:6:Evapotranspiration:kg^-2*s^-1:EVAPT
+7:7:Model terrain height:m:MTHT
+8:8:Land use:(Code table 4.212):LANDU
+9:9:Volumetric soil moisture content:Proportion:SOILW
+10:10:Ground heat flux:W/m^2:GFLUX
+11:11:Moisture availability:%:MSTAV
+12:12:Exchange coefficient:mm * s:SFEXC
+13:13:Plant canopy surface water:mm:CNWAT
+14:14:Blackadars mixing length scale:m:BMIXL
+15:15:Canopy conductance:m/s:CCOND
+16:16:Minimal stomatal resistance:s/m:RSMIN
+17:17:Wilting point:Proportion:WILT
+18:18:Solar parameter in canopy conductance:Proportion:RCS
+19:19:Temperature parameter in canopy conductance:Proportion:RCT
+20:20:Soil moisture parameter in canopy conductance:Proportion:RCSOL
+21:21:Humidity parameter in canopy conductance:Proportion:RCQ
+22:22:Soil Moisture:kg/m^3:SOILM
+23:23:Column-Integrated Soil Water:mm:CISOILW
+24:24:Heat Flux:W/m^2:HFLUX
+25:25:Volumetric Soil Moisture:m^3/m^3:VSOILM
+26:26:Wilting Point:kg/m^3:WILT
+27:27:Volumetric Wilting Moisture:m^3/m^3:VWILTM
+# 22-191 Reserved
+#192-254 Reserved for local use
+255:255:Missing
+

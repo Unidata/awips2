@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# So we don't grab any GFE supplied libraries
+unset LD_LIBRARY_PATH
+
+# msg_send requirements
+export PROJECT=/awips/ops
+export CO_MQR_SERVER_HOST=mhs
+export SHLIB_PATH=/awips/ops/sharedlib
+
+FXA_HOME=/awips/fxa
+export FXA_HOME
+
+FXA_DATA=/data/fxa
+export FXA_DATA
+
+exec /awips/ops/bin/msg_send "$@"

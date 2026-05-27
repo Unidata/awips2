@@ -1,0 +1,3 @@
+On the surface, the idea of representing numbers as simple phrases doesn't seem so tough.  "Sunny. Highs in the 80's" -- how hard could that be? But we discovered that there are many subtleties and complexities that we didn't foresee. For example, the PoP phrase, "chance of rain...", "chance of snow..." depends on the current weather events. Or the snow accumulation we report in the Today period will contribute to the total snow amount reported in a later period.
+
+

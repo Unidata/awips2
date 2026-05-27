@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>gfeConfig - Default (non-weather) Color Table Algorithm
+Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Default (Non-Weather) Color Table Algorithm Configuration</h2>
+<br>
+</div>
+<div class="3Heading">&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DefaultColorTableSpectrum">Default Color Table
+Spectrum</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#WeatherElementDefaultColorTables">Weather Element
+Default
+Color Tables</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#LogrithmeticColorTables">Logrithmetic Color Tables</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#InitialColorTableRange">Default Color Table Range</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ColorBarLabelSpecification">Color Bar Label
+Specification</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>Labels must be entered as floats for all parameters.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote>
+</blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="DefaultColorTableSpectrum"></a><font size="+1">Default
+Color Table
+Spectrum</font></h4>
+If not specified, all scalar and vector weather elements will be
+assigned
+the "--DEFAULT--" color table algorithm.&nbsp; This algorithm is a
+smooth
+spectrum of colors, usually from purple to red.&nbsp; Three entries
+define
+the minimum wavelength, maximum wavelength, and number of colors that
+the
+default color table uses.
+<p>Depending upon the hardware graphics capability in use, you may not
+want to increase the number of colors too far.
+</p>
+<p>The left wavelength defines the left side value for the color in
+nanometers.
+380 is roughly purple. The right wavelength defines the right side
+value
+for the color in nanometers. 650 is red. The number of colors indicate
+the number of color bins that will be used when the default color table
+is displayed.
+</p>
+<p><b><tt>DefaultColorTable_leftWavelength = 380.0</tt></b>
+<br>
+<b><tt>DefaultColorTable_rightWavelength = 650.0</tt></b>
+<br>
+<b><tt>DefaultColorTable_numColors = 70</tt></b>
+</p><br>
+<h4><a name="WeatherElementDefaultColorTables"></a><font size="+1">Weather
+Element
+Default Color Tables</font></h4>
+The default color table entries define the initial color table to use
+for
+a particular weather element.&nbsp; The format is
+parmName_defaultColorTable.&nbsp;
+For non-surface based elements, the format is
+parmName_level_defaultColorTable.
+The user should ensure that the color tables are "known" tables, i.e.,
+they exist on the server. The user can determine the list of color
+tables
+by starting the GFE, displaying any weather element, as an image, and
+using
+the popup menu over the legend to see a list of color tables. If a
+default
+color table is not defined for a parameter, then the spectrum defined
+in
+DefaultColorTable* will be used for the parameter.<br>
+<p><b>Note:</b> In AWIPS2 this list is greatly expanded.  See gfeConfig.py
+for full list.</p>
+<p><b><tt>T_defaultColorTable="midrange enhanced"</tt></b>
+<br>
+<b><tt>Td_defaultColorTable="midrange enhanced"</tt></b>
+<br>
+<b><tt>MaxT_defaultColorTable="midrange enhanced"</tt></b>
+<br>
+<b><tt>MinT_defaultColorTable="midrange enhanced"</tt></b>
+<br>
+<b><tt>Sky_defaultColorTable="cloud"</tt></b>
+<br>
+<b><tt>Wind_defaultColorTable="lowrange enhanced"</tt></b>
+<br>
+<b><tt>PoP_defaultColorTable="gridded data"</tt></b>
+<br>
+<b><tt>QPF_defaultColorTable="gridded data"</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="LogrithmeticColorTables"></a><font size="+1">Logrithmetic
+Color
+Tables</font></h4>
+Some weather elements may be displayed as an image using a logrithmetic
+color table.&nbsp; The assignment of color slots to values is
+logrithmetic,
+rather than the normal case of linear.&nbsp; The format of these
+entries
+are parmName_LogFactor.&nbsp; For non surface-based elements, the
+format
+is parmName_level_LogFactor. The value given must be greater than
+0.&nbsp;
+The closer the value is to zero, the steeper the log curve will appear.
+Values greater than 1 will result in an almost linear assignment of
+values
+to color slots.&nbsp; Values approaching zero will result in an
+emphasis
+of the values near the weather element's minimum possible value.
+<p>The following table illustrates the percent of color table entries
+that
+are used for the first 50% of the weather element's range.</p>
+<table nosave="" border="1" cols="2" width="300">
+  <tbody>
+    <tr nosave="">
+      <td nosave="">
+      <center><b>Factor Value</b></center>
+      </td>
+      <td>
+      <center><b>Percent of Color Table Entries used in the first 60%
+of the
+weather element range</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>1.0</center>
+      </td>
+      <td>
+      <center>58%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.5</center>
+      </td>
+      <td>
+      <center>62%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.1</center>
+      </td>
+      <td>
+      <center>75%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.05</center>
+      </td>
+      <td>
+      <center>78%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.01</center>
+      </td>
+      <td>
+      <center>85%</center>
+      </td>
+    </tr>
+  </tbody>
+</table>
+&nbsp;
+<br>
+For example, if QPF ranges from 0" to 5", the color table has 70
+entries
+in it, and the factor is set to 0.01, then 59 color slots will be used
+between 0" and 2.50" and 11 color slots between 2.50" and 5.00".&nbsp;
+If a factor entry was not made for QPF, then 35 color slots would be
+used
+between 0" and 2.50" and 35 additional color slots between 2.50" and
+5.00".
+<p><b><tt>QPF_LogFactor = 0.03</tt></b>
+<br>
+<b><tt>SnowAmt_LogFactor = 0.6<br>
+</tt></b></p>
+<p><b><tt><br>
+</tt></b></p>
+<h4><a name="InitialColorTableRange"></a><font size="+1">Default Color
+Table
+Range</font></h4>
+By default, the color table spectrum is linearly spread from the
+minimum
+possible value to the maximum possible value in the weather element as
+defined by the <a
+ href="serverConfig.html#WeatherElementConfigurationSection">Weather
+Element Configuration Section in serverConfig.py</a>. The user can
+control
+the initial range of the color table spectrum based on the weather
+element
+name by adding a pair of entries for each weather element into the gfe
+configuration file.&nbsp; The format is parmName_minColorTableValue and
+parmName_maxColorTableValue.&nbsp; For non surface-based elements, the
+format is parmName_level_maxColorTableValue and
+parmName_level_minColorTableValue.
+The user should ensure that the values have a decimal point in
+them.&nbsp;
+When the weather elements are first displayed as an image, the color
+spectrum
+will be displayed based on the supplied min and max values, rather than
+those in the database.
+<p><b><tt>T_maxColorTableValue = 120.0</tt></b>
+<br>
+<b><tt>T_minColorTableValue = -30.0<br>
+WetBulb_maxColorTableValue = 50.0<br>
+WetBulb_minColorTableValue = 20.0<br>
+</tt></b></p>
+<p>The user may also specify that the initial color table is calculated
+based on the "fit to data" algorithm.&nbsp; All of the grid values are
+examined and the color table assigned from the minimum to maximum
+observed
+value in all of the grids.&nbsp; The format of this entry is
+parmName_fitToDataColorTable.&nbsp;
+For non surface-based elements, the format is
+parmName_level_fitToDataColorTable.
+Through the GFE GUI, there are four types of fit to data that are
+available,
+'All Grids', 'All Grids over Area', 'Single Grid', and 'Single Grid
+over
+Area'.&nbsp; Of these,&nbsp; all of them are available to the ifpIMAGE
+program, but only the 'All Grids' and 'All Grids over Area' are
+recognized
+by the GFE.&nbsp;&nbsp; The area used is the current edit area for the
+GFE.&nbsp; Note that the ifpIMAGE program can specify an edit area to
+use
+for the 'All Grids over Area', and 'Single Grid over Area'
+algorithms.&nbsp;
+See the <a href="gfeConfig_Png.html#PngfitToDataArea">Png_fitToDataArea</a>
+entry.
+</p>
+<p><b><tt>T_fitToDataColorTable = "None"</tt></b> <br>
+</p>
+<p>
+</p>
+<h4><a name="ColorBarLabelSpecification"></a><b><font size="+1">Color
+Bar Label
+Specification</font></b></h4>
+Comfigure the desired labels on the SE Color Bar on a per-parameter
+basis.&nbsp;
+The format is parmName_ColorBarLabels.&nbsp; For non surface-based
+elements,
+the format is parmName_level_ColorBarLabels. Given the example
+below,&nbsp;
+the&nbsp; Temperature color bar would be labeled at 10, 40, 60 and
+90.&nbsp;
+Note that the values need to be entered as floats.&nbsp; This variable
+does not apply to Weather data types, only scalar and vector.
+<p><b><tt>T_ColorBarLabels = [10.00, 40.00, 60.00, 90.00]<br>
+</tt></b></p>
+<hr style="width: 100%; height: 2px;">
+<p><b><tt><br>
+</tt></b></p>
+<div class="Body">
+<center><a href="GFESuite.html">Back To TOC</a></center>
+</div>
+</div>
+</body>
+</html>

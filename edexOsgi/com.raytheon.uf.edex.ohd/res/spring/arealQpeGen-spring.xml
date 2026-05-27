@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="qpeGenService" class="com.raytheon.uf.edex.ohd.pproc.ArealQpeGenSrv">
+    </bean>
+
+    <bean id="clustered-arealQpeGen-context" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.ClusteredArealQpeGenContextRoutes">
+                 <constructor-arg name="arealqpegenCron" value="${arealqpegen.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>

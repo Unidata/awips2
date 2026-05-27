@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="goessoundingDecoder"
+        class="com.raytheon.edex.plugin.goessounding.GOESSoundingDecoder"
+        depends-on="goessoundingRegistered"/>
+
+    <bean id="goesSeparatorFactory"
+        class="com.raytheon.edex.plugin.goessounding.GOESSndgSeparatorFactory" />
+
+    <bean id="goessoundingDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="goessoundingPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.goessounding"/>
+    </bean>
+    
+    <bean id="goessounding-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.goessounding.GoessoundingCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

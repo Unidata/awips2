@@ -1,0 +1,394 @@
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is a base file that is not intended to be overridden.
+    -->
+    <!--
+bufr table 02-20-012 - See WMO Manual on codes I.2 - CODE/FLAG Tables/20 - 11
+0 Cirrus (Ci)
+1 Cirrocumulus (Cc)
+2 Cirrostratus (Cs)
+3 Altocumulus (Ac)
+4 Altostratus (As)
+5 Nimbostratus (Ns)
+6 Stratocumulus (Sc)
+7 Stratus (St)
+8 Cumulus (Cu)
+9 Cumulonimbus (Cb)
+10 No CH clouds
+11 Cirrus fibratus, sometimes uncinus, not progressively invading the sky
+12 Cirrus spissatus, in patches or entangled sheaves, which usually do not increase
+and sometimes seem to be the remains of the upper part of a cumulonimbus; or
+cirrus castellanus or floccus
+13 Cirrus spissatus cumulonimbogenitus
+14 Cirrus uncinus or fibratus, or both, progressively invading the sky; they generally
+thicken as a whole
+15 Cirrus (often in bands) and cirrostratus, or cirrostratus alone, progressively
+invading the sky; they generally thicken as a whole, but the continuous veil does
+not reach 45 degrees above the horizon
+16 Cirrus (often in bands) and cirrostratus, or cirrostratus alone, progressively
+Invading the sky; they generally thicken as a whole; the continuous veil extends
+more than 45 degrees above the horizon, without the sky being totally covered
+17 Cirrostratus covering the whole sky
+18 Cirrostratus not progressively invading the sky and not entirely covering it
+19 Cirrocumulus alone, or cirrocumulus predominant among the CH clouds
+20 No CM clouds
+21 Altostratus translucidus
+22 Altostratus opacus or nimbostratus
+23 Altocumulus translucidus at a single level
+24 Patches (often lenticular) of altocumulus translucidus, continually changing and
+occurring at one or more levels
+25 Altocumulus translucidus in bands, or one or more layers of altocumulus
+translucidus or opacus, progressively invading the sky; these altocumulus clouds
+generally thicken as a whole
+26 Altocumulus cumulogenitus (or cumulonimbogenitus)
+27 Altocumulus translucidus or opacus in two or more layers, or altocumulus opacus
+in a single layer, not progressively invading the sky, or altocumulus with
+altostratus or nimbostratus
+28 Altocumulus castellanus or floccus
+29 Altocumulus of a chaotic sky, generally at several levels
+30 No CL clouds
+31 Cumulus humilis or cumulus fractus other than of bad weather,f* or both
+32 Cumulus mediocris or congestus, towering cumulus (TCU), with or without
+cumulus of species fractus or humilis or stratocumulus, all having their bases at
+the same level
+33 Cumulonimbus calvus, with or without cumulus, stratocumulus or stratus
+34 Stratocumulus cumulogenitus
+35 Stratocumulus other than stratocumulus cumulogenitus
+36 Stratus nebulosus or stratus fractus other than of bad weather,f or both
+37 Stratus fractus or cumulus fractus of bad weather,f or both (pannus), usually
+below altostratus or nimbostratus
+38 Cumulus and stratocumulus other than stratocumulus cumulogenitus, with bases
+at different levels
+39 Cumulonimbus capillatus (often with an anvil), with or without cumulonimbus
+calvus, cumulus, stratocumulus, stratus or pannus
+40 CH
+41 CM
+42 CL
+43 Clear
+44 Liquid water
+45 Supercooled liquid water
+46 Mixed phase
+47 Optically thick ice
+48 Optically thin ice
+49 Multilayered ice
+50–58 Reserved
+59 Cloud not visible owing to darkness, fog, duststorm, sandstorm, or other
+analogous phenomena
+60 CH clouds invisible owing to darkness, fog, blowing dust or sand, or other similar
+phenomena, or because of a continuous layer of lower clouds
+61 CM clouds invisible owing to darkness, fog, blowing dust or sand, or other similar
+phenomena, or because of continuous layer of lower clouds
+62 CL clouds invisible owing to darkness, fog, blowing dust or sand, or other similar
+phenomena
+63 Missing value
+    -->
+<translationTable bufrTable="0 20 012" description="Cloud type">
+    <!-- mapped value for 'lowCloudType' comes from the Synoptic Code table 0513 -->
+    <!-- mapped value for 'midCloudType' comes from the Synoptic Code table 0515 -->
+    <!-- mapped value for 'hiCloudType' comes from the Synoptic Code table 0509 -->
+    <entry description="Cirrus (Ci)" indexRange="0">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="1" />
+    </entry>
+    <entry description="Cirrocumulus (Cc)" indexRange="1">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="9" />
+    </entry>
+    <entry description="Cirrostratus (Cs)" indexRange="2">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="7" />
+    </entry>
+    <entry description="Altocumulus (Ac)" indexRange="3">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="1" />
+    </entry>
+    <entry description="Altostratus (As)" indexRange="4">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="2" />
+    </entry>
+    <entry description="Nimbostratus (Ns)" indexRange="5">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="2" />
+    </entry>
+    <entry description="Stratocumulus (Sc)" indexRange="6">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="4" />
+    </entry>
+    <entry description="Stratus(St)" indexRange="7">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="6" />
+    </entry>
+    <entry description="Cumulus (Cu)" indexRange="8">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="1" />
+    </entry>
+    <entry description="Cumulonimbus (Cb)" indexRange="9">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="3" />
+    </entry>
+    <entry description="No CHclouds" indexRange="10">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="0" />
+    </entry>
+    <entry description="Cirrus fibratus, sometimes uncinus, not progressively invading the sky" indexRange="11">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="1" />
+    </entry>
+    <entry description="Cirrus spissatus, in patches or entangled sheaves, which usually do not increase and sometimes seem to be the remains of the upper part of a Cumulonimbus; or Cirrus castellanus or floccus" indexRange="12">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="2" />
+    </entry>
+    <entry description="Cirrus spissatus cumulonimbogenitus" indexRange="13">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="3" />
+    </entry>
+    <entry description="Cirrus uncinus or fibratus, or both, progressively invading the sky; they generally thicken as a whole" indexRange="14">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="4" />
+    </entry>
+    <entry description="Cirrus (often in bands) and Cirrostratus, or Cirrostratus alone, progressively invading the sky; they generallythicken as a whole, but the continuous veil does not reach 45 degrees above the horizon" indexRange="15">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="5" />
+    </entry>
+    <entry description="Cirrus (often In bands) and Cirrostratus, or Cirrostratus alone, progressively Invading the sky; they generally thicken as a whole; the continuous veil extends more than 45 degrees above the horizon, without the sky being totally covered" indexRange="16">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="6" />
+    </entry>
+    <entry description="Cirrostratus covering the whole sky" indexRange="17">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="7" />
+    </entry>
+    <entry description="Cirrostratus not progressively invading the sky and not entirely covering It" indexRange="18">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="8" />
+    </entry>
+    <entry description="Cirrocumulus alone, or Cirrocumulus predominant among the CHclouds" indexRange="19">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="9" />
+    </entry>
+    <entry description="No CMclouds" indexRange="20">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="0" />
+    </entry>
+    <entry description="Altostratus translucidus" indexRange="21">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="1" />
+    </entry>
+    <entry description="Altostratus opacus or Nimbostratus" indexRange="22">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="2" />
+    </entry>
+    <entry description="Altocumulus translucidus at a single level" indexRange="23">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="3" />
+    </entry>
+    <entry description="Patches (often Lenticular) of Altocumulus translucidus, continually changing and occurring at one or more levels" indexRange="24">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="4" />
+    </entry>
+    <entry description="Altocumulus translucidus in bands, or one or more layers of Altocumulus translucidus or opacus, progressively invading the sky;these Altocumulus clouds generally thicken as a whole" indexRange="25">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="5" />
+    </entry>
+    <entry description="Altocumulus cumulogenitus (or cumulonimbogenitus)" indexRange="26">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="6" />
+    </entry>
+    <entry description="Altocumulus translucidus or opacus In two or more layers, or Altocumulus opacus In a single layer, not progressively Invading the sky, or Altocumulus with Altostratus or Nimbostratus" indexRange="27">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="7" />
+    </entry>
+    <entry description="Altocumulus castellanus or floccus" indexRange="28">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="8" />
+    </entry>
+    <entry description="Altocumulus of a chaotic sky, generally at several levels" indexRange="29">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="9" />
+    </entry>
+    <entry description="No CL clouds" indexRange="30">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="0" />
+    </entry>
+    <entry description="Cumulus humilis or Cumulus fractus other than of bad weather,* or both" indexRange="31">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="1" />
+    </entry>
+    <entry description="Cumulus mediocris or congestus, Towering cumulus (TCU), with or without Cumulus of species fractus or humilis or Stratocumulus, all having their bases at the same level" indexRange="32">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="2" />
+    </entry>
+    <entry description="Cumulonimbus calvus, with or without Cumulus, Stratocumulus or Stratus" indexRange="33">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="3" />
+    </entry>
+    <entry description="Stratocumulus cumulogenitus" indexRange="34">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="4" />
+    </entry>
+    <entry description="Stratocumulus other than Stratocumulus cumulogenitus" indexRange="35">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="5" />
+    </entry>
+    <entry description="Stratus nebulosus or Stratus fractus other than of bad weather*, or both" indexRange="36">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="6" />
+    </entry>
+    <entry description="Stratus fractus or Cumulus fractus of bad weather*, or both (pannus),usually below Altostratus or Nimbostratus" indexRange="37">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="7" />
+    </entry>
+    <entry description="Cumulus and Stratocumulus other than Stratocumulus cumulogenitus, with bases at different levels" indexRange="38">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="8" />
+    </entry>
+    <entry description="Cumulonimbus capillatus (often with an anvil), with or without Cumulonimbus calvus, Cumulus, Stratocumulus, Stratus or pannus" indexRange="39">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="9" />
+    </entry>
+    <entry description="CH" indexRange="40">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="1" />
+    </entry>
+    <entry description="CM" indexRange="41">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="1" />
+    </entry>
+    <entry description="CL" indexRange="42">
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+        <mappedValue parameter="lowCloudType" value="1" />
+    </entry>
+    <entry description="Clear" indexRange="43">
+        <mappedValue parameter="lowCloudType" value="0" />
+        <mappedValue parameter="midCloudType" value="0" />
+        <mappedValue parameter="hiCloudType" value="0"  />
+    </entry>
+    <entry description="Liquid water" indexRange="44">
+        <!-- No synoptic tables include cloud phase. Set to missing. -->
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Supercooled liquid water" indexRange="45">
+        <!-- No synoptic tables include cloud phase. Set to missing. -->
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Mixed phase" indexRange="46">
+        <!-- No synoptic tables include cloud phase. Set to missing. -->
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Optically thick ice" indexRange="47">
+        <!-- No synoptic tables include cloud phase. Set to missing. -->
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Optically thin ice" indexRange="48">
+        <!-- No synoptic tables include cloud phase. Set to missing. -->
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Multilayered ice" indexRange="49">
+        <!-- No synoptic tables include cloud phase. Set to missing. -->
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Reserved" indexRange="50-58">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Cloud not visible owing to darkness, fog, duststorm, sandstorm, or other analogous phenomena" indexRange="59">
+        <mappedValue parameter="lowCloudType" value="-9999"  />
+        <mappedValue parameter="midCloudType" value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="CH clouds Invisible owing to darkness, fog, blowing dust or sand, or other similar phenomena, or because of a continuous layer of lower clouds" indexRange="60">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999"  />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+    </entry>
+    <entry description="CM clouds Invisible owing to darkness, fog, blowing dust or sand, or other similar phenomena, or because of continuous layer of lower clouds" indexRange="61">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType" value="-9999"  />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="CL clouds invisible owing to darkness, fog, blowing dust or sand, or other similar phenomena" indexRange="62">
+        <mappedValue parameter="lowCloudType" value="-9999"  />
+        <mappedValue parameter="midCloudType" value="-9999"  />
+        <mappedValue parameter="hiCloudType" value="-9999"  />
+    </entry>
+    <entry description="Missing value" indexRange="63">
+        <mappedValue parameter="lowCloudType" value="-9999" />
+        <mappedValue parameter="midCloudType"  value="-9999" />
+        <mappedValue parameter="hiCloudType" value="-9999" />
+    </entry>
+</translationTable>

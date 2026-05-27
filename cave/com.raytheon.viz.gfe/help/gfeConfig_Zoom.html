@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>gfeConfig - Dialog and Menu Configuration</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<div style="text-align: center;"></div>
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Dialog and Menu Configuration</h2>
+<br>
+<div class="3Heading">
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to ifpIMAGE</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SetPickupValueZoom">Set Pickup Value Dialog Zoom
+Configuration</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#delta">Maximum Set Delta Dialog Values</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#interpolateMode">Interpolate Dialog Mode</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ListofPublishDialogTimePeriods">List of Publish
+Dialog Time
+Periods</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ListofPublishDialogPreselectedWeatherElements">Preselected
+Publish Dialog Weather Element Group</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#CreateScratchDialogDefaults">Create From Scratch
+Dialog Defaults</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#InterpolationDialogDefaults">Interpolation Dialog
+Defaults</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a
+ href="#WxDiscreteShowDescription">Wx/Discrete: Show Description</a></td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#WxSetValue">Weather
+Set Value Dialog Default Values</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote> </blockquote>
+<hr style="width: 100%; height: 2px;"><br>
+<h4><a name="SetPickupValueZoom"></a><font size="+1">Set Pickup Value
+Dialog
+Zoom Configuration</font></h4>
+The pickup value dialog is used to enter values for use in the assign
+value
+edit tool.&nbsp; This dialog was previously called "set value."&nbsp;
+The
+pickup value dialog has the ability of a one-level zoom factor.&nbsp;
+Clicking
+button 1 over the dialog will zoom in or zoom out only one level, i.e.,
+either you see the entire parameter range, or you see the zoomed in
+range.&nbsp;
+The amount of zoom is defined by the zoom factors specified in this
+section.&nbsp;
+The software can be configured to provide an overall zoom for all
+parameters
+with individual overrides for certain weather elements.
+<p>The SetValue_zoom defines the factor to use by all weather
+elements,
+if they aren't explicitly specified by weather element.&nbsp; The value
+can be intrepreted as the visible range in the dialog.&nbsp; A value of
+4 indicates that 1/4 of the weather element's maximum range will be
+displayed
+when the dialog is zoomed in. For example, if temperature bounds are
+-30
+to +130 degrees, which is a range of 160 degrees, and the zoom factor
+is
+4, then the dialog will only show 40 degree range when zoomed in. </p>
+<p>Individual weather elements can specify different zoom
+factors.&nbsp;
+The format of this entry is weatherElementName_SetValue_zoom.&nbsp; For
+those weather elements that are not surface-based, the format is
+weatherElementName_level_SetValue_zoom.
+An example for QPF is shown below: </p>
+<p><b><tt>SetValue_zoom = 4</tt></b> <br>
+<b><tt>QPF_SetValue_zoom = 10</tt></b> <br>
+</p>
+<p>&nbsp;</p>
+<h4><a name="delta"></a><font size="+1">Maximum Set Delta Dialog
+Values</font></h4>
+The default range of the Set Discrepancy Dialog is 20% of the weather
+element's
+range.&nbsp; This may be changed on a per weather element basis using
+this
+configuration item.&nbsp; The item specified is the maximum value that
+appears in the dialog.&nbsp; The format of the entry is
+weName_MaxDeltaDialogValue.&nbsp;
+For those weather elements that are not surface-based, the format is
+weatherElementName_level_MaxDeltaDialogValue.
+<p><b><tt>Sky_MaxDeltaDialogValue = 40.0</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="interpolateMode"></a><font size="+1">Interpolate Dialog
+Mode</font></h4>
+The Interpolate Dialog Mode has two options, "Gaps" and "Edited".&nbsp;
+These correspond to the entries on the <a
+ href="MainMenuDialogs.html#InterpolateDialog">InterpolateDialog</a>,
+"By Gaps", and "Based on Edited Data".&nbsp; The default if not
+specified
+is to bring up the dialog with the "By Gaps" selected.&nbsp; This
+behavior
+can be changed using this configuration item.
+<p><b><tt>InterpolateDialogMode = "Gaps"</tt></b> <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; </p>
+<h4><a name="ListofPublishDialogTimePeriods"></a><font size="+1">List
+of Publish
+Dialog Time Periods</font></h4>
+The list of entries that appear on the <a
+ href="MainMenuDialogs.html#PublishToOfficialDialog">Publish
+Dialog</a> are listed in this field.&nbsp; The entries must be valid <a
+ href="GFEMainMenu.html#DefineSelectTimeRanges...">user-defined
+Time Ranges</a> or they will be ignored.
+<p><b><tt>PublishTimes = ['example1']</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<p><a name="ListofPublishDialogPreselectedWeatherElements"></a><b><font
+ size="+1">Preselected
+Publish Dialog Weather Element Group</font></b> </p>
+<p>The weather elements in the&nbsp; group named in this entry will
+be
+highlighted upon initial startup of the Publish Dialog.&nbsp; The
+default
+is that none is specified, so that the currently loaded weather
+elements
+are selected. <br>
+&nbsp; </p>
+<p><b><tt>PublishDialogInitialWEGroup = "Public"</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="InterpolationDialogDefaults"></a><font size="+1">Interpolation
+Dialog
+Defaults</font></h4>
+The <a href="MainMenuDialogs.html#InterpolateDialog">Interpolation
+Dialog</a>
+provides the specification of the interval and duration.&nbsp; These
+two
+entries in the configuration file will change the defaults of the
+interval
+and duration.
+<p>By default, the dialog is shown with a minimum interval and
+duration.&nbsp;
+This can be changed. If the duration is specified, then the interval
+must
+also be specified. The units are hours and must range between 1 and 24.
+</p>
+<p><b><tt>InterpolateDefaultInterval = 1</tt></b> <br>
+<b><tt>InterpolateDefaultDuration = 1</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="CreateScratchDialogDefaults"></a><font size="+1">Create
+from Scratch
+Dialog Defaults</font></h4>
+The <a href="MainMenuDialogs.html#CreateFromScratchDialog">Create from
+Scratch Dialog</a> provides the specification of the interval and
+duration.&nbsp;
+These two entries in the configuration file will change the defaults of
+the interval and duration.
+<p>By default, the dialog is shown with a minimum interval and
+duration.&nbsp;
+This can be changed. If the duration is specified, then the interval
+must
+also be specified. The units are hours and must range between 1 and 24.
+</p>
+<b><tt>CreateScratchDefaultInterval = 1</tt></b> <br>
+<b><tt>CreateScratchDefaultDuration = 1</tt></b> <br>
+<br>
+<br>
+<br>
+<b><font size="+1"><a name="WxDiscreteShowDescription"></a>Wx/Discrete:
+Show Description<br>
+</font></b>
+<p>Controls the default setting for the
+"show description"&nbsp; option for the <a
+ href="ButtonBarDialogs.html#WeatherPickUpValueDialog">Weather Set
+Value Dialog</a> and <a
+ href="ButtonBarDialogs.html#DiscretePickUpValueDialog">Discrete Set
+Value Dialogs</a>.&nbsp;&nbsp; In addition to the two dialogs, the
+Spatial Editor Color Bar and Temporal Editor Data Pane's MB3 Popup Menu
+items <a href="Button3Popups.html#SpatialEditorColorBarPopupMenu">Set
+Common Values To, Set Recent Values To..., and Set Session Values To...</a>
+also will contain the descriptive information.&nbsp;</p>
+<p>The option may be interactively set
+through the <a href="GFEMainMenu.html#WxDiscreteDescription">GFE -&gt;
+View Preferences -&gt; Wx/Discrete: Show Description</a> menu item.<br>
+</p>
+<b><tt>WxDiscrete_Description = 1<br>
+<br>
+<br>
+<br>
+</tt></b>
+<h3><b><a name="WxSetValue"></a>Weather
+Set Value
+Dialog Default Values</b></h3>
+This section of the configuration file controls the default intensity
+and
+coverage/probability values that will be displayed on the weather set
+value
+(pickup value) dialog when creating a new weather key.&nbsp; If not
+specified
+in the gfe configuration file, the intensity and coverage/probability
+values
+are defaulted to the first intensity and coverage/probability values
+defined
+in the <a href="serverConfig.html#WeatherConfigurationSection">serverConfig.py's
+Weather Definition.</a>&nbsp;&nbsp; The format of these entries is
+weatherTypeSymbol_defaultCoverage
+and weatherTypeSymbol_defaultIntensity.
+<p><b><tt>R_defaultCoverage = "Wide"</tt></b> <br>
+<b><tt>RW_defaultCoverage = "Sct"</tt></b> <br>
+<b><tt>S_defaultCoverage = "Wide"</tt></b> <br>
+<b><tt>SW_defaultCoverage = "Sct"</tt></b> </p>
+<p><b><tt>R_defaultIntensity = "-"</tt></b> <br>
+<b><tt>RW_defaultIntensity = "-"</tt></b> <br>
+<b><tt>S_defaultIntensity = "-"</tt></b> <br>
+<b><tt>SW_defaultIntensity = "-"</tt></b> </p>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"> <br>
+<div class="Body">
+<center><a href="GFESuite.html">Back To TOC</a></center>
+</div>
+</div>
+</body>
+</html>

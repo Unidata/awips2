@@ -1,0 +1,305 @@
+#-----------------------------------------------------------------------
+# Domain File
+# Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
+# Alex Gibbs, Pablo Santos,Tony Freeman
+# File Creation Date: 06/01/2012
+# Date Last Modified: 06/15/15    andre.vanderwesthuysen@noaa.gov
+#
+# Version control: 1.33
+#
+# Support Team:
+#
+# Contributors:
+#
+# -----------------------------------------------------------------------
+# ---------------------- Description and Details ------------------------
+# -----------------------------------------------------------------------
+#
+# File used to setup a geographical domain for SWAN and WW3
+#
+# -----------------------------------------------------------
+#========================================================================
+#                                    PHI                                =
+#  GEOGRAPHICAL DOMAIN, GEOGRAFICAL RESOLUTION AND OUTPUT TIME STEP     =
+#========================================================================
+export SITEID="PHI"
+export REGIONID="ER"
+export NELAT="40.60"
+export NELON="-73.35"
+export SWLAT="38.20"
+export SWLON="-75.75"
+export RES="1.8"
+export TSTEP="3"
+#
+#========================================================================
+#                  NESTED GRID CONFIGURATION                            =
+# These nested grids are non-telescopic grids i.e all of them are       =
+# nested in the main grid, and get the boundary conditions only from it =
+#                                                                       =
+#========================================================================
+# NESTGRIDS: Number of nested grids, if = 0, no nested grids and
+# location numbers below will be ignore
+#
+# STATN=STA for STATIONARY RUNS, STAT=NON for NON-STATIONARY RUNS
+# The default values is NONstationary for CG1 and STAtionary for the
+# nested grids. Change this only if you know what you are doing.
+# You can choose STA or NON for a particular nested grid.
+#
+export NESTGRIDS="2"
+export NESTINCG1="YES"
+#
+export NELATN1="39.85"
+export NELONN1="-74.65"
+export SWLATN1="38.50"
+export SWLONN1="-75.70"
+export RESN1="1.0"
+export TSTEPN1="3"
+export STATN1="NON"
+#
+export NELATN2="40.40"
+export NELONN2="-73.80"
+export SWLATN2="39.40"
+export SWLONN2="-74.60"
+export RESN2="1.0"
+export TSTEPN2="3"
+export STATN2="NON"
+#
+#========================================================================
+#                    SPECTRA OUTPUT LOCATIONS                           =
+#========================================================================
+# Specta points defined as space delimited list of:
+#   "name1:lat1:lon1 name2:lat2:lon2 name3:lat3:lon3 name4:lat4:lon4 name5:lat5:lon5 ...."
+# (285.158,36.611)
+export SPECPOINTS="44009:38.461:-74.703 44091:39.769:-73.770 BRND1:38.987:-75.113 LWSD1:38.783:-75.119 BTHD1:38.537:-75.046 SDHN4:40.467:-74.009 ACYN4:39.357:-74.418"
+#
+#========================================================================
+#                    WAVE TRACKING (and WAVE PARTITION) ON/OFF          =
+#   SET: SUBDOMIAN, GEOGRAPH RESOL and TOLERANCE WAVETRACK PARAMETERS   =
+#========================================================================
+# IF WAVE TRACKING IS REQUIRED THEN WVTRCK="ON", OTHER WISE SET IT AS "OFF"
+# IF WVTRCK IS "ON", ADDTIONAL INFORMATION IS REQUIRED, SEE BELOW
+#
+export WVTRCK="ON"
+#
+#IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL
+# RESOLUTION: SET WVTONCG="1"
+# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE
+# ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
+# BE CAREFULL, IF THERE IS ANY SPECTRAL OUTPUT LOCATIONS OUT OF THE NEW (REDUCED DOMAIN
+# FOR WAVE TRACKING NWPS WILL ABORT.
+# (This will be change in a new version, the user can get 1d-spectra but not g-h plots).
+export WVTONCG="0"
+export NELATWT="40.60"
+export NELONWT="-73.35"
+export SWLATWT="38.20"
+export SWLONWT="-75.75"
+export GEORESWT="3.0"
+#
+# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ
+# *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
+# RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
+export WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#
+#========================================================================
+#                   CURRENTS DEFINITION (SEE SWAN MANUAL)               =
+#========================================================================
+#export CURRL1="INPGRID CUR ............................."
+#export CURRL2="READINP CUR ............................."
+#
+#========================================================================
+#                    BOUNDARY CONDITIONS (SEE SWAN MANUAL)              =
+#========================================================================
+# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0;
+# Setting up BOUNDCOND here to zero will permanently disable BCs.
+# If you leave it as 1 the user will still have the option to disable
+# them from the interactive Run_NWPS GUI.
+#
+export BOUNCOND="1"
+export FTPPAT1="multi_1"
+export FTPPAT1B="multi_1"
+export FTPPAT2="NW-PHI"
+export NFTPATTEMPTS="3"
+export WAVECPS="multi_1.NW-PHI55.spec.swan"
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
+# CONDITIONS (BOUNCOND="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#
+#$BOUNDARY COMMAND LINES
+#BOUN SEG XY 286.65 40.60 286.65 38.20 VAR FILE 0.00 'multi_1.NW-PHI60.spec.swan'    1 &
+#                         0.50 'multi_1.NW-PHI59.spec.swan'    1 &
+#                         1.00 'multi_1.NW-PHI58.spec.swan'    1 &
+#                         1.50 'multi_1.NW-PHI57.spec.swan'    1 &
+#                         2.00 'multi_1.NW-PHI56.spec.swan'    1 &
+#                         2.40 'multi_1.NW-PHI55.spec.swan'    1
+#$
+#BOUN SEG XY 286.65 38.20 284.75 38.20 VAR FILE 0.00 'multi_1.NW-PHI55.spec.swan.cp'    1 &
+#                         0.40 'multi_1.NW-PHI54.spec.swan'    1 &
+#                         0.90 'multi_1.NW-PHI53.spec.swan'    1 &
+#                         1.40 'multi_1.NW-PHI52.spec.swan'    1 &
+#                         1.90 'multi_1.NW-PHI51.spec.swan'    1
+#$END BOUNSEG
+#
+#========================================================================
+#                    RUNUP PROGRAM (SEE NWPS MANUAL)              =
+#========================================================================
+# IF RUNUP PROGRAM WILL BE RUN, then RIPCONT=1, Otherwise =0;
+# Setting up RIPCONT here to zero will permanently disable RIP program.
+#
+export RUNUPPROG="1"
+export RUNUPDOMAIN="CG3"
+export RUNUPCONT="20m"
+#
+#___________________________________________________________________________
+# RAY Section: Define a pair of rays to drop data out along critical contours
+#              for rip current program.
+#
+# Example: SEE ABOVE FOR RIPCURRENT
+#_____________________________________________________________________________
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD RUNUP COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE
+# RUNUP (RUNUPCONT="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# IT NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+# POIN '20mcont' 279.887  25.8725 
+#
+#$RUNUP LINES
+#$ Ray for 20m contour data.
+#POINTS '20mcont' &
+#285.8437  39.4000 &
+#285.8500  39.4055 &
+#285.8581  39.4167 &
+#285.8667  39.4301 &
+#285.8724  39.4333 &
+#285.8695  39.4500 &
+#285.8742  39.4667 &
+#285.8833  39.4803 &
+#285.8854  39.4833 &
+#285.8945  39.5000 &
+#285.9000  39.5088 &
+#285.9079  39.5167 &
+#285.9167  39.5276 &
+#285.9189  39.5333 &
+#285.9333  39.5477 &
+#285.9352  39.5500 &
+#285.9500  39.5648 &
+#285.9512  39.5667 &
+#285.9592  39.5833 &
+#285.9500  39.5920 &
+#285.9333  39.5866 &
+#285.9276  39.5833 &
+#285.9167  39.5760 &
+#285.9073  39.5667 &
+#285.9000  39.5623 &
+#285.8945  39.5667 &
+#285.8963  39.5833 &
+#285.9000  39.5877 &
+#285.9167  39.5888 &
+#285.9248  39.6000 &
+#285.9333  39.6085 &
+#285.9433  39.6167 &
+#285.9500  39.6234 &
+#285.9575  39.6333 &
+#285.9500  39.6445 &
+#285.9469  39.6500 &
+#285.9500  39.6537 &
+#285.9630  39.6667 &
+#285.9667  39.6722 &
+#285.9778  39.6833 &
+#285.9806  39.7000 &
+#285.9833  39.7055 &
+#285.9867  39.7000 &
+#286.0000  39.6918 &
+#286.0072  39.7000 &
+#286.0000  39.7082 &
+#285.9889  39.7167 &
+#285.9908  39.7333 &
+#285.9945  39.7500 &
+#285.9945  39.7667 &
+#286.0000  39.7729 &
+#286.0104  39.7833 &
+#286.0000  39.7937 &
+#285.9890  39.8000 &
+#285.9890  39.8167 &
+#286.0000  39.8276 &
+#286.0167  39.8276 &
+#286.0186  39.8333 &
+#286.0256  39.8500 &
+#286.0245  39.8667 &
+#286.0224  39.8833 &
+#286.0199  39.9000 &
+#286.0333  39.9117 &
+#286.0373  39.9167 &
+#286.0352  39.9333 &
+#286.0333  39.9390 &
+#286.0167  39.9390 &
+#286.0000  39.9390 &
+#285.9924  39.9333 &
+#285.9851  39.9167 &
+#285.9833  39.9114 &
+#285.9780  39.9167 &
+#285.9743  39.9333 &
+#285.9667  39.9390 &
+#285.9635  39.9500 &
+#285.9639  39.9667 &
+#285.9667  39.9776 &
+#285.9724  39.9833 &
+#285.9710  40.0000 &
+#285.9778  40.0167 &
+#285.9778  40.0333 &
+#285.9789  40.0500 &
+#285.9807  40.0667 &
+#285.9833  40.0745 &
+#285.9896  40.0833 &
+#286.0000  40.0970 &
+#286.0056  40.1000 &
+#286.0167  40.1055 &
+#286.0323  40.1167 &
+#286.0333  40.1184 &
+#286.0408  40.1333 &
+#286.0437  40.1500 &
+#286.0500  40.1588 &
+#286.0544  40.1667 &
+#286.0667  40.1805 &
+#286.0833  40.1702 &
+#286.0869  40.1667 &
+#286.1000  40.1568 &
+#286.1030  40.1667 &
+#286.1112  40.1833 &
+#286.1000  40.1903 &
+#286.0833  40.1965 &
+#286.0798  40.2000 &
+#286.0667  40.2044 &
+#286.0556  40.2167 &
+#286.0500  40.2260 &
+#286.0478  40.2333 &
+#286.0500  40.2388 &
+#286.0646  40.2333 &
+#286.0667  40.2325 &
+#286.0727  40.2333 &
+#286.0833  40.2439 &
+#286.0839  40.2500 &
+#286.0833  40.2520 &
+#286.0793  40.2667 &
+#286.0833  40.2813 &
+#286.0840  40.2833 &
+#286.0862  40.3000 &
+#286.0866  40.3167 &
+#286.0833  40.3242 &
+#286.0811  40.3333 &
+#286.0833  40.3361 &
+#286.1000  40.3411 &
+#286.1099  40.3500 &
+#286.1000  40.3575 &
+#286.0833  40.3627 &
+#286.0807  40.3667 &
+#286.0833  40.3691 &
+#286.0968  40.3833 &
+#286.0885  40.4000 
+#TABLE '20mcont' HEAD '20m_contour_CG3' TIME XP YP HSIGN TPS DIR VEL WATL WIND OUTPUT 20110825.1200 1.0 HR
+#$
+#$END RUNUP

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    This file defines preset groups of levels that may be loaded on the fly for
+    D2D grid products with the specified master level. When right-clicking the
+    product's legend to open its context menu, a Vertical Interaction sub-menu
+    is included that lists the relevant entries below. Selecting each option
+    loads frames for all of the listed level values.
+
+    The order of the entries below is the order that they will appear in the
+    Vertical Interaction sub-menu.
+
+    By default, level values are in the unit defined in the level_master
+    Postgres table. The "unit" attribute may be specified to list them in a
+    different unit.
+
+    Each level value must have a corresponding entry in LevelMappingFile.xml in
+    order to load.
+
+    This is an absolute override file, indicating that a higher priority
+    version of the file will completely replace a lower priority version of the
+    file.
+-->
+<verticalInteractionLevels>
+    <group masterLevel="FH" label="Deep Convection (1.5-40 kft)" unit="kft"
+            levels="1.5,3,5,10,15,20,25,30,35,40"/>
+    <group masterLevel="FHAG" label="Deep Convection (1.5-40 kft)" unit="kft"
+            levels="1.5,3,5,10,15,20,25,30,35,40"/>
+    <group masterLevel="FHAG" label="Shallow Convection (1-15 kft)" unit="kft"
+            levels="1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,13,14,15"/>
+</verticalInteractionLevels>

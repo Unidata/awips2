@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="jmsViirsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsDurableConfig" factory-method="copy"/>
+    <bean id="viirsDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="viirsPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.VIIRS" />
+    </bean>
+
+      <bean id="viirsDao" class="com.raytheon.uf.edex.plugin.npp.viirs.dao.VIIRSDao">
+          <constructor-arg value="viirs"/>
+      </bean>
+
+      <bean id="viirsDecoder" class="com.raytheon.uf.edex.plugin.npp.viirs.VIIRSDecoder">
+          <property name="dao" ref="viirsDao"/>
+      </bean>
+
+    <bean id="extractWMOHeader" class="com.raytheon.uf.common.wmo.util.WMOHeaderRemover"/>
+
+    <bean id="viirs-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.npp.viirs.ViirsCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

@@ -1,0 +1,61 @@
+# Warngen
+com.raytheon.viz.warngen
+# GFe Perspective
+com.raytheon.viz.gfe
+com.raytheon.viz.ghg
+# AvnFPS
+com.raytheon.viz.aviation
+com.raytheon.viz.avnconfig
+# MPE
+com.raytheon.viz.mpe
+com.raytheon.viz.mpe.ui
+# Hydro
+com.raytheon.viz.hydrobase
+com.raytheon.viz.hydrocommon
+com.raytheon.viz.hydro
+# ncep
+gov.noaa.nws.ncep.viz.ui.perspectives
+gov.noaa.nws.ncep.ui.nctextui
+gov.noaa.nws.ncep.viz.cloudHeight
+gov.noaa.nws.ncep.viz.rsc.airmet
+gov.noaa.nws.ncep.viz.rsc.atcf
+gov.noaa.nws.ncep.viz.rsc.convsigmet
+gov.noaa.nws.ncep.viz.rsc.ffa
+gov.noaa.nws.ncep.viz.rsc.ffg
+gov.noaa.nws.ncep.viz.rsc.idft
+gov.noaa.nws.ncep.viz.rsc.intlsig
+gov.noaa.nws.ncep.viz.rsc.lightning
+gov.noaa.nws.ncep.viz.rsc.mosaic
+gov.noaa.nws.ncep.viz.rsc.ncgrid
+gov.noaa.nws.ncep.viz.rsc.ncscat
+gov.noaa.nws.ncep.viz.rsc.nonconvsigmet
+gov.noaa.nws.ncep.viz.rsc.plotdata
+gov.noaa.nws.ncep.viz.rsc.satellite
+gov.noaa.nws.ncep.viz.rsc.svrl
+gov.noaa.nws.ncep.viz.rsc.warn
+gov.noaa.nws.ncep.viz.rsc.wcn
+gov.noaa.nws.ncep.viz.rsc.wcp
+gov.noaa.nws.ncep.viz.rsc.wstm
+gov.noaa.nws.ncep.viz.rsc.wou
+#localization
+com.raytheon.uf.viz.localization.perspective
+org.eclipse.wst.xml.ui
+com.python.pydev
+com.python.pydev.analysis
+com.python.pydev.codecompletion
+com.python.pydev.debug
+com.python.pydev.fastparser
+com.python.pydev.refactoring
+org.python.pydev
+org.python.pydev.ast
+org.python.pydev.core
+org.python.pydev.customizations
+org.python.pydev.debug
+org.python.pydev.django
+org.python.pydev.help
+org.python.pydev.jython
+org.python.pydev.parser
+org.python.pydev.refactoring
+org.python.pydev.shared_core
+org.python.pydev.shared_interactive_console
+org.python.pydev.shared_ui

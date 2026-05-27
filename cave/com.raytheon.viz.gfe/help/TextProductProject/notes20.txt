@@ -1,0 +1,2 @@
+A "tiered" support system is in place.  The Text Product users at each site can set up and customize the core products as well create new products.  The second "tier" is composed of Regional Support Teams composed of members who are familiar with the documentation, trouble-shooting strategies and Text Product Infrastructure.  They are also responsible for supporting Regional Local files which include customizations specific to their region.  Finally, the FSL developers provide documentation and refine and maintain the baseline core products and infrastructure.
+

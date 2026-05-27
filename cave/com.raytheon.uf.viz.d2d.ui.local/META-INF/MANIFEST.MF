@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: D2D Local Menu
+Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui.local;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Eclipse-BundleShape: dir
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.viz.d2d.ui,
+ com.raytheon.viz.grid,
+ com.raytheon.viz.pointdata
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy

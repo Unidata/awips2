@@ -1,0 +1,2063 @@
+<!-- This RDF document was obtained from the WMO Code Registry using the 'Download RDF/XML' feature.
+     This file and its contents are needed for IWXXM XML TAF generation by AWIPS II -->
+<rdf:RDF
+    xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#"
+    xmlns:ldp="http://www.w3.org/ns/ldp#"
+    xmlns:version="http://purl.org/linked-data/version#"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:ui="http://purl.org/linked-data/registry-ui#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:qudt-dimension="http://qudt.org/vocab/dimension#"
+    xmlns:ssd="http://www.w3.org/ns/sparql-service-description#"
+    xmlns:vann="http://purl.org/vocab/vann/"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:reg="http://purl.org/linked-data/registry#"
+    xmlns:bufr4-core="http://codes.wmo.int/bufr4/schema/core/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:void="http://rdfs.org/ns/void#"
+    xmlns:time="http://www.w3.org/2006/time#"
+    xmlns:dgu="http://reference.data.gov.uk/def/reference/"
+    xmlns:common-unit="http://codes.wmo.int/common/schema/unit/"
+    xmlns:common-core="http://codes.wmo.int/common/schema/core/"
+    xmlns:qudt="http://qudt.org/schema/qudt#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:qb="http://purl.org/linked-data/cube#"
+    xmlns:grib2-parameter="http://codes.wmo.int/grib2/schema/parameter/"
+    xmlns:qudt-unit="http://qudt.org/vocab/unit#"
+    xmlns:qudt-quantity="http://qudt.org/vocab/quantity#"
+    xmlns:api="http://purl.org/linked-data/api/vocab#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:grib2-core="http://codes.wmo.int/grib2/schema/core/">
+  <ldp:Container rdf:about="http://codes.wmo.int/306/4678">
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGRSN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+FZUP">
+        <rdfs:label xml:lang="en">Heavy unidentified freezing precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGSNPL">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains, snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGRRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGSSN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <rdfs:seeAlso rdf:resource="http://www.wmo.int/pages/prog/www/WMOCodes/WMO306_vI1/VolumeI.1.html"/>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RASNPL">
+        <rdfs:label xml:lang="en">Precipitation of rain, snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PL">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSNGR">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGRSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZSNRA">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSNGS">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRAGR">
+        <rdfs:label xml:lang="en">Showery precipitation of rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <reg:manager rdf:resource="http://codes.wmo.int/system/organization/www-dm"/>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSNRAGR">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow, rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRAGSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain, snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSNGRRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow, hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGSNRA">
+        <rdfs:label xml:lang="en">Precipitation of snow grains, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLDZRA">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSNRA">
+        <rdfs:label xml:lang="en">Showery precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNPLSG">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, ice pellets and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRASN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SS">
+        <rdfs:label xml:lang="en">Sandstorm</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZSG">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGR">
+        <rdfs:label xml:lang="en">Light showery precipitation of hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RAPLSN">
+        <rdfs:label xml:lang="en">Precipitation of rain, ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZSGRA">
+        <rdfs:label xml:lang="en">Precipitation of drizzle, snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNSG">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SQ">
+        <rdfs:label xml:lang="en">Squalls</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSNRAGR">
+        <rdfs:label xml:lang="en">Showery precipitation of snow, rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHUP">
+        <rdfs:label xml:lang="en">Light unidentified showery precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRAGS">
+        <rdfs:label xml:lang="en">Showery precipitation of rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGSSNRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow pellets/small hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLDZ">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSUP">
+        <rdfs:label xml:lang="en">Thunderstorm with light unidentified precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSNRAGS">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow, rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGRRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGRSN">
+        <rdfs:label xml:lang="en">Showery precipitation of hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+FZRADZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of freezing rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNRADZ">
+        <rdfs:label xml:lang="en">Precipitation of snow, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGRRASN">
+        <rdfs:label xml:lang="en">Showery precipitation of hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RADZPL">
+        <rdfs:label xml:lang="en">Light precipitation of rain, drizzle and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/BCFG">
+        <rdfs:label xml:lang="en">Patches of fog</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGPL">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SG">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLRASN">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLDZ">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLSN">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <dct:description xml:lang="en">This register provides terms that may be used to describe significant [recent], present and forecast weather - enumerating the set of meteorologically valid options defined in WMO No. 306 Vol 1 code-table 4678. Each term comprises one or more of the elements from code-table 4678: 'intensity or proximity', 'descriptor', 'precipitation', 'obscuration' and 'other'.</dct:description>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLRA">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRAGRSN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain, hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGDZRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <ldp:membershipPredicate rdf:resource="http://www.w3.org/2004/02/skos/core#member"/>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TS">
+        <rdfs:label xml:lang="en">Thunderstorm</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SN">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGDZRA">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZ">
+        <rdfs:label xml:lang="en">Precipitation of drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGRSN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRAGRSN">
+        <rdfs:label xml:lang="en">Showery precipitation of rain, hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGRRA">
+        <rdfs:label xml:lang="en">Showery precipitation of hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RAPLDZ">
+        <rdfs:label xml:lang="en">Precipitation of rain, ice pellets and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRASNGR">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain, snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGS">
+        <rdfs:label xml:lang="en">Showery precipitation of snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNRASG">
+        <rdfs:label xml:lang="en">Light precipitation of snow, rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RASN">
+        <rdfs:label xml:lang="en">Light precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGR">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNPLSG">
+        <rdfs:label xml:lang="en">Precipitation of snow, ice pellets and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGRASN">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGSN">
+        <rdfs:label xml:lang="en">Precipitation of snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLRADZ">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCFG">
+        <rdfs:label xml:lang="en">Fog in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RAPL">
+        <rdfs:label xml:lang="en">Precipitation of rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLSNSG">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets, snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRASNGS">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain, snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRAGSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain, snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRASNGR">
+        <rdfs:label xml:lang="en">Showery precipitation of rain, snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSNGSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow, snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSNGRRA">
+        <rdfs:label xml:lang="en">Showery precipitation of snow, hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGSNPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains, snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRASNGS">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain, snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRASN">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLRADZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSNGR">
+        <rdfs:label xml:lang="en">Showery precipitation of snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGS">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RADZ">
+        <rdfs:label xml:lang="en">Light precipitation of rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RASG">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-FZDZ">
+        <rdfs:label xml:lang="en">Light precipitation of freezing drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <rdf:type rdf:resource="http://purl.org/linked-data/registry#Register"/>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGRSN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VA">
+        <rdfs:label xml:lang="en">Volcanic ash</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZRASG">
+        <rdfs:label xml:lang="en">Precipitation of drizzle, rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/BLSN">
+        <rdfs:label xml:lang="en">Blowing snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGSSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow pellets/small hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLRADZ">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNRAPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RADZPL">
+        <rdfs:label xml:lang="en">Precipitation of rain, drizzle and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCDS">
+        <rdfs:label xml:lang="en">Duststorm in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RADZSG">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, drizzle and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGRSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRAGS">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSNGS">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SG">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNRADZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGSRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRAGRSN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain, hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSNGS">
+        <rdfs:label xml:lang="en">Showery precipitation of snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZSN">
+        <rdfs:label xml:lang="en">Precipitation of drizzle and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-FZDZRA">
+        <rdfs:label xml:lang="en">Light precipitation of freezing drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNSGPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, snow grains and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCTS">
+        <rdfs:label xml:lang="en">Thunderstorm in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGSSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow pellets/small hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RAPLSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLSG">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRA">
+        <rdfs:label xml:lang="en">Showery precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DU">
+        <rdfs:label xml:lang="en">Dust</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNRASG">
+        <rdfs:label xml:lang="en">Precipitation of snow, rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNDZ">
+        <rdfs:label xml:lang="en">Precipitation of snow and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRAGR">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSNRAGS">
+        <rdfs:label xml:lang="en">Showery precipitation of snow, rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RASGDZ">
+        <rdfs:label xml:lang="en">Precipitation of rain, snow grains and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RASNDZ">
+        <rdfs:label xml:lang="en">Light precipitation of rain, snow and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRAGRSN">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain, hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DS">
+        <rdfs:label xml:lang="en">Duststorm</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGRASN">
+        <rdfs:label xml:lang="en">Precipitation of snow grains, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZRAPL">
+        <rdfs:label xml:lang="en">Precipitation of drizzle, rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RASNDZ">
+        <rdfs:label xml:lang="en">Precipitation of rain, snow and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGSRASN">
+        <rdfs:label xml:lang="en">Showery precipitation of snow pellets/small hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCBLDU">
+        <rdfs:label xml:lang="en">Blowing dust in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLRASN">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSNGRRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow, hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLSG">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DRDU">
+        <rdfs:label xml:lang="en">Low drifting dust</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNDZRA">
+        <rdfs:label xml:lang="en">Light precipitation of snow, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RASGSN">
+        <rdfs:label xml:lang="en">Light precipitation of rain, snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNRASG">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGS">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZSNRA">
+        <rdfs:label xml:lang="en">Precipitation of drizzle, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGSSNRA">
+        <rdfs:label xml:lang="en">Showery precipitation of snow pellets/small hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DS">
+        <rdfs:label xml:lang="en">Heavy duststorm</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGSRA">
+        <rdfs:label xml:lang="en">Showery precipitation of snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGRRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGSRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGSSN">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSNGR">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGRSNRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGRSN">
+        <rdfs:label xml:lang="en">Light showery precipitation of hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNRAPL">
+        <rdfs:label xml:lang="en">Light precipitation of snow, rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/UP">
+        <rdfs:label xml:lang="en">Unidentified precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZPL">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRAGR">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLSNRA">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RASGDZ">
+        <rdfs:label xml:lang="en">Light precipitation of rain, snow grains and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCSH">
+        <rdfs:label xml:lang="en">Shower(s) in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCSS">
+        <rdfs:label xml:lang="en">Sandstorm in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGSRASN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow pellets/small hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNSGPL">
+        <rdfs:label xml:lang="en">Light precipitation of snow, snow grains and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHUP">
+        <rdfs:label xml:lang="en">Unidentified showery precipitation</rdfs:label>
+        <rdfs:label xml:lang="en">Showery precipitation of unidentified precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RASGSN">
+        <rdfs:label xml:lang="en">Precipitation of rain, snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZSN">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSNGR">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGS">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DRSN">
+        <rdfs:label xml:lang="en">Low drifting snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RASNSG">
+        <rdfs:label xml:lang="en">Light precipitation of rain, snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGSSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow pellets/small hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRAGS">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FG">
+        <rdfs:label xml:lang="en">Fog</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZRAPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle, rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RADZSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, drizzle and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZRAPL">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle, rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGR">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RASG">
+        <rdfs:label xml:lang="en">Light precipitation of rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RASNSG">
+        <rdfs:label xml:lang="en">Precipitation of rain, snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSNGRRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow, hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGRADZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRASNGS">
+        <rdfs:label xml:lang="en">Showery precipitation of rain, snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSNGRRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow, hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RASGSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGRSN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RA">
+        <rdfs:label xml:lang="en">Precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHUP">
+        <rdfs:label xml:lang="en">Heavy unidentified showery precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNPLRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNDZRA">
+        <rdfs:label xml:lang="en">Precipitation of snow, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RADZ">
+        <rdfs:label xml:lang="en">Precipitation of rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZPLRA">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle, ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNPLRA">
+        <rdfs:label xml:lang="en">Light precipitation of snow, ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRASNGR">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain, snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGSN">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGRRASN">
+        <rdfs:label xml:lang="en">Light showery precipitation of hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGDZ">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCBLSA">
+        <rdfs:label xml:lang="en">Blowing sand in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLSNSG">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets, snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGDZRA">
+        <rdfs:label xml:lang="en">Precipitation of snow grains, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSNRAGS">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow, rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLSGSN">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets, snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RADZSN">
+        <rdfs:label xml:lang="en">Precipitation of rain, drizzle and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZPLRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle, ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZPL">
+        <rdfs:label xml:lang="en">Precipitation of drizzle and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PL">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RASN">
+        <rdfs:label xml:lang="en">Precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGDZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RADZSG">
+        <rdfs:label xml:lang="en">Precipitation of rain, drizzle and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGRRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SN">
+        <rdfs:label xml:lang="en">Precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZRASG">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle, rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLSNRA">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNPL">
+        <rdfs:label xml:lang="en">Light precipitation of snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRAGR">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNDZRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-FZRA">
+        <rdfs:label xml:lang="en">Light precipitation of freezng rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNSGPL">
+        <rdfs:label xml:lang="en">Precipitation of snow, snow grains and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNSG">
+        <rdfs:label xml:lang="en">Precipitation of snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSNGR">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RADZSN">
+        <rdfs:label xml:lang="en">Light precipitation of rain, drizzle and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSNRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RASN">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRAGRSN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain, hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRAGSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain, snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+FZRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of freezng rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FZDZ">
+        <rdfs:label xml:lang="en">Precipitation of freezing drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGSRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow pellets/small hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGRADZ">
+        <rdfs:label xml:lang="en">Precipitation of snow grains, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNSGRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow, snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/BLDU">
+        <rdfs:label xml:lang="en">Blowing dust</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZSG">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGSSNRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow pellets/small hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRASNGS">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain, snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RASNPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSNRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/BLSA">
+        <rdfs:label xml:lang="en">Blowing sand</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLDZRA">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"/>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCBLSN">
+        <rdfs:label xml:lang="en">Blowing snow in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNPLSG">
+        <rdfs:label xml:lang="en">Light precipitation of snow, ice pellets and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSNRAGS">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow, rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGSRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow pellets/small hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGPLSN">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains, ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSNGSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow, snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGRRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FZRA">
+        <rdfs:label xml:lang="en">Precipitation of freezng rain</rdfs:label>
+        <rdfs:label xml:lang="en">Precipitation of freezing rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-FZUP">
+        <rdfs:label xml:lang="en">Light unidentified freezing precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLDZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLSG">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSNGSRA">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow, snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRAGS">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRAGSSN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain, snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RAPLDZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, ice pellets and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZSGRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle, snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RAPL">
+        <rdfs:label xml:lang="en">Light precipitation of rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLSN">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSNRAGS">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow, rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/RASG">
+        <rdfs:label xml:lang="en">Precipitation of rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLSGSN">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets, snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RADZSG">
+        <rdfs:label xml:lang="en">Light precipitation of rain, drizzle and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSNRAGR">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow, rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSNGSRA">
+        <rdfs:label xml:lang="en">Showery precipitation of snow, snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRAGSSN">
+        <rdfs:label xml:lang="en">Showery precipitation of rain, snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGSRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow pellets/small hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+FC">
+        <rdfs:label>Well-developed funnel cloud(s) (tornado or waterspout)</rdfs:label>
+        <reg:notation>+FC</reg:notation>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSN">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGRADZ">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCFC">
+        <rdfs:label xml:lang="en">Funnel cloud(s) (tornado or water-spout) in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZRASN">
+        <rdfs:label xml:lang="en">Precipitation of drizzle, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RAPLDZ">
+        <rdfs:label xml:lang="en">Light precipitation of rain, ice pellets and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/MIFG">
+        <rdfs:label xml:lang="en">Shallow fog</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RA">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FZUP">
+        <rdfs:label xml:lang="en">Unidentified freezing precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGRRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGPL">
+        <rdfs:label xml:lang="en">Precipitation of snow grains and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZPLRA">
+        <rdfs:label xml:lang="en">Precipitation of drizzle, ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGSNRA">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RASNPL">
+        <rdfs:label xml:lang="en">Light precipitation of rain, snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/HZ">
+        <rdfs:label xml:lang="en">Haze</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGDZ">
+        <rdfs:label xml:lang="en">Precipitation of snow grains and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGR">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+FZDZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of freezing drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGRRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSSNGS">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-FZRADZ">
+        <rdfs:label xml:lang="en">Light precipitation of freezing rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNSGRA">
+        <rdfs:label xml:lang="en">Precipitation of snow, snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-PLRA">
+        <rdfs:label xml:lang="en">Light precipitation of ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGRA">
+        <rdfs:label xml:lang="en">Precipitation of snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSUP">
+        <rdfs:label xml:lang="en">Thunderstorm with unidentified precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSNRAGR">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow, rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGS">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRAGS">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <dct:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime"
+    >2017-09-15T15:45:38.696Z</dct:modified>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RADZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSNGS">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSNRAGR">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow, rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNSGRA">
+        <rdfs:label xml:lang="en">Light precipitation of snow, snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/BR">
+        <rdfs:label xml:lang="en">Mist</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SN">
+        <rdfs:label xml:lang="en">Light precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLSNSG">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets, snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FU">
+        <rdfs:label xml:lang="en">Smoke</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-UP">
+        <rdfs:label xml:lang="en">Light unidentified precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SA">
+        <rdfs:label xml:lang="en">Sand</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SS">
+        <rdfs:label xml:lang="en">Heavy sandstorm</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:altLabel>w'w'</skos:altLabel>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGS">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCVA">
+        <rdfs:label xml:lang="en">Volcanic ash in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRASN">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNPL">
+        <rdfs:label xml:lang="en">Precipitation of snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RAPLSN">
+        <rdfs:label xml:lang="en">Light precipitation of rain, ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLDZRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets, drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHRAGSSN">
+        <rdfs:label xml:lang="en">Light showery precipitation of rain, snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RASNDZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, snow and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSNRAGS">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow, rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RASGDZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, snow grains and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSSNGRRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of snow, hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SS">
+        <rdfs:label xml:lang="en">Light sandstorm</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRASNGR">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain, snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNDZ">
+        <rdfs:label xml:lang="en">Light precipitation of snow and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-RA">
+        <rdfs:label xml:lang="en">Light precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNRAPL">
+        <rdfs:label xml:lang="en">Precipitation of snow, rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PO">
+        <rdfs:label xml:lang="en">Dust/sand whirls (dust devils)</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSNGR">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FZRADZ">
+        <rdfs:label xml:lang="en">Precipitation of freezing rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRAGS">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLSNRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSUP">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of unidentified precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+UP">
+        <rdfs:label xml:lang="en">Heavy unidentified precipitation</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZRA">
+        <rdfs:label xml:lang="en">Precipitation of drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+FZDZRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of freezing drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGSRASN">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow pellets/small hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FZDZRA">
+        <rdfs:label xml:lang="en">Precipitation of freezing drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNRA">
+        <rdfs:label xml:lang="en">Precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGRSNRA">
+        <rdfs:label xml:lang="en">Showery precipitation of hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SNPLRA">
+        <rdfs:label xml:lang="en">Precipitation of snow, ice pellets and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PL">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZRASN">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLSGSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets, snow grains and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGSNPL">
+        <rdfs:label xml:lang="en">Precipitation of snow grains, snow and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DRSA">
+        <rdfs:label xml:lang="en">Low drifting sand</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FC">
+        <rdfs:label xml:lang="en">Funnel cloud(s) (tornado or water-spout)</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNRA">
+        <rdfs:label xml:lang="en">Light precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGRRA">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSGSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHSNRAGR">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of snow, rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNDZ">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSSNGSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of snow, snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SG">
+        <rdfs:label xml:lang="en">Precipitation of snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRASNGS">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain, snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHGRSNRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSGRSNRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of hail, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SNRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHRAGR">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGSNRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RADZPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, drizzle and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <reg:owner rdf:resource="http://codes.wmo.int/system/organization/wmo"/>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZSGRA">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle, snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+PLSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSNGS">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGRASN">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SGPLSN">
+        <rdfs:label xml:lang="en">Heavy precipitation of snow grains, ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SGPLSN">
+        <rdfs:label xml:lang="en">Precipitation of snow grains, ice pellets and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZRASN">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRAGR">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGSSN">
+        <rdfs:label xml:lang="en">Showery precipitation of snow pellets/small hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHGR">
+        <rdfs:label xml:lang="en">Showery precipitation of hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DS">
+        <rdfs:label xml:lang="en">Light duststorm</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRASNGR">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain, snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/VCPO">
+        <rdfs:label xml:lang="en">Dust/sand whirls (dust devils) in the vicinity</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHRASN">
+        <rdfs:label xml:lang="en">Showery precipitation of rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/SHSN">
+        <rdfs:label xml:lang="en">Showery precipitation of snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/TSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRASNGR">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain, snow and hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNRADZ">
+        <rdfs:label xml:lang="en">Light precipitation of snow, rain and drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZ">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/DZSG">
+        <rdfs:label xml:lang="en">Precipitation of drizzle and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#integer"
+    >3</owl:versionInfo>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RASNSG">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain, snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZSNRA">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle, snow and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/FZFG">
+        <rdfs:label xml:lang="en">Freezing fog</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PRFG">
+        <rdfs:label xml:lang="en">Partial fog (covering part of the aerodrome)</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRAGRSN">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain, hail and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+TSRA">
+        <rdfs:label xml:lang="en">Thunderstorm with heavy precipitation of rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+DZRASG">
+        <rdfs:label xml:lang="en">Heavy precipitation of drizzle, rain and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SGRA">
+        <rdfs:label xml:lang="en">Light precipitation of snow grains and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+RAPL">
+        <rdfs:label xml:lang="en">Heavy precipitation of rain and ice pellets</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SHSNGSRA">
+        <rdfs:label xml:lang="en">Light showery precipitation of snow, snow pellets/small hail and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-SNSG">
+        <rdfs:label xml:lang="en">Light precipitation of snow and snow grains</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/+SHGRRASN">
+        <rdfs:label xml:lang="en">Heavy showery precipitation of hail, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSRASNGS">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of rain, snow and snow pellets/small hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-TSGR">
+        <rdfs:label xml:lang="en">Thunderstorm with light precipitation of hail</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/-DZRA">
+        <rdfs:label xml:lang="en">Light precipitation of drizzle and rain</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <skos:member>
+      <skos:Concept rdf:about="http://codes.wmo.int/306/4678/PLRASN">
+        <rdfs:label xml:lang="en">Precipitation of ice pellets, rain and snow</rdfs:label>
+      </skos:Concept>
+    </skos:member>
+    <rdfs:label>Code Table 4678: Significant weather phenomena</rdfs:label>
+  </ldp:Container>
+</rdf:RDF>

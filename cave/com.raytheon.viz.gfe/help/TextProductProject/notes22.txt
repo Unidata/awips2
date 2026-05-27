@@ -1,0 +1,2 @@
+Any user can post refinements to the listserver as a repository to be shared by other users.  If appropriate, a refinement can be nominated as a candidate for baselining.  In this case, a Regional Team member should post the request on the Regional Support Listserver.  A "tkgnats" entry will be created and the Regional Teams can then vote on whether the refinement should be baselined and if so, the priority it should have.  Finally, FSL will review and if necessary re-work the refinement, test it, and include it in the baseline.
+

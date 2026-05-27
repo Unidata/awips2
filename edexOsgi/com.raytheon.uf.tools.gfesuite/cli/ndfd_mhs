@@ -1,0 +1,49 @@
+#!/bin/bash
+##
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Jul 15, 2019  7896     randerso  Verify a filename is passed in.
+#                                  Don't move the file to ${GFESUITE_HOME}.
+#                                  Code cleanup.
+# Jun 29, 2016  8572     randerso  Moved to /awips2/GFESuite/bin.
+#                                  Replace references to SVCBU_HOST and CDSPORT
+#                                  With DEFAULT_HOST and DEFAULT_PORT
+#
+##
+
+# this allows you to run this script from outside of ./bin
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname $path_to_script`
+
+#
+# get the base environment
+source ${RUN_FROM_DIR}/setup.env
+
+# Retrieve the name of the site from the tar file.
+ndfd_msg=${1}
+if [ -z "${ndfd_msg}" ]
+then
+    echo "No input file specified, terminating!"
+    exit 1
+fi
+
+if [ -f "${ndfd_msg}" ]
+then
+    echo "Received NDFD banner message"
+    msg=`cat ${ndfd_msg}`
+
+    # Generate a GFE message saying an alert was received from NDFD.
+    ${RUN_FROM_DIR}/sendGfeMessage -h ${DEFAULT_HOST} -p ${DEFAULT_PORT} -c NDFD -m "$msg" -s
+else
+    echo "Unable to read the NDFD banner message from ${ndfd_msg}"
+    exit 1
+fi
+
+#clean-up.
+rm -f ${ndfd_msg}
+
+#ALL well, send a msg and get out of here
+echo "$msg successfully sent to GFE."
+exit 0

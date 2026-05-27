@@ -1,0 +1,10 @@
+submenu: "Model Graphics"
+ productButton: 5101 # PHZ*50 UKMO 500 Height
+endSubmenu
+submenu: "CPC Charts"
+ productButton: 5172 # PHBV50 6-10 day mean 500 Hgt
+ productButton: 5374 # PHTT50 8-14 day mean 500 ht
+ productButton: 5380 # PHNT50 6-10 day 500 ht anom
+ productButton: 5375 # PHTT51 8-14 day 500 ht anom
+endSubmenu
+

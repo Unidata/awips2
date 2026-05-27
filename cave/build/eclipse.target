@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target includeMode="feature" name="Eclipse 4.31">
+    <locations>
+        <location path="/awips2/eclipse" type="Directory"/>
+    </locations>
+    <includeBundles>
+        <feature id="org.eclipse.rcp"/>
+        <feature id="org.eclipse.e4.rcp"/>
+        <feature id="org.eclipse.emf.common"/>
+        <feature id="org.eclipse.emf.ecore"/>
+        <feature id="org.eclipse.rcp.source"/>
+        <feature id="org.eclipse.e4.rcp.source"/>
+        <feature id="org.eclipse.platform"/>
+        <feature id="org.eclipse.ecf.core.feature"/>
+        <feature id="org.eclipse.ecf.core.ssl.feature"/>
+        <feature id="org.eclipse.ecf.filetransfer.feature"/>
+        <feature id="org.eclipse.ecf.filetransfer.httpclient5.feature"/>
+        <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
+        <feature id="org.eclipse.equinox.p2.core.feature"/>
+        <feature id="org.eclipse.equinox.p2.extras.feature"/>
+        <feature id="org.eclipse.equinox.p2.rcp.feature"/>
+        <feature id="org.eclipse.equinox.p2.user.ui"/>
+        <feature id="org.eclipse.equinox.p2.discovery.feature"/>
+        <feature id="org.eclipse.help"/>
+        <feature id="org.eclipse.platform.source"/>
+        <feature id="org.eclipse.equinox.p2.core.feature.source"/>
+        <feature id="org.eclipse.equinox.p2.extras.feature.source"/>
+        <feature id="org.eclipse.equinox.p2.rcp.feature.source"/>
+        <feature id="org.eclipse.equinox.p2.user.ui.source"/>
+        <feature id="org.eclipse.help.source"/>
+        <feature id="org.python.pydev.feature"/>
+        <plugin id="org.eclipse.draw2d"/>
+        <feature id="org.eclipse.jdt"/>
+        <feature id="org.eclipse.pde"/>
+        <feature id="org.eclipse.wst.xml_ui.feature"/>
+        <feature id="org.eclipse.wst.common_core.feature"/>
+        <feature id="org.eclipse.wst.common_ui.feature"/>
+        <feature id="org.eclipse.wst.xml_core.feature"/>
+        <feature id="org.eclipse.wst.xml_userdoc.feature"/>
+        <plugin id="org.eclipse.emf.common.ui"/>
+        <plugin id="org.eclipse.wst.common.project.facet.core"/>
+        <feature id="org.eclipse.rap.tools.feature"/>
+        <feature id="org.eclipse.rcp.configuration"/>
+        <feature id="org.eclipse.equinox.executable"/>
+        <plugin id="org.eclipse.jdt.launching.macosx.source"/>
+        <plugin id="org.eclipse.jdt.launching.ui.macosx.source"/>
+        <plugin id="org.sat4j.core"/>
+        <plugin id="org.sat4j.pb"/>
+        <plugin id="org.eclipse.osgi.services"/>
+        <plugin id="bcprov"/>
+        <plugin id="bcpg"/>
+        <plugin id="org.python.pydev"/>
+        <plugin id="org.eclipse.search.core"/>
+        <plugin id="org.eclipse.search"/>
+        <plugin id="org.eclipse.wst.xml.ui"/>
+        <plugin id="com.ibm.icu"/>
+        <plugin id="org.eclipse.equinox.http.service.api"/>
+        <plugin id="org.osgi.service.http.whiteboard"/>
+        <plugin id="jakarta.inject.jakarta.inject-api"/>
+        <plugin id="jakarta.annotation-api"/>
+        <plugin id="org.eclipse.ui.workbench"/>
+        <plugin id="org.eclipse.orbit.xml-apis-ext"/>
+        <plugin id="org.apache.batik.css"/>
+        <plugin id="org.apache.commons.commons-io"/>
+        <plugin id="org.apache.commons.jxpath"/>
+        <plugin id="org.apache.felix.scr"/>
+        <plugin id="org.apache.commons.logging"/>
+    </includeBundles>
+</target>

@@ -1,0 +1,7 @@
+This directory contains scripts to handle the upgrade from PostGIS 2.5.3 to 
+3.3.2. All of these scripts MUST be kept together in one directory for them
+to work.
+
+After upgrading the system's RPMs and with PostgreSQL running, run
+upgrade_postgis.sh on dv1 with sudo. Do not interrupt the script while it is running, as
+this may prevent proper cleanup. Verify that no errors appear in the output.

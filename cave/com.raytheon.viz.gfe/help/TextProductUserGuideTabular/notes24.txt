@@ -1,0 +1,2 @@
+The first set of methods help us to determine the time ranges over which the product will run. Here is a helper method that converts a named Selection Time Range into a Time Range object. 
+

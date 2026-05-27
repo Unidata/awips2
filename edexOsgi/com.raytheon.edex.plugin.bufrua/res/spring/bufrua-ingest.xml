@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+   <bean id="bufruaDecoder" class="com.raytheon.edex.plugin.bufrua.BufrUADecoder">
+        <constructor-arg ref="bufruaPluginName" />
+    </bean>
+
+    <bean id="bufruaDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="bufruaPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrua" />
+    </bean>
+    
+    <bean id="bufrua-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.bufrua.BufruaCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

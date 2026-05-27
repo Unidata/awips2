@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="binlightningDecoder"
+        class="com.raytheon.edex.plugin.binlightning.BinLightningDecoder" />
+
+    <bean id="totalLightningDecoder" class="com.raytheon.edex.plugin.binlightning.total.TotalLightningDecoder" />
+
+    <bean id="binlightningDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="binlightning" />
+        <constructor-arg value="jms-durable:queue:Ingest.binlightning" />
+    </bean>
+    
+    <bean id="clusteredBinLightningRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.binlightning.ClusteredBinLightningRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<profilers>
+  <!--
+     url reference = http://www.profiler.noaa.gov/npn/npnSiteLocationsAsText.jsp
+  -->
+  <site stationId="74997" profilerId="ASTC1" latitude="46.16" longitude="-123.88" elevation="3"    profilerName="Astoria OR" />
+  <site stationId="74996" profilerId="BGDC1" latitude="38.32" longitude="-123.07" elevation="13"   profilerName="Bodega Bay CA" />
+  <site stationId="74981" profilerId="CFDU1" latitude="40.18" longitude="-112.89" elevation="1320" profilerName="Carr UT" />
+  <site stationId="74977" profilerId="GWOM6" latitude="33.50" longitude="-90.09"  elevation="43"   profilerName="Greenwood MS" />
+  <site stationId="74976" profilerId="CLBL1" latitude="32.12" longitude="-92.06"  elevation="20"   profilerName="Columbia LA" />
+  <site stationId="74986" profilerId="CTDA1" latitude="34.66" longitude="-87.35"  elevation="187"  profilerName="Courtland AL" />
+  <site stationId="74995" profilerId="FKSC1" latitude="47.97" longitude="-124.40" elevation="92"   profilerName="Forks WA" />
+  <site stationId="74990" profilerId="NPSC1" latitude="36.69" longitude="-121.76" elevation="51"   profilerName="Fort Ord CA" />
+  <site stationId="74983" profilerId="FPDU1" latitude="40.21" longitude="-112.78" elevation="1469" profilerName="Fries Park UT" />
+  <site stationId="74985" profilerId="HWPA2" latitude="59.39" longitude="-151.28" elevation="8"    profilerName="Homer AK" />
+  <site stationId="74998" profilerId="ACVC1" latitude="40.97" longitude="-124.11" elevation="56"   profilerName="McKinleyville CA" />
+  <site stationId="74989" profilerId="ROCO2" latitude="35.14" longitude="-97.28"  elevation="363"  profilerName="Norman OK" />
+  <site stationId="74994" profilerId="OTHC1" latitude="43.42" longitude="-124.24" elevation="5"    profilerName="North Bend OR" />
+  <site stationId="74984" profilerId="ACPL1" latitude="30.75" longitude="-92.69"  elevation="30"   profilerName="Oakdale LA" />
+  <site stationId="74988" profilerId="OVEC1" latitude="39.51" longitude="-121.63" elevation="56"   profilerName="Oroville CA" />
+  <site stationId="74991" profilerId="PVLC1" latitude="40.18" longitude="-104.73" elevation="1503" profilerName="Platteville CO" />
+  <site stationId="74993" profilerId="PTSC1" latitude="36.30" longitude="-121.89" elevation="11"   profilerName="Point Sur CA"  />
+  <site stationId="74992" profilerId="SBAC1" latitude="34.43" longitude="-119.85" elevation="4"    profilerName="Santa Barbara CA" />
+  <site stationId="74975" profilerId="STFM6" latitude="33.43" longitude="-88.85"  elevation="101"  profilerName="Starkville MS" />
+  <site stationId="70252" profilerId="TLKA2" latitude="62.18" longitude="-150.25" elevation="151"  profilerName="Talkeetna AK" />
+  <site stationId="74982" profilerId="DGWU1" latitude="40.11" longitude="-112.98" elevation="1313" profilerName="Tower Grid UT" />
+  <site stationId="74987" profilerId="TCIC1" latitude="38.10" longitude="-121.65" elevation="0"    profilerName="Twitchell Island CA" />
+
+
+</profilers>

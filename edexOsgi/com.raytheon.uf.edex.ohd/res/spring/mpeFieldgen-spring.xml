@@ -1,0 +1,13 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="mpeFieldGen-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.MpeFieldGenContextRoutes" >
+                  <constructor-arg name="mpefieldgenCron" value="${mpefieldgen.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>

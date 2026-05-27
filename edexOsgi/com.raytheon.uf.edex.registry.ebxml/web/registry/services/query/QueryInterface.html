@@ -1,0 +1,166 @@
+<!--
+This software was developed and / or modified by Raytheon Company,
+pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+
+U.S. EXPORT CONTROLLED TECHNICAL DATA
+This software product contains export-restricted data whose
+export/transfer/disclosure is restricted by U.S. law. Dissemination
+to non-U.S. persons whether in the United States or abroad requires
+an export license or other authorization.
+
+Contractor Name:        Raytheon Company
+Contractor Address:     6825 Pine Street, Suite 340
+                        Mail Stop B8
+                        Omaha, NE 68106
+                        402.291.0100
+
+See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+further licensing information.
+-->
+
+<!--
+
+Web interface to query manager
+
+SOFTWARE HISTORY
+
+Date         Ticket#     Engineer    Description
+------------ ----------  ----------- --------------------------
+10/15/2013   1682        bphillip    Initial implementation
+</pre>
+
+@author bphillip
+@version 1
+-->
+<html>
+
+<head>
+	<style type="text/css">
+		a {font-weight:bold;}  
+		td {width:175px;}
+		button {width:190px;}
+		input{width:200px;}
+		select {width:200px;}
+		body {  font-family: Helvetica;
+  				margin-left: 75px;
+  				margin-right: 75px;
+  				background: #D3D3D3;} 
+	</style>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<script type="text/javascript" src='/registry/registryUtil.js'></script>
+	<script type="text/javascript" src='/registry/services/query/queryUtil.js'></script>
+  	<title>Registry Query Interface</title>
+</head>
+
+
+<body onload="getValidQueryTypes()">
+<h3>Query Manager Interface<h3>
+<form name="queryForm" action="/rest/search" method="get" target="resultFrame">
+<table border="0">
+	<tr>
+		<td>Return Request</td>
+		<td>
+			<select name="returnRequest" id="returnRequestSelect">
+				<option value="false">False</option>
+				<option value="true">True</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Response Option</td>
+		<td>
+			<select id="responseOptionSelect" name="responseOption">
+				<option value="ObjectRef">Object Ref</option>
+				<option value="RegistryObject">Registry Object</option>
+				<option value="LeafClass">Leaf Class</option>
+				<option value="LeafClassWithRepositoryItem">Leaf ClassWith Repository Item</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Format Response</td>
+		<td>
+			<select name="formatResponse" id="formatResponseSelect">
+			    <option value="true">True</option>
+				<option value="false">False</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Depth</td> 
+		<td>
+			<input name="depth" id="depthText" type="text"/>
+		</td>
+	</tr>
+
+	<tr>
+		<td>Federated</td>
+		<td>
+			<select name="federated" id="federatedSelect">
+				<option value="false">False</option>
+				<option value="true">True</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Federation</td>
+		<td>
+			<input name="federation" id="federationInput" type="text" />
+		</td>
+	</tr>
+
+	<tr>
+		<td>Format</td>
+		<td>
+			<input name="format" id="formatInput"/>
+		</td>
+	</tr>
+	<tr>
+		<td>Language</td>
+		<td>
+			<input name="lang" id="langInput"/>
+		</td>
+
+	</tr>
+
+	<tr>
+		<td>Match Older Versions</td> 
+		<td>
+			<select name="matchOlderVersions" id="matchOlderVersionsSelect">  
+				<option value="false">False</option>
+				<option value="true">True</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Max Results</td>
+		<td>
+			<input name="maxResults" id="maxResultsInput"/>
+		</td>
+	</tr>
+
+	<tr>
+		<td>Start Index</td>
+		<td>
+			<input name="startIndex" id="startIndexInput"/>
+		</td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+		<td>Query Type</td>
+		<td>
+			<select name="queryId" id="queryTypeInput" onchange="getQueryParameters()"/>
+		</td>
+	</tr>
+</table>
+
+<div id="querySpecificSpan"/> 
+
+</form>
+
+</body>
+
+</html>

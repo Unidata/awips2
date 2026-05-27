@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="sfcobsDecoder" class="com.raytheon.edex.plugin.sfcobs.SfcObsDecoder" />
+    <bean id="sfcobsSeparator" class="com.raytheon.edex.plugin.sfcobs.SfcObsSeparator" />
+
+    <bean id="sfcobsPointData" class="com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
+
+    <bean id="sfcobsDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="sfcobs" />
+        <constructor-arg value="jms-durable:queue:Ingest.sfcobs" />
+    </bean>
+
+    <bean id="sfcobs-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.sfcobs.SfcObsCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

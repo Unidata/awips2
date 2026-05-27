@@ -1,0 +1,2 @@
+Once this work is done, a product header is produced.  Following that, we loop through the edit areas, first producing an area label and then the row for that area.  In this product, the "_makeProduct" method creates the row entry for one edit area. 
+

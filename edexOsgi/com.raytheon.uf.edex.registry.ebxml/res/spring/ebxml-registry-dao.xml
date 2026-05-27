@@ -1,0 +1,106 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="extensibleObjectDao"
+            class="com.raytheon.uf.edex.registry.ebxml.dao.ExtensibleObjectTypeDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="queryDefinitionDao"
+            class="com.raytheon.uf.edex.registry.ebxml.dao.QueryDefinitionDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="dynamicObjectRefDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.DynamicObjectRefDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="slotTypeDao" class="com.raytheon.uf.edex.registry.ebxml.dao.SlotTypeDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="registryObjectDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="admin_registryObjectDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao">
+        <constructor-arg ref="daoConfigFactory"/>
+        <constructor-arg name="admin" value="true" />
+    </bean>
+
+    <bean id="registryDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="federationDao" class="com.raytheon.uf.edex.registry.ebxml.dao.FederationDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="extrinsicObjectDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="partyDao" class="com.raytheon.uf.edex.registry.ebxml.dao.PartyDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="classificationTypeDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.ClassificationTypeDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="classificationSchemeTypeDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.ClassificationSchemeDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="subscriptionTypeDao" class="com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="registryPackageTypeDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryPackageDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="associationDao" class="com.raytheon.uf.edex.registry.ebxml.dao.AssociationDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean name="classificationNodeDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean name="organizationDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.OrganizationDao">
+        <constructor-arg ref="daoConfigFactory"/>
+        <property name="associationDao" ref="associationDao" />
+    </bean>
+
+    <bean name="personDao" class="com.raytheon.uf.edex.registry.ebxml.dao.PersonDao">
+        <constructor-arg ref="daoConfigFactory"/>
+        <property name="associationDao" ref="associationDao" />
+    </bean>
+
+    <bean name="roleDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RoleDao">
+        <constructor-arg ref="daoConfigFactory"/>
+        <property name="associationDao" ref="associationDao" />
+    </bean>
+
+    <bean id="replicationEventDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.ReplicationEventDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+
+    <bean id="replicationSiteEventDao"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.ReplicationSiteEventDao">
+        <constructor-arg ref="daoConfigFactory"/>
+    </bean>
+</beans>

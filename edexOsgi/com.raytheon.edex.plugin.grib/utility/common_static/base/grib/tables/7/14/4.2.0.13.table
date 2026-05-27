@@ -1,0 +1,8 @@
+# Product Discipline 0: Meteorological products, Parameter Category 13: Aerosols
+# 192-254 Reserved for local use
+192:192:Particulate matter (coarse):mm*g/m^3:PMTC
+193:193:Particulate matter (fine):mm*g/m^3:PMTF
+194:194:Particulate matter (fine):log10(mm*g/m^3):LPMTF
+195:195:Integrated column particulate matter (fine):log10(mm*g/m^3):LIPMF
+255:255:Missing
+

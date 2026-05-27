@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ccfp Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.ccfp
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ org.geotools,
+ jakarta.persistence,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.routes
+Export-Package: com.raytheon.uf.edex.plugin.ccfp
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: com.raytheon.uf.common.dataplugin.ccfp,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo

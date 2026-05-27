@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="mpeHpeFilePurger" class="com.raytheon.uf.edex.ohd.pproc.PprocSrv">
+        <constructor-arg>
+            <list>
+                <value>purge_mpe_files</value>
+                <value>purge_hpe_files</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="mpeHpeFilePurger-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.MpeHpeFilePurgerContextRoutes" >
+                  <constructor-arg name="mpehpefilepurgeCron" value="${mpehpefilepurge.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>

@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="GetPrimarySiteHandler" class="com.raytheon.uf.edex.site.handlers.GetPrimarySiteHandler"/>
+    
+    <bean id="siteActivation" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.site.SiteActivationRoutes" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="siteAwareRegistry" class="com.raytheon.uf.edex.site.SiteAwareRegistry" factory-method="getInstance">
+        <property name="routeId" value="siteActivationRoute"/>
+    </bean>
+</beans>
+

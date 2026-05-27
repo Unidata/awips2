@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="bufrmthdwDecoder" class="com.raytheon.uf.edex.plugin.bufrmthdw.MTHDWDecoder" depends-on="bufrmthdwPluginRegistered">
+        <constructor-arg ref="bufrmthdwPluginName" />
+    </bean>
+
+    <bean id="bufrmthdwDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="bufrmthdwPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrmthdw"/>
+    </bean>
+    
+    <bean id="bufrmthdw-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.bufrmthdw.BufrmthdwCamelRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

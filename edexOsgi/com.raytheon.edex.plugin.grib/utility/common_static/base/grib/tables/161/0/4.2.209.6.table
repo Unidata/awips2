@@ -1,0 +1,45 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 6: QPE Products 
+0:0:Surface Precipitation Type (SPT)::PrecipType
+1:1:Radar Precipitation Rate (SPR):mm/hr:PrecipRate
+2:2:QPE - Radar Only (1 hr. accum.):mm:RadarOnlyQPE01H
+3:3:QPE - Radar Only (3 hr. accum.):mm:RadarOnlyQPE03H
+4:4:QPE - Radar Only (6 hr. accum.):mm:RadarOnlyQPE06H
+5:5:QPE - Radar Only (12 hr. accum.):mm:RadarOnlyQPE12H
+6:6:QPE - Radar Only (24 hr. accum.):mm:RadarOnlyQPE24H
+7:7:QPE - Radar Only (48 hr. accum.):mm:RadarOnlyQPE48H
+8:8:QPE - Radar Only (72 hr. accum.):mm:RadarOnlyQPE72H
+9:9:QPE - Radar with Gauge Bias Correction (1 hr. accum.):mm:GaugeCorrQPE01H
+10:10:QPE - Radar with Gauge Bias Correction (3 hr. accum.):mm:GaugeCorrQPE03H
+11:11:QPE - Radar with Gauge Bias Correction (6 hr. accum.):mm:GaugeCorrQPE06H
+12:12:QPE - Radar with Gauge Bias Correction (12 hr. accum.):mm:GaugeCorrQPE12H
+13:13:QPE - Radar with Gauge Bias Correction (24 hr. accum.):mm:GaugeCorrQPE24H
+14:14:QPE - Radar with Gauge Bias Correction (48 hr. accum.):mm:GaugeCorrQPE48H
+15:15:QPE - Radar with Gauge Bias Correction (72 hr. accum.):mm:GaugeCorrQPE72H
+16:16:QPE - Radar Gauge Only (1 hr. accum.):mm:GaugeOnlyQPE01H
+17:17:QPE - Radar Gauge Only (3 hr. accum.):mm:GaugeOnlyQPE03H
+18:18:QPE - Radar Gauge Only (6 hr. accum.):mm:GaugeOnlyQPE06H
+19:19:QPE - Radar Gauge Only (12 hr. accum.):mm:GaugeOnlyQPE12H
+20:20:QPE - Radar Gauge Only (24 hr. accum.):mm:GaugeOnlyQPE24H
+21:21:QPE - Radar Gauge Only (48 hr. accum.):mm:GaugeOnlyQPE48H
+22:22:QPE - Radar Gauge Only (72 hr. accum.):mm:GaugeOnlyQPE72H
+23:23:QPE - Mountain Mapper (1 hr. accum.):mm:MountainMapperQPE01H
+24:24:QPE - Mountain Mapper (3 hr. accum.):mm:MountainMapperQPE03H
+25:25:QPE - Mountain Mapper (6 hr. accum.):mm:MountainMapperQPE06H
+26:26:QPE - Mountain Mapper (12 hr. accum.):mm:MountainMapperQPE12H
+27:27:QPE - Mountain Mapper (24 hr. accum.):mm:MountainMapperQPE24H
+28:28:QPE - Mountain Mapper (48 hr. accum.):mm:MountainMapperQPE48H
+29:29:QPE - Mountain Mapper (72 hr. accum.):mm:MountainMapperQPE72H
+30:30:QPE - Multi Sensor P1 (1 hr. accum.):mm:MultiSensorP1QPE01H
+31:31:QPE - Multi Sensor P1 (3 hr. accum.):mm:MultiSensorP1QPE03H
+32:32:QPE - Multi Sensor P1 (6 hr. accum.):mm:MultiSensorP1QPE06H
+33:33:QPE - Multi Sensor P1 (12 hr. accum.):mm:MultiSensorP1QPE12H
+34:34:QPE - Multi Sensor P1 (24 hr. accum.):mm:MultiSensorP1QPE24H
+35:35:QPE - Multi Sensor P1 (48 hr. accum.):mm:MultiSensorP1QPE48H
+36:36:QPE - Multi Sensor P1 (72 hr. accum.):mm:MultiSensorP1QPE72H
+37:37:QPE - Multi Sensor P2 (1 hr. accum.):mm:MultiSensorP2QPE01H
+38:38:QPE - Multi Sensor P2 (3 hr. accum.):mm:MultiSensorP2QPE03H
+39:39:QPE - Multi Sensor P2 (6 hr. accum.):mm:MultiSensorP2QPE06H
+40:40:QPE - Multi Sensor P2 (12 hr. accum.):mm:MultiSensorP2QPE12H
+41:41:QPE - Multi Sensor P2 (24 hr. accum.):mm:MultiSensorP2QPE24H
+42:42:QPE - Multi Sensor P2 (48 hr. accum.):mm:MultiSensorP2QPE48H
+43:43:QPE - Multi Sensor P2 (72 hr. accum.):mm:MultiSensorP2QPE72H

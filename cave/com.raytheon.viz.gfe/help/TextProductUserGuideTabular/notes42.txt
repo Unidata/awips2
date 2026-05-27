@@ -1,0 +1,2 @@
+The FWFTable uses both of these time range methods.  First we create a list of time ranges to produce the columns of the table.  Then we create a time range "from scratch" to begin the extended portion of the product. 
+

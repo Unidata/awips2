@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This software was developed and / or modified by NOAA/NWS/OCP/ASDT
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+
+<colorMap>
+    <color a="1.0" b="0.29411766" g="0.29411766" r="0.29411766"/>
+    <color a="1.0" b="0.7647059" g="0.7647059" r="0.7647059"/>
+    <color a="1.0" b="0.5686275" g="0.5686275" r="0.5686275"/>
+    <color a="1.0" b="0.5686275" g="0.4117647" r="0.4117647"/>
+    <color a="1.0" b="0.29411766" g="0.29411766" r="0.29411766"/>
+</colorMap>

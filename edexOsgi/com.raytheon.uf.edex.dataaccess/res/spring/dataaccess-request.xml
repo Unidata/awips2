@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="availableLocationsHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableLocationNamesHandler" />
+    <bean id="availableTimesHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableTimesHandler" />
+    <bean id="availableParametersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableParametersHandler" />
+    <bean id="availableLevelsHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableLevelsHandler" />
+    <bean id="requiredIdentifiersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetRequiredIdentifiersHandler" />
+    <bean id="optionalIdentifiersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetOptionalIdentifiersHandler" />
+    <bean id="identifierValuesHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetIdentifierValuesHandler" />
+    <bean id="supportedDatatypesHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetSupportedDatatypesHandler" />
+    <bean id="getGeometryDataHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetGeometryDataHandler" />
+    <bean id="getGridDataHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetGridDataHandler" />
+    <bean id="getGridLatLonHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetGridLatLonHandler" />
+    <bean id="getNotificationFilterHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetNotificationFilterHandler" />
+
+</beans>

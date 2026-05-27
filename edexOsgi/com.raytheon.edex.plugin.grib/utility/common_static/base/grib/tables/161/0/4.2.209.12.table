@@ -1,0 +1,28 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 12: FLASH Products
+0:0:QPE-CREST Maximum Unit Streamflow:(m^3)*(s^-1)*(km^-2):QPECrestUStreamflow
+1:1:QPE-CREST Maximum Streamflow:(m^3)*(s^-1):QPECrestStreamflow
+2:2:QPE-CREST Soil Moisture:%:QPECrestSoilMoisture
+3:3:QPE-CREST Flood Stage Exceedence:%:QPECrestFloodExceedence
+4:4:QPE-SAC-SMA Maximum Unit Streamflow:(m^3)*(s^-1)*(km^-2):QPESacUStreamflow
+5:5:QPE-SAC-SMA Maximum Streamflow:(m^3)*(s^-1):QPESacStreamflow
+6:6:QPE-SAC-SMA Soil Moisture:%:QPESacSoilMoisture
+7:7:QPE-SAC-SMA Flood Stage Exceedence:%:QPESacFloodExceedence
+8:8:QPF-CREST Maximum Streamflow:(m^3)*(s^-1):QPFCrestStreamflow
+9:9:QPF-CREST Maximum Unit Streamflow:(m^3)*(s^-1)*(km^-2):QPFCrestUStreamflow
+10:10:QPF-CREST Flood Stage Exceedence:%:QPFCrestFloodExceedence
+11:11:QPF-SAC-SMA Maximum Streamflow:(m^3)*(s^-1):QPFSacStreamflow
+12:12:QPF-SAC-SMA Maximum Unit Streamflow:(m^3)*(s^-1)*(km^-2):QPFSacUStreamflow
+13:13:QPF-SAC-SMA Flood Stage Exceedence:%:QPESacFloodExceedence
+14:14:30min MRMS Radar-Only ARI:year:PRP30M
+15:15:1hr MRMS Radar-Only ARI:year:PRP01H
+16:16:3hr MRMS Radar-Only ARI:year:PRP03H
+17:17:6hr MRMS Radar-Only ARI:year:PRP06H
+18:18:12hr MRMS Radar-Only ARI:year:PRP12H
+19:19:24hr MRMS Radar-Only ARI:year:PRP24H
+20:20:Maximum MRMS Radar-Only ARI:year:PRPMax
+26:26:1hr MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFG01H
+27:27:3hr MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFG03H
+28:28:6hr MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFG06H
+29:29:Maximum MRMS Radar-Only QPE-to-FFG Ratio:%:QPEFFGMax
+39:39:QPE-Hydrophobic Maximum Unit Streamflow:(m^3)*(s^-1)*(km^-2):QPEHPUStreamflow
+40:40:QPE-Hydrophobic Maximum Streamflow:(m^3)*(s^-1):QPEHPStreamflow

@@ -1,0 +1,50 @@
+This directory contains scripts to handle the upgrade from PostgreSQL 9.5.x to
+9.6.x. All of these scripts MUST be kept together in one directory for them
+to work.
+
+There are two parts to this install: Steps to be done BEFORE installing
+the new PostgreSQL RPM packages (awips2-postgresql and awips2-psql), and steps
+to be done AFTER installing those packages. All scripts must be run as root.
+
+If the server to be upgraded is part of a streaming replication setup, see
+the NOTE FOR STREAMING REPLICATION SETUP at the end of this document.
+
+
+INSTRUCTIONS - BEFORE INSTALLING ANY RPMS:
+
+1. Shut down PostgreSQL if it is not already.
+
+2. Run postgres_pre_upgrade.sh. This script confirms that the installed version
+   of PostgreSQL is the expected one, and copies the existing PostgreSQL
+   installation to /awips2/postgresql-9.5.23. This copy is required for the
+   upgrade. (When the PostgreSQL cluster upgrade completes, this directory will
+   be moved to /awips2/postgresql-9.5.23_done)
+
+
+INSTRUCTIONS - AFTER INSTALLING RPMS:
+
+1. BEFORE starting PostgreSQL, run upgrade_postgresql_database.sh. Check the
+   end of the output for "UPGRADE COMPLETE". Do not interrupt the script while
+   it is running, as this may prevent proper cleanup.  This string will appear
+   only if the upgrade was successful.
+
+2. Run rebuild_stats.sh. This must be done while PostgreSQL is running. This
+   script is separate from the previous step because it takes longer to run. It
+   can/should be run while EDEX or other users of the database are running, to
+   limit downtime.
+
+3. If all previous steps have completed successfully and PostgreSQL is not
+   producing errors, you can delete the old PostgreSQL install located at
+   /awips2/postgresql-9.5.23_done
+
+
+NOTE FOR STREAMING REPLICATION SETUP:
+
+In a streaming replication setup where there is one master PostgreSQL server
+and multiple standby servers that replicate from it, the process is as follows:
+
+1. Stop all PostgreSQL servers in the topology.
+2. Upgrade the master using the above instructions.
+3. Start up the master PostgreSQL server.
+4. Re-create each standby server by following the directions in
+   /awips2/database/replication/README, under the section SETTING UP STANDBYS.

@@ -1,0 +1,17 @@
+# Product Discipline 0: Meteorological products, Parameter Category 7: Thermodynamic Stability Indices
+#192-254 Reserved for local use
+6:6:Bourgouin Positive Energy Aloft:J/kg:PBE
+7:7:Bourgouin Negative Energy Low Level:J/kg:NBE
+192:192:Surface Lifted Index:K:LFTX:SLI
+193:193:Best (4 layer) Lifted Index:K:4LFTX:BLI
+194:194:Richardson Number:Numeric:RI
+195:195:Convective Weather Detection Index::CWDI
+196:196:Ultra Violet Index:J/m^2:UVI
+197:197:Updraft Helicity:m^2/s^2:UPHL
+198:198:Leaf Area Index::LAI
+199:199:Hourly Maximum of Updraft Helicity over Layer 2km to 5 km AGL:m^2/s^2:MXUPHL
+201:201:Bourgoiun Negative Energy Layer (surface to freezing level):J/kg:NBE
+202:202:Bourgoiun Positive Energy Layer (2k ft AGL to 400 hPa):J/kg:PBE
+
+255:255:Missing
+

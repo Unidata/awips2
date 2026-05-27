@@ -1,0 +1,255 @@
+1:1:MELBRNE
+2:2:MLBNWMC
+3:3:Melbourne (WMC)
+4:4:MOSCOW
+5:5:MSCWWMC
+6:6:Moscow (WMC)
+7:7:NCEP
+8:8:NWSTG
+9:9:NWSO
+10:10:CAIRO
+11:11:Cairo (RSMC/RAFC)
+12:12:DAKAR
+13:13:Dakar (RSMC/RAFC)
+14:14:NAIROBI
+15:15:Nairobi (RSMC/RAFC)
+16:16:ANTNRVO
+17:17:Tunis (RSMC)
+18:18:TUNIS
+19:19:Tunis-Casablanca (RSMC)
+20:20:LASPALM
+21:21:ALGIERS
+22:22:LAGOS
+23:23:Mozambique (NMC)
+24:24:Pretoria (RSMC)
+25:25:La Reunion (RSMC)
+26:26:KHBRVSK
+27:27:Khabarovsk (RSMC)
+28:28:NWDEHLI
+29:29:New Delhi (RSMC/RAFC)
+30:30:NVSBRSK
+31:31:Novosibirsk (RSMC)
+32:32:TASHKNT
+33:33:JEDDAH
+34:34:JMC
+35:35:Japanese Meteorological Agency - Tokyo (RSMC)
+36:36:BANGKOK
+37:37:ULANBAT
+38:38:BEIJING
+39:39:Beijing (RSMC)
+40:40:SEOUL
+41:41:BUENAIR
+42:42:BRAZIL
+43:43:Brasilia (RSMC/RAFC)
+44:44:Brasilia (RSMC/RAFC)
+45:45:SANTIAG
+46:46:BRZSPAC
+47:47:Columbia (NMC)
+48:48:Ecuador (NMC)
+49:49:Peru (NMC)
+50:50:Venezuela (NMC)
+51:51:MIAMI
+52:52:HURRCAN
+53:53:CMS
+54:54:Canadian Meteorological Service - Montreal (RSMC)
+55:55:SANFRAN
+56:56:ARINC Center
+57:57:USAFGWC
+58:58:USNFNOC
+59:59:FSL
+60:60:NCAR
+61:61:Service ARGOS - Landover, MD, USA
+62:62:US Naval Oceanographic Office
+63:63:Reserved
+64:64:HONOLUL
+65:65:DARWIN
+66:66:Darwin (RSMC)
+67:67:MLBNRMC
+68:68:Reserved
+69:69:WELLNTN
+70:70:Wellington (RSMC/RAFC)
+71:71:Nadi (RSMC)
+72:72:Singapore
+73:73:Malaysia (NMC)
+74:74:UKMET
+75:75:U.K. Met Office - Exeter (RSMC)
+76:76:MSCWRMC
+77:77:Reserved
+78:78:OFFNBCH
+79:79:Offenbach (RSMC)
+80:80:ROME
+81:81:Rome (RSMC)
+82:82:NRKPING
+83:83:Norrkoping
+84:84:French Weather Service - Toulouse
+85:85:FWST
+86:86:HELSNKI
+87:87:BELGRAD
+88:88:OSLO
+89:89:PRAGUE
+90:90:EPISKPI
+91:91:ANKARA
+92:92:FRANKFT
+93:93:LONDON
+94:94:COPNHGN
+95:95:ROTA
+96:96:ATHENS
+97:97:ESA
+98:98:ECMF
+99:99:DEBILT
+100:100:Brazzaville
+101:101:Abidjan
+102:102:Libyan Arab Jamahiriya (NMC)
+103:103:Madagascar (NMC)
+104:104:Mauritius (NMC)
+105:105:Niger (NMC)
+106:106:Seychelles (NMC)
+107:107:Uganda (NMC)
+108:108:Tanzania (NMC)
+109:109:Zimbabwe (NMC)
+110:110:Hong-Kong
+111:111:Afghanistan (NMC)
+112:112:Bahrain (NMC)
+113:113:Bangladesh (NMC)
+114:114:Bhutan (NMC)
+115:115:Cambodia (NMC)
+116:116:Democratic People's Republic of Korea (NMC)
+117:117:Islamic Republic of Iran (NMC)
+118:118:Iraq (NMC)
+119:119:Kazakhstan (NMC)
+120:120:Kuwait (NMC)
+121:121:Kyrgyz Republic (NMC)
+122:122:Lao People's Democratic Republic (NMC)
+123:123:Macao, China
+124:124:Maldives (NMC)
+125:125:Myanmar (NMC)
+126:126:Nepal (NMC)
+127:127:Oman (NMC)
+128:128:Pakistan (NMC)
+129:129:Qatar (NMC)
+130:130:Republic of Yemen (NMC)
+131:131:Sri Lanka (NMC)
+132:132:Tajikistan (NMC)
+133:133:Turkmenistan (NMC)
+134:134:United Arab Emirates (NMC)
+135:135:Uzbekistan (NMC)
+136:136:Socialist Republic of Viet Nam (NMC)
+137:137:Reserved
+138:138:Reserved
+139:139:Reserved
+140:140:Bolivia (NMC)
+141:141:Guyana (NMC)
+142:142:Paraguay (NMC)
+143:143:Suriname (NMC)
+144:144:Uruguay (NMC)
+145:145:French Guyana
+146:146:Brazilian Navy Hydrographic Center
+147:147:Reserved
+148:148:Reserved
+149:149:Reserved
+150:150:Antigua and Barbuda (NMC)
+151:151:Bahamas (NMC)
+152:152:Barbados (NMC)
+153:153:Belize (NMC)
+154:154:British Caribbean Territories Center
+155:155:San Jose
+156:156:Cuba (NMC)
+157:157:Dominica (NMC)
+158:158:Dominican Republic (NMC)
+159:159:El Salvador (NMC)
+160:160:US NOAA/NESDIS
+161:161:NOAA
+162:162:Guatemala (NMC)
+163:163:Haiti (NMC)
+164:164:Honduras (NMC)
+165:165:Jamaica (NMC)
+166:166:Mexico
+167:167:Netherlands Antilles and Aruba (NMC)
+168:168:Nicaragua (NMC)
+169:169:Panama (NMC)
+170:170:Saint Lucia (NMC)
+171:171:Trinidad and Tobago (NMC)
+172:172:French Departments
+173:173:Reserved
+174:174:Reserved
+175:175:Reserved
+176:176:Reserved
+177:177:Reserved
+178:178:Reserved
+179:179:Reserved
+180:180:Reserved
+181:181:Reserved
+182:182:Reserved
+183:183:Reserved
+184:184:Reserved
+185:185:Reserved
+186:186:Reserved
+187:187:Reserved
+188:188:Reserved
+189:189:Reserved
+190:190:Cook Islands (NMC)
+191:191:French Polynesia (NMC)
+192:192:Tonga (NMC)
+193:193:Vanuatu (NMC)
+194:194:Brunei (NMC)
+195:195:Indonesia (NMC)
+196:196:Kiribati (NMC)
+197:197:Federated States of Micronesia (NMC)
+198:198:New Caledonia (NMC)
+199:199:Niue
+200:200:Papua New Guinea (NMC)
+201:201:Philippines (NMC)
+202:202:Samoa (NMC)
+203:203:Solomon Islands (NMC)
+204:204:Reserved
+205:205:Reserved
+206:206:Reserved
+207:207:Reserved
+208:208:Reserved
+209:209:Reserved
+210:210:Frascati
+211:211:Lanion
+212:212:Lisboa
+213:213:Reykjavik
+214:214:Madrid
+215:215:Zurich
+216:216:Service ARGOS - Toulouse, FR
+217:217:Bratislava
+218:218:Budapest
+219:219:Ljubljana
+220:220:Warsaw
+221:221:Zagreb
+222:222:Albania (NMC)
+223:223:Armenia (NMC)
+224:224:Austria (NMC)
+225:225:Azerbaijan (NMC)
+226:226:Belarus (NMC)
+227:227:Belgium (NMC)
+228:228:Bosnia and Herzegovina (NMC)
+229:229:Bulgaria (NMC)
+230:230:Cyprus (NMC)
+231:231:Estonia (NMC)
+232:232:Georgia (NMC)
+233:233:Dublin
+234:234:Israel (NMC)
+235:235:Jordan (NMC)
+236:236:Latvia (NMC)
+237:237:Lebanon (NMC)
+238:238:Lithuania (NMC)
+239:239:Luxembourg
+240:240:Malta (NMC)
+241:241:Monaco
+242:242:Romania (NMC)
+243:243:Syrian Arab Republic (NMC)
+244:244:The former Yugoslav Republic of Macedonia (NMC)
+245:245:Ukraine (NMC)
+246:246:Republic of Moldova
+247:247:Reserved
+248:248:Reserved
+249:249:Reserved
+250:250:Reserved
+251:251:Reserved
+252:252:Reserved
+253:253:Reserved
+254:254:EUMETSAT Operations Center
+255:255:Missing Value

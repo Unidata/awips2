@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<heightScales>
+    <scales name="Log 1050-150" unit="MILLIBARS" minVal="1050" maxVal="150" scale="LOG"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa">
+        <labels>1000,850,700,500,400,300,250,200,150</labels>
+    </scales>
+    <scales name="Log 850-100" unit="MILLIBARS" minVal="850" maxVal="100" scale="LOG"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Log 1050-500" unit="MILLIBARS" minVal="1050" maxVal="500" scale="LOG"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Log 700-300" unit="MILLIBARS" minVal="700" maxVal="300" scale="LOG"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Log 500-100" unit="MILLIBARS" minVal="500" maxVal="100" scale="LOG"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Lin 1050-150" unit="MILLIBARS" minVal="1050" maxVal="150" scale="LIN"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Lin 850-100" unit="MILLIBARS" minVal="850" maxVal="100" scale="LIN"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Lin 1050-500" unit="MILLIBARS" minVal="1050" maxVal="500" scale="LIN"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Lin 700-300" unit="MILLIBARS" minVal="700" maxVal="300" scale="LIN"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="Lin 500-100" unit="MILLIBARS" minVal="500" maxVal="100" scale="LIN"
+        heightType="PRESSURE" parameter="P" parameterUnit="hPa" />
+    <scales name="0-5km MSL" unit="KILOMETERS" minVal="0" maxVal="5" scale="LIN" heightType="HEIGHT_MSL"
+        parameter="GH" parameterUnit="km" />
+    <scales name="0-2.5km AGL" unit="METERS AGL" minVal="0" maxVal="2500" scale="LIN"
+        heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="m" />
+    <scales name="0-60 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="60" scale="LIN"
+        heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000" />
+    <scales name="0-45 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="45" scale="LIN"
+        heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000" />
+    <scales name="0-30 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="30" scale="LIN"
+        heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000" />
+    <scales name="0-15 kft AGL" unit="KILOFEET AGL" minVal="0" maxVal="15" scale="LIN"
+        heightType="HEIGHT_AGL" parameter="zAGL" parameterUnit="ft*1000" />
+</heightScales>

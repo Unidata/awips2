@@ -1,0 +1,208 @@
+<!-- Dust Storm Advisory Follow-up configuration -->
+<!-- PRODUCT HISTORY
+     Tomalak/Bookbinder/Birchard 2-1-2017 First Go Around; DCS20066
+-->
+<!--
+    Velocity Variables:
+        followup: Complete String as displayed in WarnGen Dialog
+                    EX: CON.KOAX.SV.W.0001 Exp in 25 min
+        action: The action of the product
+                    EX: CON
+        officeid: The office the product was issued for
+                    EX: KOAX
+        phen:   The product's phenomena
+                    EX: SV
+        sig:    The product's significance
+                    EX: W
+        etn:    The product's ETN
+                    EX: 0001
+-->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="dssEvents.xml"/>
+<!-- To enable, make sure dssEvents.vm is added/uncommented in the impactDustStormWarning.vm file -->
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in the impactDustStormWarning.vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in the impactDustStormWarning.vm file -->
+
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+ 
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+  <followup>COR</followup>
+  <followup>CON</followup>
+  <followup>CAN</followup>
+  <followup>EXP</followup>
+ </followups>
+ 
+
+<productId>DSW</productId>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>DS.Y</phensig>
+ </phensigs>
+ 
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>false</enableRestart>
+
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+ <!-- durations: the list of possible durations of the followup -->
+ <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>30</duration>
+ </durations>
+ 
+ 
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
+ </includedWatches>
+
+ 
+ <!-- bullets: User specified text generation options 
+          - bulletName: an id that is passed to the template when a bullet
+                      is selected. This should be unique
+          - bulletText: the text presented to the user in the selection list
+          - bulletType: "title" makes the bullet unselectable
+          				"basin" correlates the item to a Geometry in the customlocations table
+          - bulletGroup: Only one bullet can be selected per bulletGroup 
+          - parseString: this string must MATCH a unique phrase in the associated bulletText. 
+          	This will be used to highlight the appropriate bullet on a follow up-->
+<bulletActionGroups>
+<bulletActionGroup>
+ <bullets>
+  <bullet bulletText="Please Select a Warning to" bulletType="title"/>
+  <bullet bulletText="Follow-up from the Pull-Down Menu" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CAN" phen="DS" sig="Y">
+ <bullets>
+  <bullet bulletText="********* CANCELLATION INFO (CHOOSE 1) ********" bulletType="title"/>
+  <bullet bulletName="dissipated" bulletText="Blowing dust dissipated" bulletGroup="canexp1"/>
+  <bullet bulletName="movedout" bulletText="Blowing dust moved out of warned area" bulletGroup="canexp1"/>
+  <bullet bulletName="wkndandmoved" bulletText="Blowing dust dissipated and moved out of warned area" bulletGroup="canexp1"/>
+    <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* END OF WARNING REMARKS ********" bulletType="title"/>
+  <bullet bulletText="**** (OPTIONAL - CHOOSE 1 OR MORE) ****" bulletType="title"/>
+  <bullet bulletName="stillblowingdust" bulletText="Areas of blowing dust still a threat - optional"/>
+  <bullet bulletName="stilllowvsby" bulletText="Low visibilties with blowing dust still a threat - optional"/> 
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="EXP" phen="DS" sig="Y">
+ <bullets>
+  <bullet bulletText="********* END OF WARNING INFO (CHOOSE 1) ********" bulletType="title"/>
+  <bullet bulletName="dissipated" bulletText="Blowing dust dissipated" bulletGroup="canexp1"/>
+  <bullet bulletName="movedout" bulletText="Blowing dust moved out of warned area" bulletGroup="canexp1"/>
+  <bullet bulletName="wkndandmoved" bulletText="Blowing dust dissipated and moved out of warned area" bulletGroup="canexp1"/>
+   <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* END OF WARNING REMARKS ********" bulletType="title"/>
+  <bullet bulletText="**** (OPTIONAL - CHOOSE 1 OR MORE) ****" bulletType="title"/>
+  <bullet bulletName="stillblowingdust" bulletText="Areas of blowing dust still a threat - optional"/>
+  <bullet bulletName="stilllowvsby" bulletText="Low visibilties with blowing dust still a threat - optional"/>  
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CON" phen="DS" sig="Y">
+ <bullets>
+ <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <!--  <bullet bulletName="meteorologists" bulletText="NWS Meteorologists detected" bulletGroup="warnBasis" parseString="METEOROLOGISTS"/> -->
+  <bullet bulletName="doppler" bulletText="Doppler radar" bulletGroup="warnBasis" parseString="SOURCE...DOPPLER RADAR."/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained Spotters" bulletGroup="warnBasis" parseString="SOURCE...TRAINED WEATHER SPOTTERS."/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement" bulletGroup="warnBasis" parseString="SOURCE...LAW ENFORCEMENT."/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management" bulletGroup="warnBasis" parseString="SOURCE...EMERGENCY MANAGEMENT."/>
+  <bullet bulletName="public" bulletText="Public" bulletGroup="warnBasis" parseString="SOURCE...PUBLIC."/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* HAZARD (CHOOSE VISIBILITY) ******" bulletType="title"/>
+  <bullet bulletName="threeVis" bulletText="Less than Three Miles Visibility" bulletGroup="visThreat" parseString="THREE MILE"/>
+  <bullet bulletName="twoVis" bulletText="Less than Two Miles Visibility" bulletGroup="visThreat" parseString="TWO MILE"/>
+  <bullet bulletName="oneVis" bulletText="Less than One Mile Visibility" bulletGroup="visThreat" parseString="ONE MILE"/>
+  <bullet bulletName="halfVis" bulletText="Less than One Half Mile Visibility" bulletGroup="visThreat" parseString="ONE HALF MILE"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* HAZARD (CHOOSE WIND - (OPTIONAL)) ******" bulletType="title"/>
+  <bullet bulletName="30mphWind" bulletText="30 mph wind" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="40mphWind" bulletText="40 mph wind" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="50mphWind" bulletText="50 mph wind" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="motoristCTA" bulletText="Motorist Safety for Dust Storms" parseString="PULL ASIDE"/>
+  <bullet bulletName="genericCTA" bulletText="Generic threat - standard CTA" parseString="DANGEROUS DRIVING"/>
+  <bullet bulletName="healthCTA" bulletText="Health Safety Info for Dust Storms" parseString="UNHEALTHY"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="LAW ENFORCEMENT AGENCY"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
+  <bullet bulletName="ThunderstormCTA" bulletText="Strong to Severe Thunderstorms Possible" parseString="THUNDERSTORMS ARE ALSO POSSIBLE"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+ </bullets> 
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="DS" sig="Y">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <!--  <bullet bulletName="meteorologists" bulletText="NWS Meteorologists detected" bulletGroup="warnBasis" parseString="METEOROLOGISTS"/> -->
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="DOPPLER RADAR"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="warnBasis" parseString="TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="warnBasis" parseString="LAW ENFORCEMENT"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="warnBasis" parseString="EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="warnBasis" parseString="PUBLIC"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* THREAT (CHOOSE VISIBILITY) ******" bulletType="title"/>
+  <bullet bulletName="threeVis" bulletText="Less than Three Miles Visibility" bulletGroup="visThreat" parseString="THREE MILE"/>
+  <bullet bulletName="twoVis" bulletText="Less than Two Miles Visibility" bulletGroup="visThreat" parseString="TWO MILE"/>
+  <bullet bulletName="oneVis" bulletText="Less than One Mile Visibility" bulletGroup="visThreat" parseString="ONE MILE"/>
+  <bullet bulletName="halfVis" bulletText="Less than One Half Mile Visibility" bulletGroup="visThreat" parseString="ONE HALF MILE"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* THREAT (CHOOSE WIND - (OPTIONAL)) ******" bulletType="title"/>
+  <bullet bulletName="30mphWind" bulletText="30 mph wind" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="40mphWind" bulletText="40 mph wind" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="50mphWind" bulletText="50 mph wind" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="motoristCTA" bulletText="Motorist Safety for Dust Storms" parseString="PULL ASIDE"/>
+  <bullet bulletName="genericCTA" bulletText="Generic threat - standard CTA" parseString="DANGEROUS DRIVING"/>
+  <bullet bulletName="healthCTA" bulletText="Health Safety Info for Dust Storms" parseString="UNHEALTHY"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="LAW ENFORCEMENT AGENCY"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
+  <bullet bulletName="ThunderstormCTA" bulletText="Strong to Severe Thunderstorms Possible" parseString="THUNDERSTORMS ARE ALSO POSSIBLE"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>         	
+   

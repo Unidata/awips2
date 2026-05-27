@@ -1,0 +1,56 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="text" />
+        <constructor-arg value="Ingest.Text.*" />
+    </bean>
+
+    <bean id="textDecoder" class="com.raytheon.uf.edex.plugin.text.TextDecoder">
+        <property name="pluginName" value="text" />
+        <property name="decoderMode" value="STD" />
+    </bean>
+
+    <bean id="textDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="text" />
+        <constructor-arg value="jms-durable:queue:Ingest.Text"/>
+    </bean>
+
+    <bean id="textHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
+        factory-method="register">
+        <constructor-arg value="text" />
+        <constructor-arg value="jms-durable:queue:Ingest.Text"/>
+    </bean>
+
+    <!-- verify text product info for site, spawns in separate thread to not delay start up -->
+    <bean id="textVersionPurge" class="com.raytheon.uf.edex.plugin.text.TextVersionPurge" depends-on="textRegistered"/>
+
+    <bean id="fxaBloatMonitor" class="com.raytheon.uf.edex.database.health.DatabaseBloatMonitor">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.database.health.PostgresBloatDao">
+                <constructor-arg ref="daoConfigFactory" />
+                <constructor-arg value="fxa"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="dbMonitorRegistry" factory-method="registerMonitor">
+        <constructor-arg value="fxaBloatMonitor" />
+        <constructor-arg ref="fxaBloatMonitor" />
+    </bean>
+
+    <bean id="text-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.TextCamelRoutes" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="clustered-text-camel" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.ClusteredTextCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

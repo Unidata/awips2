@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.productbrowser.dataDefinition">
+      <dataDefinition
+            class="com.raytheon.uf.viz.pointset.PointSetProductBrowserDataDefinition"
+            name="com.raytheon.uf.viz.pointset.PointSetProductBrowserDataDefinition">
+      </dataDefinition>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="com.raytheon.uf.viz.pointset.rsc.PointSetResource"
+            name="PointSet Image"
+            recordClass="com.raytheon.uf.common.dataplugin.pointset.PointSetRecord"
+            renderingOrderId="IMAGE_REGION"/>
+   </extension>
+</plugin>

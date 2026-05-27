@@ -1,0 +1,7 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 9: Ion-Neutral Coupling
+0:0:Pedersen Conductivity:S*m^1:SIGPED
+1:1:Hall Conductivity:S*m^1:SIGHAL
+2:2:Parallel Conductivity:S*m^1:SIGPAR
+# 3-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing

@@ -1,0 +1,104 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+   <title>Edit Area Actions</title>
+</head>
+<body>
+<b><u><font color="#3333FF"><font size=+4>Edit Area Actions</font></font></u></b>
+<p><a NAME="DrawFreehandEditArea"></a><font color="#3333FF"><font size=+2>Draw
+a Freehand Edit Area</font></font>
+<p><font color="#000000">Use the Select Points tool to define an Edit Area
+by hand.&nbsp; For more information see the section <a href="GFETrainingSpatialEditor.html#DefineEditAreabyHand">Define
+an EditArea by Hand</a> in the GFE Training Guide.</font>
+<p><a NAME="SelectFourZones"></a><font color="#3333FF"><font size=+2>Select
+an Edit Area that includes four different forecast&nbsp; zones of your
+choice.</font></font>
+<p><font color="#000000">There are several way to accomplish this, but
+the easiest is to select it from one of the cascading menus found in the
+Main Menu bar, </font><font color="#FF0000">EditAreas->Zones->[zone name]</font><font color="#000000">.&nbsp;
+Note that to accumulate the edit areas, you will need to put the Spatial
+Editor into UNION mode by selecting the "+" from the button labelled "=".&nbsp;
+For more detailed information, see the section <a href="GFETrainingSpatialEditor.html#LoadingNamedEditAreas">Loading
+Named Edit Areas</a> in the GFE Training Guide.</font>
+<p><a NAME="SelectElevationArea"></a><font color="#3333FF"><font size=+2>Select
+an Edit Area based on a given elevation.</font></font>
+<p><font color="#000000">Unless your site manager has already set up edit
+areas based on elevation, you will need to do this from the Edit Area Query
+Dialog.&nbsp; Select the button labelled "</font><font color="#FF0000">?</font><font color="#000000">"
+on the tool bar.&nbsp; The Edit Area Query Dialog will appear. Next enter
+your query using the buttons such as, "</font><font color="#FF0000">Topo
+> 4000</font><font color="#000000">" (adjust the value based on your topography).&nbsp;&nbsp;
+Once you have defined the query select "Submit".&nbsp; The query will execute
+and a new edit area will be selected that matches the query you entered.&nbsp;
+For more information on queries, see the section, <a href="GFETrainingSpatialEditor.html#EditAreaQueries">Edit
+Area Queries</a> in the GFE Training Guide. For more infomation on the
+dialog, see the section, <a href="ButtonBarDialogs.html#EditAreaQueryDialog">EditArea
+and Query Dialog</a> in the Button Bar Dialogs document.</font>
+<p><a NAME="SelectBasedOnDewpoint"></a><font color="#3333FF"><font size=+2>Select
+an Edit Area that includes locations where the dew point is above a value
+that you specifiy.</font></font>
+<p><font color="#000000">This task is similar to the one above except that
+this time you are using a different element to define the area.</font>
+<br><font color="#000000">Make sure that the dew point weather element
+is loaded into the GFE.&nbsp; Open the query dialog (by selecting the button
+labelled "?") and define your query such as, "</font><font color="#FF0000">Td
+> 45</font><font color="#000000">".&nbsp; Then select "Submit".&nbsp; You
+should see a new edit area displayed in the Spatial Editor that corresponds
+to your query.&nbsp; Note that when you animate or step frames the query
+is re-run so that the edit area always reflects the currently displayed
+grid. For more information on queries, see the section, <a href="GFETrainingSpatialEditor.html#EditAreaQueries">Edit
+Area Queries</a> in the GFE Training Guide. For more infomation on the
+dialog, see the section, <a href="ButtonBarDialogs.html#EditAreaQueryDialog">EditArea
+and Query Dialog</a> in the Button Bar Dialogs document.</font>
+<p><a NAME="SelectBasedOnWeather"></a><font color="#3333FF"><font size=+2>Select
+an Edit Area that covers locations with a certain type of weather</font>.</font>
+<p><font color="#000000">For this task, load the "Wx" weather element and
+open the query dialog by selecting the button labelled "</font><font color="#FF0000">?</font><font color="#000000">".
+Next define your query such as </font><font color="#FF0000">mask(Wx, ":RW:")</font><font color="#000000">
+and click the submit button.&nbsp; The new edit area should match your
+query.&nbsp; For more information on queries, see the section, <a href="GFETrainingSpatialEditor.html#EditAreaQueries">Edit
+Area Queries</a> in the GFE Training Guide. For more infomation on the
+dialog, see the section, <a href="ButtonBarDialogs.html#EditAreaQueryDialog">EditArea
+and Query Dialog</a> in the Button Bar Dialogs document.</font>
+<p><font color="#000000">Another way to select areas of the same weather
+is to use the option available from the MB3 pop-up menu, "</font><font color="#FF0000">Select
+Homogeneous Area</font><font color="#000000">".&nbsp; Selecting this option
+will create a new edit area defined by the type, coverage and intensity
+of whatever weather value the cursor is over when you execute "Select Homogeneous
+Area".&nbsp; For more information, see the section, <a href="GFETrainingSpatialEditor.html#SelectHomogeneousAreabasedonValue">Select
+Homogeneous Area based on Value</a> in the GFE Training Guide.</font>
+<p><a NAME="MakeNewQucikset"></a><font color="#3333FF"><font size=+2>Save
+an Edit Area in a Quick Set button, clear the Edit Area and restore it
+with the same Quick Set button.</font></font>
+<p><font color="#000000">For this task you use the Quickset buttons located
+in the far right section of the button bar.&nbsp; Create an edit area either
+by hand, from the Main Menu or a query.&nbsp; Then select "</font><font color="#FF0000">Q</font><font color="#000000">"
+followed by any one of the numbers.&nbsp; Now clear the edit area by pressing
+the button labelled "</font><font color="#FF0000">C</font><font color="#000000">"
+and then select the same number button that you did earlier.&nbsp; Note
+that the edit area that you just cleared has been redisplayed.&nbsp; This
+operation works for edit area queries as well.&nbsp; Saving a query under
+a QuickSet entry returns as a query when it is recalled.&nbsp; When an
+edit area query is loaded and executed it always runs on the currently
+displayed grid.&nbsp; See the section in the GFE Training Guide, <a href="GFETrainingSpatialEditor.html#SavingEditAreasasQuickSets">Saving
+Edit Areas as QuickSets</a> for more information</font>
+<p><a NAME="ZoomSpatialEditor"></a><font color="#3333FF"><font size=+2>Zoom
+the Spatial Editor so that only a portion of your CWA is displayed.</font></font>
+<p><font color="#000000">There are two different ways to zoom the Spatial
+Editor display.&nbsp; One is to MB3 press and select the "</font><font color="#FF0000">Zoom
+to</font><font color="#000000">" cascade menu and select one of the numbered
+options.&nbsp; These numbers represent the final width of the display (in
+kilometers) after the display zooms.</font>
+<p><font color="#000000">A short cut allows you to zoom in and out using
+the mouse buttons.&nbsp; Press and hold the SHIFT key on the keyboard and
+click MB2 anywhere in the Spatial Editor display.&nbsp; Note that the display
+zooms in one level.&nbsp; Zoom in further by clicking MB2 a few more times.&nbsp;
+Now zoom back ou by again holding the SHIFT key and clicking MB1.</font>
+<p><font color="#000000">For more information on zooming the Spatial Editor
+display see the section, <a href="GFETrainingSpatialEditor.html#ZoomingtheSpatialDisplay">Zooming
+(enlarging) the Spatial Display</a> in the GFE Training Guide.</font>
+<br>
+</body>
+</html>

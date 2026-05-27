@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="bufrobsProcessor" class="com.raytheon.uf.edex.plugin.bufrobs.BufrObsProcessor" />
+
+    <bean id="bufrFileSeparator" class="com.raytheon.uf.common.nc.bufr.BufrFileSeparator" />
+
+    <bean id="bufrobsSynopticLandDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.synoptic.SynopticLandBufrDecoder" depends-on="sfcObsRegistered">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
+
+    <bean id="bufrobsBuoyDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.buoy.BuoyBufrDecoder" depends-on="sfcObsRegistered">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
+
+    <bean factory-bean="bufrobsProcessor" factory-method="registerAll">
+        <constructor-arg>
+            <list>
+                <ref bean="bufrobsSynopticLandDecoder" />
+                <ref bean="bufrobsBuoyDecoder" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="bufrobsDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="bufrobs" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrobs" />
+    </bean>
+
+    <bean id="bufrObsRecordPopulator" class="com.raytheon.uf.edex.plugin.bufrobs.util.RecordPopulator" />
+
+    <bean id="bufrobs-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.bufrobs.BufrobsCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

@@ -1,0 +1,1 @@
+You can use the Reference to learn about other analysis methods.  For example, the “vectorModeratedMinMax” analysis method filters the min/max values to eliminate outlying high and low values based on information in the “moderated_dict”.

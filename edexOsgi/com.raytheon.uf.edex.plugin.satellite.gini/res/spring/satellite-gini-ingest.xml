@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="satellite" />
+        <constructor-arg value="Ingest.Gini.*" />
+    </bean>
+
+    <bean id="giniDecoder" class="com.raytheon.uf.edex.plugin.satellite.gini.GiniSatelliteDecoder" />
+
+    <bean id="giniDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="satellite.gini" />
+        <constructor-arg value="jms-durable:queue:Ingest.Gini" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
+    </bean>
+
+     <bean id="gini-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.satellite.gini.GiniCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

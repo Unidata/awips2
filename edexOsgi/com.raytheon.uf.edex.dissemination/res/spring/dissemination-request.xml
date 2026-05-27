@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="oupAckMgr" class="com.raytheon.uf.edex.dissemination.OUPAckManager" />
+    <bean id="oupHandler" class="com.raytheon.uf.edex.dissemination.OUPHandler">
+        <property name="ackManager" ref="oupAckMgr" />
+    </bean>
+    <bean id="oupTestHandler" class="com.raytheon.uf.edex.dissemination.OUPTestHandler">
+        <property name="oupHandler" ref="oupHandler" />
+    </bean>
+    
+    <bean id="handleoupAckMgrContext" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.dissemination.HandleoupAckMgrContextRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

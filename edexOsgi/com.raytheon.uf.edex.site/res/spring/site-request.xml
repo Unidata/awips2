@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="ValidateConfigRequestHandler"
+        class="com.raytheon.uf.edex.site.handlers.ValidateConfigRequestHandler" />
+    <bean id="activateSiteHandler"
+        class="com.raytheon.uf.edex.site.handlers.ActivateSiteHandler" />
+    <bean id="deactivateSiteHandler"
+        class="com.raytheon.uf.edex.site.handlers.DeactivateSiteHandler" />
+    <bean id="getActiveSitesHandler"
+        class="com.raytheon.uf.edex.site.handlers.GetActiveSitesHandler" />
+
+    <bean id="siteActivateNotifyFilter"
+        class="com.raytheon.uf.edex.site.notify.SiteActivateNotifyFilter" />
+    <bean id="siteActivationMonitor" class="com.raytheon.uf.edex.site.SiteActivationMonitor"
+        factory-method="getInstance" />
+
+    <bean id="siteActivationMonitoring" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.site.SiteActivationMonitoringRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

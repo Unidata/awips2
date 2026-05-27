@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="wxDescriptionProvider" class="com.raytheon.uf.edex.aviation.aag.WxDescriptionConfigFileProvider" />
+
+    <bean id="aagStationProvider" class="com.raytheon.uf.edex.aviation.aag.AAGConfigFileStationProvider" />
+
+    <bean id="aagDataRetriever" class="com.raytheon.uf.edex.aviation.aag.AAGDataRetriever" />
+
+    <bean id="aagForecastGenerator" class="com.raytheon.uf.edex.aviation.aag.AAGForecastGenerator">
+        <constructor-arg ref="wxDescriptionProvider" />
+    </bean>
+
+    <bean id="aagSender" class="com.raytheon.uf.edex.aviation.aag.AAGSender" />
+    
+    <bean id="aagRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.aviation.aag.AagRoutes">
+                <constructor-arg name="aviationAagCron" value="${aviation.aag.cron}" />
+                <constructor-arg name="aviationAagEnabled" value="${sys.aviation.aag.enabled}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+</beans>

@@ -1,0 +1,2 @@
+For each Core Product, there is also a Baseline version and a Regional version which can be run as a backup should the Site version fail.
+These can be displayed from the Local Formatter Dialog --> Products --> Baseline or Region, respectively.

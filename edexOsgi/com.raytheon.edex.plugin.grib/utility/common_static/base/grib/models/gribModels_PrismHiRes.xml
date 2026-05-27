@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gribModelSet>
+    <model>
+        <name>PrismHiRes</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>PrismHiRes</grid>
+        <process>
+            <id>254</id>
+        </process>
+    </model>
+</gribModelSet>

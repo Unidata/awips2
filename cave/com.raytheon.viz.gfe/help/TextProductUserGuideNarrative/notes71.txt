@@ -1,0 +1,2 @@
+If met, it creates a sub-phrase for each Local Effect area (or areas) for which there was a significant difference.  It also makes a new attribute for the node and adds the method "assembleEmbeddedLocalEffect" to be executed after the word methods generate words.  Notice that after this operation, processing can proceed as for any other phrase.
+

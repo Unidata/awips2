@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="dqcPreprocService" class="com.raytheon.uf.edex.ohd.pproc.DqcPreProcSrv" />
+
+  <bean id="dqcPreProcScheduledExecutionManager"
+    class="com.raytheon.uf.edex.ohd.pproc.DqcPreProcScheduledExecutionManager" />
+
+  <bean id="dqcPreproc-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.DqcPreprocContextRoutes" >
+                 <constructor-arg name="dqcpreprocessorCron" value="${dqcpreprocessor.cron}" />
+            </bean>
+        </constructor-arg>
+  </bean>
+</beans>

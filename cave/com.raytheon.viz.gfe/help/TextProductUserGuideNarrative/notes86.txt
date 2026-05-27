@@ -1,0 +1,2 @@
+And here the connector word is given as a method.  The arguments to each of these methods is specified in the Text Product Reference Guide.  Using methods and their arguments gives extra flexibility in specifying Local Effects.
+

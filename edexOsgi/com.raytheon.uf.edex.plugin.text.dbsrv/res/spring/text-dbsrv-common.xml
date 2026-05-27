@@ -1,0 +1,14 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="textdbsrv" class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBSrv" />
+    
+    <bean id="common-dbsrv-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.dbsrv.CommonDbsrvCamelRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

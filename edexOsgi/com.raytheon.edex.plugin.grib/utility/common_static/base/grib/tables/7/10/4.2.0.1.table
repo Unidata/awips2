@@ -1,0 +1,4 @@
+ # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
+#192-254 Reserved for local use
+242:242:Relative Humidity with Respect to Precipitable Water:%:RHPW
+255:255:Missing

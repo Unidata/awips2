@@ -1,0 +1,1 @@
+WMO BUFR code tables obtained from http://www.wmo.int/pages/prog/www/WMOCodes/WMO306_vI2/LatestVERSION/LatestVERSION.html

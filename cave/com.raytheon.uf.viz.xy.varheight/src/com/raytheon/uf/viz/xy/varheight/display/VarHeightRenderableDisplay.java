@@ -1,0 +1,107 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ *
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ *
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ *
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+package com.raytheon.uf.viz.xy.varheight.display;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.d2d.ui.AbstractHeightDisplay;
+import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData;
+import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData.OverlayMode;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScales;
+
+/**
+ * Renderable display for var height
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun 28, 2010            bsteffen    Initial creation
+ * Jun 18, 2014 3242       njensen     Removed unused imports
+ * Dec 20, 2023 2036519    mapeters    Don't construct the graph resource in
+ *                                     customizeResourceList()
+ *
+ * </pre>
+ *
+ * @author bsteffen
+ */
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement
+public class VarHeightRenderableDisplay extends AbstractHeightDisplay {
+
+    public VarHeightRenderableDisplay() {
+        this(new PixelExtent(0, 1000, 0, 1000));
+    }
+
+    public VarHeightRenderableDisplay(PixelExtent aPixelExtent) {
+        super(aPixelExtent, new VarHeightDescriptor(aPixelExtent));
+    }
+
+    @Override
+    public String getScale() {
+        if (getDescriptor() != null
+                && getDescriptor().getHeightScale() != null) {
+            return getDescriptor().getHeightScale().getName();
+        }
+        return null;
+    }
+
+    @Override
+    public void setScale(String scale) {
+        setHeightScale(HeightScales.fromName(scale));
+    }
+
+    @Override
+    public void setHeightScale(HeightScale scale) {
+        getDescriptor().setHeightScale(scale);
+    }
+
+    @Override
+    public VarHeightDescriptor getDescriptor() {
+        return (VarHeightDescriptor) super.getDescriptor();
+    }
+
+    @Override
+    protected void customizeResourceList(ResourceList resourceList) {
+        super.customizeResourceList(resourceList);
+
+        // Add graph resource
+        GraphResourceData grd = new GraphResourceData("Var Height background");
+        LoadProperties lprops = new LoadProperties();
+        ResourceProperties rprops = new ResourceProperties();
+        rprops.setMapLayer(true);
+        grd.setOverlayMode(OverlayMode.OVERLAY);
+        ResourcePair rp = new ResourcePair();
+        rp.setResourceData(grd);
+        rp.setProperties(rprops);
+        rp.setLoadProperties(lprops);
+        resourceList.add(rp);
+    }
+
+}

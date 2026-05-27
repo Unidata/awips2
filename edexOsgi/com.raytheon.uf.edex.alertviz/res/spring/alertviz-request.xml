@@ -1,0 +1,11 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Instantiate the handler class for AlertVizRequest Handler -->
+    <bean id="alertVizHandler" class="com.raytheon.uf.edex.alertviz.handler.AlertVizRequestHandler"/>
+
+    <bean id="initializeAlertMonitorsHandler" class="com.raytheon.uf.edex.alertviz.handler.InitializeAlertMonitorsHandler"/>
+
+</beans>

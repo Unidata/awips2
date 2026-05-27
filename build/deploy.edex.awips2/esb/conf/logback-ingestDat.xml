@@ -1,0 +1,26 @@
+<configuration debug="false" scan="true" packagingData="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/${LOG_APPENDERS_CONFIG}" />
+   
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
+   
+   <!-- default logging --> 
+   <root level="INFO"> 
+      <appender-ref ref="asyncConsole"/>
+    </root> 
+    
+     <!-- HydroDualPol log --> 
+   <appender name="HydroDualPolLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>hydrodualpol</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+
+   <!-- default logging -->
+   <logger name="HydroDualPolLog" additivity="false" level="DEBUG">
+      <appender-ref ref="HydroDualPolLog"/>
+   </logger>
+   
+</configuration>

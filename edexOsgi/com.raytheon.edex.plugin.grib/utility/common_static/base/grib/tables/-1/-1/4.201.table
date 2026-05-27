@@ -1,0 +1,12 @@
+# CODE TABLE 4.201, Precipitation Type
+1:1:Rain
+2:2:Thunderstorm
+3:3:Freezing rain
+4:4:Mixed/ice
+5:5:Snow
+6:6:Wet Snow
+7:7:Mixture of Rain and Snow
+8:8:Ice Pellets
+9:9:Graupel
+10:10:Hail
+255:255:Missing

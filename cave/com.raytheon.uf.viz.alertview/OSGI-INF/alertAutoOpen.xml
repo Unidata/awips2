@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="com.raytheon.uf.viz.alertview.ui.view.AlertViewAutoOpen" enabled="true" xmlns="http://www.osgi.org/xmlns/scr/v1.1.0">
+  <implementation class="com.raytheon.uf.viz.alertview.ui.view.AlertViewAutoOpen" />
+  <service>
+    <provide interface="com.raytheon.uf.viz.alertview.AlertDestination" />
+  </service>
+</component>

@@ -1,0 +1,450 @@
+########################################################################################
+## SNOW SQUALL WARNING TEMPLATE                                                       ##
+## VERSION HISTORY                                                                    ##
+##   Mike Dangelo &                                                                   ##
+##    Evan Bookbinder   1-31-2017 First Revisions/Refinements, all new CTAs; DCS20066 ##
+##    E. Bookbinder    01-30-2019 DR20914 Fix format error caused when no highway     ##
+##                                mile markers are found                              ##
+##    M. Rega          01-16-2020 DR 21824 add "in " for Extremely poor vis HAZARD    ##
+##    Mike Dangelo     Nov 2021 - adding TAGs and format changes                      ##
+##    Mike Dangelo    June 2022 - Added radar+spotter source option DCS22976          ##
+##    Mike Rega       10-06-2022 - Corrected pileup safety CTA DR23326                ##
+##    Mike Dangelo    10-12-2022 - Framing code when no bullet choices made DR23335   ##
+##    Bookbinder       9-21-2023 Force selection of CTA for && break point DR 2036278 ##
+########################################################################################
+##
+#parse("config.vm")
+######################################
+### CREATE WMO/MND HEADER ############
+######################################
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+${productId}${siteId}
+
+#if(${productClass}=="T")
+TEST...Snow Squall Warning...TEST
+#else
+Snow Squall Warning
+#end
+National Weather Service ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${action}=="COR" && ${cancelareas})
+#set($CORCAN = "true")
+#else
+#set($CORCAN = "false")
+#end
+#if(${action}=="CANCON")
+${ugclinecan}
+/${productClass}.CAN.${vtecOffice}.SQ.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
+#foreach (${area} in ${cancelareas})
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+#elseif(${CORCAN}=="true")
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.SQ.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
+#foreach (${area} in ${cancelareas})
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+#else
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.SQ.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
+#foreach (${area} in ${areas}) 
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#######################################
+###### END CREATE HEADER ##############
+#######################################
+##
+##
+#################################################################
+#################################################################
+##  EXPIRATION AND CANCELLATION SEGMENTS                    #####
+#################################################################
+#################################################################
+### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
+#if(${now.compareTo(${expire})} >= 0 && ${action}=="EXP" )
+  #set($expcanHLTag = "HAS EXPIRED")
+  #set($expcanBODYTag = "has been allowed to expire")
+#elseif(${action}=="EXP")
+  #set($expcanHLTag = "WILL EXPIRE AT #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})")
+  #set($expcanBODYTag = "will be allowed to expire")
+#elseif(${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
+  #set($expcanHLTag = "IS CANCELLED")
+  #set($expcanBODYTag = "has been cancelled")
+#end
+################################
+#### CREATE HEADLINES ##########
+################################
+##
+#if(${action}=="EXP" || ${action}=="CAN")
+...THE SNOW SQUALL WARNING FOR ##
+#headlineLocList(${areas} true true true false "ALL") ${expcanHLTag}...
+## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
+#elseif(${action}=="CANCON" || ${CORCAN}=="true")
+...THE SNOW SQUALL WARNING FOR ##
+#headlineLocList(${cancelareas} true true true false "ALL") ${expcanHLTag}...
+#end
+############################
+## END CAN/EXP HEADLINE ####
+############################
+##
+#########################################
+## CAN/EXP STATEMENTS                   #
+#########################################
+#if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
+#### SET A DEFAULT STATEMENT IN CASE NO BULLET WAS SELECTED OR AVAILABLE
+#set($expcanPhrase = "The snow squall that prompted the warning has !** weakened. moved out of the warned area.**! Therefore, the snow squall warning ${expcanBODYTag}.")
+#### WEAKENED BELOW SEVERE LIMITS
+#if($bullets.contains("weakened"))
+  #set($expcanPhrase = "The snow squall that prompted the warning has weakened. Therefore, the snow squall warning ${expcanBODYTag}.")
+#end
+#### MOVED OUT OF THE WARNED AREA
+#if($bullets.contains("movedout"))
+  #set($expcanPhrase = "The snow squall that prompted the warning has exited the area. Therefore, the snow squall warning ${expcanBODYTag}.")
+#end
+#### WEAKENED AND MOVED OUT OF THE AREA
+#if($bullets.contains("wkndandmoved"))
+  #set($expcanPhrase = "The snow squall that prompted the warning has weakened and exited the area. Therefore, the snow squall warning ${expcanBODYTag}.")
+#end
+########################################
+## END OF WARNING THREATS SECTION ######
+########################################
+### SET INITIAL VARIABLES ####
+#set($blowingsnowcheck = 0)
+#set($snowcovercheck = 0)
+#set($icycheck = 0)
+##Blowing Snow still a threat
+#if($bullets.contains("stillblowingsnow"))
+ #set($blowingsnowcheck = 1)
+#end
+##Snow-covered roads still a threat
+#if($bullets.contains("stillsnowcovered"))
+ #set($snowcovercheck = 1)
+#end
+##Icy conditions a threat
+#if($bullets.contains("stillicy"))
+ #set($icycheck = 1)
+#end
+## FORMULATE PHRASEOLOGY
+#set($addthreat = "")
+#if(${blowingsnowcheck} == "1" && ${snowcovercheck} == "0" && ${icycheck} == "0" )
+ #set($addthreat = " Areas of blowing snow will continue to make travel difficult.")
+#elseif(${blowingsnowcheck} == "0" && ${snowcovercheck} == "1" && ${icycheck} == "0" )
+ #set($addthreat = " Roads will remain snow covered.")
+#elseif(${blowingsnowcheck} == "0" && ${snowcovercheck} == "0" && ${icycheck} == "1" )
+ #set($addthreat = " Roads will remain slick and hazardous due to icy conditions.")
+#elseif(${blowingsnowcheck} == "1" && ${snowcovercheck} == "1" && ${icycheck} == "0" )
+ #set($addthreat = " Areas of blowing snow and snow-covered roads will continue to make travel difficult.")
+#elseif(${blowingsnowcheck} == "1" && ${snowcovercheck} == "0" && ${icycheck} == "1" )
+ #set($addthreat = " Areas of blowing snow and icy conditions will continue to make travel difficult.")
+#elseif(${blowingsnowcheck} == "0" && ${snowcovercheck} == "1" && ${icycheck} == "1" )
+ #set($addthreat = " Snow and ice-covered roads will continue to make travel difficult.")
+#elseif(${blowingsnowcheck} == "1" && ${snowcovercheck} == "1" && ${icycheck} == "1" )
+ #set($addthreat = " Areas of blowing snow, along with snow and ice-covered roads will continue to make travel difficult.")
+#end
+
+${expcanPhrase}${addthreat}
+
+&&
+
+
+#printcoords(${areaPoly})
+
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
+
+$$
+##
+#end
+##
+###################################################
+##### END CANCELLATION/EXPIRATION SECTION #########
+###################################################
+
+##################################################
+##################################################
+##  CONTINUATION SEGMENT                     #####
+##################################################
+##################################################
+####
+#### IF PARTIAL CANCELLATION, INSERT $$ AND 2ND UGC/MND SECTION PRIOR TO CON PORTION
+####
+#if(${action}=="CANCON")
+
+
+${ugcline}
+/${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
+#foreach (${area} in ${areas}) 
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#elseif(${CORCAN}=="true")
+
+
+${ugcline}
+/${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
+#foreach (${area} in ${areas}) 
+#capitalize(${area.name} "FIRST")
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#end
+#if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
+...A SNOW SQUALL WARNING REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#headlineLocList(${areas} true true true false "ALL")...
+########### END NEW HEADLINE CODE ####################
+
+#############################################################
+############# THIRD BULLET (Initial position & motion) ######
+#############################################################
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+, a dangerous snow squall was located ##
+##Many of the variables passed below are controlled by config.vm
+#if(${stormType} == "line")
+#handleClosestPoints(${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#else
+#handleClosestPoints(${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+, and is nearly stationary. 
+#else
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.
+#end
+
+###################################################
+## CREATE HAZARD WORDING              #############
+###################################################
+###############  GUST AND VIZ CHECKS  #############
+########################### VIZ ###################
+#set($windhazard = "!** NO VISIBILITY SELECTED. PLEASE CANCEL THIS WARNING AND REGENERATE IT WITH A VALID CHOICE **!") 
+#if($bullets.contains("poorV"))
+  #set($windhazard = "Intense bursts of heavy snow. Gusty winds leading to blowing snow and rapidly falling visibility.")
+#end
+#if($bullets.contains("lt1qV"))
+  #set($windhazard = "Intense bursts of heavy snow. Gusty winds leading to blowing snow and visibility rapidly falling to less than one-quarter mile.")
+#end
+#if($bullets.contains("whiteoutV"))
+  #set($windhazard = "Whiteout conditions with near zero visibility associated with intense bursts of heavy snow and gusty winds leading to blowing snow.")
+#end
+########################### GUST ###################
+#set($gusthazard = "!** NO GUST SELECTED. PLEASE CANCEL THIS WARNING AND REGENERATE IT WITH A VALID CHOICE **!") 
+#if($bullets.contains("upto20G"))
+  #set($gusthazard = "Wind gusts up to 20 mph.")
+#end
+#if($bullets.contains("upto35G"))
+  #set($gusthazard = "Wind gusts up to 35 mph.")
+#end
+#if($bullets.contains("gt35G"))
+  #set($gusthazard = "Wind gusts greater than 35 mph.")
+#end
+#if($bullets.contains("gt50G"))
+  #set($gusthazard = "Wind gusts greater than 50 mph could knock down tree limbs and blow around unsecured objects.")
+#end
+#set($hazard = "${windhazard} ${gusthazard}")
+#if($bullets.contains("flashFreezeCTA"))
+  #set($hazard = "Flash freeze on roads. ${hazard}")
+#end
+##############################################################
+#### CREATE SOURCE WORDING ###################################
+##############################################################
+#set($source = "!** NO SOURCE CHOSEN. CANCEL THIS WARNING AND REGENERATE IT WITH A VALID CHOICE **!")
+#set($sourceTag = "!** NO SOURCE CHOSEN. CANCEL THIS WARNING AND REGENERATE IT WITH A VALID CHOICE **!")
+#if($bullets.contains("doppler")) 
+  #set($source = "Radar indicated.")
+  #set($sourceTag = "RADAR INDICATED")
+#end
+#if($bullets.contains("dopplerWebcams"))
+  #set($source = "Radar and webcams.")
+  #set($sourceTag = "OBSERVED")
+#end
+#if($bullets.contains("dopplerSpotter"))
+  #set($source = "Radar and trained spotter.")
+  #set($sourceTag = "OBSERVED")
+#end
+#if($bullets.contains("trainedSpotter"))
+  #set($source = "Trained spotter.")
+  #set($sourceTag = "OBSERVED")
+#end
+#if($bullets.contains("lawEnforcement"))
+  #set($source = "Law enforcement.")
+  #set($sourceTag = "OBSERVED")
+#end
+#if($bullets.contains("emergencyMgmt"))
+  #set($source = "Emergency management.")
+  #set($sourceTag = "OBSERVED")
+#end
+#if($bullets.contains("public"))
+  #set($source = "Public.")
+  #set($sourceTag = "OBSERVED")
+#end
+##############################################################
+#### CREATE IMPACT WORDING ###################################
+##############################################################
+#set($impact = "Travel will become difficult and potentially dangerous within minutes.")
+#if($bullets.contains("significantIBW")) 
+#set($impact = "Dangerous and life-threatening travel conditions are expected to develop rapidly in the warning area.")
+#end
+##############################################################
+
+#wrapText("HAZARD...${hazard}" 0 9)
+
+#wrapText("SOURCE...${source}" 0 9)
+
+#wrapText("IMPACT...${impact}" 0 9)
+
+########## OUTPUT MILE MARKERS/HIGHWAY INFO ###########
+#set($mileMarkers = "")
+#set($mileMarkers = "#parse('mileMarkers.vm')")
+#if(${mileMarkers.length()} <= 10) 
+!**ENTER IN ANY AFFECTED ROAD/HIGHWAY INFORMATION**!
+
+#else
+${mileMarkers}
+
+#end
+###################################################
+######## GENERATE PATHCAST OR CITIES LIST #########
+###################################################
+#set($pathcastLead = "This snow squall")
+#set($otherLead = "this snow squall")
+#if($bullets.contains("pathcast"))
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("#capitalize(${pathcastLead} 'FIRSTONLY') will be near..." ${otherLead} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#elseif($bullets.contains("listofcities"))
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("Locations impacted include..." ${otherLead} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+Locations impacted include... 
+  !** YOU DID NOT SELECT A PATHCAST OR LIST OF CITIES BULLET. PLEASE ENTER LOCATIONS IMPACTED **!.
+
+#end
+
+##################################
+######### CALLS TO ACTION ########
+##################################
+## Check to see if we've selected any calls to action. In our .xml file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#else
+!** YOU DID NOT SELECT A CTA. PLEASE RESTART **!
+
+#end
+########################################### CTAs ##############################
+#if($bullets.contains("flashFreezeCTA"))
+Wet roadways will quickly freeze. Black ice will cause roads, bridges, and overpasses to become slick and dangerous. Slow down and be prepared for a sudden loss of traction.  
+
+#end
+#if($bullets.contains("slowDownCTA"))
+Slow Down! Rapid changes in visibility and road conditions are expected with this dangerous snow squall. Be alert for sudden whiteout conditions.
+
+#end
+#if($bullets.contains("headlightsVizCTA"))
+Reduce speed and turn on headlights! During snow squalls, the visibility may suddenly drop to near zero in whiteout conditions.
+
+#end
+#if($bullets.contains("avoidOrDelayTravelCTA"))
+Consider avoiding or delaying travel until the snow squall passes your location. If you must travel, use extra caution and allow extra time. Rapid changes in visibility and slick road conditions may lead to accidents.
+
+#end
+#if($bullets.contains("exitRoadwayCTA"))
+If traveling on a highway, find the nearest exit or rest area and park safely away from traffic. Allow snow squalls to pass before attempting to resume travel.
+
+#end
+#if($bullets.contains("dangerousTravelCTA"))
+There is no safe place on a highway when a snow squall hits. Visibility and traction are immediately lost in whiteout conditions, making it difficult or impossible to slow down and avoid stopped vehicles. Delay travel or safely exit the highway before the snow squall arrives.
+
+#end
+#if($bullets.contains("pileupSafetyCTA"))
+Serious injuries and deaths may result from people exiting their vehicles during a snow squall. Drivers may not be able to see you or stop! If you have been involved in an accident or pulled to the side of the roadway, quickly exit your vehicle and move as far away from the roadway as possible ONLY when it is safe to do so. Do not stand along or near the roadway, since approaching vehicles may be unable to maintain control.
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#else
+!** YOU DID NOT SELECT ANY CALLS TO ACTION. PLEASE CANCEL THE EDIT WINDOW AND REGENERATE THIS STATEMENT AFTER SELECTING AT LEAST ONE CTA **!.
+
+#end
+#printcoords(${areaPoly})
+
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
+
+
+SNOW SQUALL...${sourceTag}
+#if($bullets.contains("significantIBW")) 
+SNOW SQUALL IMPACT...SIGNIFICANT 
+#end
+
+$$
+#end
+
+#parse("forecasterName.vm")

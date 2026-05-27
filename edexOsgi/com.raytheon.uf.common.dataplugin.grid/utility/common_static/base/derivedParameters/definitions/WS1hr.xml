@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="WS1hr" name="1 Hour Maximum Wind Speed" unit="m/s">
+    <Method name="Alias" levels="Surface">
+        <Field abbreviation="WS1hr" level="10FHAG" />
+    </Method>
+</DerivedParameter>

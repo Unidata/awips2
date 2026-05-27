@@ -1,0 +1,7 @@
+Now we can see how these methods might be "glued" together in a Smart Tabular Product to:
+  -- Get the Edit Areas for the product,
+  -- Create the time ranges and labels for the product, and
+  -- Sample the data.
+
+The SmartElementTable uses these methods to produce the histogram data.
+

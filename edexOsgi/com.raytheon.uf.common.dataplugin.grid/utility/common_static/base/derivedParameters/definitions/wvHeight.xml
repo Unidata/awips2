@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter name="wvHeight" abbreviation="wvHeight" unit="m">
+    <Method name="wvHeight.execute1">
+        <Field abbreviation="waveHeight" />
+        <Field abbreviation="windWaveHeight" />
+    </Method>
+</DerivedParameter>

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization..
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+  <!-- TOWRdocs Header
+        Netcdf Grid Imagery style rules.
+   -->
+   <!-- TOWRdocs Description
+        This file sets style for IMERG and other gridded products currently handled with the netcdfGrid plugin.  This file 
+	controls display legends, units and color tables for the GPM IMERG-Early and IMERG-Late precipitation
+	products. It is a new file not included in the 16.2.1 AWIPS baseline. Configuration for CMORPH is also included
+
+	The default display for gridded data in AWIPS 2 is contour.  An updated to FieldDisplayTypes is added in 
+	this collection under /cave_static/../volumebrowser to make the defaults for IMERG (for example) be "IMAGE" displays.
+	With this implementation, the style rules below are activated.
+
+	The color table and increments below currently match those of the GOES-R WFO collection of localization files.
+    Restart CAVE whenever making changes to this file.  The RR/QPE color table points to the default in the Sat/GOESR-L2 directory.
+
+   -->
+   <!-- TOWRdocs Status
+        Update to baseline file to add blended hydro style rules
+        Ensure units for hours is the letter "h"
+        Labels for satellite number
+   -->
+   <!-- TOWRdocs POC
+        Lee Byerle 8/26/2019
+   -->
+<styleRuleset>
+   <!-- Blended Hydro products -->
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_TPW</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>in</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>3</maxValue> 
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 .5 1 1.5 2 2.5 3</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_TPW_Obs_age</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="hr">*1</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>12</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 2 4 6 8 10</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_TPW_Sat_Number</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="">*1</displayUnits>
+      <range>
+        <minValue>-100</minValue>
+        <maxValue>1100</maxValue> 
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+      <dataMapping>
+                <entry pixelValue='19'   displayValue='19'   label="NOAA-19" />
+                <entry pixelValue='20'   displayValue='20'   label="NOAA-20" />
+                <entry pixelValue='101'  displayValue='101'  label="Metop-A" />
+                <entry pixelValue='102'  displayValue='102'  label="Metop-B" />
+                <entry pixelValue='301'  displayValue='301'  label="S-NPP" />
+                <entry pixelValue='401'  displayValue='401'  label="GCOM" />
+                <entry pixelValue='501'  displayValue='501'  label="GPM" />
+                <entry pixelValue='1001' displayValue='1001' label="GPS" />
+      </dataMapping>
+    </imageStyle>
+    </styleRule>
+
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_RR</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>in/h</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>3</maxValue>
+      </range>
+       <defaultColormap>Sat/MW/nrlmicrorain_swaths</defaultColormap>
+       <colorbarLabeling>
+        <values>0 0.25 0.5 0.75 1.0 1.25 1.50 1.75 2.0 2.25 2.50 2.75 3.0</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_RR_Obs_age</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="hr">*1</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>12</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 2 4 6 8 10</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_RR_Sat_Number</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="">*1</displayUnits>
+      <range>
+        <minValue>-100</minValue>
+        <maxValue>1100</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+      <dataMapping>
+                <entry pixelValue='19'  displayValue='19'    label="NOAA-19" />
+                <entry pixelValue='20'  displayValue='20'    label="NOAA-20" />
+                <entry pixelValue='101' displayValue='101'   label="Metop-A" />
+                <entry pixelValue='102' displayValue='102'   label="Metop-B" />
+                <entry pixelValue='217' displayValue='217'   label="SSMIS-F17" />
+                <entry pixelValue='218' displayValue='218'   label="SSMIS-F18" />
+                <entry pixelValue='301' displayValue='301'   label="S-NPP" />
+                <entry pixelValue='401' displayValue='401'   label="GCOM" />
+                <entry pixelValue='501' displayValue='501'   label="GPM" />
+                <entry pixelValue='1001' displayValue='1001' label="GPS" />
+      </dataMapping>
+    </imageStyle>
+    </styleRule>
+
+    <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_PCT</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>%</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>200</maxValue>
+      </range>
+       <defaultColormap>Sat/Precip Water/Percent of Normal TPW</defaultColormap>
+       <colorbarLabeling>
+        <values>50 100 150 200</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+
+   <styleRule>
+         <paramLevelMatches>
+          <parameter>BLENDED_PCT_Obs_age</parameter>
+        </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="hr">*1</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>12</maxValue>
+      </range>
+       <defaultColormap>GOES-R/GOESR-L2/color-pw10-10</defaultColormap>
+       <colorbarLabeling>
+        <values>0 2 4 6 8 10</values>
+      </colorbarLabeling>
+    </imageStyle>
+    </styleRule>
+<!--End of blended hydro products -->
+
+<!--Global Multi-sat Geostationary composites -->
+
+ <styleRule>
+    <paramLevelMatches>
+      <parameter>GLOBALCOMPWV</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="">bit</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
+      </range>
+      <defaultColormap>Sat/WV/CIMSS_WV</defaultColormap>
+      <colorbarLabeling>
+          <values>0 50 100 150 200 250</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+ <styleRule>
+    <paramLevelMatches>
+      <parameter>GLOBALCOMPVIS</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="">bit</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
+      </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+      <colorbarLabeling>
+          <values>0 50 100 150 200 250</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+ <styleRule>
+    <paramLevelMatches>
+      <parameter>GLOBALCOMPLIR</parameter>
+      <!--<parameter>GLOBALCOMPSIR</parameter> -->
+    </paramLevelMatches>
+    <imageStyle>
+      <interpolate>false</interpolate>
+      <displayUnits label="">bit</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
+      </range>
+      <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling>
+          <values>0 50 100 150 200 250</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+
+</styleRuleset>

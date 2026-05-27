@@ -1,0 +1,73 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.4.2-2smp i686) [Netscape]">
+   <title>Miscellaneous Actions Training</title>
+</head>
+<body>
+<font color="#3333FF"><font size=+2>Miscellaneous and More Complex actions</font></font>
+<br>&nbsp;
+<p><a NAME="ChangeColorTable"></a><font color="#3333FF"><font size=+2>Display
+a grid as an image, then change the Color Table that is being used.</font></font>
+<p><font color="#330000">To display a grid as an image, move the cursor
+down to the legend that corresponds to that grid.&nbsp; Press and hold
+MB3 and select Display as Image.&nbsp; This will change the grid to an
+image.&nbsp; For more information on this and other legend options, see
+the section <a href="GFETrainingSpatialEditor.html#LegendPop-upMenu">Legend
+Pop-up Menu</a>.&nbsp; Changing the current color table is done via the
+color bar located at the top of the Spatial Editor.&nbsp; Move the cursor
+to the color bar and press and hold MB3 to display the pop-up menu.&nbsp;
+Move the cursor to the item </font><font color="#FF0000">Change Color Table
+To-></font><font color="#330000">&nbsp; to see the list of available color
+tables.&nbsp; Select a new color table and watch the display of the grid
+change.</font>
+<p><a NAME="ChangeGraphicColor"></a><font color="#3333FF"><font size=+2>Change
+the color of a graphic. (Think how you would do this on D2D.)</font></font>
+<p><font color="#330000">This operation works nearly the same as on D2D.&nbsp;
+Move your cursor to the appropriate legend and press and hold MB3 to display
+the pop-up menu.&nbsp; From this menu, select </font><font color="#FF0000">Change
+Graphic Color To -></font><font color="#330000"> and select any color you
+like.</font>
+<p><a NAME="AssignWeatherByPoP"></a><font color="#3333FF"><font size=+2>Assign
+a weather type to the portion of a grid covered by a certain PoP value.</font></font>
+<p>First you need to define an edit area based on PoP.&nbsp; To do this
+open the <a href="ButtonBarDialogs.html#EditAreaQueryDialog">Edit Area
+Query Dialog</a> from the Button Bar.&nbsp; This button looks like this&nbsp;<img SRC="images/defineRefset0.gif" height=46 width=46>.&nbsp;
+Define a query based on PoP.&nbsp; For example, "<font color="#FF0000">PoP-&gt
+ 30</font>" and submit the query.&nbsp; For more information, see the
+section on the&nbsp; <a href="ButtonBarDialogs.html#EditAreaQueryDialog">Edit
+Area Query Dialog</a>.&nbsp; Once you have defined your edit area based
+on PoP, then make the corresponding Wx grid active.&nbsp; Select the appropriate
+weather type, coverage and intensity and assign that value to the edit
+area.
+<p><a NAME="AssignPopBasedOnQPF"></a><font color="#3333FF"><font size=+2>Assign
+values to a PoP grid based on different threshold values in the QPF grid
+for that time.</font></font>
+<p><font color="#330000">This task can be accomplished by submitting several
+queries that identify areas based on the QPF value and then assigning various
+PoP values after each query.&nbsp; For example, open the&nbsp;</font> <a href="ButtonBarDialogs.html#EditAreaQueryDialog">Edit
+Area Query Dialog</a>&nbsp; and define a query at the low end of QPF such
+as "QPF &lt; 0.01".&nbsp; Once this edit area has been defined, assign
+a PoP value of 0%.&nbsp; Next submit another query such as "QPF >= 0.01
+* QPF &lt; 0.10". Once this edit area is defined, assign a different value
+for PoP such as 20%.&nbsp; Follow this with another query, and so on until
+the entire range of QPF has been addressed.
+<p>Smart Tools is another way to define this relationship with significantly
+less work.&nbsp; See the <a href="SmartTools.html">Smart Tools Training
+Guide</a> for more information on creating Smart Tools.
+<br>&nbsp;
+<p><a NAME="SaveAndPublish"></a><font color="#3333FF"><font size=+2>Save
+and Publish the data.</font></font>
+<p><font color="#330000">To save your gridded forecast data select from
+the Main Menu Edit->Save Forecast.&nbsp; Then select the Save Forecast
+button.&nbsp; You can also get to this dialog by selecting the Button Bar
+button that looks like this.&nbsp;</font><img SRC="images/saveFcst0.gif" height=46 width=46>
+<p><font color="#330000">To Publish your data to the Official database,
+select from the Main Menu </font><font color="#FF0000">Products->Publish
+to Official...</font><font color="#330000">&nbsp; This will display the
+<a href="MainMenuDialogs.html#PublishToOfficialDialog">Publish
+Dialog</a> that allows you to choose which weather elements to publish.&nbsp;
+To publish the&nbsp; weather elements click on the Publish button.</font>
+</body>
+</html>

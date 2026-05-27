@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="qcScanner" class="com.raytheon.uf.edex.plugin.qc.QCScanner" depends-on="qcProperties">
+        <property name="maxRecordsInChunk" value="1000" />
+    </bean>
+    
+    <bean id="qcScan-camel" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.qc.QCScanCamelRoutes" >
+                <constructor-arg name="qcCron" value="${qc.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="qcDecode-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.qc.QCDecodeCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

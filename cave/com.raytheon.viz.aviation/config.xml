@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="IsO-8859-1" standalone="no"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!--
+  REVISION HISTORY
+  
+  Date         Ticket#    Engineer    Description
+  05/24/2016   18352      zhao        Added "viewerAlertColor" 
+ -->
+    
+<configuration>
+    <font>Sans-10-Normal</font>
+    <background>#ede9e3</background>
+    <foreground>#000000</foreground>
+    <textFont>Courier-10-Normal</textFont>
+    <textBackground>#FFFFFF</textBackground>
+    <textForeground>#000000</textForeground>
+    <textWidth>650</textWidth>
+    <textHeight>175</textHeight>
+    <textCursor>Arrow</textCursor>
+    <textEditorFont>Courier-10-Normal</textEditorFont>
+    <textEditorBackground>#FFFFFF</textEditorBackground>
+    <textEditorForeground>#000000</textEditorForeground>
+    <textEditorWidth>650</textEditorWidth>
+    <textEditorHeight>175</textEditorHeight>
+    <textEditorCursor>Arrow</textEditorCursor>
+    <textEditorInsWidth>5</textEditorInsWidth>
+    <insertBackground>#000000</insertBackground>
+    <textViewerWidth>650</textViewerWidth>
+    <textViewerHeight>225</textViewerHeight>
+    <orientation>vertical</orientation>
+    <listBoxFont>Sans-10-Normal</listBoxFont>
+    <entryFont>Sans-10-Normal</entryFont>
+    <entryBackground>#ede9e3</entryBackground>
+    <msgBarEntryBgnd>#FFFFFF</msgBarEntryBgnd>
+    <toolTipFont>Sans-10-Normal</toolTipFont>
+    <impactPlacement>top</impactPlacement>
+    <transientDialogs>true</transientDialogs>
+    <confirmClose>true</confirmClose>
+    <confirmSend>false</confirmSend>
+    <alertLevel0>#00CD00</alertLevel0>
+    <alertLevel1>#BEBEBE</alertLevel1>
+    <alertLevel2>#98FB98</alertLevel2>
+    <alertLevel3>#FFFF00</alertLevel3>
+    <alertLevel4>#FFA500</alertLevel4>
+    <alertLevel5>#FF0000</alertLevel5>
+    <alertLevel6>#A020F0</alertLevel6>
+    <viewerAlertColor>#FF0000</viewerAlertColor>
+    <notifyRaise>disabled</notifyRaise>
+    <notifyPlay>disabled</notifyPlay>
+    <playFile>None</playFile>
+    <alertIntervalMinutes>10</alertIntervalMinutes>
+    <blink>true</blink>
+    <disallowSend>error</disallowSend>
+    <loadOrder>latest</loadOrder>
+    <autoSave>false</autoSave>
+    <updateTimes>false</updateTimes>
+    <autoPrint>false</autoPrint>
+    <insert>false</insert>
+    <wrap>none</wrap>
+    <amdbuttons>true</amdbuttons>
+    <numTafs>1</numTafs>
+    <numHours>6</numHours>
+    <numHoursAll>1</numHoursAll>
+    <showHeaders>true</showHeaders>
+    <showDecoded>true</showDecoded>
+    <showRoutine>true</showRoutine>
+    <showProbs>true</showProbs>
+    <showFormatted>short</showFormatted>
+    <highlightFlightCat>false</highlightFlightCat>
+    <lifrColor>#6C1916</lifrColor>
+    <ifrColor>#5B3C2C</ifrColor>
+    <mvfrColor>#2C4B4C</mvfrColor>
+    <vfrColor>#112346</vfrColor>
+</configuration>

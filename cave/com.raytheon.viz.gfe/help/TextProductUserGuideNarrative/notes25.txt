@@ -1,0 +1,2 @@
+Here are some very handy methods which allow you to easily access the time range, area label and component information about a node. Note that we cannot simply use the "get"command since a particular node may not have a "timeRange" or "component" attribute set.  These methods return the value for the first ancestor having the given attribute.  
+

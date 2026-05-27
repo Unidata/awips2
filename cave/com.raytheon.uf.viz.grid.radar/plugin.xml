@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.viz.grid.ext">
+      <ext
+            class="com.raytheon.uf.viz.grid.radar.RadarGridExtension">
+      </ext>
+   </extension>
+
+</plugin>

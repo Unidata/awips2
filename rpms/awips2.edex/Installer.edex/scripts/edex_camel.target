@@ -1,0 +1,24 @@
+# This configuration file encodes information about a target unit of systemd.
+#
+# A target unit is used to group units and provide synchronization 
+# points for other units when booting up or changing states. 
+# Other units specify their relation to targets to become tied 
+# to the target’s operations.
+#
+# To create a dependency to this target other units should specify
+# the following Install Section Directive:
+#
+# WantedBy=edex_camel.target
+#
+# When a unit with the above directive is enabled a directory called 
+# edex_camel.target.wants will be created within /etc/systemd/system 
+# and a symbolic link to the current unit will be placed within. 
+# Disabling this unit removes the link and removes the dependency relationship.
+#
+# This target will only be usable when the referencing services (edex_camel@request,
+# ingest, ingetsDat, ingetsGrib) are enabled after this target is installed. 
+# Systems that install the AWIPS2-edex-enableservices RPM should have a usable target.
+#
+# To make this target usable manually, enable or disable and enable the referencing services.
+[Unit]
+Description=Target to manage all EDEX components at once

@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="backupSvcDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.edex.backupsvc"/>
+        <property name="database" value="metadata"/>
+    </bean>
+
+    <bean id="backupSvcDbRegistered" factory-bean="dbPluginRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.edex.backupsvc"/>
+        <constructor-arg ref="backupSvcDbPluginProperties"/>
+    </bean>
+
+    <bean id="localizationBackupSvcDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.backupsvc"/>
+        <property name="database" value="metadata"/>
+    </bean>
+
+    <bean id="localizationBackupSvcDbRegistered" factory-bean="dbPluginRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.backupsvc"/>
+        <constructor-arg ref="localizationBackupSvcDbPluginProperties"/>
+    </bean>
+    
+    <bean id="backupServiceCapabilityManager" class="com.raytheon.uf.edex.backupsvc.service.BackupServiceCapabilityManager"
+        factory-method="getInstance" />
+
+    <bean id="getBackupHostCapabilitiesMapHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetBackupHostCapabilitiesMapHandler" />
+
+    <bean id="getBackupHostVersionMapHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetBackupHostVersionMapHandler" />
+
+    <bean id="getEdexVersionHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetEDEXVersionHandler" />
+
+    <bean id="getBackupServiceCapabilitiesHandler" class="com.raytheon.uf.edex.backupsvc.handlers.GetBackupServiceCapabilitiesHandler" />
+
+    <bean id="backupEnqueueHandler" class="com.raytheon.uf.edex.backupsvc.handlers.BackupEnqueueHandler" />
+
+    <bean id="localizationBackupEnqueueHandler" class="com.raytheon.uf.edex.backupsvc.handlers.LocalizationBackupEnqueueHandler" />
+
+    <bean id="remoteOutgoingBackupJobsHandler" class="com.raytheon.uf.edex.backupsvc.handlers.RemoteOutgoingBackupJobsHandler" />
+
+    <bean id="remoteIncomingBackupJobsHandler" class="com.raytheon.uf.edex.backupsvc.handlers.RemoteIncomingBackupJobsHandler" />
+
+    <bean id="incomingBackupJobsHandler" class="com.raytheon.uf.edex.backupsvc.handlers.IncomingBackupJobsHandler" />
+
+    <bean id="outgoingBackupJobsHandler" class="com.raytheon.uf.edex.backupsvc.handlers.OutgoingBackupJobsHandler" />
+
+    <bean id="backupConfigFileHandler" class="com.raytheon.uf.edex.backupsvc.handlers.BackupConfigFileHandler" />
+        
+    <bean id="backupSvc" class="com.raytheon.uf.edex.backupsvc.service.BackupService" depends-on="backupSvcDbRegistered" />
+    
+    <bean id="clusteredBackupSvcContext" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.backupsvc.service.ClusteredBackupSvcContextRoutes" />
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredBackupSvcContext"/>
+        <constructor-arg ref="backupSvc"/>
+    </bean>
+
+    <bean id="backupSvcPurger" class="com.raytheon.uf.edex.backupsvc.service.BackupServicePurger" />
+    
+    <bean id="clusteredBackupSvcPurgerContext" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.backupsvc.service.ClusteredBackupSvcPurgerContextRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

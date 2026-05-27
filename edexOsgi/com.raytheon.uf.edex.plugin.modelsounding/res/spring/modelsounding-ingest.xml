@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="modelsoundingPersistenceManager"
+        class="com.raytheon.uf.edex.plugin.modelsounding.ModelSoundingPersistenceManager">
+    </bean>
+
+    <bean id="modelsoundingDecoder"
+        class="com.raytheon.uf.edex.plugin.modelsounding.ModelSoundingDecoder">
+        <property name="modelSoundingPersistenceManager" ref="modelsoundingPersistenceManager" />
+    </bean>
+
+    <bean id="mdlsndgDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="modelsoundingPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.modelsounding"/>
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="modelsounding-camel"/>
+        <constructor-arg ref="modelsoundingPersistenceManager"/>
+    </bean>
+    
+    <bean id="modelsounding-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.modelsounding.ModelsoundingCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

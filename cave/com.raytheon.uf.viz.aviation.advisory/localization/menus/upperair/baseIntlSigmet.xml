@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version of the 
+    file. -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="subMenu" menuText="International SIGMET">
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Any" id="ANY">
+            <substitute key="hazardType" value="ANY" />
+            <substitute key="color" value="#66FFFF" />
+            <substitute key="name" value="Active Intl SIGMET" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Hurricane" id="HURRICANE">
+            <substitute key="hazardType" value="HURRICANE" />
+            <substitute key="color" value="#FF0000" />
+            <substitute key="name" value="ISIG HURRICANE" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Tropical Depression" id="TROPICAL DEPRESSION">
+            <substitute key="hazardType" value="TROPICAL DEPRESSION" />
+            <substitute key="color" value="#FFFF00" />
+            <substitute key="name" value="ISIG TROPICAL DEPRESSION" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Tropical Storm" id="TROPICAL STORM">
+            <substitute key="hazardType" value="TROPICAL STORM" />
+            <substitute key="color" value="#FFFF00" />
+            <substitute key="name" value="ISIG TROPICAL STORM" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Squall Line Storm" id="SQUALL LINE">
+            <substitute key="hazardType" value="SQUALL LINE" />
+            <substitute key="color" value="#FF0066" />
+            <substitute key="name" value="ISIG SQUALL LINE" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Turbulence" id="TURBULENCE">
+            <substitute key="hazardType" value="TURBULENCE" />
+            <substitute key="color" value="#66CC00" />
+            <substitute key="name" value="ISIG TURBULENCE" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Icing" id="ICING">
+            <substitute key="hazardType" value="ICING" />
+            <substitute key="color" value="#3399FF" />
+            <substitute key="name" value="ISIG ICING" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Thunderstorms" id="THUNDERSTORMS">
+            <substitute key="hazardType" value="THUNDERSTORMS" />
+            <substitute key="color" value="#FF9933" />
+            <substitute key="name" value="ISIG THUNDERSTORMS" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Thunderstorm Wind Shear" id="THUNDERSTORM WIND SHEAR">
+            <substitute key="hazardType" value="THUNDERSTORM WIND SHEAR" />
+            <substitute key="color" value="#FFCC66" />
+            <substitute key="name" value="ISIG THUNDERSTORM WIND SHEAR" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Cumulonimbus" id="CUMULONIMBUS">
+            <substitute key="hazardType" value="CUMULONIMBUS" />
+            <substitute key="color" value="#66FFFF" />
+            <substitute key="name" value="ISIG CUMULONIMBUS" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Volcanic Ash Cloud" id="VOLCANIC ASH CLOUD">
+            <substitute key="hazardType" value="VOLCANIC ASH CLOUD" />
+            <substitute key="color" value="#CCCC00" />
+            <substitute key="name" value="ISIG VOLCANIC ASH CLOUD" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Marked Mountain Waves" id="MARKED MOUNTAIN WAVES">
+            <substitute key="hazardType" value="MARKED MOUNTAIN WAVES" />
+            <substitute key="color" value="#99CCFF" />
+            <substitute key="name" value="ISIG MARKED MOUNTAIN WAVES" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Tropical Cyclone" id="TROPICAL CYCLONE">
+            <substitute key="hazardType" value="TROPICAL CYCLONE" />
+            <substitute key="color" value="#FF5050" />
+            <substitute key="name" value="ISIG TROPICAL CYCLONE" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="CAT" id="CAT">
+            <substitute key="hazardType" value="CAT" />
+            <substitute key="color" value="#00FF00" />
+            <substitute key="name" value="ISIG CAT" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Dust Storm" id="DUSTSTORM">
+            <substitute key="hazardType" value="DUSTSTORM" />
+            <substitute key="color" value="#CC9900" />
+            <substitute key="name" value="ISIG DUSTSTORM" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Sand Storm" id="SANDSTORM">
+            <substitute key="hazardType" value="SANDSTORM" />
+            <substitute key="color" value="#FFDF80" />
+            <substitute key="name" value="ISIG SANDSTORM" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Low Level Wind Shear" id="LOW LEVEL WIND SHEAR">
+            <substitute key="hazardType" value="LOW LEVEL WIND SHEAR" />
+            <substitute key="color" value="#99FF99" />
+            <substitute key="name" value="ISIG LOW LEVEL WIND SHEAR" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Heavy Storm" id="HEAVY SANDSTORM">
+            <substitute key="hazardType" value="HEAVY SANDSTORM" />
+            <substitute key="color" value="#FF0000" />
+            <substitute key="name" value="ISIG HEAVY SANDSTORM" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Winds" id="WINDS">
+            <substitute key="hazardType" value="WINDS" />
+            <substitute key="color" value="#00CC99" />
+            <substitute key="name" value="ISIG WINDS" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Tornado" id="TORNADO">
+            <substitute key="hazardType" value="TORNADO" />
+            <substitute key="color" value="#FF3300" />
+            <substitute key="name" value="ISIG TORNADO" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
+            menuText="Waterspouts" id="WATERSPOUTS">
+            <substitute key="hazardType" value="WATERSPOUTS" />
+            <substitute key="color" value="#03BFBF" />
+            <substitute key="name" value="ISIG WATERSPOUTS" />
+        </contribute>
+    </contribute>
+</menuTemplate>

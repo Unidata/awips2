@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
+        <constructor-arg ref="admin_registryObjectDao" />
+        <constructor-arg ref="lcmServiceImpl" />
+        <constructor-arg ref="XACMLPolicyAdministrator"/>
+    </bean>
+
+    <bean id="ebxmlDDQueueDelegate"
+        class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerQueueDelegate">
+        <constructor-arg ref = "lcmServiceImpl"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="insertStdTextProduct" class="com.raytheon.uf.edex.plugin.text.handler.InsertStdTextProductHandler"/>
+
+    <!-- Instantiate the handler class for StdTextProductRequestHandler -->
+    <bean id="stdTextProduct" class="com.raytheon.uf.edex.plugin.text.handler.StdTextProductRequestHandler"/>
+
+    <!-- Instantiate the handler class for TextProductInfoRequestHandler -->
+    <bean id="textProductInfo" class="com.raytheon.uf.edex.plugin.text.handler.TextProductInfoCreateHandler"/>
+
+    <bean id="writeProductHandler" class="com.raytheon.uf.edex.plugin.text.handler.WriteProductHandler"/>
+    
+    <bean id="mixedCaseProductIdsHandler" class="com.raytheon.uf.edex.plugin.text.handler.MixedCaseProductIdsHandler"/>
+
+
+    <!-- JmsPooled* do not work... -->
+    <bean id="jms-mhs" class="org.apache.camel.component.jms.JmsComponent">
+       <constructor-arg ref="jmsMhsConfig" />
+       <property name="taskExecutor" ref="mhsThreadPool" />
+    </bean>
+
+    <bean id="mhsThreadPool"
+        class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="1" />
+    </bean>
+
+    <bean id="jmsMhsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+        <property name="recoveryInterval" value="1000"/>
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+    </bean>
+
+</beans>

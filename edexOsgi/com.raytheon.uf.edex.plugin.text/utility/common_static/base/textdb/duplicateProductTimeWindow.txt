@@ -1,0 +1,5 @@
+# This file contains a value of time difference (in seconds) between an incoming 
+# and already stored text products with the same product IDs, outside of which 
+# incoming one would be kept and stored and the previously stored one deleted
+# 
+600

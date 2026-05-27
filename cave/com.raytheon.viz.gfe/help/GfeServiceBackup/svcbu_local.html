@@ -1,0 +1,75 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta name="Author" content="Ron Anderson">
+   <title>GFE Service Backup Local Site Actions</title>
+</head>
+<body>
+
+<H1>GFE Service Backup Local Site Actions</H1>
+<HR>
+
+<H3><a name="Export_Local_Grids">EXPORTING YOUR FORECAST GRIDS TO THE CENTRAL SERVER</a></H3>
+
+<p>This action would normally be done prior to your local site going down for maintenance/repair/upgrade. 
+</p>
+
+<ol>
+<li>Select a primary site from the drop down next to the "Export Forecast Grids" button in 
+the "Local Site Actions" section of the Service Backup Dialog. 
+If you only have a single GFE domain your primary site will already be selected.
+</li>
+
+<p align="center">
+<img border="0" src="images/svcbu_export_config.png"></p>
+
+<li> Click the "Export Forecast Grids" button in 
+the "Local Site Actions" section of the Service Backup Dialog.
+</li>
+
+<li>A  
+<a target="main" style="text-decoration: none" 
+href="svcbu_status_dialog.html#Status_Information">Service Backup Status Dialog</a>
+ will open showing the status of each step required to export 
+your forecast grids to the central server.
+</li>
+<p align="center">
+<img border="0" src="images/svcbu_export_local_grids_status.png"</p>
+</ol>
+
+<H3><a name="Export_Config">EXPORTING YOUR LOCAL CONFIGURATION TO THE CENTRAL SERVER</a></H3>
+
+<p>This action should be performed by the GFE focal point whenever your local configuration has
+been changed to ensure that the backup site will have your latest configuration should you 
+need to enter service backup.
+</p>
+
+<p>NOTE: The "Export Configuration" button will only be displayed if the Service Backup 
+Dialog is started by a user having the GFE focalPoint permission. 
+Contact your AWIPS administrator if you need to have this permission assigned to you.
+</p>
+
+<ol>
+<li>Select a primary site from the drop down next to the "Export Configuration" button. 
+If you only have a single GFE domain your primary site will already be selected.
+</li>
+
+<p align="center">
+<img border="0" src="images/svcbu_export_config.png"></p>
+
+<li> Click the "Export Configuration" button.
+</li>
+
+<li>A  
+<a target="main" style="text-decoration: none" 
+href="svcbu_status_dialog.html#Status_Information">Service Backup Status Dialog</a>
+ will open showing the status of each step required to export 
+your configuration to the central server.
+</li>
+<p align="center">
+<img border="0" src="images/svcbu_export_config_status.png"</p>
+
+</ol>
+
+</body>
+</html>

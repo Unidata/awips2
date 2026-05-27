@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sfcobs Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.sfcobs
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.edex.pointdata,
+ org.geotools,
+ javax.measure,
+ jakarta.persistence,
+ com.raytheon.uf.common.localization,
+ org.slf4j,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
+Export-Package: com.raytheon.edex.plugin.sfcobs,
+ com.raytheon.edex.plugin.sfcobs.common
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: com.raytheon.uf.common.dataplugin.sfcobs,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo

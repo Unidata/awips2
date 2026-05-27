@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>publishGFE User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+publishGFE User's Guide</h1>
+<div class="1Heading">April 4, 2006<br>
+</div>
+<a name="TableofContents"></a>Table of Contents</h2>
+<h4 class="1Heading">
+<a href="#Overview">Overview</a></h4>
+<h4 class="1Heading">
+<a href="#Running">Running the publishGFE Program</a></h4>
+<h4 class="1Heading">
+<a href="#ExampleData">Example Output</a></h4>
+<div class="1Heading">
+<hr width="100%"></div>
+
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The publishGFE is a program to allow publishing
+of
+Fcst data to the Official database from a command line.</div>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+
+<h3 class="1Heading">
+<a name="Running"></a>Running the publishGFE Program</h3>
+<div class="1Heading">&nbsp;</div>
+<div class="1Heading">The command line syntax is:</div>
+<div class="1Heading"><tt>publishGFE -h hostname -r portnumber [-p
+parm]
+[-t namedTR] [-s startTime] [-e endTime] [-u user]<br>
+<br>
+</tt></div>
+<div class="1Heading">A sample command line is:
+<br>
+<tt>publishGFE -h dx4f -r 98000000 -t "Day 3" -u awipsusr</tt></div>
+<div class="1Heading">&nbsp;</div>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the host, upon which the ifpServer is running.</td>
+    </tr>
+    <tr>
+      <td>-r port</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the port, upon which the ifpServer is running.</td>
+    </tr>
+    <tr>
+      <td>-p parmName</td>
+      <td>Optional. May have more than one -p switch.</td>
+      <td>Specifies the parm name to publish, such as "MaxT". You can
+also specify
+a level for non-surface based elements, such as "Wind_3K".&nbsp; The
+underscore
+character separates the parameter name from the level.</td>
+    </tr>
+    <tr>
+      <td>-t namedTR</td>
+      <td>Optional. Supersedes any -s and -e switches.</td>
+      <td>Defines the time range over which to publish.&nbsp; This is a
+user-defined
+named time range.</td>
+    </tr>
+    <tr>
+      <td>-s startTime</td>
+      <td>Optional. Format: yyyymmdd_hhmm</td>
+      <td>Defines the starting time range over which to publish.&nbsp;</td>
+    </tr>
+    <tr>
+      <td>-e endTime</td>
+      <td>Optional. Format: yyyymmdd_hhmm</td>
+      <td>Defines the ending time range over which to publish.</td>
+    </tr>
+    <tr>
+      <td>-u user</td>
+      <td>Optional.&nbsp;</td>
+      <td>The connection to the ifpServer will be made using this user,
+which
+defaults to "SITE". This switch may be necessary if the -t switch is
+given
+and it refers to a non-SITE defined time range.</td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff">Note: The -h serverhost and -r port are
+predefined
+based on your installation configration of GFESuite.&nbsp; The -h and
+-r
+will be defined for the server host and port specified during
+installation.&nbsp;&nbsp;&nbsp;
+If you wish to connect to another server, then these switches will be
+necessary.&nbsp;</font><font color="#3366ff">&nbsp; If environment
+variables ${CDSHOST} or
+${CDSPORT} are defined, then the default server and port will be
+determined from the environment variables, unless overridden with the
+user specified -h and -r switches.</font>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="ExampleData"></a>Example Execution</h3>
+<div class="1Heading">The following shows an example of publishing MaxT
+and MinT data over the time range defined by "Hour 0-240".
+<p><tt>camper &gt; <b><i>publishGFE -h dx4f -r 98000000 -p MaxT -p
+MinT -t
+"Hour 0-240"</i></b></tt>
+</p>
+<p><tt>13:20:10.023 publishGFE.C 41 EVENT: Publish Fcst Data to Official</tt>
+<br>
+<tt>13:20:10.028 Client.C 161 EVENT: Establishing connection to server
+on polaris:98000000 ver=20020626</tt>
+<br>
+<tt>13:20:10.042 Client.C 177 EVENT: Connection complete to server
+on polaris</tt>
+<br>
+<tt>13:20:10.100 publishGFE.C 205 EVENT: Publishing: MaxT (Aug 26 02
+06:00:00 GMT, Sep 05 02 06:00:00 GMT)</tt>
+<br>
+<tt>13:20:10.102 publishGFE.C 209 EVENT: Publishing: [ParmId:
+MaxT_SFC:BOU_GRID__Fcst_00000000_0000
+CommitTR: (Aug 26 02 06:00:00 GMT, Sep 05 02 06:00:00 GMT) ]</tt>
+<br>
+<tt>13:20:10.305 publishGFE.C 221 EVENT: Publish completed</tt>
+<br>
+&nbsp;</p>
+</div>
+</body>
+</html>

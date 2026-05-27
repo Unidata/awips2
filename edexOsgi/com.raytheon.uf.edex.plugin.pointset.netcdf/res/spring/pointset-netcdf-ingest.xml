@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="pointsetPathManager" class="com.raytheon.uf.common.localization.PathManagerFactory"
+    factory-method="getPathManager" />
+
+  <bean id="pointsetNetcdfDecoder"
+    class="com.raytheon.uf.edex.plugin.pointset.netcdf.PointSetNetcdfDecoder" depends-on="levelFactoryInitialized">
+    <constructor-arg ref="pointsetPathManager" />
+  </bean>
+
+  <bean id="pointsetDistRegistry" factory-bean="distributionSrv"
+    factory-method="register">
+    <constructor-arg value="pointset" />
+    <constructor-arg value="jms-durable:queue:Ingest.NetcdfPointSet" />
+  </bean>
+
+  <bean id="pointset-netcdf-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.pointset.netcdf.PointsetNetcdfCamelRoutes" />
+        </constructor-arg>
+  </bean>
+</beans>

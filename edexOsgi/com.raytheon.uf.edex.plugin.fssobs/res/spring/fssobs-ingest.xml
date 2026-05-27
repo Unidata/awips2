@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="fssObsPointData" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsDataTransform" depends-on="fssobsRegistered"/>
+
+    <bean id="fssObsGenerator" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsGenerator"/>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="fssobs-camel" />
+        <constructor-arg ref="fssObsGenerator" />
+    </bean>
+
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+        <constructor-arg ref="fssObsGenerator"/>
+    </bean>
+    
+    <bean id ="fssObsAlertMonitorInitializer" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsAlertMonitorInitializer" />
+
+    <bean id="fssobs-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.fssobs.FssobsCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

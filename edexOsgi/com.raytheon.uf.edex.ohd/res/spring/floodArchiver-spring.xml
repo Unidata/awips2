@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="floodseqSrv" class="com.raytheon.uf.edex.ohd.whfs.WhfsSrv">
+        <constructor-arg>
+            <value>run_floodseq</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="floodseqWhfs-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.FloodseqWhfsContextRoutes" >
+                 <constructor-arg name="floodarchiverCron" value="${floodarchiver.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>

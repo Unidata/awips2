@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nucapsConfig>
+    <!-- QC color model: 0: pass, 1/17: partially passed, 9/25: totally failed, and others: default. 
+         Color names can be found at /awips2/cave/etc/colorfile/rgb.txt or use #rrggbb -->
+    <passed>green</passed>
+    <partiallyPassed>yellow</partiallyPassed>
+    <totallyFailed>red</totallyFailed>
+    <default>gray</default>
+</nucapsConfig>

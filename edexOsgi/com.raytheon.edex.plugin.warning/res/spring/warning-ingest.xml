@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="warningDecoder" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
+        <property name="pluginName" value="warning"/>
+        <property name="pluginFQN" value="com.raytheon.edex.plugin.warning"/>
+        <property name="moduleName" value="WarningDecoder"/>
+        <property name="cache" value="true"/>
+        <property name="recordClassname" value="com.raytheon.uf.common.dataplugin.warning.WarningRecord"/>
+    </bean>
+
+    <bean id="warningDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="warning"/>
+        <constructor-arg value="jms-durable:queue:Ingest.Warning"/>
+    </bean>
+
+    <bean id="warningHandleoupDistRegistry" factory-bean="handleoupDistributionSrv" factory-method="register">
+        <constructor-arg value="warning"/>
+        <constructor-arg value="jms-durable:queue:Ingest.Warning"/>
+        <constructor-arg value="true" /><!-- require valid distribution file for startup -->
+    </bean>
+
+    <bean id="wwaGeometryCompleter" class="com.raytheon.edex.plugin.warning.postprocessor.WWAGeometryCompleter"/>
+    
+    <bean id="warning-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.warning.gis.WarningCamelRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

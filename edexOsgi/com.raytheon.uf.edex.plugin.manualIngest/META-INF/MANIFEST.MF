@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Manual Ingest Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.manualIngest
+Bundle-Version: 1.19.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: com.raytheon.uf.edex.plugin.manualIngest
+Require-Bundle: org.apache.camel,
+ org.springframework,
+ com.raytheon.edex.common,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.distribution,
+ org.apache.commons.io,
+ com.raytheon.uf.common.wmo,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.edex.routes
+

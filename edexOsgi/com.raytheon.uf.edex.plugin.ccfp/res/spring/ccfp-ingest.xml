@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="ccfpDecoder" class="com.raytheon.uf.edex.plugin.ccfp.CcfpDecoder" />
+    <bean id="ccfpSeparator" class="com.raytheon.uf.edex.plugin.ccfp.CcfpSeparator" />
+
+    <bean id="ccfpDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="ccfp" />
+        <constructor-arg value="jms-durable:queue:Ingest.ccfp" />
+    </bean>
+
+    <bean id="ccfp-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.ccfp.CcfpCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

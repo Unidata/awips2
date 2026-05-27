@@ -1,0 +1,3 @@
+We  have some simple rules that all tree methods must follow.  First, they must check for the necessary data and if it's not available yet, return immediately.  If the data is available, the method does its job and returns the special self.DONE() flag.
+ For example, the "assembleComponents" method checks to see if the "words" attribute for ALL of the child phrases have been set.  If not, it simply returns.  If so, it adds a time range label, assembles the component phrases, and returns the special self.DONE() flag so it will not be called again.
+

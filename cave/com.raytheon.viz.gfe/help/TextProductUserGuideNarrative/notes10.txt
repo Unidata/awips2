@@ -1,0 +1,2 @@
+In addition to the TextRules and SampleAnalysis libraries, and the Standard and Local files, we have the ForecastNarrative engine which interprets the narrative definition.
+

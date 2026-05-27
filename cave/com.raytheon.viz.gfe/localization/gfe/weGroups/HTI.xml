@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority version
+        of the file will completely replace a lower priority version of the file. 
+    -->
+<WEGroup name="HTI">
+    <WEItem parmID="InundationTimingnc_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="InundationMaxnc_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="ProposedSS_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="ProposedSSnc_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="ProposedTropWindWW_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="ProposedTropWindWW_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="ProposedTropWindWWnc_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="ProposedTropWWGuidance_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="ProposedTropWWGuidance_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="ProposedTropWWGuidancenc_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="QPF_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="ProposedSS_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="pwsN64_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="prob64_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TornadoThreat_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="WindGust_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="Wind_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="pwsD34_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="prob34_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="FloodingRainThreat_SFC:SITE_GRID__Fcst_00000000_0000"
+        relativeCycleNumber="-1" />
+    <WEItem parmID="StormSurgeThreat_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="prob50_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="pws64int_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="pwsD64_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="pws34int_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="WindThreat_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="pwsN34_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="InundationMax_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="InundationTiming_SFC:SITE_GRID__ISC_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="InundationMax_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="SurgeHtPlusTideMHHW_SFC:SITE_GRID__Fcst_00000000_0000"
+        relativeCycleNumber="-1" />
+    <WEItem parmID="SurgeHtPlusTideMLLW_SFC:SITE_GRID__Fcst_00000000_0000"
+        relativeCycleNumber="-1" />
+    <WEItem parmID="SurgeHtPlusTideMSL_SFC:SITE_GRID__Fcst_00000000_0000"
+        relativeCycleNumber="-1" />
+    <WEItem parmID="SurgeHtPlusTideNAVD_SFC:SITE_GRID__Fcst_00000000_0000"
+        relativeCycleNumber="-1" />
+    <WEItem parmID="InundationTiming_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="Hazards_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOA1034_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOA5034_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOD5034_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOD9034_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOA1050_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOA5050_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOD5050_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOD9050_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOA1064_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOA5064_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOD5064_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" />
+    <WEItem parmID="TOD9064_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1" /> 
+</WEGroup>

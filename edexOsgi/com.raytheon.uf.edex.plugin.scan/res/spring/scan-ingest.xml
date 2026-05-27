@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="scanCpgSrvDispatcher" class="com.raytheon.uf.edex.cpgsrv.CPGDispatcher"/>
+
+    <bean id="scanThreadPool"
+        class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="2" />
+        <property name="maxPoolSize" value="6" />
+        <property name="keepAliveSeconds" value="60000" />
+    </bean>
+
+    <bean id="scanGenerator" class="com.raytheon.uf.edex.plugin.scan.ScanGenerator" >
+           <property name="executor" ref="scanThreadPool"/>
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredScanRoutes" />
+        <constructor-arg ref="scanGenerator" />
+    </bean>
+
+    <bean factory-bean="scanCpgSrvDispatcher" factory-method="register">
+        <constructor-arg ref="scanGenerator"/>
+    </bean>
+
+    <bean id="clusteredScanRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.scan.ScanRoutesCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

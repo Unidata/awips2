@@ -1,0 +1,17 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# $itemName
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+
+# Always include these lines at the top of your localConfig.py file.
+from serverConfig import *
+import serverConfig
+
+# For additional guidance on configuring your GFE server, refer to the 
+#    Configuration Guides->Server Configuration->Syntax for localConfig.py
+# section of the GFE Online Help

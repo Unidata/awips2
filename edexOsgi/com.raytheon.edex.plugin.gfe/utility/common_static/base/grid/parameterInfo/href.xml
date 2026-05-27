@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This is an absolute override file, indicating that a higher priority
+    version of the file will completely replace a lower priority version
+    of the file.
+-->
+<gridParamInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <valtimeMINUSreftime>
+    <fcst>0</fcst>
+    <fcst>3600</fcst>
+    <fcst>7200</fcst>
+    <fcst>10800</fcst>
+    <fcst>14400</fcst>
+    <fcst>18000</fcst>
+    <fcst>21600</fcst>
+    <fcst>25200</fcst>
+    <fcst>28800</fcst>
+    <fcst>32400</fcst>
+    <fcst>36000</fcst>
+    <fcst>39600</fcst>
+    <fcst>43200</fcst>
+    <fcst>46800</fcst>
+    <fcst>50400</fcst>
+    <fcst>54000</fcst>
+    <fcst>57600</fcst>
+    <fcst>61200</fcst>
+    <fcst>64800</fcst>
+    <fcst>68400</fcst>
+    <fcst>72000</fcst>
+    <fcst>75600</fcst>
+    <fcst>79200</fcst>
+    <fcst>82800</fcst>
+    <fcst>86400</fcst>
+    <fcst>90000</fcst>
+    <fcst>93600</fcst>
+    <fcst>97200</fcst>
+    <fcst>100800</fcst>
+    <fcst>104400</fcst>
+    <fcst>108000</fcst>
+    <fcst>111600</fcst>
+    <fcst>115200</fcst>
+    <fcst>118800</fcst>
+    <fcst>122400</fcst>
+    <fcst>126000</fcst>
+    <fcst>129600</fcst>
+    <fcst>133200</fcst>
+    <fcst>136800</fcst>
+    <fcst>140400</fcst>
+    <fcst>144000</fcst>
+    <fcst>147600</fcst>
+    <fcst>151200</fcst>
+    <fcst>154800</fcst>
+    <fcst>158400</fcst>
+    <fcst>162000</fcst>
+    <fcst>165600</fcst>
+    <fcst>169200</fcst>
+    <fcst>172800</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>ProbMXUPHL100</short_name>
+    <long_name>Prob of UPHL&gt;100</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG20005000 </levelsDesc>
+    <levels>
+      <level>FHAG20005000</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>ProbMXUPHL25</short_name>
+    <long_name>Prob of UPHL&gt;25</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG20005000 </levelsDesc>
+    <levels>
+      <level>FHAG20005000</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>capec4</short_name>
+    <long_name>prob CAPE &gt; 3000 J/kg</long_name>
+    <units>%</units>
+    <uiname>ProbCAPEc4</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>capemean</short_name>
+    <long_name>Convective Available Potential Energy</long_name>
+    <units>J/kg</units>
+    <udunits>joule/Kilogram</udunits>
+    <uiname>CAPE</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>6000.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC BL 0&gt;90 0&gt;180</levelsDesc>
+    <levels>
+      <level>SFC</level>
+      <level>BL090</level>
+      <level>BL0180</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cfrzrc1</short_name>
+    <long_name>prob cat freezing rain &gt;=1</long_name>
+    <units>%</units>
+    <uiname>ProbCFRZR</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cicepc1</short_name>
+    <long_name>prob cat ice pellets &gt;=1</long_name>
+    <units>%</units>
+    <uiname>ProbCICEP</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cigc2</short_name>
+    <long_name>Prob Ceiling &lt; 1000 ft</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>CLG</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cigprob10k</short_name>
+    <long_name>Prob Ceiling &lt; 10000 ft</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>CLG</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cigprob2k</short_name>
+    <long_name>Prob Ceiling &lt; 2000 ft</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>CLG</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cigprob3k</short_name>
+    <long_name>Prob Ceiling &lt; 3000 ft</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>CLG</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cigprob6k</short_name>
+    <long_name>Prob Ceiling &lt; 6000 ft</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>CLG</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>crainc1</short_name>
+    <long_name>prob cat rain &gt;=1</long_name>
+    <units>%</units>
+    <uiname>ProbCRAIN</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>csnowc1</short_name>
+    <long_name>prob cat snow &gt;=1</long_name>
+    <units>%</units>
+    <uiname>ProbCSNOW</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>dptmean</short_name>
+    <long_name>Dewpoint Temperature mean</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>Tdmean</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>2 FHAG MB 925 850 700 500</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>ghmean</short_name>
+    <long_name>geopotential height mean</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>geoPotHtmean</uiname>
+    <valid_range>-2000.0</valid_range>
+    <valid_range>20000.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>MB 1000 925 850 700 500 250 CBL CLG</levelsDesc>
+    <levels>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+      <level>MB250</level>
+      <level>CBL</level>
+      <level>CLG</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>hindexmean</short_name>
+    <long_name>Haines Index</long_name>
+    <units>index</units>
+    <udunits>index</udunits>
+    <uiname>HINDEXmax</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>6.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>pmslmean</short_name>
+    <long_name>pressure at mean sea level mean</long_name>
+    <units>Pa</units>
+    <udunits>pascal</udunits>
+    <uiname>PMSLmean</uiname>
+    <valid_range>80000.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>MSL</levelsDesc>
+    <levels>
+      <level>MSL</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>pwmean</short_name>
+    <long_name>precipitable water mean</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>precipH2Omean</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>300.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>refcpmmn</short_name>
+    <long_name>Composite Reflectivity</long_name>
+    <units>dBZ</units>
+    <valid_range>-30.0</valid_range>
+    <valid_range>80.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>refdpmmn</short_name>
+    <long_name>Reflectivity on pressure surfaces</long_name>
+    <units>dBZ</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>80.0</valid_range>
+    <n3D>37</n3D>
+    <levelsDesc>FHAG 1000</levelsDesc>
+    <levels>
+      <level>FHAG1000</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/s</units>
+    <fillValue>-999999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>m</units>
+    <fillValue>-999999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>m</units>
+    <fillValue>-999999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tccmean</short_name>
+    <long_name>total cloud cover</long_name>
+    <units>%</units>
+    <udunits>%</udunits>
+    <uiname>totalCldCvr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tmean</short_name>
+    <long_name>temperature mean</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>Tmean</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>2 FHAG MB 925 850 700 500</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp12c1</short_name>
+    <long_name>prob 12hr pcp &gt; 0.01 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp12c4</short_name>
+    <long_name>prob 12hr pcp &gt; 0.25 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp12c5</short_name>
+    <long_name>prob 12hr pcp &gt; 0.50 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp12c6</short_name>
+    <long_name>prob 12hr pcp &gt; 1.00 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp12c8</short_name>
+    <long_name>prob 12hr pcp &gt; 2.00 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp1c1</short_name>
+    <long_name>prob hr pcp &gt; 0.01 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp1mean</short_name>
+    <long_name>total precipitation 1hr mean</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip6hrmean</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp24c1</short_name>
+    <long_name>prob 3hr pcp &gt; 0.01 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp24c4</short_name>
+    <long_name>prob 3hr pcp &gt; 0.25 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp24c5</short_name>
+    <long_name>prob 3hr pcp &gt; 0.50 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp24c6</short_name>
+    <long_name>prob 3hr pcp &gt; 1.00 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp24c8</short_name>
+    <long_name>prob 3hr pcp &gt; 2.00 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp3c1</short_name>
+    <long_name>prob 3hr pcp &gt; 0.01 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp3c4</short_name>
+    <long_name>prob 3hr pcp &gt; 0.25 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp3c5</short_name>
+    <long_name>prob 3hr pcp &gt; 0.50 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp3c6</short_name>
+    <long_name>prob 3hr pcp &gt; 1.00 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp6c1</short_name>
+    <long_name>prob 6hr pcp &gt; 0.01 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp6c4</short_name>
+    <long_name>prob 6hr pcp &gt; 0.25 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp6c5</short_name>
+    <long_name>prob 6hr pcp &gt; 0.50 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp6c6</short_name>
+    <long_name>prob 6hr pcp &gt; 1.00 in</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>uwmean</short_name>
+    <long_name>u-component wind mean</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>uWindmean</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>10 FHAG MB 1000 925 850 700 500 250</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+      <level>MB250</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>vismean</short_name>
+    <long_name>visibility</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>Vis</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>visprob0p25</short_name>
+    <long_name>Prob Vsby &lt; 1/4 mi</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>visprob0p5</short_name>
+    <long_name>Prob Vsby &lt; 1/2 mi</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>visprob1p0</short_name>
+    <long_name>Prob Vsby &lt; 1 mi</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>visprob2p0</short_name>
+    <long_name>Prob Vsby &lt; 2 mi</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>visprob4p0</short_name>
+    <long_name>Prob Vsby &lt; 4 mi</long_name>
+    <units>%</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc />
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>vwmean</short_name>
+    <long_name>v-component wind</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>vWindmean</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>10 FHAG MB 1000 925 850 700 500 250</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+      <level>MB250</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>wsmean</short_name>
+    <long_name>Wind Speed mean</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>windSpeedmean</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>10 FHAG MB 1000 925 850 700 500 300 250</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+      <level>MB300</level>
+      <level>MB250</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>

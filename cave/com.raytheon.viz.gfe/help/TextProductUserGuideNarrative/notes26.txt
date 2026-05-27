@@ -1,0 +1,2 @@
+In addition to building the narrative tree based on the narrative definition phrase list, the ForecastNarrative engine samples and analyzes the data and creates a statistics dictionary for the entire product.
+

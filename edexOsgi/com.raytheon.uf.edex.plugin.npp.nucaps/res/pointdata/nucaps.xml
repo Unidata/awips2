@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+  <!-- Need to check if this is really the max number of levels -->
+  <dimension name="maxLevels" length="100"/>
+  
+  <!-- Surface weather parameters, 1 per point -->
+  <parameter name="Skin_Temperature" numDims="1" unit="K" type="FLOAT" />
+  <parameter name="Surface_Pressure" numDims="1" unit="hPa" type="FLOAT" /> 
+  <parameter name="Topography" numDims="1" unit="m" type="FLOAT" />
+  
+  <!-- Pressure parameters -->
+  <parameter name="Pressure" numDims="2" unit="hPa" type="FLOAT" dimension="maxLevels" />
+  <parameter name="Effective_Pressure" numDims="2" unit="hPa" type="FLOAT" dimension="maxLevels" />
+
+  <!-- Temperature parameter -->
+  <parameter name="Temperature" numDims="2" unit="K" type="FLOAT" dimension="maxLevels" />
+
+  <!-- Water vapor mixing ratio -->
+  <parameter name="H2O_MR" numDims="2" unit="g/g" type="FLOAT" dimension="maxLevels" />
+
+  <!-- Liquid water mixing ratio -->
+  <parameter name="Liquid_H2O_MR" numDims="2" unit="g/g" type="FLOAT" dimension="maxLevels" />
+ 
+  <!-- Ozone mixing ratio -->
+  <parameter name="O3_MR" numDims="2" unit="ppb" type="FLOAT" dimension="maxLevels" />
+
+  <!-- Quality flags -->
+  <parameter name="Quality_Flag" numDims="1" type="INT" />
+
+  <!-- Sulfer dioxide mixing ratio -->
+  <parameter name="SO2_MR" numDims="2" unit="ppb" type="FLOAT" dimension="maxLevels" />
+
+</pointDataDescription>

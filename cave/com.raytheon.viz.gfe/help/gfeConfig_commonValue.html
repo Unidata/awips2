@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <title>gfeConfig - Common Values</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<center><b><font size="+2">GFE/ifpIMAGE Configuration
+File<br>
+Weather/Discrete Common Value Definitions<br>
+</font></b></center>
+<br>
+<br>
+<blockquote>The weather/discrete common value definitions are the
+common types that
+appear on the temporal editor popup and the spatial editor color bar
+popup
+menus.&nbsp; For WEATHER weather elements, the format of the string is
+a list of "ugly" weather keys, prefixed with cascade indicators.&nbsp;
+Refer to other documentation for the weather key format
+specifics.&nbsp;
+The general format of a weather key consists of one or more subkeys
+separated
+by a caret ('^').&nbsp; The subkey consists of five parts:
+coverage/probability,
+weather type, intensity, visibility, and optional attributes. Each of
+these
+sections are separated by a colon (':').&nbsp; The optional attributes,
+if any, are separated by commas (',').&nbsp; The allowable coverages,
+type,
+intensities, visibilities, and attributes are defined by GFE
+in its <a href="serverConfig.html#WeatherConfigurationSection"><!--disable indexer-->serverConfig.py</a>
+file.
+  <p>For DISCRETE weather elements, the format of the string is the
+discrete
+key string. DISCRETE keys are simplier than weather keys in that they
+are
+representated by strings.&nbsp; Multiple keys are separated by a caret
+('^'). </p>
+  <p>An ugly string by itself will be placed on the top-level cascade
+menu
+on the GFE.&nbsp; You can also make these entries appear on cascade
+menus
+by prefixing the ugly string with a cascade indicator.&nbsp; The
+indicator
+separator is the vertical bar (|).&nbsp; For example, the string
+"Winter|Wide:S:--:&lt;NoVis&gt;:&lt;NoAttr&gt;"
+will place the widespread snow under a 2nd level cascade named
+Winter.&nbsp;
+To do a 3rd level cascade, use an additional vertical bar, such as
+"Winter|Snow|Wide:S:+:&lt;NoVis&gt;:&lt;NoAttr&gt;" </p>
+  <p>The name of the configuration item is parmName_commonValues, and
+can
+be used for both WEATHER and DISCRETE type of weather elements. </p>
+  <p><b><tt>Wx_commonValues = [ \</tt></b> <br>
+  <b><tt>&nbsp;"&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:&lt;NoAttr&gt;",</tt></b>
+  <br>
+  <b><tt>&nbsp;"Wide:R:-:&lt;NoVis&gt;:&lt;NoAttr&gt;",</tt></b> <br>
+  <b><tt>&nbsp;"Wide:S:--:&lt;NoVis&gt;:&lt;NoAttr&gt;",</tt></b> <br>
+  <b><tt>&nbsp;"Wide:R:-:&lt;NoVis&gt;:&lt;NoAttr&gt;^Wide:S:-:&lt;NoVis&gt;:&lt;NoAttr&gt;",</tt></b>
+  <br>
+  <b><tt>&nbsp;"Sct:RW:-:&lt;NoVis&gt;:&lt;NoAttr&gt;",</tt></b> <br>
+  <b><tt>&nbsp;"Sct:SW:-:&lt;NoVis&gt;:&lt;NoAttr&gt;",</tt></b> <br>
+  <b><tt>&nbsp;"Sct:T:&lt;NoInten&gt;:&lt;NoVis&gt;:&lt;NoAttr&gt;^Sct:RW:-:&lt;NoVis&gt;:&lt;NoAttr&gt;",</tt></b>
+  <br>
+  <b><tt>&nbsp;"Patchy:F:&lt;NoInten&gt;:&lt;NoVis&gt;:&lt;NoAttr&gt;"]</tt></b></p>
+</blockquote>
+<hr style="width: 100%; height: 2px;">&nbsp;
+<div class="Body">
+<center>
+<p><a href="GFESuite.html">Back To TOC</a></p>
+</center>
+</div>
+</div>
+</body>
+</html>

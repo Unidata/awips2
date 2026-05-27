@@ -1,0 +1,2 @@
+From the GFE Main Menu, select Products--> Local Formatters.  You should now see your product listed in the dialog.  Select it and Select Processor: Local from the Menu bar.  This is so that you can monitor its progress from the Process Monitor window.  Click Run Formatters. The product text will appear in a text output window. If it does not, check the Process Monitor terminal window for error messages. Refer to the Text Product Reference Guide Trouble-shooting section for help in locating the problem. 
+

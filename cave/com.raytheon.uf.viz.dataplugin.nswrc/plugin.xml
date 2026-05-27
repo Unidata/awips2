@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="com.raytheon.uf.viz.productbrowser.dataDefinition">
+      <dataDefinition
+            class="com.raytheon.uf.viz.dataplugin.nswrc.productbrowser.NSWRCRadialProductBrowserDataDefinition"
+            name="nswrcRadialProductBrowserDataDefinition">
+      </dataDefinition>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="com.raytheon.uf.viz.dataplugin.nswrc.NSWRCVizResource"
+            name="nswrcRadialResource"
+            renderingOrderId="IMAGE_COUNTRY"
+            resourceType="PLAN_VIEW">
+      </resource>
+   </extension>
+</plugin>

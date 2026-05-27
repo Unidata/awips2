@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# DCS 20586 - renames the column "max_usability_blk" to "kdp_coeff_rain_hail"
+#             in the DSAAdapt table of the IHFS db
+#
+#
+# Author: paul tilles
+# May 7,2018
+
+psql=/awips2/psql/bin/psql
+
+# get database name(s) 
+
+database=$(${PSQL} -d metadata -U awipsadmin -Aqtc "
+    select datname
+    from pg_database
+    where datistemplate = false
+    and datname like 'hd_ob%'
+    ")
+
+echo INFO: Renaming column in the DSAAdapt table
+
+for IH_DB_NAME in ${database}
+    do
+
+       echo INFO: Database name is $IH_DB_NAME
+
+       has_column=$(${psql} -U awipsadmin -d $IH_DB_NAME -Atc "
+           SELECT EXISTS(
+               SELECT 1 FROM information_schema.columns c
+               WHERE c.table_name = 'dsaadapt'
+               AND c.column_name = 'kdp_coeff_rain_hail'
+               );")
+
+       if [[ "${has_column}" == "f" ]]; then
+           ${psql} -U awipsadmin -d $IH_DB_NAME -Atc "
+               BEGIN TRANSACTION;                
+               ALTER TABLE dsaadapt RENAME COLUMN max_usability_blk TO kdp_coeff_rain_hail;
+               C       OMMIT TRANSACTION;
+               "
+       elif [[ "${has_column}" == "t" ]]; then
+           echo WARN: Column kdp_coeff_rain_hail already exists within $IH_DB_NAME.dsaadapt. Do nothing.
+       else
+           echo ERROR: Failed to query the $IH_DB_NAME database.
+       fi
+    done
+
+echo INFO: Done.

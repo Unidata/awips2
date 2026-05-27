@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle xmlns:ns2="group">
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay" scale="Regional" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-96.32976618771008 38.412854856637814 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                            <capability xsi:type="timeMatchBasisCapability"/>
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                                    <capability xsi:type="labelableCapability"/>
+                                    <capability xsi:type="shadeableCapability"/>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                                    <capability xsi:type="timeMatchBasisCapability"/>
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>World</mapName>
+                                <table>mapdata.world</table>
+                                <constraint>name not in ('Canada', 'Mexico', 'United States')</constraint>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                                    <capability xsi:type="labelableCapability"/>
+                                    <capability xsi:type="shadeableCapability"/>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                                    <capability xsi:type="timeMatchBasisCapability"/>
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>State Boundaries</mapName>
+                                <table>mapdata.states</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                                    <capability xsi:type="labelableCapability"/>
+                                    <capability xsi:type="shadeableCapability"/>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                                    <capability xsi:type="timeMatchBasisCapability"/>
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>Canada</mapName>
+                                <table>mapdata.canada</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                                    <capability xsi:type="labelableCapability"/>
+                                    <capability xsi:type="shadeableCapability"/>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                                    <capability xsi:type="timeMatchBasisCapability"/>
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>Mexico</mapName>
+                                <table>mapdata.mexico</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                         <resource>
+                            <loadProperties loadWithoutData="false">
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                                    <capability xsi:type="labelableCapability"/>
+                                    <capability xsi:type="shadeableCapability"/>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                                    <capability xsi:type="timeMatchBasisCapability"/>
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>County Boundaries</mapName>
+                                <table>mapdata.county</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>        
+                        <mapName>State/County Boundaries</mapName>
+                    </resourceData>
+                </resource>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
+                <numberOfFrames>12</numberOfFrames>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <gridGeometry envelopeMaxY="805000.0" envelopeMinY="-805000.0" envelopeMaxX="1000000.0" envelopeMinX="-1000000.0" rangeY="0 9999" rangeX="0 12421">
+                    <CRS>PROJCS[&quot;Lambert_Conformal_Conic_1SP&quot;, 
+  GEOGCS[&quot;WGS84(DD)&quot;, 
+    DATUM[&quot;WGS84&quot;, 
+      SPHEROID[&quot;WGS84&quot;, 6378137.0, 298.257223563]], 
+    PRIMEM[&quot;Greenwich&quot;, 0.0], 
+    UNIT[&quot;degree&quot;, 0.017453292519943295], 
+    AXIS[&quot;Geodetic longitude&quot;, EAST], 
+    AXIS[&quot;Geodetic latitude&quot;, NORTH]], 
+  PROJECTION[&quot;Lambert_Conformal_Conic_1SP&quot;], 
+  PARAMETER[&quot;semi_major&quot;, 6371229.0], 
+  PARAMETER[&quot;semi_minor&quot;, 6371229.0], 
+  PARAMETER[&quot;central_meridian&quot;, -88.75], 
+  PARAMETER[&quot;latitude_of_origin&quot;, 35.25], 
+  PARAMETER[&quot;scale_factor&quot;, 1.0], 
+  PARAMETER[&quot;false_easting&quot;, 0.0], 
+  PARAMETER[&quot;false_northing&quot;, 0.0], 
+  UNIT[&quot;m&quot;, 1.0], 
+  AXIS[&quot;Easting&quot;, EAST], 
+  AXIS[&quot;Northing&quot;, NORTH]]</CRS>
+                </gridGeometry>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

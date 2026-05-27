@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="bufrmosDecoder" class="com.raytheon.uf.edex.plugin.bufrmos.BufrMosDecoder" />
+
+    <bean id="bufrmosDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="bufrmos" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrmos" />
+    </bean>
+    
+    <bean id="bufrmos-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.bufrmos.BufrmosCamelRoutes" />
+        </constructor-arg>
+    </bean>
+    
+</beans>

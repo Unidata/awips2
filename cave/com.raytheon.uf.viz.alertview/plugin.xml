@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+          <view
+                allowMultiple="false"
+                category="com.raytheon.viz.ui"
+                class="com.raytheon.uf.viz.alertview.ui.view.AlertView"
+                icon="icons/alertView.png"
+                id="com.raytheon.uf.viz.alertview.ui.view.AlertView"
+                name="Alert View"
+                restorable="true"/>
+    </extension>
+    <extension
+         point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="menu:CAVE?after=browsers">
+            <command
+              commandId="com.raytheon.uf.viz.alertview.openAlertView"
+              label="Open AlertView"
+              style="push">
+              <visibleWhen>
+                 <systemTest property="alertview.enabled" value="true" />
+              </visibleWhen>
+            </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.uf.viz.alertview.ui.view.OpenAlertViewHandler"
+            commandId="com.raytheon.uf.viz.alertview.openAlertView">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.raytheon.uf.viz.alertview.openAlertView"
+            name="Open AlertView">
+      </command>
+   </extension>
+</plugin>

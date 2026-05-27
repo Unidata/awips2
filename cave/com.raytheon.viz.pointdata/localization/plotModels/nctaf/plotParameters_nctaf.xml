@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<plotParameterDefinitions>
+
+   <plugin>nctaf</plugin>
+
+   <plotParameterDefinition displayName="latitude" displayType="TEXT" format="%3.2f" param="latitude" sampleValue="0" svgClass="text" symbol="deg" />
+
+   <plotParameterDefinition displayName="longitude" displayType="TEXT" format="%3.2f" param="longitude" sampleValue="0" svgClass="text" symbol="deg" />
+
+<!-- TAF Text -->
+   <plotParameterDefinition displayName="TAFTEXT" displayType="TEXT" param="TAFTEXT" sampleValue="0" svgClass="text" />
+   <plotParameterDefinition displayName="CGRP" displayType="TEXT" param="CGRP" sampleValue="0" svgClass="text" />
+
+<!-- Station ID -->
+   <plotParameterDefinition displayName="stationId" displayType="TEXT" param="stationId" sampleValue="0" svgClass="text" />
+
+<!-- CLOUD -->
+   <plotParameterDefinition displayName="SCVR_TYPE" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars.txt" param="SCVR_TYPE" sampleValue="SCT" svgClass="special" />
+   <plotParameterDefinition displayName="PROBABLE_SCVR_TYPE" displayType="TABLE" functionTable="cloud_select.txt" lookupTable="cloud_chars2.txt" param="PROBABLE_SCVR_TYPE" sampleValue="SCT" svgClass="special" />
+
+<!-- VISIBILITY -->
+   <plotParameterDefinition displayName="VISIBILITY" displayType="RANGE" format="%3.2f" lookupTable="meters2miles_lookup.txt" param="VISIBILITY" sampleValue="0" svgClass="text" unit="mi"/>
+   <plotParameterDefinition displayName="PROBABLE_VISIBILITY" displayType="RANGE" format="%3.2f" lookupTable="meters2miles_lookup.txt" param="PROBABLE_VISIBILITY" sampleValue="0" svgClass="text" unit="mi"/>
+
+<!-- WIND BARBS-->
+   <plotParameterDefinition displayName="WIND_SPEED,WIND_DIR" displayType="BARB" param="WIND_SPEED,WIND_DIR" sampleValue="0,1" unit="kts"/>
+   <plotParameterDefinition displayName="WIND_GST,WIND_DIR" displayType="BARB" param="WIND_GUST,WIND_DIR" sampleValue="0,1" unit="kts"/>
+   <plotParameterDefinition displayName="PROBABLE_WIND_SPEED,PROBABLE_WIND_DIR" displayType="BARB" param="PROBABLE_WIND_SPEED,PROBABLE_WIND_DIR" sampleValue="0,1" unit="kts"/>    
+   <plotParameterDefinition displayName="PROBABLE_WIND_GUST,PROBABLE_WIND_DIR" displayType="BARB" param="PROBABLE_WIND_GUST,PROBABLE_WIND_DIR" sampleValue="0,1" unit="kts"/>    
+
+<!-- WIND TEXT -->
+   <plotParameterDefinition displayName="WIND_SPD" displayType="TEXT" format="%02.f" param="WIND_SPEED" sampleValue="0" svgClass="text" unit="kts"/>
+   <plotParameterDefinition displayName="PROBABLE_WIND_SPD" displayType="TEXT" format="%02.f" param="PROBABLE_WIND_SPEED" sampleValue="0" svgClass="text" unit="kts"/>
+
+<!-- WIND GUST -->
+   <plotParameterDefinition displayName="WIND_GUST" displayType="TEXT" format="%02.0f"  param="WIND_GUST" sampleValue="0" svgClass="text" unit="kts"/>
+   <plotParameterDefinition displayName="PROBABLE_GUST" displayType="TEXT" format="%02.0f"  param="PROBABLE_WIND_GUST" sampleValue="0" svgClass="text" unit="kts"/> 
+
+<!-- LOW LEVEL WIND SHEAR -->
+   <plotParameterDefinition displayName="LLWSsym" displayType="TABLE" lookupTable="LLWS_symbol.txt" param="LOW_LEVEL_WIND_SHEAR" sampleValue="1" svgClass="marker" />
+   <plotParameterDefinition displayName="LLWS" displayType="TEXT" param="LOW_LEVEL_WIND_SHEAR" format="%1.0f" sampleValue="1" svgClass="text"/>
+
+<!-- Vertical Visiblity -->
+   <plotParameterDefinition displayName="VVIS" displayType="TEXT" format="%3.0f" param="VERT_VISIBILITY" sampleValue="0" svgClass="text" unit="ft"/>
+   <plotParameterDefinition displayName="PROBVVIS" displayType="TEXT" format="%3.0f" param="PROBABLE_VERT_VISIBILITY" sampleValue="0" svgClass="text" unit="ft"/> 
+
+<!-- Ceiling From Surface -->
+   <plotParameterDefinition displayName="CEILING" displayType="TEXT" format="%3.0f" param="CEILING" sampleValue="0" svgClass="text" unit="ft"/> 
+   <plotParameterDefinition displayName="CEIL_HFT" displayType="TEXT" format="%3.0f" param="CEILING" sampleValue="0" svgClass="text" unit="hft"/> 
+   <plotParameterDefinition displayName="PROBABLE_CEILING" displayType="TEXT" format="%3.0f" param="PROBABLE_CEILING" sampleValue="0" svgClass="text" unit="ft"/>
+   <plotParameterDefinition displayName="PROBABLE_CEIL_HFT" displayType="TEXT" format="%3.0f" param="PROBABLE_CEILING" sampleValue="0" svgClass="text" unit="hft"/>
+
+ <!-- Present WEATHER --> 
+   <plotParameterDefinition displayName="PRES_WEATHER" displayType="TABLE" lookupTable="wx_symbol_trans.txt" param="PRES_WEATHER" recursiveLookup="true" sampleValue="UP" svgClass="weather" />   
+   <plotParameterDefinition displayName="PROBABLE_PRES_WEATHER" displayType="TABLE" lookupTable="wx_symbol_trans.txt" param="PROBABLE_PRES_WEATHER" recursiveLookup="true" sampleValue="UP" svgClass="weather" />
+   <plotParameterDefinition displayName="PRES_WX_SMP" displayType="TEXT" param="PRES_WEATHER" sampleValue="UP" svgClass="text" />
+   <plotParameterDefinition displayName="PROB_PRES_WX_SMP" displayType="TEXT" param="PROBABLE_PRES_WEATHER" sampleValue="UP" svgClass="text" />
+
+</plotParameterDefinitions>

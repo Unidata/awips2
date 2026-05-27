@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="cwaDecoder" class="com.raytheon.uf.edex.plugin.cwa.CWADecoder" depends-on="cwaPluginRegistered">
+        <constructor-arg ref="cwaPluginName" />
+    </bean>
+
+    <bean id="cwaDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="cwaPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.cwa" />
+    </bean>
+    
+    <bean id="cwa-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.cwa.CwaCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

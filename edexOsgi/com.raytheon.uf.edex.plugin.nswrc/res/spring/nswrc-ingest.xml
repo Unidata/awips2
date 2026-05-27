@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="nswrcRadialDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="nswrcRadialPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.nswrcRadial" />
+    </bean>
+    <bean id="nswrcGriddedDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="nswrcGriddedPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.nswrcGridded" />
+    </bean>
+
+    <bean id="nswrcRadialDecoder" class="com.raytheon.uf.edex.plugin.nswrc.NSWRCRadialRadarDecoder" />
+    <bean id="nswrcGriddedDecoder" class="com.raytheon.uf.edex.plugin.nswrc.NSWRCGriddedRadarDecoder" />
+
+    <bean id="nswrcRadial_FileChangeStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy">
+          <constructor-arg value="5000" />
+    </bean>
+
+    <bean id="nswrcGridded_FileChangeStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy">
+         <constructor-arg value="5000" />
+    </bean>
+
+    <bean id="nswrc-fileRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+           <bean class=" com.raytheon.uf.edex.plugin.nswrc.NSWRCFileRoutes" >
+               <constructor-arg name="edexHome" value="${edex.home}" />
+           </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="nswrc-jmsRoutes" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+           <bean class=" com.raytheon.uf.edex.plugin.nswrc.NSWRCJmsRoutes" >
+               <constructor-arg name="radialThreadcount" value="${nswrc-radar-decode_radial.threadcount}" />
+               <constructor-arg name="griddedThreadcount" value="${nswrc-radar-decode_gridded.threadcount}" />
+           </bean>
+        </constructor-arg>
+    </bean>
+
+</beans>

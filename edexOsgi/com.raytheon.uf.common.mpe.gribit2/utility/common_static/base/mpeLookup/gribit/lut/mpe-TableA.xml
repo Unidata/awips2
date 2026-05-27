@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<tableA>
+  <!-- TABLE A - GENERATING PROCESS OR MODEL - ORIGINATING CENTER 9. Ported 
+    from: /rary.ohd.pproc.gribit/TEXT/bdgparm.f. -->
+    <generator>
+        <num>150</num>
+        <name>NWS River Forecast System (NWSRFS)</name>
+    </generator>
+    <generator>
+        <num>151</num>
+        <name>NWS Flash Flood Guidance System (NWSFFGS)</name>
+    </generator>
+    <generator>
+        <num>152</num>
+        <name>Quantitative Precipitation Estimation (QPE) - 1 hr dur</name>
+    </generator>
+    <generator>
+        <num>154</num>
+        <name>Quantitative Precipitation Estimation (QPE) - 6 hr dur</name>
+    </generator>
+    <generator>
+        <num>155</num>
+        <name>Quantitative Precipitation Estimation (QPE) - 24hr dur</name>
+    </generator>
+    <generator>
+        <num>156</num>
+        <name>Process 1 (P1) Precipitation Estimation - automatic</name>
+    </generator>
+    <generator>
+        <num>157</num>
+        <name>Process 1 (P1) Precipitation Estimation - manual</name>
+    </generator>
+    <generator>
+        <num>158</num>
+        <name>Process 2 (P2) Precipitation Estimation - automatic</name>
+    </generator>
+    <generator>
+        <num>159</num>
+        <name>Process 2 (P2) Precipitation Estimation - manual</name>
+    </generator>
+    <generator>
+        <num>160</num>
+        <name>Multisensor Precipitation Estimation (MPE) - automatic</name>
+    </generator>
+    <generator>
+        <num>161</num>
+        <name>Multisensor Precipitation Estimation (MPE) - manual</name>
+    </generator>
+    <generator>
+        <num>165</num>
+        <name>Enhanced MPE - automatic</name>
+    </generator>
+    <generator>
+        <num>166</num>
+        <name>Bias Enhanced MPE - automatic</name>
+    </generator>
+    <generator>
+        <num>170</num>
+        <name>Post Analysis of Precipitation Estimation (aggregate)</name>
+    </generator>
+    <generator>
+        <num>171</num>
+        <name>XNAV Aggregate Precipitation Estimation</name>
+    </generator>
+    <generator>
+        <num>172</num>
+        <name>Mountain Mapper Precipitation Estimation</name>
+    </generator>
+    <generator>
+        <num>180</num>
+        <name>Quantitative Precipitation Forecast (QPF)</name>
+    </generator>
+    <generator>
+        <num>185</num>
+        <name>NOHRSC_OPPS</name>
+    </generator>
+    <generator>
+        <num>190</num>
+        <name>Satellite Autoestimator Precipitation</name>
+    </generator>
+    <generator>
+        <num>191</num>
+        <name>Satellite Interactive Flash Flood Analyzer (IFFA)</name>
+    </generator>
+</tableA>

@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="acarsAirports" class="com.raytheon.uf.edex.plugin.acarssounding.tools.AirportsBean" depends-on="acarsSoundingPluginName" >
+    </bean>
+
+    <bean id="acarsPersistObs" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSPersistObs" depends-on="acarsRegistered, acarsAirports" >
+    </bean>
+
+    <bean id="acarsSounding" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSounding" depends-on="acarsRegistered" >
+        <constructor-arg ref="acarsSoundingPluginName" />
+        <constructor-arg ref="acarsAirports" />
+    </bean>
+
+    <bean id="acarsSoundingSplitter" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSoundingSplitter" >
+    </bean>
+    
+    <bean id="acarsSoundingSrv-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSoundingSrvCamelRoutes" >
+                 <constructor-arg name="acarssoundingCron" value="${acarssounding.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="clusteredAcarsPersistObs" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.acarssounding.ClusteredACARSPersistObsRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

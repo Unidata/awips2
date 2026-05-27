@@ -1,0 +1,9 @@
+# DO NOT EDIT LINES BEGINNING WITH '#'
+# FULLY DEFINES ALL SITES USED FOR THE LOCALIZED UPPER AIR MENU IN CAVE
+# Format is as follows :
+# icao city name, state
+# KXXX Anywhere, US
+
+# UPPER_AIR menu
+
+# LOCAL_UPPER_AIR submenu

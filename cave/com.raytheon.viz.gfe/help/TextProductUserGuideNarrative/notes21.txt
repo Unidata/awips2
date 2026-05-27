@@ -1,0 +1,2 @@
+Here is an example wordMethod for wind at the subPhrase level.  Note that the arguments are the tree and the current subPhrase node.  The job of this method is to set the words for the subPhrase and return DONE.  The special method "setWords" does just this.
+

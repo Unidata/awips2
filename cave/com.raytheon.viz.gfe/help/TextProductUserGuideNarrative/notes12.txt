@@ -1,0 +1,2 @@
+Here is an example of a Narrative product which consists of a set of components (consisting of  phrases for various weather elements) over a series of time periods for one edit area. 
+

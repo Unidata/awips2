@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="bufrssmiDecoder" class="com.raytheon.uf.edex.plugin.bufrssmi.SSMIDecoder" depends-on="bufrssmiPluginRegistered">
+        <constructor-arg ref="bufrssmiPluginName" />
+    </bean>
+
+   <!-- Filter out all southern hemisphere data -->
+   <bean id="ssmiSHFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+        <constructor-arg type="java.lang.String" value="pointssmi_filters.xml" />
+   </bean>
+
+    <bean id="bufrssmiDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="bufrssmiPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.bufrssmi"/>
+    </bean>
+
+    <bean id="bufrssmi-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.bufrssmi.BufrssmiCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

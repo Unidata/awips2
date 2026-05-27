@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Instantiate the handler class for RemoteScriptList Handler -->
+    <bean id="RemoteScriptListHandler"
+        class="com.raytheon.uf.edex.remote.script.RemoteScriptListHandler"/>
+
+    <!-- Instantiate the handler class for RemoteScriptRun Handler -->
+    <bean id="RemoteScriptRunHandler"
+        class="com.raytheon.uf.edex.remote.script.RemoteScriptRunHandler"/>
+
+</beans>
+

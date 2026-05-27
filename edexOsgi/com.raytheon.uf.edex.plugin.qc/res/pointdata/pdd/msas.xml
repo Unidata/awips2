@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+  <!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+    
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+    
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+    
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+  -->
+<pointDataDescription>
+  <parameter name="timeObs" numDims="1" type="FLOAT" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
+  <parameter name="timeObsTrue" numDims="1" type="FLOAT" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
+  <parameter name="stationName" numDims="2" type="STRING" size="5" />
+  <parameter name="MAPSseaLevelPress" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="MAPSseaLevelPressDD" numDims="1" type="STRING" />
+  <parameter name="MAPSseaLevelPressQCA" numDims="1" type="INT" />
+  <parameter name="MAPSseaLevelPressQCR" numDims="1" type="INT" />
+  <parameter name="dewpoint" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDD" numDims="1" type="STRING" />
+  <parameter name="dewpointQCA" numDims="1" type="INT" />
+  <parameter name="dewpointQCR" numDims="1" type="INT" />
+  <parameter name="potentialTemp" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="potentialTempDD" numDims="1" type="STRING" />
+  <parameter name="potentialTempQCA" numDims="1" type="INT" />
+  <parameter name="potentialTempQCR" numDims="1" type="INT" />
+  <parameter name="dewpointDepression" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDepressionDD" numDims="1" type="STRING" />
+  <parameter name="dewpointDepressionQCA" numDims="1" type="INT" />
+  <parameter name="dewpointDepressionQCR" numDims="1" type="INT" />
+  <parameter name="uw" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="uwDD" numDims="1" type="STRING" />
+  <parameter name="uwQCA" numDims="1" type="INT" />
+  <parameter name="uwQCR" numDims="1" type="INT" />
+  <parameter name="vw" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="vwDD" numDims="1" type="STRING" />
+  <parameter name="vwQCA" numDims="1" type="INT" />
+  <parameter name="vwQCR" numDims="1" type="INT" />
+  <parameter name="pressChange3Hour" numDims="1" type="FLOAT" unit="Pa/s" fillValue="3.4028235e+38" />
+  <parameter name="pressChange3HourDD" numDims="1" type="STRING" />
+  <parameter name="pressChange3HourQCA" numDims="1" type="INT" />
+  <parameter name="pressChange3HourQCR" numDims="1" type="INT" />
+  <parameter name="seaLevelPress" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="seaLevelPressDD" numDims="1" type="STRING" />
+  <parameter name="seaLevelPressQCA" numDims="1" type="INT" />
+  <parameter name="seaLevelPressQCR" numDims="1" type="INT" />
+  <parameter name="altimeter" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="altimeterDD" numDims="1" type="STRING" />
+  <parameter name="altimeterQCA" numDims="1" type="INT" />
+  <parameter name="altimeterQCR" numDims="1" type="INT" />
+</pointDataDescription>

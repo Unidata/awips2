@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="vtecFilter" class="com.raytheon.uf.edex.activetable.decoder.WarningHasVTECFilter"/>
+
+    <bean id="activeTableSrv" class="com.raytheon.uf.edex.activetable.ActiveTableSrv"/>
+    <bean id="activeTable" class="com.raytheon.uf.edex.activetable.ActiveTable"/>
+    <bean id="activeTableDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.common.activetable"/>
+        <property name="database" value="metadata"/>
+    </bean>
+    <bean factory-bean="dbPluginRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.activetable"/>
+        <constructor-arg ref="activeTableDatabaseProperties"/>
+    </bean>
+    
+    <bean id="activetable-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.activetable.ActivetableCamelRoutes" />
+        </constructor-arg>
+    </bean>
+    
+</beans>

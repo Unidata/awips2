@@ -1,0 +1,1 @@
+We may also check the current component name upon which to base the returned value. We will learn more about product components in the next section.  There is more information available about the “tree” and “node” arguments in the Arguments to TextRules Methods section of the Text Product Reference Guide.

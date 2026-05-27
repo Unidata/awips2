@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="gfeGridFactory" class="com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEGridFactory" />
+
+    <bean factory-bean="dataAccessRegistry" factory-method="register">
+        <constructor-arg value="gfe"/>
+        <constructor-arg ref="gfeGridFactory"/>
+    </bean>
+
+    <bean id="gfeEditAreaFactory" class="com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEEditAreaGeometryFactory" />
+
+    <bean factory-bean="dataAccessRegistry" factory-method="register">
+        <constructor-arg value="gfeEditArea"/>
+        <constructor-arg ref="gfeEditAreaFactory"/>
+    </bean>
+
+</beans>

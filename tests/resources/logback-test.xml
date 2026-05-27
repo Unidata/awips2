@@ -1,0 +1,43 @@
+<configuration debug="false" scan="false">
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+      <filter class="com.raytheon.uf.common.status.logback.InvertedThresholdFilter">
+         <level>INFO</level>         
+      </filter>
+   </appender>
+
+   <appender name="errConsole" class="ch.qos.logback.core.ConsoleAppender">
+      <target>System.err</target>
+      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>WARN</level>
+      </filter> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+   
+   <logger name="com.raytheon" level="INFO" />
+
+   <logger name="org.apache" level="WARN" />
+
+   <logger name="org.apache.activemq.spring" level="WARN" />
+
+   <logger name="org.apache.commons.beanutils" level="WARN" />
+
+   <logger name="org.apache.qpid" level="WARN" />
+
+   <logger name="org.geotools" level="WARN" />
+
+   <logger name="org.apache.xbean.spring" level="WARN" />
+
+   <logger name="org.springframework" level="WARN" />
+
+   <logger name="uk.ltd.getahead" level="WARN" />
+
+   <root level="INFO"> 
+      <appender-ref ref="console"/> 
+      <appender-ref ref="errConsole"/>
+    </root> 
+</configuration>

@@ -1,0 +1,1 @@
+In the core narrative products, the Narrative Definition will vary depending on the Issuance time chosen and, thus, must be assembled “on-the-fly.”   In fact, the dialog and possible Issuance selections are defined in the Standard file and are configurable.  

@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrssmi Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrssmi
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: com.raytheon.uf.common.dataplugin.bufrssmi,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
+ org.geotools,
+ jakarta.persistence,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.common.serialization,
+ org.slf4j,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools,
+ com.raytheon.uf.common.geospatial
+Import-Package: com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets,
+ com.raytheon.uf.edex.core

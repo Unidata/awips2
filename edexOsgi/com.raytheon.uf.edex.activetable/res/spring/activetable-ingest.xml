@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="toDataURI" class="com.raytheon.uf.edex.ingest.notification.ToDataURI"/>
+
+    <bean id="practiceVtecDecoder" class="com.raytheon.uf.edex.activetable.decoder.PracticeVtecDecoder">
+        <property name="pluginName" value="practicewarning"/>
+        <property name="pluginFQN" value="com.raytheon.edex.plugin.warning"/>
+        <property name="moduleName" value="WarningDecoder"/>
+        <property name="cache" value="false"/>
+        <property name="recordClassname" value="com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord"/>
+    </bean>
+
+    <bean id="clusteredActiveTableContext" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.activetable.ClusteredActiveTableContextRoutes" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="activetable-ingest" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.activetable.ActivetableIngestRoutes" />
+        </constructor-arg>
+    </bean>
+
+    <bean id="activetable-practice-ingest" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.activetable.ActivetablePracticeIngestRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

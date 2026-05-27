@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<referenceData>
+    <polygons>MULTIPOLYGON (((-81.7025 26.3603, -81.7075 26.3149, -81.7125 26.2694, -81.7632 26.2739, -81.8139 26.2783, -81.8646 26.2827, -81.8596 26.3282, -81.9103 26.3326, -81.9054 26.3781, -81.9562 26.3825, -82.0069 26.3868, -82.0577 26.3912, -82.1084 26.3955, -82.1592 26.3999, -82.2099 26.4042, -82.2607 26.4085, -82.2559 26.4539, -82.3067 26.4582, -82.3019 26.5037, -82.2971 26.5491, -82.3479 26.5534, -82.3432 26.5989, -82.394 26.6031, -82.3893 26.6486, -82.3845 26.694, -82.3798 26.7395, -82.4307 26.7438, -82.426 26.7892, -82.4212 26.8347, -82.4722 26.8389, -82.4674 26.8844, -82.4627 26.9298, -82.458 26.9753, -82.4533 27.0207, -82.4022 27.0165, -82.3512 27.0123, -82.3002 27.008, -82.305 26.9625, -82.3098 26.9171, -82.2588 26.9128, -82.2636 26.8674, -82.2684 26.8219, -82.2175 26.8176, -82.2223 26.7722, -82.2271 26.7267, -82.1762 26.7224, -82.181 26.6769, -82.1302 26.6726, -82.135 26.6272, -82.0842 26.6228, -82.0333 26.6185, -81.9825 26.6141, -81.9874 26.5687, -81.9366 26.5643, -81.8857 26.5599, -81.8349 26.5555, -81.8399 26.51, -81.7891 26.5056, -81.7383 26.5011, -81.7433 26.4557, -81.7483 26.4102, -81.6975 26.4058, -81.7025 26.3603)))</polygons>
+</referenceData>

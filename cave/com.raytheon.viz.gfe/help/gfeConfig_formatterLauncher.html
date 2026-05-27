@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]"
+ name="GENERATOR">
+  <title>gfeConfig - Formatter Launcher</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<div style="text-align: center;"></div>
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Formatter Launcher<br>
+</h2>
+These configurable items define the formatter launcher, zone combiner,
+and product output options:<br>
+<div class="3Heading">
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to ifpIMAGE</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Size">Zone Combiner Height and Width<br>
+      </a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+
+    <tr>
+      <td><a href="#CTASize">Call to Action Dialog Height and Width<br>
+      </a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+
+
+    <tr>
+      <td><a href="#Background">Zone Combiner Background Color<br>
+      </a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#NoZone">Zone Combiner
+NoZone Color</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#Processor">Processor
+Value</a></td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#OutputDialogFont">Product
+Output Font, Foreground and Background Colors</a></td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#wrap">Product Output
+Wrap Mode and Wrap Length, and Wrap Mode by Products</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#textLockColor">Product
+Output Text Lock Color</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#textFramingColor">Product
+Output Text Framing Color</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#insert">Product Output
+Text Insert Color</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#LabelZones">Zone
+Combiner Label Zones</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#LabelGroups">Zone
+Combiner Label Groups</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#ProductEditorDirectory">Product
+Editor Directory</a><br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote> </blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="Size"></a><font size="+1">Zone Combiner Height and Width<br>
+</font></h4>
+The initial height and width of the zone combiner dialog can be
+specified in pixels.&nbsp; If not specified, the height/width is set to
+80% of the available display space.<br>
+<p><span style="font-family: monospace;"><span
+ style="font-weight: bold;">ZoneCombiner_height = 400<br>
+ZoneCombiner_width = 400<br>
+</span></span><br>
+&nbsp; </p>
+<h4><a name="Background"></a><font size="+1">Zone Combiner Background
+Color<br>
+</font></h4>
+The background color for the zone combiner is 'gray40', unless
+overridden by a gfe configuration entry.&nbsp; The background color is
+used for areas outside of the map background.
+<p><b><tt>ZoneCombiner_backgroundColor = 'gray40'</tt></b></p>
+<p><b><tt> <br>
+</tt></b></p>
+<h4><a name="NoZone"></a><font size="+1">Zone Combiner NoZone Color<br>
+</font></h4>
+The NoZone color for the zone combiner is 'black', unless
+overridden by a gfe configuration entry.&nbsp; The no zone color is
+used to indicate those zones which are not included within the
+combinations file at all; i.e., products will not be formatted for this
+area. <br>
+<br>
+<b><tt>ZoneCombiner_noZoneColor = 'black'<br>
+<br>
+</tt></b>
+<p><b><font size="+1"><a name="Processor"></a>Processor Mode</font></b><br>
+</p>
+<blockquote> </blockquote>
+<p>Default setting for the&nbsp; Processor
+Mode.&nbsp; Options are "Server" and "Local".&nbsp; It
+is recommended that "Server" be used for better performance on the GFE.
+</p>
+<b><tt>FormatterLauncherDialog_Processor =
+"Server"<br>
+</tt></b><b><tt><br>
+<br>
+<br>
+<br>
+<br>
+</tt></b>
+<a name="OutputDialogFont"></a><big><span style="font-weight: bold;">Product
+Output Dialog Font, Background and
+Foreground Colors</span></big>
+<p>Controls the font and colors in the Product Output Dialog. <br>
+</p>
+<span style="font-weight: bold; font-family: monospace;">ProductOutputDialog_font
+= "-b&amp;h-lucidatypewriter-bold-*-sans-14-*"</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">ProductOutputDialog_fgColor
+= "#000000"</span><br style="font-weight: bold;">
+<span style="font-weight: bold; font-family: monospace;">ProductOutputDialog_bgColor
+= "#d0d0d0"<br>
+<br>
+<br>
+<br>
+<a name="wrap"></a></span><span style="font-weight: bold;"><big>Product
+Output Dialog Wrap Mode and Wrap Length, Wrap Mode by Products<br>
+</big></span><br>
+Controls the default setting of the wrap mode, and the default wrap
+length.&nbsp; The default setting of the wrap mode only applies if the
+product is not found in the list of "wrapPils" and "nonWrapPils".<br>
+<br>
+<small><span style="font-weight: bold;">ProductOutputDialog_wrapMode =
+0&nbsp; #0=off, 1=on</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">ProductOutputDialog_wrapSize = 66</span></small><br>
+<span style="font-weight: bold;"><big><br>
+<span style="font-weight: bold;"></span></big></span> In addition to
+the default wrap mode, a specific wrap mode may be set based on the
+product's pil category ("NNN").&nbsp; There are two lists in the gfe
+configuration file, one that defines the product pils that should have
+wrap mode enabled, and one with word wrap disabled.<br>
+<br>
+<small><span style="font-weight: bold;">ProductOutputDialog_wrapPils =
+['ZFP','CWF']</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">ProductOutputDialog_nonWrapPils =
+['AFM','PFM','FWF']</span></small><br>
+<span style="font-weight: bold;"><big><span style="font-weight: bold;"></span><br>
+</big></span><span style="font-weight: bold; font-family: monospace;"></span><span
+ style="font-weight: bold; font-family: monospace;"><a
+ name="textLockColor"></a></span><span style="font-weight: bold;"><big>Product
+Output Text Lock Color<br>
+</big></span><br>
+Sets the product editor text lock color.&nbsp; Defaults to blue.<br>
+<br>
+<small><span style="font-weight: bold;">ProductOutputDialog_lockColor =
+'blue'<br>
+<br style="font-weight: bold;">
+</span><span style="font-weight: bold;"></span><br>
+</small>
+<span style="font-weight: bold; font-family: monospace;"><a
+ name="textFramingColor"></a></span><span style="font-weight: bold;"><big>Product
+Output Text Framing Color<br>
+</big></span><br>
+Sets the product editor text framing color.&nbsp; This is the color
+used to denote the range of text between the framing characters.&nbsp;
+Defaults to red.<br>
+<br>
+<small><span style="font-weight: bold;">ProductOutputDialog_frameColor
+=
+'red'</span></small><br>
+<br>
+<span style="font-weight: bold; font-family: monospace;"><a
+ name="insert"></a></span><span style="font-weight: bold;"><big>Product
+Output Text Insert Color<br>
+</big></span><br>
+Sets the product editor text insert color.&nbsp; This is the color that
+indicates the end of the headline, and where text may be inserted to
+modify the headline.<br>
+<br>
+<small><span style="font-weight: bold;">ProductOutputDialog_insertColor
+=
+'cyan'<br>
+<br>
+</span></small><a name="LabelZones"></a><big><span
+ style="font-weight: bold;">Zone
+Combiner - Label Zones<br>
+</span></big>
+<p>Sets the default initial state for the zone combiner.&nbsp; If
+enabled, then the zone names will be labeled on the zone combiner map.
+0 for disabled, 1 for enabled.<br>
+</p>
+<span style="font-weight: bold; font-family: monospace;">ZoneCombiner_LabelZones
+= 0<br>
+</span><span style="font-weight: bold; font-family: monospace;"></span><br>
+<br>
+<a name="LabelGroups"></a><big><span style="font-weight: bold;">Zone
+Combiner - Label Groups<br>
+</span></big>
+<p>Sets the default initial state for the zone combiner.&nbsp; If
+enabled, then the zone group numbers will be shown on the zone combiner
+map. 0 for disabled, 1 for enabled.<br>
+</p>
+<span style="font-weight: bold; font-family: monospace;">ZoneCombiner_LabelGroups
+= 1<br>
+</span><br>
+<span style="font-weight: bold; font-family: monospace;"><br>
+</span><span style="font-weight: bold; font-family: monospace;"><br>
+</span> <a name="ProductEditorDirectory"></a><big><span
+ style="font-weight: bold;">Product Editor Directory<br>
+</span></big>
+<p>The Product Editor Directory configuration is used with the <a
+ href="FormatterLauncher.html">Formatter Launcher's Product Editor</a>.&nbsp;&nbsp;
+When the user presses the "Save File..." button, the default value
+appearing in the Save File dialog is one of several items:<br>
+</p>
+<p>1) If the product definition contains Definition['outputFile'], then
+that value is used in the Save File Dialog as the default.<br>
+</p>
+<p>2) If the product definition does not contain
+Definition['outputFile'], then the software will use the value defined
+in the ProductEditorDirectory for the initial directory opened in the
+file browser.<br>
+</p>
+<p>3) If the product definition does not contain
+Definition['outputFile'] and ProductEditorDirectory is not defined in
+the gfe configuration file, then the default is {prddir}, which is
+defined as the .../products directory.<br>
+</p>
+<p>The default value for ProductEditorDirectory is not defined in the
+configuration file.<br>
+</p>
+<span style="font-weight: bold; font-family: monospace;">ProductEditorDirectory
+= "/tmp"<br>
+<br>
+</span>
+
+<h4><a name="CTASize"></a><font size="+1">Call To Action Dialog Height and Width<br>
+</font></h4>
+The initial height and width of the Call To Action dialog can be
+specified in pixels.&nbsp; If not specified, the height/width is set to
+the default values show below.<br>
+<p><span style="font-family: monospace;"><span
+ style="font-weight: bold;">
+ProductOutputDialog_CTAWidth = 575<br>
+ProductOutputDialog_CTAHeight = 300<br>
+</span></span><br>
+</p>
+<hr style="width: 100%; height: 2px;"><br>
+<div class="Body">
+<center><a href="GFESuite.html">Back To TOC</a></center>
+</div>
+</div>
+</body>
+</html>

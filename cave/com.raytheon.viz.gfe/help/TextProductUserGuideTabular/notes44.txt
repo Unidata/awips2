@@ -1,0 +1,1 @@
+Here we see the "getCurrentTime" method which produces the current time formatted according to the given format string.  See the Time Display section of the Text Product Reference Guide for specifying the format string.  The "timeDisplay" method allows you to format any TimeRange object into a display string.  See its description in the TimeRangeUtils module. 

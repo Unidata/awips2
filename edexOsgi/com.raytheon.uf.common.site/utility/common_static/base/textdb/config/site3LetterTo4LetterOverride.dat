@@ -1,0 +1,25 @@
+# Overrides the default 3 to 4 letter mapping obtained using national_category_template
+# These overrides were pulled from legacy GFE
+#
+# This is an incremental override file, indicating that the files at
+# different localization levels will be combined.
+#
+# When overriding, delete ALL lines except those that need to be modified.
+#
+AER PAFC
+ALU PAFC
+ACR PACR
+AFC PAFC
+AFG PAFG
+AJK PAJK
+GUM PGUM
+HFO PHFO
+NH1 KNHC
+NH2 KNHC
+NHA KNHC
+NHP KNHC
+NHZ KNHC
+PPG PPPG
+PQE PGUM
+PQW PGUM
+SJU TJSJ

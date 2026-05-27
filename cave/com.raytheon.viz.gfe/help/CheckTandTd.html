@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>CheckTandTd</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>CheckTandTd</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Introduction</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The
+<i style="font-weight: bold;">CheckTandTd</i> procedure is intended to
+be a final check on the
+Temperature (T) and Dew Point (Td) grids. The tool checks that the
+following meteorological conditions are maintained throughout the
+forecast database: </font>
+<br>
+<br>
+<font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">MinT &lt;=
+T &lt;= MaxT</font><span style="font-weight: bold;">
+</span><br style="font-weight: bold;">
+<br style="font-weight: bold;">
+<font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">Td &lt;=
+T</font><span style="font-weight: bold;">
+</span><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Optionally,
+the tool can be run to show the time and area over which the above
+conditions are violated.</font>
+<br>
+<br>
+<br>
+<big><big><font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">How
+the Procedure Works</font><span style="font-weight: bold;">
+</span></big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The
+CheckTandTd procedure begins by retrieving all of the MinT, MaxT, T,
+and Td grid inventory. These timeRanges are used later throughout
+the code, and allow the tool to work in any time zone. Next, each
+MinT grid and all T grids that correspond to the associated MinT
+timeRange are retrieved. Using numpy, each T grid is
+compared with the MinT grid to identify where T grid points are lower
+than the MinT grid. A temporary grid is created (named TLessThanMin)
+that highlights where this condition is met by flagging the grid with
+a value of one (1). All other points are set to zero. An example of
+the resulting “Highlight” grid is shown in Fig. 1. The points
+that are set to one (appearing red by default) are used to create an
+editArea, whereby a SmartTool can be called to set the T grid points
+to the MinT grid values where T &lt; MinT.</font>
+<br>
+<br>
+<br>
+<img alt="CheckTandTd grid" src="images/CheckTandTdGrid.jpg"
+ name="Graphic1"
+ style="border: 0px solid ; width: 299px; height: 282px;">
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="2">Fig.
+1. Example of theTLessThanMin “Highlight” grid, with grid points
+shaded in red where the T is less than the corresponding Minimum T.</font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">An
+identical set of steps is performed on the T grids again, but in this
+case the MaxT grid is used for comparison, and a temporary highlight
+grid (named TGreaterThanMax) is created. All grid points with T
+greater than MaxT at the same point and time are used to make the
+editArea. A different SmartTool is called to set the T grid points to
+the MaxT grid values where T &gt; MaxT. </font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Finally,
+a third check is performed to ensure that the Td grids are always at
+or below the T grid for the same point and time period. The same
+steps are performed as in the previous two checks, and the resulting
+highlight grid (TdGreaterThanT) shows where the Td grids are greater
+than the T grids. Anywhere/time the Td grid points are greater than
+the T grid, a SmartTool is called to adjust the Td to the T value.</font>
+<br>
+<br>
+<br>
+<big><big><font face="New Century Schoolbook, Times New Roman, serif"><b>Running
+the Procedure</b></font>
+</big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">When
+the Procedure is envoked, users are presented with two options:
+“Check Only” and “Force” (see Fig. 2). The CheckOnly option
+will not modify any grids. It will simply generate the respective
+highlight grids at times where the T or Td grids violate the
+meteorological checks. Forecasters may examine these grids to get a
+better idea of where and when the grids are inconsistent.</font>
+<br>
+<br>
+<br>
+<img alt="CheckTandTd User Interface" src="images/CheckTandTdUI.jpg"
+ name="Graphic2"
+ style="border: 0px solid ; width: 392px; height: 157px;">
+<br>
+<font size="2"><font
+ face="New Century Schoolbook, Times New Roman, serif"><br>
+Fig.
+2. The <i>CheckTandTd</i> Tool GUI.</font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The
+second option, Force, will run the set of SmartTools that maintain
+balance between the MinT, MaxT and T grids and between the T and Td
+grids. Selecting this option and running the tool will likely cause
+many T grids to be modified. Any grids that are locked by other
+forecasters will, of course, not be modified, so it is important that
+you make sure the entire set of T and Td grids are saved (unlocked)
+before running this tool.</font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">No
+special configuration is required with this tool.</font>
+</body>
+</html>

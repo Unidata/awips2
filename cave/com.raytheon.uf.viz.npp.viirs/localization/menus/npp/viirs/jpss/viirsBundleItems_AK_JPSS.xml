@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+   <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+   <!--  Lee Byerle  1/3/2018 -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="titleItem" id="VIIRSTitleJPSS" titleText="------ Imagery ------"/>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="0.64 μm Imagery Band 1 (CH 01)" id="Img0.64J">
+    <substitute key="parameter" value="0.64Ref"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="0.865 μm Imagery Band 2 (CH 02)" id="Img0.865J">
+    <substitute key="parameter" value="0.865Ref"/>
+  </contribute>
+   <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="1.61 μm Imagery Band 3 (CH I3 (R))" id="Img1.61J">
+    <substitute key="parameter" value="1.61Ref"/>
+  </contribute> 
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="3.74 μm Imagery Band 4 (CH 04)" id="Img3.74J">
+    <substitute key="parameter" value="3.74BT"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="11.45 μm Imagery Band 5 (CH 05)" id="Img11.45J">
+    <substitute key="parameter" value="11.45BT"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="Moderate Band 14 (8.55u)" id="Mod8.55J">
+     <substitute key="parameter" value="8.55BT"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="Moderate Band 15 (10.763u)" id="Mod10.763J">
+    <substitute key="parameter" value="10.763BT"/>
+  </contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+    menuText="Moderate Band 16 (12.013u)" id="Mod12.013J">
+    <substitute key="parameter" value="12.013BT"/>
+  </contribute> 
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="0.7 μm Near Constant Contrast" id="NCC0.7J">
+  <substitute key="channelType" value="Moderate"/>
+  </contribute>
+  
+</menuTemplate>

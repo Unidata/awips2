@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="SDENGFS" internal="false" isVector="false" name="GFS Snow Density"
+    unit="kg/m³">
+    <Method levels="Surface" name="Alias">
+        <Field abbreviation="SDEN" />
+    </Method>
+</DerivedParameter>

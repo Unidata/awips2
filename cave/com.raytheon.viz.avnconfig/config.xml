@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!--
+    The python files referenced here are based on the OB9.2.X_source/AVNFPSOB9.2-CM. 
+    The values for mtrs come from the classes in MetarMonitorP.py
+    The values for ltg come from the classes in LtgMonitor.py
+    The values for rltg come from the classes in RadLtgMonitor.py
+    The values for ccfp come from the classes in CCFPMonitor.py
+    The values for grids come from the classes in GridMonitor.py
+    The values for llws come from the classes in LLWSMonitor.py
+     -->
+<configuration>
+<rules>
+<mtrs>
+<AirportOpsThresh>
+<type>cat</type>
+<unique>0</unique>
+<args>vsby,cig,remarks</args>
+<defaultValues>1,500,Y</defaultValues>
+<msg></msg>
+<comment>Alert when either TAF or METAR cig/vis falls below an airport
+operations criteria and obs and forecast disagree.
+
+Arguments: vsby, cig - visibility/ceiling thresholds that affect operations.
+remarks - use variability information, if given, in the METAR remarks</comment>
+</AirportOpsThresh>
+<CigCatDelta>
+<type>sky</type>
+<unique>1</unique>
+<args>ncat,remarks</args>
+<defaultValues>1,Y</defaultValues>
+<msg></msg>
+<comment>TAF and METAR ceiling differ by #categories.
+
+Arguments: ncat - number of category differences;
+remarks - use variability information, if given, in the METAR remarks</comment>
+</CigCatDelta>
+<CigMetarThresh>
+<type>sky</type>
+<unique>0</unique>
+<args>cig1,cig2,remarks</args>
+<defaultValues>3100,3100,Y</defaultValues>
+<msg></msg>
+<comment>METAR ceiling &lt;= cig1 and TAF ceiling > cig2
+
+Arguments: cig1 cig2
+remarks - use variability information, if given, in the METAR remarks</comment>
+</CigMetarThresh>
+<CigTafThresh>
+<type>sky</type>
+<unique>0</unique>
+<args>cig1,cig2,remarks</args>
+<defaultValues>3100,3100,Y</defaultValues>
+<msg></msg>
+<comment>TAF ceiling &lt;= cig1 and METAR ceiling &gt; cig2
+
+Arguments: cig1 cig2
+remarks - use variability information, if given, in the METAR remarks</comment>
+</CigTafThresh>
+<DDDelta>
+<type>wind</type>
+<unique>1</unique>
+<args>dd,ff</args>
+<defaultValues>10,30</defaultValues>
+<msg></msg>
+<comment>TAF and METAR winds directions differ by "dd" with either wind speed >= "ff1."
+
+Arguments: dd ff1</comment>
+</DDDelta>
+<FFDelta>
+<type>wind</type>
+<unique>1</unique>
+<args>ff,ff1</args>
+<defaultValues>10,15</defaultValues>
+<msg></msg>
+<comment>TAF and METAR wind speeds/gusts differ by "ff" with either wind speed >= "ff1."
+
+Arguments: ff ff1</comment>
+</FFDelta>
+<FltCatDelta>
+<type>cat</type>
+<unique>0</unique>
+<args>remarks,strict</args>
+<defaultValues>True,True</defaultValues>
+<msg></msg>
+<comment>Comparing TAF and observations with respect to aviation flight categories. Severity and
+message determined by algorithm
+Arguments: remarks - yes to use variability information, if given in the METAR remarks
+           strict - yes to alert if forecasted and observed flight category do not match exactly</comment>
+</FltCatDelta>
+<FuelAlternate>
+<type>cat</type>
+<unique>0</unique>
+<args>vsby,cig,remarks</args>
+<defaultValues>3,2000,Y</defaultValues>
+<msg></msg>
+<comment>Either TAF and METAR weather falls below alternate fuel requirements.
+
+Arguments: vsby, cig - ceiling and visibility thresholds for alternate fuel loading for aircaft
+remarks - use variability information, if given, in the METAR remarks</comment>
+</FuelAlternate>
+<LFFMetar>
+<type>wind</type>
+<unique>0</unique>
+<args>runway,ff</args>
+<defaultValues>-1,0</defaultValues>
+<msg></msg>
+<comment>METAR runway head or tail wind meets or exceeds "ff" KT
+
+Arguments: runway = index to runways[] in info.cfg;
++ff = tailwind, -ff = headwind</comment>
+</LFFMetar>
+<VsbyCatDelta>
+<type>vsby</type>
+<unique>1</unique>
+<args>ncat,remarks</args>
+<defaultValues>1,Y</defaultValues>
+<msg></msg>
+<comment>TAF and METAR visibilities differ by #categories
+
+Arguments: ncat - number of category differences;
+remarks - use variability information, if given, in the METAR remarks</comment>
+</VsbyCatDelta>
+<VsbyMetarThresh>
+<type>vsby</type>
+<unique>0</unique>
+<args>vsby1,vsby2,remarks</args>
+<defaultValues>3.0,3.0,Y</defaultValues>
+<msg></msg>
+<comment>METAR visibility &lt;= vsby1 and TAF visibility > vsby2
+
+Arguments: vsby1 vsby2
+remarks - use variability information, if given, in the METAR remarks</comment>
+</VsbyMetarThresh>
+<VsbyTafThresh>
+<type>vsby</type>
+<unique>0</unique>
+<args>vsby1,vsby2,remarks</args>
+<defaultValues>3.0,3.0,Y</defaultValues>
+<msg></msg>
+<comment>TAF visibility &lt;= vsby1 and METAR visibility &gt; vsby2
+
+Arguments: vsby1 vsby2
+remarks - use variability information, if given, in the METAR remarks</comment>
+</VsbyTafThresh>
+<WxMetar>
+<type>wx</type>
+<unique>0</unique>
+<args>wx</args>
+<defaultValues>TS</defaultValues>
+<msg></msg>
+<comment>Checks for occurrence of weather in METAR.
+Arguments: WX (list)</comment>
+</WxMetar>
+<WxMetarDelta>
+<type>wx</type>
+<unique>0</unique>
+<args>wx</args>
+<defaultValues>FZRA;FZDZ;PL</defaultValues>
+<msg></msg>
+<comment>Weather (any of the list) occurs in METAR and not in TAF.
+
+Arguments: wx (list)</comment>
+</WxMetarDelta>
+<WxTafDelta>
+<type>wx</type>
+<unique>0</unique>
+<args>wx</args>
+<defaultValues>FZRA;FZDZ;PL</defaultValues>
+<msg></msg>
+<comment>Weather (any of the list) occurs in TAF and not in METAR.
+Arguments: wx (list)</comment>
+</WxTafDelta>
+<WxVsbyDelta>
+<type>wx</type>
+<unique>0</unique>
+<args>vsby,wx,remarks</args>
+<defaultValues>3.0,DZ,Y</defaultValues>
+<msg></msg>
+<comment>Checks for occurrence of weather in METAR while not in TAF,
+       with visibility &lt;= vsby.
+
+Arguments: vsby, wx (list) 
+remarks - use variability information, if given, in the METAR remarks</comment>
+</WxVsbyDelta>
+<XFFMetar>
+<type>wind</type>
+<unique>0</unique>
+<args>runway,ff</args>
+<defaultValues>-1,15</defaultValues>
+<msg></msg>
+<comment>METAR runway cross wind speed >= ff kts
+
+Arguments: runway - index to runway array in site config file
+ff - crosswind speed</comment>
+</XFFMetar>
+<CAC_FltCatDelta>
+<type>cat</type>
+<unique>1</unique>
+<args>remarks</args>
+<defaultValues>True</defaultValues>
+<msg></msg>
+<comment>Comparing TAF and observations with respect to ceiling and visibility categories.
+Severity and message returned determined by algorithm.  This rule satisfies CAC
+requirements.
+
+Arguments: remarks - yes to use variability information, if given in the METAR remarks</comment>
+</CAC_FltCatDelta>
+<CAC_AirportOpsThresh>
+<type>cat</type>
+<unique>1</unique>
+<args>vsby,cig,remarks</args>
+<defaultValues>1,500,Y</defaultValues>
+<msg></msg>
+<comment>Alert when either TAF or METAR cig/vis falls below an airport
+operations criteria. This rule satisfies CAC requirements.
+
+Arguments: vsby, cig - visibility/ceiling thresholds that affect operations.
+remarks - use variability information, if given, in the METAR remarks</comment>
+</CAC_AirportOpsThresh>
+<CAC_VsbyMetarThresh>
+<type>cat</type>
+<unique>0</unique>
+<args>vsby1,vsby2,remarks</args>
+<defaultValues>3.0,3.0,Y</defaultValues>
+<msg></msg>
+<comment>METAR visibility &lt; vsby1 and TAF visibility >= vsby2.  This rule satisfies
+CAC requirements.
+    
+Arguments: vsby1 vsby2
+remarks - use variability information, if given, in the METAR remarks</comment>
+</CAC_VsbyMetarThresh>
+<CAC_VsbyTafThresh>
+<type>cat</type>
+<unique>0</unique>
+<args>vsby1,vsby2,remarks</args>
+<defaultValues>3.0,3.0,Y</defaultValues>
+<msg></msg>
+<comment>TAF visibility &lt; vsby1 and METAR visibility >= vsby2.  This rule satisfies
+CAC requirements.
+
+Arguments: vsby1 vsby2
+remarks - use variability information, if given, in the METAR remarks</comment>
+</CAC_VsbyTafThresh>
+<CAC_WxTafDelta>
+<type>wx</type>
+<unique>0</unique>
+<args>wx</args>
+<defaultValues>FZRA;FZDZ;PL</defaultValues>
+<msg></msg>
+<comment>Weather (any of the list) occurs in the TAF, conditional group included, but not in METAR.
+       
+Arguments: wx (list)</comment>
+</CAC_WxTafDelta>
+</mtrs>
+<ltg>
+<TSObsDelta>
+<type>wx</type>
+<unique>1</unique>
+<args>num</args>
+<defaultValues>3</defaultValues>
+<msg></msg>
+<comment>Thunder present but not in TAF.
+Arguments: number of strikes</comment>
+</TSObsDelta>
+</ltg>
+<rltg>
+<TSInTaf>
+<type>wx</type>
+<unique>1</unique>
+<args>prob</args>
+<defaultValues>20</defaultValues>
+<msg></msg>
+<comment>Thunder in TAF but low probability in guidance.
+Arguments: threshold-probability</comment>
+</TSInTaf>
+<TSNotInTaf>
+<type>wx</type>
+<unique>1</unique>
+<args>prob</args>
+<defaultValues>40</defaultValues>
+<msg></msg>
+<comment>Thunder not forecast but high probability in guidance.
+Arguments: threshold-probability</comment>
+</TSNotInTaf>
+</rltg>
+<ccfp>
+<TSNotInTaf>
+<type>wx</type>
+<unique>1</unique>
+<args>conf,cvrg</args>
+<defaultValues>1,2</defaultValues>
+<msg></msg>
+<comment>CCFP meets confidence and coverage thresholds with no TS in TAF.
+Arguments: 
+    CVRG (1: High, 2: Medium, 3: Low)
+    CONF (1: High, 3: Low)</comment>
+</TSNotInTaf>
+<CBNotInTaf>
+<type>wx</type>
+<unique>1</unique>
+<args>conf,cvrg</args>
+<defaultValues>3,3</defaultValues>
+<msg></msg>
+<comment>CCFP meets confidence and coverage thresholds with no CB in TAF.
+Arguments: 
+    CVRG (1: High, 2: Medium, 3: Low)
+    CONF (1: High, 3: Low)</comment>
+</CBNotInTaf>
+</ccfp>
+<grids>
+<DDDelta>
+<type>wind</type>
+<unique>1</unique>
+<args>dd,ff</args>
+<defaultValues>3,12</defaultValues>
+<msg></msg>
+<comment>TAF and GRIDs winds directions differ by DD with 
+either wind speed >= FF1.
+Arguments: DD FF1</comment>
+</DDDelta>
+<FFDelta>
+<type>wind</type>
+<unique>1</unique>
+<args>ff,ff1</args>
+<defaultValues>10,15</defaultValues>
+<msg></msg>
+<comment>TAF and GRIDs wind speeds/gusts differ by FF with
+either wind speed >= FF1.
+Arguments: FF FF1</comment>
+</FFDelta>
+<CigCatDelta>
+<type>sky</type>
+<unique>1</unique>
+<args>ncat</args>
+<defaultValues>1</defaultValues>
+<msg></msg>
+<comment>TAF and grids ceiling differs by #categories
+Arguments: ncat</comment>
+</CigCatDelta>
+<SkyMismatch>
+<type>sky</type>
+<unique>1</unique>
+<args>ncat</args>
+<defaultValues>1</defaultValues>
+<msg></msg>
+<comment>TAF and grids sky cover differs by #categories
+Arguments: ncat</comment>
+</SkyMismatch>
+<VsbyCatDelta>
+<type>vsby</type>
+<unique>1</unique>
+<args>ncat</args>
+<defaultValues>1</defaultValues>
+<msg></msg>
+<comment>TAF and grids visibilities differs by #categories
+Arguments: ncat</comment>
+</VsbyCatDelta>
+<WxTafDelta>
+<type>wx</type>
+<unique>0</unique>
+<args>wx</args>
+<defaultValues>FZRA;FZDZ;PL</defaultValues>
+<msg></msg>
+<comment>Weather (any of the list) occurs in TAF and not in GRIDs.
+Arguments: WX (list)</comment>
+</WxTafDelta>
+<WxGridsDelta>
+<type>wx</type>
+<unique>0</unique>
+<args>wx</args>
+<defaultValues>FZRA;FZDZ;PL</defaultValues>
+<msg></msg>
+<comment>Weather (any of the list) occurs in GRIDs and not in TAF.
+Arguments: WX (list)</comment>
+</WxGridsDelta>
+</grids>
+<llws>
+<WSinRadar>
+<type>wx</type>
+<unique>1</unique>
+<args>value</args>
+<defaultValues>0.2</defaultValues>
+<msg></msg>
+<comment>LLWS potential, but not in TAF.
+Arguments: wind shear threshold</comment>
+</WSinRadar>
+</llws>
+</rules>
+</configuration>

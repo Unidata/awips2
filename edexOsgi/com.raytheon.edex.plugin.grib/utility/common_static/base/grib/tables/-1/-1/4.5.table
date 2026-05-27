@@ -1,0 +1,36 @@
+#Code:table:4.5: Fixed surface types and units
+0:0:Reserved
+1:sfc:Ground or Water Surface::SFC
+2:2:Cloud Base Level::CBL
+3:3:Level of Cloud Tops::CTL
+4:4:level of 0C Isotherm::0DEG:FRZ
+5:5:Level of Adiabatic Condensation Lifted from the Surface::ADCL
+6:6:Maximum Wind Level::MWSL:MAXW
+7:7:Tropopause::TRO:TROP
+8:sfc:Nominal Top of the Atmosphere::NTAT
+9:9:Sea Bottom::SEAB
+10:10:Entire Atmosphere::EA
+11:11:Cumulonimbus Base:m:CB
+12:12:Cumulonimbus Top:m:CT
+#13-19 Reserved
+20:20:Isothermal Level:K:TMPL
+#21-99 Reserved
+100:pl:Isobaric Surface:Pa:ISBL:MB
+101:sfc:Mean Sea Level:Pa:MSL
+102:102:Specific Altitude Above Mean Sea Level:m:AMSL:FH
+103:sfc:Specified Height Level Above Ground:m:HTGL:FHAG
+104:104:Sigma Level::SIGL:SIG
+105:105:Hybrid Level::HYBL:HYB
+106:sfc:Depth Below Land surface:m:DBLL:BLS
+107:pt:Isentropic (theta) level:K:THEL:K
+108:108:Level at Specified Pressure Difference from Ground to Level:Pa:SPDL:LYRBL
+109:pv:Potential Vorticity:K * m^2/kg^1*s^1:PVL
+110:110:Reserved
+111:111:Eta Level:Eta value:ETAL:ETA
+# 112-116 Reserved
+117:117:Mixed Layer Depth:m:MIXL
+# 118-159 Reserved
+160:160:Depth Below Sea Level:m:DBSL:BSS
+#161-191 Reserved
+#192-254 Reserved for local use
+255:255:Missing

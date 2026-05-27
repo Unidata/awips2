@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Backupsvc
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.backupsvc
+Bundle-Version: 1.21.1.qualifier
+Bundle-Vendor: RAYTHEON
+Automatic-Module-Name: com.raytheon.uf.common.dataplugin.backupsvc
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: jakarta.persistence,
+ org.hibernate,
+ com.raytheon.uf.common.dataplugin
+Export-Package: com.raytheon.uf.common.dataplugin.backupsvc.constants,
+ com.raytheon.uf.common.dataplugin.backupsvc.database
+Import-Package: com.raytheon.uf.common.serialization.annotations

@@ -1,0 +1,2 @@
+The "getTimeRangeList" method creates a list of time ranges and associated labels.  The labels can be created by a method specified by the user.  This helps us create the labels for the time ranges reported for each weather element in the FWFTable.
+

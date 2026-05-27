@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="pathManager"
+        class="com.raytheon.uf.common.localization.PathManagerFactory"
+        factory-method="getPathManager" />
+
+    <bean id="netcdfGridDecoder" class="com.raytheon.uf.edex.plugin.grid.netcdf.GridNetcdfDecoder" depends-on="levelFactoryInitialized">
+        <constructor-arg ref="pathManager" />
+    </bean>
+
+    <bean id="netcdfGridDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="netcdfGrid" />
+        <constructor-arg value="jms-durable:queue:Ingest.NetcdfGrid" />
+    </bean>
+
+    <bean id="netcdfGrid-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.grid.netcdf.NetcdfGridCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

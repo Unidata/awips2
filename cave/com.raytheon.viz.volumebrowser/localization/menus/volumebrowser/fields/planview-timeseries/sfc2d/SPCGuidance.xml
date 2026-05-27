@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="Probability of Dry Thunderstorm"
+        key="DRYTPROB" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Fire Wx Probability (High Winds, Low RH)"
+        key="JFWPRB" indentText="false" />
+</menuTemplate>

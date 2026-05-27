@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<!-- 
+    AWIPS I format
+    SRMmM | |N|Storm Relative Flow Mag (Mean Wind)| |CONTOUR,IMAGE,OTHER|MB,Surface|       *Magnitude|SRMm
+    
+    
+    varId: |SRMmM| 
+    Cross Section (CS): | | 
+    isAttachToSource: |N| 
+    varName: |Storm Relative Flow Mag (Mean Wind)| 
+    units: || 
+    displayTypes: |CONTOUR,IMAGE,OTHER|     //Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+    planeList: |MB,Surface|                 //No longer used, planes are available and determined by levels attribute in the Method tag, 
+                                            //default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+                                            //method levels
+
+    functionName: |Magnitude|
+    varId: |SRMm| 
+    
+    
+    AWIPS II NEW FILE - SRMmM.xml
+ -->
+<DerivedParameter name="Storm Relative Flow Mag (Mean Wind)" unit="m/s" abbreviation="SRMmM">
+    <Method name="Magnitude">
+        <Field abbreviation="SRMm" />
+    </Method>
+</DerivedParameter>

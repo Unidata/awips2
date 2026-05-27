@@ -1,0 +1,154 @@
+<!--
+    This is an absolute override file, indicating that a higher priority
+    version of the file will completely replace a lower priority version
+    of the file.
+-->
+<!-- Airport Weather Warning template -->
+<!-- created using Huntsville as an example -->
+<!-- Customized by Phil Kurimski WFO DTX 12 April 2012
+     Updated by Phil Kurimski 12 September 2012 OB12.9.1-12
+     Updated Evan Bookbinder 5-5-13 to change units per Directive
+     Phil Kurimski 09-19-2013 added geospatialConfig.xml - used ZONE as default
+     Bookbinder    01-30-2017 Pulled dam; DCS20237
+     R.Anderson    10-05-2017 Updates to AWW templates to generate correct PIL, DCS19361
+     Mike Dangelo  03-19-2018 Added third preset-area for testing TO.A & SV.A inclusion, DR 19650
+-->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. CHANGE TO "geospatialConfig_COUNTY.xml" if desired
+-->
+<include file="geospatialConfig_ZONE.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>nmi</unitDistance>
+ <unitSpeed>kn</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE.
+    The various menu items are also the different maps
+    that can be loaded with each template.  -->
+ <maps>
+  <map>County Warning Areas</map>
+  <map>Forecast Zones</map>
+ </maps>
+
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+  <followup>COR</followup>
+ </followups>
+
+ <!-- Product ID: nnn id of the product -->
+ <productId>AWW</productId>
+
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+ </phensigs>
+
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+    included with the warning product include TO.A and/or SV.A, 
+    respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
+ </includedWatches>
+
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>60</defaultDuration>
+ <durations>
+  <duration>15</duration>
+  <duration>30</duration>
+  <duration>45</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration>
+  <duration>120</duration>
+  <duration>180</duration> 
+  <duration>240</duration>
+  <duration>300</duration>   
+ </durations>
+
+<!-- Enables/disables the 'Dam Break Threat Area' button -->
+<enableDamBreakThreat>true</enableDamBreakThreat>
+
+
+<!-- TO ENABLE A PRE-SET POLYGON FOR YOUR AIRPORT, THE FOLLOWING MUST OCCUR
+1.) enableDamBreakThreat attribute above must be included and set to true
+2.) Airports must be contained in a damInfoBullets section, with each
+    airport set within an damInfoBullet group. 
+3.) The radio button bulletGroup attribute must be set to "dam".
+4.) coords= section must appear exactly as the polygon would appear in WarnGen text
+
+Despite having the airport listing at the top in the XML code below, it will always appear after all 
+the other bullets due to a WarnGen hard coded issue designed for dam breaks. 
+
+User must click "Dam Break Threat Area" button in WarnGen GUI after selecting airport. We are working
+to get this button label changed. 
+
+ -->
+  
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW">
+ <damInfoBullets>
+  <damInfoBullet bulletText="*****Choose Airport*****...(Choose 1) " bulletType="title"/>
+  <damInfoBullet bulletName="SUM" bulletText="Some Airport (SUM)" bulletGroup="dam" coords="LAT...LON 2982 9279 2984 9303 2997 9300 2999 9278"/>
+  <damInfoBullet bulletName="ANT" bulletText="Another Airport (ANT)" bulletGroup="dam" coords="LAT...LON 3057 9329 3058 9346 3069 9345 3070 9329"/>
+  <damInfoBullet bulletName="TST" bulletText="Test Airport (TST)" bulletGroup="dam" coords="LAT...LON 2981 9225 3009 9244 3022 9183 2999 9166"/>"
+  <!-- You can add additional airports using the same format above -->
+ </damInfoBullets>  
+ <bullets>
+  <bullet bulletText="SELECT AN AIRPORT (LIST AT BOTTOM)" bulletType="title"/>
+  <bullet bulletText="    THEN CLICK" bulletType="title"/>
+  <bullet bulletText="DAM BREAK THREAT AREA" bulletType="title"/> 
+  <bullet bulletText="  BUTTON ON WARNGEN" bulletType="title"/>
+  <bullet bulletText=" ****Choose Specific Threats****" bulletType="title"/>
+  <bullet bulletName="wind" bulletText="Convective Wind Gusts"/>
+  <bullet bulletName="lightning" bulletText="Cloud to ground lightning"/>
+  <bullet bulletName="hail" bulletText="Hail"/>
+  <bullet bulletName="freezingRain" bulletText="Freezing Rain"/>
+  <bullet bulletName="sleetSnow" bulletText="Sleet or Snow"/>
+  <!-- You can add additional Threats using the same format above -->
+  <bullet bulletText=" ****Cancellation Section****" bulletType="title"/>
+  <bullet bulletName="cancelAWW" bulletText="Cancel AWW"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR">
+ <damInfoBullets>
+  <damInfoBullet bulletText="*****Choose Airport*****...(Choose 1) " bulletType="title"/>
+  <damInfoBullet bulletName="SUM" bulletText="Some Airport (SUM)" bulletGroup="dam" coords="LAT...LON 2982 9279 2984 9303 2997 9300 2999 9278"/>
+  <damInfoBullet bulletName="ANT" bulletText="Another Airport (ANT)" bulletGroup="dam" coords="LAT...LON 3057 9329 3058 9346 3069 9345 3070 9329"/>
+  <damInfoBullet bulletName="TST" bulletText="Test Airport (TST)" bulletGroup="dam" coords="LAT...LON 2981 9225 3009 9244 3022 9183 2999 9166"/>"
+  <!-- You can add additional airports using the same format above -->
+ </damInfoBullets>  
+ <bullets>
+  <!-- You can add additional airports using the same format above -->
+  <bullet bulletText="****Choose Specific Threats****" bulletType="title"/>
+  <bullet bulletName="wind" bulletText="Convective Wind Gusts"/>
+  <bullet bulletName="lightning" bulletText="Cloud to ground lightning"/>
+  <bullet bulletName="hail" bulletText="Hail"/>
+  <bullet bulletName="freezingRain" bulletText="Freezing Rain"/>
+  <bullet bulletName="sleetSnow" bulletText="Sleet or Snow"/>
+  <!-- You can add additional Threats using the same format above -->
+  <bullet bulletText=" ****Cancellation Section****" bulletType="title"/>
+  <bullet bulletName="cancelAWW" bulletText="Cancel AWW"/>
+</bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

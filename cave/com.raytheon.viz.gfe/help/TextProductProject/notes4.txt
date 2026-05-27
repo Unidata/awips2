@@ -1,0 +1,11 @@
+We introduced an experimental prototype in 1998 at the Modernized Product
+Workshop as a way  to create new innovative text products.  The field
+forecasters picked up on this new approach which, like Smart Tools, uses
+Python to make it extendable and easy to customize to the Local site.  They
+explored the use of this technology to create new products as well as to work
+with the legacy text products. This approach became so popular that in August
+2002, the NWS asked FSL in concert with field forecasters to write a set of
+core products as an alternative to the existing products. This was quite an
+undertaking and the first thing we did was to form a Focus Group of about 25
+motivated forecasters who had been working with the text product framework.
+

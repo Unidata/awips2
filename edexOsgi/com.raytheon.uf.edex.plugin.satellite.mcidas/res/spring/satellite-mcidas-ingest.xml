@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="satMcidasDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="satellite.mcidas" />
+        <constructor-arg value="jms-durable:queue:Ingest.Satellite.Mcidas" />
+    </bean>
+
+    <bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder"/>
+
+    <bean id="sat-mcidas-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

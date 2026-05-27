@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#Services to start
+SERVICES=('request' 'ingest' 'registry')

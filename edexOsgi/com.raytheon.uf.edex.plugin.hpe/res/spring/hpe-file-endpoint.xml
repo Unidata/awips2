@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="hpeFilenameProcessor" class="com.raytheon.uf.edex.plugin.hpe.process.HpeGribFileNameProcessor" />
+
+    <bean id="hpeFileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy">
+          <constructor-arg value="5000" />
+    </bean>
+    
+    <bean id="hpegrib-file-endpoint" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.hpe.handler.HpegribFileEndpointRoutes">
+                <constructor-arg name="edexHome" value="${edex.home}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+</beans>

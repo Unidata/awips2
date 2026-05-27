@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:CAVE?after=group1">
+         <command
+               commandId="com.raytheon.uf.viz.backupsvc.backupServices"
+               id="backupServices"
+               label="Backup Services..."
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         id="com.raytheon.uf.viz.backupsvc.backupServices"
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.raytheon.uf.viz.backupsvc.backupServices"
+            name="Backup Services">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.uf.viz.backupsvc.actions.BackupServicesAction"
+            commandId="com.raytheon.uf.viz.backupsvc.backupServices">
+             <enabledWhen>
+            <test
+                  forcePluginActivation="true"
+                  property="com.raytheon.uf.viz.auth.hasPermission"
+                  value="backupService.dialog">
+            </test>
+         </enabledWhen>
+      </handler>
+   </extension>
+    <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.raytheon.uf.viz.auth.AuthPropertyTester"
+            id="com.raytheon.uf.viz.auth.AuthPropertyTester"
+            namespace="com.raytheon.uf.viz.auth"
+            properties="hasPermission"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+</plugin>

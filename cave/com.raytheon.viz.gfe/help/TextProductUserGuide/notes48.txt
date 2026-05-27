@@ -1,0 +1,1 @@
+The Site Overrides File is also imported into the Text Product along with the Standard file and Site Definitions File such that the methods in the Site Overrides File will override those in the baseline Standard file as well as those in the Regional Overrides File. We will now explore in detail how to include override methods to customize your product. 

@@ -1,0 +1,70 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
+
+    <bean id="gridPersistUtils" class="com.raytheon.edex.plugin.grib.util.GridPersistUtils" />
+
+    <bean id="gribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
+        <constructor-arg value="${GRIB_MAX_GRID_POINTS}"/>
+        <constructor-arg value="${GRIB_DECODE_THREADS}"/>
+    </bean>
+
+    <bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter" />
+
+    <bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
+
+    <bean id="gribPostProcessor"
+        class="com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor"
+        factory-method="getInstance" />
+
+    <bean id="postProcessorsRegistered" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="gribPostProcessor"/>
+        <property name="targetMethod" value="register"/>
+        <property name="arguments">
+            <list>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CPCoutlookGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.ECMWFHiResProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HPCqpfPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HWRFPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.LapsPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.MSASPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RTMAGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC130GribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC236GribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.TemperatureCorrectionPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.precipitation.PrecipAccumPostProcessor</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="gribTableLookup" class="com.raytheon.uf.common.grib.tables.GribTableLookup"
+        factory-method="getInstance" depends-on="gridRegistered, queryDataRegistered, levelFactoryInitialized" />
+
+    <bean id="gribModelLookup"
+        class="com.raytheon.uf.common.grib.GribModelLookup"
+        factory-method="getInstance" >
+        <property name="coverageNameLookup" ref="gribSpatialCache"/>
+    </bean>
+
+    <bean id="gribSpatialCache"
+        class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
+        factory-method="getInstance" depends-on="gridcoveragelookup"/>
+    
+    <bean id="grib-decode" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.grib.GribDecodeRoutes">
+                <constructor-arg name="gribSplitThreads" value="${GRIB_SPLIT_THREADS}" />
+                <constructor-arg name="gribDecodeThreads" value="${GRIB_DECODE_THREADS}" />
+                <constructor-arg name="gridPostprocessThreads" value="${GRID_POSTPROCESS_THREADS}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>
+

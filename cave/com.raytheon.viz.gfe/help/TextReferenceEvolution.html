@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.8 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Text Products Reference</title>
+<!--link REL="STYLESHEET" HREF="TextFormatter.html"-->
+</head>
+<body bgcolor="#ffffff">
+<center><h1> <a name="Evolution"></a>Evolution of GFESuite Text Products :
+Policy and Project Overview</h1></center><hr>
+
+
+The staff of the Forecast Systems Laboratory (FSL), working closely
+with National Weather Service (NWS) field forecast offices, develops
+the
+grid-editing component of the Interactive Forecast Preparation System
+(IFPS).&nbsp; This component called the Graphical Forecast Editor Suite
+(GFESuite) allows forecasters to define a weather forecast in gridded
+digital form. Once defined, the majority of NWS products are then
+derived from this digital forecast database.
+<p>Textual forecasts are among the most widely known products of the
+National Weather Service.&nbsp; With the advent of digital forecasting
+it is possible to produce these products automatically, allowing
+forecasters to focus on meteorology rather than typing, and giving
+consistency to the products.&nbsp; There is an established set of text
+formatters included in the IFPS system. The FSL development team is
+developing an alternative set of text formatters which produce standard
+text products directly from the digital forecast database. </p>
+<p>The GFESuite text formatters are being developed within the Rapid
+Prototype Process (RPP), which delivers software in a rapid fashion and
+incorporates forecaster feedback to quickly improve the system.&nbsp;
+This section examines the phased development of the formatters and how
+the feedback process works in each development phase. </p>
+<p><img src="images/TF1.png" height="540" width="720"><br>
+&nbsp; </p>
+<h4>Exploration Phase</h4>
+The GFESuite text formatter infrastructure was introduced by FSL as a
+prototype at the National Weather Service Modernized Product Workshop
+in
+September of 1998. The infrastructure was written using C++ and Python,
+which made it easy to extend and customize.&nbsp; During the next four
+years, field forecasters explored the capabilities of the
+infrastructure
+to develop text products.&nbsp; During this Exploration Phase, the
+infrastructure was enhanced to meet field needs.&nbsp; The system was
+also kept backward-compatible as new functionality was added.
+<p>By July of 2002, many local offices were successfully running
+GFESuite formatters. However, the nature of this Exploration Phase led
+to multiple versions of products, and support for these local versions
+became a challenge. At this time, OS&amp;T developed the Local
+Formatter
+Infusion Plan which tasked the NWS, in concert with FSL, to develop a
+core set of GFESuite text formatters as an alternative approach to the
+established IFPS text product generation providing potential risk
+reduction for the September 2003 IOC.&nbsp; By providing a core set of
+standardized local formatters, the number of versions in the field will
+be minimized while still allowing local customization. A Local Text
+Formatter Team was formed consisting of forecasters representing all
+regions and the FSL development team. <br>
+&nbsp; </p>
+<h4>Consolidation Phase</h4>
+With the adoption of this plan, we entered a new phase of local
+formatter development, a Consolidation Phase.&nbsp; Instead of creating
+multiple versions of products, we are consolidating and integrating the
+products that were developed during the Exploration Phase. The
+infrastructure is being enhanced and transformed to better meet the
+needs of the local products.&nbsp; Backward compatibility during this
+phase is not desirable since it requires 25-50% of the time available
+for local formatter development.&nbsp; Even if time permitted, we would
+not want to maintain old code; we want a system that is easy to
+understand and maintain and not cluttered with older versions.
+<p>Thus, we created a new set of infrastructure modules to replace the
+older ones from the Exploration Phase.&nbsp; The older modules will
+continue to be included in the GFESuite until the new products are
+mature so that existing versions of products will still run.&nbsp; This
+will ease the transition to the new products. </p>
+<p>In October 2002, an initial set of new products was released for
+testing and field feedback.&nbsp; The products were of varying maturity
+levels. In general, products in a tabular format had higher levels of
+maturity than the narrative-type products, which are more complex. As
+the field becomes comfortable with each product, they may choose to use
+them operationally. </p>
+<p><img src="images/TF2.png" height="540" width="720"><br>
+&nbsp; </p>
+<h4>Feedback Process in the Exploration Phase</h4>
+How does this all-important feedback process work?&nbsp; First, let's
+look at the feedback process used during the Exploration phase.&nbsp; A
+site would create or install a product and set up local
+customizations.&nbsp; When a bug or desired enhancement was identified,
+the focal point would make modifications writing new methods and code
+to
+override the existing ones. The focal point used an electronic bulletin
+board, called the "listserver", for help with trouble-shooting from FSL
+or from other forecasters.&nbsp; This resulted in a solution for each
+site. The local sites were satisfied, and FSL enhanced the
+infrastructure to meet their needs.&nbsp; However, this process
+resulted
+in multiple solutions to the same problem, and the solutions were not
+available to all.
+<h4>Feedback Process in the Consolidation Phase</h4>
+In the Consolidation phase, we are integrating the existing versions of
+products, and the infrastructure is changing dramatically.&nbsp; If we
+used the same feedback process as we did for the Exploration phase, a
+new release containing a changing infrastructure would cause the
+modified new products to break.&nbsp; Depending on how much development
+had been done, it could take days to weeks to recover.&nbsp; If the
+product team and FSL continued to provide support for local sites
+making
+modifications to the code, the effort toward new products would be
+reduced by 25-50%. In the end, each site would have a different
+solution
+to the same problem, and the enhancements may not be available to all
+in
+the standard product.
+<p>The feedback process in the Consolidation Phase works differently,
+as follows: A site installs the new product and makes local
+customizations according to established "customization points"
+documented for that product. When a bug or desired enhancement is
+identified, instead of modifying the code at the local site, the focal
+point submits a report to the listserver. The GFESuite Local Formatter
+team responds to the problem or request. Often, due to the flexible
+nature of Python, an interim solution can be given to the site.&nbsp;
+This solution would then be available to all AND can be integrated back
+into the standard product and infrastructure.&nbsp; As a result, the
+individual sites are satisfied and the Local Formatter Team has
+spent&nbsp; time on new product development.&nbsp; There is one
+solution
+to the same problem, which makes the products easier to understand and
+maintain. </p>
+<p>Using this feedback process, which minimizes local versions, a new
+release is less likely to break the products. If there are
+infrastructure changes that will effect products, they can be
+identified. The time to adapt the products would be more on the order
+of
+hours rather than days or weeks.&nbsp; In this scenario, progress on
+the
+new products has been increased and the feedback process has served the
+purpose of developing mature products for the benefit of all.&nbsp;
+During the Consolidation Phase, there might be some cases where the
+field offices are asked to settle for less functionality in the short
+term in order to help build fully featured and maintainable products in
+the long term. <br>
+&nbsp; </p>
+<p><img src="images/TF3.png" height="540" width="720"></p>
+<p>Conclusion </p>
+<p>The target date for operational GFESuite Local Text Formatters is
+June 2003.&nbsp; The goal is to have a set of fully featured and
+customizable products.&nbsp; At this time, the infrastructure will be
+stable and mature.&nbsp; As a result of supporting the needs of a
+diverse set of core products, the revised infrastructure will contain
+excellent tools for field forecasters to begin a new Exploration Phase,
+creating Modernized Products, the original goal and intention of the
+GFESuite text formatters. <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; </p>
+</div>
+</body>
+</html>

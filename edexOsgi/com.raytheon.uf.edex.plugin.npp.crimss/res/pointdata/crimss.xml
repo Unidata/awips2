@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+  <!-- Need to check if this is really the max number of levels -->
+  <dimension name="maxAltitudeLevels" length="31"/>
+  <dimension name="maxTemperatureLevels" length="42"/>
+  <dimension name="maxH2OLevels" length="22"/>
+  
+  <!-- One dimensional weather parameters -->
+  <parameter name="SkinTemperature" numDims="1" type="FLOAT" />
+  <parameter name="SurfacePressure" numDims="1" type="FLOAT" />
+  
+  <!-- Altitude and pressure for some levels -->
+  <parameter name="AltitudeLevels_Pressure" numDims="2" type="FLOAT" unit="km" dimension="maxAltitudeLevels"/>
+  <parameter name="Pressure" numDims="2" type="FLOAT" unit="hPa" dimension="maxAltitudeLevels"/>
+
+  <!-- h2o and pressure for some levels -->
+  <parameter name="H2O" numDims="2" type="FLOAT" unit="g/kg" dimension="maxH2OLevels"/>
+  <parameter name="PressureLevels_H2O" numDims="2" type="FLOAT" unit="hPa" dimension="maxH2OLevels"/>
+
+  <!-- temperature and pressure for some levels -->
+  <parameter name="Temperature" numDims="2" type="FLOAT" unit="K" dimension="maxTemperatureLevels"/>
+  <parameter name="PressureLevels_Temperature" numDims="2" type="FLOAT" unit="hPa" dimension="maxTemperatureLevels"/>
+</pointDataDescription>

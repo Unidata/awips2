@@ -1,0 +1,2 @@
+If you would like to dynamically order your phrases based on significant weather events, you can use the phrase ordering strategy.  For example, if there are severe thunderstorms in the forecast, you might want to mention them first.  The narrative tree structure allows us to re-order the phrase nodes on-the-fly.  The method, "XXX", provides this functionality.
+

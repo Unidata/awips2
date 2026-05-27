@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+    <key>info.datasetId</key>
+    <!-- Purge rules for PrismHiRes -->
+    <rule>
+        <keyValue>PrismHiRes</keyValue>
+        <versionsToKeep>13</versionsToKeep>
+    </rule>
+</purgeRuleSet>

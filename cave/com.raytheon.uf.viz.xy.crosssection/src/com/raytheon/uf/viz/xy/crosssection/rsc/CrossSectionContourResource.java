@@ -1,0 +1,294 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ *
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ *
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ *
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+package com.raytheon.uf.viz.xy.crosssection.rsc;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.locationtech.jts.geom.Envelope;
+
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionContour;
+import com.raytheon.uf.viz.xy.crosssection.CrossSectionFrameData;
+import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
+import com.raytheon.viz.core.contours.ContourGroup;
+import com.raytheon.viz.core.contours.ContourSupport;
+
+/**
+ * Resource for displaying cross sections as contours
+ *
+ * <pre>
+ * SOFTWARE HISTORY
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Dec 04, 2007           njensen   Initial creation
+ * Feb 17, 2009           njensen   Refactored to new rsc architecture
+ * Feb 09, 2011  8244     bkowal    Enabled the magnification capability.
+ * Feb 17, 2014  2661     bsteffen  Use only u,v for vectors.
+ * Nov 10, 2015  4689     kbisanz   Ensure corners are within grid when zooming.
+ * Feb 28, 2018  7231     njensen   Use source as creating entity to get style
+ *                                  rule
+ * Apr 12, 2018  7264     njensen   Use OutlineCapability/LineStyle
+ * Dec 06, 2021  8341     randerso  Added use of getResourceId for contour
+ *                                  logging
+ * Feb 22, 2023  9021     mapeters  Use getSliceData() to access sliceMap
+ * Apr 02, 2024  2037091  mapeters  Refactor some dispose handling
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ * Aug 20, 2024  2037631  mapeters  Wrap floats and contours in new classes and move
+ *                                  some paint/dispose logic into CrossSectionContour
+ *
+ * </pre>
+ *
+ * @author njensen
+ */
+public class CrossSectionContourResource extends AbstractCrossSectionResource {
+
+    private ContourPreferences contourPrefs;
+
+    protected final Map<DataTime, CrossSectionContour> contours = new HashMap<>();
+
+    private IFont crossSectionFont = null;
+
+    public CrossSectionContourResource(CrossSectionResourceData data,
+            LoadProperties props, AbstractCrossSectionAdapter<?> adapter) {
+        super(data, props, adapter);
+        ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
+        match.setLevel(null);
+        List<String> paramList = new ArrayList<>();
+        paramList.add(resourceData.getParameter());
+        match.setParameterName(paramList);
+        List<String> creatingEntities = new ArrayList<>();
+        creatingEntities.add(resourceData.getSource());
+        match.setCreatingEntityNames(creatingEntities);
+        StyleRule sr = null;
+        try {
+            sr = StyleManager.getInstance()
+                    .getStyleRule(StyleManager.StyleType.CONTOUR, match);
+        } catch (StyleException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error getting contour style rule", e);
+        }
+        if (sr != null) {
+            prefs = contourPrefs = (ContourPreferences) sr.getPreferences();
+        }
+        getCapability(DisplayTypeCapability.class)
+                .setAlternativeDisplayTypes(Arrays.asList(DisplayType.IMAGE));
+    }
+
+    @Override
+    protected void disposeInternal() {
+        super.disposeInternal();
+
+        if (this.crossSectionFont != null) {
+            this.crossSectionFont.dispose();
+        }
+    }
+
+    @Override
+    protected void paintInternal(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        super.paintInternal(target, paintProps);
+        DataTime currentTime = paintProps.getDataTime();
+
+        CrossSectionFrameData frameData = getSliceData(currentTime);
+        if (frameData == null || !frameData.hasData()) {
+            return;
+        }
+
+        if (crossSectionFont == null) {
+            crossSectionFont = target.getDefaultFont()
+                    .deriveWithSize(target.getDefaultFont().getFontSize());
+        }
+
+        List<float[]> dataList = frameData.getData();
+        double density = getCapability(DensityCapability.class).getDensity();
+        if (density > 4) {
+            density = 4;
+        }
+
+        CrossSectionContour csContour = contours.computeIfAbsent(currentTime,
+                time -> new CrossSectionContour(this, crossSectionFont,
+                        frameData.getExtraRenderable()));
+
+        IExtent viewExtent = paintProps.getView().getExtent();
+        IExtent extent = descriptor.getGraph(this).getExtent();
+        Envelope viewedEnv = ((PixelExtent) viewExtent.intersection(extent))
+                .getEnvelope();
+
+        int level = csContour.getLevel(paintProps);
+        ContourGroup cg = csContour.getContourGroup(level);
+
+        if (cg == null || cg.lastDensity != density
+                || !cg.lastUsedPixelExtent.getEnvelope().contains(viewedEnv)) {
+            GeneralGridGeometry geometry = this.geometry;
+            try {
+                // Prepare math transforms
+                MathTransform grid2crs = geometry
+                        .getGridToCRS(PixelInCell.CELL_CORNER);
+                MathTransform crs2grid = grid2crs.inverse();
+
+                // Get two opposite corners
+                Position2D minCorner = new Position2D(viewedEnv.getMinX(),
+                        viewedEnv.getMinY());
+                Position2D maxCorner = new Position2D(viewedEnv.getMaxX(),
+                        viewedEnv.getMaxY());
+
+                // Transform the corners to grid space.
+                crs2grid.transform(minCorner, minCorner);
+                crs2grid.transform(maxCorner, maxCorner);
+
+                double width = maxCorner.x - minCorner.x;
+                double height = maxCorner.y - minCorner.y;
+
+                // This does several things at once.
+                // 1. Expand the grid area by 25% to avoid constant recontouring
+                // 2. Round everything to ints
+                minCorner.x = (int) (minCorner.x - width / 4);
+                minCorner.y = (int) (minCorner.y - height / 4) + 1;
+                maxCorner.x = (int) (maxCorner.x + width / 4) + 1;
+                maxCorner.y = (int) (maxCorner.y + height / 4);
+
+                // Ensure corners are within the bounds of the grid.
+                constrainPoint(minCorner);
+                constrainPoint(maxCorner);
+
+                // Copy the data to a smaller array for the subgrid area.
+                List<float[]> newDataList = new ArrayList<>();
+                for (float[] data : dataList) {
+                    float[] newData = new float[(int) Math
+                            .abs((minCorner.y - maxCorner.y)
+                                    * (maxCorner.x - minCorner.x))];
+                    int newIndex = 0;
+                    for (int j = (int) maxCorner.y; j < minCorner.y; j++) {
+                        for (int i = (int) minCorner.x; i < maxCorner.x; i++) {
+                            newData[newIndex] = data[j * GRID_SIZE + i];
+                            newIndex++;
+                        }
+                    }
+                    newDataList.add(newData);
+                }
+                GridEnvelope2D gridEnv = new GridEnvelope2D(0, 0,
+                        (int) (maxCorner.x - minCorner.x),
+                        (int) (minCorner.y - maxCorner.y));
+
+                // Transform back to pixel space
+                grid2crs.transform(minCorner, minCorner);
+                grid2crs.transform(maxCorner, maxCorner);
+                ReferencedEnvelope env = new ReferencedEnvelope(minCorner.x,
+                        maxCorner.x, minCorner.y, maxCorner.y,
+                        minCorner.getCoordinateReferenceSystem());
+
+                // make a new geometry and extent for the subgrid.
+                geometry = new GeneralGridGeometry(gridEnv, env);
+                dataList = newDataList;
+                extent = new PixelExtent(minCorner.x, maxCorner.x, minCorner.y,
+                        maxCorner.y);
+            } catch (TransformException e) {
+                statusHandler.handle(Priority.ERROR,
+                        "Error occured subgridding data, full grid will be contoured, this may be slow.",
+                        e);
+            }
+            // worry about the viewed pane? Reduce data etc?
+            Object data;
+            if (getCapability(DisplayTypeCapability.class)
+                    .getDisplayType() == DisplayType.STREAMLINE) {
+                data = Arrays.asList(dataList.get(0), dataList.get(1));
+            } else {
+                data = dataList.get(0);
+            }
+            cg = ContourSupport.createContours(getResourceId(currentTime), data,
+                    level, extent, density, geometry, target, contourPrefs);
+            cg.lastUsedPixelExtent = (PixelExtent) extent;
+            csContour.setContourGroup(level, cg);
+        }
+
+        target.clearClippingPlane();
+
+        csContour.paint(target, paintProps);
+    }
+
+    /**
+     * Ensure point is between 0 and grid size, updating values if necessary.
+     *
+     * @param point
+     *            Point to check and update.
+     */
+    private void constrainPoint(Position2D point) {
+        // Ensure values are at least 0. Zooming near the edge of the
+        // screen may cause values less than 0.
+        point.x = Math.max(point.x, 0.0);
+        point.y = Math.max(point.y, 0.0);
+
+        // Ensure values are at most GRID_SIZE. Zooming near the edge
+        // of the screen may cause values greater than GRID_SIZE.
+        point.x = Math.min(point.x, GRID_SIZE);
+        point.y = Math.min(point.y, GRID_SIZE);
+    }
+
+    @Override
+    protected void disposeFrames() {
+        super.disposeFrames();
+        for (CrossSectionContour contour : contours.values()) {
+            contour.dispose();
+        }
+        contours.clear();
+    }
+
+    @Override
+    public void disposeFrame(DataTime dataTime, boolean onUpdate) {
+        super.disposeFrame(dataTime, onUpdate);
+        CrossSectionContour contour = this.contours.remove(dataTime);
+        if (contour != null) {
+            contour.dispose();
+        }
+    }
+
+    @Override
+    protected CrossSectionContour getFrameRenderable(DataTime frameTime) {
+        return contours.get(frameTime);
+    }
+}

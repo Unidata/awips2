@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="archive" />
+        <constructor-arg value="Archive.*" />
+    </bean>
+
+    <bean id="dataArchiver" class="com.raytheon.uf.edex.archive.DataArchiver"/>
+
+    <bean id="databaseArchiver" class="com.raytheon.uf.edex.archive.DatabaseArchiver"/>
+
+    <bean id="databaseArchiverRegistered" factory-bean="dataArchiver" factory-method="registerPluginArchiver" depends-on="dataArchiver">
+        <constructor-arg ref="databaseArchiver"/>
+    </bean>
+
+    <bean id="archivePurge" class="com.raytheon.uf.edex.archive.purge.ArchivePurger" />
+    
+    <bean id="archive-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.archive.ArchiveContextRoutes">
+                <constructor-arg name="archiveCron" value="${archive.cron}" />
+                <constructor-arg name="archivePurgeCron" value="${archive.purge.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+</beans>

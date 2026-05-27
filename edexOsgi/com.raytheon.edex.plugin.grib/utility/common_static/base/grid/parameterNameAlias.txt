@@ -1,0 +1,968 @@
+SREF212::tp6c7::6-hr POP > 1.50 in
+SREF212::CSNOWc1::Prob Categorical SNOW
+SREF212::tp6c8::6-hr POP > 2.00 in
+SREF212::tp6c5::6-hr POP > 0.50 in
+SREF212::tp6c6::6-hr POP > 1.00 in
+SREF212::tp6c3::6-hr POP > 0.10 in
+SREF212::tp6c4::6-hr POP > 0.25 in
+SREF212::tp6c1::6-hr POP > 0.01 in
+SREF212::tp6c2::6-hr POP > 0.05 in
+SREF212::WSc1::Prob SFC wind speed > 25 kt
+SREF212::WSc2::Prob SFC wind speed > 34 kt
+SREF212::tp12c1::12-hr POP > 0.01 in
+SREF212::tp12c3::12-hr POP > 0.10 in
+SREF212::tp12c2::12-hr POP > 0.05 in
+SREF212::WSc3::Prob SFC wind speed > 48 kt
+SREF212::tp12c5::12-hr POP > 0.50 in
+SREF212::WSc4::Prob SFC wind speed > 50 kt
+SREF212::tp12c4::12-hr POP > 0.25 in
+SREF212::tp12c6::12-hr POP > 1.00 in
+SREF212::tp12c7::12-hr POP > 1.50 in
+SREF212::tp12c8::12-hr POP > 2.00 in
+SREF212::tp24c3::24-hr POP > 0.10 in
+SREF212::tp24c4::24-hr POP > 0.25 in
+SREF212::tp24c1::24-hr POP > 0.01 in
+SREF212::tp24c2::24-hr POP > 0.05 in
+SREF212::CRAINc1::Prob Categorical RAIN
+SREF212::PLIxc5::Prob LI < -8
+SREF212::PLIxc4::Prob LI < -6
+SREF212::PLIxc1::Prob LI < 0
+SREF212::PLIxc3::Prob LI < -4
+SREF212::PLIxc2::Prob LI < -2
+SREF212::Visc2::Prob Sfc Visibility < 3 mile
+SREF212::CAPEc4::Prob CAPE > 2000 J/kg
+SREF212::Visc1::Prob Sfc Visibility < 1 mile
+SREF212::CAPEc5::Prob CAPE > 4000 J/kg
+SREF212::tp24c8::24-hr POP > 2.00 in
+SREF212::CAPEc2::Prob CAPE > 1000 J/kg
+SREF212::tp24c7::24-hr POP > 1.50 in
+SREF212::CAPEc3::Prob CAPE > 2000 J/kg
+SREF212::tp24c6::24-hr POP > 1.00 in
+SREF212::tp24c5::24-hr POP > 0.50 in
+SREF212::CAPEc1::Prob CAPE > 500 J/kg
+SREF212::SNOL12c10::Prob 12-hr SNOW > 24 in
+SREF212::Cigc3::Prob Ceiling Hgt < 3000 ft
+SREF212::Cigc2::Prob Ceiling Hgt < 1000 ft
+SREF212::Cigc1::Prob Ceiling Hgt < 500 ft
+SREF212::CICEPc1::Prob Categorical Ice Pellets
+SREF212::CFRZRc1::Prob Categorical Freezing Rain
+SREF212::Tc1::Prob Temp < O C
+SREF212::tp3c3::3-hr POP > 0.10 in
+SREF212::tp3c2::3-hr POP > 0.05 in
+SREF212::tp3c1::3-hr POP > 0.01 in
+SREF212::tp3c7::3-hr POP > 1.50 in
+SREF212::tp3c6::3-hr POP > 1.00 in
+SREF212::tp3c5::3-hr POP > 0.50 in
+SREF212::tp3c4::3-hr POP > 0.25 in
+SREF212::tp3c8::3-hr POP > 2.00 in
+SREF212::SNOL12c7::Prob 12-hr SNOW > 10 in
+SREF212::SNOL12c6::Prob 12-hr SNOW > 8 in
+SREF212::SNOL12c9::Prob 12-hr SNOW > 16 in
+SREF212::SNOL12c8::Prob 12-hr SNOW > 12 in
+SREF212::SNOL12c3::Prob 12-hr SNOW > 4 in
+SREF212::SNOL12c2::Prob 12-hr SNOW > 2 in
+SREF212::SNOL12c5::Prob 12-hr SNOW > 7.5 in
+SREF212::SNOL12c4::Prob 12-hr SNOW > 6 in
+SREF212::SNOL12c1::Prob 12-hr SNOW > 1 in
+
+SREF243::tp6c7::6-hr POP > 1.50 in
+SREF243::CSNOWc1::Prob Categorical SNOW
+SREF243::tp6c8::6-hr POP > 2.00 in
+SREF243::tp6c5::6-hr POP > 0.50 in
+SREF243::tp6c6::6-hr POP > 1.00 in
+SREF243::tp6c3::6-hr POP > 0.10 in
+SREF243::tp6c4::6-hr POP > 0.25 in
+SREF243::tp6c1::6-hr POP > 0.01 in
+SREF243::tp6c2::6-hr POP > 0.05 in
+SREF243::WSc1::Prob SFC wind speed > 25 kt
+SREF243::WSc2::Prob SFC wind speed > 34 kt
+SREF243::tp12c1::12-hr POP > 0.01 in
+SREF243::tp12c3::12-hr POP > 0.10 in
+SREF243::tp12c2::12-hr POP > 0.05 in
+SREF243::WSc3::Prob SFC wind speed > 48 kt
+SREF243::tp12c5::12-hr POP > 0.50 in
+SREF243::WSc4::Prob SFC wind speed > 50 kt
+SREF243::tp12c4::12-hr POP > 0.25 in
+SREF243::tp12c6::12-hr POP > 1.00 in
+SREF243::tp12c7::12-hr POP > 1.50 in
+SREF243::tp12c8::12-hr POP > 2.00 in
+SREF243::tp24c3::24-hr POP > 0.10 in
+SREF243::tp24c4::24-hr POP > 0.25 in
+SREF243::tp24c1::24-hr POP > 0.01 in
+SREF243::tp24c2::24-hr POP > 0.05 in
+SREF243::CRAINc1::Prob Categorical RAIN
+SREF243::PLIxc5::Prob LI < -8
+SREF243::PLIxc4::Prob LI < -6
+SREF243::PLIxc1::Prob LI < 0
+SREF243::PLIxc3::Prob LI < -4
+SREF243::PLIxc2::Prob LI < -2
+SREF243::Visc2::Prob Sfc Visibility < 3 mile
+SREF243::CAPEc4::Prob CAPE > 2000 J/kg
+SREF243::Visc1::Prob Sfc Visibility < 1 mile
+SREF243::CAPEc5::Prob CAPE > 4000 J/kg
+SREF243::tp24c8::24-hr POP > 2.00 in
+SREF243::CAPEc2::Prob CAPE > 1000 J/kg
+SREF243::tp24c7::24-hr POP > 1.50 in
+SREF243::CAPEc3::Prob CAPE > 2000 J/kg
+SREF243::tp24c6::24-hr POP > 1.00 in
+SREF243::tp24c5::24-hr POP > 0.50 in
+SREF243::CAPEc1::Prob CAPE > 500 J/kg
+SREF243::SNOL12c10::Prob 12-hr SNOW > 24 in
+SREF243::Cigc3::Prob Ceiling Hgt < 3000 ft
+SREF243::Cigc2::Prob Ceiling Hgt < 1000 ft
+SREF243::Cigc1::Prob Ceiling Hgt < 500 ft
+SREF243::CICEPc1::Prob Categorical Ice Pellets
+SREF243::CFRZRc1::Prob Categorical Freezing Rain
+SREF243::Tc1::Prob Temp < O C
+SREF243::tp3c3::3-hr POP > 0.10 in
+SREF243::tp3c2::3-hr POP > 0.05 in
+SREF243::tp3c1::3-hr POP > 0.01 in
+SREF243::tp3c7::3-hr POP > 1.50 in
+SREF243::tp3c6::3-hr POP > 1.00 in
+SREF243::tp3c5::3-hr POP > 0.50 in
+SREF243::tp3c4::3-hr POP > 0.25 in
+SREF243::tp3c8::3-hr POP > 2.00 in
+SREF243::SNOL12c7::Prob 12-hr SNOW > 10 in
+SREF243::SNOL12c6::Prob 12-hr SNOW > 8 in
+SREF243::SNOL12c9::Prob 12-hr SNOW > 16 in
+SREF243::SNOL12c8::Prob 12-hr SNOW > 12 in
+SREF243::SNOL12c3::Prob 12-hr SNOW > 4 in
+SREF243::SNOL12c2::Prob 12-hr SNOW > 2 in
+SREF243::SNOL12c5::Prob 12-hr SNOW > 7.5 in
+SREF243::SNOL12c4::Prob 12-hr SNOW > 6 in
+SREF243::SNOL12c1::Prob 12-hr SNOW > 1 in
+TPCWindProb::Prob34::Probability of Wind Speed > 34 knots
+TPCWindProb::Prob50::Probability of Wind Speed > 50 knots
+TPCWindProb::Prob64::Probability of Wind Speed > 64 knots
+TPCWindProb::PWS34::Incremental Prob WS 34 kts or greater
+TPCWindProb::PWS50::Incremental Prob WS 50 kts or greater
+TPCWindProb::PWS64::Incremental Prob WS 64 kts or greater
+TPCWindProb_Prelim::Prob34::Probability of Wind Speed > 34 knots
+TPCWindProb_Prelim::Prob50::Probability of Wind Speed > 50 knots
+TPCWindProb_Prelim::Prob64::Probability of Wind Speed > 64 knots
+TPCWindProb_Prelim::PWS34::Incremental Prob WS 34 kts or greater
+TPCWindProb_Prelim::PWS50::Incremental Prob WS 50 kts or greater
+TPCWindProb_Prelim::PWS64::Incremental Prob WS 64 kts or greater
+// For the TPCSurgeProb parameters the names need to be converted from metric
+// and the percentages need to be inverted, for more information see the
+// comments in master_grib2_lookup.txt
+TPCSurgeProb::Surge10pct1hr::1 Hour Surge 10% Exceedance Ht
+TPCSurgeProb::Surge20pct1hr::1 Hour Surge 20% Exceedance Ht
+TPCSurgeProb::Surge30pct1hr::1 Hour Surge 30% Exceedance Ht
+TPCSurgeProb::Surge40pct1hr::1 Hour Surge 40% Exceedance Ht
+TPCSurgeProb::Surge50pct1hr::1 Hour Surge 50% Exceedance Ht
+TPCSurgeProb::Surge60pct1hr::1 Hour Surge 60% Exceedance Ht
+TPCSurgeProb::Surge70pct1hr::1 Hour Surge 70% Exceedance Ht
+TPCSurgeProb::Surge80pct1hr::1 Hour Surge 80% Exceedance Ht
+TPCSurgeProb::Surge90pct1hr::1 Hour Surge 90% Exceedance Ht
+TPCSurgeProb::Surge10pct6hr::6 Hour Surge 10% Exceedance Ht
+TPCSurgeProb::Surge20pct6hr::6 Hour Surge 20% Exceedance Ht
+TPCSurgeProb::Surge30pct6hr::6 Hour Surge 30% Exceedance Ht
+TPCSurgeProb::Surge40pct6hr::6 Hour Surge 40% Exceedance Ht
+TPCSurgeProb::Surge50pct6hr::6 Hour Surge 50% Exceedance Ht
+TPCSurgeProb::Surge60pct6hr::6 Hour Surge 60% Exceedance Ht
+TPCSurgeProb::Surge70pct6hr::6 Hour Surge 70% Exceedance Ht
+TPCSurgeProb::Surge80pct6hr::6 Hour Surge 80% Exceedance Ht
+TPCSurgeProb::Surge90pct6hr::6 Hour Surge 90% Exceedance Ht
+TPCSurgeProb::PSurge0ft1hr::1 hour Prob of Surge > 0 ft
+TPCSurgeProb::PSurge1ft1hr::1 hour Prob of Surge > 1 ft
+TPCSurgeProb::PSurge2ft1hr::1 hour Prob of Surge > 2 ft
+TPCSurgeProb::PSurge3ft1hr::1 hour Prob of Surge > 3 ft
+TPCSurgeProb::PSurge4ft1hr::1 hour Prob of Surge > 4 ft
+TPCSurgeProb::PSurge5ft1hr::1 hour Prob of Surge > 5 ft
+TPCSurgeProb::PSurge6ft1hr::1 hour Prob of Surge > 6 ft
+TPCSurgeProb::PSurge7ft1hr::1 hour Prob of Surge > 7 ft
+TPCSurgeProb::PSurge8ft1hr::1 hour Prob of Surge > 8 ft
+TPCSurgeProb::PSurge9ft1hr::1 hour Prob of Surge > 9 ft
+TPCSurgeProb::PSurge10ft1hr::1 hour Prob of Surge > 10 ft
+TPCSurgeProb::PSurge11ft1hr::1 hour Prob of Surge > 11 ft
+TPCSurgeProb::PSurge12ft1hr::1 hour Prob of Surge > 12 ft
+TPCSurgeProb::PSurge13ft1hr::1 hour Prob of Surge > 13 ft
+TPCSurgeProb::PSurge14ft1hr::1 hour Prob of Surge > 14 ft
+TPCSurgeProb::PSurge15ft1hr::1 hour Prob of Surge > 15 ft
+TPCSurgeProb::PSurge16ft1hr::1 hour Prob of Surge > 16 ft
+TPCSurgeProb::PSurge17ft1hr::1 hour Prob of Surge > 17 ft
+TPCSurgeProb::PSurge18ft1hr::1 hour Prob of Surge > 18 ft
+TPCSurgeProb::PSurge19ft1hr::1 hour Prob of Surge > 19 ft
+TPCSurgeProb::PSurge20ft1hr::1 hour Prob of Surge > 20 ft
+TPCSurgeProb::PSurge21ft1hr::1 hour Prob of Surge > 21 ft
+TPCSurgeProb::PSurge22ft1hr::1 hour Prob of Surge > 22 ft
+TPCSurgeProb::PSurge23ft1hr::1 hour Prob of Surge > 23 ft
+TPCSurgeProb::PSurge24ft1hr::1 hour Prob of Surge > 24 ft
+TPCSurgeProb::PSurge25ft1hr::1 hour Prob of Surge > 25 ft
+TPCSurgeProb::PSurge0ft6hr::6 hour Prob of Surge > 0 ft
+TPCSurgeProb::PSurge1ft6hr::6 hour Prob of Surge > 1 ft
+TPCSurgeProb::PSurge2ft6hr::6 hour Prob of Surge > 2 ft
+TPCSurgeProb::PSurge3ft6hr::6 hour Prob of Surge > 3 ft
+TPCSurgeProb::PSurge4ft6hr::6 hour Prob of Surge > 4 ft
+TPCSurgeProb::PSurge5ft6hr::6 hour Prob of Surge > 5 ft
+TPCSurgeProb::PSurge6ft6hr::6 hour Prob of Surge > 6 ft
+TPCSurgeProb::PSurge7ft6hr::6 hour Prob of Surge > 7 ft
+TPCSurgeProb::PSurge8ft6hr::6 hour Prob of Surge > 8 ft
+TPCSurgeProb::PSurge9ft6hr::6 hour Prob of Surge > 9 ft
+TPCSurgeProb::PSurge10ft6hr::6 hour Prob of Surge > 10 ft
+TPCSurgeProb::PSurge11ft6hr::6 hour Prob of Surge > 11 ft
+TPCSurgeProb::PSurge12ft6hr::6 hour Prob of Surge > 12 ft
+TPCSurgeProb::PSurge13ft6hr::6 hour Prob of Surge > 13 ft
+TPCSurgeProb::PSurge14ft6hr::6 hour Prob of Surge > 14 ft
+TPCSurgeProb::PSurge15ft6hr::6 hour Prob of Surge > 15 ft
+TPCSurgeProb::PSurge16ft6hr::6 hour Prob of Surge > 16 ft
+TPCSurgeProb::PSurge17ft6hr::6 hour Prob of Surge > 17 ft
+TPCSurgeProb::PSurge18ft6hr::6 hour Prob of Surge > 18 ft
+TPCSurgeProb::PSurge19ft6hr::6 hour Prob of Surge > 19 ft
+TPCSurgeProb::PSurge20ft6hr::6 hour Prob of Surge > 20 ft
+TPCSurgeProb::PSurge21ft6hr::6 hour Prob of Surge > 21 ft
+TPCSurgeProb::PSurge22ft6hr::6 hour Prob of Surge > 22 ft
+TPCSurgeProb::PSurge23ft6hr::6 hour Prob of Surge > 23 ft
+TPCSurgeProb::PSurge24ft6hr::6 hour Prob of Surge > 24 ft
+TPCSurgeProb::PSurge25ft6hr::6 hour Prob of Surge > 25 ft
+TPCSurgeProb::Surge10pctCumul::Cumulative Surge 10% Exceedance Ht
+TPCSurgeProb::Surge20pctCumul::Cumulative Surge 20% Exceedance Ht
+TPCSurgeProb::Surge30pctCumul::Cumulative Surge 30% Exceedance Ht
+TPCSurgeProb::Surge40pctCumul::Cumulative Surge 40% Exceedance Ht
+TPCSurgeProb::Surge50pctCumul::Cumulative Surge 50% Exceedance Ht
+TPCSurgeProb::Surge60pctCumul::Cumulative Surge 60% Exceedance Ht
+TPCSurgeProb::Surge70pctCumul::Cumulative Surge 70% Exceedance Ht
+TPCSurgeProb::Surge80pctCumul::Cumulative Surge 80% Exceedance Ht
+TPCSurgeProb::Surge90pctCumul::Cumulative Surge 90% Exceedance Ht
+TPCSurgeProb::PSurge0ftCumul::Cumulative Prob of Surge > 0 ft
+TPCSurgeProb::PSurge1ftCumul::Cumulative Prob of Surge > 1 ft
+TPCSurgeProb::PSurge2ftCumul::Cumulative Prob of Surge > 2 ft
+TPCSurgeProb::PSurge3ftCumul::Cumulative Prob of Surge > 3 ft
+TPCSurgeProb::PSurge4ftCumul::Cumulative Prob of Surge > 4 ft
+TPCSurgeProb::PSurge5ftCumul::Cumulative Prob of Surge > 5 ft
+TPCSurgeProb::PSurge6ftCumul::Cumulative Prob of Surge > 6 ft
+TPCSurgeProb::PSurge7ftCumul::Cumulative Prob of Surge > 7 ft
+TPCSurgeProb::PSurge8ftCumul::Cumulative Prob of Surge > 8 ft
+TPCSurgeProb::PSurge9ftCumul::Cumulative Prob of Surge > 9 ft
+TPCSurgeProb::PSurge10ftCumul::Cumulative Prob of Surge > 10 ft
+TPCSurgeProb::PSurge11ftCumul::Cumulative Prob of Surge > 11 ft
+TPCSurgeProb::PSurge12ftCumul::Cumulative Prob of Surge > 12 ft
+TPCSurgeProb::PSurge13ftCumul::Cumulative Prob of Surge > 13 ft
+TPCSurgeProb::PSurge14ftCumul::Cumulative Prob of Surge > 14 ft
+TPCSurgeProb::PSurge15ftCumul::Cumulative Prob of Surge > 15 ft
+TPCSurgeProb::PSurge16ftCumul::Cumulative Prob of Surge > 16 ft
+TPCSurgeProb::PSurge17ftCumul::Cumulative Prob of Surge > 17 ft
+TPCSurgeProb::PSurge18ftCumul::Cumulative Prob of Surge > 18 ft
+TPCSurgeProb::PSurge19ftCumul::Cumulative Prob of Surge > 19 ft
+TPCSurgeProb::PSurge20ftCumul::Cumulative Prob of Surge > 20 ft
+TPCSurgeProb::PSurge21ftCumul::Cumulative Prob of Surge > 21 ft
+TPCSurgeProb::PSurge22ftCumul::Cumulative Prob of Surge > 22 ft
+TPCSurgeProb::PSurge23ftCumul::Cumulative Prob of Surge > 23 ft
+TPCSurgeProb::PSurge24ftCumul::Cumulative Prob of Surge > 24 ft
+TPCSurgeProb::PSurge25ftCumul::Cumulative Prob of Surge > 25 ft
+// For the P-ETSS parameters the names need to be converted from metric
+// and the percentages need to be inverted, for more information see the
+// comments in master_grib2_lookup.txt
+P-ETSS::Surge10pct1hr::1 Hour Surge 10% Exceedance Ht
+P-ETSS::Surge20pct1hr::1 Hour Surge 20% Exceedance Ht
+P-ETSS::Surge30pct1hr::1 Hour Surge 30% Exceedance Ht
+P-ETSS::Surge40pct1hr::1 Hour Surge 40% Exceedance Ht
+P-ETSS::Surge50pct1hr::1 Hour Surge 50% Exceedance Ht
+P-ETSS::Surge60pct1hr::1 Hour Surge 60% Exceedance Ht
+P-ETSS::Surge70pct1hr::1 Hour Surge 70% Exceedance Ht
+P-ETSS::Surge80pct1hr::1 Hour Surge 80% Exceedance Ht
+P-ETSS::Surge90pct1hr::1 Hour Surge 90% Exceedance Ht
+P-ETSS::Surge10pct6hr::6 Hour Surge 10% Exceedance Ht
+P-ETSS::Surge20pct6hr::6 Hour Surge 20% Exceedance Ht
+P-ETSS::Surge30pct6hr::6 Hour Surge 30% Exceedance Ht
+P-ETSS::Surge40pct6hr::6 Hour Surge 40% Exceedance Ht
+P-ETSS::Surge50pct6hr::6 Hour Surge 50% Exceedance Ht
+P-ETSS::Surge60pct6hr::6 Hour Surge 60% Exceedance Ht
+P-ETSS::Surge70pct6hr::6 Hour Surge 70% Exceedance Ht
+P-ETSS::Surge80pct6hr::6 Hour Surge 80% Exceedance Ht
+P-ETSS::Surge90pct6hr::6 Hour Surge 90% Exceedance Ht
+P-ETSS::Surge10pctCumul::Cumulative Surge 10% Exceedance Ht
+P-ETSS::Surge20pctCumul::Cumulative Surge 20% Exceedance Ht
+P-ETSS::Surge30pctCumul::Cumulative Surge 30% Exceedance Ht
+P-ETSS::Surge40pctCumul::Cumulative Surge 40% Exceedance Ht
+P-ETSS::Surge50pctCumul::Cumulative Surge 50% Exceedance Ht
+P-ETSS::Surge60pctCumul::Cumulative Surge 60% Exceedance Ht
+P-ETSS::Surge70pctCumul::Cumulative Surge 70% Exceedance Ht
+P-ETSS::Surge80pctCumul::Cumulative Surge 80% Exceedance Ht
+P-ETSS::Surge90pctCumul::Cumulative Surge 90% Exceedance Ht
+
+P-ETSS::PSurge0ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 0 ft
+P-ETSS::PSurge1ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 1 ft
+P-ETSS::PSurge2ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 2 ft
+P-ETSS::PSurge3ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 3 ft
+P-ETSS::PSurge4ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 4 ft
+P-ETSS::PSurge5ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 5 ft
+P-ETSS::PSurge6ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 6 ft
+P-ETSS::PSurge7ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 7 ft
+P-ETSS::PSurge8ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 8 ft
+P-ETSS::PSurge9ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 9 ft
+P-ETSS::PSurge10ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 10 ft
+P-ETSS::PSurge13ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 13 ft
+P-ETSS::PSurge16ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 16 ft
+
+P-ETSS::PSurge0ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 0 ft
+P-ETSS::PSurge1ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 1 ft
+P-ETSS::PSurge2ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 2 ft
+P-ETSS::PSurge3ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 3 ft
+P-ETSS::PSurge4ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 4 ft
+P-ETSS::PSurge5ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 5 ft
+P-ETSS::PSurge6ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 6 ft
+P-ETSS::PSurge7ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 7 ft
+P-ETSS::PSurge8ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 8 ft
+P-ETSS::PSurge9ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 9 ft
+P-ETSS::PSurge10ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 10 ft
+P-ETSS::PSurge13ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 13 ft
+P-ETSS::PSurge16ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 16 ft
+
+P-ETSS::PSurge0ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 0 ft
+P-ETSS::PSurge1ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 1 ft
+P-ETSS::PSurge2ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 2 ft
+P-ETSS::PSurge3ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 3 ft
+P-ETSS::PSurge4ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 4 ft
+P-ETSS::PSurge5ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 5 ft
+P-ETSS::PSurge6ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 6 ft
+P-ETSS::PSurge7ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 7 ft
+P-ETSS::PSurge8ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 8 ft
+P-ETSS::PSurge9ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 9 ft
+P-ETSS::PSurge10ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 10 ft
+P-ETSS::PSurge13ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 13 ft
+P-ETSS::PSurge16ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 16 ft
+
+P-ETSS-LoRes::Surge10pct1hr::1 Hour Surge 10% Exceedance Ht
+P-ETSS-LoRes::Surge20pct1hr::1 Hour Surge 20% Exceedance Ht
+P-ETSS-LoRes::Surge30pct1hr::1 Hour Surge 30% Exceedance Ht
+P-ETSS-LoRes::Surge40pct1hr::1 Hour Surge 40% Exceedance Ht
+P-ETSS-LoRes::Surge50pct1hr::1 Hour Surge 50% Exceedance Ht
+P-ETSS-LoRes::Surge60pct1hr::1 Hour Surge 60% Exceedance Ht
+P-ETSS-LoRes::Surge70pct1hr::1 Hour Surge 70% Exceedance Ht
+P-ETSS-LoRes::Surge80pct1hr::1 Hour Surge 80% Exceedance Ht
+P-ETSS-LoRes::Surge90pct1hr::1 Hour Surge 90% Exceedance Ht
+P-ETSS-LoRes::Surge10pct6hr::6 Hour Surge 10% Exceedance Ht
+P-ETSS-LoRes::Surge20pct6hr::6 Hour Surge 20% Exceedance Ht
+P-ETSS-LoRes::Surge30pct6hr::6 Hour Surge 30% Exceedance Ht
+P-ETSS-LoRes::Surge40pct6hr::6 Hour Surge 40% Exceedance Ht
+P-ETSS-LoRes::Surge50pct6hr::6 Hour Surge 50% Exceedance Ht
+P-ETSS-LoRes::Surge60pct6hr::6 Hour Surge 60% Exceedance Ht
+P-ETSS-LoRes::Surge70pct6hr::6 Hour Surge 70% Exceedance Ht
+P-ETSS-LoRes::Surge80pct6hr::6 Hour Surge 80% Exceedance Ht
+P-ETSS-LoRes::Surge90pct6hr::6 Hour Surge 90% Exceedance Ht
+P-ETSS-LoRes::Surge10pctCumul::Cumulative Surge 10% Exceedance Ht
+P-ETSS-LoRes::Surge20pctCumul::Cumulative Surge 20% Exceedance Ht
+P-ETSS-LoRes::Surge30pctCumul::Cumulative Surge 30% Exceedance Ht
+P-ETSS-LoRes::Surge40pctCumul::Cumulative Surge 40% Exceedance Ht
+P-ETSS-LoRes::Surge50pctCumul::Cumulative Surge 50% Exceedance Ht
+P-ETSS-LoRes::Surge60pctCumul::Cumulative Surge 60% Exceedance Ht
+P-ETSS-LoRes::Surge70pctCumul::Cumulative Surge 70% Exceedance Ht
+P-ETSS-LoRes::Surge80pctCumul::Cumulative Surge 80% Exceedance Ht
+P-ETSS-LoRes::Surge90pctCumul::Cumulative Surge 90% Exceedance Ht
+
+P-ETSS-LoRes::PSurge0ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 0 ft
+P-ETSS-LoRes::PSurge1ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 1 ft
+P-ETSS-LoRes::PSurge2ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 2 ft
+P-ETSS-LoRes::PSurge3ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 3 ft
+P-ETSS-LoRes::PSurge4ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 4 ft
+P-ETSS-LoRes::PSurge5ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 5 ft
+P-ETSS-LoRes::PSurge6ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 6 ft
+P-ETSS-LoRes::PSurge7ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 7 ft
+P-ETSS-LoRes::PSurge8ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 8 ft
+P-ETSS-LoRes::PSurge9ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 9 ft
+P-ETSS-LoRes::PSurge10ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 10 ft
+P-ETSS-LoRes::PSurge13ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 13 ft
+P-ETSS-LoRes::PSurge16ft1hr::1 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 16 ft
+
+P-ETSS-LoRes::PSurge0ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 0 ft
+P-ETSS-LoRes::PSurge1ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 1 ft
+P-ETSS-LoRes::PSurge2ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 2 ft
+P-ETSS-LoRes::PSurge3ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 3 ft
+P-ETSS-LoRes::PSurge4ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 4 ft
+P-ETSS-LoRes::PSurge5ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 5 ft
+P-ETSS-LoRes::PSurge6ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 6 ft
+P-ETSS-LoRes::PSurge7ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 7 ft
+P-ETSS-LoRes::PSurge8ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 8 ft
+P-ETSS-LoRes::PSurge9ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 9 ft
+P-ETSS-LoRes::PSurge10ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 10 ft
+P-ETSS-LoRes::PSurge13ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 13 ft
+P-ETSS-LoRes::PSurge16ft6hr::6 Hour Prob of Extra Tropical Storm Surge Combined Surge and Tide > 16 ft
+
+P-ETSS-LoRes::PSurge0ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 0 ft
+P-ETSS-LoRes::PSurge1ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 1 ft
+P-ETSS-LoRes::PSurge2ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 2 ft
+P-ETSS-LoRes::PSurge3ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 3 ft
+P-ETSS-LoRes::PSurge4ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 4 ft
+P-ETSS-LoRes::PSurge5ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 5 ft
+P-ETSS-LoRes::PSurge6ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 6 ft
+P-ETSS-LoRes::PSurge7ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 7 ft
+P-ETSS-LoRes::PSurge8ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 8 ft
+P-ETSS-LoRes::PSurge9ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 9 ft
+P-ETSS-LoRes::PSurge10ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 10 ft
+P-ETSS-LoRes::PSurge13ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 13 ft
+P-ETSS-LoRes::PSurge16ftCumul::Cumulative Prob of Extra Tropical Storm Surge Combined Surge and Tide > 16 ft
+
+// HPCqpfNDFD pqpf grids
+HPCqpfNDFD::ProbTP0p01in6hr::6hr Probability of Total Precipitation > 0.01 inches
+HPCqpfNDFD::ProbTP0p10in6hr::6hr Probability of Total Precipitation > 0.10 inches
+HPCqpfNDFD::ProbTP0p25in6hr::6hr Probability of Total Precipitation > 0.25 inches
+HPCqpfNDFD::ProbTP0p50in6hr::6hr Probability of Total Precipitation > 0.50 inches
+HPCqpfNDFD::ProbTP0p75in6hr::6hr Probability of Total Precipitation > 0.75 inches
+HPCqpfNDFD::ProbTP1p00in6hr::6hr Probability of Total Precipitation > 1.00 inch
+HPCqpfNDFD::ProbTP1p50in6hr::6hr Probability of Total Precipitation > 1.50 inches
+HPCqpfNDFD::ProbTP2p00in6hr::6hr Probability of Total Precipitation > 2.00 inches
+HPCqpfNDFD::ProbTP2p50in6hr::6hr Probability of Total Precipitation > 2.50 inches
+HPCqpfNDFD::ProbTP3p00in6hr::6hr Probability of Total Precipitation > 3.00 inches
+HPCqpfNDFD::ProbTP4p00in6hr::6hr Probability of Total Precipitation > 4.00 inches
+HPCqpfNDFD::ProbTP0p01in12hr::12hr Probability of Total Precipitation > 0.01 inches
+HPCqpfNDFD::ProbTP0p25in12hr::12hr Probability of Total Precipitation > 0.25 inches
+HPCqpfNDFD::ProbTP0p50in12hr::12hr Probability of Total Precipitation > 0.50 inches
+HPCqpfNDFD::ProbTP0p75in12hr::12hr Probability of Total Precipitation > 0.75 inches
+HPCqpfNDFD::ProbTP1p00in12hr::12hr Probability of Total Precipitation > 1.00 inch
+HPCqpfNDFD::ProbTP1p50in12hr::12hr Probability of Total Precipitation > 1.50 inches
+HPCqpfNDFD::ProbTP2p00in12hr::12hr Probability of Total Precipitation > 2.00 inches
+HPCqpfNDFD::ProbTP2p50in12hr::12hr Probability of Total Precipitation > 2.50 inches
+HPCqpfNDFD::ProbTP3p00in12hr::12hr Probability of Total Precipitation > 3.00 inches
+HPCqpfNDFD::ProbTP4p00in12hr::12hr Probability of Total Precipitation > 4.00 inches
+HPCqpfNDFD::ProbTP0p25in24hr::24hr Probability of Total Precipitation > 0.25 inches
+HPCqpfNDFD::ProbTP0p50in24hr::24hr Probability of Total Precipitation > 0.50 inches
+HPCqpfNDFD::ProbTP1p00in24hr::24hr Probability of Total Precipitation > 1.00 inch
+HPCqpfNDFD::ProbTP1p50in24hr::24hr Probability of Total Precipitation > 1.50 inches
+HPCqpfNDFD::ProbTP2p00in24hr::24hr Probability of Total Precipitation > 2.00 inches
+HPCqpfNDFD::ProbTP2p50in24hr::24hr Probability of Total Precipitation > 2.50 inches
+HPCqpfNDFD::ProbTP3p00in24hr::24hr Probability of Total Precipitation > 3.00 inches
+HPCqpfNDFD::ProbTP4p00in24hr::24hr Probability of Total Precipitation > 4.00 inches
+HPCqpfNDFD::ProbTP5p00in24hr::24hr Probability of Total Precipitation > 5.00 inches
+HPCqpfNDFD::ProbTP6p00in24hr::24hr Probability of Total Precipitation > 6.00 inches
+HPCqpfNDFD::ProbTP8p00in24hr::24hr Probability of Total Precipitation > 8.00 inches
+HPCqpfNDFD::ProbTP16p00in24hr::24hr Probability of Total Precipitation > 16.00 inches
+HPCqpfNDFD::ProbTP0p25in72hr::72hr Probability of Total Precipitation > 0.25 inches
+HPCqpfNDFD::ProbTP0p50in72hr::72hr Probability of Total Precipitation > 0.50 inches
+HPCqpfNDFD::ProbTP1p00in72hr::72hr Probability of Total Precipitation > 1.00 inch
+HPCqpfNDFD::ProbTP1p50in72hr::72hr Probability of Total Precipitation > 1.50 inches
+HPCqpfNDFD::ProbTP2p00in72hr::72hr Probability of Total Precipitation > 2.00 inches
+HPCqpfNDFD::ProbTP2p50in72hr::72hr Probability of Total Precipitation > 2.50 inches
+HPCqpfNDFD::ProbTP3p00in72hr::72hr Probability of Total Precipitation > 3.00 inches
+HPCqpfNDFD::ProbTP4p00in72hr::72hr Probability of Total Precipitation > 4.00 inches
+HPCqpfNDFD::ProbTP5p00in72hr::72hr Probability of Total Precipitation > 5.00 inches
+HPCqpfNDFD::ProbTP6p00in72hr::72hr Probability of Total Precipitation > 6.00 inches
+HPCqpfNDFD::ProbTP8p00in72hr::72hr Probability of Total Precipitation > 8.00 inches
+HPCqpfNDFD::ProbTP16p00in72hr::72hr Probability of Total Precipitation > 16.00 inches
+HPCqpfNDFD::TP5pct6hr::6hr 5th Percentile Total Precipitation
+HPCqpfNDFD::TP10pct6hr::6hr 10th Percentile Total Precipitation
+HPCqpfNDFD::TP25pct6hr::6hr 25th Percentile Total Precipitation
+HPCqpfNDFD::TP50pct6hr::6hr 50th Percentile Total Precipitation
+HPCqpfNDFD::TP75pct6hr::6hr 75th Percentile Total Precipitation
+HPCqpfNDFD::TP90pct6hr::6hr 90th Percentile Total Precipitation
+HPCqpfNDFD::TP95pct6hr::6hr 95th Percentile Total Precipitation
+HPCqpfNDFD::TP5pct12hr::12hr 5th Percentile Total Precipitation
+HPCqpfNDFD::TP10pct12hr::12hr 10th Percentile Total Precipitation
+HPCqpfNDFD::TP25pct12hr::12hr 25th Percentile Total Precipitation
+HPCqpfNDFD::TP50pct12hr::12hr 50th Percentile Total Precipitation
+HPCqpfNDFD::TP75pct12hr::12hr 75th Percentile Total Precipitation
+HPCqpfNDFD::TP90pct12hr::12hr 90th Percentile Total Precipitation
+HPCqpfNDFD::TP95pct12hr::12hr 95th Percentile Total Precipitation
+HPCqpfNDFD::TP5pct24hr::24hr 5th Percentile Total Precipitation
+HPCqpfNDFD::TP10pct24hr::24hr 10th Percentile Total Precipitation
+HPCqpfNDFD::TP25pct24hr::24hr 25th Percentile Total Precipitation
+HPCqpfNDFD::TP50pct24hr::24hr 50th Percentile Total Precipitation
+HPCqpfNDFD::TP75pct24hr::24hr 75th Percentile Total Precipitation
+HPCqpfNDFD::TP90pct24hr::24hr 90th Percentile Total Precipitation
+HPCqpfNDFD::TP95pct24hr::24hr 95th Percentile Total Precipitation
+HPCqpfNDFD::TP5pct72hr::72hr 5th Percentile Total Precipitation
+HPCqpfNDFD::TP10pct72hr::72hr 10th Percentile Total Precipitation
+HPCqpfNDFD::TP25pct72hr::72hr 25th Percentile Total Precipitation
+HPCqpfNDFD::TP50pct72hr::72hr 50th Percentile Total Precipitation
+HPCqpfNDFD::TP75pct72hr::72hr 75th Percentile Total Precipitation
+HPCqpfNDFD::TP90pct72hr::72hr 90th Percentile Total Precipitation
+HPCqpfNDFD::TP95pct72hr::72hr 95th Percentile Total Precipitation
+NationalBlend::PrbCldIce::Probability of Cloud Ice Present
+NationalBlend::PTypSnow::Prob Precipitation type is Snow
+NationalBlend::MaxTW::Max Wet Bulb Temp
+NationalBlend::PBE::Bourgouin Positive Energy Aloft
+NationalBlend::NBE::Bourgouin Negative Energy Low Level
+
+// HREF
+HREF-US::CAPEc6::Prob CAPE > 1500 J/kg
+HREF-US::ProbCIn0::Prob CIn < 0 J/kg
+HREF-US::ProbCIn-50::Prob CIn < -50 J/kg
+HREF-US::ProbCIn-100::Prob CIn < -100 J/kg
+HREF-US::ProbCIn-400::Prob CIn < -400 J/kg
+HREF-US::Cigc23::Prob Ceiling Hgt < 2000 ft
+HREF-US::Cigc5::Prob Ceiling Hgt < 4500 ft
+HREF-US::Cigc6::Prob Ceiling Hgt < 6000 ft
+HREF-US::Cigc7::Prob Ceiling Hgt < 10000 ft
+HREF-US::JFWPRB9-20::Fire Wx: Prob Wind >= 17.5 kts and RH < 20%
+HREF-US::ProbFlightCat1-2::Prob Flight Category >= 1 < 2
+HREF-US::ProbFlightCat2-3::Prob Flight Category >= 2 < 3
+HREF-US::ProbFlightCat3-4::Prob Flight Category >= 3 < 4
+HREF-US::ProbFlightCat4::Prob Flight Category >= 4
+HREF-US::ProbDpT50::Probability of Dewpoint temp > 50 degF
+HREF-US::ProbDpT55::Probability of Dewpoint temp > 55 degF
+HREF-US::ProbDpT60::Probability of Dewpoint temp > 60 degF
+HREF-US::ProbDpT65::Probability of Dewpoint temp > 65 degF
+HREF-US::ProbDpT70::Probability of Dewpoint temp > 70 degF
+HREF-US::ProbHINDEX2-5::Probability of Haines Index >= 2 < 5
+HREF-US::ProbHINDEX5-6::Probability of Haines Index >= 5 < 6
+HREF-US::ProbHINDEX6-7::Probability of Haines Index >= 6 < 7
+HREF-US::ProbMAXUVV1::Probability of Max 1hr Updraft Vertical Velocity > 1.0 m/s
+HREF-US::ProbMAXUVV10::Probability of Max 1hr Updraft Vertical Velocity > 10.0 m/s
+HREF-US::ProbMAXUVV20::Probability of Max 1hr Updraft Vertical Velocity > 20.0 m/s
+HREF-US::ProbREFC10::Probability of Derived Radar Composite > 10.0dB
+HREF-US::ProbREFC20::Probability of Derived Radar Composite > 20.0dB
+HREF-US::ProbREFC30::Probability of Derived Radar Composite > 30.0dB
+HREF-US::ProbREFC40::Probability of Derived Radar Composite > 40.0dB
+HREF-US::ProbREFC50::Probability of Derived Radar Composite > 50.0dB
+HREF-US::ProbPW25::Probability of Precipitable Water > 1.0 in
+HREF-US::ProbPW37p5::Probability of Precipitable Water > 1.5 in
+HREF-US::ProbPW50::Probability of Precipitable Water > 2.0 in
+HREF-US::ProbRETOP20kft::Probability of Echo Top > 20kft
+HREF-US::ProbRETOP30kft::Probability of Echo Top > 30kft
+HREF-US::ProbRETOP35kft::Probability of Echo Top > 35kft
+HREF-US::ProbRETOP40kft::Probability of Echo Top > 40kft
+HREF-US::ProbRETOP50kft::Probability of Echo Top > 50kft
+HREF-US::ProbVSS10p3::Prob Vertical Speed Shear > 20 kts
+HREF-US::ProbVSS15p4::Prob Vertical Speed Shear > 30 kts
+HREF-US::ProbVSS20p6::Prob Vertical Speed Shear > 40 kts
+HREF-US::ProbVSS25p7::Prob Vertical Speed Shear > 50 kts
+HREF-US::ProbWEASD1hr2p54mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-US::ProbWEASD1hr7p62mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-US::ProbWEASD3hr2p54mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-US::ProbWEASD3hr7p62mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-US::ProbWEASD3hr15p24mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-US::ProbWEASD6hr2p54mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-US::ProbWEASD6hr7p62mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-US::ProbWEASD6hr15p24mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-US::ProbWEASD6hr30p48mm::Prob 6-hr Water Equiv Accum Snow Depth > 1.2 in
+HREF-US::tp1c1::1-hr POP > 0.01 in
+HREF-US::tp1c4::1-hr POP > 0.25 in
+HREF-US::tp1c5::1-hr POP > 0.50 in
+HREF-US::tp1c6::1-hr POP > 1.00 in
+HREF-US::tp1c8::1-hr POP > 2.00 in
+HREF-US::tp1c9::1-hr POP > 3.00 in
+HREF-US::tp3c1::3-hr POP > 0.01 in
+HREF-US::tp3c4::3-hr POP > 0.25 in
+HREF-US::tp3c5::3-hr POP > 0.50 in
+HREF-US::tp3c6::3-hr POP > 1.00 in
+HREF-US::tp3c8::3-hr POP > 2.00 in
+HREF-US::tp3c9::3-hr POP > 3.00 in
+HREF-US::tp6c1::6-hr POP > 0.01 in
+HREF-US::tp6c4::6-hr POP > 0.25 in
+HREF-US::tp6c5::6-hr POP > 0.50 in
+HREF-US::tp6c6::6-hr POP > 1.00 in
+HREF-US::tp6c8::6-hr POP > 2.00 in
+HREF-US::tp6c9::6-hr POP > 3.00 in
+HREF-US::tp12c1::12-hr POP > 0.01 in
+HREF-US::tp12c4::12-hr POP > 0.25 in
+HREF-US::tp12c5::12-hr POP > 0.50 in
+HREF-US::tp12c6::12-hr POP > 1.00 in
+HREF-US::tp12c8::12-hr POP > 2.00 in
+HREF-US::tp12c9::12-hr POP > 3.00 in
+HREF-US::tp12c10::12-hr POP > 5.00 in
+HREF-US::tp24c1::24-hr POP > 0.01 in
+HREF-US::tp24c4::24-hr POP > 0.25 in
+HREF-US::tp24c5::24-hr POP > 0.50 in
+HREF-US::tp24c6::24-hr POP > 1.00 in
+HREF-US::tp24c8::24-hr POP > 2.00 in
+HREF-US::tp24c9::24-hr POP > 3.00 in
+HREF-US::tp24c10::24-hr POP > 5.00 in
+HREF-US::Visc3::Prob Sfc Visibility < 0.25 mile
+HREF-US::Visc4::Prob Sfc Visibility < 0.5 mile
+HREF-US::Visc5::Prob Sfc Visibility < 2 mile
+HREF-US::Visc6::Prob Sfc Visibility < 4 mile
+HREF-US::WSc5::Prob Wind speed > 10 kt
+HREF-US::WSc6::Prob Wind speed > 20 kt
+HREF-US::WSc7::Prob Wind speed > 30 kt
+HREF-US::WSc8::Prob Wind speed > 40 kt
+HREF-US::WSc9::Prob Wind speed > 60 kt
+HREF-US::WSc10::Prob Wind speed > 70 kt
+HREF-US::WSc11::Prob Wind speed > 100 kt
+// HREF means
+HREF-US::CAPEmean::Convective Available Potential Energy mean
+HREF-US::CInmean::Convective Inhibition mean
+HREF-US::HCDCmean::High Cloud Cover mean
+HREF-US::Helimean::Helicity mean
+HREF-US::HINDEXmean::Haines Index mean
+HREF-US::LCDCmean::Low Cloud Cover mean
+HREF-US::MCDCmean::Middle Cloud Cover mean
+HREF-US::PVVmean::Omega mean
+HREF-US::SOILWmean::Volumetric Soil Moisture Content mean
+HREF-US::TCCmean::Total Cloud Cover mean
+HREF-US::TP1mean::1-hr Total Precip mean
+HREF-US::TSOILmean::Soil Temperature mean
+HREF-US::VSSmean::Vertical Speed Sheer mean
+HREF-US::Vismean::Visibility mean
+HREF-US::WEASD1hrmean::1-hr Water Equiv Accum Snow Depth mean
+HREF-US::WEASD3hrmean::3-hr Water Equiv Accum Snow Depth mean
+HREF-US::GHpmmn::Geopotential Height Prob-matched mean
+HREF-US::MAXREFpmmn::Hourly Maximum of Simulated Reflectivity Prob-matched mean
+HREF-US::MXUPHLpmmn::Hourly Maximum of Updraft Helicity Prob-matched mean
+HREF-US::REFCpmmn::Derived Radar Composite Prob-matched mean
+HREF-US::REFDpmmn::Derived Radar Reflectivity Prob-matched mean
+HREF-US::RETOPpmmn::Echo Top Prob-matched mean
+HREF-US::TP1pmmn::1-hr Total Precip Prob-matched mean
+HREF-US::TP3pmmn::3-hr Total Precip Prob-matched mean
+HREF-US::UPHLpmmn::Updraft Helicity Prob-matched mean
+
+HREF-AK::CAPEc6::Prob CAPE > 1500 J/kg
+HREF-AK::ProbCIn0::Prob CIn < 0 J/kg
+HREF-AK::ProbCIn-50::Prob CIn < -50 J/kg
+HREF-AK::ProbCIn-100::Prob CIn < -100 J/kg
+HREF-AK::ProbCIn-400::Prob CIn < -400 J/kg
+HREF-AK::Cigc23::Prob Ceiling Hgt < 2000 ft
+HREF-AK::Cigc5::Prob Ceiling Hgt < 4500 ft
+HREF-AK::Cigc6::Prob Ceiling Hgt < 6000 ft
+HREF-AK::Cigc7::Prob Ceiling Hgt < 10000 ft
+HREF-AK::JFWPRB9-20::Fire Wx: Prob Wind >= 17.5 kts and RH < 20%
+HREF-AK::ProbFlightCat1-2::Prob Flight Category >= 1 < 2
+HREF-AK::ProbFlightCat2-3::Prob Flight Category >= 2 < 3
+HREF-AK::ProbFlightCat3-4::Prob Flight Category >= 3 < 4
+HREF-AK::ProbFlightCat4::Prob Flight Category >= 4
+HREF-AK::ProbDpT50::Probability of Dewpoint temp > 50 degF
+HREF-AK::ProbDpT55::Probability of Dewpoint temp > 55 degF
+HREF-AK::ProbDpT60::Probability of Dewpoint temp > 60 degF
+HREF-AK::ProbDpT65::Probability of Dewpoint temp > 65 degF
+HREF-AK::ProbDpT70::Probability of Dewpoint temp > 70 degF
+HREF-AK::ProbHINDEX2-5::Probability of Haines Index >= 2 < 5
+HREF-AK::ProbHINDEX5-6::Probability of Haines Index >= 5 < 6
+HREF-AK::ProbHINDEX6-7::Probability of Haines Index >= 6 < 7
+HREF-AK::ProbMAXUVV1::Probability of Max 1hr Updraft Vertical Velocity > 1.0 m/s
+HREF-AK::ProbMAXUVV10::Probability of Max 1hr Updraft Vertical Velocity > 10.0 m/s
+HREF-AK::ProbMAXUVV20::Probability of Max 1hr Updraft Vertical Velocity > 20.0 m/s
+HREF-AK::ProbREFC10::Probability of Derived Radar Composite > 10.0dB
+HREF-AK::ProbREFC20::Probability of Derived Radar Composite > 20.0dB
+HREF-AK::ProbREFC30::Probability of Derived Radar Composite > 30.0dB
+HREF-AK::ProbREFC40::Probability of Derived Radar Composite > 40.0dB
+HREF-AK::ProbREFC50::Probability of Derived Radar Composite > 50.0dB
+HREF-AK::ProbPW25::Probability of Precipitable Water > 1.0 in
+HREF-AK::ProbPW37p5::Probability of Precipitable Water > 1.5 in
+HREF-AK::ProbPW50::Probability of Precipitable Water > 2.0 in
+HREF-AK::ProbRETOP20kft::Probability of Echo Top > 20kft
+HREF-AK::ProbRETOP30kft::Probability of Echo Top > 30kft
+HREF-AK::ProbRETOP35kft::Probability of Echo Top > 35kft
+HREF-AK::ProbRETOP40kft::Probability of Echo Top > 40kft
+HREF-AK::ProbRETOP50kft::Probability of Echo Top > 50kft
+HREF-AK::ProbVSS10p3::Prob Vertical Speed Shear > 20 kts
+HREF-AK::ProbVSS15p4::Prob Vertical Speed Shear > 30 kts
+HREF-AK::ProbVSS20p6::Prob Vertical Speed Shear > 40 kts
+HREF-AK::ProbVSS25p7::Prob Vertical Speed Shear > 50 kts
+HREF-AK::ProbWEASD1hr2p54mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-AK::ProbWEASD1hr7p62mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-AK::ProbWEASD3hr2p54mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-AK::ProbWEASD3hr7p62mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-AK::ProbWEASD3hr15p24mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-AK::ProbWEASD6hr2p54mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-AK::ProbWEASD6hr7p62mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-AK::ProbWEASD6hr15p24mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-AK::ProbWEASD6hr30p48mm::Prob 6-hr Water Equiv Accum Snow Depth > 1.2 in
+HREF-AK::tp1c1::1-hr POP > 0.01 in
+HREF-AK::tp1c4::1-hr POP > 0.25 in
+HREF-AK::tp1c5::1-hr POP > 0.50 in
+HREF-AK::tp1c6::1-hr POP > 1.00 in
+HREF-AK::tp1c8::1-hr POP > 2.00 in
+HREF-AK::tp1c9::1-hr POP > 3.00 in
+HREF-AK::tp3c1::3-hr POP > 0.01 in
+HREF-AK::tp3c4::3-hr POP > 0.25 in
+HREF-AK::tp3c5::3-hr POP > 0.50 in
+HREF-AK::tp3c6::3-hr POP > 1.00 in
+HREF-AK::tp3c8::3-hr POP > 2.00 in
+HREF-AK::tp3c9::3-hr POP > 3.00 in
+HREF-AK::tp6c1::6-hr POP > 0.01 in
+HREF-AK::tp6c4::6-hr POP > 0.25 in
+HREF-AK::tp6c5::6-hr POP > 0.50 in
+HREF-AK::tp6c6::6-hr POP > 1.00 in
+HREF-AK::tp6c8::6-hr POP > 2.00 in
+HREF-AK::tp6c9::6-hr POP > 3.00 in
+HREF-AK::tp12c1::12-hr POP > 0.01 in
+HREF-AK::tp12c4::12-hr POP > 0.25 in
+HREF-AK::tp12c5::12-hr POP > 0.50 in
+HREF-AK::tp12c6::12-hr POP > 1.00 in
+HREF-AK::tp12c8::12-hr POP > 2.00 in
+HREF-AK::tp12c9::12-hr POP > 3.00 in
+HREF-AK::tp12c10::12-hr POP > 5.00 in
+HREF-AK::tp24c1::24-hr POP > 0.01 in
+HREF-AK::tp24c4::24-hr POP > 0.25 in
+HREF-AK::tp24c5::24-hr POP > 0.50 in
+HREF-AK::tp24c6::24-hr POP > 1.00 in
+HREF-AK::tp24c8::24-hr POP > 2.00 in
+HREF-AK::tp24c9::24-hr POP > 3.00 in
+HREF-AK::tp24c10::24-hr POP > 5.00 in
+HREF-AK::Visc3::Prob Sfc Visibility < 0.25 mile
+HREF-AK::Visc4::Prob Sfc Visibility < 0.5 mile
+HREF-AK::Visc5::Prob Sfc Visibility < 2 mile
+HREF-AK::Visc6::Prob Sfc Visibility < 4 mile
+HREF-AK::WSc5::Prob Wind speed > 10 kt
+HREF-AK::WSc6::Prob Wind speed > 20 kt
+HREF-AK::WSc7::Prob Wind speed > 30 kt
+HREF-AK::WSc8::Prob Wind speed > 40 kt
+HREF-AK::WSc9::Prob Wind speed > 60 kt
+HREF-AK::WSc10::Prob Wind speed > 70 kt
+HREF-AK::WSc11::Prob Wind speed > 100 kt
+// HREF means
+HREF-AK::CAPEmean::Convective Available Potential Energy mean
+HREF-AK::CInmean::Convective Inhibition mean
+HREF-AK::HCDCmean::High Cloud Cover mean
+HREF-AK::Helimean::Helicity mean
+HREF-AK::HINDEXmean::Haines Index mean
+HREF-AK::LCDCmean::Low Cloud Cover mean
+HREF-AK::MCDCmean::Middle Cloud Cover mean
+HREF-AK::PVVmean::Omega mean
+HREF-AK::SOILWmean::Volumetric Soil Moisture Content mean
+HREF-AK::TCCmean::Total Cloud Cover mean
+HREF-AK::TP1mean::1-hr Total Precip mean
+HREF-AK::TSOILmean::Soil Temperature mean
+HREF-AK::VSSmean::Vertical Speed Sheer mean
+HREF-AK::Vismean::Visibility mean
+HREF-AK::WEASD1hrmean::1-hr Water Equiv Accum Snow Depth mean
+HREF-AK::WEASD3hrmean::3-hr Water Equiv Accum Snow Depth mean
+HREF-AK::GHpmmn::Geopotential Height Prob-matched mean
+HREF-AK::MAXREFpmmn::Hourly Maximum of Simulated Reflectivity Prob-matched mean
+HREF-AK::MXUPHLpmmn::Hourly Maximum of Updraft Helicity Prob-matched mean
+HREF-AK::REFCpmmn::Derived Radar Composite Prob-matched mean
+HREF-AK::REFDpmmn::Derived Radar Reflectivity Prob-matched mean
+HREF-AK::RETOPpmmn::Echo Top Prob-matched mean
+HREF-AK::TP1pmmn::1-hr Total Precip Prob-matched mean
+HREF-AK::TP3pmmn::3-hr Total Precip Prob-matched mean
+HREF-AK::UPHLpmmn::Updraft Helicity Prob-matched mean
+
+HREF-HI::CAPEc6::Prob CAPE > 1500 J/kg
+HREF-HI::ProbCIn0::Prob CIn < 0 J/kg
+HREF-HI::ProbCIn-50::Prob CIn < -50 J/kg
+HREF-HI::ProbCIn-100::Prob CIn < -100 J/kg
+HREF-HI::ProbCIn-400::Prob CIn < -400 J/kg
+HREF-HI::Cigc23::Prob Ceiling Hgt < 2000 ft
+HREF-HI::Cigc5::Prob Ceiling Hgt < 4500 ft
+HREF-HI::Cigc6::Prob Ceiling Hgt < 6000 ft
+HREF-HI::Cigc7::Prob Ceiling Hgt < 10000 ft
+HREF-HI::JFWPRB9-20::Fire Wx: Prob Wind >= 17.5 kts and RH < 20%
+HREF-HI::ProbFlightCat1-2::Prob Flight Category >= 1 < 2
+HREF-HI::ProbFlightCat2-3::Prob Flight Category >= 2 < 3
+HREF-HI::ProbFlightCat3-4::Prob Flight Category >= 3 < 4
+HREF-HI::ProbFlightCat4::Prob Flight Category >= 4
+HREF-HI::ProbDpT50::Probability of Dewpoint temp > 50 degF
+HREF-HI::ProbDpT55::Probability of Dewpoint temp > 55 degF
+HREF-HI::ProbDpT60::Probability of Dewpoint temp > 60 degF
+HREF-HI::ProbDpT65::Probability of Dewpoint temp > 65 degF
+HREF-HI::ProbDpT70::Probability of Dewpoint temp > 70 degF
+HREF-HI::ProbHINDEX2-5::Probability of Haines Index >= 2 < 5
+HREF-HI::ProbHINDEX5-6::Probability of Haines Index >= 5 < 6
+HREF-HI::ProbHINDEX6-7::Probability of Haines Index >= 6 < 7
+HREF-HI::ProbMAXUVV1::Probability of Max 1hr Updraft Vertical Velocity > 1.0 m/s
+HREF-HI::ProbMAXUVV10::Probability of Max 1hr Updraft Vertical Velocity > 10.0 m/s
+HREF-HI::ProbMAXUVV20::Probability of Max 1hr Updraft Vertical Velocity > 20.0 m/s
+HREF-HI::ProbREFC10::Probability of Derived Radar Composite > 10.0dB
+HREF-HI::ProbREFC20::Probability of Derived Radar Composite > 20.0dB
+HREF-HI::ProbREFC30::Probability of Derived Radar Composite > 30.0dB
+HREF-HI::ProbREFC40::Probability of Derived Radar Composite > 40.0dB
+HREF-HI::ProbREFC50::Probability of Derived Radar Composite > 50.0dB
+HREF-HI::ProbPW25::Probability of Precipitable Water > 1.0 in
+HREF-HI::ProbPW37p5::Probability of Precipitable Water > 1.5 in
+HREF-HI::ProbPW50::Probability of Precipitable Water > 2.0 in
+HREF-HI::ProbRETOP20kft::Probability of Echo Top > 20kft
+HREF-HI::ProbRETOP30kft::Probability of Echo Top > 30kft
+HREF-HI::ProbRETOP35kft::Probability of Echo Top > 35kft
+HREF-HI::ProbRETOP40kft::Probability of Echo Top > 40kft
+HREF-HI::ProbRETOP50kft::Probability of Echo Top > 50kft
+HREF-HI::ProbVSS10p3::Prob Vertical Speed Shear > 20 kts
+HREF-HI::ProbVSS15p4::Prob Vertical Speed Shear > 30 kts
+HREF-HI::ProbVSS20p6::Prob Vertical Speed Shear > 40 kts
+HREF-HI::ProbVSS25p7::Prob Vertical Speed Shear > 50 kts
+HREF-HI::ProbWEASD1hr2p54mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-HI::ProbWEASD1hr7p62mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-HI::ProbWEASD3hr2p54mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-HI::ProbWEASD3hr7p62mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-HI::ProbWEASD3hr15p24mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-HI::ProbWEASD6hr2p54mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-HI::ProbWEASD6hr7p62mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-HI::ProbWEASD6hr15p24mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-HI::ProbWEASD6hr30p48mm::Prob 6-hr Water Equiv Accum Snow Depth > 1.2 in
+HREF-HI::tp1c1::1-hr POP > 0.01 in
+HREF-HI::tp1c4::1-hr POP > 0.25 in
+HREF-HI::tp1c5::1-hr POP > 0.50 in
+HREF-HI::tp1c6::1-hr POP > 1.00 in
+HREF-HI::tp1c8::1-hr POP > 2.00 in
+HREF-HI::tp1c9::1-hr POP > 3.00 in
+HREF-HI::tp3c1::3-hr POP > 0.01 in
+HREF-HI::tp3c4::3-hr POP > 0.25 in
+HREF-HI::tp3c5::3-hr POP > 0.50 in
+HREF-HI::tp3c6::3-hr POP > 1.00 in
+HREF-HI::tp3c8::3-hr POP > 2.00 in
+HREF-HI::tp3c9::3-hr POP > 3.00 in
+HREF-HI::tp6c1::6-hr POP > 0.01 in
+HREF-HI::tp6c4::6-hr POP > 0.25 in
+HREF-HI::tp6c5::6-hr POP > 0.50 in
+HREF-HI::tp6c6::6-hr POP > 1.00 in
+HREF-HI::tp6c8::6-hr POP > 2.00 in
+HREF-HI::tp6c9::6-hr POP > 3.00 in
+HREF-HI::tp12c1::12-hr POP > 0.01 in
+HREF-HI::tp12c4::12-hr POP > 0.25 in
+HREF-HI::tp12c5::12-hr POP > 0.50 in
+HREF-HI::tp12c6::12-hr POP > 1.00 in
+HREF-HI::tp12c8::12-hr POP > 2.00 in
+HREF-HI::tp12c9::12-hr POP > 3.00 in
+HREF-HI::tp12c10::12-hr POP > 5.00 in
+HREF-HI::tp24c1::24-hr POP > 0.01 in
+HREF-HI::tp24c4::24-hr POP > 0.25 in
+HREF-HI::tp24c5::24-hr POP > 0.50 in
+HREF-HI::tp24c6::24-hr POP > 1.00 in
+HREF-HI::tp24c8::24-hr POP > 2.00 in
+HREF-HI::tp24c9::24-hr POP > 3.00 in
+HREF-HI::tp24c10::24-hr POP > 5.00 in
+HREF-HI::Visc3::Prob Sfc Visibility < 0.25 mile
+HREF-HI::Visc4::Prob Sfc Visibility < 0.5 mile
+HREF-HI::Visc5::Prob Sfc Visibility < 2 mile
+HREF-HI::Visc6::Prob Sfc Visibility < 4 mile
+HREF-HI::WSc5::Prob Wind speed > 10 kt
+HREF-HI::WSc6::Prob Wind speed > 20 kt
+HREF-HI::WSc7::Prob Wind speed > 30 kt
+HREF-HI::WSc8::Prob Wind speed > 40 kt
+HREF-HI::WSc9::Prob Wind speed > 60 kt
+HREF-HI::WSc10::Prob Wind speed > 70 kt
+HREF-HI::WSc11::Prob Wind speed > 100 kt
+// HREF means
+HREF-HI::CAPEmean::Convective Available Potential Energy mean
+HREF-HI::CInmean::Convective Inhibition mean
+HREF-HI::HCDCmean::High Cloud Cover mean
+HREF-HI::Helimean::Helicity mean
+HREF-HI::HINDEXmean::Haines Index mean
+HREF-HI::LCDCmean::Low Cloud Cover mean
+HREF-HI::MCDCmean::Middle Cloud Cover mean
+HREF-HI::PVVmean::Omega mean
+HREF-HI::SOILWmean::Volumetric Soil Moisture Content mean
+HREF-HI::TCCmean::Total Cloud Cover mean
+HREF-HI::TP1mean::1-hr Total Precip mean
+HREF-HI::TSOILmean::Soil Temperature mean
+HREF-HI::VSSmean::Vertical Speed Sheer mean
+HREF-HI::Vismean::Visibility mean
+HREF-HI::WEASD1hrmean::1-hr Water Equiv Accum Snow Depth mean
+HREF-HI::WEASD3hrmean::3-hr Water Equiv Accum Snow Depth mean
+HREF-HI::GHpmmn::Geopotential Height Prob-matched mean
+HREF-HI::MAXREFpmmn::Hourly Maximum of Simulated Reflectivity Prob-matched mean
+HREF-HI::MXUPHLpmmn::Hourly Maximum of Updraft Helicity Prob-matched mean
+HREF-HI::REFCpmmn::Derived Radar Composite Prob-matched mean
+HREF-HI::REFDpmmn::Derived Radar Reflectivity Prob-matched mean
+HREF-HI::RETOPpmmn::Echo Top Prob-matched mean
+HREF-HI::TP1pmmn::1-hr Total Precip Prob-matched mean
+HREF-HI::TP3pmmn::3-hr Total Precip Prob-matched mean
+HREF-HI::UPHLpmmn::Updraft Helicity Prob-matched mean
+
+HREF-SJU::CAPEc6::Prob CAPE > 1500 J/kg
+HREF-SJU::ProbCIn0::Prob CIn < 0 J/kg
+HREF-SJU::ProbCIn-50::Prob CIn < -50 J/kg
+HREF-SJU::ProbCIn-100::Prob CIn < -100 J/kg
+HREF-SJU::ProbCIn-400::Prob CIn < -400 J/kg
+HREF-SJU::Cigc23::Prob Ceiling Hgt < 2000 ft
+HREF-SJU::Cigc5::Prob Ceiling Hgt < 4500 ft
+HREF-SJU::Cigc6::Prob Ceiling Hgt < 6000 ft
+HREF-SJU::Cigc7::Prob Ceiling Hgt < 10000 ft
+HREF-SJU::JFWPRB9-20::Fire Wx: Prob Wind >= 17.5 kts and RH < 20%
+HREF-SJU::ProbFlightCat1-2::Prob Flight Category >= 1 < 2
+HREF-SJU::ProbFlightCat2-3::Prob Flight Category >= 2 < 3
+HREF-SJU::ProbFlightCat3-4::Prob Flight Category >= 3 < 4
+HREF-SJU::ProbFlightCat4::Prob Flight Category >= 4
+HREF-SJU::ProbDpT50::Probability of Dewpoint temp > 50 degF
+HREF-SJU::ProbDpT55::Probability of Dewpoint temp > 55 degF
+HREF-SJU::ProbDpT60::Probability of Dewpoint temp > 60 degF
+HREF-SJU::ProbDpT65::Probability of Dewpoint temp > 65 degF
+HREF-SJU::ProbDpT70::Probability of Dewpoint temp > 70 degF
+HREF-SJU::ProbHINDEX2-5::Probability of Haines Index >= 2 < 5
+HREF-SJU::ProbHINDEX5-6::Probability of Haines Index >= 5 < 6
+HREF-SJU::ProbHINDEX6-7::Probability of Haines Index >= 6 < 7
+HREF-SJU::ProbMAXUVV1::Probability of Max 1hr Updraft Vertical Velocity > 1.0 m/s
+HREF-SJU::ProbMAXUVV10::Probability of Max 1hr Updraft Vertical Velocity > 10.0 m/s
+HREF-SJU::ProbMAXUVV20::Probability of Max 1hr Updraft Vertical Velocity > 20.0 m/s
+HREF-SJU::ProbREFC10::Probability of Derived Radar Composite > 10.0dB
+HREF-SJU::ProbREFC20::Probability of Derived Radar Composite > 20.0dB
+HREF-SJU::ProbREFC30::Probability of Derived Radar Composite > 30.0dB
+HREF-SJU::ProbREFC40::Probability of Derived Radar Composite > 40.0dB
+HREF-SJU::ProbREFC50::Probability of Derived Radar Composite > 50.0dB
+HREF-SJU::ProbPW25::Probability of Precipitable Water > 1.0 in
+HREF-SJU::ProbPW37p5::Probability of Precipitable Water > 1.5 in
+HREF-SJU::ProbPW50::Probability of Precipitable Water > 2.0 in
+HREF-SJU::ProbRETOP20kft::Probability of Echo Top > 20kft
+HREF-SJU::ProbRETOP30kft::Probability of Echo Top > 30kft
+HREF-SJU::ProbRETOP35kft::Probability of Echo Top > 35kft
+HREF-SJU::ProbRETOP40kft::Probability of Echo Top > 40kft
+HREF-SJU::ProbRETOP50kft::Probability of Echo Top > 50kft
+HREF-SJU::ProbVSS10p3::Prob Vertical Speed Shear > 20 kts
+HREF-SJU::ProbVSS15p4::Prob Vertical Speed Shear > 30 kts
+HREF-SJU::ProbVSS20p6::Prob Vertical Speed Shear > 40 kts
+HREF-SJU::ProbVSS25p7::Prob Vertical Speed Shear > 50 kts
+HREF-SJU::ProbWEASD1hr2p54mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-SJU::ProbWEASD1hr7p62mm::Prob 1-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-SJU::ProbWEASD3hr2p54mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-SJU::ProbWEASD3hr7p62mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-SJU::ProbWEASD3hr15p24mm::Prob 3-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-SJU::ProbWEASD6hr2p54mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.1 in
+HREF-SJU::ProbWEASD6hr7p62mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.3 in
+HREF-SJU::ProbWEASD6hr15p24mm::Prob 6-hr Water Equiv Accum Snow Depth > 0.6 in
+HREF-SJU::ProbWEASD6hr30p48mm::Prob 6-hr Water Equiv Accum Snow Depth > 1.2 in
+HREF-SJU::tp1c1::1-hr POP > 0.01 in
+HREF-SJU::tp1c4::1-hr POP > 0.25 in
+HREF-SJU::tp1c5::1-hr POP > 0.50 in
+HREF-SJU::tp1c6::1-hr POP > 1.00 in
+HREF-SJU::tp1c8::1-hr POP > 2.00 in
+HREF-SJU::tp1c9::1-hr POP > 3.00 in
+HREF-SJU::tp3c1::3-hr POP > 0.01 in
+HREF-SJU::tp3c4::3-hr POP > 0.25 in
+HREF-SJU::tp3c5::3-hr POP > 0.50 in
+HREF-SJU::tp3c6::3-hr POP > 1.00 in
+HREF-SJU::tp3c8::3-hr POP > 2.00 in
+HREF-SJU::tp3c9::3-hr POP > 3.00 in
+HREF-SJU::tp6c1::6-hr POP > 0.01 in
+HREF-SJU::tp6c4::6-hr POP > 0.25 in
+HREF-SJU::tp6c5::6-hr POP > 0.50 in
+HREF-SJU::tp6c6::6-hr POP > 1.00 in
+HREF-SJU::tp6c8::6-hr POP > 2.00 in
+HREF-SJU::tp6c9::6-hr POP > 3.00 in
+HREF-SJU::tp12c1::12-hr POP > 0.01 in
+HREF-SJU::tp12c4::12-hr POP > 0.25 in
+HREF-SJU::tp12c5::12-hr POP > 0.50 in
+HREF-SJU::tp12c6::12-hr POP > 1.00 in
+HREF-SJU::tp12c8::12-hr POP > 2.00 in
+HREF-SJU::tp12c9::12-hr POP > 3.00 in
+HREF-SJU::tp12c10::12-hr POP > 5.00 in
+HREF-SJU::tp24c1::24-hr POP > 0.01 in
+HREF-SJU::tp24c4::24-hr POP > 0.25 in
+HREF-SJU::tp24c5::24-hr POP > 0.50 in
+HREF-SJU::tp24c6::24-hr POP > 1.00 in
+HREF-SJU::tp24c8::24-hr POP > 2.00 in
+HREF-SJU::tp24c9::24-hr POP > 3.00 in
+HREF-SJU::tp24c10::24-hr POP > 5.00 in
+HREF-SJU::Visc3::Prob Sfc Visibility < 0.25 mile
+HREF-SJU::Visc4::Prob Sfc Visibility < 0.5 mile
+HREF-SJU::Visc5::Prob Sfc Visibility < 2 mile
+HREF-SJU::Visc6::Prob Sfc Visibility < 4 mile
+HREF-SJU::WSc5::Prob Wind speed > 10 kt
+HREF-SJU::WSc6::Prob Wind speed > 20 kt
+HREF-SJU::WSc7::Prob Wind speed > 30 kt
+HREF-SJU::WSc8::Prob Wind speed > 40 kt
+HREF-SJU::WSc9::Prob Wind speed > 60 kt
+HREF-SJU::WSc10::Prob Wind speed > 70 kt
+HREF-SJU::WSc11::Prob Wind speed > 100 kt
+// HREF means
+HREF-SJU::CAPEmean::Convective Available Potential Energy mean
+HREF-SJU::CInmean::Convective Inhibition mean
+HREF-SJU::HCDCmean::High Cloud Cover mean
+HREF-SJU::Helimean::Helicity mean
+HREF-SJU::HINDEXmean::Haines Index mean
+HREF-SJU::LCDCmean::Low Cloud Cover mean
+HREF-SJU::MCDCmean::Middle Cloud Cover mean
+HREF-SJU::PVVmean::Omega mean
+HREF-SJU::SOILWmean::Volumetric Soil Moisture Content mean
+HREF-SJU::TCCmean::Total Cloud Cover mean
+HREF-SJU::TP1mean::1-hr Total Precip mean
+HREF-SJU::TSOILmean::Soil Temperature mean
+HREF-SJU::VSSmean::Vertical Speed Sheer mean
+HREF-SJU::Vismean::Visibility mean
+HREF-SJU::WEASD1hrmean::1-hr Water Equiv Accum Snow Depth mean
+HREF-SJU::WEASD3hrmean::3-hr Water Equiv Accum Snow Depth mean
+HREF-SJU::GHpmmn::Geopotential Height Prob-matched mean
+HREF-SJU::MAXREFpmmn::Hourly Maximum of Simulated Reflectivity Prob-matched mean
+HREF-SJU::MXUPHLpmmn::Hourly Maximum of Updraft Helicity Prob-matched mean
+HREF-SJU::REFCpmmn::Derived Radar Composite Prob-matched mean
+HREF-SJU::REFDpmmn::Derived Radar Reflectivity Prob-matched mean
+HREF-SJU::RETOPpmmn::Echo Top Prob-matched mean
+HREF-SJU::TP1pmmn::1-hr Total Precip Prob-matched mean
+HREF-SJU::TP3pmmn::3-hr Total Precip Prob-matched mean
+HREF-SJU::UPHLpmmn::Updraft Helicity Prob-matched mean
+// GFSLAMPGrid
+GFSLAMPGrid::CigProb500::Prob of Ceiling < 500 ft
+GFSLAMPGrid::CigProb1k::Prob of Ceiling < 1000 ft
+GFSLAMPGrid::CigProb3k::Prob of Ceiling  < 3000 ft
+GFSLAMPGrid::VisProb1p0::Prob of Vis < 1 mile
+GFSLAMPGrid::VisProb3p0::Prob of Vis < 3 mile
+GFSLAMPGrid::VisProb5p0::Prob of Vis < 5 mile
+

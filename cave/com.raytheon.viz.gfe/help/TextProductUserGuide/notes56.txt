@@ -1,0 +1,1 @@
+Here’s an example where we have overridden _postProcessProduct method from the Standard CCF file into the CCF Site Overrides file and modified it’s functioning.

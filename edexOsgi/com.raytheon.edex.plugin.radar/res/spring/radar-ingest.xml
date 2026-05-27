@@ -1,0 +1,45 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="radar" />
+        <constructor-arg value="Ingest.Radar.*" />
+    </bean>
+
+    <bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
+    <bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
+
+    <bean id="radarDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="radar" />
+        <constructor-arg value="jms-durable:queue:Ingest.Radar" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
+    </bean>
+
+    <bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
+        factory-method="register">
+        <constructor-arg value="radar" />
+        <constructor-arg value="jms-durable:queue:Ingest.RadarRadarServer" />
+    </bean>
+    
+    <bean id="gsmNotifier" class="com.raytheon.edex.plugin.radar.GSMNotifier"/>
+
+    <bean id="gsmNotify" factory-bean="routeContextFactory" factory-method="create">
+            <constructor-arg>
+                    <bean class="com.raytheon.edex.plugin.radar.RadarGsmNotifyRoutes">
+                    </bean>
+            </constructor-arg>
+    </bean>
+
+
+    <bean id="radar-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.radar.RadarCamelRoutes">
+                <constructor-arg name="radarDecodeSbnThreads" value="${radar-decode.sbn.threads}" />
+                <constructor-arg name="radarDecodeLocalThreads" value="${radar-decode.local.threads}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>

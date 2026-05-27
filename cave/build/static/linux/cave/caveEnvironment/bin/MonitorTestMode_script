@@ -1,0 +1,5 @@
+#!/bin/sh
+export FXA_HOME=/awips2/cave/caveEnvironment
+export TMCP_HOME=/awips2/cave/caveEnvironment
+
+$FXA_HOME/bin/MonitorTestMode >& /dev/null &

@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="gfeProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" value="gfe"/>
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.gfe"/>
+        <property name="dao" value="com.raytheon.edex.plugin.gfe.db.dao.GFEDao"/>
+        <property name="record" value="com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord"/>
+        <property name="initializer" value="com.raytheon.edex.plugin.gfe.GfePluginInitializer"/>
+        <property name="compression" value="GZIP"/>
+    </bean>
+
+    <bean id="gfeDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.edex.plugin.gfe"/>
+        <property name="database" value="metadata"/>
+        <property name="dependencyFQNs">
+            <list>
+                <value>com.raytheon.uf.common.dataplugin.gfe</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="gfeRegistered" factory-bean="pluginRegistry" factory-method="register" depends-on="gridRegistered, satelliteRegistered, textRegistered">
+        <constructor-arg value="gfe"/>
+        <constructor-arg ref="gfeProperties"/>
+    </bean>
+
+    <bean id="gfeDbRegistered" factory-bean="dbPluginRegistry" factory-method="register" depends-on="gfeRegistered">
+        <constructor-arg value="com.raytheon.edex.plugin.gfe"/>
+        <constructor-arg ref="gfeDbPluginProperties"/>
+    </bean>
+
+    <bean id="ifpServer" class="com.raytheon.edex.plugin.gfe.server.IFPServer.Wrapper"/>
+
+    <bean factory-bean="ignitePluginRegistry" factory-method="registerPluginCacheName">
+        <constructor-arg value="gfe" />
+        <constructor-arg value="gfeDataStore" />
+    </bean>
+    
+    <bean id="gfe-common-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.gfe.GfeCommonCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

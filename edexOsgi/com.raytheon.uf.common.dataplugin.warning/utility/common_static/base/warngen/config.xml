@@ -1,0 +1,15 @@
+<configuration>
+    <warngenOfficeShort>UNLOCALIZED SITE</warngenOfficeShort>
+    <warngenOfficeLoc>UNLOCALIZED SITE</warngenOfficeLoc>
+    <backupCWAs></backupCWAs>
+    <siteNode>OMA</siteNode>
+    <defaultTemplate>impactSevereThunderstormWarning</defaultTemplate>
+    <mainWarngenProducts>Tornado/impactTornadoWarning,Severe Thunderstorm/impactSevereThunderstormWarning,Severe Weather Statement/impactSevereWeatherStatement,Special Weather Statement/impactSpecialWeatherStatement</mainWarngenProducts>
+    <otherWarngenProducts>Snow Squall Warning/impactSnowSquallWarning,Snow Squall Warning Follow-up/impactSnowSquallWarningFollowup,Blowing Dust Advisory/impactDustAdvisory,Blowing Dust Advisory Follow-up/impactDustAdvisoryFollowup,Dust Storm Warning/impactDustStormWarning,Dust Storm Warning Follow-up/impactDustStormWarningFollowup,Airport Weather Warning/airportWeatherWarning,Extreme Wind Warning/extremeWindWarning,Extreme Wind Warning Follow-up/extremeWindWarningFollowup,Special Marine Warning/impactSpecialMarineWarning,Special Marine Warning Follow-up/impactSpecialMarineWarningFollowup,Marine Weather Statement/marineWeatherStatement,Marine Weather Statement for Ashfall/marineWeatherStatementAshfall,Short Term Forecast/shortTermForecast</otherWarngenProducts>
+  <!-- Sites should override nx, ny with the values found in their site .gelt file -->
+    <gridSpacing>
+        <nx>600</nx>
+        <ny>600</ny>
+        <keepAspectRatio>true</keepAspectRatio>
+    </gridSpacing>
+</configuration>

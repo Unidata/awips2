@@ -1,0 +1,46 @@
+# This file should be installed as a systemd unit into /etc/systemd/system/ or /lib/systemd/system/
+# This is a template, so edex can be started with commands like:
+# sudo systemctl start edex_camel@request
+# or
+# sudo systemctl start edex_camel@ingest
+# or start any services that are enabled using:
+# sudo systemctl start edex_camel.target     
+# see edex_camel.target file for more details 
+
+[Unit]
+Description=EDEX for AWIPS2
+After=network-online.target remote-fs.target
+PartOf=edex_camel.target
+Before=edex_camel.target
+
+[Service]
+User=awips
+Group=fxalpha
+Type=simple
+Restart=on-failure
+Environment=JAVA_INSTALL=/awips2/java
+Environment=PYTHON_INSTALL=/awips2/python
+Environment=EDEX_INSTALL=/awips2/edex
+Environment=PSQL_INSTALL=/awips2/psql
+Environment=YAJSW_HOME=/awips2/yajsw
+
+Environment=CLI_INSTALL=/awips2/fxa
+Environment=HDF5_INSTALL=/awips2/hdf5
+Environment=NOTIFICATION_INSTALL=/awips2/notification
+Environment=POSTGRESQL_INSTALL=/awips2/postgresql
+
+Environment=PATH=/awips2/fxa/bin:/awips2/GFESuite/bin:/awips2/hdf5/bin:/awips2/java/bin:/awips2/notification/bin:/awips2/postgresql/bin:/awips2/psql/bin:/awips2/python/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+Environment=LD_LIBRARY_PATH=/awips2/java/lib:/awips2/python/lib
+
+
+ExecStartPre=/bin/bash -c '\
+	source /etc/watchdog.d/utilities/watchdogutils.sh; \
+	remove_watchdog_bypass %N'
+ExecStart=/awips2/edex/bin/start.sh -noConsole %I
+ExecStop=/bin/bash -c '\
+	source /etc/watchdog.d/utilities/watchdogutils.sh; \
+	bypass_watchdog %N'
+TimeoutStopSec=310s
+
+[Install]
+WantedBy=multi-user.target edex_camel.target

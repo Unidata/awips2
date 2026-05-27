@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VIIRS Common Dataplugin
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.npp.viirs
+Bundle-Version: 1.14.0.qualifier
+Eclipse-BundleShape: dir
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Eclipse-RegisterBuddy: org.geotools
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization,
+ jakarta.persistence,
+ org.geotools,
+ javax.measure,
+ com.raytheon.uf.common.time,
+ org.hibernate,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.geospatial
+Export-Package: com.raytheon.uf.common.dataplugin.npp.viirs,
+ com.raytheon.uf.common.dataplugin.npp.viirs.projection

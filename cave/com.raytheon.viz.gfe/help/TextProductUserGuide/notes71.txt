@@ -1,0 +1,1 @@
+The “minimum_range” threshold sets up a minimum reported range. In this example, we are requesting that wind phrases report a range of AT LEAST 5 mph.  Sometimes we want to set thresholds differently depending on the value of the affected data. 

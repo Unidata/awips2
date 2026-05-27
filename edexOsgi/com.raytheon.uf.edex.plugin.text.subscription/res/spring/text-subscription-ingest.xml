@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- define the bean that handles automatic faxing of products. -->
+    <bean id="autoFaxManager" class="com.raytheon.uf.edex.plugin.text.subscription.AutoFaxManager" />
+
+    <!-- define the bean that handles Quartz scheduled script running -->
+    <bean id="timerScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner" >
+        <property name="type" value="timer" />
+    </bean>
+
+    <bean id="textTriggerFilePurger" class="com.raytheon.uf.edex.maintenance.FilePurger">
+        <constructor-arg value="#{T(com.raytheon.uf.edex.plugin.text.subscription.services.TextTriggerHandler).TRIGGER_DIR}" />
+        <constructor-arg value="${purge.text.trigger.files.ageMillis}" />
+    </bean>
+
+     <bean id="text-subscription-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.subscription.TextSubscriptionCamelRoutes" >
+                <constructor-arg name="purgeTextTriggerFilesCron" value="${purge.text.trigger.files.cron}" />
+                <constructor-arg name="subscriptionCron" value="${subscription.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+  </beans>

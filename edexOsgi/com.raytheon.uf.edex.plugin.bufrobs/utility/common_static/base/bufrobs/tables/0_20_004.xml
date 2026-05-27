@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is a base file that is not intended to be overridden.
+    -->
+<translationTable bufrTable="0 20 004" description="Past weather (1)">
+    <entry indexRange="0" description="Cloud covering 1/2 or less of the sky throughout the appropriate period">
+        <mappedValue parameter="wx_past_1" value="0"/>
+    </entry>
+    <entry indexRange="1" description="Cloud covering more than 1/2 of the sky during part of the appropriate period and covering 1/2 or less during part of the period">
+        <mappedValue parameter="wx_past_1" value="1"/>
+    </entry>
+    <entry indexRange="2" description="Cloud covering more than 1/2 of the sky throughout the appropriate period">
+        <mappedValue parameter="wx_past_1" value="2"/>
+    </entry>
+    <entry indexRange="3" description="Sandstorm, duststorm or blowing snow">
+        <mappedValue parameter="wx_past_1" value="3"/>
+    </entry>
+    <entry indexRange="4" description="Fog or ice fog or thick haze">
+        <mappedValue parameter="wx_past_1" value="4"/>
+    </entry>
+    <entry indexRange="5" description="Drizzle">
+        <mappedValue parameter="wx_past_1" value="5"/>
+    </entry>
+    <entry indexRange="6" description="Rain">
+        <mappedValue parameter="wx_past_1" value="6"/>
+    </entry>
+    <entry indexRange="7" description="Snow, or rain and snow mixed">
+        <mappedValue parameter="wx_past_1" value="7"/>
+    </entry>
+    <entry indexRange="8" description="Shower(s)">
+        <mappedValue parameter="wx_past_1" value="8"/>
+    </entry>
+    <entry indexRange="9" description="Thunderstorm(s) with or without precipitation">
+        <mappedValue parameter="wx_past_1" value="9"/>
+    </entry>
+    <entry indexRange="10" description="No significant weather observed">
+        <mappedValue parameter="wx_past_1" />
+    </entry>
+    <entry indexRange="11" description="VISIBILITY REDUCED (see Note)">
+        <mappedValue parameter="wx_past_1" />
+    </entry>
+    <entry indexRange="12" description="Blowing phenomena, visibility reduced">
+        <mappedValue parameter="wx_past_1" value="3"/>
+    </entry>
+    <entry indexRange="13" description="FOG (see Note)">
+        <mappedValue parameter="wx_past_1" value="4"/>
+    </entry>
+    <entry indexRange="14" description="PRECIPITATION (see Note)">
+        <mappedValue parameter="wx_past_1" value="6"/>
+    </entry>
+    <entry indexRange="15" description="Drizzle">
+        <mappedValue parameter="wx_past_1" value="5"/>
+    </entry>
+    <entry indexRange="16" description="Rain">
+        <mappedValue parameter="wx_past_1" value="6"/>
+    </entry>
+    <entry indexRange="17" description="Snow or ice pellets">
+        <mappedValue parameter="wx_past_1" value="7"/>
+    </entry>
+    <entry indexRange="18" description="Showers or intermittent precipitation">
+        <mappedValue parameter="wx_past_1" value="8"/>
+    </entry>
+    <entry indexRange="19" description="Thunderstorm">
+        <mappedValue parameter="wx_past_1" value="9"/>
+    </entry>
+    <entry indexRange="20-30" description="Reserved">
+        <mappedValue parameter="wx_past_1" />
+    </entry>
+    <entry indexRange="31" description="Missing value">
+        <mappedValue parameter="wx_past_1" />
+    </entry>
+</translationTable>

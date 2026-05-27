@@ -1,0 +1,25 @@
+#  
+submenu: "SPC Convective Outlooks"
+ productButton: 5069 # PGWE46 Day 1 Convective Outlook
+ productButton: 5072 # PGWI47 Day 2 Convective Outlook
+ productButton: 5385 # PGWK48 Day 3 Convective Outlook
+ productButton: 5067 # PGWB44 Thunderstorm Prob
+ productButton: 5068 # PGWB45 Severe Tstm Prob
+ productButton: 5376 # PENE00 Day 1 Hail Outlook
+ productButton: 5377 # PWNE00 Day 1 Convective Wind Outlook
+ productButton: 5378 # PGNE00 Day 1 Tornado Outlook
+ productButton: 5379 # PGNI00 Day 2 Combined Severe Outlook
+ productButton: 5384 # PZNK00 Day 3 Combined Severe Outlook
+# productButton: 5430 # PGNM98 Day 4-8 Composite Severe Outlook
+ productButton: 5440 # PGNW49 Day 4 Severe Outlook
+ productButton: 5441 # PGNW50 Day 5 Severe Outlook
+ productButton: 5442 # PGNW51 Day 6 Severe Outlook
+ productButton: 5443 # PGNW52 Day 7 Severe Outlook
+ productButton: 5444 # PGNW53 Day 8 Severe Outlook
+ productButton: 5390 # PGNA00 Active Mesoscale Disc Summary
+endSubmenu
+submenu: "Fire Weather"
+ productButton: 5370 # PMWE98 Day 1 outlook
+ productButton: 5371 # PMWI98 Day 2 outlook
+ productButton: 5431 # PGNO98 Day 3-8 outlook
+endSubmenu

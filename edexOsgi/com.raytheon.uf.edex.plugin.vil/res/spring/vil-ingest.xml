@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+   <bean id="vilGenerator" class="com.raytheon.uf.edex.plugin.vil.VILGenerator"/>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="vil-camel" />
+        <constructor-arg ref="vilGenerator" />
+    </bean>
+
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+        <constructor-arg ref="vilGenerator"/>
+    </bean>
+
+    <bean id="vil-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.vil.VILCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

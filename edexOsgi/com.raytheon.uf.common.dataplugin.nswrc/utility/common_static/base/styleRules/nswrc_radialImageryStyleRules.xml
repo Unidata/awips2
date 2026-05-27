@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!--
+/*
+ * The following software products were developed by Raytheon:
+ *
+ * ADE (AWIPS Development Environment) software
+ * CAVE (Common AWIPS Visualization Environment) software
+ * EDEX (Environmental Data Exchange) software
+ * uFrame™ (Universal Framework) software
+ *
+ * Copyright (c) 2013 Raytheon Co.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/org/documents/epl-v10.php
+ *
+ *
+ * Contractor Name: Raytheon Company
+ * Contractor Address:
+ * 2120 South 72nd Street
+ * Omaha Tower, Suite 900
+ * Omaha, NE 68124 USA
+ * 402.291.0100
+ *
+ */
+    -->
+<styleRuleset>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CorrectedReflectivity</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-2</minValue>
+				<maxValue>77</maxValue>
+			</range>
+			<defaultColormap>netcdf_radar/Reflectivity</defaultColormap>
+			<colorbarLabeling>
+				<values>0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Reflectivity</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-2</minValue>
+				<maxValue>77</maxValue>
+			</range>
+			<defaultColormap>netcdf_radar/Reflectivity</defaultColormap>
+			<colorbarLabeling>
+				<values>0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Power</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dB</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-100</minValue>
+				<maxValue>0</maxValue>
+			</range>
+			<defaultColormap>netcdf_radar/Power</defaultColormap>
+			<colorbarLabeling>
+				<values>0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Velocity</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>m/s</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-65</minValue>
+				<maxValue>65</maxValue>
+			</range>
+			<defaultColormap>netcdf_radar/Nexrad_Velocity</defaultColormap>
+			<colorbarLabeling>
+				<values>-64 -50 -36 -26 -20 -10 0 10 20 26 36 50 64</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SpectralWidth</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Radar/Spectrum Width</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="" />
+				<entry pixelValue="2" displayValue="0" label=""/>
+				<entry pixelValue="16" displayValue="0.00001" label="0"/>
+				<entry pixelValue="32" displayValue="4" />
+				<entry pixelValue="48" displayValue="8" />
+				<entry pixelValue="64" displayValue="12" />
+				<entry pixelValue="80" displayValue="16" />
+				<entry pixelValue="96" displayValue="20" />
+				<entry pixelValue="112" displayValue="35" />
+				<entry pixelValue="127" displayValue="80" label='' />
+				<entry label="RF" pixelValue="136" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>	
+</styleRuleset>

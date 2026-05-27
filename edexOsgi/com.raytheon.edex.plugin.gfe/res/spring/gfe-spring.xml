@@ -1,0 +1,54 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="smartInit" />
+        <constructor-arg value="smartInit.*" />
+    </bean>
+
+    <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
+        depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized, dataStorageAuditerContainer" />
+
+    <bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue" factory-method="createQueue"/>
+
+    <bean id="gfeSitesActiveIngest" factory-bean="siteAwareRegistry" factory-method="register"
+            depends-on="smartInitQueue, gfeActivationAsyncIngest">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+
+    <bean id="gfeActivationAsyncIngest" factory-bean="contextManager" factory-method="registerAsyncStartupBean">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+
+    <bean id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv" factory-method="createServer" depends-on="gfeDbRegistered, gfeSitesActiveIngest">
+        <property name="pendingInitMinTimeMillis" value="120000"/>
+        <property name="runningInitTimeOutMillis" value="600000"/>
+        <property name="threadSleepInterval" value="30000"/>
+        <property name="threadCount" value="${smartinit.threads}"/>
+    </bean>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="gfe-camel-spring"/>
+        <constructor-arg ref="smartInitSrv"/>
+    </bean>
+
+    <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.watch.SPCWatchSrv"/>
+    <bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.watch.TPCWatchSrv"/>
+    <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.watch.WCLWatchSrv"/>
+
+    <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
+    
+    <bean id="gfe-camel-spring" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.gfe.GfeCamelSpringRoutes" />
+        </constructor-arg>
+    </bean>
+    
+    <bean id="clusteredGfeIngestRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.gfe.ClusteredGfeIngestRoutes" />
+        </constructor-arg>
+    </bean>
+
+</beans>

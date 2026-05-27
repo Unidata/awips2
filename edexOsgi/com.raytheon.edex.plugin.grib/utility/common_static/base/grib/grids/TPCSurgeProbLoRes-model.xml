@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lambertConformalGridCoverage>
+    <name>375</name>
+    <description>TPCSurgeProbLoRes</description>
+    <la1>22.932105</la1>
+    <lo1>-99.982636</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>1423</nx>
+    <ny>1450</ny>
+    <dx>2.539703</dx>
+    <dy>2.539703</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371200</minorAxis>
+    <majorAxis>6371200</majorAxis>
+    <lov>-95.0</lov>
+    <latin1>25.0</latin1>
+    <latin2>25.0</latin2>   
+</lambertConformalGridCoverage>

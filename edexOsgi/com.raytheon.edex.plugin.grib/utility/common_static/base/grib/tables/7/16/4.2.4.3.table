@@ -1,0 +1,12 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 3: Electric and Magnetic Fields
+0:0:Magnetic Field Magnitude:T:BTOT
+1:1:1st Vector Component of Magnetic Field:T:BVEC1
+2:2:2nd Vector Component of Magnetic Field:T:BVEC2
+3:3:3rd Vector Component of Magnetic Field:T:BVEC3
+4:4:Electric Field Magnitude:V*m^1:ETOT
+5:5:1st Vector Component of Electric Field:V*m^1:EVEC1
+6:6:2nd Vector Component of Electric Field:V*m^1:EVEC2
+7:7:3rd Vector Component of Electric Field:V*m^1:EVEC3
+# 8-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing

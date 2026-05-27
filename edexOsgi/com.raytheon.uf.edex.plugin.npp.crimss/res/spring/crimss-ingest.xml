@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="crimssDecoder" class="com.raytheon.uf.edex.plugin.npp.sounding.NPPSoundingDecoder">
+        <constructor-arg ref="crimssPluginName" />
+    </bean>
+
+    <bean id="crimssDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="crimssPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.crimss" />
+    </bean>
+
+     <bean id="crimss-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.npp.crimss.CrimssCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

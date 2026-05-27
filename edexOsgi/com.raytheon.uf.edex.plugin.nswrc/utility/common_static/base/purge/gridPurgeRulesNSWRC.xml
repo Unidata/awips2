@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+	<key>info.datasetId</key>
+	<rule>
+		<keyValue>nswrc_gridded</keyValue>
+		<period>00-03:00:00</period>
+	</rule>
+</purgeRuleSet>

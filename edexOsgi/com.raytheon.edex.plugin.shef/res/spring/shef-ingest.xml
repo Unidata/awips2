@@ -1,0 +1,74 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="shef" />
+        <constructor-arg value="Ingest.Shef.*" />
+    </bean>
+
+    <bean id="shefDecoder" class="com.raytheon.edex.plugin.shef.ShefDecoder">
+        <constructor-arg value="shef" />
+    </bean>
+
+    <bean id="shefSeparator" class="com.raytheon.edex.plugin.shef.ShefSeparator" />
+    
+    <bean id="appsDefaults" class="com.raytheon.uf.common.ohd.AppsDefaults" factory-method="getInstance"/>
+    
+    <bean id="configReader" class="com.raytheon.edex.transform.shef.obs.MetarToShefConfigReader" />
+    
+    <bean id="metarToShef" class="com.raytheon.edex.transform.shef.MetarToShefTransformer">
+        <constructor-arg type="java.lang.String"
+            value=" -a -b -p1 -p6 -p24 -round -w -strip " />
+        <constructor-arg ref="appsDefaults" />
+        <constructor-arg ref="configReader" />
+    </bean>
+
+    <bean id="metarToShefFilter"
+        class="com.raytheon.edex.transform.shef.MetarToShefFilter">
+        <constructor-arg type="java.lang.String" value="metarToShefFilter.xml" />
+    </bean>
+
+    <bean id="synopticToShef" class="com.raytheon.edex.transform.shef.SMToShefTransformer">
+        <constructor-arg type="java.lang.String"
+            value=" -a -v -b -p1 -p6 -p24 -round -w -strip " />
+        <constructor-arg ref="appsDefaults" />
+        <constructor-arg ref="configReader" />
+    </bean>
+
+    <bean id="synopticToShefFilter"
+        class="com.raytheon.edex.transform.shef.SynopticToShefFilter">
+        <constructor-arg type="java.lang.String" value="synopticToShefFilter.xml" />
+    </bean>
+
+    <bean id="shefDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="shef" />
+        <constructor-arg
+            value="jms-durable:queue:Ingest.Shef"/>
+    </bean>
+
+    <bean id="shefHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
+        factory-method="register">
+        <constructor-arg value="shef" />
+        <constructor-arg value="jms-durable:queue:Ingest.Shef"/>
+    </bean>
+
+    <bean id="shefFileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy">
+         <constructor-arg value="5000" />
+    </bean>
+
+    <bean id="clusteredShefManualProc" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.shef.ClusteredShefManualProcRoutes" >
+               <constructor-arg name="edexHome" value="${edex.home}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="shef-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.shef.ShefCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

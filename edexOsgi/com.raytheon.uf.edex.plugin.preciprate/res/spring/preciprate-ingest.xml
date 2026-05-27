@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+   <bean id="preciprateGenerator" class="com.raytheon.uf.edex.plugin.preciprate.PrecipRateGenerator"/>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="preciprate-camel" />
+        <constructor-arg ref="preciprateGenerator" />
+    </bean>
+
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+        <constructor-arg ref="preciprateGenerator"/>
+    </bean>
+
+    <bean id="preciprate-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.preciprate.PreciprateCamelRoutes" />
+        </constructor-arg>
+    </bean>
+</beans>

@@ -1,0 +1,22 @@
+<configuration debug="false" scan="true" packagingData="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/${LOG_APPENDERS_CONFIG}" />
+   
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
+
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
+      <defaultAppenderName>asyncConsole</defaultAppenderName>
+      <appender-ref ref="asyncConsole"/>
+   </appender>
+  
+   <logger name="edu" level="WARN" />
+
+   <logger name="org.apache.cxf" level="ERROR" />
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="ThreadBasedLog"/>
+    </root> 
+</configuration> 

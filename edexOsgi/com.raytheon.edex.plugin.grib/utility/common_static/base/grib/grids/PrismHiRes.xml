@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGridCoverage>
+    <name>PrismHiRes</name>
+    <description/>
+    <la1>24.070833</la1>
+    <lo1>-125.020833</lo1>
+    <nx>7025</nx>
+    <ny>3105</ny>
+    <dx>0.008333</dx>
+    <dy>0.008333</dy>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>

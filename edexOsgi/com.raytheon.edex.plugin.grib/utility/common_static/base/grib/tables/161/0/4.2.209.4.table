@@ -1,0 +1,5 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 4: Satellite Products
+0:0:Infrared Imagery:K:IRBand4
+1:1:Visible Imagery::Visible
+2:2:Water Vapor Imagery:K:WaterVapor
+3:3:Cloud Cover:K:CloudCover
