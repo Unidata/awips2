@@ -5,5 +5,5 @@
 // Generated on: 2012.01.10 at 11:00:08 AM CST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.opengis.net/gml/3.2", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@jakarta.xml.bind.annotation.XmlSchema(namespace = "http://www.opengis.net/gml/3.2", elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package net.opengis.gml._3;

@@ -3,13 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FFMP common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ffmp
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.dataplugin.ffmp,
  com.raytheon.uf.common.dataplugin.ffmp.collections,
  com.raytheon.uf.common.dataplugin.ffmp.dataaccess,
  com.raytheon.uf.common.dataplugin.ffmp.request
-Require-Bundle: javax.persistence,
+Require-Bundle: jakarta.persistence,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.localization,
@@ -19,7 +20,7 @@ Require-Bundle: javax.persistence,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataaccess,
- com.google.guava;bundle-version="32.0.0",
+ com.google.guava;bundle-version="33.5.0",
  javax.measure,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.dataquery,

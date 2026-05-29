@@ -10,7 +10,7 @@
         <property name="record"    value="com.raytheon.uf.common.dataplugin.ldadhydro.HydroLdadRecord" />
     </bean>
 
-    <bean factory-bean="pluginRegistry" factory-method="register">
+    <bean id="ldadhydroRegistered" factory-bean="pluginRegistry" factory-method="register">
         <constructor-arg value="ldadhydro" />
         <constructor-arg ref="hydroProperties" />
     </bean>

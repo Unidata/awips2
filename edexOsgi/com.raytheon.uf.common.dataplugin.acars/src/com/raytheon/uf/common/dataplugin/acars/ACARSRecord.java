@@ -21,20 +21,21 @@ package com.raytheon.uf.common.dataplugin.acars;
 
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.Index;
+import org.locationtech.jts.geom.Geometry;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -43,14 +44,13 @@ import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * Record object for Aircraft Communications Addressing and Reporting System
  * data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#  Engineer    Description
  * ------------ -------- ----------- --------------------------
@@ -68,27 +68,26 @@ import org.locationtech.jts.geom.Geometry;
  * Jun 11, 2014  2061    bsteffen    Remove IDecoderGettable, drop datauri
  * Jul 22, 2014  3392    nabowle     Change Double fields to Float.
  * Jul 16, 2015  4360    rferrel     tailNumber no longer nullable and unique constraints named.
- * 
- * 
+ * Aug 08, 2022  8892    tjensen     Update indexes for Hibernate 5
+ *
  * </pre>
- * 
+ *
  * @author jkorman
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "acarsseq")
-@Table(name = "acars", uniqueConstraints = { @UniqueConstraint(name = "uk_acars_datauri_fields", columnNames = {
-        "refTime", "tailNumber", "flightLevel", "latitude", "longitude" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
-@org.hibernate.annotations.Table(appliesTo = "acars", indexes = { @Index(name = "acars_refTimeIndex", columnNames = { "refTime" }) })
+@Table(name = "acars", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_acars_datauri_fields", columnNames = {
+                "refTime", "tailNumber", "flightLevel", "latitude",
+                "longitude" }) }, indexes = {
+                        @Index(name = "%TABLE%_refTimeIndex", columnList = "refTime"),
+                        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
-        Comparable<ACARSRecord> {
+public class ACARSRecord extends PluginDataObject
+        implements ISpatialEnabled, Comparable<ACARSRecord> {
 
     private static final long serialVersionUID = 1L;
 
@@ -230,7 +229,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
-     * 
+     *
      * @param uri
      *            A data uri applicable to this class.
      */
@@ -292,7 +291,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @return
      */
     public AircraftObsLocation getLocation() {
@@ -300,7 +299,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @param location
      */
     public void setLocation(AircraftObsLocation location) {
@@ -309,7 +308,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get this observation's geometry.
-     * 
+     *
      * @return The geometry for this observation.
      */
     public Geometry getGeometry() {
@@ -318,7 +317,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -327,7 +326,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -336,7 +335,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Boolean getLocationDefined() {
@@ -345,7 +344,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Integer getFlightLevel() {
@@ -353,7 +352,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @return
      */
     public String getFlightNumber() {
@@ -362,7 +361,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the receiving station.
-     * 
+     *
      * @return the receiver
      */
     public String getReceiver() {
@@ -371,7 +370,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Set the receiving station.
-     * 
+     *
      * @param receiver
      *            the receiver to set
      */
@@ -590,7 +589,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @return the rollAngleQuality
      */
     public Integer getRollAngleQuality() {
@@ -598,7 +597,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @param rollAngleQuality
      *            the rollAngleQuality to set
      */
@@ -621,11 +620,6 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
         this.usedInSounding = usedInSounding;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -637,11 +631,6 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -671,13 +660,10 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
         return true;
     }
 
-    /**
-     *
-     */
     @Override
     public int compareTo(ACARSRecord other) {
         int result = 0;
-        if (this == other) {
+        if (this.equals(other)) {
             result = 0;
         } else {
             if (getTailNumber().equals(getTailNumber())) {

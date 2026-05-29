@@ -26,7 +26,7 @@
     -->
 <latLonGridCoverage>
     <name>RTOFS-GulfMexico</name>
-    <description>Gulf of Mexico Real Time Ocean Forecast System</description>
+    <description>Gulf of America Real Time Ocean Forecast System</description>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <spacingUnit>degree</spacingUnit>
     <la1>15</la1>

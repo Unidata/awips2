@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;

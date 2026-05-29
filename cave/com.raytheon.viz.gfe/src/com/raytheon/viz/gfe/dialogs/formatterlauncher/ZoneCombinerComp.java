@@ -56,8 +56,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;

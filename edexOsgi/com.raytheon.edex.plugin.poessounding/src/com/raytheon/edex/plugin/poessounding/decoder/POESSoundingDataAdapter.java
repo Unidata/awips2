@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.poessounding.dao.POESSoundingDAO;
 import com.raytheon.uf.common.dataplugin.poessounding.POESSounding;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.geospatial.spi.SPIContainer;
 import com.raytheon.uf.common.geospatial.spi.SPIEntry;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -46,7 +47,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs

@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hydrocommon Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.hydro
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.geotools,
  com.raytheon.uf.common.geospatial,
@@ -10,8 +11,8 @@ Require-Bundle: org.geotools,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.status,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.hydro,
  com.raytheon.uf.common.hydro.areal,

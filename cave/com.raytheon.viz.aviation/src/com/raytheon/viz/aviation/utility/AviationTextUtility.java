@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import com.raytheon.uf.common.aviation.avnconfig.ITafSiteConfig;
 import com.raytheon.uf.common.aviation.avnconfig.TafSiteConfigFactory;
@@ -56,6 +56,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Feb 12, 2016 4860        skorolev    Added CAVE mode. Corrected setting of siteWmoId.
  * Feb 15, 2016 4860        njensen     Move to aviation plugin, made static
  * May 15, 2019 20693    mgamazaychikov ITafSiteConfig, TafSiteConfigFactory, TafSiteData refactor
+ * Jul 08, 2025 2036453     aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 

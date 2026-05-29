@@ -22,7 +22,7 @@ package com.raytheon.viz.texteditor.qc;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * TODO Add Description

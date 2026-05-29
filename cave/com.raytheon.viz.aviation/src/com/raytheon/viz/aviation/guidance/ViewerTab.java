@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -65,6 +65,7 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  *                                     methods to the HeaderTextComp class.
  * May 15, 2019 20693   mgamazaychikov ITafSiteConfig, TafSiteConfigFactory, TafSiteData refactor
  * Jul 31, 2019  7878      tgurney     Handle pickled Python objects as byte[]
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  *

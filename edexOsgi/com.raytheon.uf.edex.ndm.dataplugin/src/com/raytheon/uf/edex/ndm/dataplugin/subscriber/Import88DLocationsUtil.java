@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.opengis.feature.Property;
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.Property;
+import org.geotools.api.feature.simple.SimpleFeature;
 
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;

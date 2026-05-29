@@ -50,10 +50,10 @@ overrides = """
         return "central west Florida"
 
     def _maor_descriptor(self):
-        return "west central Florida and the Gulf of Mexico"
+        return "west central Florida and the Gulf of America"
 
     def _cwa_maor_descriptor(self):
-        return "west Florida and the Gulf of Mexico"
+        return "west Florida and the Gulf of America"
 
     def _localReferencePoints(self):
         # Give the name and lat/lon for each local reference point

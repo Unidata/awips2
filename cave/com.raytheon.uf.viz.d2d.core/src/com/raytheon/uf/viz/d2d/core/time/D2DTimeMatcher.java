@@ -30,10 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
@@ -47,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTimeComparator;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -68,6 +66,10 @@ import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 /**
  * Performs D2D-style time matching
@@ -102,6 +104,8 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * Nov 14, 2022  8971     mapeters   Prevent deadlock introduced under 8959.
  * Dec 04, 2023  2036544  mapeters   Fix time match basis determination in
  *                                   updateAndApplyFrozenLevels()
+ * Mar 06, 2025  2038488  mapeters   Ensure non-basis resources have their level frozen
+ *                                   when first loaded
  *
  * </pre>
  *
@@ -220,7 +224,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      * null value indicates that the time match basis uses that level type, so
      * it is not frozen.
      */
-    private final Map<String, Double> frozenLevels = new HashMap<>();
+    protected final Map<String, Double> frozenLevels = new HashMap<>();
 
     /**
      * Lock object for frozenLevels and level values in {@link TimeCache}
@@ -261,18 +265,16 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      * recursively checking for {@link IResourceGroup}s in the group's list
      *
      */
-    private boolean contained(IResourceGroup group,
+    private static boolean contained(IResourceGroup group,
             AbstractVizResource<?, ?> resource) {
         ResourceList list = group.getResourceList();
         if (list.containsRsc(resource)) {
             return true;
         } else {
             for (ResourcePair rp : list) {
-                if (rp.getResourceData() instanceof IResourceGroup) {
-                    if (contained((IResourceGroup) rp.getResourceData(),
-                            resource)) {
-                        return true;
-                    }
+                if (rp.getResourceData() instanceof IResourceGroup innerGroup
+                        && contained(innerGroup, resource)) {
+                    return true;
                 }
             }
         }
@@ -377,41 +379,131 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             }
         }
 
-        if (rsc != timeMatchBasis) {
-            TimeMatchingConfiguration config = getConfiguration(
-                    rsc.getLoadProperties());
-            TimeCache timeCache = getTimeCache(rsc);
-            synchronized (timeCache) {
-                DataTime[] timeSteps = getFrameTimes(descriptor, timeMatchBasis,
-                        framesInfo, frameTimesSource);
-                if (Arrays.equals(timeSteps, timeCache.getLastBaseTimes())) {
-                    framesInfo.getTimeMap().put(rsc,
-                            timeCache.getLastFrameTimes());
-                } else {
-                    config = config.clone();
+        if (rsc == timeMatchBasis) {
+            return;
+        }
 
-                    DataTime[] times = config.getDataTimes();
-                    if (ArrayUtils.isEmpty(times)) {
-                        times = getLatestTimes(rsc, timeSteps);
+        TimeMatchingConfiguration config = getConfiguration(
+                rsc.getLoadProperties());
+        TimeCache timeCache = getTimeCache(rsc);
+        synchronized (timeCache) {
+            DataTime[] timeSteps = getFrameTimes(descriptor, timeMatchBasis,
+                    framesInfo, frameTimesSource);
+            if (Arrays.equals(timeSteps, timeCache.getLastBaseTimes())) {
+                framesInfo.getTimeMap().put(rsc, timeCache.getLastFrameTimes());
+            } else {
+                config = config.clone();
+                DataTime[] availableTimes = config.getDataTimes();
+                if (ArrayUtils.isEmpty(availableTimes)) {
+                    availableTimes = getLatestTimes(rsc, timeSteps);
+                }
+                DataTime[] frozenAvailableTimes = updateAndApplyFrozenLevels(
+                        rsc, availableTimes, false);
+                if (frozenAvailableTimes != null) {
+                    /*
+                     * Times were successfully frozen to a single level, use
+                     * them. Otherwise we will make an initial overlay list from
+                     * all available times and then freeze them below.
+                     */
+                    availableTimes = frozenAvailableTimes;
+                }
+                config.setDataTimes(availableTimes);
+                populateConfiguration(config);
+                TimeMatcher tm = new TimeMatcher();
+                if (rsc instanceof ID2DTimeMatchingExtension d2dExtension) {
+                    d2dExtension.modifyTimeMatching(this, rsc, tm);
+                }
+                DataTime[] overlayTimes = tm.makeOverlayList(config, timeSteps);
+                if (frozenAvailableTimes == null) {
+                    /*
+                     * We failed to freeze the available times above. Use the
+                     * overlay times that were calculated from all the available
+                     * times in order to determine a frozen level to use/cache
+                     * and then recalculate valid overlay times, if necessary.
+                     */
+                    frozenAvailableTimes = updateAndApplyFrozenLevelsAfterOverlay(
+                            rsc, availableTimes, overlayTimes);
+                    if (frozenAvailableTimes != null) {
+                        availableTimes = frozenAvailableTimes;
+                        config = config.clone();
+                        config.setDataTimes(availableTimes);
+                        populateConfiguration(config);
+                        overlayTimes = tm.makeOverlayList(config, timeSteps);
                     }
-                    times = updateAndApplyFrozenLevels(rsc, times, false);
-                    config.setDataTimes(times);
+                }
+                timeCache.setTimes(timeSteps, overlayTimes);
+                framesInfo.getTimeMap().put(rsc, overlayTimes);
+            }
+        }
+    }
 
-                    populateConfiguration(config);
-                    TimeMatcher tm = new TimeMatcher();
-                    if (rsc instanceof ID2DTimeMatchingExtension) {
-                        ((ID2DTimeMatchingExtension) rsc)
-                                .modifyTimeMatching(this, rsc, tm);
-                    }
-                    DataTime[] overlayDates = tm.makeOverlayList(
-                            config.getDataTimes(), config.getClock(), timeSteps,
-                            config.getLoadMode(), config.getForecast(),
-                            config.getDelta(), config.getTolerance());
-                    timeCache.setTimes(timeSteps, overlayDates);
-                    framesInfo.getTimeMap().put(rsc, overlayDates);
+    /**
+     * Update and apply frozen levels after an initial overlay has been done
+     * from the un-filtered/multi-level available times, due to the initial
+     * {@link #updateAndApplyFrozenLevels} failing to determine a level to
+     * freeze to.
+     *
+     * This should only ever be called for non-basis resources, since the
+     * initial update-and-apply should never fail for the time match basis.
+     *
+     * This method only exists to try to ensure that we freeze to a level that
+     * is actually available for the frame times and that would normally be
+     * selected by the underlying TimeMatcher logic. Otherwise, we could just
+     * freeze to an arbitrary level from the available times in the initial
+     * update-and-apply.
+     *
+     * @param rsc
+     *            the non-basis resource whose times we are working with
+     * @param availableTimes
+     *            the multi-level available times for the resource
+     * @param overlayTimes
+     *            initial overlay times calculated from the multi-level
+     *            available times
+     * @return filtered available times if another overlay needs to be done from
+     *         them, null if initial overlay times are good as-is
+     */
+    protected DataTime[] updateAndApplyFrozenLevelsAfterOverlay(
+            AbstractVizResource<?, ?> rsc, DataTime[] availableTimes,
+            DataTime[] overlayTimes) {
+        // Grab most common level value in overlay times
+        Stream<Pair<String, Double>> overlayLevels = Arrays.stream(overlayTimes)
+                .filter(t -> t != null && t.isSpatial()).map(t -> ImmutablePair
+                        .of(t.getLevelType(), t.getLevelValue()));
+        Pair<String, Double> mostCommonOverlayLevel = CollectionUtil
+                .getMostCommonElement(overlayLevels);
+
+        // Cache most common level as frozen level
+        Double frozenLevelCached = null;
+        if (mostCommonOverlayLevel != null) {
+            synchronized (levelLock) {
+                IDescriptor desc = rsc.getDescriptor();
+                /*
+                 * Ensure resource is still in descriptor to prevent a
+                 * (theoretical) race condition between handleRemove and here
+                 * that could cause us to freeze a level type that has no active
+                 * resources
+                 */
+                if (desc != null && contained(desc, rsc)) {
+                    frozenLevelCached = mostCommonOverlayLevel.getRight();
+                    frozenLevels.put(mostCommonOverlayLevel.getLeft(),
+                            frozenLevelCached);
                 }
             }
         }
+
+        /*
+         * If any of the previously calculated overlay times don't match the
+         * frozen level, filter the available times and return them for the
+         * caller to recalculate overlay times
+         */
+        Double frozenLevelCachedFinal = frozenLevelCached;
+        if (frozenLevelCached != null && Arrays.stream(overlayTimes)
+                .anyMatch(date -> date != null && !frozenLevelCachedFinal
+                        .equals(date.getLevelValue()))) {
+            return filterTimesByFrozenLevel(availableTimes, frozenLevelCached);
+        }
+        // Return null to indicate that initial overlay times are good as-is
+        return null;
     }
 
     /**
@@ -551,15 +643,11 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      */
     private Pair<AbstractVizResource<?, ?>, DataTime[]> findNewBasis(
             ResourceList resourceList, int numberOfFrames) {
-
         /*
          * Sorting the resources into load order will put any resources that
          * have time match basis set in their resource properties to be first.
          */
-        Iterator<ResourcePair> pairIterator = getResourceLoadOrder(resourceList)
-                .iterator();
-        while (pairIterator.hasNext()) {
-            ResourcePair pair = pairIterator.next();
+        for (ResourcePair pair : getResourceLoadOrder(resourceList)) {
             AbstractVizResource<?, ?> rsc = pair.getResource();
             if (rsc == null) {
                 continue;
@@ -752,6 +840,12 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      * Update the map of frozen levels for the given resource, and filter the
      * given times by the frozen levels.
      *
+     * This may fail to determine the level to freeze non-basis resources to,
+     * particularly when they are first loaded. Null is returned in that case,
+     * and the caller should then determine and cache the frozen level and
+     * filter the times accordingly (using
+     * {@link updateAndApplyFrozenLevelsAfterOverlay}).
+     *
      * @param rsc
      *            the resource whose times we are working with
      * @param availableTimes
@@ -759,13 +853,14 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      * @param isBasis
      *            true if the given resource is the time match basis, false
      *            otherwise
-     * @return the filtered available times
+     * @return filtered available times if successful, otherwise null
      */
-    private DataTime[] updateAndApplyFrozenLevels(AbstractVizResource<?, ?> rsc,
-            DataTime[] availableTimes, boolean isBasis) {
+    protected DataTime[] updateAndApplyFrozenLevels(
+            AbstractVizResource<?, ?> rsc, DataTime[] availableTimes,
+            boolean isBasis) {
 
         if (ArrayUtils.isEmpty(availableTimes)) {
-            return availableTimes;
+            return new DataTime[0];
         }
 
         TimeCache timeCache = getTimeCache(rsc);
@@ -775,6 +870,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
          * method can't run on multiple threads itself since it always runs
          * within redoTimeMatching which syncs on "this".
          */
+        boolean success = true;
         synchronized (levelLock) {
             String levelType = availableTimes[0].getLevelType();
             boolean multipleLevelsAvailable = hasMultipleLevels(availableTimes);
@@ -805,7 +901,13 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                      * and doesn't match the level type of the basis)
                      */
                     IDescriptor descriptor = rsc.getDescriptor();
-                    if (descriptor != null) {
+                    /*
+                     * Ensure resource is still in descriptor to prevent a
+                     * (theoretical) race condition between handleRemove and
+                     * here that could cause us to freeze a level type that has
+                     * no active resources
+                     */
+                    if (descriptor != null && contained(descriptor, rsc)) {
                         DataTime rscTime = descriptor.getTimeForResource(rsc);
                         /*
                          * isSpatial check specifically needed when enabling
@@ -814,6 +916,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                         if (rscTime != null && rscTime.isSpatial()) {
                             frozenLevels.put(levelType,
                                     rscTime.getLevelValue());
+                        } else {
+                            success = false;
                         }
                     }
                 }
@@ -825,18 +929,26 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                      * unaffected by whatever a radar all tilts is frozen to.
                      */
                     Double frozenLevel = frozenLevels.get(levelType);
-                    if (frozenLevel != null) {
-                        availableTimes = Arrays.stream(availableTimes)
-                                .filter(time -> {
-                                    return frozenLevel
-                                            .equals(time.getLevelValue());
-                                }).toArray(DataTime[]::new);
-                    }
+                    availableTimes = filterTimesByFrozenLevel(availableTimes,
+                            frozenLevel);
                 }
             }
         }
 
-        return availableTimes;
+        if (success) {
+            return availableTimes;
+        }
+        return null;
+    }
+
+    protected static DataTime[] filterTimesByFrozenLevel(DataTime[] times,
+            Double frozenLevel) {
+        if (frozenLevel != null) {
+            times = Arrays.stream(times).filter(time -> {
+                return frozenLevel.equals(time.getLevelValue());
+            }).toArray(DataTime[]::new);
+        }
+        return times;
     }
 
     private static boolean hasMultipleLevels(DataTime[] times) {
@@ -1053,10 +1165,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                     descriptor.getFramesInfo().getTimeMap());
 
             TimeMatcher tm = new TimeMatcher();
-            dataTimesToLoad = tm.makeOverlayList(config.getDataTimes(),
-                    config.getClock(), existingDataTimes, config.getLoadMode(),
-                    config.getForecast(), config.getDelta(),
-                    config.getTolerance());
+            dataTimesToLoad = tm.makeOverlayList(config, existingDataTimes);
 
             if ((timeMatchBasis.getDescriptor() != null)
                     && (timeMatchBasis.getDescriptor() != descriptor)) {
@@ -1120,6 +1229,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         oldBasis.unregisterListener(timeMatchBasisDisposeListener);
     }
 
+    @Override
     public AbstractVizResource<?, ?> getTimeMatchBasis() {
         return timeMatchBasisRef.get();
     }

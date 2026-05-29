@@ -29,9 +29,9 @@ import javax.measure.UnitConverter;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
@@ -78,6 +78,7 @@ import tech.units.indriya.quantity.Quantities;
  * Apr 20, 2020  8145     randerso     Replace SamplePreferences with
  *                                     SampleFormat
  * Nov 03, 2022  8905     lsingh       Check for NaN when converting units.
+ * Jul 19, 2023  2033911  jdynina      Handle RDQVP
  *
  * </pre>
  *
@@ -285,10 +286,29 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
             RadarRecord radarRecord, ColorMapParameters params,
             Set<InterrogationKey<?>> keys) {
         UnitConverter converter = getConverter(params, radarRecord);
-        double dispVal;
+        double dispVal = 0;
         try {
-            dispVal = converter.convert(dataValue);
-        } catch (NumberFormatException e) {
+            if (radarRecord.getProductCode() == 190) {
+                dataValue = dataValue + 250;
+            } else if (radarRecord.getProductCode() == 191) {
+                if (dataValue < 0) {
+                    dataValue = dataValue * -1;
+                }
+            } else if (radarRecord.getProductCode() == 189
+                    || radarRecord.getProductCode() == 192) {
+                if (dataValue < 0) {
+                    dataValue = dataValue + 250;
+                }
+            }
+
+            if (converter != null) {
+                dispVal = converter.convert(dataValue);
+            }
+
+            if (radarRecord.getProductCode() == 191) {
+                dispVal = dispVal * -1;
+            }
+        } catch (IllegalArgumentException e) {
             dispVal = Double.NaN;
         }
         String unitString = "";

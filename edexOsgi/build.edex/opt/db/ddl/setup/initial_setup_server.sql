@@ -21,19 +21,18 @@
 --This script creates the AWIPS user, tablespace, database and objects 
 --accessed by the AWIPS Data Layer.  Use psql to execute this script as the postgres user.
 
---Create the awips user and modify passwords
-ALTER USER %{databaseUsername} with password 'postgres' login superuser createdb createrole;
+--Create the awips user
+ALTER USER %{databaseUsername} with login superuser createdb createrole;
 CREATE USER postgres superuser;
 
 -- connect as postgres user to allow rename of primary user to awipsadmin
 \c postgres postgres
 
 ALTER USER %{databaseUsername} rename to awipsadmin;
-ALTER USER awipsadmin with password 'awips';
 
 \c postgres awipsadmin
 
-CREATE USER awips with password 'awips' login; 
+CREATE USER awips;
 
 --Create the metadata tablespace
 CREATE TABLESPACE metadata owner awipsadmin location '%{tablespace_dir}%/metadata';

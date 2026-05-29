@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.edex.bufrtools.packets;
 
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
 import com.raytheon.uf.edex.bufrtools.descriptors.BUFRTableB;
 import com.raytheon.uf.edex.bufrtools.io.BUFRBitInputStream;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * <pre>

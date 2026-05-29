@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.measure.UnitConverter;
 import javax.measure.Unit;
+import javax.measure.UnitConverter;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionException;
@@ -85,7 +85,6 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.hydrocommon.util.MPEColors;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.mpe.MPECommandConstants;
@@ -156,6 +155,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jan 28, 2019  7131      tgurney      setDisplayedResource() fix casting error
  * Jan 29, 2019  7131      tgurney      reloadDqc() fix copy/paste mistake
  * Feb 3, 2022   22005     jrohwein     Now uses MPEColorManager instead of ColorManager
+ * May 05, 2025  2038780   mapeters     Remove DPA fields
  *
  * </pre>
  *
@@ -168,26 +168,26 @@ public class MPEDisplayManager {
     /** Neighboring RFCs to collaborate */
     private static final String COLLABORATION_LIST = "mpe_qpe_collaboration_list";
 
-    public static enum DisplayMode {
+    public enum DisplayMode {
         Image, Contour
-    };
+    }
 
-    public static enum GageDisplay {
+    public enum GageDisplay {
         Ids, Values, Triangles
-    };
+    }
 
-    public static enum GageColor {
+    public enum GageColor {
         Solid, Contrast, ByQC, ByValue
     }
 
-    public static enum GageMissingOptions {
+    public enum GageMissingOptions {
         MissingNone, MissingReported, MissingAll
     }
 
     /** Radar Type for Radar Coverage Map Legend **/
-    public static enum AvailableRadarGridType {
+    public enum AvailableRadarGridType {
         DUAL_POL, SINGLE_POL, SINGLE_AND_DUAL_POL, MISSING
-    };
+    }
 
     public static final String APPLICATION_NAME = "hmapmpe";
 
@@ -227,14 +227,7 @@ public class MPEDisplayManager {
     public static final DisplayFieldData[] mpe_qpe_fields;
     static {
         List<DisplayFieldData> qpeDisplayFields = new LinkedList<>();
-        qpeDisplayFields.add(DisplayFieldData.rMosaic);
-        qpeDisplayFields.add(DisplayFieldData.avgrMosaic);
-        qpeDisplayFields.add(DisplayFieldData.maxrMosaic);
-        qpeDisplayFields.add(DisplayFieldData.bMosaic);
-        qpeDisplayFields.add(DisplayFieldData.lMosaic);
         qpeDisplayFields.add(DisplayFieldData.gageOnly);
-        qpeDisplayFields.add(DisplayFieldData.mMosaic);
-        qpeDisplayFields.add(DisplayFieldData.mlMosaic);
         qpeDisplayFields.add(DisplayFieldData.satPre);
         if (Boolean.TRUE
                 .equals(AppsDefaultsConversionWrapper.getPropertyAsBoolean(
@@ -242,9 +235,7 @@ public class MPEDisplayManager {
             qpeDisplayFields.add(DisplayFieldData.goesRSatPre);
         }
         qpeDisplayFields.add(DisplayFieldData.lsatPre);
-        qpeDisplayFields.add(DisplayFieldData.srMosaic);
         qpeDisplayFields.add(DisplayFieldData.sgMosaic);
-        qpeDisplayFields.add(DisplayFieldData.srgMosaic);
         qpeDisplayFields.add(DisplayFieldData.p3lMosaic);
         qpeDisplayFields.add(DisplayFieldData.Xmrg);
         qpeDisplayFields.add(DisplayFieldData.rfcMosaic);
@@ -450,40 +441,32 @@ public class MPEDisplayManager {
         if (mdd != null) {
             displayedField = DisplayFieldData.fromString(mdd);
         } else {
-            displayedField = DisplayFieldData.fromString("MMOSAIC");
+            displayedField = DisplayFieldData.mdMosaic;
         }
 
         ChangeTimeProvider.update(this);
 
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                MPEDisplayManager.this.toggleDisplayMode(DisplayMode.Image);
-                if (defaultExtent == null) {
-                    IDisplayPaneContainer container = EditorUtil
-                            .getActiveVizContainer();
-                    if (container != null) {
-                        IDisplayPane pane = container.getActiveDisplayPane();
-                        if (pane != null) {
-                            setDefaultExtent(
-                                    pane.getRenderableDisplay().getExtent());
-                        }
+        VizApp.runAsync(() -> {
+            MPEDisplayManager.this.toggleDisplayMode(DisplayMode.Image);
+            if (defaultExtent == null) {
+                IDisplayPaneContainer container = EditorUtil
+                        .getActiveVizContainer();
+                if (container != null) {
+                    IDisplayPane pane = container.getActiveDisplayPane();
+                    if (pane != null) {
+                        setDefaultExtent(
+                                pane.getRenderableDisplay().getExtent());
                     }
                 }
             }
         });
 
         // Add listener so we can null out displayed resource when removed
-        display.getDescriptor().getResourceList()
-                .addPostRemoveListener(new RemoveListener() {
-                    @Override
-                    public void notifyRemove(ResourcePair rp)
-                            throws VizException {
-                        if (rp.getResource() == displayedFieldResource) {
-                            displayedFieldResource = null;
-                        }
-                    }
-                });
+        display.getDescriptor().getResourceList().addPostRemoveListener(rp -> {
+            if (rp.getResource() == displayedFieldResource) {
+                displayedFieldResource = null;
+            }
+        });
     }
 
     /**

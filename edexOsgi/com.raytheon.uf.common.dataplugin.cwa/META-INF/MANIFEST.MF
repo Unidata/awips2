@@ -8,8 +8,8 @@ Export-Package: com.raytheon.uf.common.dataplugin.cwa
 Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.pointdata,
  org.geotools,
- javax.persistence,
+ jakarta.persistence,
  javax.measure,
  com.raytheon.uf.common.dataplugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy

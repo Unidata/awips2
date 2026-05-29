@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

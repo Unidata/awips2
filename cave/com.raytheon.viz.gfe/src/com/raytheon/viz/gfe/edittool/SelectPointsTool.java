@@ -24,7 +24,7 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 
 import org.eclipse.jface.action.IMenuManager;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;

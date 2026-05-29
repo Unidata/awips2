@@ -4,7 +4,7 @@ Bundle-Name: Viz Data Access
 Bundle-SymbolicName: com.raytheon.viz.dataaccess
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.common.dataaccess,
@@ -16,7 +16,7 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.grid,
  com.raytheon.uf.common.dataplugin,
  org.eclipse.swt,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.viz.dataaccess.rsc,
  com.raytheon.viz.dataaccess.rsc.geometry,
  com.raytheon.viz.dataaccess.rsc.grid

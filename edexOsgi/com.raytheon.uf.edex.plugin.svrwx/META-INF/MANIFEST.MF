@@ -4,16 +4,17 @@ Bundle-Name: Svrwx Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.svrwx
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin.svrwx,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.edex.pointdata,
  org.geotools,
- javax.persistence,
+ jakarta.persistence,
  javax.measure,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.geospatial
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.edex.routes
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage.records,

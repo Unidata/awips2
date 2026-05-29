@@ -1,24 +1,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
-
-    <camelContext id="clusteredNdmProc"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <endpoint id="ndmFileEndpoint"
-            uri="file:${edex.home}/data/ndm?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#ndmFileChangedStrategy" />
-
-        <route id="ndmFileScan">
-            <from uri="ndmFileEndpoint" />
-            <bean ref="ndmProc" method="processEvent" />
-        </route>
-    </camelContext>
-
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredNdmProc"/>
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <bean id="clusteredNdmProc" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ndm.ClusteredNdmProcRoutes" >
+                <constructor-arg name="edexHome" value="${edex.home}" />
+            </bean>
+        </constructor-arg>
     </bean>
 
     <bean id="ndmProc" class="com.raytheon.uf.edex.ndm.ingest.NationalDatasetIngester"/>

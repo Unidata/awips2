@@ -280,10 +280,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/pyproj"
       return 0
    fi
-   if [ "${1}" = "awips2-python-configobj" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/configobj"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-pyresample" ]; then
       export RPM_SPECIFICATION="${installer_dir}/pyresample"
       return 0
@@ -457,6 +453,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/ant"
       return 0
    fi
+   if [ "${1}" = "awips2-gradle" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/gradle"
+      return 0
+   fi
    if [ "${1}" = "awips2-httpd-pypies" ]; then
       export RPM_SPECIFICATION="${installer_dir}/httpd-pypies"
       return 0
@@ -479,6 +479,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-postgresql" ]; then
       export RPM_SPECIFICATION="${installer_dir}/postgresql"
+      return 0
+   fi
+   if [ "${1}" = "awips2-ninja-build" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/ninja-build"
       return 0
    fi
    if [ "${1}" = "awips2-hdf5" ]; then

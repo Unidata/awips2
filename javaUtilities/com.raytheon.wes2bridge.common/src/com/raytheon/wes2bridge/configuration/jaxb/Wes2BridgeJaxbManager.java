@@ -21,8 +21,8 @@ package com.raytheon.wes2bridge.configuration.jaxb;
 
 import java.io.File;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.wes2bridge.common.configuration.Wes2BridgeCase;
 

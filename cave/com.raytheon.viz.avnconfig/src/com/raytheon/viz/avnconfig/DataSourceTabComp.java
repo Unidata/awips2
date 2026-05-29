@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.xml.bind.JAXB;
-
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
@@ -59,6 +57,8 @@ import com.raytheon.viz.avncommon.SyntaxMonitorCfg;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
 
+import jakarta.xml.bind.JAXB;
+
 /**
  * This is a Composite containing controls that will be displayed in the
  * TabFolder on the main display.
@@ -74,6 +74,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * 07 AUG 2014  3502       bclement    changes to StringUtil.split()
  * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
  * Feb 28, 2017 6119       tgurney     Fix list label alignment
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  *

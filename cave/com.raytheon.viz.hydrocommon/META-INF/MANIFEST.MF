@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hydrocommon Plug-in
 Bundle-SymbolicName: com.raytheon.viz.hydrocommon;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.viz.core,
@@ -26,7 +27,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.slf4j,
  org.apache.commons.lang3,
  com.raytheon.uf.viz.core.point,
- javax.xml.bind
+ jakarta.xml.bind
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.hydrocommon,
  com.raytheon.viz.hydrocommon.actions,

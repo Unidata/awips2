@@ -74,6 +74,7 @@ import com.raytheon.viz.gfe.core.IAsyncStartupObjectListener;
  *                                  initialized on a Jep thread.
  * Jan 31, 2022  8761     mapeters  Allow other plugins to contribute extra
  *                                  initializers
+ * May 12, 2025  2038249  tgurney   Add getBatchedTimeZones (performance improvement)
  *
  * </pre>
  *
@@ -387,6 +388,35 @@ public class TextProductManager implements ILocalizationPathObserver {
 
         try {
             return timeZoneJob.get();
+        } catch (InterruptedException | ExecutionException e) {
+            statusHandler.error("Exception getting time zones.", e);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public List<List<String>> getBatchedTimeZones(List<List<String>> zoneLists,
+            String officeTimeZone) {
+        CompletableFuture<List<List<String>>> job = CompletableFuture
+                .supplyAsync(() -> {
+                    try (FormatterScript script = new FormatterScriptFactory()
+                            .createPythonScript()) {
+                        Map<String, Object> map = new HashMap<>(2, 1f);
+                        map.put("zoneLists", zoneLists);
+                        map.put("officeTZ", officeTimeZone);
+                        @SuppressWarnings("unchecked")
+                        List<List<String>> timezoneLists = (List<List<String>>) script
+                                .execute("getBatchedTimeZones", map);
+                        return timezoneLists;
+                    } catch (Exception e) {
+                        statusHandler.error("Exception getting time zones.", e);
+                    }
+
+                    return Collections.emptyList();
+                });
+
+        try {
+            return job.get();
         } catch (InterruptedException | ExecutionException e) {
             statusHandler.error("Exception getting time zones.", e);
         }

@@ -3,9 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Radar as Grid Resource
 Bundle-SymbolicName: com.raytheon.uf.viz.grid.radar.rsc;singleton:=true
 Bundle-Version: 1.23.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Automatic-Module-Name: com.raytheon.uf.viz.grid.radar.rsc
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.viz.xy.crosssection,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.dataplugin,
@@ -13,7 +14,7 @@ Require-Bundle: com.raytheon.uf.viz.xy.crosssection,
  com.raytheon.viz.awipstools,
  com.raytheon.viz.grid,
  com.raytheon.uf.viz.core.rsc,
- javax.xml.bind,
+ jakarta.xml.bind,
  com.raytheon.uf.viz.grid.radar,
  com.raytheon.uf.common.inventory,
  com.raytheon.uf.common.dataplugin.grid.derivparam,

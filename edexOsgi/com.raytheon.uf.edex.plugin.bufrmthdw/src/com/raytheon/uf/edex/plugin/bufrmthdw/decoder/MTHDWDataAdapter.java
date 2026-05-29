@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.bufrmthdw.BUFRMTHDWSatType;
 import com.raytheon.uf.common.dataplugin.bufrmthdw.BufrMTHDWObs;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -35,7 +36,6 @@ import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**

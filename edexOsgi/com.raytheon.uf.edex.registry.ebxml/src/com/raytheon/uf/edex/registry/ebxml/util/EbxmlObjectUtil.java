@@ -30,14 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.dom.DOMResult;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.wsaddressing.W3CEndpointReference;
+import jakarta.xml.ws.WebServiceContext;
+import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -51,6 +50,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDestination;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager;
 
+import jakarta.servlet.http.HttpServletRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;

@@ -8,7 +8,7 @@ import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatMode;
 
 import java.nio.ByteBuffer;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 import org.junit.After;
 import org.junit.AfterClass;

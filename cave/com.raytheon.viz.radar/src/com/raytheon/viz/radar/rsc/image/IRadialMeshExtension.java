@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.FactoryException;
+import org.geotools.api.referencing.FactoryException;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.projection.RadarProjectionFactory;

@@ -97,7 +97,7 @@
 			<propertycopy name="forkCloneVm" from="@{testType}.FORK.CLONEVM" override="true" />
 
 			<junit printsummary="yes" forkmode="${forkMode}" clonevm="${forkCloneVm}" haltonfailure="no" failureproperty="tests.failed">
-				<jvmarg line="-Duser.dir=${testTypeSourceDir} -XX:PermSize=${env.INITIAL_PERMGEN_SIZE} -XX:MaxPermSize=${env.MAX_PERMGEN_SIZE}" />
+				<jvmarg line="-Duser.dir=${testTypeSourceDir}" />
 				<classpath>
 					<!-- Any resources for tests -->
 					<pathelement location="${testTypeSourceDir}" />

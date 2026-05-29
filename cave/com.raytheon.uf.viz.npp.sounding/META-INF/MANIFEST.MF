@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: NPP Viz Sounding
 Bundle-SymbolicName: com.raytheon.uf.viz.npp.sounding;singleton:=true
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.uf.viz.npp.sounding.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
@@ -22,8 +23,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.core.graphing,
  javax.measure,
  com.raytheon.uf.viz.d2d.core,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: gov.noaa.nws.ncep.edex.common.sounding
 Export-Package: com.raytheon.uf.viz.npp.sounding.rsc

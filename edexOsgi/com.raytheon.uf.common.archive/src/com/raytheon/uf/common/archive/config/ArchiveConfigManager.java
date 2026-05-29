@@ -42,8 +42,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.DataBindingException;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.DataBindingException;
+import jakarta.xml.bind.JAXB;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

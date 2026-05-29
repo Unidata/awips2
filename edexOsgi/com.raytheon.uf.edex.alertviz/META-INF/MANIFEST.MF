@@ -9,5 +9,5 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.alertviz,
  com.raytheon.uf.edex.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.edex.alertviz.handler

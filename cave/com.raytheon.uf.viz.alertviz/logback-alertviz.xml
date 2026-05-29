@@ -42,40 +42,28 @@
       <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
    
-   <logger name="AlertVizAdminLogger" additivity="false">
-      <level value="ALL"/>
+   <logger name="AlertVizAdminLogger" additivity="false" level="ALL">
       <appender-ref ref="AlertVizAdminLogAppender"/>
    </logger>
 
-   <logger name="com.raytheon">
-      <level value="INFO"/>
-   </logger>
+   <logger name="com.raytheon" level="INFO" />
 
-   <logger name="mx4j">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.apache">
-      <level value="INFO"/>
-   </logger>
-   <logger name="org.apache.commons.beanutils">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.qpid">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.geotools">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.xbean.spring">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.springframework">
-      <level value="ERROR"/>
-   </logger>
+   <logger name="mx4j" level="ERROR" />
+
+   <logger name="org.apache" level="INFO" />
+
+   <logger name="org.apache.commons.beanutils" level="WARN" />
+
+   <logger name="org.apache.qpid" level="WARN" />
+
+   <logger name="org.geotools" level="WARN" />
+
+   <logger name="org.apache.xbean.spring" level="WARN" />
+
+   <logger name="org.springframework" level="ERROR" />
 
    <!-- default logging --> 
-   <root> 
-      <level value="INFO"/> 
+   <root level="INFO"> 
       <appender-ref ref="console"/> 
       <appender-ref ref="errConsole"/>
       <appender-ref ref="consoleLog"/>

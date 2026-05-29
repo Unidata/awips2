@@ -4,7 +4,7 @@ Bundle-Name: Netcdf Grid
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.grid.netcdf
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.edex.plugin.grid.netcdf,
  com.raytheon.uf.edex.plugin.grid.netcdf.description.coverage,
  com.raytheon.uf.edex.plugin.grid.netcdf.description.product
@@ -18,4 +18,5 @@ Require-Bundle: ucar.nc2,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.util,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.8"?>
-<target includeMode="feature" name="Eclipse 4.21">
+<target includeMode="feature" name="Eclipse 4.31">
     <locations>
         <location path="/awips2/eclipse" type="Directory"/>
     </locations>
@@ -15,12 +15,13 @@
         <feature id="org.eclipse.ecf.core.feature"/>
         <feature id="org.eclipse.ecf.core.ssl.feature"/>
         <feature id="org.eclipse.ecf.filetransfer.feature"/>
-        <feature id="org.eclipse.ecf.filetransfer.httpclient45.feature"/>
+        <feature id="org.eclipse.ecf.filetransfer.httpclient5.feature"/>
         <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
         <feature id="org.eclipse.equinox.p2.core.feature"/>
         <feature id="org.eclipse.equinox.p2.extras.feature"/>
         <feature id="org.eclipse.equinox.p2.rcp.feature"/>
         <feature id="org.eclipse.equinox.p2.user.ui"/>
+        <feature id="org.eclipse.equinox.p2.discovery.feature"/>
         <feature id="org.eclipse.help"/>
         <feature id="org.eclipse.platform.source"/>
         <feature id="org.eclipse.equinox.p2.core.feature.source"/>
@@ -44,5 +45,26 @@
         <feature id="org.eclipse.equinox.executable"/>
         <plugin id="org.eclipse.jdt.launching.macosx.source"/>
         <plugin id="org.eclipse.jdt.launching.ui.macosx.source"/>
+        <plugin id="org.sat4j.core"/>
+        <plugin id="org.sat4j.pb"/>
+        <plugin id="org.eclipse.osgi.services"/>
+        <plugin id="bcprov"/>
+        <plugin id="bcpg"/>
+        <plugin id="org.python.pydev"/>
+        <plugin id="org.eclipse.search.core"/>
+        <plugin id="org.eclipse.search"/>
+        <plugin id="org.eclipse.wst.xml.ui"/>
+        <plugin id="com.ibm.icu"/>
+        <plugin id="org.eclipse.equinox.http.service.api"/>
+        <plugin id="org.osgi.service.http.whiteboard"/>
+        <plugin id="jakarta.inject.jakarta.inject-api"/>
+        <plugin id="jakarta.annotation-api"/>
+        <plugin id="org.eclipse.ui.workbench"/>
+        <plugin id="org.eclipse.orbit.xml-apis-ext"/>
+        <plugin id="org.apache.batik.css"/>
+        <plugin id="org.apache.commons.commons-io"/>
+        <plugin id="org.apache.commons.jxpath"/>
+        <plugin id="org.apache.felix.scr"/>
+        <plugin id="org.apache.commons.logging"/>
     </includeBundles>
 </target>

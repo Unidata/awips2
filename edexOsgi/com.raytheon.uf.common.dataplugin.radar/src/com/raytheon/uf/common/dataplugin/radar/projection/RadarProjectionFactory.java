@@ -19,19 +19,19 @@
  **/
 package com.raytheon.uf.common.dataplugin.radar.projection;
 
+import org.geotools.api.parameter.ParameterValueGroup;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Convenient location for building CRS and GridGeometries for radar radial
@@ -44,7 +44,8 @@ import org.locationtech.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 7, 2012            bsteffen     Initial creation
- * 
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -134,8 +135,8 @@ public class RadarProjectionFactory {
         } else {
             gridRange = new GridEnvelope2D(0, 0, angleData.length, numBins);
         }
-        Envelope2D envelope = new Envelope2D(crs, 0, 0, angleData.length,
-                numBins);
+        ReferencedEnvelope envelope = ReferencedEnvelope.rect(0, 0,
+                angleData.length, numBins, crs);
         GridToEnvelopeMapper mapper = new GridToEnvelopeMapper(gridRange,
                 envelope);
         mapper.setSwapXY(binRadial);

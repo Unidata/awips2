@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Resource;
-import javax.xml.ws.WebServiceContext;
+import jakarta.annotation.Resource;
+import jakarta.xml.ws.WebServiceContext;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;

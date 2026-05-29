@@ -26,11 +26,11 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import javax.jms.JMSException;
-import javax.jms.TextMessage;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.jms.JMSException;
+import jakarta.jms.TextMessage;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.slf4j.Marker;

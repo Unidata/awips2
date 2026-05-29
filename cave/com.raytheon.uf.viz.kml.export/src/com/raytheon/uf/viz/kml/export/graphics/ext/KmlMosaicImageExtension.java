@@ -24,11 +24,11 @@ import java.util.Comparator;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2012            bsteffen     Initial creation
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -172,11 +173,11 @@ public class KmlMosaicImageExtension extends
                     // Reproject a subgrid rather than the full grid because it
                     // is faster. The MosaicDataDestination maps the subgrid to
                     // the larger grid.
-                    GridEnvelope2D gridenv = geom.worldToGrid(new Envelope2D(
+                    GridEnvelope2D gridenv = geom.worldToGrid(new ReferencedEnvelope(
                             mesh.getLatLonEnvelope()));
                     DataDestination dest = new MosaicDataDestination(
                             mosaicComparator, fullDest, gridenv.clone());
-                    Envelope2D env = geom.gridToWorld(gridenv);
+                    ReferencedEnvelope env = geom.gridToWorld(gridenv);
                     gridenv.x = 0;
                     gridenv.y = 0;
                     GridGeometry2D newGeom = new GridGeometry2D(

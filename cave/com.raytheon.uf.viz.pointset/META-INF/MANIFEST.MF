@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: PointSet Visualization
 Bundle-SymbolicName: com.raytheon.uf.viz.pointset;singleton:=true
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin.pointset,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.dataplugin,
@@ -18,5 +19,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.pointset,
  javax.measure,
  com.raytheon.uf.common.numeric,
  com.raytheon.uf.common.util,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.common.units

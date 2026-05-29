@@ -24,7 +24,7 @@ import java.awt.Point;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;

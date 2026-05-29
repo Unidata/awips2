@@ -8,6 +8,10 @@
 # ! $4 = script directory
 # ! $5 = log file path
 # !
+
+
+source setPgHost.sh
+
 echo -----------------------------------------------------
 echo  \| Creating NCEP database and tables...
 echo -----------------------------------------------------

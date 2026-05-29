@@ -25,14 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.jts.geom.Envelope;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
@@ -77,6 +77,7 @@ import com.raytheon.viz.core.contours.ContourSupport;
  *                                  logging
  * Feb 22, 2023  9021     mapeters  Use getSliceData() to access sliceMap
  * Apr 02, 2024  2037091  mapeters  Refactor some dispose handling
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  * Aug 20, 2024  2037631  mapeters  Wrap floats and contours in new classes and move
  *                                  some paint/dispose logic into CrossSectionContour
  *
@@ -171,10 +172,10 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
                 MathTransform crs2grid = grid2crs.inverse();
 
                 // Get two opposite corners
-                DirectPosition2D minCorner = new DirectPosition2D(
-                        viewedEnv.getMinX(), viewedEnv.getMinY());
-                DirectPosition2D maxCorner = new DirectPosition2D(
-                        viewedEnv.getMaxX(), viewedEnv.getMaxY());
+                Position2D minCorner = new Position2D(viewedEnv.getMinX(),
+                        viewedEnv.getMinY());
+                Position2D maxCorner = new Position2D(viewedEnv.getMaxX(),
+                        viewedEnv.getMaxY());
 
                 // Transform the corners to grid space.
                 crs2grid.transform(minCorner, minCorner);
@@ -217,7 +218,9 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
                 // Transform back to pixel space
                 grid2crs.transform(minCorner, minCorner);
                 grid2crs.transform(maxCorner, maxCorner);
-                Envelope2D env = new Envelope2D(minCorner, maxCorner);
+                ReferencedEnvelope env = new ReferencedEnvelope(minCorner.x,
+                        maxCorner.x, minCorner.y, maxCorner.y,
+                        minCorner.getCoordinateReferenceSystem());
 
                 // make a new geometry and extent for the subgrid.
                 geometry = new GeneralGridGeometry(gridEnv, env);
@@ -254,7 +257,7 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource {
      * @param point
      *            Point to check and update.
      */
-    private void constrainPoint(DirectPosition2D point) {
+    private void constrainPoint(Position2D point) {
         // Ensure values are at least 0. Zooming near the edge of the
         // screen may cause values less than 0.
         point.x = Math.max(point.x, 0.0);

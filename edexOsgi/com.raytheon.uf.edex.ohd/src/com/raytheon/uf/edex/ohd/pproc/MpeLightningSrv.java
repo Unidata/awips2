@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.HibernateException;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;

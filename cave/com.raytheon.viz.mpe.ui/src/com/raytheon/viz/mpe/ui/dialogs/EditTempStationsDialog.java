@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;

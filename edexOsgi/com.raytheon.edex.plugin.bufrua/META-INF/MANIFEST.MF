@@ -4,7 +4,7 @@ Bundle-Name: Bufrua Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.bufrua
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.edex.plugin.bufrua.dao
 Require-Bundle: com.raytheon.uf.common.dataplugin.bufrua,
  com.raytheon.uf.common.dataplugin,
@@ -19,4 +19,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.bufrua,
  ucar.nc2,
  com.raytheon.uf.common.wmo,
  org.slf4j,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes

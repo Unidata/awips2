@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,15 +21,16 @@ package com.raytheon.uf.common.dataplugin.svrwx;
 
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Index;
+import org.locationtech.jts.geom.Geometry;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -41,13 +42,12 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * Pointdata for severe weather
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -61,25 +61,28 @@ import org.locationtech.jts.geom.Geometry;
  * Oct 14, 2013 2361       njensen     Remove XML annotations
  * Jul 28, 2015 4360       rferrel     Named unique constraint. Made reportType non-nullable.
  * Jan 14, 2016 5253       tgurney     Dropped dataUri column and updated unique constraint.
- * 
+ * Aug 08, 2022 8892       tjensen     Update indexes for Hibernate 5
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "svrwxseq")
-@Table(name = "svrwx", uniqueConstraints = { @UniqueConstraint(name = "uk_svrwx_datauri_fields", columnNames = {
-        "refTime", "reportType", "stationId", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "svrwx", indexes = { @Index(name = "svrwx_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "svrwx", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_svrwx_datauri_fields", columnNames = {
+                "refTime", "reportType", "stationId", "latitude",
+                "longitude" }) }, indexes = {
+                        @Index(name = "%TABLE%_refTimeIndex", columnList = "refTime, forecastTime"),
+                        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
+
 @DynamicSerialize
-public class SvrWxRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData {
+public class SvrWxRecord extends PersistablePluginDataObject
+        implements ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -123,7 +126,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
 
     /**
      * Construct an instance of this class using the supplied datauri.
-     * 
+     *
      * @param dataUri
      */
     public SvrWxRecord(String dataUri) {
@@ -192,7 +195,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
 
     /**
      * Get this observation's geometry.
-     * 
+     *
      * @return The geometry for this observation.
      */
     public Geometry getGeometry() {
@@ -201,7 +204,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -210,7 +213,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -219,7 +222,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the station identifier for this observation.
-     * 
+     *
      * @return the stationId
      */
     public String getStationId() {
@@ -228,7 +231,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Integer getElevation() {
@@ -237,7 +240,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
 
     /**
      * Get whether the location for this observation is defined.
-     * 
+     *
      * @return Is this location defined.
      */
     public Boolean getLocationDefined() {

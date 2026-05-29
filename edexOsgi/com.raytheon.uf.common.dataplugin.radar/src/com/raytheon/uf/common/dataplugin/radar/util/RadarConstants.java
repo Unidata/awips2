@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
  * Mar 26, 2018  6711     randerso  Updated for RPG build 18. Code cleanup.
  * Mar 20, 2020  21909    jdynina   Added expanded vcp supplemental info
  *                                  to GSM
+ * Jun 17, 2024  2037570  jdynina   Use number of MPDA elevs
  *
  * </pre>
  *
@@ -462,7 +463,7 @@ public class RadarConstants {
     public static final List<String> vcpInfoStr = Collections.unmodifiableList(
             Arrays.asList("AVSET", "SAILSx{n}", "Site-Specific VCP", "RxRN",
                     "CBT", "VCP Sequence", "SPRT", "MRLEx{n}", "Base-Tilt",
-                    "MPDA"));
+                    "MPDAx{y}"));
 
     public static final String NO_DATA = "NO DATA";
 

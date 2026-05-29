@@ -52,7 +52,7 @@ import org.apache.batik.anim.dom.SVGOMGElement;
 import org.apache.batik.anim.dom.SVGOMTextElement;
 import org.apache.batik.dom.AbstractDocument;
 import org.apache.batik.dom.util.DOMUtilities;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.referencing.GeodeticCalculator;
 import org.w3c.dom.Document;

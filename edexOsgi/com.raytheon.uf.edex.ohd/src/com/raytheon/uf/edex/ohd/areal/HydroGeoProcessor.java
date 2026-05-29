@@ -27,8 +27,8 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.hydro.areal.GeoAreaData;

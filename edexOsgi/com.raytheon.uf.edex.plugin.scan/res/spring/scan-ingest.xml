@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="scanCpgSrvDispatcher" class="com.raytheon.uf.edex.cpgsrv.CPGDispatcher"/>
 
@@ -27,29 +25,9 @@
         <constructor-arg ref="scanGenerator"/>
     </bean>
 
-    <camelContext id="clusteredScanRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-        <route id="scanCpgSrvListenerRoute">
-            <from uri="jms-durable:queue:scanCpgsrvFiltering"/>
-            <doTry>
-                  <pipeline>
-                    <bean ref="serializationUtil" method="transformFromThrift" />
-                    <bean ref="scanCpgSrvDispatcher" method="matchURIs"/>
-                  </pipeline>
-                  <doCatch>
-                     <exception>java.lang.Throwable</exception>
-                     <to uri="log:scanCpgSrv?level=ERROR"/>
-                  </doCatch>
-            </doTry>
-        </route>
-
-        <route id="scanPersistIndexAlert">
-            <from uri="direct-vm:scanPersistIndexAlert" />
-            <to uri="direct-vm:persistIndexAlert" />
-        </route>
-    </camelContext>
-
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredScanRoutes" />
-      </bean>
-
+    <bean id="clusteredScanRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.scan.ScanRoutesCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

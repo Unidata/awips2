@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="tcgDecoder" class="com.raytheon.uf.edex.plugin.tcg.TCGDecoder">
         <constructor-arg ref="tcgPluginName" />
@@ -15,26 +13,9 @@
         <constructor-arg value="jms-durable:queue:Ingest.tcg"/>
     </bean>
 
-    <camelContext id="tcg-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <route id="tcgIngestRoute">
-            <from uri="jms-durable:queue:Ingest.tcg"/>
-            <setHeader name="pluginName">
-                <constant>tcg</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="tcgDecoder" method="decode" />
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:tcg?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    <bean id="tcg-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.tcg.TCGCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

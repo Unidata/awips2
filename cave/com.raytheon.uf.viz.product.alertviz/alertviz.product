@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="alertviz" id="com.raytheon.uf.viz.product.alertviz.alertviz" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+<product name="alertviz" id="com.raytheon.uf.viz.product.alertviz.alertviz" application="com.raytheon.uf.viz.application.application" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/com.raytheon.viz.product.awips/icons/ipr.gif"/>
@@ -29,8 +29,10 @@ Developed on the Raytheon Visualization Environment (viz)
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
 -Dlogback.configurationFile=logback-alertviz.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
+-Dslf4j.provider=ch.qos.logback.classic.spi.LogbackServiceProvider
 -Dthrift.stream.maxsize=320
 -Djava.library.path=/awips2/python/lib/python3.11/site-packages/jep
+--add-opens=java.base/java.lang=ALL-UNNAMED
       </vmArgs>
    </launcherArgs>
 
@@ -49,8 +51,8 @@ Developed on the Raytheon Visualization Environment (viz)
    </launcher>
 
    <vm>
-      <linux include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</linux>
-      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</windows>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</linux>
+      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</windows>
    </vm>
 
    <plugins>

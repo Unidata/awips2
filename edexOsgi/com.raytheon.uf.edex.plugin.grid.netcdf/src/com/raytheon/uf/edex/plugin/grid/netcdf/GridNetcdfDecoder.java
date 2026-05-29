@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;

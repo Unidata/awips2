@@ -24,9 +24,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;

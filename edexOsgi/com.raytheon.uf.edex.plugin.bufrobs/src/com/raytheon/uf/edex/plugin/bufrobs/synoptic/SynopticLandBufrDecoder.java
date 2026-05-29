@@ -23,20 +23,21 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.locationtech.jts.geom.Point;
+
 import com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.nc.bufr.BufrParser;
 import com.raytheon.uf.common.nc.bufr.util.BufrMapper;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder;
 import com.raytheon.uf.edex.plugin.bufrobs.BufrObsDecodeException;
 import com.raytheon.uf.edex.plugin.bufrobs.MissingRequiredDataException;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import org.locationtech.jts.geom.Point;
 
 /**
  * Synoptic Land type decoder for BUFR observations. Handles fixed and mobile

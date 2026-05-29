@@ -24,7 +24,7 @@ import java.awt.Point;
 import jep.NDArray;
 
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;

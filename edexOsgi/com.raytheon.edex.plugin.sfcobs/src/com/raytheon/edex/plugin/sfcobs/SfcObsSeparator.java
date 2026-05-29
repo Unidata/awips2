@@ -32,9 +32,9 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.plugin.sfcobs.common.SfcObsPart;
 import com.raytheon.edex.plugin.sfcobs.common.SfcObsSubMessage;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * The SfcObsSeparator takes a potential weather message and attempts to

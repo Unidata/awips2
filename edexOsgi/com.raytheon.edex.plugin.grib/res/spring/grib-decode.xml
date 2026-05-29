@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
@@ -58,97 +56,15 @@
     <bean id="gribSpatialCache"
         class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
         factory-method="getInstance" depends-on="gridcoveragelookup"/>
-
-    <camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${GRIB_SPLIT_THREADS}"/>
-        <endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${GRIB_DECODE_THREADS}"/>
-        <endpoint id="gridPostProcessesJmsEndpoint" uri="jms-durable:queue:Grid.PostProcess?concurrentConsumers=${GRID_POSTPROCESS_THREADS}"/>
-
-        <!-- Begin Grib Decode Route -->
-        <route id="gribSplitIngestRoute">
-            <from uri="gribSplitJmsEndpoint" />
-            <doTry>
-                <pipeline>
-                    <setHeader name="pluginName">
-                        <constant>grid</constant>
-                    </setHeader>
-                    <bean ref="stringToFile" />
-                    <split streaming="true">
-                        <method ref="gribSplitter" method="split" />
-                        <to uri="jms-durable:queue:Ingest.GribDecode" />
-                    </split>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:grib?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="gribDecodeIngestRoute">
-            <from uri="gribDecodeJmsEndpoint" />
-            <doTry>
-                <pipeline>
-                    <bean ref="gribGridPointLock" method="reserve"/>
-                    <bean ref="gribDecoder" />
-
-                    <!-- send for processing -->
-                    <bean ref="gribPostProcessor" method="process" />
-                    <to uri="direct-vm:gridPersistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:grib?level=ERROR"/>
-                </doCatch>
-                <doFinally>
-                    <bean ref="gribGridPointLock" method="release"/>
-                </doFinally>
-            </doTry>
-        </route>
-
-        <!--
-           Copy of persist route with special grid duplicate elimination.
-         -->
-        <route id="gridPersistIndexAlert">
-            <from uri="direct-vm:gridPersistIndexAlert"/>
-            <bean ref="persist" method="persist"/>
-            <!-- Eliminate duplicates for the case of stitched grids -->
-            <bean ref="gridPersistUtils" method="eliminateAndAuditDuplicates"/>
-            <bean ref="index" method="index"/>
-            <bean ref="processUtil" method="log"/>
-            <to uri="direct-vm:stageNotification"/>
-        </route>
-
-        <!-- 
-            Does a second round of post processing to generate new records 
-            derived from recently persisted records.
-        -->
-        <route id="gridPostProcessRoute">
-            <from uri="gridPostProcessesJmsEndpoint" />
-            <doTry>
-                <pipeline>
-                    <bean ref="serializationUtil" method="transformFromThrift" />
-                    <!-- send for processing -->
-                    <bean ref="gribPostProcessor" method="processPersisted" />
-                    <to uri="direct-vm:gridPersistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:grib?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <!-- 
-            Handles purging from the gridcoverage caches in local instance of 
-            GridCoverageLookup
-        -->
-        <route id="purgeGridCoverageCaches">
-            <from uri="jms-generic:topic:purgeGridCoverageCaches" />
-            <bean ref="gribSpatialCache" method="purgeCaches" />
-        </route>
-    </camelContext>
+    
+    <bean id="grib-decode" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.grib.GribDecodeRoutes">
+                <constructor-arg name="gribSplitThreads" value="${GRIB_SPLIT_THREADS}" />
+                <constructor-arg name="gribDecodeThreads" value="${GRIB_DECODE_THREADS}" />
+                <constructor-arg name="gridPostprocessThreads" value="${GRID_POSTPROCESS_THREADS}" />
+            </bean>
+        </constructor-arg>
+    </bean>
 </beans>
 

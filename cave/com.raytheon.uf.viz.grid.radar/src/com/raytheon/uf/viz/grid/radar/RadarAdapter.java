@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.geotools.geometry.DirectPosition2D;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.geometry.Position2D;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.CoverageUtils;
@@ -96,6 +96,7 @@ import si.uom.SI;
  *                                   environment variable settings.
  * Sep 28, 2022  8937     mapeters   Ensure coverages that we pass to
  *                                   CoverageUtils are in DB
+ * May 07, 2024  2037231  aford      Upgrade GeoTools to 31
  * May 07, 2024  2036516  bines      Get all radar from db instead of just
  *                                   the local radars in radarsInUse.txt
  * May 22, 2024  2037092  mapeters   Set up virtual volume derived parameters
@@ -204,7 +205,7 @@ public class RadarAdapter {
                         MathTransform toLatLon = MapUtil
                                 .getTransformToLatLon(crs);
                         int minExtent = -1 * GRID_SPACING * GRID_SIZE / 2;
-                        DirectPosition2D lowerLeft = new DirectPosition2D(
+                        Position2D lowerLeft = new Position2D(
                                 minExtent, minExtent);
                         toLatLon.transform(lowerLeft, lowerLeft);
                         coverage.setFirstGridPointCorner(Corner.LowerLeft);

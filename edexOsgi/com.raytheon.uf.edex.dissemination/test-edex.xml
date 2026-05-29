@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="edex-dissemination-test" default="suite">
+    <property name="plugin.name" value="com.raytheon.uf.edex.dissemination"/>
+    <import file="${common.targets.path}"/>
+
+</project>
+

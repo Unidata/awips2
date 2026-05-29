@@ -4,7 +4,7 @@ Bundle-Name: EDEX Satellite Gini
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.satellite.gini
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.edex.plugin.satellite,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
@@ -16,8 +16,8 @@ Require-Bundle: com.raytheon.edex.plugin.satellite,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.geospatial,
- javax.xml.bind,
- ar.com.hjg.pngj;bundle-version="2.1.1"
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.plugin.satellite.gini,
  com.raytheon.uf.edex.plugin.satellite.gini.lookup
 Import-Package: com.raytheon.uf.common.wmo

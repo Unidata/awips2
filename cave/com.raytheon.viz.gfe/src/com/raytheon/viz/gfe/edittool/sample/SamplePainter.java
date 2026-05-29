@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;

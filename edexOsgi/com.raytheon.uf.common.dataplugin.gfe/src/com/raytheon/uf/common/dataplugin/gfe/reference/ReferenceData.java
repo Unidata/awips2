@@ -24,15 +24,15 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.geotools.geometry.jts.JTS;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;

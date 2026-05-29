@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.activetable;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;

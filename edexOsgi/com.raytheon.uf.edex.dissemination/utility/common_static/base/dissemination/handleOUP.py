@@ -23,6 +23,13 @@
 # of dissemination.  Assigns a priority to the product, and attempts to send
 # it to the message handling system if it's not in the include lists.
 #
+# IMPORTANT NOTE: Due to suspected reliability problems relating to handling
+# Python interpreters in Java code, this code is deprecated in favor of the Java
+# port of it, which is in OUPDisseminator.java.  Any functional changes to this
+# code must also be made in the Java code.
+#
+#
+#
 #
 #     SOFTWARE HISTORY
 #
@@ -46,6 +53,7 @@
 #    Dec 12, 2016    DR 19612      D. Friedman   Fix identifier typos
 #    Dec 14, 2016    DCS19530      jdynina       Added sending of FTM products to RPG
 #    Feb 06, 2018    6683          njensen       Don't return if local send fails
+#    Apr 09, 2025    2038247       tgurney       Add deprecation note
 #
 #
 

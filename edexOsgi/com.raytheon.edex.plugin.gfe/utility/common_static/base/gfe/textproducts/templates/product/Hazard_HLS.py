@@ -208,10 +208,10 @@ class TextProduct(GenericHazards.TextProduct):
         return "" # "central west Florida"
 
     def _maor_descriptor(self):
-        return "" # "west central Florida waters and the Gulf of Mexico"
+        return "" # "west central Florida waters and the Gulf of America"
 
     def _cwa_maor_descriptor(self):
-        return "" #"west Florida waters and the Gulf of Mexico"
+        return "" #"west Florida waters and the Gulf of America"
 
     def _localReferencePoints(self):
         # Give the name and lat/lon for each local reference point
@@ -5950,14 +5950,14 @@ At 11 PM EDT...0300 UTC...the eye of hurricane Katrina was located
 near latitude 25.5 north, longitude  80.7 west.  Katrina is moving
 toward the southwest near 8 mph...13 km/hr and this motion is
 expected to continue during the next several hours. Katrina is
-expected to move over the Gulf of Mexico Friday and Saturday.
+expected to move over the Gulf of America Friday and Saturday.
 
 Maximum sustained winds are near 75 mph...130 km/hr with higher
 gusts. Katrina is a category one hurricane on the Saffir-Simpson
 scale.  Some additional weakening is anticipated while Katrina is
 over land, and it could weaken to a tropical storm early on Friday.
 Restrengthening is expected on Friday or Saturday, and Katrina
-could become a dangerous hurricane in the Gulf of Mexico in 2 to
+could become a dangerous hurricane in the Gulf of America in 2 to
 3 days.
 
 Hurricane force winds extend outward up to 10 miles from the

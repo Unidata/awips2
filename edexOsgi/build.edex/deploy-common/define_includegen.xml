@@ -7,11 +7,11 @@ includegen taskdef in deploy-install.xml
             <fileset dir="${basedir}/lib/ant">
                 <include name="*.jar" />
             </fileset>
-            <fileset dir="${git.directory}/${core-foss.repo}/lib/javax.xml.bind">
+            <fileset dir="${git.directory}/${core-foss.repo}/lib/jakarta.xml.bind">
                 <include name="*.jar" />
                 <exclude name="*-sources.jar" />
             </fileset>
-            <fileset dir="${git.directory}/${core-foss.repo}/lib/javax.activation">
+            <fileset dir="${git.directory}/${core-foss.repo}/lib/jakarta.activation">
                 <include name="*.jar" />
                 <exclude name="*-sources.jar" />
             </fileset>

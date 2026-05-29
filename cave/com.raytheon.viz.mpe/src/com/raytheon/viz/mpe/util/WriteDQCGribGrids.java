@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.xmrg.hrap.HRAP;

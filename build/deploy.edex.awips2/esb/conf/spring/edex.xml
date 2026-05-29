@@ -26,11 +26,11 @@
             </map>
         </constructor-arg>
     </bean>
-    
+
     <bean id="qpidUfConnectionFactory" class="com.raytheon.uf.common.jms.qpid.QpidUFConnectionFactory">
        <constructor-arg ref="jmsConnectionInfo"/>
     </bean>
-    
+
     <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
        <constructor-arg ref="qpidUfConnectionFactory"/>
        <!-- The value of 50 is arbitrary. Can be tweaked later based on
@@ -138,7 +138,12 @@
     <bean id="processUtil" class="com.raytheon.uf.edex.esb.camel.ProcessUtil"/>
     <bean id="setIngestHeaderFields" class="com.raytheon.uf.edex.esb.camel.SetIngestHeaderFields"/>
     <bean id="messageProducer" class="com.raytheon.uf.edex.esb.camel.MessageProducer"/>
-    <bean id="camelContextAdmin" class="com.raytheon.uf.edex.esb.camel.CamelContextAdmin" />
+
+    <camelContext id="camel"
+     xmlns="http://camel.apache.org/schema/spring"
+     errorHandlerRef="errorHandler"
+     autoStartup="false"
+     allowUseOriginalMessage="false"/>
 
     <!-- ContextManager to manage dependencies so routes startup in right order.
          Clustered routes will start on a box if there has not been a lock for that route in the last 60 seconds.
@@ -147,6 +152,7 @@
         class="com.raytheon.uf.edex.esb.camel.context.ContextManager"
         factory-method="getInstance">
         <property name="timeOutMillis" value="60000"/>
+        <property name="camelContext" ref="camel"/>
     </bean>
 
     <bean id="util" class="com.raytheon.uf.edex.core.EDEXUtil">
@@ -279,54 +285,23 @@
         <constructor-arg value="30000" />
     </bean>
 
-    <!--
-    ** Lets deploy some Enterprise Integration Patterns inside Camel
-    ** For more details see
-    **
-    ** http://camel.apache.org/enterprise-integration-patterns.html
-    -->
-    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+    <!-- single route context factory to be used throughout edex -->
+    <bean id="routeContextFactory" class="com.raytheon.uf.edex.esb.camel.EDEXRouteContextFactory" />
 
-        <!-- Route for edex to listen for utility updates -->
-        <route id="edexUtilityNotify">
-            <from uri="jms-generic:topic:edex.alerts.utility" />
-            <bean ref="edexLocalizationObserver" method="fileUpdated"/>
-        </route>
-
-        <!-- Route to send alerts to alertviz -->
-        <route id="alertVizNotify">
-            <from uri="vm:edex.alertVizNotification" />
-            <bean ref="serializationUtil" method="transformToThrift" />
-            <to uri="jms-generic:topic:edex.alerts.msg" />
-        </route>
-
-        <!-- Route to send text products to alarm/alert -->
-        <route id="alarmAlertNotify">
-            <from uri="vm:edex.alarmAlertNotification" />
-            <bean ref="serializationUtil" method="transformToThrift" />
-            <to uri="jms-generic:topic:edex.alarms.msg" />
-        </route>
-
-    </camelContext>
-    <camelContext
-        id="clusteredCamel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <route id="monitorClusteredContexts">
-            <from uri="timer://monitorClusterContexts?fixedRate=true&amp;period=20000"/>
-            <doTry>
-                <bean ref="contextManager" method="checkClusteredContexts" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:monitorClusteredContexts?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    <bean id="edexNotify" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.esb.camel.EDEXNotifyRoutes" />
+        </constructor-arg>
+    </bean>
+    <bean id="clusteredCamel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.esb.camel.ClusteredContextMonitorRoutes" />
+        </constructor-arg>
+    </bean>
 
     <!-- Redirect geotools log -->
     <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
-        <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory" />
+        <constructor-arg value="org.geotools.util.logging.LogbackLoggerFactory" />
     </bean>
 
     <bean id="spatialQueryFactory" class="com.raytheon.uf.common.geospatial.SpatialQueryFactory"
@@ -375,24 +350,24 @@
         <constructor-arg ref="requestServiceRouter" />
     </bean>
 
-    <!-- quartz component configuration.
-        Single scheduler used by all endpoints so there is only one threadpool.
-        Thread pool configured in edex/config/resources/quartz.properties.
-        Requires work around in ContextManager.postProcessBeanFactory when JMX is disabled -->
-    <bean id="quartzSchedulerFactory" class="org.quartz.impl.StdSchedulerFactory">
-        <constructor-arg value="quartz.properties" />
+    <!-- This bean handles the "cron" camel uri endpoints -->
+    <bean id="springCronService"
+        class="org.apache.camel.component.cron.CamelSpringCronService">
+        <property name="camelContext" ref="camel" />
     </bean>
 
-    <bean id="quartzScheduler" factory-bean="quartzSchedulerFactory"
-        factory-method="getScheduler" />
-
-    <bean id="quartz" class="org.apache.camel.component.quartz.QuartzComponent">
-        <property name="scheduler" ref="quartzScheduler" />
+    <!-- This service handles the "clusteredcron" camel uri endpoints -->
+    <bean id="clusteredCronService"
+        class="com.raytheon.uf.edex.esb.camel.cluster.cron.ClusteredCronService">
+        <property name="camelContext" ref="camel" />
     </bean>
 
-    <bean id="clusteredquartz"
-        class="com.raytheon.uf.edex.esb.camel.cluster.quartz.ClusteredQuartzComponent">
-        <property name="scheduler" ref="quartzScheduler" />
+    <!-- The clusteredCronService has a custom component that listens for the
+    "clusteredcron" uri endpoint, which needs to be registered as well. -->
+    <bean id="clusteredcron"
+        class="com.raytheon.uf.edex.esb.camel.cluster.cron.ClusteredCronComponent">
+        <property name="cronService" value="clusteredCronService" />
+        <property name="camelContext" ref="camel" />
     </bean>
 
 </beans>

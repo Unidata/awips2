@@ -19,15 +19,14 @@
  **/
 package com.raytheon.viz.gfe.ifpimage;
 
-
+import org.geotools.api.geometry.Bounds;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.geometry.Envelope;
+import org.geotools.geometry.GeneralBounds;
+import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Static methods to support IFP Image or generating GFE images off screen.
@@ -40,6 +39,7 @@ import org.locationtech.jts.geom.Coordinate;
  * Mar 12, 2009            njensen     Initial creation
  * 21May2009          6309 garmendariz Modified path for Geotools 2.6.4
  * 11/6/2012    15406      ryu         Modified computing domain from mask
+ * May 07, 2024 2037231    aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -54,7 +54,7 @@ public class GfeImageUtil {
             Integer height, float percentLeft, float percentRight,
             float percentTop, float percentBottom) {
 
-        Envelope envelope = null;
+        Bounds envelope = null;
         GridGeometry2D newGridGeometry = null;
 
         if (env != null) {
@@ -72,7 +72,7 @@ public class GfeImageUtil {
         double dRight = envelope.getSpan(0) * percentRight;
         double dTop = envelope.getSpan(1) * percentTop;
         double dBottom = envelope.getSpan(1) * percentBottom;
-        GeneralEnvelope newEnvelope = new GeneralEnvelope(
+        GeneralBounds newEnvelope = new GeneralBounds(
                 envelope.getCoordinateReferenceSystem());
         newEnvelope.setRange(0, envelope.getMinimum(0) - dLeft,
                 envelope.getMaximum(0) + dRight);
@@ -89,7 +89,7 @@ public class GfeImageUtil {
     }
 
     private static org.eclipse.swt.graphics.Point adjustAspect(Integer width,
-            Integer height, GeneralEnvelope wd) {
+            Integer height, GeneralBounds wd) {
         // Calculate the correct aspect ratio and adjust the width
         // and height to fit.
         if (width == null && height == null) {

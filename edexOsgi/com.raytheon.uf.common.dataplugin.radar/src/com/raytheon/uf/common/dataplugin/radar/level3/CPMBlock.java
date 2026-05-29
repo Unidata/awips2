@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 06, 2016  DCS18795 jdynina     Initial creation
  * Apr 18, 2018  DCS20681 jdynina     Added MRLE
  * Feb 09, 2021  DCS22417 jdynina     Added VMI
+ * Jun 17, 2024  2037570  jdynina     Added MPDA
  *
  * </pre>
  *
@@ -89,6 +90,12 @@ public class CPMBlock extends AbstractBlock {
 
         @DynamicSerializeElement
         public int vmi2;
+
+        @DynamicSerializeElement
+        public int maxMpdaElevs;
+
+        @DynamicSerializeElement
+        public int[] numMpdaElevs;
 
         /**
          * @return the clearAirVcps
@@ -208,6 +215,36 @@ public class CPMBlock extends AbstractBlock {
             this.vmi2 = vmi2;
         }
 
+        /**
+         * @param maxMpdaElevs
+         *            the maxMPDAElevs to set
+         */
+        public int getMaxMPDAElevs() {
+            return maxMpdaElevs;
+        }
+
+        /**
+         * @param maxMpdaElevs
+         *            the maxMPDAElevs to set
+         */
+        public void setMaxMPDAElevs(int maxMpdaElevs) {
+            this.maxMpdaElevs = maxMpdaElevs;
+        }
+
+        /**
+         * @return the numMpdaElevs
+         */
+        public int[] getNumMpdaElevs() {
+            return numMpdaElevs;
+        }
+
+        /**
+         * @param numMpdaElevs
+         */
+        public void setNumMPDAElevs(int[] numMpdaElevs) {
+            this.numMpdaElevs = numMpdaElevs;
+        }
+
         public String formatCpmBits(int[] bits, int type) {
             StringBuilder result = new StringBuilder();
 
@@ -231,6 +268,27 @@ public class CPMBlock extends AbstractBlock {
             return result.toString();
         }
 
+        private String formatMPDA(int[] numMpdaElevs, int[] clearAirVcps,
+                int[] precipVcps) {
+            StringBuilder result = new StringBuilder();
+
+            result.append(" { ");
+
+            for (int i = 0; i < clearAirVcps.length; ++i) {
+                result.append(":vcp" + Integer.toString(clearAirVcps[i]) + "="
+                        + Integer.toString(numMpdaElevs[i]) + " ");
+            }
+
+            for (int i = clearAirVcps.length; i < clearAirVcps.length
+                    + precipVcps.length; ++i) {
+                result.append(":vcp"
+                        + Integer.toString(precipVcps[i - clearAirVcps.length])
+                        + "=" + Integer.toString(numMpdaElevs[i]) + " ");
+            }
+            result.append("}");
+            return result.toString();
+        }
+
         @Override
         public String toString() {
             StringBuilder o = new StringBuilder();
@@ -249,6 +307,12 @@ public class CPMBlock extends AbstractBlock {
                 o.append(" 0.5 m/s VMI request value=" + vmi1);
                 o.append(" 1.0 m/s VMI request value=" + vmi2);
             }
+
+            if (numMpdaElevs != null) {
+                o.append(" maxMPDAElevs=" + maxMpdaElevs);
+                o.append(formatMPDA(numMpdaElevs, clearAirVcps, precipVcps));
+            }
+
             return o.toString();
         }
     }
@@ -325,6 +389,16 @@ public class CPMBlock extends AbstractBlock {
 
             message.vmi1 = in.readShort();
             message.vmi2 = in.readShort();
+        }
+
+        if (size > 134) {
+            message.maxMpdaElevs = in.readShort();
+
+            message.numMpdaElevs = new int[numClearAirVcps + numPrecipVcps];
+            for (int i = 0; i < numClearAirVcps + numPrecipVcps; ++i) {
+                int maxNumMpda = in.readShort();
+                message.numMpdaElevs[i] = (maxNumMpda & 0xf000) >> 12;
+            }
         }
     }
 }

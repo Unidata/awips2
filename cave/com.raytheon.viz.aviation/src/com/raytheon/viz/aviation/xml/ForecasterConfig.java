@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.aviation.xml;
 
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * Forecaster Configuration class

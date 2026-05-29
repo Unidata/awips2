@@ -21,9 +21,9 @@ package com.raytheon.viz.mpe.ui.rsc;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;

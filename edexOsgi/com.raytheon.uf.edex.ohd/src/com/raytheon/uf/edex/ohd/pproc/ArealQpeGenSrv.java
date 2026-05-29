@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
@@ -84,7 +84,8 @@ import org.locationtech.jts.geom.Coordinate;
  *                                     director, and try to create if if it does not exist
  * Aug 07, 2017   6334     bkowal      Directories are now created with 770 permissions and files 660.
  * Nov 18, 2017   17911    wkwock      Move RFC_SITEMAP and RFCMAP to com.raytheon.uf.common.mpe.util.
- * 
+ * Oct 02, 2025   2036869  jkelmer     Renamed AKRFC to APRFC
+ *
  * </pre>
  * 
  * @author snaples
@@ -98,7 +99,7 @@ public class ArealQpeGenSrv {
      * <pre>
      * Grib Subcenter ID to RFC_ID to ICAO
      * 150 ABRFC TUA
-     * 151 AKRFC ACR
+     * 151 APRFC ACR
      * 152 CBRFC STR
      * 153 CNRFC RSA
      * 154 LMRFC ORN

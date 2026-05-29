@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.ws.WebServiceException;
+import jakarta.xml.ws.WebServiceException;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PersonType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;

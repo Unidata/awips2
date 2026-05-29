@@ -9,6 +9,9 @@
 # ! $5 = log file path
 # !
 # -----------------------------------------------------------------
+
+source setPgHost.sh
+
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxAviationforecastsBulletinTables.sql  >> ${5} 2>&1
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxCPCProductsBulletinTables.sql  >> ${5} 2>&1
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxFlashFloodBulletinTables.sql  >> ${5} 2>&1

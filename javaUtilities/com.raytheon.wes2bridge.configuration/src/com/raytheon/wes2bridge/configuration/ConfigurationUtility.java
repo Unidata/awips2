@@ -5,7 +5,7 @@ package com.raytheon.wes2bridge.configuration;
 
 import java.io.File;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.wes2bridge.common.configuration.Wes2BridgeCase;
 import com.raytheon.wes2bridge.configuration.jaxb.Wes2BridgeJaxbManager;

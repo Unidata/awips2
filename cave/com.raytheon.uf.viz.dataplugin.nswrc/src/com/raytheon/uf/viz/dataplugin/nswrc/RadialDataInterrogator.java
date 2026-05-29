@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.viz.dataplugin.nswrc;
 
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.nswrc.NSWRCConstants;
 import com.raytheon.uf.common.dataplugin.nswrc.NSWRCRadialRecord;

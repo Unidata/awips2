@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.xy.util;
 
 import org.eclipse.swt.widgets.Event;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
  * Apr 20, 2018 6611        njensen     Ignore mouseUp if mouse was dragging
  * Sep 13, 2022 8792        mapeters    Updated to avoid handling events in X/Y
  *                                      panes of different type in new combo editor
+ * May 07, 2024 2037231     aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -135,7 +136,7 @@ public abstract class AbstractGraphZoomHandler
          * Convert from the overall display coordinate space to the coordinate
          * space for our resource.
          */
-        DirectPosition2D dp = new DirectPosition2D(grid.x, grid.y);
+        Position2D dp = new Position2D(grid.x, grid.y);
         try {
             desc.getGridGeometry().getGridToCRS().transform(dp, dp);
         } catch (Exception e) {

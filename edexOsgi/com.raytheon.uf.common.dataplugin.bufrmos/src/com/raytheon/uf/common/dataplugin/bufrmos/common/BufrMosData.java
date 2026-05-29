@@ -19,13 +19,13 @@
  **/
 package com.raytheon.uf.common.dataplugin.bufrmos.common;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Embedded;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Transient;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;

@@ -1,15 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="pathManager"
         class="com.raytheon.uf.common.localization.PathManagerFactory"
         factory-method="getPathManager" />
 
-    <bean id="netcdfGridDecoder" class="com.raytheon.uf.edex.plugin.grid.netcdf.GridNetcdfDecoder">
+    <bean id="netcdfGridDecoder" class="com.raytheon.uf.edex.plugin.grid.netcdf.GridNetcdfDecoder" depends-on="levelFactoryInitialized">
         <constructor-arg ref="pathManager" />
     </bean>
 
@@ -19,37 +17,9 @@
         <constructor-arg value="jms-durable:queue:Ingest.NetcdfGrid" />
     </bean>
 
-    <camelContext id="netcdfGrid-camel" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <route id="netcdfGridIngestRoute">
-            <from uri="jms-durable:queue:Ingest.NetcdfGrid" />
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="getFileWithoutWmoHeader" />
-                    <split streaming="true">
-                        <method ref="netcdfGridDecoder" method="split" />
-                        <doTry>
-                            <pipeline>
-                                <bean ref="netcdfGridDecoder"
-                                    method="decode" />
-                                <to uri="direct-vm:persistIndexAlert" />
-                            </pipeline>
-                            <doCatch>
-                                <exception>java.lang.Throwable
-                                </exception>
-                                <to uri="direct-vm:logFailedData" />
-                            </doCatch>
-                        </doTry>
-                    </split>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="direct-vm:logFailedData" />
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-
+    <bean id="netcdfGrid-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.grid.netcdf.NetcdfGridCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

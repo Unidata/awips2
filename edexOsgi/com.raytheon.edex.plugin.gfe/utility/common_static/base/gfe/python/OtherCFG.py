@@ -24,6 +24,7 @@
 # Date          Ticket#  Engineer  Description
 # ------------- -------- --------- --------------------------------------------
 # Apr 22, 2020  8151     randerso  Added NHP, NHZ, HAK, HUS, and NWC
+# Jul 16, 2025  2039004 dkingfield Added AAWU, AWC, CPC, NTWC, PTWC, SPC, SWPC
 #
 ##
 # This is an absolute override file, indicating that a higher priority version
@@ -35,6 +36,41 @@
 # region= two-letter regional identifier, mainly used for installation of
 #         text product templates
 SiteInfo = {
+    'AAWU': {
+        'region': 'AR',
+        'fullStationID': 'PAWU',
+        'wfoCityState': 'Alaska Aviation Weather Unit Anchorage AK',
+        'wfoCity': 'Anchorage',
+        'state': 'Alaska',
+    },
+    'AWC': {
+        'region': 'NC',
+        'fullStationID': 'KKCI',
+        'wfoCityState': 'Aviation Weather Center Kansas City MO',
+        'wfoCity': 'Kansas City',
+        'state': 'Missouri',
+    },
+    'CPC': {
+        'region': 'NC',
+        'fullStationID': 'KWNC',
+        'wfoCityState': 'Climate Prediction Center College Park MD',
+        'wfoCity': 'College Park',
+        'state': 'Maryland',
+    },
+    'HAK': {
+        'region': 'NC',
+        'fullStationID': 'KWNH',
+        'wfoCityState': 'Weather Prediction Center College Park MD',
+        'wfoCity': 'College Park',
+        'state': 'Maryland',
+    },
+    'HUS': {
+        'region': 'NC',
+        'fullStationID': 'KWNH',
+        'wfoCityState': 'Weather Prediction Center College Park MD',
+        'wfoCity': 'College Park',
+        'state': 'Maryland',
+    },
     'NH1': {
         'region': 'NC',
         'fullStationID': 'KNHC',
@@ -70,6 +106,20 @@ SiteInfo = {
         'wfoCity': 'Miami',
         'state': 'Florida',
     },
+    'NTWC': {
+        'region': 'NC',
+        'fullStationID': 'NTWC',
+        'wfoCityState': 'National Tsunami Warning Center Palmer AK',
+        'wfoCity': 'Palmer',
+        'state': 'Alaska',
+    },
+    'NWC': {
+        'region': 'NC',
+        'fullStationID': 'KNWC',
+        'wfoCityState': 'National Water Center Tuscaloosa AL',
+        'wfoCity': 'Tuscaloosa',
+        'state': 'Alabama',
+    },
     'ONA': {
         'region': 'NC',
         'fullStationID': 'KWBC',
@@ -84,25 +134,25 @@ SiteInfo = {
         'wfoCity': 'Washington DC',
         'state': '',
     },
-    'HUS': {
+    'PTWC': {
         'region': 'NC',
-        'fullStationID': 'KWNH',
-        'wfoCityState': 'Weather Prediction Center College Park MD',
-        'wfoCity': 'College Park',
-        'state': 'Maryland',
+        'fullStationID': 'PTWC',
+        'wfoCityState': 'Pacific Tsunami Warning Center Honolulu HI',
+        'wfoCity': 'Honolulu',
+        'state': 'Hawaii',
     },
-    'HAK': {
+    'SPC': {
         'region': 'NC',
-        'fullStationID': 'KWNH',
-        'wfoCityState': 'Weather Prediction Center College Park MD',
-        'wfoCity': 'College Park',
-        'state': 'Maryland',
+        'fullStationID': 'KWNS',
+        'wfoCityState': 'Storm Prediction Center Norman OK',
+        'wfoCity': 'Norman',
+        'state': 'Oklahoma',
     },
-    'NWC': {
+    'SWPC': {
         'region': 'NC',
-        'fullStationID': 'KNWC',
-        'wfoCityState': 'National Water Center Tuscaloosa AL',
-        'wfoCity': 'Tuscaloosa',
-        'state': 'Alabama',
+        'fullStationID': 'KWNP',
+        'wfoCityState': 'Space Weather Prediction Center Boulder CO',
+        'wfoCity': 'Boulder',
+        'state': 'Colorado',
     },
 }

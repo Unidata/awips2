@@ -349,6 +349,7 @@
             <parameter>32</parameter>
             <parameter>180</parameter>
             <parameter>181</parameter>
+            <parameter>189</parameter>
             <parameter>500</parameter>
             <parameter>550</parameter>
         </paramLevelMatches>
@@ -496,6 +497,7 @@
             <parameter>159</parameter>
             <parameter>158</parameter>
             <parameter>198</parameter>
+            <parameter>191</parameter>
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>dB</displayUnits>
@@ -530,6 +532,7 @@
             <parameter>160</parameter>
             <parameter>161</parameter>
             <parameter>167</parameter>
+            <parameter>190</parameter>
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>*1</displayUnits>
@@ -588,6 +591,38 @@
                 <entry displayValue="5.0" pixelValue="208"/>
                 <entry displayValue="7.0" pixelValue="224"/>
                 <entry displayValue="10.0" label="" pixelValue="240"/>
+                <entry label="RF" pixelValue="248"/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>192</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>deg/km</displayUnits>
+            <numericFormat>
+                <!-- Number of decimal places to format the sample string to -->
+                <pattern>0.00</pattern>
+            </numericFormat>
+            <defaultColormap>Radar/DualPol/Spec Differential Phase RDQVP</defaultColormap>
+            <dataMapping>
+                <entry label="" pixelValue="1" sample="RF"/>
+                <entry displayValue="-2" pixelValue="16"/>
+                <entry displayValue="-1" pixelValue="32"/>
+                <entry displayValue="-0.5" pixelValue="48"/>
+                <entry displayValue="0.0" pixelValue="64"/>
+                <entry displayValue="0.02" pixelValue="80"/>
+                <entry displayValue="0.04" pixelValue="96"/>
+                <entry displayValue="0.07" pixelValue="112"/>
+                <entry displayValue="0.1" pixelValue="128"/>
+                <entry displayValue="0.15" pixelValue="144"/>
+                <entry displayValue="0.2" pixelValue="160"/>
+                <entry displayValue="0.3" pixelValue="176"/>
+                <entry displayValue="0.4" pixelValue="192"/>
+                <entry displayValue="0.6" pixelValue="208"/>
+                <entry displayValue="0.8" pixelValue="224"/>
+                <entry displayValue="1.0" label="" pixelValue="240"/>
                 <entry label="RF" pixelValue="248"/>
             </dataMapping>
         </imageStyle>
@@ -690,7 +725,7 @@
                 <entry displayValue="2" label="CZ" pixelValue="40" sample="Convective R(Z,ZDR)"/>
                 <entry displayValue="3" label="TZ" pixelValue="56" sample="Tropical R(Z,ZDR)"/>
                 <entry displayValue="4" label="SA" pixelValue="72" sample="Specific Attenuation"/>
-                <entry displayValue="5" label="KL" pixelValue="88" sample="R(KDP) 25 Coef"/>
+                <entry displayValue="5" label="KL" pixelValue="88" sample="R(KDP) 27 Coef"/>
                 <entry displayValue="6" label="KH" pixelValue="104" sample="R(KDP) 44 Coef"/>
                 <entry displayValue="7" label="Z1" pixelValue="120" sample="R(Z)"/>
                 <entry displayValue="8" label="Z6" pixelValue="136" sample="R(Z)*0.6"/>

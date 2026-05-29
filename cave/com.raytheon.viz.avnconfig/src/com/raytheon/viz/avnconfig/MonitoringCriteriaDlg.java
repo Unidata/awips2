@@ -22,7 +22,7 @@ package com.raytheon.viz.avnconfig;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -62,6 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      and made non-blocking.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 

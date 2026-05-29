@@ -4,7 +4,7 @@ Bundle-Name: EDEX NDM Dataplugin
 Bundle-SymbolicName: com.raytheon.uf.edex.ndm.dataplugin
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.edex.ndm,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.dataplugin,
@@ -26,6 +26,6 @@ Require-Bundle: com.raytheon.uf.edex.ndm,
  com.raytheon.uf.edex.menus.dataplugins,
  com.raytheon.edex.plugin.poessounding,
  com.raytheon.edex.plugin.goessounding,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.common.geospatial.spi

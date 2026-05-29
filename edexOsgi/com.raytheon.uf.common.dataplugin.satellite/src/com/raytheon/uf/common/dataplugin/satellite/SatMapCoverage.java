@@ -24,39 +24,39 @@ import java.awt.geom.Rectangle2D;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.parameter.ParameterValueGroup;
+import org.geotools.api.referencing.NoSuchIdentifierException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.geometry.Envelope;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchIdentifierException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -96,6 +96,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Mar 20, 2019  6140     tgurney     Hibernate 5 GeometryType fix
  * May  8, 2019  6140     tgurney     Lower the log level of some previously
  *                                    ignored exceptions (from error to debug)
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  *
  * </pre>
  */
@@ -282,8 +283,8 @@ public class SatMapCoverage extends PersistableDataObject<Object>
                 latLonGeometry = EnvelopeIntersection
                         .createEnvelopeIntersection(
                                 getGridGeometry().getEnvelope(),
-                                new Envelope2D(DefaultGeographicCRS.WGS84, -180,
-                                        -90, 360, 180),
+                                ReferencedEnvelope.rect(-180, -90, 360, 180,
+                                        DefaultGeographicCRS.WGS84),
                                 1.0, 10, 10)
                         .getEnvelope();
             } catch (Exception e) {
@@ -345,8 +346,9 @@ public class SatMapCoverage extends PersistableDataObject<Object>
                 latLonGeometry = EnvelopeIntersection
                         .createEnvelopeIntersection(
                                 getGridGeometry().getEnvelope(),
-                                new Envelope2D(DefaultGeographicCRS.WGS84,
-                                        -180, -90, 360, 180), 1.0, 10, 10)
+                                new ReferencedEnvelope.rect(-180, -90, 360, 180,
+                                        DefaultGeographicCRS.WGS84), 
+                                    1.0, 10, 10)
                         .getEnvelope();
             } catch (Exception e) {
                 // Ignore exception, null location
@@ -503,8 +505,8 @@ public class SatMapCoverage extends PersistableDataObject<Object>
         try {
             return EnvelopeIntersection
                     .createEnvelopeIntersection(getGridGeometry().getEnvelope(),
-                            new Envelope2D(DefaultGeographicCRS.WGS84, -180,
-                                    -90, 360, 180),
+                            ReferencedEnvelope.rect(-180, -90, 360, 180,
+                                    DefaultGeographicCRS.WGS84),
                             1.0, 10, 10)
                     .getEnvelope();
         } catch (Exception e) {
@@ -566,14 +568,14 @@ public class SatMapCoverage extends PersistableDataObject<Object>
         	   return new GridGeometry2D(gridRange, crsRange);
         	} else {
 		        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
-		        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
-		                minX, minY, getNx() * getDx(), getNy() * getDy()));
+		        Bounds crsRange = new ReferencedEnvelope(new Rectangle2D.Double(
+		                minX, minY, getNx() * getDx(), getNy() * getDy()),getCrs());
 		        return new GridGeometry2D(gridRange, crsRange);
         	}
 	} else {
 	        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
-	        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
-	                minX, minY, getNx() * getDx(), getNy() * getDy()));
+	        Bounds crsRange = new ReferencedEnvelope(new Rectangle2D.Double(
+	                minX, minY, getNx() * getDx(), getNy() * getDy()),getCrs());
 	        return new GridGeometry2D(gridRange, crsRange);
 
 	}

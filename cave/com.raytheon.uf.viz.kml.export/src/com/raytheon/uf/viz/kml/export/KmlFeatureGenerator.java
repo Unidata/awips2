@@ -25,10 +25,10 @@ import java.util.List;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;

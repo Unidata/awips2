@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.pointdata.def;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.eclipse.swt.graphics.RGB;
 

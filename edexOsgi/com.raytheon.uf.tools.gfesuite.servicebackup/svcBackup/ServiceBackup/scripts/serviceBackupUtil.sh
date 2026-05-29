@@ -40,6 +40,8 @@
 # Aug 29, 2023  2028172  jkelmer         Added function to set PRI_SITES env variable from
 #                                        svcbu.properties PRIMARY_SITES, or 
 #                                        AW_SITE_IDENTIFIER if unset
+# Jan 23, 2025  2038386  tgurney         Ensure log dirs are not 777 permissions
+# Nov 03, 2025  2039829  njensen         Update ensurePathExists() to default to umask 002
 #
 
 AWIPS_HOME=/awips2
@@ -86,7 +88,7 @@ function configureLogging()
     fi
     local log_basename=${program_name}_`date +%H%M`
     local log_file=${log_dir}/${log_basename}
-    ensurePathExists "${log_dir}"
+    ensurePathExists "${log_dir}" "002"
     touch ${log_file}
 
     exec 1>${log_file} 2>&1
@@ -96,8 +98,14 @@ function ensurePathExists()
 {
     if [[ -n "$1" ]]
     then
+        if [[ -n "$2" ]]
+        then
+            dirUmask="$2"
+        else
+            dirUmask="002"
+        fi
         local path="$1"
-        [ ! -d ${path} ] && (umask 000;mkdir -p ${path})
+        [ ! -d ${path} ] && (umask "$dirUmask";mkdir -p ${path})
     fi
 }
 

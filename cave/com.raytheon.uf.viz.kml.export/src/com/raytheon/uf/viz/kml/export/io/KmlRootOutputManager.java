@@ -32,7 +32,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import de.micromata.opengis.kml.v_2_2_0.Container;
 import de.micromata.opengis.kml.v_2_2_0.Document;

@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.spi.Synchronization;
-import org.apache.camel.support.DefaultExchange;
 import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.wmo.util.WMOHeaderFinder;
@@ -53,6 +52,7 @@ import com.raytheon.uf.common.wmo.util.WMOHeaderFinder;
  * Sep 08, 2015  4709    bsteffen  Initial creation
  * Nov 30, 2016  5970    njensen   Moved to netcdf plugin
  * Mar  3, 2021  8326    tgurney   Camel 3 fixes
+ * Jul  9, 2024  2037227 tgurney   Camel 4 fixes
  *
  * </pre>
  *
@@ -113,15 +113,8 @@ public class GetFileWithoutWmoHeader implements Processor {
                     .resolve(file.getName() + "-" + uniqueId + ".nowmo");
             Files.copy(is, result);
             file = result.toFile();
-            if (exchange instanceof DefaultExchange) {
-                DefaultExchange defaultExchange = (DefaultExchange) exchange;
-                defaultExchange
-                        .addOnCompletion(new DeleteFileOnCompletion(file));
-            } else {
-                exchange.getUnitOfWork()
-                        .addSynchronization(new DeleteFileOnCompletion(file));
-            }
-
+            exchange.getUnitOfWork()
+                    .addSynchronization(new DeleteFileOnCompletion(file));
             exchange.getIn().setBody(file);
 
         }

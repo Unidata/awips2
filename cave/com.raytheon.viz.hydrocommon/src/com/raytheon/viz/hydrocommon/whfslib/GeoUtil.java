@@ -22,7 +22,7 @@ package com.raytheon.viz.hydrocommon.whfslib;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;

@@ -26,7 +26,7 @@ Import-Package: com.raytheon.uf.common.comm,
  org.locationtech.jts.geom,
  org.locationtech.jts.index.strtree,
  org.locationtech.jts.io
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.thinclient.cave.cache.map
 Bundle-ClassPath: com.raytheon.uf.viz.thinclient.cave.jar

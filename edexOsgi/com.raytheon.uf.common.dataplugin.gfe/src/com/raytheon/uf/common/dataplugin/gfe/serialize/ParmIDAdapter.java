@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.serialize;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.serialization.IDeserializationContext;

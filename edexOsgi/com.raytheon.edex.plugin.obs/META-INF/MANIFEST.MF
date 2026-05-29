@@ -12,8 +12,10 @@ Require-Bundle: com.raytheon.edex.common,
  javax.measure,
  com.raytheon.uf.edex.pointdata,
  org.slf4j,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,
  com.raytheon.uf.common.status,

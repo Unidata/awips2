@@ -4,7 +4,7 @@ Bundle-Name: D2D Graph Adapters
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.xy.adapters;singleton:=true
 Bundle-Version: 1.17.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.xy,
@@ -30,6 +30,7 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.common.dataplugin.bufrmos,
  com.raytheon.uf.common.dataplugin.bufrua,
  com.raytheon.uf.common.dataplugin.goessounding,
+ com.raytheon.uf.common.dataplugin.ldadmesonet,
  com.raytheon.uf.common.dataplugin.modelsounding,
  com.raytheon.uf.common.dataplugin.obs,
  com.raytheon.uf.common.dataplugin.poessounding,
@@ -40,8 +41,7 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.d2d.core,
  com.raytheon.viz.ui,
  org.geotools,
- com.raytheon.uf.common.gridcoverage,
- com.raytheon.uf.common.dataplugin.ldadmesonet;visibility:=reexport
+ com.raytheon.uf.common.gridcoverage
 Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.common.units,
  com.raytheon.uf.viz.datacube,

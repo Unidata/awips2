@@ -7,6 +7,7 @@ function usage()
    echo "   -WA       perform a build of all work assignments."
    echo "   -rh6      perform a full build of all the rpms."
    echo "   -dev      call functions directly"
+   echo "   -ade      preform a ADE build."
    echo "   --help    display this message and exit."
 
    return 0
@@ -95,6 +96,10 @@ if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-WA" ]; then
+   WA_rpm_build
+   exit 0
+fi
 #BUILD GROUPS
 function build_ade(){
    buildRPM "awips2"
@@ -102,6 +107,8 @@ function build_ade(){
    buildRPM "awips2-eclipse"
    buildRPM "awips2-python"
    buildRPM "awips2-qpid-proton"
+   buildRPM "awips2-gradle"
+   buildRPM "awips2-ninja-build"
    buildRPM "awips2-python-tomli"
    buildRPM "awips2-python-typing_extensions"
    buildRPM "awips2-python-setuptools_scm"
@@ -115,6 +122,7 @@ function build_ade(){
    buildRPM "awips2-hdf5"
    buildRPM "awips2-python-cython"
    buildRPM "awips2-python-pkgconfig"
+   buildRPM "awips2-python-packaging"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-certifi"
@@ -144,14 +152,10 @@ function build_ade(){
    buildRPM "awips2-python-blosc2"
    buildRPM "awips2-ant"
    buildRPM "awips2-netcdf"
-   buildRPM "awips2-eclipse"
    #buildRPM "awips2-udunits/i686"
 
 #local apps foss
-   #buildRPM "awips2-aec"
    #buildRPM "awips2-eccodes"
-   #buildRPM "awips2-python-pycairo"
-   #buildRPM "awips2-python-pygobject"
 }
 
 function build_python()
@@ -171,7 +175,7 @@ function build_python()
    buildRPM "awips2-python-jaraco.collections"
    buildRPM "awips2-python-cheroot"
    buildRPM "awips2-python-cherrypy"
-   ##buildRPM "awips2-python-proj"
+   buildRPM "awips2-python-proj"
    buildRPM "awips2-python-gdal" # dependent on proj
    buildRPM "awips2-python-geojson"
    buildRPM "awips2-python-whoosh"
@@ -187,8 +191,7 @@ function build_python()
    buildRPM "awips2-python-pytest-qt"
    buildRPM "awips2-python-pyenchant"
    buildRPM "awips2-python-pykdtree"
-   #buildRPM "awips2-python-pyproj" # dependent on proj
-   buildRPM "awips2-python-configobj"
+   buildRPM "awips2-python-pyproj" # dependent on proj
    buildRPM "awips2-python-pyresample"
    buildRPM "awips2-python-six"
    buildRPM "awips2-python-natsort"
@@ -225,7 +228,7 @@ function build_server()
    #buildRPM "awips2-netcdf/i686"
    #buildRPM "awips2-netcdf-cxx/i686"
    #buildRPM "awips2-netcdf-fortran/i686"
-   #buildRPM "awips2-postgis" # dependent on proj, gdal 
+   buildRPM "awips2-postgis" # dependent on proj, gdal 
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-edex-environment"
@@ -291,6 +294,67 @@ if [ "${1}" = "-all" ]; then
    build_database
    buildEDEX
    buildCAVE
+   exit 0
+fi
+
+if [ "${1}" = "-dev" ]; then
+
+        if [ ! $#  -eq 2 ]; then
+        usage
+        exit 1;
+        fi
+
+        echo -e "\n*** Executing $2  ***"
+        $2
+        if [ $? -ne 0 ]; then
+           exit 1
+        fi
+        echo -e "*** $2 Complete ***\n"
+        exit 0
+fi
+
+if [ "${1}" = "-ade" ]; then
+    # Build the source jar file
+    echo "============================="
+    echo "Building the source Jar file"
+    echo "============================="
+
+    echo "WORKSPACE: ${WORKSPACE}"
+    cd ${WORKSPACE}/rpms/awips2.ade/deploy.builder
+    ./build.sh
+
+   # Create the containing directory.
+   ade_directory="${WORKSPACE}/../awips2-ade-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
+   if [ -d ${ade_directory} ]; then
+      rm -rf ${ade_directory}
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   mkdir -p ${ade_directory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   awips2_ade_directory="${WORKSPACE}/rpms/awips2.ade"
+   # Copy the install and uninstall script to the directory.
+   cp -v ${awips2_ade_directory}/tar.ade/scripts/*.sh \
+      ${ade_directory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+
+    if [ -f ${WORKSPACE}/../tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ]; then
+       mv ${WORKSPACE}/../tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ${ade_directory}
+    else
+       echo "awips2-ade-baseline-SOURCES.jar not found in ${WORKSPACE}/../tmp/awips-component/tmp/"
+       exit 1
+    fi
+    echo "============================="
+    echo "Building source Jar file is complete"
+    echo "============================="
+
    exit 0
 fi
 

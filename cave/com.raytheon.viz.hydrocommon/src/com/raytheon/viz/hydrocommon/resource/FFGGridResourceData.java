@@ -21,7 +21,7 @@ package com.raytheon.viz.hydrocommon.resource;
 
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;

@@ -21,12 +21,12 @@ package com.raytheon.viz.radar.ui.xy;
 
 import java.util.Iterator;
 
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -59,6 +59,8 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2010            bsteffen     Initial creation
  * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
+ * Jul 13, 2023 2033911    J. Dynina    Handle RDQVP
+ * May 07, 2024 2037231    aford        Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -110,14 +112,16 @@ public class RadarXsectXYResource extends RadarXYResource implements
             }
         }
         // Make new x axis labels
-        double az1 = radarRecord.getProductDependentValue(3) * 0.1;
-        double ran1 = radarRecord.getProductDependentValue(4) * 0.1;
-        double az2 = radarRecord.getProductDependentValue(5) * 0.1;
-        double ran2 = radarRecord.getProductDependentValue(6) * 0.1;
-        screenStringMap.put(new Coordinate(51, 484),
-                String.format("%.0f/%.0f", az1, ran1));
-        screenStringMap.put(new Coordinate(484, 484),
-                String.format("%.0f/%.0f", az2, ran2));
+        if (!RDQVP_PROD_LIST.contains(radarRecord.getProductCode())) {
+            double az1 = radarRecord.getProductDependentValue(3) * 0.1;
+            double ran1 = radarRecord.getProductDependentValue(4) * 0.1;
+            double az2 = radarRecord.getProductDependentValue(5) * 0.1;
+            double ran2 = radarRecord.getProductDependentValue(6) * 0.1;
+            screenStringMap.put(new Coordinate(51, 484),
+                    String.format("%.0f/%.0f", az1, ran1));
+            screenStringMap.put(new Coordinate(484, 484),
+                    String.format("%.0f/%.0f", az2, ran2));
+        }
     }
 
     /*
@@ -169,7 +173,10 @@ public class RadarXsectXYResource extends RadarXYResource implements
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
-        line.dispose();
+        if (line != null) {
+            line.dispose();
+            line = null;
+        }
     }
 
     /*
@@ -191,6 +198,11 @@ public class RadarXsectXYResource extends RadarXYResource implements
 
         width *= SCALAR;
         height *= SCALAR;
+
+        if (RDQVP_PROD_LIST.contains(rec.getProductCode())) {
+            double yScale = rec.getYscale();
+            height = rec.getNumRadials() * yScale * SCALAR;
+        }
 
         double upper = (Y_OFFSET_NWP + jStart) * SCALAR;
         double lower = upper + height;
@@ -245,9 +257,9 @@ public class RadarXsectXYResource extends RadarXYResource implements
         ran1 = ran1 / 5.4 * radarRecord.getGateResolution();
         ran2 = ran2 / 5.4 * radarRecord.getGateResolution();
 
-        DirectPosition2D start = new DirectPosition2D(ran1 * Math.sin(az1),
+        Position2D start = new Position2D(ran1 * Math.sin(az1),
                 ran1 * Math.cos(az1));
-        DirectPosition2D end = new DirectPosition2D(ran2 * Math.sin(az2), ran2
+        Position2D end = new Position2D(ran2 * Math.sin(az2), ran2
                 * Math.cos(az2));
         try {
             MathTransform toLL = MapUtil.getTransformToLatLon(radarRecord

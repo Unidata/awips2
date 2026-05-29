@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.warning.util;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 
 /**
  * Annotation utility for class annotation information.

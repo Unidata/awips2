@@ -31,12 +31,12 @@ import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;

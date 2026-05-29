@@ -17,6 +17,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.backupsvc,
  com.raytheon.uf.common.site,
  com.raytheon.uf.common.localization.backup
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.raytheon.uf.viz.backupsvc.singleton.true
 Import-Package: com.raytheon.uf.common.dataplugin.persist

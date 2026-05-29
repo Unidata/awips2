@@ -53,6 +53,10 @@
         </antcall>
         <antcall target="build">
             <param name="feature"
+                value="com.raytheon.uf.edex.foss.org.ehcache.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
                 value="com.raytheon.uf.edex.foss.org.apache.commons.management.feature" />
         </antcall>
         <antcall target="build">
@@ -73,11 +77,19 @@
         </antcall>
         <antcall target="build">
             <param name="feature"
+                value="com.raytheon.uf.edex.foss.jakarta.servlet.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
                 value="com.raytheon.uf.edex.foss.org.eclipse.jetty.feature" />
         </antcall>
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.foss.javax.activation.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.foss.jakarta.activation.feature" />
         </antcall>
         <antcall target="build">
             <param name="feature"
@@ -173,6 +185,10 @@
         </antcall>
         <antcall target="build">
             <param name="feature"
+                value="com.raytheon.uf.edex.foss.com.google.re2j.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
                 value="com.raytheon.uf.edex.foss.ucar.nc2.feature" />
         </antcall>
         <antcall target="build">
@@ -254,6 +270,10 @@
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.gfe.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.backupsvc.feature" />
         </antcall>
         <antcall target="build">
             <param name="feature"

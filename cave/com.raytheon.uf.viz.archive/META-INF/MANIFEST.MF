@@ -17,8 +17,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.units,
  com.raytheon.uf.common.auth,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.compress.archivers,
  org.apache.commons.compress.archivers.tar

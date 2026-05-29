@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import org.locationtech.jts.geom.Geometry;

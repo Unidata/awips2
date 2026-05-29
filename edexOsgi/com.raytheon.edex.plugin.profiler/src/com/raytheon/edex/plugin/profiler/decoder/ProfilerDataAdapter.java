@@ -27,6 +27,7 @@ import java.util.List;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerSite;
 import com.raytheon.uf.common.dataplugin.profiler.Profilers;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -45,7 +46,6 @@ import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs

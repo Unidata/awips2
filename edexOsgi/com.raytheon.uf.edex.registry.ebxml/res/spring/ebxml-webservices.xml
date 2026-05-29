@@ -21,10 +21,6 @@
 
     <http-conf:conduit name="*.http-conduit">
         <http-conf:authSupplier bean="securityConfiguration" />
-        <http-conf:tlsClientParameters>
-            <security:trustManagers ref="trustManager" />
-            <security:keyManagers ref="keyManager" />
-        </http-conf:tlsClientParameters>
         <http-conf:client Connection="Keep-Alive" CacheControl="no-cache"
             ReceiveTimeout="${ebxml-http-receive-timeout}" ConnectionTimeout="${ebxml-http-connection-timeout}" />
     </http-conf:conduit>
@@ -59,9 +55,10 @@
         <property name="securityConfig" ref="securityConfiguration" />
     </bean>
 
-    <bean id="registryRestClient"
-        class="com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices" />
-
+    <bean id="registryRestClient" class="com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices">
+        <constructor-arg name="securityConfig" ref="securityConfiguration" />
+    </bean>
+    
     <bean id="registryWebServiceClient"
         class="com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices" />
 

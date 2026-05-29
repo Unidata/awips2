@@ -4,7 +4,7 @@ Bundle-Name: AvnFPS EDEX plugin
 Bundle-SymbolicName: com.raytheon.uf.edex.aviation
 Bundle-Version: 1.17.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dissemination,
  com.raytheon.uf.common.auth,
  com.raytheon.uf.common.dataplugin,
@@ -19,7 +19,7 @@ Require-Bundle: com.raytheon.uf.common.dissemination,
  com.raytheon.uf.edex.auth,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.taf,
@@ -27,5 +27,6 @@ Require-Bundle: com.raytheon.uf.common.dissemination,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.aviation,
  com.raytheon.uf.common.site,
- org.apache.commons.configuration
+ org.apache.commons.configuration2,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.aviation

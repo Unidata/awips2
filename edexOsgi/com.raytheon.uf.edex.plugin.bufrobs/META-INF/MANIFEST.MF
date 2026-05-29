@@ -4,7 +4,7 @@ Bundle-Name: Bufrobs
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrobs
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.nc.bufr,
  ucar.nc2,
  com.raytheon.uf.common.status,
@@ -24,5 +24,7 @@ Require-Bundle: com.raytheon.uf.common.nc.bufr,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.geospatial,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
 Import-Package: com.raytheon.uf.common.wmo

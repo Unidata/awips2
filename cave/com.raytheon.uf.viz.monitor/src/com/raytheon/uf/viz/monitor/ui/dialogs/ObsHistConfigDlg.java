@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.monitor.ui.dialogs;
 import java.io.File;
 import java.util.Arrays;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;

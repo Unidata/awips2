@@ -19,13 +19,13 @@
  **/
 package com.raytheon.uf.viz.kml.export.graphics.ext;
 
+import org.geotools.api.coverage.grid.GridGeometry;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.viz.core.IExtent;
@@ -45,7 +45,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jun 01, 2012  704      bsteffen  Initial creation
  * Feb 21, 2014  2817     bsteffen  Remove Deprecated reproject.
  * Apr 06, 2016  5400     bsteffen  Implement IGridMesh
- * 
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -56,7 +57,7 @@ public class KmlMesh implements IGridMesh {
 
     private final GridGeometry2D targetGeometry;
 
-    private Envelope latLonEnvelope;
+    private Bounds latLonEnvelope;
 
     public KmlMesh(GridGeometry2D imageGeometry, GridGeometry2D targetGeometry) {
         this.imageGeometry = imageGeometry;
@@ -86,7 +87,7 @@ public class KmlMesh implements IGridMesh {
         return this;
     }
 
-    public Envelope getLatLonEnvelope() throws TransformException {
+    public Bounds getLatLonEnvelope() throws TransformException {
         if (latLonEnvelope == null) {
             ReferencedEnvelope env = new ReferencedEnvelope(
                     imageGeometry.getEnvelope());

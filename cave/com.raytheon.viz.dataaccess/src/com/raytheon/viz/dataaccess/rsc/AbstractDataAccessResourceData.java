@@ -22,7 +22,7 @@ package com.raytheon.viz.dataaccess.rsc;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataaccess.DataAccessLayer;
 import com.raytheon.uf.common.dataaccess.IData;

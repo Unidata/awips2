@@ -19,25 +19,20 @@
         further_licensing_information.
     -->
 
-<configuration>
-    <header>
-      <result>
-         <nodeCombiner config-class="org.apache.commons.configuration.tree.OverrideCombiner"/>
-      </result>
-    </header>
+    <configuration>
+        <header>
+          <result>
+             <nodeCombiner config-class="org.apache.commons.configuration2.tree.OverrideCombiner"/>
+          </result>
+        </header>
     
-    <!-- Localized Environmental Properties -->
-    <override>
-        <xml fileName="site/environment.xml" encoding="UTF-8" validating="false" />
-        <xml fileName="base/environment.xml" encoding="UTF-8" validating="false" />
-    </override>
-
-    <!-- Localized Attribute Names -->
-    <override>
-        <xml fileName="site/attributeNames.xml" encoding="UTF-8" validating="false" />
-        <xml fileName="base/attributeNames.xml" encoding="UTF-8" validating="false" />
-    </override>
-	
-</configuration>
-
-
+        <override>
+            <!-- Localized Environmental Properties -->
+            <xml fileName="site/environment.xml" encoding="UTF-8" validating="false" />
+            <xml fileName="base/environment.xml" encoding="UTF-8" validating="false" />
+            <!-- Localized Attribute Names -->
+            <xml fileName="site/attributeNames.xml" encoding="UTF-8" validating="false" />
+            <xml fileName="base/attributeNames.xml" encoding="UTF-8" validating="false" />
+        </override>
+    
+    </configuration>

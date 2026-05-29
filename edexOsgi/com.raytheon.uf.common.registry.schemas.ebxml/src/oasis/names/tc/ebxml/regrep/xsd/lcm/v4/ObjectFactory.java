@@ -20,7 +20,7 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 

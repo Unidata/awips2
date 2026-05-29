@@ -1,12 +1,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="goessoundingDecoder"
-        class="com.raytheon.edex.plugin.goessounding.GOESSoundingDecoder" />
+        class="com.raytheon.edex.plugin.goessounding.GOESSoundingDecoder"
+        depends-on="goessoundingRegistered"/>
 
     <bean id="goesSeparatorFactory"
         class="com.raytheon.edex.plugin.goessounding.GOESSndgSeparatorFactory" />
@@ -16,39 +15,10 @@
         <constructor-arg ref="goessoundingPluginName" />
         <constructor-arg value="jms-durable:queue:Ingest.goessounding"/>
     </bean>
-
-    <camelContext id="goessounding-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        
-        <!-- Begin GOES Sounding routes -->
-        <route id="goessndgIngestRoute">
-            <from uri="jms-durable:queue:Ingest.goessounding"/>
-            <setHeader name="pluginName">
-                <constant>goessounding</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <split streaming="true">
-                        <method ref="goesSeparatorFactory" method="getSeparator"/>
-                        <doTry>
-                            <pipeline>
-                                <bean ref="goessoundingDecoder" method="decode" />
-                                <to uri="direct-vm:persistIndexAlert" />
-                            </pipeline>
-                            <doCatch>
-                                <exception>java.lang.Throwable</exception>
-                                <to uri="log:goessounding?level=ERROR"/>
-                            </doCatch>
-                        </doTry>
-                    </split>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:goessounding?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    
+    <bean id="goessounding-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.goessounding.GoessoundingCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

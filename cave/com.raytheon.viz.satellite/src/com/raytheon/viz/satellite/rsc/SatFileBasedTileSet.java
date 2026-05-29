@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.HDF5Util;

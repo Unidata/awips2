@@ -24,8 +24,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.apache.commons.configuration2.INIConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.INIBuilderParameters;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.DisabledListDelimiterHandler;
+import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.configuration2.convert.ListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.FileHandler;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -67,6 +74,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * Feb 11, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * Mar 21, 2017 6183       tgurney     Move config to common_static
  * Jan 23, 2017 7067       tgurney     Fix loading of rules with comma-separated wx elements
+ * Jul 10, 2025 2036453    aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  *
@@ -267,14 +275,15 @@ public class AvnConfiguration {
         LocalizationContext context = pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         ILocalizationFile lFile = pm.getLocalizationFile(context, filepath);
-
-        HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
+        // preserve writing the lists as comma delimited strings
+        ListDelimiterHandler configListHandler = new DisabledListDelimiterHandler();
+        INIConfiguration config = buildINIConfig(configListHandler);
+        FileHandler configFileHandler = new FileHandler(config);
         if (lFile.exists()) {
             try (InputStream inStream = lFile.openInputStream()) {
-                config.load(inStream);
+                configFileHandler.load(inStream);
             }
         }
-        config.setDelimiterParsingDisabled(true);
 
         int numActiveRules = 0;
         for (MethodData method : data) {
@@ -314,7 +323,7 @@ public class AvnConfiguration {
         config.setProperty("rules.active", activeRules.toString());
 
         try (SaveableOutputStream outStream = lFile.openOutputStream()) {
-            config.save(outStream);
+            configFileHandler.save(outStream);
             outStream.save();
         }
     }
@@ -356,11 +365,14 @@ public class AvnConfiguration {
         } else {
             MethodData defaultRule = null;
             List<MethodData> defaultRules = getRules(source);
-            HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
+            // parse the comma delimited strings into arrays
+            ListDelimiterHandler configListHandler = new LegacyListDelimiterHandler(
+                    ',');
+            INIConfiguration config = buildINIConfig(configListHandler);
+            FileHandler configFileHandler = new FileHandler(config);
             try (InputStream inStream = lFile.openInputStream()) {
-                config.load(inStream);
+                configFileHandler.load(inStream);
             }
-            config.setDelimiterParsingDisabled(true);
 
             String[] activeRules = config.getStringArray("rules.active");
             if (activeRules == null || activeRules.length == 0) {
@@ -509,5 +521,13 @@ public class AvnConfiguration {
         }
 
         return rules;
+    }
+
+    private INIConfiguration buildINIConfig(
+            ListDelimiterHandler listHandler) throws ConfigurationException {
+        INIBuilderParameters params = new Parameters().ini()
+                .setListDelimiterHandler(listHandler);
+        return new FileBasedConfigurationBuilder<>(INIConfiguration.class)
+                .configure(params).getConfiguration();
     }
 }

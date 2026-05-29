@@ -22,7 +22,7 @@ package com.raytheon.viz.texteditor.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;

@@ -31,12 +31,12 @@ import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opengis.geometry.Envelope;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.parameter.ParameterValueGroup;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.projection.Geostationary;

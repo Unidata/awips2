@@ -28,12 +28,13 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import org.geotools.api.geometry.BoundingBox;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.geometry.BoundingBox;
-import org.opengis.referencing.operation.MathTransform;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.CoverageUtils;
@@ -59,8 +60,6 @@ import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
 import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
 
 /**
  * Implements the IDataCatalog interface for grid data.
@@ -85,7 +84,8 @@ import org.locationtech.jts.geom.LineString;
  * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * Mar 03, 2016  5439     bsteffen  Access constants through GridConstants class
  * Apr 15, 2019  7480     bhurley   Improved NSHARP auto-update
- * 
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author lvenable
@@ -328,7 +328,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                     GridGeometry2D gridGeom = coverage.getGridGeometry();
                     MathTransform llToCRS = MapUtil.getTransformFromLatLon(
                             gridGeom.getCoordinateReferenceSystem());
-                    Envelope2D env = gridGeom.getEnvelope2D();
+                    ReferencedEnvelope env = gridGeom.getEnvelope2D();
                     for (String letter : pointLetters) {
                         Coordinate c = PointsDataManager.getInstance()
                                 .getCoordinate(letter);
@@ -336,7 +336,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                             break;
                         }
 
-                        DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
+                        Position2D dp = new Position2D(c.x, c.y);
                         llToCRS.transform(dp, dp);
                         if (env.contains(dp.x, dp.y)) {
                             fileredSources.add(source);
@@ -346,17 +346,16 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                     for (String letter : lineLetters) {
                         LineString ls = ToolsDataManager.getInstance()
                                 .getBaseline(letter);
-                        Envelope2D lineEnv = null;
+                        ReferencedEnvelope lineEnv = null;
                         for (Coordinate c : ls.getCoordinates()) {
-                            DirectPosition2D dp = new DirectPosition2D(c.x,
-                                    c.y);
+                            Position2D dp = new Position2D(c.x, c.y);
                             llToCRS.transform(dp, dp);
                             if (lineEnv == null) {
-                                lineEnv = new Envelope2D(
-                                        gridGeom.getCoordinateReferenceSystem(),
-                                        dp.x, dp.y, 1, 1);
+                                lineEnv = ReferencedEnvelope.rect(dp.x, dp.y, 1,
+                                        1,
+                                        gridGeom.getCoordinateReferenceSystem());
                             } else {
-                                lineEnv.add(dp.x, dp.y);
+                                lineEnv.expandToInclude(dp.x, dp.y);
                             }
                         }
                         if (lineEnv.intersects((BoundingBox) env)) {
@@ -419,10 +418,10 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                     GridGeometry2D gridGeom = coverage.getGridGeometry();
                     MathTransform llToCRS = MapUtil.getTransformFromLatLon(
                             gridGeom.getCoordinateReferenceSystem());
-                    Envelope2D env = gridGeom.getEnvelope2D();
+                    ReferencedEnvelope env = gridGeom.getEnvelope2D();
                     for (String letter : pdm.getPointNames()) {
                         Coordinate c = pdm.getCoordinate(letter);
-                        DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
+                        Position2D dp = new Position2D(c.x, c.y);
                         llToCRS.transform(dp, dp);
                         if (env.contains(dp.x, dp.y)) {
                             validPlanes.add("Point" + letter);
@@ -430,17 +429,16 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                     }
                     for (String letter : tdm.getBaselineNames()) {
                         LineString ls = tdm.getBaseline(letter);
-                        Envelope2D lineEnv = null;
+                        ReferencedEnvelope lineEnv = null;
                         for (Coordinate c : ls.getCoordinates()) {
-                            DirectPosition2D dp = new DirectPosition2D(c.x,
-                                    c.y);
+                            Position2D dp = new Position2D(c.x, c.y);
                             llToCRS.transform(dp, dp);
                             if (lineEnv == null) {
-                                lineEnv = new Envelope2D(
-                                        gridGeom.getCoordinateReferenceSystem(),
-                                        dp.x, dp.y, 1, 1);
+                                lineEnv = ReferencedEnvelope.rect(dp.x, dp.y, 1,
+                                        1,
+                                        gridGeom.getCoordinateReferenceSystem());
                             } else {
-                                lineEnv.add(dp.x, dp.y);
+                                lineEnv.expandToInclude(dp.x, dp.y);
                             }
                         }
                         if (lineEnv.intersects((BoundingBox) env)) {

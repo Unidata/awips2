@@ -31,12 +31,12 @@ import java.util.Map;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.GeodeticCalculator;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
@@ -1209,7 +1209,7 @@ public class ScanUtils {
 
         GridGeometry2D gridGeometry2D = null;
 
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+        GeneralBounds generalEnvelope = new GeneralBounds(2);
         generalEnvelope.setCoordinateReferenceSystem(crs);
 
         double maxExtent = (res * (dim / 2));

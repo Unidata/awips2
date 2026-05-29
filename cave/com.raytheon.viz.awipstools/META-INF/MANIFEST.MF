@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Awipstools Plug-in
 Bundle-SymbolicName: com.raytheon.viz.awipstools;singleton:=true
 Bundle-Version: 1.19.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.viz.awipstools.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.viz.core.rsc
@@ -21,7 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.util,
  com.raytheon.uf.viz.datacube,
- javax.xml.bind
+ jakarta.xml.bind
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.capabilities,
@@ -31,7 +32,7 @@ Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.ui.action,
  com.raytheon.viz.awipstools.ui.display,
  com.raytheon.viz.awipstools.ui.layer
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.viz.core,
  com.raytheon.viz.core.interval

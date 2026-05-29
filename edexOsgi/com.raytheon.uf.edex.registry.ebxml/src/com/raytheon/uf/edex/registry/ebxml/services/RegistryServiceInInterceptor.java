@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.registry.ebxml.services;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;

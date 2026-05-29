@@ -27,7 +27,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableString;

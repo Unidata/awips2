@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;

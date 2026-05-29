@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.apache.commons.collections.CollectionUtils;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;

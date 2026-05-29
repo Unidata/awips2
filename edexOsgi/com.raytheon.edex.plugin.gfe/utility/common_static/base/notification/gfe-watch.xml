@@ -27,7 +27,7 @@
     <pluginNotification>
         <endpointName>gfe.spcWatch</endpointName>
         <format>PDO</format>
-        <endpointType>VM</endpointType>
+        <endpointType>SEDA</endpointType>
         <metadataMap>
             <mapping key="pluginName">
                 <constraint constraintValue="warning,practicewarning" constraintType="IN"/>
@@ -40,7 +40,7 @@
     <pluginNotification>
         <endpointName>gfe.tpcWatch</endpointName>
         <format>PDO</format>
-        <endpointType>VM</endpointType>
+        <endpointType>SEDA</endpointType>
         <metadataMap>
             <mapping key="pluginName">
                 <constraint constraintValue="warning,practicewarning" constraintType="IN"/>

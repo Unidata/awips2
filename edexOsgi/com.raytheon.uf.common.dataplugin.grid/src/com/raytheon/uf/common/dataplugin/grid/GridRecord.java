@@ -22,13 +22,13 @@ package com.raytheon.uf.common.dataplugin.grid;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 

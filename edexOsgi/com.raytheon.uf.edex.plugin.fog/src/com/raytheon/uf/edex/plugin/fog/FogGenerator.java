@@ -23,11 +23,11 @@ import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.fog.common.FogConfig;
 
 /**

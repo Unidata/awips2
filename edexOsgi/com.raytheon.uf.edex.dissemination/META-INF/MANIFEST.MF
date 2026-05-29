@@ -4,7 +4,7 @@ Bundle-Name: Dissemination Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.dissemination
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.common.dataplugin.text,
@@ -19,6 +19,9 @@ Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.purge,
+ com.raytheon.uf.edex.plugin.manualIngest,
+ com.raytheon.messaging.mhs,
+ org.apache.commons.lang3,
  org.apache.camel
 Require-Bundle: org.jep,
  com.raytheon.uf.edex.plugin.text,
@@ -27,6 +30,8 @@ Require-Bundle: org.jep,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.common.auth,
  com.raytheon.uf.edex.auth,
- com.raytheon.uf.edex.ndm
+ com.raytheon.uf.edex.ndm,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.edex.common
 
 

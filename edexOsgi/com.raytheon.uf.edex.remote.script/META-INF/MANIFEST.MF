@@ -14,5 +14,5 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.comm
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.edex.remote.script

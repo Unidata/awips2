@@ -29,13 +29,13 @@ import java.util.Map;
 
 import javax.measure.Unit;
 
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.colormap.image.Colormapper;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
@@ -73,7 +73,8 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.ITrueC
  * Apr 15, 2019  7596     lsingh    Upgraded javax.measure to JSR-363. Handled unit
  *                                  conversion.
  * Nov 03, 2022  8905     lsingh    Check for NaN when converting units.
- * 
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -156,15 +157,17 @@ public class TrueColorRenderedImageCallback implements IRenderedImageCallback {
             GridGeometry2D targetGeom = GridGeometry2D.wrap(gridMesh
                     .getTargetGeometry());
 
-            DirectPosition2D minPoint = new DirectPosition2D(imageExtent.getMinX(), imageExtent.getMinY());
-            DirectPosition2D maxPoint = new DirectPosition2D(imageExtent.getMaxX(), imageExtent.getMaxY());
+            Position2D minPoint = new Position2D(imageExtent.getMinX(),
+                    imageExtent.getMinY());
+            Position2D maxPoint = new Position2D(imageExtent.getMaxX(),
+                    imageExtent.getMaxY());
             try {
                 MathTransform gridToCrs = targetGeom.getGridToCRS();
                 gridToCrs.transform(minPoint, minPoint);
                 gridToCrs.transform(maxPoint, maxPoint);
-                Envelope2D env = new Envelope2D(minPoint, maxPoint);
-                env.setCoordinateReferenceSystem(targetGeom
-                        .getCoordinateReferenceSystem());
+                ReferencedEnvelope env = new ReferencedEnvelope(minPoint.x,
+                        maxPoint.x, minPoint.y, maxPoint.y,
+                        targetGeom.getCoordinateReferenceSystem());
                 GridEnvelope gridEnv = new GridEnvelope2D(0, 0, bounds[0],
                         bounds[1]);
                 targetGeom = new GridGeometry2D(gridEnv, env);
@@ -288,7 +291,7 @@ public class TrueColorRenderedImageCallback implements IRenderedImageCallback {
                         value = UnitConv
                                 .getConverterToUnchecked(dataUnit, colorMapUnit)
                                 .convert(value);
-                    } catch (NumberFormatException e) {
+                    } catch (IllegalArgumentException e) {
                         value = Double.NaN;
                     }
                 }

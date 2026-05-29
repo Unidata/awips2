@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.swt.widgets.Display;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;

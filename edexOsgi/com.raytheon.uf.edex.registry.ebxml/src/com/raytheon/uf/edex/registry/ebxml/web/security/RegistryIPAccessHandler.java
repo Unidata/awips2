@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.web.security;
 
-import org.eclipse.jetty.server.handler.IPAccessHandler;
+import org.eclipse.jetty.server.handler.InetAccessHandler;
 
 /**
  * 
@@ -32,12 +32,13 @@ import org.eclipse.jetty.server.handler.IPAccessHandler;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/27/2014    1712       bphillip    Initial Creation
+ * 2024-04-30   2037228     tgurney     Fixes for Jetty 11 upgrade
  * </pre>
  * 
  * @author bphillip
  * @version 1
  **/
-public class RegistryIPAccessHandler extends IPAccessHandler {
+public class RegistryIPAccessHandler extends InetAccessHandler {
 
 	private static final String DELIMITER = ";";
 
@@ -48,12 +49,12 @@ public class RegistryIPAccessHandler extends IPAccessHandler {
 	public void setIPAccessControl() {
 		String whiteList = System.getProperty(WHITELIST_PROPERTY);
 		if (whiteList != null && !whiteList.trim().isEmpty()) {
-			setWhite(whiteList.split(DELIMITER));
+			include(whiteList.split(DELIMITER));
 		}
 
 		String blackList = System.getProperty(BLACKLIST_PROPERTY);
 		if (blackList != null && !blackList.trim().isEmpty()) {
-			setBlack(blackList.split(DELIMITER));
+			exclude(blackList.split(DELIMITER));
 		}
 	}
 }

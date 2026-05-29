@@ -10,6 +10,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.dataplugin.taf,
- org.slf4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ org.slf4j,
+ com.raytheon.uf.edex.routes
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.wmo

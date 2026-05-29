@@ -4,7 +4,7 @@ Bundle-Name: EDEX AAG plugin
 Bundle-SymbolicName: com.raytheon.uf.edex.aviation.aag
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.auth,
  com.raytheon.uf.common.dataaccess,
  com.raytheon.uf.common.dataplugin,
@@ -23,4 +23,5 @@ Require-Bundle: com.raytheon.uf.common.auth,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.plugin.text,
  org.slf4j,
- javax.measure
+ javax.measure,
+ com.raytheon.uf.edex.routes

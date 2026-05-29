@@ -21,8 +21,11 @@ package com.raytheon.viz.aviation.climatology;
 
 import java.io.IOException;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.apache.commons.configuration2.INIConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.FileHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -65,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Feb 11, 2016 5242       dgilling    Removed calls to deprecated Localization APIs.
  * Mar 21, 2017 6183       tgurney     Move config to common_static
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 
@@ -709,7 +713,7 @@ public class WindRoseConfigDlg extends CaveSWTDialog {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
         ILocalizationFile lFile = pm.getLocalizationFile(context, CONFIG_PATH);
 
-        HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
+        INIConfiguration config = buildINIConfig();
 
         config.setProperty("wind.num_spd", "4");
         config.setProperty("wind.num_dir", pointsCbo.getText());
@@ -741,9 +745,16 @@ public class WindRoseConfigDlg extends CaveSWTDialog {
                 RGBColors.getColorName(aboveColor.getRGB()));
 
         try (SaveableOutputStream outStream = lFile.openOutputStream()) {
-            config.save(outStream);
+            FileHandler configFileHandler = new FileHandler(config);
+            configFileHandler.save(outStream);
             outStream.save();
         }
+    }
+
+    private INIConfiguration buildINIConfig() throws ConfigurationException {
+        return new FileBasedConfigurationBuilder<>(
+                INIConfiguration.class).configure(new Parameters().ini())
+                        .getConfiguration();
     }
 
     /**

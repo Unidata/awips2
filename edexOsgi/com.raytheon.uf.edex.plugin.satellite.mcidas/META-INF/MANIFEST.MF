@@ -8,13 +8,12 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools,
  org.geotools,
  javax.measure,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.edex.plugin.satellite,
- org.apache.commons.codec,
- javax.xml.bind,
- ar.com.hjg.pngj
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.menus,
  com.raytheon.uf.common.menus.xml,

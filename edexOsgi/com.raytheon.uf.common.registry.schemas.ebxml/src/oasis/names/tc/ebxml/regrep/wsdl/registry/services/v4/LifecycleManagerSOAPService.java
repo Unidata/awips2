@@ -23,10 +23,10 @@ package oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.Service;
-import javax.xml.ws.WebEndpoint;
-import javax.xml.ws.WebServiceClient;
-import javax.xml.ws.WebServiceFeature;
+import jakarta.xml.ws.Service;
+import jakarta.xml.ws.WebEndpoint;
+import jakarta.xml.ws.WebServiceClient;
+import jakarta.xml.ws.WebServiceFeature;
 
 import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 
@@ -65,7 +65,7 @@ public class LifecycleManagerSOAPService extends Service {
      * 
      * 
      * @param features
-     *            A list of {@link javax.xml.ws.WebServiceFeature} to configure
+     *            A list of {@link jakarta.xml.ws.WebServiceFeature} to configure
      *            on the proxy. Supported features not in the
      *            <code>features</code> parameter will have their default
      *            values.

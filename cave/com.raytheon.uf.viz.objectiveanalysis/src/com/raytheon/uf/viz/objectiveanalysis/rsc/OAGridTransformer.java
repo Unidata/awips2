@@ -21,16 +21,16 @@ package com.raytheon.uf.viz.objectiveanalysis.rsc;
 
 import java.util.Map;
 
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -57,7 +57,8 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * May 20, 2010           bsteffen  Initial creation
  * Aug 20, 2013  2262     njensen   Use wxmath instead of meteolib
  * Nov 01, 2018  7314     bsteffen  Handle NaN as a no data value.
- * 
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -83,7 +84,7 @@ public class OAGridTransformer {
             CoordinateReferenceSystem crs, int gridSize, float smoothPts)
             throws VizException {
 
-        Envelope envelope = geom2D.getEnvelope();
+        Bounds envelope = geom2D.getEnvelope();
         double aspect = envelope.getSpan(0) / envelope.getSpan(1);
         nx = (aspect > 1.0 ? (int) Math.round(aspect * gridSize) : gridSize);
         ny = (aspect > 1.0 ? gridSize : (int) Math.round(gridSize / aspect));

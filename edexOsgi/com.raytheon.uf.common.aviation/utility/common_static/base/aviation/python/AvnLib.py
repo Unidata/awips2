@@ -237,8 +237,10 @@
 # Mar 22, 2018 6742      njensen   Handle SKC in fixTafSky()
 # Mar 10, 2022  8808     randerso  Update ConfigParser to better work with
 #                                  Java commons.configuration
-#
-
+# Aug 15, 2025 2039322   jkelmer   Stopped removal of PROB group within first
+#                                  9 hours of TAF per NWS 10-813
+# Aug 25, 2025 2039321   jkelmer   Modified PROB group indenting to match
+#                                  TEMPO group
 ##
 # This is a base file that is not intended to be overridden.
 ##
@@ -437,15 +439,8 @@ def indentTaf(lines):
     for line in lines[k:]:
         if line.startswith('FM') or line.startswith('AMD'):
             l1, l2 = _split_line(line, 4)
-        elif line.startswith('TEMPO'):
+        elif line.startswith('TEMPO') or line.startswith('PROB'):
             l1, l2 = _split_line(line, 5)
-        elif line.startswith('PROB'):
-            prevline = taf.pop()
-            if taf:
-                indent = 4
-            else:
-                indent = 0
-            l1, l2 = _split_line('%s %s' % (prevline, line), indent)
         else:
             l1, l2 = _split_line(line, 5)
         taf.append(l1)
@@ -463,10 +458,6 @@ def adjustTimes(bbb, taf):
         return
     stime = getValidTime(bbb)
     groups = [g for g in taf['group'] if g['prev']['time']['to'] > stime]
-    for g in groups:
-        if ('ocnl' in g and g['ocnl']['type'] == 'PROB' and
-            g['ocnl']['time']['from'] < stime + 32400):
-            del g['ocnl']
     g = groups[0]
     if g['prev']['time']['from'] < stime:
         g['prev']['time']['from'] = stime

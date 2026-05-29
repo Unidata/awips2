@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Lightning Plug-in
 Bundle-SymbolicName: com.raytheon.viz.lightning;singleton:=true
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: Raytheon
 Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.viz.core,
@@ -18,10 +19,10 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.numeric,
- javax.xml.bind
+ jakarta.xml.bind
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.lightning
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.datalisting,
  com.raytheon.uf.common.datalisting.impl,
  com.raytheon.uf.viz.productbrowser,

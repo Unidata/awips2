@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="poessoundingDecoder" class="com.raytheon.edex.plugin.poessounding.POESSoundingDecoder"/>
 
@@ -13,27 +11,9 @@
         <constructor-arg value="jms-durable:queue:Ingest.poessounding"/>
     </bean>
 
-    <camelContext id="poessounding-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <!-- Begin poes Sounding routes -->
-        <route id="poessndgIngestRoute">
-            <from uri="jms-durable:queue:Ingest.poessounding"/>
-            <setHeader name="pluginName">
-                <constant>poessounding</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="poessoundingDecoder" method="decode"/>
-                    <to uri="direct-vm:persistIndexAlert"/>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:poessounding?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    <bean id="poessounding-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.poessounding.POESSoundingCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

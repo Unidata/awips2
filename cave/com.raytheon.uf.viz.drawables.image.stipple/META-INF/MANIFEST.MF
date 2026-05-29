@@ -4,7 +4,7 @@ Bundle-Name: Stippled Colormapped Images
 Bundle-SymbolicName: com.raytheon.uf.viz.drawables.image.stipple;singleton:=true
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.common.colormap,
  javax.measure

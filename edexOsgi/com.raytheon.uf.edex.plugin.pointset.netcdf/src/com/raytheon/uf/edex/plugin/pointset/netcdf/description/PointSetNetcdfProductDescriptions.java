@@ -21,12 +21,12 @@ package com.raytheon.uf.edex.plugin.pointset.netcdf.description;
 
 import java.util.List;
 
-import javax.xml.bind.JAXB;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.JAXB;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 import com.raytheon.uf.edex.netcdf.description.product.NetcdfProductDescription;

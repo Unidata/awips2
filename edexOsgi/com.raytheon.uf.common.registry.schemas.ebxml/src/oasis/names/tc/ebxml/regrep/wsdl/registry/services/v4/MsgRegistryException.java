@@ -20,7 +20,7 @@
 
 package oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4;
 
-import javax.xml.ws.WebFault;
+import jakarta.xml.ws.WebFault;
 
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 

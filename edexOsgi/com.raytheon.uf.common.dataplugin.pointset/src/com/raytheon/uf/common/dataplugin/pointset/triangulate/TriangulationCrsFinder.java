@@ -19,19 +19,19 @@
  **/
 package com.raytheon.uf.common.dataplugin.pointset.triangulate;
 
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.DirectPosition3D;
+import org.geotools.api.parameter.ParameterValueGroup;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.Ellipsoid;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.Position3D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeocentricCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 /**
  * Attempt to find the most appropriate CRS to perform a delauney triangulation
@@ -105,7 +105,7 @@ public class TriangulationCrsFinder {
         return xyz;
     }
 
-    protected DirectPosition2D findLonLatCenter(float[] xyz)
+    protected Position2D findLonLatCenter(float[] xyz)
             throws TransformException {
         int numPoints = xyz.length / 3;
 
@@ -125,9 +125,9 @@ public class TriangulationCrsFinder {
          * surface. So even though the center3D used in createTransform() looks
          * like it is the same as this point, it is not.
          */
-        DirectPosition3D center3D = new DirectPosition3D(x / numPoints, y
-                / numPoints, z / numPoints);
-        DirectPosition2D centerLonLat = new DirectPosition2D();
+        Position3D center3D = new Position3D(x / numPoints, y / numPoints,
+                z / numPoints);
+        Position2D centerLonLat = new Position2D();
         lonLatTo3D.inverse().transform(center3D, centerLonLat);
 
         return centerLonLat;
@@ -135,8 +135,8 @@ public class TriangulationCrsFinder {
 
     protected MathTransform createTransform(float[] xyz)
             throws FactoryException, TransformException {
-        DirectPosition2D centerLonLat = findLonLatCenter(xyz);
-        DirectPosition3D center3D = new DirectPosition3D();
+        Position2D centerLonLat = findLonLatCenter(xyz);
+        Position3D center3D = new Position3D();
         lonLatTo3D.transform(centerLonLat, center3D);
 
         boolean isStereographicOK = true;

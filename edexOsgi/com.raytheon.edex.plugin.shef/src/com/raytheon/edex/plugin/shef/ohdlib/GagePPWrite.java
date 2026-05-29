@@ -39,10 +39,10 @@ import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
 import com.raytheon.uf.common.dataplugin.shef.tables.IHourlyTS;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * 

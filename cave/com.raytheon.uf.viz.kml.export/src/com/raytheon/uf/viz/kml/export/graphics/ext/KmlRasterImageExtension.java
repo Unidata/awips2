@@ -19,14 +19,13 @@
  **/
 package com.raytheon.uf.viz.kml.export.graphics.ext;
 
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.processing.Operations;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -52,7 +51,8 @@ import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2012            bsteffen     Initial creation
  * Nov 03, 2016 5957       bsteffen    Support images with a mesh
- * 
+ * May 07, 2024  2037231   aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -90,14 +90,14 @@ public class KmlRasterImageExtension extends
                 try {
                     if (mesh == null) {
                         MathTransform transform = gridGeometry.getGridToCRS();
-                        DirectPosition2D min = new DirectPosition2D(
-                                coverage.getMinX(), coverage.getMinY());
-                        DirectPosition2D max = new DirectPosition2D(
-                                coverage.getMaxX(), coverage.getMaxY());
+                        Position2D min = new Position2D(coverage.getMinX(),
+                                coverage.getMinY());
+                        Position2D max = new Position2D(coverage.getMaxX(),
+                                coverage.getMaxY());
                         transform.transform(min, min);
                         transform.transform(max, max);
-                        ReferencedEnvelope env = new ReferencedEnvelope(
-                                new Envelope2D(min, max),
+                        ReferencedEnvelope env = new ReferencedEnvelope(min.x,
+                                max.x, min.y, max.y,
                                 gridGeometry.getCoordinateReferenceSystem());
                         GridCoverage2D source = coverageFactory.create("Test",
                                 kmlImage.getImage(), env);

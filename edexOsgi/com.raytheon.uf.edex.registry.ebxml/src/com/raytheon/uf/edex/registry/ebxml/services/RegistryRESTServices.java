@@ -24,16 +24,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.clustering.FailoverFeature;
 import org.apache.cxf.clustering.SequentialStrategy;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.transport.http.HTTPConduitConfigurer;
 
 import com.google.common.io.Resources;
 import com.raytheon.uf.common.registry.RegistryJaxbManager;
@@ -47,6 +43,11 @@ import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService
 import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.security.SecurityConfiguration;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 /**
  * 
@@ -71,6 +72,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 7/10/2014    1717        bphillip    Added authorization policy
  * 5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
  * 11/08/2018   7238        skabasele   Logging the JAXBException
+ * 09/04/2024   2037568     aford       Apache CXF 4 Upgrade - Set tls params
  * </pre>
  * 
  * @author bphillip
@@ -105,13 +107,22 @@ public class RegistryRESTServices {
     /** JAXB Manager */
     private RegistryJaxbManager jaxbManager;
 
+    private SecurityConfiguration securityConfig;
+
     /**
      * Creates a new RegistryRESTServices object
      * 
      * @throws JAXBException
      *             If the RegistryJaxbManager is not initialized properly
      */
-    public RegistryRESTServices() throws JAXBException {
+    /**
+     * @param securityConfig
+     *            The security configuration to use for creating the service
+     * @throws JAXBException
+     */
+    public RegistryRESTServices(SecurityConfiguration securityConfig)
+            throws JAXBException {
+        this.securityConfig = securityConfig;
         jaxbManager = new RegistryJaxbManager(new RegistryNamespaceMapper());
     }
 
@@ -280,7 +291,7 @@ public class RegistryRESTServices {
      *            The service class interface
      * @return A REST service proxy object
      */
-    public static <T extends Object> T createService(final String url,
+    private <T extends Object> T createService(final String url,
             final Class<T> serviceClass) {
         String dummyUrl = url + DUMMY_PATH;
         JAXRSClientFactoryBean clientFactory = new JAXRSClientFactoryBean();
@@ -307,6 +318,12 @@ public class RegistryRESTServices {
         clientFactory.setResourceClass(serviceClass);
         clientFactory.setAddress(dummyUrl);
         clientFactory.setFeatures(features);
+
+        clientFactory.getBus().setExtension((name, address, httpConduit) -> {
+            httpConduit
+                    .setTlsClientParameters(this.securityConfig.getTlsParams());
+        }, HTTPConduitConfigurer.class);
+
         return clientFactory.create(serviceClass);
     }
 }

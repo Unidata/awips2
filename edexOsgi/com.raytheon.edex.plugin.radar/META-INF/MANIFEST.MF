@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.edex.plugin.radar
 Bundle-Version: 1.16.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.localization,
@@ -16,7 +16,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.menus,
  org.itadaki.bzip2,
  org.slf4j,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.edex.plugin.radar,
  com.raytheon.edex.plugin.radar.dao,
  com.raytheon.edex.plugin.radar.level2

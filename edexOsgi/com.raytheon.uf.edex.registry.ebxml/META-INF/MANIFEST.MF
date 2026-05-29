@@ -4,14 +4,14 @@ Bundle-Name: Registry
 Bundle-SymbolicName: com.raytheon.uf.edex.registry.ebxml
 Bundle-Version: 1.19.1.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml,
  org.apache.commons.beanutils,
  org.apache.xml.security,
  org.springframework,
  org.hibernate,
  com.raytheon.uf.edex.core,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.status,
@@ -24,7 +24,7 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.time,
  org.apache.ws.security,
- com.google.guava;bundle-version="32.0.0",
+ com.google.guava;bundle-version="33.5.0",
  com.raytheon.uf.common.registry.ebxml,
  com.raytheon.uf.common.stats,
  com.raytheon.uf.common.registry.event,
@@ -42,10 +42,11 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml,
  org.apache.commons.io,
  org.slf4j,
  org.eclipse.jetty,
- javax.xml.bind,
- javax.annotation,
- javax.xml.ws,
- javax.jws
+ jakarta.xml.bind,
+ jakarta.annotation,
+ jakarta.xml.ws,
+ jakarta.jws,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.registry.ebxml,
  com.raytheon.uf.edex.registry.ebxml.acp,
  com.raytheon.uf.edex.registry.ebxml.dao,
@@ -66,7 +67,7 @@ Export-Package: com.raytheon.uf.edex.registry.ebxml,
  com.raytheon.uf.edex.registry.ebxml.web.security,
  com.raytheon.uf.edex.registry.events,
  com.raytheon.uf.edex.registry.synchronization
-Import-Package: javax.servlet,
- javax.servlet.http
+Import-Package: jakarta.servlet,
+ jakarta.servlet.http
 
 

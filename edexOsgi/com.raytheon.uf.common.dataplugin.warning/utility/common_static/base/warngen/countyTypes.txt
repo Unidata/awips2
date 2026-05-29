@@ -18,6 +18,10 @@ GU \
 Guam \
 GU+ \
 Guam+ \
+MP \
+Northern Mariana Islands \
+MP+ \
+Northern Mariana Islands+ \
 DEFAULT+ \ Counties
 DEFAULT \ County
 City \

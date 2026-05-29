@@ -35,8 +35,8 @@ import org.eclipse.ui.PlatformUI;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.strtree.STRtree;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;

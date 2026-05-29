@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Radar In Grid
 Bundle-SymbolicName: com.raytheon.uf.viz.grid.radar;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.grid,
@@ -23,13 +24,14 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.alerts,
  com.raytheon.uf.viz.datacube,
  com.raytheon.uf.common.numeric,
- javax.xml.bind,
+ jakarta.xml.bind,
  com.raytheon.viz.awipstools,
  org.apache.commons.collections4,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.dataquery,
  com.google.guava,
- com.raytheon.uf.viz.core.rsc
+ com.raytheon.uf.viz.core.rsc,
+ org.apache.commons.lang3
 Export-Package: com.raytheon.uf.viz.grid.radar,
  com.raytheon.uf.viz.grid.radar.util
 Import-Package: com.raytheon.uf.common.wxmath,

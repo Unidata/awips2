@@ -4,10 +4,10 @@ Bundle-Name: NPP Sounding DataPlugin
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.npp.sounding
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.serialization,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.common.pointdata,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.common.dataplugin.npp.sounding

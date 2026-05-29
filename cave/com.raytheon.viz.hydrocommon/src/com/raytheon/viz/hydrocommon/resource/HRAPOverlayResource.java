@@ -21,10 +21,10 @@ package com.raytheon.viz.hydrocommon.resource;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.TransformFactory;

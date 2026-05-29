@@ -28,8 +28,8 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Decode Mobile synoptic FM-14 observations. The class decodes section 0 for

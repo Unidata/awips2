@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Grid
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.grid
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.grid.dataaccess,
@@ -33,7 +34,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.numeric,
  org.apache.commons.beanutils,
  javax.measure,
- javax.persistence,
+ jakarta.persistence,
  org.hibernate,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.common.units

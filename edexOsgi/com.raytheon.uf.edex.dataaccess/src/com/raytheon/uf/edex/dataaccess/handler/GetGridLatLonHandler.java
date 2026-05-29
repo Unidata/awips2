@@ -23,8 +23,8 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
+import org.geotools.api.geometry.MismatchedDimensionException;
+import org.geotools.api.referencing.FactoryException;
 
 import com.raytheon.uf.common.dataaccess.request.GetGridLatLonRequest;
 import com.raytheon.uf.common.dataaccess.response.GetGridLatLonResponse;

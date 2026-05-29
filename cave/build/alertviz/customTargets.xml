@@ -100,6 +100,10 @@
                 <copy todir="${buildDirectory}/plugins">
                         <fileset dir="${buildDirectory}/../../../" includes="javax.*/**"/>
                 </copy>
+                <echo message="jakarta.*/**"/>
+                <copy todir="${buildDirectory}/plugins">
+                        <fileset dir="${buildDirectory}/../../../" includes="jakarta.*/**"/>
+                </copy>
                 <echo message="gov.*/**"/>
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="gov.*/**"/>

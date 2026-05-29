@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.Rectangle;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;

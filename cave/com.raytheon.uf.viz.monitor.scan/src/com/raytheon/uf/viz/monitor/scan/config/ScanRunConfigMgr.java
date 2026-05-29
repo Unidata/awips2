@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.monitor.scan.config;
 import java.io.File;
 import java.util.ArrayList;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;

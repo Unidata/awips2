@@ -31,7 +31,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Point;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;

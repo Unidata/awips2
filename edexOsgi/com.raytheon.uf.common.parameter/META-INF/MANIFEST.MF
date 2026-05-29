@@ -4,7 +4,7 @@ Bundle-Name: Common Parameter Plugin
 Bundle-SymbolicName: com.raytheon.uf.common.parameter
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataquery.requests,
@@ -15,12 +15,12 @@ Import-Package: com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.serialization.annotations,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.status,
- javax.persistence
+ jakarta.persistence
 Export-Package: com.raytheon.uf.common.parameter,
  com.raytheon.uf.common.parameter.localization,
  com.raytheon.uf.common.parameter.lookup,
  com.raytheon.uf.common.parameter.mapping,
  com.raytheon.uf.common.parameter.request
 Require-Bundle: com.raytheon.uf.common.util,
- javax.xml.bind,
+ jakarta.xml.bind,
  javax.measure

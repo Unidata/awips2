@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;

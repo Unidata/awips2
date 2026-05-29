@@ -39,9 +39,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;

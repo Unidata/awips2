@@ -122,7 +122,7 @@ def checkMarineState(ugcCode):
     #returns None if unknown, description if known
     areas = {
       'AM': 'Atlantic coastal waters',
-      'GM': 'Gulf of Mexico',
+      'GM': 'Gulf of America',
       'LE': 'Lake Erie',
       'LO': 'Lake Ontario', 
       'LH': 'Lake Huron',

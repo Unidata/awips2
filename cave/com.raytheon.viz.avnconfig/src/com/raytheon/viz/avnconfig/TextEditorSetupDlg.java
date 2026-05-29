@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
@@ -85,6 +85,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Feb 11, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * May 15, 2019 20693   mgamazaychikov ITafSiteConfig, TafSiteConfigFactory refactor
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 

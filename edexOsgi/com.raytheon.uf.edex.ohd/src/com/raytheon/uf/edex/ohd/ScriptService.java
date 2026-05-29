@@ -22,8 +22,6 @@ package com.raytheon.uf.edex.ohd;
 import java.io.File;
 import java.util.Map;
 
-import org.quartz.CronExpression;
-
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
@@ -41,9 +39,10 @@ import com.raytheon.uf.edex.core.EdexException;
  * ------------ ---------- ----------- --------------------------
  * Dec 19, 2008            jelkins     Initial creation
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
- * 
+ * Sep 25, 2024   2037926  aford       Remove unused use of quartz
+ *
  * </pre>
- * 
+ *
  * @author jelkins
  * @version 1.0
  */
@@ -51,9 +50,6 @@ import com.raytheon.uf.edex.core.EdexException;
 public class ScriptService implements ServiceInterface {
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(ScriptService.class);
-
-    /** A Cron expression representation of the cron line in the legacy system */
-    private CronExpression cronExpression;
 
     /** The script file to execute when running the service */
     private File script;
@@ -129,21 +125,6 @@ public class ScriptService implements ServiceInterface {
         // if (!script.canExecute()) {
         // throw new EdexException(scriptName + " is not executable");
         // }
-    }
-
-    /**
-     * @return the cronExpression
-     */
-    public CronExpression getCronExpression() {
-        return cronExpression;
-    }
-
-    /**
-     * @param cronExpression
-     *            the cronExpression to set
-     */
-    public void setCronExpression(CronExpression cronExpression) {
-        this.cronExpression = cronExpression;
     }
 
     /**

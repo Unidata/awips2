@@ -28,6 +28,7 @@ import javax.measure.quantity.Length;
 import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.dataaccess.RadarDataAccessFactory;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -62,6 +63,7 @@ import tech.units.indriya.quantity.Quantities;
  * Nov 26, 2018 20926      jdynina     Display MSL/AGL for below 0 degree elevs.
  * Jul 17, 2019 21421      jdynina     Bring MSL calculation in line with RPG
  * Oct 31, 2022 8905       lsingh      Check for NaN before converting units
+ * Sep 24, 2024 2037996    jdynina     Recognize elevation-based products
  *
  * </pre>
  *
@@ -115,6 +117,12 @@ public class RadarRadialInterrogator extends RadarDefaultInterrogator
                 Quantities.getQuantity(radarElevation, SI.METRE));
         addValueToMap(dataMap, keys, LATITUDE, radarRecord.getLatitude());
         addValueToMap(dataMap, keys, LONGITUDE, radarRecord.getLongitude());
+
+        if (!(RadarDataAccessFactory.getRadarInfo().
+                getInfo(radarRecord.getProductCode()).isElevation())) {
+            keys.remove(MSL);
+            keys.remove(AGL);
+        }
 
         if (keys.contains(MSL) || keys.contains(AGL)) {
             double tiltAngle = Math

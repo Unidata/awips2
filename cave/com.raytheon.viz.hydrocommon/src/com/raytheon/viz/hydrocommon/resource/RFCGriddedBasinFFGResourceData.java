@@ -22,7 +22,7 @@ package com.raytheon.viz.hydrocommon.resource;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;

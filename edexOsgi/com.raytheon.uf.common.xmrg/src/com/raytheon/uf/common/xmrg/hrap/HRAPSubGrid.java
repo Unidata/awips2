@@ -22,19 +22,19 @@ package com.raytheon.uf.common.xmrg.hrap;
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * TODO Add Description
@@ -48,7 +48,8 @@ import org.locationtech.jts.geom.Geometry;
  * Mar 09, 2016  19733     snaples     Adject back to Lower Left after changing transforms.
  * Sep 15, 2017  6407      bkowal      Now possible to retrieve the Grid Mapper and Grid Geometry
  *                                     for a HRAP Sub Grid.
- * 
+ * May 07, 2024  2037231   aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author snaples
@@ -166,7 +167,7 @@ public class HRAPSubGrid implements ISpatialObject {
                     0, output, 0, 2);
 
             // create a grid geometry for the projection
-            GeneralEnvelope userRange = new GeneralEnvelope(2);
+            GeneralBounds userRange = new GeneralBounds(2);
             userRange.setCoordinateReferenceSystem(getCrs());
             userRange.setRange(0, Math.min(output[0], output[2]),
                     Math.max(output[0], output[2]));

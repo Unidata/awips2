@@ -35,6 +35,45 @@ FILEPATH=${1}
 SCHEMA=${2}
 TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
 
+
+# Set PGHOST appropriately:
+# - If we're already on "dv1", set it to dv1.
+# - If we're on any other host with postgres running, set it 
+#   to "localhost".
+# - If we're on any other host without postgres running, set it
+#   to "dv1".
+
+export PGHOST='localhost'
+
+host=$(hostname)
+
+#extract first part of hostname of the form dv1-xxx.xxx
+IFS="-"
+hostTemp=''
+for part in $host
+do
+    hostTemp=$part
+    break
+done
+unset IFS
+
+
+# if we're on dv1, just set "PGHOST" to dv1
+if [ $hostTemp == 'dv1' ] ; then
+    export PGHOST=$hostTemp
+fi
+
+
+#check if postgres is running on this host. Should be many 
+#processes with "postgres" in the name.
+numPostgres=$(ps -ef | grep postgres | wc -l)
+
+#choosing 3 for safety, since the "grep" is atleast 1
+if [ $numPostgres -lt 3 ] ; then
+   export PGHOST='dv1'
+fi
+
+
 if [ -z $4 ] ; then
     PGUSER=awipsadmin
 else
@@ -68,7 +107,7 @@ ${psql} -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
       USING gist
       (the_geom);
 "
-sed -n "s/'/''/g;s/^[[:digit:]]|[[:blank:]][:digit:]*//;s/[[:blank:]]*\\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}p[[:blank:]]*\\([[:digit:]]*\)[[:blank:]]*\\([^|]*\)|\([[:digit:]]*\).*/INSERT INTO "${SCHEMA}"\."${TABLE}"(id,name,warngenlev,the_geom) VALUES(\4,'\5',\6,ST_GeomFromText('POINT(\3 \2)',4326));/p" $FILEPATH | \
+sed -n "s/'/''/g;s/^[[:digit:]]|[[:blank:]][[:digit:]]*//;s/[[:blank:]]*\\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}p[[:blank:]]*\\([[:digit:]]*\)[[:blank:]]*\\([^|]*\)|\([[:digit:]]*\).*/INSERT INTO "${SCHEMA}"\."${TABLE}"(id,name,warngenlev,the_geom) VALUES(\4,'\5',\6,ST_GeomFromText('POINT(\3 \2)',4326));/p" $FILEPATH | \
     ${psql} -d maps -U ${PGUSER} -q -p ${PGPORT}
     
 a2dbauth vacuumdb -d maps -t ${SCHEMA}.${TABLE} -U ${PGUSER} -p ${PGPORT} -qz

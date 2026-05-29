@@ -21,8 +21,8 @@ package com.raytheon.uf.viz.xy.graph;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 

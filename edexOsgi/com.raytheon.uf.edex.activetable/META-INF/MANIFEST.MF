@@ -4,7 +4,7 @@ Bundle-Name: Activetablesrv Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.activetable
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.python,
@@ -12,7 +12,7 @@ Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.site,
  com.raytheon.uf.common.status,
  org.locationtech.jts.geom,
- javax.persistence
+ jakarta.persistence
 Require-Bundle: com.raytheon.uf.common.localization,
  org.jep,
  com.raytheon.uf.common.serialization,
@@ -23,11 +23,12 @@ Require-Bundle: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.activetable,
  com.raytheon.uf.edex.site,
- com.google.guava;bundle-version="32.0.0",
+ com.google.guava;bundle-version="33.5.0",
  com.raytheon.uf.edex.auth,
  com.raytheon.uf.common.serialization.comm,
  org.apache.commons.io,
  com.raytheon.uf.edex.requestsrv,
  com.raytheon.uf.edex.python.decoder,
- org.slf4j
+ org.slf4j,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.activetable

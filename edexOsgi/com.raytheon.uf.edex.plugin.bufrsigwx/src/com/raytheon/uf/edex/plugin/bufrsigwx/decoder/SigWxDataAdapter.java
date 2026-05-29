@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxType;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -38,7 +39,6 @@ import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**

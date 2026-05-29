@@ -31,10 +31,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;

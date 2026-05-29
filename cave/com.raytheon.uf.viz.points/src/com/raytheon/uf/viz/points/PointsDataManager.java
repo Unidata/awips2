@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.measure.UnitConverter;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;

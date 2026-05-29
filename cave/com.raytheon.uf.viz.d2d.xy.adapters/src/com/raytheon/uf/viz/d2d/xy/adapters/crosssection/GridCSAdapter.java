@@ -32,14 +32,14 @@ import java.util.Set;
 
 import javax.measure.Unit;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
@@ -91,6 +91,7 @@ import com.raytheon.viz.core.map.GeoUtil;
  * Jan 25, 2023  9001     mapeters     Don't hold onto raw data records after
  *                                     processing them
  * Dec 20, 2023  2036519  mapeters     Add dispose()
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
  * Jun 20, 2024  2037565  mapeters     Remove unused getParameterName()
  * Jul 03, 2024  2037476  bines        Add getCreatingEntity() override
  * Aug 06, 2024  2037698  bines        Use nearest neighbor for HC data and added
@@ -230,7 +231,7 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
                 while (dataLists.size() < results.length) {
                     dataLists.add(new ArrayList<XYData>());
                 }
-                DirectPosition2D xPoint = null;
+                Position2D xPoint = null;
                 try {
                     xPoint = PointUtil.determineExactIndex(coordinates[i],
                             xRecord.getLocation().getCrs(),
@@ -309,7 +310,7 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
             return yVal;
         }
         FloatDataRecord yRec = (FloatDataRecord) yDataRecords[0];
-        DirectPosition2D yPoint;
+        Position2D yPoint;
         try {
             yPoint = PointUtil.determineExactIndex(coord,
                     yRecord.getLocation().getCrs(),
@@ -351,7 +352,7 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
             Collections.addAll(coordinates, lineVertices);
 
             for (Coordinate c : coordinates) {
-                DirectPosition2D point = null;
+                Position2D point = null;
                 try {
                     point = PointUtil.determineExactIndex(c, location.getCrs(),
                             MapUtil.getGridGeometry(location));

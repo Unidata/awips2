@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;

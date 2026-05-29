@@ -31,13 +31,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuManager;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 
 import com.raytheon.uf.common.json.geo.GeoJsonMapUtil;
 import com.raytheon.uf.common.json.geo.IGeoJsonService;
@@ -60,9 +63,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.drawing.polygon.DrawablePolygon;
 import com.raytheon.uf.viz.drawing.polygon.PolygonLayer;
 import com.raytheon.uf.viz.drawing.polygon.PolygonUtil;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Polygon;
 
 /**
  * A layer for displaying and customizing a weather event's damage path.

@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.viz.image.export;singleton:=true
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.viz.ui,
  com.raytheon.uf.viz.core,
  org.eclipse.core.runtime,

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.monitor.thresholds;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;

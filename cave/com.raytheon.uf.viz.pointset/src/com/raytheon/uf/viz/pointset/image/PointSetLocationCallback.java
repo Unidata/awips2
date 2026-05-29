@@ -26,8 +26,8 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.pointset.PointSetLocation;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;

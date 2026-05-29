@@ -21,7 +21,7 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.util.CollectionUtil;

@@ -37,13 +37,22 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.data.DataStore;
-import org.geotools.data.Query;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.Query;
+import org.geotools.api.data.SimpleFeatureSource;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.feature.type.AttributeDescriptor;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.geometry.MismatchedDimensionException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.util.factory.GeoTools;
 import org.locationtech.jts.geom.Coordinate;
@@ -53,15 +62,6 @@ import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.TopologyException;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -137,6 +137,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * May 19, 2021  8468     randerso  Catch TopologyException from
  *                                  getInteriorPoint() and place label at the
  *                                  point of the exception.
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -299,8 +300,8 @@ public class DataStoreResource
             query.setPropertyNames(fields);
 
             if (req.getBoundingGeom() != null) {
-                FilterFactory2 ff = CommonFactoryFinder
-                        .getFilterFactory2(GeoTools.getDefaultHints());
+                FilterFactory ff = CommonFactoryFinder
+                        .getFilterFactory(GeoTools.getDefaultHints());
 
                 List<Geometry> geomList = new ArrayList<>();
                 flattenGeometry(req.getBoundingGeom(), geomList);
@@ -896,7 +897,7 @@ public class DataStoreResource
         this.doubleClickListeners = new ListenerList();
         this.attributesUpdatedListeners = new ListenerList();
 
-        GeneralEnvelope env = new GeneralEnvelope(MapUtil.LATLON_PROJECTION);
+        GeneralBounds env = new GeneralBounds(MapUtil.LATLON_PROJECTION);
         env.setEnvelope(-180.0, -90.0, 180.0, 90.0);
 
         resourceData.addChangeListener(this);
@@ -1009,8 +1010,8 @@ public class DataStoreResource
         Query query = new Query();
         query.setTypeName(typeName);
 
-        FilterFactory2 ff = CommonFactoryFinder
-                .getFilterFactory2(GeoTools.getDefaultHints());
+        FilterFactory ff = CommonFactoryFinder
+                .getFilterFactory(GeoTools.getDefaultHints());
 
         String geomField = schema.getGeometryDescriptor().getLocalName();
 
@@ -1593,8 +1594,8 @@ public class DataStoreResource
         Query query = new Query();
         query.setTypeName(typeName);
 
-        FilterFactory2 ff = CommonFactoryFinder
-                .getFilterFactory2(GeoTools.getDefaultHints());
+        FilterFactory ff = CommonFactoryFinder
+                .getFilterFactory(GeoTools.getDefaultHints());
 
         String geomField = schema.getGeometryDescriptor().getLocalName();
 

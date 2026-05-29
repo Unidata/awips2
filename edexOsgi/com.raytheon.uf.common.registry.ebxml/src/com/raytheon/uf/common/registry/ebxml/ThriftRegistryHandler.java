@@ -4,9 +4,7 @@ import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 
-import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
-
-import org.apache.http.conn.HttpHostConnectException;
+import org.apache.hc.client5.http.HttpHostConnectException;
 
 import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
 import com.raytheon.uf.common.comm.CommunicationException;
@@ -24,14 +22,16 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
 
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
+
 /**
- * 
+ *
  * A Thrift client implementation for use with the RegistryManager Class.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012 356        jspinks     Initial creation
@@ -46,9 +46,10 @@ import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
  * Dec 03, 2012 1379       djohnson    Use registry service keys.
  * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
  * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
- * 
+ * Apr 15, 2026 2038243    mapeters    Apache httpclient 5 upgrade
+ *
  * </pre>
- * 
+ *
  * @author jspinks
  * @version 1.0
  */
@@ -57,18 +58,18 @@ public class ThriftRegistryHandler implements RegistryHandler {
     /**
      * Handle the packaging and unpackaging of the Thrift communication with the
      * registry.
-     * 
+     *
      * @param request
      *            The IRegistryRequest that contains the query to make against
      *            the registry.
-     * 
+     *
      * @return The response from the registry.
-     * 
+     *
      * @throws MsgRegistryException
      *             If there is a problem executing the query.
      */
     private <T> RegistryResponse<T> sendRequest(IRegistryRequest<T> request) {
-        final RegistryQueryResponse<T> response = new RegistryQueryResponse<T>(
+        final RegistryQueryResponse<T> response = new RegistryQueryResponse<>(
                 request.getQuery());
         try {
             return sendRequestViaThrift(request);
@@ -80,12 +81,10 @@ public class ThriftRegistryHandler implements RegistryHandler {
             Throwable cause = re.getCause();
 
             if (cause instanceof HttpHostConnectException) {
-                return RegistryUtil
-                        .getFailedResponse(
-                                response,
-                                new RegistryException(
-                                        RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
-                                        re));
+                return RegistryUtil.getFailedResponse(response,
+                        new RegistryException(
+                                RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                                re));
             } else if (cause instanceof CommunicationException) {
                 return RegistryUtil.getFailedResponse(response,
                         (CommunicationException) cause);
@@ -98,7 +97,7 @@ public class ThriftRegistryHandler implements RegistryHandler {
     /**
      * Send the actual request via Thrift. Broken out into a package-private
      * method so it can be overridden for tests.
-     * 
+     *
      * @param <T>
      *            the type the request/response is for
      * @param request
@@ -123,9 +122,8 @@ public class ThriftRegistryHandler implements RegistryHandler {
                 SuccessfulExecution response = (SuccessfulExecution) object;
                 return (RegistryResponse<T>) response.getResponse();
             } else if (object instanceof ServerErrorResponse) {
-                throw ExceptionWrapper
-                        .unwrapThrowable(((ServerErrorResponse) object)
-                                .getException());
+                throw ExceptionWrapper.unwrapThrowable(
+                        ((ServerErrorResponse) object).getException());
             } else {
                 throw new IllegalStateException(
                         "Received unexpected response type from the server.  Object was ["
@@ -139,21 +137,21 @@ public class ThriftRegistryHandler implements RegistryHandler {
 
     /**
      * Retrieve registry objects that satisfy the RegistryQuery.
-     * 
+     *
      * @param registryQuery
      *            A RegistryQuery to search the registry for objects.
-     * 
+     *
      * @return A RegistryQueryResponse containing the status of the request, any
      *         registry objects that satisfied the RegistryQuery and any
      *         Exceptions generated from processing the RegistryQuery.
-     * 
+     *
      * @see AdhocRegistryQuery
      * @see IdQuery
      */
     @Override
     public <T> RegistryQueryResponse<T> getObjects(
             RegistryQuery<T> registryQuery) {
-        IRegistryRequest<T> request = new IRegistryRequest<T>();
+        IRegistryRequest<T> request = new IRegistryRequest<>();
         request.setQuery(registryQuery);
         request.setAction(Action.QUERY);
 
@@ -163,7 +161,7 @@ public class ThriftRegistryHandler implements RegistryHandler {
     @Override
     public <T> RegistryResponse<T> removeObjects(String username,
             RegistryQuery<T> registryQuery) {
-        IRegistryRequest<T> request = new IRegistryRequest<T>();
+        IRegistryRequest<T> request = new IRegistryRequest<>();
         request.setUsername(username);
         request.setQuery(registryQuery);
         request.setAction(Action.REMOVE);
@@ -172,8 +170,9 @@ public class ThriftRegistryHandler implements RegistryHandler {
     }
 
     @Override
-    public <T> RegistryResponse<T> removeObjects(RegistryQuery<T> registryQuery) {
-        IRegistryRequest<T> request = new IRegistryRequest<T>();
+    public <T> RegistryResponse<T> removeObjects(
+            RegistryQuery<T> registryQuery) {
+        IRegistryRequest<T> request = new IRegistryRequest<>();
         request.setQuery(registryQuery);
         request.setAction(Action.REMOVE);
 
@@ -183,7 +182,7 @@ public class ThriftRegistryHandler implements RegistryHandler {
     @Override
     public <T> RegistryResponse<T> removeObjects(String username,
             List<T> registryObjects) {
-        IRegistryRequest<T> request = new IRegistryRequest<T>();
+        IRegistryRequest<T> request = new IRegistryRequest<>();
         request.setUsername(username);
         request.setObjects(registryObjects);
         request.setAction(Action.REMOVE);
@@ -194,7 +193,7 @@ public class ThriftRegistryHandler implements RegistryHandler {
     @SuppressWarnings("unchecked")
     @Override
     public <T> RegistryResponse<T> storeObject(String username, T object) {
-        IRegistryRequest<T> request = new IRegistryRequest<T>();
+        IRegistryRequest<T> request = new IRegistryRequest<>();
         request.setUsername(username);
         request.setObjects(Arrays.<T> asList(object));
         request.setAction(Action.STORE);
@@ -204,8 +203,9 @@ public class ThriftRegistryHandler implements RegistryHandler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> RegistryResponse<T> storeOrReplaceObject(String username, T object) {
-        IRegistryRequest<T> request = new IRegistryRequest<T>();
+    public <T> RegistryResponse<T> storeOrReplaceObject(String username,
+            T object) {
+        IRegistryRequest<T> request = new IRegistryRequest<>();
         request.setUsername(username);
         request.setObjects(Arrays.<T> asList(object));
         request.setAction(Action.STORE_OR_REPLACE);

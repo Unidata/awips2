@@ -4,10 +4,10 @@ Bundle-Name: QPF common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.scan
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.dataplugin.scan,
  com.raytheon.uf.common.dataplugin.scan.data
-Require-Bundle: javax.persistence,
+Require-Bundle: jakarta.persistence,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.dataplugin.binlightning,
@@ -18,7 +18,7 @@ Require-Bundle: javax.persistence,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.common.time,
  org.apache.commons.logging
 

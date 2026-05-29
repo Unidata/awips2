@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Decodertools
+Bundle-SymbolicName: com.raytheon.uf.common.decodertools
+Bundle-Version: 1.24.0.qualifier
+Export-Package: com.raytheon.uf.common.decodertools,
+ com.raytheon.uf.common.decodertools.aircraft,
+ com.raytheon.uf.common.decodertools.time
+Require-Bundle: javax.measure,
+ org.geotools,
+ com.raytheon.uf.common.time
+Bundle-Vendor: RAYTHEON
+Automatic-Module-Name: com.raytheon.uf.common.decodertools
+Bundle-RequiredExecutionEnvironment: JavaSE-17

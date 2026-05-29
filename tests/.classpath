@@ -17,7 +17,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.localization"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.common"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.log4j"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.lang"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.lang3"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.geotools"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.geospatial"/>
@@ -75,7 +75,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/javax.servlet_2.5.0.v200910301333.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jakarta.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.thrift"/>
@@ -132,7 +132,7 @@
 	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.wxmath"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jface_3.8.0.v20120912-135020.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.configuration"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.configuration2"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.redbook"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.hpe"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.plugin.hpe"/>

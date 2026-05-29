@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.MouseAdapter;
@@ -90,6 +90,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 15, 2016 5483       randerso    Fix GUI sizing issues
  * Mar 15, 2016 5483       bkowal      Fix GUI sizing issues
  * Nov 18, 2017 17911      wkwock      Move RFC_SITEMAP and RFCMAP to com.raytheon.uf.common.mpe.util.
+ * Oct 02, 2025 2036869    jkelmer     Renamed AKRFC to APRFC
  * 
  * </pre>
  * 
@@ -107,7 +108,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     private static SimpleDateFormat xmrgDateFormat;
 
     /** List of RFC names */
-    private static final String[] RFC_NAMES = { "ABRFC", "AKRFC", "CBRFC",
+    private static final String[] RFC_NAMES = { "ABRFC", "APRFC", "CBRFC",
             "CNRFC", "LMRFC", "MARFC", "MBRFC", "NCRFC", "NERFC", "NWRFC",
             "OHRFC", "SERFC", "WGRFC", "ALL_RFCS" };
 

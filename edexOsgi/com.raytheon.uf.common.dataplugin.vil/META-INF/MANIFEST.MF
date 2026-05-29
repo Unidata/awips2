@@ -4,7 +4,7 @@ Bundle-Name: Vil Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.vil
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: javax.persistence,
+Require-Bundle: jakarta.persistence,
  com.raytheon.uf.common.serialization,
  org.geotools,
  com.raytheon.uf.common.monitor,
@@ -14,5 +14,5 @@ Require-Bundle: javax.persistence,
  com.raytheon.uf.common.status
 Import-Package: com.raytheon.uf.common.dataplugin.radar
 Export-Package: com.raytheon.uf.common.dataplugin.vil
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 

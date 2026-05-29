@@ -56,8 +56,9 @@
 # Feb 27, 2020  21887    bstough        Modified check for DTG in UGC to account for DTG by itself
 #                                        on the last line of the UGC
 # Jun 17, 2020  20996    smoorthy       Fixed polygon processing in flood warning products
+# Oct 01, 2024  2037799  njensen        Updated import of TimeTools from new location
+# Nov 01, 2024 DCS 2036131 mporricelli  Add Region MP:Pacific
 #
-# @author rferrel
 ##
 
 
@@ -68,7 +69,7 @@ import sys, os, time, re, getopt
 from awips import TimeUtil
 
 from com.raytheon.uf.common.wmo import WMOTimeParser
-from com.raytheon.uf.edex.decodertools.time import TimeTools
+from com.raytheon.uf.common.decodertools.time import TimeTools
 import LogStream
 
 
@@ -93,7 +94,7 @@ REGIONS = {
              "TN":"SOUTHERN", "TX": "SOUTHERN", "UT":"WESTERN",
              "VA":"EASTERN", "VI":"SOUTHERN", "VT":"EASTERN",
              "WA":"WESTERN", "WI":"CENTRAL", "WV":"EASTERN",
-             "WY":"CENTRAL", "GM":"SOUTHERN" }
+             "WY":"CENTRAL", "GM":"SOUTHERN", "MP":"PACIFIC" }
 
 BEARINGS = {
             "NORTH": 0, "NORTHEAST": 45, "EAST": 90, "SOUTHEAST": 135,

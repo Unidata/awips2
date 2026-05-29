@@ -37,7 +37,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineSegment;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.coverage.grid.GridEnvelope;
+import org.geotools.api.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.common.geospatial.LocalTimeZone;
 import com.raytheon.uf.common.geospatial.SpatialException;

@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -42,8 +44,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
 
 /**
  * Renders various geometric entities based on geometry data that is retrieved
@@ -153,13 +153,6 @@ public class GenericGeometryResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource#reprojectResource
-     * (org.opengis.referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         this.purgeDrawableStorage();

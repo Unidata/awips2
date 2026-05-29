@@ -41,10 +41,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.geotools.geometry.jts.JTS;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;

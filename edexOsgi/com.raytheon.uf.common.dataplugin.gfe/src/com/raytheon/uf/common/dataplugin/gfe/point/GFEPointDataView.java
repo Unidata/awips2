@@ -26,7 +26,7 @@ import java.util.Set;
 
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 
 import com.raytheon.uf.common.pointdata.IPointDataContainerReader;
 import com.raytheon.uf.common.pointdata.IPointDataViewReader;

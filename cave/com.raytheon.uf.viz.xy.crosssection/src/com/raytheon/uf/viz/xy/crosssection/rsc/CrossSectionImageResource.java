@@ -32,8 +32,8 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.colormap.ColorMapException;
@@ -115,6 +115,7 @@ import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
  *                                     when the line isn't near the data
  * Apr 02, 2024  2037091  mapeters     Auto-update and refactor to support new
  *                                     subclass
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
  * Jun 30, 2024  2037476  bines        Updated to match other two FSI screens
  * Aug 06, 2024  2037698  bines        Added conversion for HC data
  * Aug 20, 2024  2037631  mapeters     Wrap floats and images in new classes, move
@@ -296,7 +297,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
         image.setBrightness(imagingCapability.getBrightness());
         image.setContrast(imagingCapability.getContrast());
 
-        Envelope2D env = geometry.getEnvelope2D();
+        ReferencedEnvelope env = geometry.getEnvelope2D();
         Coordinate ul = new Coordinate(env.getMinX(), env.getMaxY());
         Coordinate ur = new Coordinate(env.getMaxX(), env.getMaxY());
         Coordinate ll = new Coordinate(env.getMinX(), env.getMinY());
@@ -413,7 +414,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
                 new double[] { coord.getObject().x, coord.getObject().y });
         if (extent.contains(worldCoord)) {
             try {
-                DirectPosition2D dp = new DirectPosition2D(worldCoord[0],
+                Position2D dp = new Position2D(worldCoord[0],
                         worldCoord[1]);
                 descriptor.getGridGeometry().getGridToCRS().transform(dp, dp);
                 val = reproj.reprojectedGridCell(sampler, (int) dp.x,

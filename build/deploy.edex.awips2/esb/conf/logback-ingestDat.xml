@@ -6,8 +6,7 @@
    <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
    
    <!-- default logging --> 
-   <root> 
-      <level value="INFO"/>
+   <root level="INFO"> 
       <appender-ref ref="asyncConsole"/>
     </root> 
     
@@ -20,8 +19,7 @@
    </appender>
 
    <!-- default logging -->
-   <logger name="HydroDualPolLog" additivity="false">
-      <level value="DEBUG"/>
+   <logger name="HydroDualPolLog" additivity="false" level="DEBUG">
       <appender-ref ref="HydroDualPolLog"/>
    </logger>
    

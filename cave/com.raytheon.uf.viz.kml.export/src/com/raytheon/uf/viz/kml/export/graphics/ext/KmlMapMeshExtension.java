@@ -22,8 +22,8 @@ package com.raytheon.uf.viz.kml.export.graphics.ext;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.coverage.grid.GridEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.api.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.kml.export.graphics.KmlGraphicsTarget;
  * ------------- -------- --------- --------------------
  * Jun 01, 2012  704      bsteffen  Initial creation
  * Apr 06, 2016  5400     bsteffen  Implement IGridMesh
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ public class KmlMapMeshExtension extends GraphicsExtension<KmlGraphicsTarget>
     public IMesh constructMesh(GridGeometry2D imageGeometry,
             GeneralGridGeometry targetGeometry) throws VizException {
         GridEnvelope2D range = imageGeometry.getGridRange2D();
-        Envelope2D envelope = imageGeometry.getEnvelope2D();
+        ReferencedEnvelope envelope = imageGeometry.getEnvelope2D();
         range.x = 0;
         range.y = 0;
         imageGeometry = new GridGeometry2D((GridEnvelope) range, envelope);

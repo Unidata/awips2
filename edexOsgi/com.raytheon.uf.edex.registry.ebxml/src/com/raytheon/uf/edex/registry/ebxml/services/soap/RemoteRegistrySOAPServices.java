@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
+import jakarta.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;

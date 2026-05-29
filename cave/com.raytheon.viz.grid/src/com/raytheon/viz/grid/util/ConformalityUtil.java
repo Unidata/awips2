@@ -2,22 +2,22 @@ package com.raytheon.viz.grid.util;
 
 import java.util.ArrayList;
 
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.GeographicCRS;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.operation.CoordinateOperationFactory;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransformFactory;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.util.factory.Hints;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.operation.CoordinateOperationFactory;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.TransformException;
 
 // TODO: is .getEnvelope() correct?
 
@@ -37,7 +37,8 @@ import org.opengis.referencing.operation.TransformException;
  * Jun 19, 2012  14988    D. Friedman Initial revision
  * Sep 24, 2013  15972    D. Friedman Do not require contiguous mapping.
  * Jan 15, 2014  2661     bsteffen    Disable output
- * 
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
+ *
  * </pre>
  */
 public class ConformalityUtil {
@@ -132,9 +133,9 @@ public class ConformalityUtil {
     
     private boolean evaluateNonContig(GeneralGridGeometry evaluatedDomain) {
         int nEval = 0;
-        Envelope e = evaluatedDomain.getEnvelope();
+        Bounds e = evaluatedDomain.getEnvelope();
         
-        DirectPosition2D pivot = new DirectPosition2D(
+        Position2D pivot = new Position2D(
             (e.getMinimum(0)+e.getMaximum(0)) / 2, 
             (e.getMinimum(1)+e.getMaximum(1)) / 2);
         if (ep(pivot, (e.getMinimum(0)+e.getMaximum(0)) / 2, e.getMinimum(1))) ++nEval;
@@ -153,13 +154,14 @@ public class ConformalityUtil {
         return nEval >= 4;
     }
 
-    private boolean ep(DirectPosition2D base, double x, double y) {
-        DirectPosition2D point = new DirectPosition2D(x, y);
-        DirectPosition2D br = new DirectPosition2D();
-        DirectPosition2D pr = new DirectPosition2D();
-        if (! xf(base, br) || ! xf(point, pr))
+    private boolean ep(Position2D base, double x, double y) {
+        Position2D point = new Position2D(x, y);
+        Position2D br = new Position2D();
+        Position2D pr = new Position2D();
+        if (!xf(base, br) || !xf(point, pr)) {
             return false;
-        
+        }
+
         pr.x -= br.x;
         pr.y -= br.y;
         point.x -= base.x;
@@ -209,7 +211,7 @@ public class ConformalityUtil {
         
         lastMT = mt;
         
-        Envelope e = aGG.getEnvelope();
+        Bounds e = aGG.getEnvelope();
         return (evaluatePoint((e.getMinimum(0)+e.getMaximum(0)) / 2, 
                     (e.getMinimum(1)+e.getMaximum(1)) / 2) && 
                 evaluatePoint(e.getMinimum(0), e.getMinimum(1)) && 
@@ -219,13 +221,14 @@ public class ConformalityUtil {
     }
     
     private boolean evaluatePoint(double x, double y) {
-        DirectPosition2D point = new DirectPosition2D(x, y);
-        DirectPosition2D remap = new DirectPosition2D();
-        DirectPosition2D offset = new DirectPosition2D();
-        
-        if (! xf(point, remap))
+        Position2D point = new Position2D(x, y);
+        Position2D remap = new Position2D();
+        Position2D offset = new Position2D();
+
+        if (!xf(point, remap)) {
             return false;
-        
+        }
+
         point.x += 0.0001;
         if (! xf(point, offset)) {
             point.x = x - 0.0001;
@@ -255,8 +258,8 @@ public class ConformalityUtil {
         
         return true;
     }
-        
-    private boolean xf(DirectPosition2D a, DirectPosition2D b) {
+
+    private boolean xf(Position2D a, Position2D b) {
         try {
             lastMT.transform(a, b);
         } catch (TransformException e) {

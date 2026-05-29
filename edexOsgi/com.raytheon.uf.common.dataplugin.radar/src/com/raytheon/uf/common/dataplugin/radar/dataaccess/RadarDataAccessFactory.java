@@ -33,7 +33,7 @@ import java.util.TreeSet;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.referencing.FactoryException;
+import org.geotools.api.referencing.FactoryException;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
@@ -121,6 +121,7 @@ import org.locationtech.jts.geom.Envelope;
  * Sep 28, 2016  2671     tgurney     Add tornado vortex sig (TVS) support
  * Mar 06, 2017  6142     bsteffen    Remove dataURI as optional identifier
  * Aug 14, 2017  6390     njensen     Support unsigned data in getDataSource()
+ * Oct 01, 2024  2037996  jdynina     Allow external access to getRadarInfo()
  *
  * </pre>
  *
@@ -659,7 +660,7 @@ public class RadarDataAccessFactory extends AbstractGridDataPluginFactory {
         return level;
     }
 
-    private static synchronized RadarInfoDict getRadarInfo() {
+    public static synchronized RadarInfoDict getRadarInfo() {
         if (radarInfo == null) {
             File file = PathManagerFactory.getPathManager()
                     .getStaticFile("radarInfo.txt");

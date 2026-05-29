@@ -4,7 +4,7 @@ Bundle-Name: Volume Browser Data Plugins
 Bundle-SymbolicName: com.raytheon.uf.viz.volumebrowser.dataplugin;singleton:=true
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.viz.volumebrowser,
  org.eclipse.core.runtime,

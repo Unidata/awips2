@@ -123,7 +123,8 @@ import ucar.unidata.io.RandomAccessFile;
  *                                  the grib file
  * Jan 29, 2020  8026     bhurley   Remove unit conversion on semi-major and
  *                                  semi-minor axis values
- * 
+ * Apr 13, 2026  2041388  tgurney   Fixes for netcdf-java 5.x upgrade
+ *
  * </pre>
  *
  * @author bphillip
@@ -194,7 +195,7 @@ public class Grib1Decoder {
          * its parameters so that we just get a null param when failing to find
          * it instead of an invalid default param.
          */
-        Grib1ParamTables.getDefaultTable()
+        Grib1ParamTables.getDefaultWmoTable()
                 .setParameters(Collections.emptyMap());
         paramTables = new Grib1ParamTables();
     }
@@ -513,7 +514,9 @@ public class Grib1Decoder {
                  * These grids are definitely not a cylinder so the ucar method
                  * is wrong.
                  */
-                data = rec.readDataRaw(raf, InterpolationMethod.none);
+
+                // Note: readDataRaw uses InterpolationMethod.none by default
+                data = rec.readDataRaw(raf);
 
                 if (gdsVars != null) {
                     data = fillThinnedGrid(data, gdsVars.getNptsInLine(),
@@ -635,7 +638,7 @@ public class Grib1Decoder {
                 subcenterid, tableVersion);
         String tableName;
         if (table.getPath()
-                .equals(Grib1ParamTables.getDefaultTable().getPath())) {
+                .equals(Grib1ParamTables.getDefaultWmoTable().getPath())) {
             // Failed to find in a valid table, format name for unknown table
             tableName = String.format(UNKNOWN_TABLE_FORMAT, centerid,
                     subcenterid, tableVersion);
@@ -911,8 +914,8 @@ public class Grib1Decoder {
             LatLonGridCoverage latLonCoverage = new LatLonGridCoverage();
             latLonCoverage.setNx(gdsVars.getNx());
             latLonCoverage.setNy(gdsVars.getNy());
-            double la1 = correctLat(llVars.la1);
-            double lo1 = correctLon(llVars.lo1);
+            double la1 = correctLat(llVars.getLa1());
+            double lo1 = correctLon(llVars.getLo1());
             latLonCoverage.setLa1(la1);
             latLonCoverage.setLo1(lo1);
             latLonCoverage.setSpacingUnit("degree");
@@ -941,15 +944,15 @@ public class Grib1Decoder {
             mercator.setMinorAxis(earth.getMinor());
             mercator.setNx(gdsVars.getNx());
             mercator.setNy(gdsVars.getNy());
-            double la1 = correctLat(mercVars.la1);
-            double la2 = correctLat(mercVars.la2);
-            double lo1 = correctLon(mercVars.lo1);
-            double lo2 = correctLon(mercVars.lo2);
+            double la1 = correctLat(mercVars.getLa1());
+            double la2 = correctLat(mercVars.getLa2());
+            double lo1 = correctLon(mercVars.getLo1());
+            double lo2 = correctLon(mercVars.getLo2());
             mercator.setLa1(la1);
             mercator.setLo1(lo1);
             mercator.setLa2(la2);
             mercator.setLo2(lo2);
-            mercator.setLatin(correctLat(mercVars.latin));
+            mercator.setLatin(correctLat(mercVars.getLatin()));
             mercator.setSpacingUnit("km");
             mercator.setDx(gdsVars.getDx());
             mercator.setDy(gdsVars.getDy());
@@ -971,14 +974,14 @@ public class Grib1Decoder {
             lambert.setMinorAxis(earth.getMinor());
             lambert.setNx(gdsVars.getNx());
             lambert.setNy(gdsVars.getNy());
-            double la1 = correctLat(lcVars.la1);
-            double lo1 = correctLon(lcVars.lo1);
+            double la1 = correctLat(lcVars.getLa1());
+            double lo1 = correctLon(lcVars.getLo1());
 
             lambert.setLa1(la1);
             lambert.setLo1(lo1);
-            lambert.setLatin1(correctLat(lcVars.latin1));
-            lambert.setLatin2(correctLat(lcVars.latin2));
-            lambert.setLov(correctLon(((LambertConformal) gdsVars).lov));
+            lambert.setLatin1(correctLat(lcVars.getLatin1()));
+            lambert.setLatin2(correctLat(lcVars.getLatin2()));
+            lambert.setLov(correctLon(((LambertConformal) gdsVars).getLov()));
 
             lambert.setSpacingUnit("km");
             lambert.setDx(gdsVars.getDx());
@@ -1002,12 +1005,12 @@ public class Grib1Decoder {
             polar.setMinorAxis(earth.getMinor());
             polar.setNx(gdsVars.getNx());
             polar.setNy(gdsVars.getNy());
-            double la1 = correctLat(psVars.la1);
-            double lo1 = correctLon(psVars.lo1);
+            double la1 = correctLat(psVars.getLa1());
+            double lo1 = correctLon(psVars.getLo1());
             polar.setLa1(la1);
             polar.setLo1(lo1);
-            polar.setLov(correctLon(psVars.lov));
-            if (psVars.projCenterFlag == 0) {
+            polar.setLov(correctLon(psVars.getLov()));
+            if (psVars.getProjCenterFlag() == 0) {
                 // 0 is north pole
                 polar.setLad(60);
             } else {

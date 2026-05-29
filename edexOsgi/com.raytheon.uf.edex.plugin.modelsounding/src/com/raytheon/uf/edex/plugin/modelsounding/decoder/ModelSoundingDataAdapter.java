@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.modelsounding.SoundingLevel;
 import com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.geospatial.spi.SPIContainer;
 import com.raytheon.uf.common.geospatial.spi.SPIEntry;
 import com.raytheon.uf.common.localization.ILocalizationFile;
@@ -46,7 +47,6 @@ import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.plugin.modelsounding.SoundingModelTemporalData;
 import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
 

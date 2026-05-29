@@ -29,7 +29,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.geotools.api.geometry.Bounds;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -43,10 +48,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
 
 /**
  *
@@ -75,6 +76,7 @@ import org.locationtech.jts.geom.GeometryCollection;
  * Aug 08  2019 DR 21515   MPorricelli Retrofit to handle older user procedures
  *
  * Mar 24, 2020 75529      ksunil added new fields to PrecipData. Added toString()
+ * May 07, 2024 2037231    aford       Upgrade GeoTools to 31
  * </pre>
  *
  * @author bsteffen
@@ -186,7 +188,7 @@ public class MetarPrecipDataContainer {
 
     private final Map<String, RequestConstraint> rcMap;
 
-    private final org.opengis.geometry.Envelope descriptorEnvelope;
+    private final Bounds descriptorEnvelope;
 
     private List<Envelope> latLonEnvelopes;
 
@@ -207,7 +209,7 @@ public class MetarPrecipDataContainer {
      */
     public MetarPrecipDataContainer(int duration, String ptype,
             Map<String, RequestConstraint> rcMap,
-            org.opengis.geometry.Envelope descriptorEnvelope) {
+            Bounds descriptorEnvelope) {
         this.duration = duration;
         if (ptype != null) {
             this.ptype = ptype;

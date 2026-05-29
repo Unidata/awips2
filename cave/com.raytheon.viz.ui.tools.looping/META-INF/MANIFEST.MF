@@ -8,4 +8,4 @@ Require-Bundle: com.raytheon.viz.ui,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.time
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -20,9 +20,9 @@
 
 package org.w3.v1999.xlink;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlElementDecl;
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlElementDecl;
+import jakarta.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
 import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;

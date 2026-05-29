@@ -27,8 +27,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.ws.wsaddressing.W3CEndpointReference;
-import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
+import jakarta.xml.ws.wsaddressing.W3CEndpointReference;
+import jakarta.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;

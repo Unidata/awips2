@@ -21,25 +21,25 @@ package com.raytheon.uf.common.dataplugin.gfe.config;
 
 import java.awt.Point;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Transient;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.NoninvertibleTransformException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -68,6 +68,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Jun 05, 2014  3243     bsteffen  Remove deprecated lambert conformal call.
  * Feb 11, 2020  7596     randerso  Use Coordinate2dType and AwtPointType
  *                                  adapters.
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -256,7 +257,7 @@ public class ProjectionData {
                     0, output, 0, 2);
 
             // create a grid geometry for the projection
-            GeneralEnvelope ge = new GeneralEnvelope(2);
+            GeneralBounds ge = new GeneralBounds(2);
             ge.setCoordinateReferenceSystem(getCrs());
             ge.setRange(0, Math.min(output[0], output[2]),
                     Math.max(output[0], output[2]));

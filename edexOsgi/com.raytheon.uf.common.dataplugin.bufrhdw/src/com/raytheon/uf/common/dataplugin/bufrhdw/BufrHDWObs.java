@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,15 +21,14 @@ package com.raytheon.uf.common.dataplugin.bufrhdw;
 
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Index;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -47,9 +46,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * PluginDataObject for high density winds data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -64,25 +63,29 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Jul 16, 2015 4360       rferrel     Convert pressure to double, made non-null pressure and sattype;
  *                                      added name to unique constraint.
- * 
+ * Aug 08, 2022 8892       tjensen     Update indexes for Hibernate 5
+ *
  * </pre>
- * 
+ *
  * @author jkorman
- * @version 1.0
  */
+
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrhdwseq")
-@Table(name = "bufrhdw", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrhdw_datauri_fields", columnNames = {
-        "stationid", "refTime", "sattype", "pressure", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "bufrhdw", indexes = { @Index(name = "bufrhdw_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "bufrhdw", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_bufrhdw_datauri_fields", columnNames = {
+                "stationid", "refTime", "sattype", "pressure", "latitude",
+                "longitude" }) }, indexes = {
+                        @Index(name = "%TABLE%_refTimeIndex", columnList = "refTime, forecastTime"),
+                        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
+
 @DynamicSerialize
-public class BufrHDWObs extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData, IPersistable {
+public class BufrHDWObs extends PersistablePluginDataObject
+        implements ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -199,7 +202,7 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
-     * 
+     *
      * @param uri
      *            A data uri applicable to this class.
      * @param tableDef
@@ -211,7 +214,7 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
 
     /**
      * Get the observation time for this data.
-     * 
+     *
      * @return The data observation time.
      */
     public Calendar getValidTime() {
@@ -220,7 +223,7 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
 
     /**
      * Set the observation time for this data.
-     * 
+     *
      * @param timeObs
      *            The data observation time.
      */
@@ -572,7 +575,7 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      */
     @Override
     public PointDataView getPointDataView() {
@@ -580,7 +583,7 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      */
     @Override
     public void setPointDataView(PointDataView pointDataView) {
@@ -590,7 +593,7 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
     /**
      * Returns the hashCode for this object. This implementation returns the
      * hashCode of the generated dataURI.
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -605,7 +608,7 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
     /**
      * Checks if this record is equal to another by checking the generated
      * dataURI.
-     * 
+     *
      * @param obj
      * @see java.lang.Object#equals(java.lang.Object)
      */

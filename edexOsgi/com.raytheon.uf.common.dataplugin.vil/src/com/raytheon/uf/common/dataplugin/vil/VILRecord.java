@@ -21,22 +21,22 @@ package com.raytheon.uf.common.dataplugin.vil;
 
 import java.io.FileNotFoundException;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.hibernate.annotations.Index;
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -348,7 +348,7 @@ public class VILRecord extends PersistablePluginDataObject
     public GridGeometry2D getGridGeometry() {
         if (gridGeometry2D == null) {
             ProjectedCRS crs = this.getCRS();
-            GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+            GeneralBounds generalEnvelope = new GeneralBounds(2);
             generalEnvelope.setCoordinateReferenceSystem(crs);
             double maxExtent = (getDx() * (this.getNx())) / 2;
             generalEnvelope.setRange(0, -maxExtent, maxExtent);

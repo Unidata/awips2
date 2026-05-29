@@ -14,7 +14,7 @@
         <property name="record" value="com.raytheon.uf.common.dataplugin.lsr.LocalStormReport" />
     </bean>
 
-    <bean factory-bean="pluginRegistry" factory-method="register">
+    <bean id="lsrPluginRegistered" factory-bean="pluginRegistry" factory-method="register">
         <constructor-arg ref="lclstrmrptPluginName" />
         <constructor-arg ref="lclstrmrptProperties"/>
     </bean>
