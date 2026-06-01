@@ -42,13 +42,14 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+
+import org.geotools.api.geometry.Position;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMapException;
@@ -526,7 +527,7 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
             return;
         }
 
-        Envelope2D envelope = new Envelope2D(descriptor.getGridGeometry()
+        ReferencedEnvelope envelope = new ReferencedEnvelope(descriptor.getGridGeometry()
                 .getEnvelope());
 
         while (!updates.isEmpty()) {
@@ -535,9 +536,9 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
                 Map<String, Object> map = DataURIUtil.createDataURIMap(pdo);
                 double lon = ((Number) map.get("location.longitude")).doubleValue();
                 double lat = ((Number) map.get("location.latitude")).doubleValue();
-                DirectPosition2D dp = new DirectPosition2D(lon, lat);
+                Position2D dp = new Position2D(lon, lat);
                 toDescriptor.transform(dp, dp);
-                if (envelope.contains((DirectPosition) dp)) {
+                if (envelope.contains((Position) dp)) {
                     newStations.add(map.get("location.stationId").toString());
                     long validTime = pdo.getDataTime().getMatchValid();
                     if (validTime < earliestTime) {

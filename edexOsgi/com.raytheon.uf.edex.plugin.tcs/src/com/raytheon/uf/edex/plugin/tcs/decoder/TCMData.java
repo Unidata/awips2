@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,12 +21,12 @@ package com.raytheon.uf.edex.plugin.tcs.decoder;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,11 +46,11 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  * the format of this product can be found at
  * http://www.nhc.noaa.gov/aboutnhcprod.shtml#TCM and
  * http://www.nws.noaa.gov/directives/sym/pd01006001curr.pdf.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Oct 20, 2010           jsanchez  Initial creation
@@ -62,11 +62,11 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  * Jul 23, 2014  3410     bclement  location changed to floats
  * Nov 30, 2015  5149     bsteffen  Rename TcsUtil, add class javadoc
  * Jun 22, 2016  5148     bsteffen  Handle additional cyclone types
- * 
+ * Aug 10, 2022  8892     tjensen   Updates for arrayList vs List; cleanup
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 
 public class TCMData extends TCSDataAdapter {
@@ -74,8 +74,8 @@ public class TCMData extends TCSDataAdapter {
     private static final Pattern productTypePtrn = Pattern
             .compile("TCM(AT|EP|CP|WP)[1-5]");
 
-    private static final Pattern stormNamePtrn = Pattern
-            .compile("^(TROPICAL STORM|TROPICAL DEPRESSION|HURRICANE|TYPHOON|SUBTROPICAL DEPRESSION|SUBTROPICAL STORM|POST-TROPICAL CYCLONE|REMNANTS OF)\\s{1,}(\\w{1,})");
+    private static final Pattern stormNamePtrn = Pattern.compile(
+            "^(TROPICAL STORM|TROPICAL DEPRESSION|HURRICANE|TYPHOON|SUBTROPICAL DEPRESSION|SUBTROPICAL STORM|POST-TROPICAL CYCLONE|REMNANTS OF)\\s{1,}(\\w{1,})");
 
     private static final Pattern pressurePtrn = Pattern
             .compile("(.*)PRESSURE\\s{1,}(\\d{1,5})(.*)");
@@ -86,16 +86,13 @@ public class TCMData extends TCSDataAdapter {
     private static final Pattern timePtrn = Pattern
             .compile(".*((\\d{2})(/|)(\\d{2})(\\d{2}))Z.*");
 
-    private static final Pattern latlonPtrn = Pattern
-            .compile(".*\\s{1,}(\\d{1,2}.\\d{1})(N|S)\\s{1,}(\\d{1,3}.\\d{1})(E|W)");
-
-    // private static final Pattern datatimePtrn = Pattern
-    // .compile("(\\d{2})(\\d{2})\\s{1,}\\w{3}\\s{1,}\\w{3}\\s{1,}(\\w{3})\\s{1,}(\\d{1,2})\\s{1,}(\\d{4})");
+    private static final Pattern latlonPtrn = Pattern.compile(
+            ".*\\s{1,}(\\d{1,2}.\\d{1})(N|S)\\s{1,}(\\d{1,3}.\\d{1})(E|W)");
 
     private static final Pattern windRadiiPtrn = Pattern
             .compile("\\s{1,}WIND RADII VALID OVER OPEN WATER ONLY");
 
-    private static final HashMap<String, Integer> MONTH_MAP = new HashMap<String, Integer>();
+    private static final Map<String, Integer> MONTH_MAP = new HashMap<>();
 
     static {
         MONTH_MAP.put("JAN", 0);
@@ -134,7 +131,7 @@ public class TCMData extends TCSDataAdapter {
         Matcher m;
         Radius radius = new Radius();
         TropicalCycloneSummary storm = new TropicalCycloneSummary();
-        ArrayList<TropicalCycloneSummary> stormList = new ArrayList<TropicalCycloneSummary>();
+        List<TropicalCycloneSummary> stormList = new ArrayList<>();
 
         List<String> lines = separateLines(message);
         if (lines.size() < MINIMUM_LINES) {
@@ -146,7 +143,8 @@ public class TCMData extends TCSDataAdapter {
             // TCP (from Navy) format is different from TCM (from TPC)
             if (type == null) {
                 m = productTypePtrn.matcher(line);
-                if (m.find()) {// TCMATx, TCMCPx, TCMEPx
+                // TCMATx, TCMCPx, TCMEPx
+                if (m.find()) {
                     type = m.group(0);
                 } else if (line.startsWith("WTPN3")) {// WTPN3x
                     type = "TCP";
@@ -160,25 +158,6 @@ public class TCMData extends TCSDataAdapter {
                     continue;
                 }
             }
-
-            // if (refTime == null) {
-            // m = datatimePtrn.matcher(line);
-            // if (m.find()) {
-            // calendar = Calendar.getInstance(TimeZone
-            // .getTimeZone(TIMEZONE));
-            // calendar.set(Calendar.HOUR_OF_DAY,
-            // Integer.parseInt(m.group(1)));
-            // calendar.set(Calendar.MINUTE, Integer.parseInt(m.group(2)));
-            // calendar.set(Calendar.SECOND, 0);
-            // calendar.set(Calendar.MILLISECOND, 0);
-            // calendar.set(Calendar.MONTH, MONTH_MAP.get(m.group(3)));
-            // calendar.set(Calendar.DAY_OF_MONTH,
-            // Integer.parseInt(m.group(4)));
-            // calendar.set(Calendar.YEAR, Integer.parseInt(m.group(5)));
-            // refTime = new DataTime(calendar);
-            // continue;
-            // }
-            // }
 
             if (line.contains("REMARKS")) {
                 break;
@@ -222,9 +201,9 @@ public class TCMData extends TCSDataAdapter {
                         && (radius.getSW() != -1) && (radius.getNW() != -1)) {
 
                     boolean exist = false;
-                    ArrayList<Radius> radiusList = storm.getRadiusList();
+                    List<Radius> radiusList = storm.getRadiusList();
                     if (radiusList == null) {
-                        radiusList = new ArrayList<Radius>();
+                        radiusList = new ArrayList<>();
                     }
                     for (Radius r : radiusList) {
                         if (r.getKT_FT() == radius.getKT_FT()) {
@@ -242,12 +221,12 @@ public class TCMData extends TCSDataAdapter {
                 continue;
             }
 
-            if (isLocation && !storm.getDisplayTime().equals("")
+            if (isLocation && !("".equals(storm.getDisplayTime()))
                     && (storm.getWindSpeed() != 0)) {
                 storm.setTropical(!isExtraTropical);
                 storm.setName(name);
                 storm.setPressure(pressure);
-                storm.setProductType(type.toString());
+                storm.setProductType(type);
                 stormList.add(storm);
 
                 // Reset values
@@ -268,8 +247,8 @@ public class TCMData extends TCSDataAdapter {
                 if (refTime == null) {
                     refTime = new DataTime(fcastTime.getRefTimeAsCalendar());
                 }
-                fcstTime = (int) ((fcastTime.getValidTime().getTimeInMillis() - refTime
-                        .getValidTime().getTimeInMillis()) / 1000L);
+                fcstTime = (int) ((fcastTime.getValidTime().getTimeInMillis()
+                        - refTime.getValidTime().getTimeInMillis()) / 1000L);
             } else {
                 continue;
             }
@@ -291,16 +270,17 @@ public class TCMData extends TCSDataAdapter {
                 SurfaceObsLocation location = new SurfaceObsLocation();
                 float latitude = Float.parseFloat(((m.group(1))));
                 float longitude = Float.parseFloat((m.group(3)));
-                location.setLatitude(m.group(2).equals("S") ? -1 * latitude
-                        : latitude);
-                location.setLongitude(m.group(4).equals("W") ? -1 * longitude
-                        : longitude);
+                location.setLatitude(
+                        "S".equals(m.group(2)) ? -1 * latitude : latitude);
+                location.setLongitude(
+                        "W".equals(m.group(4)) ? -1 * longitude : longitude);
                 location.setStationId(name);
                 storm.setLocation(location);
                 storm.setDisplayTime(time);
 
-                storm.setDataTime(fcstTime == 0 ? refTime : new DataTime(
-                        refTime.getRefTimeAsCalendar(), fcstTime));
+                storm.setDataTime(fcstTime == 0 ? refTime
+                        : new DataTime(refTime.getRefTimeAsCalendar(),
+                                fcstTime));
                 isLocation = true;
             }
 
@@ -309,7 +289,7 @@ public class TCMData extends TCSDataAdapter {
     }
 
     /**
-     * 
+     *
      * @param message
      * @return
      */
@@ -317,12 +297,11 @@ public class TCMData extends TCSDataAdapter {
         List<String> reportLines = null;
 
         if (message != null) {
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader(new InputStreamReader(
-                        new ByteArrayInputStream(message)));
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new ByteArrayInputStream(message)))) {
                 String s;
-                reportLines = new ArrayList<String>();
+                reportLines = new ArrayList<>();
                 while ((s = reader.readLine()) != null) {
                     if (s.length() > 0) {
                         reportLines.add(s);
@@ -330,14 +309,6 @@ public class TCMData extends TCSDataAdapter {
                 }
             } catch (Exception e) {
                 logger.error("Error reading from reader", e);
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ioe) {
-                        logger.error("Error closing reader", ioe);
-                    }
-                }
             }
         }
         return reportLines;

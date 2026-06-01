@@ -12,7 +12,9 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.edex.plugin.satellite,
  jakarta.xml.bind,
- com.raytheon.uf.edex.routes
+ com.raytheon.uf.edex.routes,
+ org.apache.commons.codec,
+ ar.com.hjg.pngj
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.menus,

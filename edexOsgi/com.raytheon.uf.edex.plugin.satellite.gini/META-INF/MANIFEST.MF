@@ -17,7 +17,8 @@ Require-Bundle: com.raytheon.edex.plugin.satellite,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.geospatial,
  jakarta.xml.bind,
- com.raytheon.uf.edex.routes
+ com.raytheon.uf.edex.routes,
+ ar.com.hjg.pngj
 Export-Package: com.raytheon.uf.edex.plugin.satellite.gini,
  com.raytheon.uf.edex.plugin.satellite.gini.lookup
 Import-Package: com.raytheon.uf.common.wmo
