@@ -51,7 +51,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Geometry;
@@ -346,7 +346,7 @@ public class SatMapCoverage extends PersistableDataObject<Object>
                 latLonGeometry = EnvelopeIntersection
                         .createEnvelopeIntersection(
                                 getGridGeometry().getEnvelope(),
-                                new ReferencedEnvelope.rect(-180, -90, 360, 180,
+                                new ReferencedEnvelope(-180, -90, 360, 180,
                                         DefaultGeographicCRS.WGS84), 
                                     1.0, 10, 10)
                         .getEnvelope();
@@ -555,7 +555,7 @@ public class SatMapCoverage extends PersistableDataObject<Object>
         	if (projection == PROJ_GVAR) { 
         	   GridEnvelope gridRange = new GeneralGridEnvelope(new int[] {
         	        0, 0 }, new int[] { getNx(),getNy() }, false);
-        	   GeneralEnvelope crsRange = new GeneralEnvelope(2);
+        	   GeneralBounds crsRange = new GeneralBounds(2);
         	   crsRange.setCoordinateReferenceSystem( getCrs() );
         	   
         	   int minX = getUpperLeftElement();
@@ -635,7 +635,7 @@ public class SatMapCoverage extends PersistableDataObject<Object>
 
     public GridGeometry2D getGridGeometryNativeProjection() {
     	GridEnvelope gridRange = new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { getNx(),getNy() }, false);
-    	GeneralEnvelope crsRange = new GeneralEnvelope(2);
+    	GeneralBounds crsRange = new GeneralBounds(2);
     	crsRange.setCoordinateReferenceSystem( constructCRSfromWKT(crsWKT) );
     	int minX = getUpperLeftElement();
     	int maxX = getUpperLeftElement() + ( getNx() * getElementRes() );

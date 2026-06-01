@@ -24,6 +24,8 @@ import org.geotools.geometry.Position2D;
 import org.geotools.api.referencing.crs.ProjectedCRS;
 import org.geotools.api.referencing.operation.MathTransform;
 
+import java.awt.geom.Rectangle2D;
+
 import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.plugin.satellite.dao.SatMapCoverageDao;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
