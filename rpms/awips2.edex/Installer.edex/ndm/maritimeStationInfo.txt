@@ -6,6 +6,10 @@
 #
 # Elevations are in meters. Unknown elevation is coded -0.
 #
+# FILE UPDATED 06/02/2026
+# FOR CHANGES TO THIS FILE PLEASE CONTACT
+# xiaobiao.fan@noaa.gov
+#
 #  number   ID     lat      lon    elev           station name            country
 #   (10)    (5)  (sn2.3) (sn3.3)    (5)               (36)                  (2)
 0000000000|32303|  5.00 | -95.00 |   -0|TAO                                 |US|BOY
@@ -235,6 +239,8 @@
 0000000000|45187| 42.491| -87.779|  176|Winthrop Harbor, IL, U of IL        |US|BOY
 0000000000|45198| 41.892| -87.563|  176|Chicago Pier, IL, U of IL           |US|BOY
 0000000000|45210| 44.055| -87.050|   -0|Rawley Point East, WI (269)         |US|BOY
+0000000000|45215| 43.501| -76.539|   74|Oswego, NY (274)                    |US|BOY
+0000000000|45220| 42.561| -79.432|  174|Dunkirk, NY                         |US|BOY
 0000000000|46001| 56.23 |-147.90 |    0|DN25 /D GULF OF AK                  |US|BOY
 0000000000|46002| 42.527|-130.260|    0|6N04 /D OREGON                      |US|BOY
 0000000000|46004| 50.93 |-136.10 |   -0|Middle Nomad                        |CN|BOY
@@ -468,7 +474,7 @@
 0000000000|BABT2| 27.30 | -97.42 |    0|Baffin Bay, Point of Rocks, TX      |US|BOY
 0000000000|BARA9| 17.591| -61.821|    0|NWLON Barbuda, Barbuda              |US|BOY
 0000000000|BARN6| 42.346| -79.596|  174|Barcelona Harbor, NY GLOS           |US|BOY
-0000000000|BATN6| 40.7  | -74.02 |   -0|The Battery, NY                     |US|BOY
+0000000000|BATN6| 40.701| -74.014|    2|The Battery, NY                     |US|BOY
 0000000000|BAXC1| 33.766|-118.240|   -0|LA Baxter Ave Bridge, CA NOS WLON   |US|BOY
 0000000000|BDRN4| 40.082| -74.872|   -0|NWLON Burlington, Delaware Riv, NJ  |US|BOY
 0000000000|BDSP1| 39.980| -75.079|    4|Bridesburg, PA NOS                  |US|BOY
@@ -477,7 +483,7 @@
 0000000000|BEPB6| 32.373| -64.703|   -0|NWLON Bermuda Esso Pier, Bermuda    |US|BOY
 0000000000|BEXA2| 60.791|-161.749|    5|Bethel, AK Marine Exchange          |US|BOY
 0000000000|BFTN7| 34.72 | -76.67 |   -0|8656483, Beaufort, NC NOS           |US|BOY
-0000000000|BGCF1| 26.4  | -81.88 |   -0|Big Carlos Pass, FL                 |US|BOY
+0000000000|BGCF1| 26.404| -81.881|   -0|Big Carlos Pass, FL                 |US|BOY
 0000000000|BGNN4| 40.64 | -74.15 |    9|Bergen Pt West Reach, NY            |US|BOY
 0000000000|BGXN3| 43.059| -70.830|    3|Great Bay NERR, NH                  |US|BOY
 0000000000|BHBM3| 42.36 | -71.05 |   -0|Boston, MA                          |US|BOY
@@ -495,7 +501,7 @@
 0000000000|BLTM3| 41.71 | -71.17 |   -0|Borden Flats Lt, Fall River, MA     |US|BOY
 0000000000|BNKF1| 25.087| -80.519|    0|Butternut Key, FL NPS               |US|BOY
 0000000000|BOBF1| 25.024| -80.682|    0|Bob Allen, FL NPS                   |US|BOY
-0000000000|BRBN4| 39.61 | -74.2  |    0|Brent Beach, NJ                     |US|BOY
+0000000000|BRBN4| 39.610| -74.200|    0|Brent Beach, NJ                     |US|BOY
 0000000000|BRHC3| 41.17 | -73.18 |   -0|Bridgeport, CT                      |US|BOY
 0000000000|BRND1| 38.987| -75.113|   -0|NWLON Brandywine Shoal Light, DE    |US|BOY
 0000000000|BSBM4| 44.055| -86.514|  186|Big Sable Point, MI GLOS            |US|BOY
@@ -515,8 +521,9 @@
 0000000000|CANF1| 25.420| -80.942|    0|Cane Patch, FL NPS                  |US|BOY
 0000000000|CAPL1| 29.768| -93.343|    0|NOS 8768094, Calcasieu Pass, LA     |US|BOY
 0000000000|CARL1| 29.933| -90.136|   -0|Carrollton LA NOS WLON              |US|BOY
-0000000000|CASM1| 43.66 | -70.25 |   -0|Portland, ME                        |US|BOY
-0000000000|CBIM2| 38.32 | -76.48 |    0|CBOS, Chesapk Bio Lab, Solomons, MD |US|BOY
+0000000000|CASM1| 43.656| -70.246|    4|Portland, ME                        |US|BOY
+0000000000|CAVN6| 44.130| -76.333|   76|Cape Vincent, NY                    |US|BOY
+0000000000|CBIM2| 38.317| -76.451|    0|CBOS, Chesapk Bio Lab, Solomons, MD |US|BOY
 0000000000|CBLO1| 41.981| -80.555|  177|Conneaut Breakwater Light, OH       |US|BOY
 0000000000|CBRW3| 45.20 | -87.36 |  180|Chambers Island, WI NWS GLOS        |US|BOY
 0000000000|CCUF1| 27.663| -82.618|    0|NOS 8726413 C-Cut, FL               |US|BOY

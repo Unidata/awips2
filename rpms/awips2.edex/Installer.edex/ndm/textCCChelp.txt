@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 05/20/2026
+# FILE UPDATED 06/03/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -537,6 +537,7 @@
 9L2 K-Edwards Air Force Auxiliary North Base, Edwards, CA
 9MN K-St Marys Hosp Helipad, Rochester, MN
 9R9 Block 245 SAWRS, Offshr Vermilion Area
+9S2 K-Scobey AP, Scobey, MT
 9S5 K-Three Forks AP, Three Forks, MT
 9S9 K-Lexington AP, Lexington, OR
 9V9 K-Chamberlain Muni AP, Chamberlain, SD

@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 06/01/2026
+# FILE UPDATED 06/03/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1235,6 +1235,7 @@
 0000000000|K9L0 | 33.4600|-117.6900|   15|Dana Point, CA                      |US|MTR
 0000000000|K9L2 | 34.9865|-117.8649|  701|Edwards AFB, CA                     |US|MTR
 0000000000|K9MN | 44.0200| -92.4800|  335|St Marys Hospital Helipad, MN       |US|MTR
+0000000000|K9S2 | 48.8077|-105.4395|  742|Scobey AP, MT                       |US|MTR
 0000000000|K9S5 | 45.8781|-111.5694| 1246|Three Forks AP, MT                  |US|MTR
 0000000000|K9S9 | 45.4541|-119.6903|  498|Lexington AP, OR                    |US|MTR
 0000072653|K9V9 | 43.8000| -99.3200|  530|Chamberlain, SD                     |US|MTR
