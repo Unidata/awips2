@@ -6,7 +6,7 @@
 #
 # Elevations are in meters. Unknown elevation is coded -0.
 #
-# FILE UPDATED 06/02/2026
+# FILE UPDATED 06/09/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1124,7 +1124,7 @@
 0000000000|WIXA2| 60.777|-148.682|    5|Whittier AMHS, AK Marine Exchange   |US|BOY
 0000000000|WKXA1| 30.415| -87.826|    0|Weeks Bay NERR, AL                  |US|BOY
 0000000000|WLON7| 34.23 | -77.95 |   -0|Wilmington, NC NOS WLOS             |US|BOY
-0000000000|WLXA2| 65.605|-168.086|    4|Wales, AK Marine Exchange           |US|BOY
+0000000000|WLXA2| 65.617|-168.094|   19|Wales, AK Marine Exchange           |US|BOY
 0000000000|WNEM4| 46.283| -84.205|  177|West Neebish, MI NOS 9076027        |US|BOY
 0000000000|WPLF1| 25.708| -81.248|    0|Watson Place, FL NPS                |US|BOY
 0000000000|WPOW1| 47.66 |-122.44 |    9|West Point, WA/V                    |US|BOY
