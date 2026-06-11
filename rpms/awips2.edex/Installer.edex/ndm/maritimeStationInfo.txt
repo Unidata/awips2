@@ -1,4 +1,4 @@
-# This file, maritimeStationInfo.txt (buoyStationInfo.txt), 
+# This file, maritimeStationInfo.txt (buoyStationInfo.txt),
 # contains station information for BUOY sites.
 # The primary source of information is NDBC, via
 # http://www.ndbc.noaa.gov/Maps/wrldmap.shtml
@@ -6,12 +6,15 @@
 #
 # Elevations are in meters. Unknown elevation is coded -0.
 #
-# FILE UPDATED 06/09/2026
+# FILE UPDATED 06/10/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
 #  number   ID     lat      lon    elev           station name            country
 #   (10)    (5)  (sn2.3) (sn3.3)    (5)               (36)                  (2)
+0000000000|0Y2W3| 44.794| -87.313|  179|Sturgeon Bay CG Station, WI MARS    |US|BOY
+0000000000|18CI3| 41.730| -86.910|  176|Michigan City, IN MARS USCG         |US|BOY
+0000000000|20CM4| 42.090| -86.490|  177|St Joseph, MI MARS USCG             |US|BOY
 0000000000|32303|  5.00 | -95.00 |   -0|TAO                                 |US|BOY
 0000000000|32304| -5.00 | -95.00 |   -0|TAO                                 |US|BOY
 0000000000|32305| -8.00 | -95.00 |   -0|TAO                                 |US|BOY
@@ -311,6 +314,9 @@
 0000000000|46183| 53.62 |-131.10 |   -0|North Hecate Strait                 |CN|BOY
 0000000000|46184| 53.91 |-138.85 |   -0|North Nomad                         |CN|BOY
 0000000000|46185| 52.42 |-129.81 |   -0|South Hecate Strait                 |CN|BOY
+0000000000|461L2| 34.00 |-118.500|   -0|Santa Monica Pier, CA               |US|BOY
+0000000000|461MB| 35.35 |-120.840|   -0|Morro Bay, CA                       |US|BOY
+0000000000|461SL| 35.17 |-120.740|   -0|Port San Luis, CA                   |US|BOY
 0000000000|46204| 51.37 |-128.75 |   -0|West Sea Otter                      |CN|BOY
 0000000000|46205| 54.16 |-134.28 |   -0|West Dixon Entrance                 |CN|BOY
 0000000000|46206| 48.84 |-126.00 |   -0|La Perouse Bank                     |CN|BOY
@@ -347,6 +353,7 @@
 0000000000|46241| 33.003|-117.292|    0|San Elijo Nearshore, CA             |US|BOY
 0000000000|46243| 46.216|-124.128|   -0|Clatsop Spit                        |US|BOY
 0000000000|46248| 46.133|-124.645|   -0|Astoria Canyon                      |US|BOY
+0000000000|462L6| 33.96 |-118.460|   -0|Marina Del Rey, CA                  |US|BOY
 0000000000|46401| 46.63 |-170.79 |   -0|D171                                |US|BOY
 0000000000|46402| 50.98 |-163.95 |    0|D165                                |US|BOY
 0000000000|46403| 52.65 |-156.928|   -0|D157                                |US|BOY
@@ -355,19 +362,14 @@
 0000000000|46406| -8.49 |-125.017|   -0|D125                                |US|BOY
 0000000000|46411| 39.35 |-127.01 |   -0|D127                                |US|BOY
 0000000000|46412| 32.40 |-120.58 |    0|D121                                |US|BOY
-0000000000|461MB| 35.35 |-120.840|   -0|Morro Bay, CA                       |US|BOY
-0000000000|461SL| 35.17 |-120.740|   -0|Port San Luis, CA                   |US|BOY
-0000000000|46L98| 34.46 |-120.100|   -0|El Capitan Beach, CA                |US|BOY
-0000000000|46P44| 34.41 |-119.820|   -0|Santa Barbara Harbor, CA            |US|BOY
-0000000000|46L79| 34.15 |-119.200|   -0|Channel Islands Harbor, CA          |US|BOY
-0000000000|46L27| 33.35 |-118.310|   -0|Avalon Harbor, CA                   |US|BOY
-0000000000|46P43| 34.25 |-119.270|   -0|Ventura Harbor, CA                  |US|BOY
-0000000000|46OL3| 34.01 |-118.820|   -0|Zuma Beach, CA                      |US|BOY
-0000000000|461L2| 34.00 |-118.500|   -0|Santa Monica Pier, CA               |US|BOY
-0000000000|462L6| 33.96 |-118.460|   -0|Marina Del Rey, CA                  |US|BOY
 0000000000|464L7| 33.87 |-118.410|   -0|Hermosa Beach, CA                   |US|BOY
 0000000000|46L14| 33.71 |-118.280|   -0|Cabrillo Beach, CA                  |US|BOY
-0000000000|51WH0| 22.667|-157.950|   -0|Woods Hole Oc Time Ser 51WH0-WHOTS  |US|BOY
+0000000000|46L27| 33.35 |-118.310|   -0|Avalon Harbor, CA                   |US|BOY
+0000000000|46L79| 34.15 |-119.200|   -0|Channel Islands Harbor, CA          |US|BOY
+0000000000|46L98| 34.46 |-120.100|   -0|El Capitan Beach, CA                |US|BOY
+0000000000|46OL3| 34.01 |-118.820|   -0|Zuma Beach, CA                      |US|BOY
+0000000000|46P43| 34.25 |-119.270|   -0|Ventura Harbor, CA                  |US|BOY
+0000000000|46P44| 34.41 |-119.820|   -0|Santa Barbara Harbor, CA            |US|BOY
 0000000000|51000| 23.530|-153.8  |    0|Northern Hawaii                     |US|BOY
 0000000000|51001| 24.453|-162.000|    0|6N24 /G NW HAWAII                   |US|BOY
 0000000000|51002| 17.191|-157.828|    0|6N27 /G SW HAWAII                   |US|BOY
@@ -415,6 +417,7 @@
 0000000000|51309|  8.00 |-170.00 |   -0|TAO                                 |US|BOY
 0000000000|51310| -8.00 |-170.00 |   -0|TAO                                 |US|BOY
 0000000000|51311|  0.00 |-140.00 |   -0|TAO                                 |US|BOY
+0000000000|51WH0| 22.667|-157.950|   -0|Woods Hole Oc Time Ser 51WH0-WHOTS  |US|BOY
 0000000000|52001|  2.00 | 165.00 |   -0|TAO                                 |US|BOY
 0000000000|52002| -2.00 | 165.00 |   -0|TAO                                 |US|BOY
 0000000000|52003|  5.00 | 165.00 |   -0|TAO                                 |US|BOY
@@ -432,9 +435,19 @@
 0000000000|52315|  8.00 | 180.00 |   -0|TAO                                 |US|BOY
 0000000000|52316| -8.00 | 180.00 |   -0|TAO                                 |US|BOY
 0000000000|52321|  0.00 | 165.00 |   -0|TAO                                 |US|BOY
-0000000000|0Y2W3| 44.794| -87.313|  179|Sturgeon Bay CG Station, WI MARS    |US|BOY
-0000000000|18CI3| 41.730| -86.910|  176|Michigan City, IN MARS USCG         |US|BOY
-0000000000|20CM4| 42.090| -86.490|  177|St Joseph, MI MARS USCG             |US|BOY
+0000000000|91204|  9.90 | 139.70 |    0|Ulithi Is., Caroline/W              |KA|BOY
+0000000000|91222| 18.13 | 145.77 |    0|Pagan Is., Mariana/W                |MY|BOY
+0000000000|91251| 11.43 | 162.35 |    0|Enewetak, Marshall/V                |MH|BOY
+0000000000|91328|  8.60 | 149.67 |    0|Ulul Atoll, Caroline/W              |KA|BOY
+0000000000|91338|  5.28 | 153.65 |    0|Satawan Atoll, Caro./W              |KA|BOY
+0000000000|91343|  7.63 | 155.16 |    0|Oroluk, Caroline/V                  |KA|BOY
+0000000000|91352|  6.21 | 160.70 |    0|Pingelap, Caroline/V                |KA|BOY
+0000000000|91355|  5.36 | 162.96 |    0|Kosrae, Caroline/V                  |KA|BOY
+0000000000|91365|  8.93 | 165.75 |    0|Ujae Atoll, Marshall/D              |MH|BOY
+0000000000|91374|  8.70 | 171.20 |    0|Maloelap, Marshall/V                |MH|BOY
+0000000000|91377|  6.10 | 172.10 |    0|Mili, Marshalls Is./W               |MH|BOY
+0000000000|91411|  8.30 | 137.50 |    0|Ngulu Atoll, Caroline/V             |KA|BOY
+0000000000|91442|  4.60 | 168.70 |    0|Ebon Atoll, Caroline/V              |KA|BOY
 0000000000|AAMC1| 37.77 |-122.30 |   -0|Alameda, CA                         |US|BOY
 0000000000|ACMN4| 39.38 | -74.42 |    0|Atlantic City Marina, NJ            |US|BOY
 0000000000|ACXS1| 32.56 | -80.45 |   -0|ACE Basin NERR, SC                  |US|BOY
@@ -647,6 +660,7 @@
 0000000000|GBIF1| 25.376| -81.030|    0|Gunboat Island, FL NPS              |US|BOY
 0000000000|GBLW3| 44.66 | -87.90 |    0|Green Bay Entrance Light, WI/D      |US|BOY
 0000000000|GBTF1| 25.170| -80.797|    0|Garfield Bight, FL NPS              |US|BOY
+0000000000|GBXA2| 63.777|-171.715|   10|Gambell, AK Marine Exchange         |US|BOY
 0000000000|GCTF1| 27.774| -82.517|    0|Gadsden Cut, Tampa Bay, FL          |US|BOY
 0000000000|GCVF1| 29.982| -81.634|    3|Red Bay Point, FL                   |US|BOY
 0000000000|GDIL1| 29.27 | -89.96 |    9|Grand Isle, LA/V                    |US|BOY
@@ -654,6 +668,7 @@
 0000000000|GDMM5| 47.748| -90.342|  186|Grand Marais, MN                    |US|BOY
 0000000000|GDXM6| 30.359| -88.42 |   -0|Grand Bay NERR, MS                  |US|BOY
 0000000000|GELO1| 41.86 | -80.974|  186|Geneva on the Lake, OH              |US|BOY
+0000000000|GEXA2| 58.213|-136.381|   11|George Island, AK Marine Exchange   |US|BOY
 0000000000|GISL1| 29.263| -89.957|    9|NOS NWLON Grand Isle, LA            |US|BOY
 0000000000|GIXA2| 55.446|-131.881|    9|Guard Island, AK Marine Exchange    |US|BOY
 0000000000|GKYF1| 24.627| -82.872|   -0|Everglades Nat'l Prk, Garden Key, FL|US|BOY
@@ -661,11 +676,10 @@
 0000000000|GLSM4| 44.02 | -83.54 |  180|CR GLOS, Gravelly Shoals Lt. MI     |US|BOY
 0000000000|GNJT2| 29.36 | -94.73 |   -0|Galveston Bay (North Jetty), TX     |US|BOY
 0000000000|GPOM6| 30.230| -88.982|    0|Gulfport Outer Range, MS NOS 8744707|US|BOY
-0000000000|GBXA2| 63.777|-171.715|   10|Gambell, AK Marine Exchange         |US|BOY
-0000000000|GEXA2| 58.213|-136.381|   11|George Island, AK Marine Exchange   |US|BOY
 0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier,Gulf of America|US|BOY
 0000000000|GPXA2| 58.062|-134.051|   12|Grave Point, AK Marine Exchange     |US|BOY
 0000000000|GRBL1| 29.101| -89.978|   -0|Grand Isle Blocks, LA CSI/LSU       |US|BOY
+0000000000|GRCM4| 47.121| -88.545|  183|GLRC Observatory, MI                |US|BOY
 0000000000|GRIM4| 46.721| -87.412|  199|Granite Island, MI                  |US|BOY
 0000000000|GRMM4| 46.68 | -85.97 |  186|GLOS, Grand Marais, MI              |US|BOY
 0000000000|GRRT2| 29.30 | -94.897|   -0|Galveston RR Bdge, TX TCOON         |US|BOY
@@ -821,16 +835,16 @@
 0000000000|MRYA2| 55.099|-131.182|    4|Mary Island, AK   MAREX             |US|BOY
 0000000000|MTBF1| 27.661| -82.594|    0|COMPS, Middle Tampa Bay, FL         |US|BOY
 0000000000|MTKN6| 41.05 | -71.96 |   -0|Montauk, NY                         |US|BOY
-0000000000|MVXA2| 58.364|-134.606|    7|Mendenhall Vly, AK Marine Exchange  |US|BOY
 0000000000|MUKF1| 25.104| -80.942|    0|Murray Key, FL NPS                  |US|BOY
+0000000000|MVXA2| 58.364|-134.606|    7|Mendenhall Vly, AK Marine Exchange  |US|BOY
 0000000000|MXXA2| 58.301|-134.425|    5|MAREX Office, AK Marine Exchange    |US|BOY
 0000000000|MYPF1| 30.397| -81.43 |   -0|Mayport (Bar Pilots Dock), FL NOS   |US|BOY
 0000000000|MYXC1| 36.605|-121.889|   -0|Monterrey CA, Cen/Northern CA OOS   |US|BOY
 0000000000|MZXC1| 38.033|-122.125|   -0|Martinez-Amorco CA                  |US|BOY
 0000000000|NABM4| 46.051| -85.263|  178|Naubinway, MI GLOS                  |US|BOY
 0000000000|NAXR1| 41.639| -71.339|   13|Narragansett Bay NERR, RI           |US|BOY
-0000000000|NBLP1| 40.137| -74.752|   -0|NWLON Newbold, PA                   |US|BOY
 0000000000|NBBA3| 36.087|-114.728|  329|Lake Mead, North Boulder Basin, NPS |US|BOY
+0000000000|NBLP1| 40.137| -74.752|   -0|NWLON Newbold, PA                   |US|BOY
 0000000000|NCDV2| 38.320| -77.037|    5|Dahlgren, VA NOS                    |US|BOY
 0000000000|NCHT2| 29.726| -95.266|   -0|Manchester, TX                      |US|BOY
 0000000000|NCSC3| 41.10 | -73.15 |    0|North Central Sound, CT             |US|BOY
@@ -924,11 +938,11 @@
 0000000000|POTA2| 61.06 |-146.70 |    8|Potato Point, AK/V                  |US|BOY
 0000000000|PPTA1| 30.28 | -87.56 |   -0|Perdido Pass, AL                    |US|BOY
 0000000000|PPTM2| 38.133| -76.533|   -0|NWLON Piney Point, MD               |US|BOY
+0000000000|PPXC1| 37.906|-122.365|   -0|Richmond (Pt Potrero), CA           |US|BOY
 0000000000|PRDA2| 70.40 |-148.53 |   -0|Prudhoe Bay, AK                     |US|BOY
 0000000000|PRIM4| 45.356| -83.492|  184|NWSCR Presque Isle Light, MI        |US|BOY
 0000000000|PRJC1| 33.733|-118.186|   -0|Long Beach Pier J, CA NOS WLON      |US|BOY
 0000000000|PRTA2| 58.41 |-134.95 |   -0|Point Retreat, AK                   |US|BOY
-0000000000|PPXC1| 37.906|-122.365|   -0|Richmond (Pt Potrero), CA           |US|BOY
 0000000000|PRUR1| 41.605| -71.304|    2|Sandy Pt, Prudence Is, RI  NOS      |US|BOY
 0000000000|PRYC1| 38.00 |-122.98 |   -0|Point Reyes, CA                     |US|BOY
 0000000000|PSBC1| 38.042|-121.887|   -0|Pittsburg (Suisun Bay), CA          |US|BOY
@@ -1140,16 +1154,3 @@
 0000000000|YKRV2| 37.250| -76.333|   -0|NWLON York Riv E Rear Rge Lt, VA    |US|BOY
 0000000000|YKTV2| 37.23 | -76.48 |   -0|8637689, Yorktown, VA NOS           |US|BOY
 0000000000|YRSV2| 37.414| -76.712|   11|Cheasapeake Bay NERR, VA            |US|BOY
-0000000000|91204|  9.90 | 139.70 |    0|Ulithi Is., Caroline/W              |KA|BOY
-0000000000|91222| 18.13 | 145.77 |    0|Pagan Is., Mariana/W                |MY|BOY
-0000000000|91251| 11.43 | 162.35 |    0|Enewetak, Marshall/V                |MH|BOY
-0000000000|91328|  8.60 | 149.67 |    0|Ulul Atoll, Caroline/W              |KA|BOY
-0000000000|91338|  5.28 | 153.65 |    0|Satawan Atoll, Caro./W              |KA|BOY
-0000000000|91343|  7.63 | 155.16 |    0|Oroluk, Caroline/V                  |KA|BOY
-0000000000|91352|  6.21 | 160.70 |    0|Pingelap, Caroline/V                |KA|BOY
-0000000000|91355|  5.36 | 162.96 |    0|Kosrae, Caroline/V                  |KA|BOY
-0000000000|91365|  8.93 | 165.75 |    0|Ujae Atoll, Marshall/D              |MH|BOY
-0000000000|91374|  8.70 | 171.20 |    0|Maloelap, Marshall/V                |MH|BOY
-0000000000|91377|  6.10 | 172.10 |    0|Mili, Marshalls Is./W               |MH|BOY
-0000000000|91411|  8.30 | 137.50 |    0|Ngulu Atoll, Caroline/V             |KA|BOY
-0000000000|91442|  4.60 | 168.70 |    0|Ebon Atoll, Caroline/V              |KA|BOY
