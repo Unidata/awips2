@@ -6,7 +6,7 @@
 #
 # Elevations are in meters. Unknown elevation is coded -0.
 #
-# FILE UPDATED 06/10/2026
+# FILE UPDATED 06/22/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -240,6 +240,7 @@
 0000000000|45183| 49.538| -65.71 |    0|Mount Louis Environment Canada      |US|BOY
 0000000000|45186| 42.368| -87.795|  176|Waukegan, IL, U of IL               |US|BOY
 0000000000|45187| 42.491| -87.779|  176|Winthrop Harbor, IL, U of IL        |US|BOY
+0000000000|45191| 43.388| -78.192|   75|Oak Orchard, NY                     |US|BOY
 0000000000|45198| 41.892| -87.563|  176|Chicago Pier, IL, U of IL           |US|BOY
 0000000000|45210| 44.055| -87.050|   -0|Rawley Point East, WI (269)         |US|BOY
 0000000000|45215| 43.501| -76.539|   74|Oswego, NY (274)                    |US|BOY
