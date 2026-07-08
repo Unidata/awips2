@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 06/03/2026
+# FILE UPDATED 07/07/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -2679,6 +2679,7 @@ LOZ K-London/Corbin Magee AP, London, KY
 LPC K-Lompoc AP, Lompoc, CA (AWOS); T-Vigie, St Lucia, LC
 LPL T-Hewanorra Intl AP, LC
 LPR K-Lorain Cnty Rgnl AP, Elyria/Lorain, OH
+LQR K-Larned/Pawnee Cnty AP, Larned, KS
 LQK K-Pickens Cnty AP, Pickens, SC
 LRD K-Laredo Intl AP, Laredo, TX
 LRF K-Little Rock AFB, Jacksonville, AR
@@ -3397,7 +3398,7 @@ PAT K-Pathfinder Hill, WY
 PBF K-Pinebluff Rgnl AP/Grider Fld, Pine Bluff, AR
 PBG K-Plattsburgh Intl AP, Plattsburgh, NY
 PBH K-Price Cnty AP, Phillips, WI
-PBI P-Palm Beach Intl AP, West Palm Beach, FL
+DJT K-President Donald J Trump Intl AP, West Palm Beach, FL
 PBP Pacific Region HQs, Honolulu, HI
 PBS K-Portage Bay, WA
 PBX K-Pike Cnty AP/Hatcher Fld, Pikeville, KY
@@ -3472,7 +3473,7 @@ PNS K-Pensacola Intl AP, Pensacola, FL
 PNT K-Pontiac Muni AP, Pontiac, IL
 PO  Pend Oreille River
 PO1 K-Poplar Muni AP, Poplar, MT
-POB K-Pope AFB, Fayetteville, NC
+POB K-Pope AAF, Fayetteville, NC
 POC K-Brackett Fld AP, La Verne, CA
 POE K-MaksAAF, Fort Polk, LA WSR-88D RPG
 POF K-Poplar Bluff Rgnl Business AP, Poplar Bluff, MO

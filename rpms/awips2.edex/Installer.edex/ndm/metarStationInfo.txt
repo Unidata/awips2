@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 06/03/2026
+# FILE UPDATED 07/07/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2567,6 +2567,7 @@
 0000000000|KLPC | 34.6656|-120.4675|   27|Lompoc AP, CA (AWOS)                |US|MTR
 0000000000|KLPR | 41.3443| -82.1776|  242|Lorain Cnty Rgnl AP, OH             |US|MTR
 0000000000|KLQK | 34.8100| -82.7033|  309|Pickens Cnty AP, SC                 |US|MTR
+0000000000|KLQR | 38.2086| -99.0859|  613|Larned-Pawnee Cnty AP, KS           |US|MTR
 0000072252|KLRD | 27.5436| -99.4542|  155|Laredo Intl AP, TX                  |US|MTR
 0000000000|KLRF | 34.9169| -92.1497|   95|Little Rock AFB, AR                 |US|MTR
 0000000000|KLRJ | 42.7786| -96.1936|  365|Le Mars Muni AP, IA                 |US|MTR
@@ -3029,7 +3030,7 @@
 0000000000|KPBF | 34.1739| -91.9351|   63|Grider Fld AP, AR                   |US|MTR
 0000000000|KPBG | 44.6509| -73.4681|   71|Plattsburgh Intl AP, NY             |US|MTR
 0000000000|KPBH | 45.7067| -90.4039|  455|Price Cnty AP, WI                   |US|MTR
-0000072203|KPBI | 26.6857| -80.0928|    6|Palm Beach Intl AP, FL              |US|MTR
+0000072203|KDJT | 26.6857| -80.0928|    6|President Donald J Trump Intl AP, FL|US|MTR
 0000000000|KPBX | 37.5589| -82.5649|  449|Pike Cnty AP, KY                    |US|MTR
 0000000000|KPCD | 37.8585| -89.8698|  114|Perryville Rgnl AP, MO              |US|MTR
 0000000000|KPCM | 28.0011| -82.1618|   47|Plant City AP, FL                   |US|MTR
@@ -3086,7 +3087,7 @@
 0000000000|KPNS | 30.4734| -87.1866|   37|Pensacola Intl AP, FL               |US|MTR
 0000000000|KPNT | 40.9244| -88.6239|  203|Pontiac Muni AP, IL                 |US|MTR
 0000000000|KPO1 | 48.1344|-105.1621|  621|Poplar Muni AP, MT                  |US|MTR
-0000072303|KPOB | 35.1709| -79.0145|   66|Pope AFB, NC                        |US|MTR
+0000072303|KPOB | 35.1709| -79.0145|   66|Pope AAF, NC                        |US|MTR
 0000000000|KPOC | 34.0917|-117.7818|  309|Brackett Fld AP, CA                 |US|MTR
 0000072239|KPOE | 31.0448| -93.1916|  101|Polk Army Airfield, LA              |US|MTR
 0000000000|KPOF | 36.7739| -90.3249|  101|Poplar Bluff Rgnl Business AP, MO   |US|MTR

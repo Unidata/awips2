@@ -1,3 +1,7 @@
+# THIS IS THE BASE pirepsTable.txt FILE
+# FILE UPDATED 07/07/2026
+# FOR CHANGES TO THIS FILE PLEASE CONTACT
+# xiaobiao.fan@noaa.gov
 AAA           0 ABRAHAM                                 4016  -8934     0  0
 AAF           0 APALACHICOLA                            2972  -8503     0  0
 AAJ           0 BINGHAMTON,NY                           4220  -7598     0  0
@@ -2406,7 +2410,7 @@ LQL           0 LAKELAND                                4168  -8138     0  0
 LQN           0 BOSTON,MA                               4237  -7100     0  0
 LQP           0 FORT COLLINS,COLORADO                   4052 -10503     0  0
 LQQ           0 CHICAGO,IL                              4198  -8790     0  0
-LQR           0 LARNED                                  3820  -9909     0  0
+LQR           0 LARNED,KS                               3821  -9909     0  0
 LQV           0 LONG HOLLOW                             3671  -8307     0  0
 LQX           0 CARBON                                  4081  -7576     0  0
 LQY           0 SPRINGFIELD,IL                          3985  -8968     0  0
@@ -3094,7 +3098,7 @@ PBC           0 MAURY COUNTY                            3561  -8709     0  0
 PBF           0 PINE BLUFF                              3425  -9193     0  0
 PBG           0 PLATTSBURG,NY                           4468  -7352     0  0
 PBH           0 PHILLIPS                                4570  -9041     0  0
-PBI           0 PALM BEACH                              2668  -8009     0  0
+DJT           0 WEST PALM BEACH, FL                     2669  -8009     0  0
 PBR           0 PEMBROKE,NH                             4312  -7145     0  0
 PBT           0 PROBERTA                                4011 -12224     0  0
 PBV           0 GEORGE                           AK US  5658 -16966     0  0
@@ -3220,7 +3224,7 @@ PNS           0 PENSACOLA,FL                            3047  -8718     0  0
 PNT           0 PONTIAC                                 4082  -8873     0  0
 PNU           0 WASHINGTON COUNTY                       4014  -8016     0  0
 POA           0 PAHOA                                   1954 -15497     0  0
-POB           0 POPE                                    3523  -7895     0  0
+POB           0 POPE AAF,NC                             3517  -7901     0  0
 POC           0 LA VERNE,CA                             3410 -11778     0  0
 POE           0 FT POLK AAF,LA                          3105  -9322     0  0
 POF           0 POPULAR BLUFF,MO                        3677  -9017     0  0

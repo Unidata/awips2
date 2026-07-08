@@ -1,3 +1,7 @@
+# THIS IS THE BASE synopticStationTable.txt FILE
+# FILE UPDATED 07/07/2026
+# FOR CHANGES TO THIS FILE PLEASE CONTACT
+# xiaobiao.fan@noaa.gov
 ENJA     010010 JAN_MAYEN(NOR-NAVY)                 NO  7093   -867     9  046  
 9999     010020 VERLEGENHUKEN                       NO  8002   1625     8  046  
 9999     010030 HORNSUND_RIVER                      NO  7700   1550    12  046  
@@ -10253,7 +10257,7 @@ CWNV     719900 MACMILLAN PASS NT                NT CN  6325 -13003  1379  044
 CWKF     719990 LILLIOET BC                      BC CN  5068 -12193   235  044  
 KEYW     722010 KEY_WEST_INTL_ARPT               FL US  2455  -8175     6  044  
 KMIA     722020 MIAMI_INTL_AIRPORT               FL US  2582  -8028     4  044  
-KPBI     722030 WEST_PALM_BEACH                  FL US  2668  -8012     6  044  
+KDJT     722030 WEST_PALM_BEACH                  FL US  2668  -8009     6  044  
 KMLB     722040 MELBOURNE_REGIONAL               FL US  2810  -8065    11  044  
 KMCO     722050 ORLANDO_JETPORT                  FL US  2843  -8132    32  044  
 KJAX     722060 JACKSONVILLE_INTL                FL US  3050  -8170     9  044  
@@ -10331,7 +10335,7 @@ KNKX     722930 MIRAMAR_NAS                      CA US  3285 -11712   128  044
 KLAX     722950 LOS_ANGELES_INTL                 CA US  3393 -11840    32  044  
 KLGB     722970 LONG_BEACH_AIRPORT               CA US  3382 -11815    12  044  
 9999     723020 WILMINGTON                       NC US  3727  -7790    10  044  
-KPOB     723030 POPE_AFB                         NC US  3517  -7902    66  044  
+KPOB     723030 POPE_AAF                         NC US  3517  -7901    66  044  
 KHAT     723040 CAPE_HATTERAS                    NC US  3527  -7555     3  044  
 KMHX     723050 NEWPORT                          NC US  3478  -7688    11  044  
 KRDU     723060 RALEIGH-DURHAM                   NC US  3587  -7878   134  044  
