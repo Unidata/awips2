@@ -1,0 +1,25 @@
+FROM rockylinux:8
+ENV VERSION 23.4.3-1
+ENV RELEASE 1
+MAINTAINER Tiffany Meyer<tiffanym@ucar.edu>
+
+USER root
+
+RUN yum update yum -y
+RUN yum install 'dnf-command(config-manager)' -y
+RUN dnf config-manager --set-enabled powertools
+
+RUN yum groupinstall "Development tools" -y
+RUN yum install epel-release -y
+RUN yum clean all -y
+
+RUN yum remove java-1.8.0-openjdk* -y 
+RUN yum module enable postgresql:12 -y
+
+ENV deps="libcurl-devel wget boost-devel lapack lapack-devel python3.11-devel blas blas-devel hdf5 hdf5-devel hdf postgresql postgresql-contrib postgresql-server postgresql-upgrade expat expat-devel python3.11-pip python3.11-setuptools python3.11-six python3.11-tkinter python3.11-wheel tcl tk ninja-build python3.11-packaging python3.11-pyparsing cmake cmake-data cmake-filesystem cmake-rpm-macros libuv python3.11-pybind11 python3.11-pybind11-devel bzip2-devel fontconfig-devel freetype-devel libX11-devel libXau-devel libXft-devel libXrender-devel libjpeg-turbo-devel libpng-devel libuuid-devel libxcb-devel tcl-devel tk-devel xorg-x11-proto-devel cairo-devel cairo-gobject-devel glib2-devel gobject-introspection-devel libffi-devel libXext-devel pcre-cpp pcre-devel pcre-utf16 pcre-utf32 pixman-devel cyrus-sasl-devel cyrus-sasl-md5 nspr-devel nss-devel nss-softokn-devel nss-softokn-freebl-devel nss-util-devel swig rsync java-17-openjdk-devel openssl-devel python3.11-Cython qhull-devel cyrus-sasl-plain lzo-devel jasper-devel libtiff-devel libpq-devel postgresql-devel libxml2-devel perl rpcgen readline-devel postgresql-server-devel sqlite"
+
+
+RUN yum install $deps -y
+RUN yum update -y
+
+ENTRYPOINT ["/bin/bash"]

@@ -164,7 +164,6 @@ function build_python()
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-tpg"
    buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-jep"
    buildRPM "awips2-python-stomp.py"
    buildRPM "awips2-python-pyshp"
@@ -219,7 +218,6 @@ function build_qpid()
 
 function build_server()
 {
-  buildRPM "awips2"
    #buildRPM "awips2-alertviz"
    buildTargetPlatform
    buildRPM "awips2-common-base" 
@@ -250,6 +248,12 @@ function build_server()
    buildRPM "awips2-g2c"
    #buildRPM "awips2-g2c/i386"
    #buildRPM "awips2-expect-libs/i686"
+
+   #buildRPM "awips2-edex-hazards-scripts"
+   buildRPM "awips2-ecpg-compat"
+   buildRPM "awips2-adapt-native"
+   buildRPM "awips2-notification"
+   #buildRPM "awips2-python-pygresql"
 
 #Uniata additions
    buildRPM "awips2-ldm"

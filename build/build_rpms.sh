@@ -20,8 +20,8 @@ fi
 #
 # Set up AWIPS environment
 #
-. /awips2/repo/awips2-builds/build/buildEnvironment.sh
-buildsh=$REPO/awips2-builds/build/build.sh
+. /awips2/repo/awips2/build/buildEnvironment.sh
+buildsh=$REPO/awips2/build/build.sh
 pushd $REPO
 
 #
@@ -62,27 +62,43 @@ if [ ! -z "$rpmname" ]; then
 else
 
   # If RPM name is not given build all groups in this order
-#  yum localinstall /awips2/repo/awips2-builds/dist/18.2.1-ade/x86_64/awips2-hdf5* -y
-#  yum localinstall /awips2/repo/awips2-builds/dist/18.2.1-ade/x86_64/awips2-netcdf* -y
-  /bin/bash $buildsh -ade
-  /bin/bash $buildsh -python
-  /bin/bash $buildsh -qpid
-  /bin/bash $buildsh -server
-  /bin/bash $buildsh -database
+#  yum localinstall /awips2/repo/awips2/dist/18.2.1-ade/x86_64/awips2-hdf5* -y
+#  yum localinstall /awips2/repo/awips2/dist/18.2.1-ade/x86_64/awips2-netcdf* -y
+  mkdir -p /awips2/repo/awips2/dist/${os_version}-dev-cp
+
+  #/bin/bash $buildsh -ade
+  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+
+  #/bin/bash $buildsh -python
+  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+
+  #/bin/bash $buildsh -qpid
+  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+
+  #/bin/bash $buildsh -server
+  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+
+  #/bin/bash $buildsh -database
+  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+
   /bin/bash $buildsh -edex
+  rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+
   /bin/bash $buildsh -cave
+  rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+
   ##/bin/bash $buildsh -pypies
   ##/bin/bash $buildsh -localization
 
 fi
 
-# Move RPMs to awips2-builds/dist
+# Move RPMs to awips2/dist
 if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/)" ]; then
-   mkdir -p /awips2/repo/awips2-builds/dist/${os_version}-dev/x86_64/
-   mv ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/* /awips2/repo/awips2-builds/dist/${os_version}-dev/x86_64/
+   mkdir -p /awips2/repo/awips2/dist/${os_version}-dev/x86_64/
+   mv ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/* /awips2/repo/awips2/dist/${os_version}-dev/x86_64/
 fi
 if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/)" ]; then
-   mkdir -p /awips2/repo/awips2-builds/dist/${os_version}-dev/noarch/
-   mv ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/* /awips2/repo/awips2-builds/dist/${os_version}-dev/noarch/
+   mkdir -p /awips2/repo/awips2/dist/${os_version}-dev/noarch/
+   mv ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/* /awips2/repo/awips2/dist/${os_version}-dev/noarch/
 fi
 

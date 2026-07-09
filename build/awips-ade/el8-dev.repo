@@ -1,0 +1,8 @@
+[awips2repo]
+name=AWIPS II Repository
+#baseurl=file:///home/awips/dev/unidata_23.4.3/awips2/dist/awips2_rpms
+baseurl=file:///home/awips/dev/unidata_23.4.3/awips2/dist/el8-dev
+enabled=1
+protect=0
+gpgcheck=0
+proxy=_none_

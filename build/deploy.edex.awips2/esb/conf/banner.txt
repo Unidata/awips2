@@ -1,6 +1,6 @@
 **************************************************
 * Unidata AWIPS EDEX ESB Platform                *
-* Version: 23.4.1-1                              *
+* Version: 23.4.3-1                              *
 * UCAR NSF Unidata Program Center                *
 *------------------------------------------------*
 * NON-OPERATIONAL                                *
