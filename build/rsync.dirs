@@ -29,7 +29,14 @@ build/deploy.ignite.awips2
 ../awips2-goesr/cave/* 
 ../awips2-gsd/viz/*
 ../awips2-gsd/features/*
+../awips2-gsd/common/*
+../awips2-gsd/edex/*
 ../awips2-ogc/edex/*
 ../awips2-ogc/features/*
+../awips2-hazards/viz/*
+../awips2-hazards/edex/*
+../awips2-hazards/common/*
+../awips2-hazards/rpms-Hazard_Services
+../awips2-hazards/tools
 ../python-awips
 build/awips-ade/awips2_rpms

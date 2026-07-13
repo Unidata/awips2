@@ -28,6 +28,9 @@ javaUtilities/* rpms pythonPackages
 ../awips2-drawing/features/*
 ../awips2-gsd/viz/*
 ../awips2-gsd/features/*
+../awips2-gsd/common/*
+../awips2-hazards/viz/*
+../awips2-hazards/common/*
 ../awips2-ogc/foss/*
 ../awips2-ogc/edex/*
 ../awips2-ogc/features/*

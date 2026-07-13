@@ -25,6 +25,7 @@ function lookupRPM()
    awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_core_dir="${rpms_dir}/awips2.core"
    awips2_upc_dir="${rpms_dir}/awips2.upc"
+   awips2_hazards_dir="${rpms_dir}/../rpms-Hazard_Services"
    python_site__dir="${rpms_dir}/python.site-packages"
 
    installer_dir="${rpms_dir}/../installers/RPMs"
@@ -618,6 +619,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-edex-enableservices" ]; then
       export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-enableservices"
+      return 0
+   fi
+   if [ "${1}" = "awips2-edex-hazards-scripts" ]; then
+      export RPM_SPECIFICATION="${awips2_hazards_dir}/Installer.edex-hazards-scripts"
       return 0
    fi
 

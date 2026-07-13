@@ -319,6 +319,9 @@
         <antcall target="p2.build.repo">
                 <param name="feature" value="gov.noaa.gsd.viz.ensemble.feature" />
         </antcall>
+		<antcall target="p2.build.repo">
+				<param name="feature" value="gov.noaa.gsd.viz.hazards.feature" />
+		</antcall>
 		<antcall target="cleanup.features" />
 	</target>
 

@@ -260,9 +260,11 @@
    <includes
          id="gov.noaa.nws.sti.mdl.viz.griddednucaps.feature"
          version="0.0.0"/>
+
    <includes
          id="com.raytheon.uf.viz.backupsvc.feature"
          version="0.0.0"/>
+
    <includes
          id="gov.noaa.nws.obs.viz.geodata.feature"
          version="0.0.0"/>
@@ -274,9 +276,11 @@
    <includes
          id="com.raytheon.uf.viz.grid.radar.rsc.feature"
          version="0.0.0"/>
+
    <includes
          id="gov.noaa.gsd.viz.ensemble.feature"
          version="0.0.0"/>
+
    <includes
          id="com.raytheon.uf.viz.ncep.core.feature"
          version="0.0.0"/>
@@ -299,6 +303,10 @@
 
    <includes
          id="gov.noaa.gsl.viz.atomsImagery.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.gsd.viz.hazards.feature"
          version="0.0.0"/>
 
    <requires>

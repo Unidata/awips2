@@ -140,6 +140,7 @@
       <feature id ="gov.noaa.gsd.viz.ensemble.feature"/>
       <feature id="com.raytheon.uf.viz.backupsvc.feature"/>
       <feature id="com.raytheon.uf.viz.grid.radar.rsc.feature"/>
+      <feature id="gov.noaa.gsd.viz.hazards.feature"/>
    </features>
 
    <configurations>
