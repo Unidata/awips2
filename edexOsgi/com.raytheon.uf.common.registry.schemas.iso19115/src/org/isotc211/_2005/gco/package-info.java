@@ -5,5 +5,5 @@
 // Generated on: 2012.01.10 at 11:00:08 AM CST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.isotc211.org/2005/gco", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@jakarta.xml.bind.annotation.XmlSchema(namespace = "http://www.isotc211.org/2005/gco", elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.isotc211._2005.gco;

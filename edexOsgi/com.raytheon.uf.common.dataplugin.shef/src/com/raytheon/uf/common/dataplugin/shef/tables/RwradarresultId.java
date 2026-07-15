@@ -24,8 +24,8 @@ import java.io.Serializable;
 // Generated Oct 17, 2008 2:22:17 PM by Hibernate Tools 3.2.2.GA
 
 import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;

@@ -21,7 +21,7 @@ package com.raytheon.uf.common.dataplugin.scan.data;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;

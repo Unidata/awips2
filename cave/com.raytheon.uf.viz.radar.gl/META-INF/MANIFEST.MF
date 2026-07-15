@@ -8,5 +8,5 @@ Require-Bundle: com.raytheon.viz.radar,
  com.raytheon.viz.core.gl,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.geospatial
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy

@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.referencing.GeodeticCalculator;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -174,7 +174,7 @@ public class CrossSectionRotation {
         try {
             MathTransform transform = MapUtil.getTransformFromLatLon(crs);
             for (Coordinate c : linePoints) {
-                DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
+                Position2D dp = new Position2D(c.x, c.y);
                 transform.transform(dp, dp);
                 convertedPoints.add(new Coordinate(dp.x, dp.y));
             }

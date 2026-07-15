@@ -35,13 +35,13 @@ import javax.measure.Unit;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
@@ -106,6 +106,7 @@ import org.locationtech.jts.geom.GeometryFactory;
  * Jul 06, 2016  5728     mapeters  Add advanced query support
  * Aug 01, 2016  2416     tgurney   Add dataURI as optional identifier
  * Mar 06, 2017  6142     bsteffen  Remove dataURI as optional identifier
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -520,7 +521,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
     private IGeometryData getGeometryData(Point point, GridGeometryKey key,
             Set<GridRecord> records) {
         DefaultGeometryData data = key.toGeometryData();
-        DirectPosition2D llPoint = findResponsePoint(key.getGridGeometry(),
+        Position2D llPoint = findResponsePoint(key.getGridGeometry(),
                 point.x, point.y);
         data.setGeometry(new GeometryFactory()
                 .createPoint(new Coordinate(llPoint.x, llPoint.y)));
@@ -550,7 +551,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
             for (int x = (int) gridRange.getMinX(); x < gridRange
                     .getMaxX(); x += 1) {
                 data[index] = key.toGeometryData();
-                DirectPosition2D llPoint = findResponsePoint(
+                Position2D llPoint = findResponsePoint(
                         key.getGridGeometry(), x, y);
                 data[index].setGeometry(geometryFactory
                         .createPoint(new Coordinate(llPoint.x, llPoint.y)));
@@ -635,14 +636,14 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
      * After a grid point has been requested, this will determine the Geometry
      * for that point.
      */
-    public static DirectPosition2D findResponsePoint(
+    public static Position2D findResponsePoint(
             GridGeometry2D gridGeometry, int x, int y) {
         try {
             MathTransform grid2crs = gridGeometry.getGridToCRS();
             MathTransform crs2ll = CRS.findMathTransform(
                     gridGeometry.getCoordinateReferenceSystem(),
                     DefaultGeographicCRS.WGS84, true);
-            DirectPosition2D point = new DirectPosition2D(x, y);
+            Position2D point = new Position2D(x, y);
             grid2crs.transform(point, point);
             crs2ll.transform(point, point);
             return point;

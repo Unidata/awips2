@@ -8,7 +8,7 @@
 
 package org.isotc211._2005.gsr;
 
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 
 /**

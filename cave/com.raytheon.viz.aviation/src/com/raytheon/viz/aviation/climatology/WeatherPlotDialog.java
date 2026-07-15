@@ -26,7 +26,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;

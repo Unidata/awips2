@@ -73,6 +73,7 @@ import ucar.nc2.Variable;
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Jan 03, 2018 6861       njensen     Split on files, decode and store results
  *                                      as PointDataView on PluginDataObject[]
+ * May 11, 2026 2041388    tgurney     Fixes for netcdf-java 5.9.1
  * 
  * </pre>
  * 
@@ -333,10 +334,13 @@ public class QCScanner {
                                         String.valueOf(arr.getChar(ri)));
                                 break;
                             case INT:
+                            case UINT:
                             case SHORT:
+                            case USHORT:
                                 pdv.setInt(name, arr.getInt(ri));
                                 break;
                             case LONG:
+                            case ULONG:
                                 pdv.setLong(name, arr.getLong(ri));
                                 break;
                             case FLOAT:

@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.util.StringUtil;

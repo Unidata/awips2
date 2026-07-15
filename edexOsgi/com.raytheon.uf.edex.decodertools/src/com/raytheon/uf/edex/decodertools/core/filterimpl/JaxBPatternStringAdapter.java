@@ -21,7 +21,7 @@ package com.raytheon.uf.edex.decodertools.core.filterimpl;
 
 import java.util.regex.Pattern;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * TODO Add Description

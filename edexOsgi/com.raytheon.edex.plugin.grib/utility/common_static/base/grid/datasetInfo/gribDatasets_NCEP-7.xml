@@ -87,8 +87,8 @@
         <dt>3</dt>
     </info>
     <info>
-        <title>GFS20-CONUS</title>
-        <datasetId>GFS215</datasetId>
+        <title>GFS20</title>
+        <datasetId>GFS20</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -123,7 +123,7 @@
     </info>
     <info>
         <title>NAM40</title>
-        <datasetId>mesoEta212</datasetId>
+        <datasetId>NAM40</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -278,7 +278,7 @@
     </info>
     <info>
         <title>NAM12</title>
-        <datasetId>ETA218</datasetId>
+        <datasetId>NAM12</datasetId>
         <dt>3</dt>
     </info>
     <info>
@@ -368,7 +368,7 @@
     </info>
     <info>
         <title>RAP13</title>
-        <datasetId>RUC130</datasetId>
+        <datasetId>RAP13</datasetId>
         <dt>1</dt>
     </info>
     <info>

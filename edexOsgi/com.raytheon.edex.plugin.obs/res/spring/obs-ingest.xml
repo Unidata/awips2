@@ -5,7 +5,8 @@
 
     <bean id="obsDecoder" class="com.raytheon.edex.plugin.obs.ObsDecoder" />
 
-    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform" />
+    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform"
+        depends-on="registerObsPlugin"/>
 
     <bean id="obsSeparator" class="com.raytheon.edex.plugin.obs.metar.MetarSeparator" />
 

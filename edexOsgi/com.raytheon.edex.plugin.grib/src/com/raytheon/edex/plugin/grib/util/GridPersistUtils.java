@@ -40,6 +40,8 @@ import com.raytheon.uf.common.datastorage.audit.MetadataStatus;
  * Oct 12, 2021 8664       mapeters    Initial creation (extracted from
  *                                     obsolete GridPersister)
  * Feb 16, 2022 8608       mapeters    Use DataStorageAuditUtils
+ * May 13, 2026 2041694    mapeters    Change eliminateAndAuditDuplicates param
+ *                                     from varargs to array (Camel 4.18)
  *
  * </pre>
  *
@@ -61,7 +63,7 @@ public class GridPersistUtils {
      * @return the retained PDOs
      */
     public static PluginDataObject[] eliminateAndAuditDuplicates(
-            PluginDataObject... pdos) {
+            PluginDataObject[] pdos) {
         if (pdos != null && pdos.length > 1) {
             // dup elim by dataURI
             Map<String, PluginDataObject> pdoMap = new HashMap<>(pdos.length,

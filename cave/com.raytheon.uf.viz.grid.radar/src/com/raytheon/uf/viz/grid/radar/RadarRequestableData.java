@@ -29,12 +29,12 @@ import javax.measure.IncommensurableException;
 import javax.measure.UnconvertibleException;
 import javax.measure.UnitConverter;
 
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.data.GridRequestableData;
@@ -361,7 +361,7 @@ public class RadarRequestableData extends GridRequestableData {
         int width = max[0] - x;
         int height = max[1] - y;
         GridEnvelope2D gridEnv = new GridEnvelope2D(x, y, width, height);
-        Envelope worldEnv = destGeom.gridToWorld(gridEnv);
+        Bounds worldEnv = destGeom.gridToWorld(gridEnv);
         gridEnv.x = 0;
         gridEnv.y = 0;
         return new GridGeometry2D(gridEnv, worldEnv);

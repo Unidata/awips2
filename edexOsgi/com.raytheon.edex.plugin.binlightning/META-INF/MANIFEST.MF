@@ -4,7 +4,7 @@ Bundle-Name: Binlightning Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.binlightning
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.edex.plugin.binlightning.dao
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.exception,
@@ -29,4 +29,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.decodertools,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes

@@ -42,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
+import com.raytheon.uf.common.dataplugin.radar.level3.DigitalRasterDataArrayPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.GenericDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
@@ -119,6 +120,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jun 16, 2021  22695    jdynina    Set primaryelevationangle for VAD to
  *                                   differentiate different heights.
  * Sep 23, 2021  8608     mapeters   Handle PDO.traceId changes
+ * Mar 02, 2023, 2033911  jdynina    Added handling for Digital Raster Data Array packets
  * </pre>
  *
  * @author bphillip
@@ -575,6 +577,9 @@ public class RadarDecoder {
                     } else if (packet instanceof RasterPacket) {
                         RasterPacket rasterPacket = (RasterPacket) packet;
                         processRasterPacket(record, rasterPacket);
+                    } else if (packet instanceof DigitalRasterDataArrayPacket) {
+                        DigitalRasterDataArrayPacket digitalRasterPacket = (DigitalRasterDataArrayPacket) packet;
+                        processDigitalRasterDataArrayPacket(record, digitalRasterPacket);
                     } else if (packet instanceof PrecipDataPacket) {
                         PrecipDataPacket precipPacket = (PrecipDataPacket) packet;
                         processPrecipPacket(record, precipPacket);
@@ -610,6 +615,17 @@ public class RadarDecoder {
             record.setSymbologyBlock(symbologyBlock);
             record.correlateSymbologyPackets();
         }
+    }
+
+    private void processDigitalRasterDataArrayPacket(RadarRecord record,
+            DigitalRasterDataArrayPacket digitalRasterPacket) {
+        record.setNumRadials(digitalRasterPacket.getNumRows());
+        record.setNumBins(digitalRasterPacket.getNumCols());
+        record.setRawData(digitalRasterPacket.getDigitalRasterDataArrayData());
+        record.setXscale(digitalRasterPacket.getIScaleFactor());
+        record.setYscale(digitalRasterPacket.getJScaleFactor());
+        record.setIstart(digitalRasterPacket.getICoordStart());
+        record.setJstart(digitalRasterPacket.getJCoordStart());
     }
 
     /**

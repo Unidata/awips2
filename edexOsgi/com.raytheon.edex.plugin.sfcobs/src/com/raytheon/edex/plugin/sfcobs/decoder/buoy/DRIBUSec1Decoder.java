@@ -30,9 +30,9 @@ import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticGroups;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Decode DRIBU section 1 data. The data are similar to Synoptic Section 1

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.pointdata.rsc;
 
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.IGraphicsTarget;

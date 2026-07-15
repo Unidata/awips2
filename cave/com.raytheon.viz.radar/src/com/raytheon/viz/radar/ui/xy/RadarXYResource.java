@@ -34,6 +34,7 @@ import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.level3.DigitalRasterDataArrayPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVector;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVectorPacket;
@@ -91,6 +92,7 @@ import org.locationtech.jts.geom.Coordinate;
  * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * Mar 26, 2018  6598     njensen   Use OutlineCapability for lineWidth and style
  * Nov 15, 2018  58492    edebebe   Enabled configurable 'Wind Barb' properties
+ * Mar 08, 2023  2033911  jdynina   Special handling for RDQVP products 
  * 
  * </pre>
  * 
@@ -105,6 +107,9 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
 
     protected static final double SCALAR = 1.6;
 
+    protected static final List<Integer> RDQVP_PROD_LIST =
+            Arrays.asList(189, 190, 191, 192);
+
     protected Map<Coordinate, String> screenStringMap = new HashMap<>();
 
     protected List<UnlinkedVector> unlinkedLines = new ArrayList<>();
@@ -112,6 +117,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
     protected List<LinkedVector> linkedLines = new ArrayList<>();
 
     protected List<WindBarbPoint> points = new ArrayList<>();
+
+    protected byte[] digitalRasterDataArray;
 
     protected IFont font;
 
@@ -182,7 +189,11 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
             paintRadar(target, paintProps);
         }
 
-        paintLines(target);
+        if (RDQVP_PROD_LIST.contains(radarRecord.getProductCode())) {
+            paintLines(target, true);
+        } else {
+            paintLines(target, false);
+        }
         paintText(target);
         paintPoints(target, paintProps);
 
@@ -209,12 +220,19 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         double left = (X_OFFSET_NWP + iStart) * SCALAR;
         double right = left + width;
 
-        return new PixelCoverage(new Coordinate(left, upper),
-                new Coordinate(left, lower), new Coordinate(right, lower),
-                new Coordinate(right, upper));
+
+        if (RDQVP_PROD_LIST.contains(radarRecord.getProductCode())) {
+            return new PixelCoverage(new Coordinate(right, lower),
+                    new Coordinate(left, lower), new Coordinate(left, upper),
+                    new Coordinate(right, upper));
+        } else {
+            return new PixelCoverage(new Coordinate(left, upper),
+                    new Coordinate(left, lower), new Coordinate(right, lower),
+                    new Coordinate(right, upper));
+        }
     }
 
-    private void paintLines(IGraphicsTarget target) throws VizException {
+    private void paintLines(IGraphicsTarget target, boolean gray) throws VizException {
         OutlineCapability oc = getCapability(OutlineCapability.class);
         LineStyle style = oc.getLineStyle();
         int lineWidth = oc.getOutlineWidth();
@@ -229,7 +247,11 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
                     (currVec.j1 + Y_OFFSET_NWP) * SCALAR);
             lines[i].addPoint((currVec.i2 + X_OFFSET_NWP) * SCALAR,
                     (currVec.j2 + Y_OFFSET_NWP) * SCALAR);
-            lines[i].basics.color = getVectorColor(currVec);
+            if (gray) {
+                lines[i].basics.color = RadarHelper.MED_GRAY;
+            } else {
+                lines[i].basics.color = getVectorColor(currVec);
+            }
             lines[i].width = lineWidth;
             lines[i].lineStyle = style;
             i += 1;
@@ -374,6 +396,10 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
                         LinkedVectorPacket pk = (LinkedVectorPacket) currPacket;
 
                         this.linkedLines.addAll(pk.getVectors());
+                    }  else if (currPacket instanceof DigitalRasterDataArrayPacket) {
+                        DigitalRasterDataArrayPacket pk = (DigitalRasterDataArrayPacket) currPacket;
+
+                        this.digitalRasterDataArray = pk.getDigitalRasterDataArrayData();
                     } else {
                         statusHandler.debug("Need: " + currPacket.getClass());
                     }

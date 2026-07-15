@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.TimeZone;
 
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.mpe.constants.FilePermissionConstants;

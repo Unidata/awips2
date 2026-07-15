@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Aviation Plug-in
 Bundle-SymbolicName: com.raytheon.viz.aviation;singleton:=true
 Bundle-Version: 1.19.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.viz.aviation.activator.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -29,8 +30,11 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.taf,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.aviation,
- javax.xml.bind,
- javax.measure
+ jakarta.xml.bind,
+ javax.measure,
+ com.raytheon.uf.common.json,
+ org.apache.commons.configuration2,
+ org.apache.commons.lang3
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.activator,
@@ -41,7 +45,7 @@ Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.resource,
  com.raytheon.viz.aviation.utility,
  com.raytheon.viz.aviation.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataplugin.acarssounding,
  com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.dataplugin.gfe.point,

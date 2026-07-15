@@ -25,13 +25,13 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geotools.api.geometry.Position;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -49,7 +49,8 @@ import com.raytheon.viz.awipstools.common.SunriseSunsetCalculator;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jul 28, 2015  4633     bsteffen    Initial creation
- * 
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -79,7 +80,7 @@ public class SunriseSunsetCache {
             for (int j = 0; j < height; j += 1) {
                 GridCoordinates2D gc = new GridCoordinates2D(range.x + i,
                         range.y + j);
-                DirectPosition dp = gg.gridToWorld(gc);
+                Position dp = gg.gridToWorld(gc);
                 mt.transform(dp, dp);
                 double longitude = dp.getOrdinate(0);
                 double latitude = dp.getOrdinate(1);

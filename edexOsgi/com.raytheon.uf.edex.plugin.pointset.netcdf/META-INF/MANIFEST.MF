@@ -4,7 +4,7 @@ Bundle-Name: PointSet NetCDF Decoder
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.pointset.netcdf
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin.pointset,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
@@ -15,4 +15,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.pointset,
  com.raytheon.uf.edex.netcdf,
  com.raytheon.uf.common.serialization,
  org.apache.commons.beanutils,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes

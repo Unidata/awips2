@@ -156,11 +156,29 @@ def exportPlugin(sourcePluginDir, outputPluginDir, pluginId, version=None):
         log.error(f"Plugin: {pluginId} not found!")
         return 1
 
-    elif len(paths) > 1:
-        raise Exception(f"Multiple plugins found for plugin id: {pluginId}")
-
+    elif len(paths) > 1 and not isJakartaException(paths):
+       raise Exception(f"Multiple plugins found for plugin id: {pluginId}, paths: {paths}")
+    
     # copy the plugin jar/directory to the target
-    srcPath = paths[0]
+    status = 0
+    for srcPath in paths:
+        status |= copyToTarget(outputPluginDir, srcPath)
+
+    return status
+
+def isJakartaException(paths):
+    """
+    jakarta.inject and jakarta.annotation have multiple versions packaged with eclipse 4.31.
+    These are both needed because the 1.* version provides the legacy javax.* namespaces
+    and 2.* version provides the new jakarta.* namespace.
+    """
+    return any(
+        "jakarta.annotation-api" in p or 
+        "jakarta.inject.jakarta.inject-api" in p 
+            for p in paths
+    )
+
+def copyToTarget(outputPluginDir, srcPath):
     pluginWithVersion = os.path.split(srcPath)[1]
     dstPath = os.path.join(outputPluginDir, pluginWithVersion)
     if os.path.exists(dstPath):

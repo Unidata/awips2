@@ -1,11 +1,15 @@
 package com.raytheon.uf.common.dataplugin.shef.tables;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Class to define dsaadapt database table.
@@ -26,8 +30,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "dsaadapt")
-@javax.xml.bind.annotation.XmlRootElement
-@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.NONE)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
 public class DSAAdapt
         extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject
@@ -36,183 +40,183 @@ public class DSAAdapt
 
     private static final long serialVersionUID = 1L;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private DSAAdaptId id;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Short num_of_adap;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float default_ml_depth;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String melt_layer_src;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float kdp_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float kdp_power;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float z_r_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float z_r_power;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float zdr_z_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float zdr_z_power;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float zdr_zdr_power;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float min_corr_precip;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float min_corr_kdp;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float refl_max;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float kdp_max_beam_blk;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float kdp_coeff_rain_hail;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float kdp_min_usage_rate;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float ws_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float gr_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float rh_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float ds_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float ic_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float grid_is_full;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float paif_rate;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float paif_area;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float rain_time_thresh;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float num_zones;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float max_precip_rate;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float restart_time;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float max_interp_time;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float max_hourly_acc;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float time_bias;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float num_grpairs;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float reset_bias;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float longst_lag;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float min_early_term_angle;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float max_volume_per_hour;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float dry_snow_mult;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float rkdp_use_thresh;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String bias_applied_flag;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String met_sig_proc_flag;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float met_sig_thresh;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String cappi_proc_flag;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float cappi_thresh;
 
-    @javax.xml.bind.annotation.XmlElement
+    @XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float cappi_height;
 

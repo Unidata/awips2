@@ -16,13 +16,14 @@ Require-Bundle: com.raytheon.uf.common.monitor,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.core,
  org.slf4j,
- com.raytheon.uf.common.localization
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.edex.routes
 Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.util.registry,
  com.raytheon.uf.edex.plugin.scan.common
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.vil,
  com.raytheon.uf.edex.plugin.vil.common

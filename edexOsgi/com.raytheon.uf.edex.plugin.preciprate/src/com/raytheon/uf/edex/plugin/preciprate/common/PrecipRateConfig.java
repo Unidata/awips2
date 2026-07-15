@@ -23,10 +23,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.geotools.api.referencing.crs.ProjectedCRS;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.geometry.GeneralBounds;
+import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
@@ -37,7 +38,6 @@ import com.raytheon.uf.edex.plugin.preciprate.PrecipRateGenerator;
 import com.raytheon.uf.edex.plugin.preciprate.PrecipRateURIFilter;
 import com.raytheon.uf.edex.plugin.preciprate.PrecipRateURIGenerateMessage;
 import com.raytheon.uf.edex.plugin.scan.common.ScanCommonUtils;
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Config holder object for radar parameters used to filter for precipitation
@@ -51,7 +51,8 @@ import org.locationtech.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * ???          ???         ???        Initial creation
  * Aug 26, 2014 3503       bclement    removed unused maxExtent field
- * 
+ * May 07, 2024 2037231    aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bclement
@@ -251,7 +252,7 @@ public class PrecipRateConfig {
     public GridGeometry2D getRadarGeometry() {
         if (radarGeometry == null) {
             ProjectedCRS crs = getDHR().getCRS();
-            GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+            GeneralBounds generalEnvelope = new GeneralBounds(2);
             generalEnvelope.setCoordinateReferenceSystem(crs);
 
             double maxExtent = getDHR().getGateResolution()

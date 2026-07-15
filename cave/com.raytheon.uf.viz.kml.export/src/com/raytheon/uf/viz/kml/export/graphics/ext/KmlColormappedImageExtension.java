@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -27,17 +27,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -72,7 +72,8 @@ import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
  * Jun 01, 2012  704      bsteffen  Initial creation
  * Jan 23, 2014  2703     bsteffen  Enable drawing with no mesh.
  * Apr 06, 2016  5400     bsteffen  Changes to support new Mesh constructor
- * 
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -137,10 +138,10 @@ public class KmlColormappedImageExtension extends
                     }
                     MathTransform grid2crs = gridGeometry.getGridToCRS();
                     IExtent extent = coverage.getExtent();
-                    DirectPosition2D minCorner = new DirectPosition2D(
-                            extent.getMinX(), extent.getMinY());
-                    DirectPosition2D maxCorner = new DirectPosition2D(
-                            extent.getMaxX(), extent.getMaxY());
+                    Position2D minCorner = new Position2D(extent.getMinX(),
+                            extent.getMinY());
+                    Position2D maxCorner = new Position2D(extent.getMaxX(),
+                            extent.getMaxY());
                     try {
                         grid2crs.transform(minCorner, minCorner);
                         grid2crs.transform(maxCorner, maxCorner);
@@ -153,7 +154,8 @@ public class KmlColormappedImageExtension extends
                             .getCoordinateReferenceSystem();
                     minCorner.setCoordinateReferenceSystem(crs);
                     maxCorner.setCoordinateReferenceSystem(crs);
-                    Envelope userRange = new Envelope2D(minCorner, maxCorner);
+                    Bounds userRange = new ReferencedEnvelope(minCorner.x,
+                            maxCorner.x, minCorner.y, maxCorner.y, crs);
                     GridEnvelope gridRange = new GridEnvelope2D(0, 0,
                             kmlImage.getWidth(), kmlImage.getHeight());
 
@@ -232,8 +234,8 @@ public class KmlColormappedImageExtension extends
                 GridGeometry2D geometry, DataSource data,
                 ColorMapParameters parameters, boolean interpolated)
                 throws FactoryException, TransformException {
-            Envelope env = new Envelope2D(MapUtil.LATLON_PROJECTION, -180, -90,
-                    360, 180);
+            Bounds env = ReferencedEnvelope.rect(-180, -90, 360, 180,
+                    MapUtil.LATLON_PROJECTION);
             GridGeometry2D projectedGeometry;
             projectedGeometry = GridGeometry2D.wrap(MapUtil.reprojectGeometry(
                     geometry, env));
@@ -255,14 +257,16 @@ public class KmlColormappedImageExtension extends
                 GridGeometry2D geom = entry.getKey();
                 CoordinateReferenceSystem crs = geom
                         .getCoordinateReferenceSystem();
-                Envelope2D env = geom.getEnvelope2D();
+                ReferencedEnvelope env = geom.getEnvelope2D();
                 // bigenv will be an envelope big enopugh to hold all compatible
                 // grids.
-                Envelope2D bigenv = null;
-                Map<Envelope2D, DataSource> envmap = new HashMap<>();
+                ReferencedEnvelope bigenv = null;
+                Map<ReferencedEnvelope, DataSource> envmap = new HashMap<>();
                 envmap.put(env, entry.getValue());
-                float dx = (float) (env.width / geom.getGridRange2D().width);
-                float dy = (float) (env.height / geom.getGridRange2D().height);
+                float dx = (float) (env.getWidth()
+                        / geom.getGridRange2D().width);
+                float dy = (float) (env.getHeight()
+                        / geom.getGridRange2D().height);
                 // loop through remaining entries to find any matches, a match
                 // will have the same crs, grid spacing and the distance between
                 // the envelopes will be a multiple of the grid spacing.
@@ -271,9 +275,11 @@ public class KmlColormappedImageExtension extends
                     GridGeometry2D geom2 = entry.getKey();
                     CoordinateReferenceSystem crs2 = geom2
                             .getCoordinateReferenceSystem();
-                    Envelope2D env2 = geom2.getEnvelope2D();
-                    float dx2 = (float) (env2.width / geom2.getGridRange2D().width);
-                    float dy2 = (float) (env2.height / geom2.getGridRange2D().height);
+                    ReferencedEnvelope env2 = geom2.getEnvelope2D();
+                    float dx2 = (float) (env2.getWidth()
+                            / geom2.getGridRange2D().width);
+                    float dy2 = (float) (env2.getHeight()
+                            / geom2.getGridRange2D().height);
                     // numeric comparisons are done using floats because float
                     // precision is considered "close enough" and double
                     // precision results in very small inconsitencies.
@@ -284,19 +290,21 @@ public class KmlColormappedImageExtension extends
                     // between the envelopes should be an even multiple of dx
                     // and dy otherwise the grids are slightly offset from
                     // eachother and incompatible.
-                    float xoffset = (float) ((env.x - env2.x) / dx);
-                    float yoffset = (float) ((env.y - env2.y) / dy);
+                    float xoffset = (float) ((env.getMinX() - env2.getMinX())
+                            / dx);
+                    float yoffset = (float) ((env.getMinY() - env2.getMinY())
+                            / dy);
                     if (xoffset != (int) xoffset || yoffset != (int) yoffset) {
                         continue;
                     }
                     // at this point the two grids are compatible so we add them
                     // to the bigenv.
                     if (bigenv == null) {
-                        bigenv = new Envelope2D(env);
+                        bigenv = new ReferencedEnvelope(env);
                     }
                     it.remove();
                     envmap.put(env2, entry.getValue());
-                    bigenv.add(env2);
+                    bigenv.expandToInclude(env2);
                 }
                 if (bigenv != null) {
                     // determine GridEnvelope mapping needed to put all the
@@ -308,7 +316,7 @@ public class KmlColormappedImageExtension extends
                         GridGeometry2D newGeom = new GridGeometry2D(
                                 (GridEnvelope) range, bigenv);
                         Map<GridEnvelope2D, DataSource> rangemap = new HashMap<>();
-                        for (Entry<Envelope2D, DataSource> envent : envmap
+                        for (Entry<ReferencedEnvelope, DataSource> envent : envmap
                                 .entrySet()) {
                             rangemap.put(newGeom.worldToGrid(envent.getKey()),
                                     envent.getValue());

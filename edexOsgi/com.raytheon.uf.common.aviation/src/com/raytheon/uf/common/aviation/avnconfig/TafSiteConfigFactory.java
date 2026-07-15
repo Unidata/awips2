@@ -2,7 +2,7 @@ package com.raytheon.uf.common.aviation.avnconfig;
 
 import java.io.FileNotFoundException;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 /**
  * This is a dummy Factory class that allows the use of given class that
@@ -26,6 +26,7 @@ import org.apache.commons.configuration.ConfigurationException;
  * ------------ ---------- ----------- --------------------------
  * Oct 14, 2010            rferrel     Initial creation
  * May 15, 2019 20693   mgamazaychikov Refactor to move to common
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 

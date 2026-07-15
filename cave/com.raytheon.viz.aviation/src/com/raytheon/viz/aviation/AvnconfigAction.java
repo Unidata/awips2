@@ -21,7 +21,7 @@ package com.raytheon.viz.aviation;
 
 import java.io.FileNotFoundException;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Feb 13, 2013 1549        rferrel     Minor code clean up.
  * Jan 26, 2016 5054        randerso    Change top level dialog to be parented to the display
  * May 15, 2019 20693   mgamazaychikov  TafSiteConfigFactory refactor
+ * Jul 08, 2025 2036453     aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 

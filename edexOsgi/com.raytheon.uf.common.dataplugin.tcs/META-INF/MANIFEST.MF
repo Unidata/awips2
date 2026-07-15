@@ -4,11 +4,11 @@ Bundle-Name: Tcs Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.tcs
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.pointdata,
  org.geotools,
- javax.persistence,
+ jakarta.persistence,
  javax.measure,
  com.raytheon.uf.common.dataplugin
 Import-Package: com.raytheon.uf.common.geospatial

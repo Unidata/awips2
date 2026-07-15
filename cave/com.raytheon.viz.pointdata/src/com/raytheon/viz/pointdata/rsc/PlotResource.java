@@ -33,8 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;

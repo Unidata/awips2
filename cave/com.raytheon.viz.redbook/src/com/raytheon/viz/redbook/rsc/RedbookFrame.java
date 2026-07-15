@@ -28,13 +28,13 @@ import java.util.StringTokenizer;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.redbook.RedbookWMOMap;
 import com.raytheon.uf.common.dataplugin.redbook.blocks.Block_004_016;
@@ -100,6 +100,7 @@ import org.locationtech.jts.geom.Coordinate;
  *                                   instead of rendering it.
  * Aug 03, 2016  5799     bsteffen   Resynchronize to ensure dispose and init
  *                                   are synchronized.
+ * May 07, 2024  2037231  aford      Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -252,7 +253,7 @@ public class RedbookFrame implements IRenderable {
                         toProj.transform(new double[] { urLon, urLat }, 0, ur,
                                 0, 1);
 
-                        GeneralEnvelope env = new GeneralEnvelope(2);
+                        GeneralBounds env = new GeneralBounds(2);
                         env.setCoordinateReferenceSystem(crs);
                         env.setRange(0, ll[0], ur[0]);
                         env.setRange(1, ll[1], ur[1]);

@@ -53,10 +53,10 @@ useTest = """
         return "CENTRAL WEST FLORIDA"
 
     def _maor_descriptor(self):
-        return "WEST CENTRAL FLORIDA AND THE GULF OF MEXICO"
+        return "WEST CENTRAL FLORIDA AND THE GULF OF AMERICA"
 
     def _cwa_maor_descriptor(self):
-        return "WEST FLORIDA AND THE GULF OF MEXICO"
+        return "WEST FLORIDA AND THE GULF OF AMERICA"
 
     def _localReferencePoints(self):
         # Give the name and lat/lon for each local reference point

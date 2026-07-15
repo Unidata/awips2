@@ -4,7 +4,7 @@ Bundle-Name: Objectiveanalysis Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.objectiveanalysis;singleton:=true
 Bundle-Version: 1.18.1.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.swt,
  org.eclipse.core.runtime,
@@ -30,6 +30,6 @@ Require-Bundle: org.eclipse.swt,
  com.raytheon.uf.viz.core.grid,
  com.raytheon.uf.viz.grid.radar,
  org.apache.commons.lang3,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.viz.objectiveanalysis.rsc
 

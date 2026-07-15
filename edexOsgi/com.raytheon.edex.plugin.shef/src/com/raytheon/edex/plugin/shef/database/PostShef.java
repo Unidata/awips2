@@ -78,6 +78,7 @@ import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.TypeSource;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants.IngestSwitch;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -85,7 +86,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Post the SHEF Data to the IHFS DB.

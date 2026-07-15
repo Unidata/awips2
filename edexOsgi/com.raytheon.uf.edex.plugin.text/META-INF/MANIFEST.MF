@@ -13,11 +13,12 @@ Require-Bundle:
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.dataplugin.text,
  org.slf4j,
- com.google.guava;bundle-version="32.0.0",
- javax.xml.bind
+ com.google.guava;bundle-version="33.5.0",
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dao,
  com.raytheon.uf.edex.plugin.text.db,
  com.raytheon.uf.edex.plugin.text.impl
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.wmo

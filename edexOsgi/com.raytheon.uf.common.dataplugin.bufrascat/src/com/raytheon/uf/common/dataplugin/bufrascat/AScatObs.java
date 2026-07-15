@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,15 +21,16 @@ package com.raytheon.uf.common.dataplugin.bufrascat;
 
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Index;
+import org.locationtech.jts.geom.Geometry;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -43,13 +44,12 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * PluginDataObject for ascat data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -64,25 +64,29 @@ import org.locationtech.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Jul 16, 2015 4360       rferrel     Convert satId to int, wndSpd to float
  *                                      and give name to unique constraint.
- * 
+ * Aug 08, 2022 8892       tjensen     Update indexes for Hibernate 5
+ *
  * </pre>
- * 
+ *
  * @author jkorman
- * @version 1.0
  */
+
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrascatseq")
-@Table(name = "bufrascat", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrascat_datauri_fields", columnNames = {
-        "stationid", "refTime", "satId", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "bufrascat", indexes = { @Index(name = "bufrascat_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "bufrascat", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_bufrascat_datauri_fields", columnNames = {
+                "stationid", "refTime", "satId", "latitude",
+                "longitude" }) }, indexes = {
+                        @Index(name = "%TABLE%_refTimeIndex", columnList = "refTime, forecastTime"),
+                        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
+
 @DynamicSerialize
-public class AScatObs extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData, IPersistable {
+public class AScatObs extends PersistablePluginDataObject
+        implements ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -142,7 +146,7 @@ public class AScatObs extends PersistablePluginDataObject implements
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
-     * 
+     *
      * @param uri
      *            A data uri applicable to this class.
      * @param tableDef
@@ -154,7 +158,7 @@ public class AScatObs extends PersistablePluginDataObject implements
 
     /**
      * Get this observation's geometry.
-     * 
+     *
      * @return The geometry for this observation.
      */
     public Geometry getGeometry() {
@@ -163,7 +167,7 @@ public class AScatObs extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -172,7 +176,7 @@ public class AScatObs extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -181,7 +185,7 @@ public class AScatObs extends PersistablePluginDataObject implements
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Integer getElevation() {
@@ -190,7 +194,7 @@ public class AScatObs extends PersistablePluginDataObject implements
 
     /**
      * Was this location defined from the station catalog? False if not.
-     * 
+     *
      * @return Was this location defined from the station catalog?
      */
     public Boolean getLocationDefined() {
@@ -319,7 +323,7 @@ public class AScatObs extends PersistablePluginDataObject implements
 
     /**
      * Get the observation time for this data.
-     * 
+     *
      * @return The data observation time.
      */
     public Calendar getValidTime() {
@@ -328,7 +332,7 @@ public class AScatObs extends PersistablePluginDataObject implements
 
     /**
      * Set the observation time for this data.
-     * 
+     *
      * @param timeObs
      *            The data observation time.
      */
@@ -342,7 +346,7 @@ public class AScatObs extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      */
     @Override
     public PointDataView getPointDataView() {
@@ -350,7 +354,7 @@ public class AScatObs extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      */
     @Override
     public void setPointDataView(PointDataView pointDataView) {

@@ -55,7 +55,7 @@
 0000000000|42024| 27.46 | -84.22 |   -0|USF, COMPS C16                      |US|BOY
 0000000000|42035| 29.246| -94.410|    0|3D36 /D GALVESTON                   |US|BOY
 0000000000|42036| 28.506| -84.510|    0|3D32 /D W. TAMPA                    |US|BOY
-0000000000|42038| 27.42 | -92.58 |    0|3D35 /A North Mid Gulf of Mexico    |US|BOY
+0000000000|42038| 27.42 | -92.58 |    0|3D35 /A North Mid Gulf of America    |US|BOY
 0000000000|42039| 28.785| -86.038|    0|3D20 /D PENSACOLA                   |US|BOY
 0000000000|42040| 29.212| -88.207|    0|MOBILE SOUTH 64NM S of Dauphin Is,AL|US|BOY
 0000000000|42041| 27.220| -90.420|    0|3DV08/D NORTH MID GULF              |US|BOY
@@ -544,7 +544,6 @@
 0000000000|GLSM4| 44.02 | -83.54 |  180|CR GLOS, Gravelly Shoals Lt. MI     |US|BOY
 0000000000|GNJT2| 29.36 | -94.73 |   -0|Galveston Bay (North Jetty), TX     |US|BOY
 0000000000|GPOM6| 30.230| -88.982|    0|Gulfport Outer Range, MS NOS 8744707|US|BOY
-0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier, Gulf of Mexico|US|BOY
 0000000000|GRMM4| 46.68 | -85.97 |  186|GLOS, Grand Marais, MI              |US|BOY
 0000000000|GRRT2| 29.30 | -94.897|   -0|Galveston RR Bdge, TX TCOON         |US|BOY
 0000000000|GSJT2| 29.33 | -94.69 |   -0|Galveston Bay South Jetty, TX NOS   |US|BOY

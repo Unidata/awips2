@@ -32,6 +32,7 @@ import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosGfsData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosHpcData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosLampData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosMrfData;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -42,7 +43,6 @@ import com.raytheon.uf.edex.bufrtools.packets.BUFRFloatPacket;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRNumericPacket;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.plugin.bufrmos.BufrMosSeparator;
 import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
 

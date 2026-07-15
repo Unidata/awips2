@@ -4,7 +4,7 @@ Bundle-Name: FSSObs
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor.fssobs
 Bundle-Version: 1.17.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.viz.monitor.fssobs
 Require-Bundle: com.raytheon.uf.common.status,
  com.raytheon.uf.common.monitor,

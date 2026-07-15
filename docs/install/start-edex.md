@@ -1,36 +1,34 @@
 # EDEX Basic Commands 
 
-!!! note "These steps should be run as user *awips* with sudo.  Switch to the user by running `su - awips`."
-
 NSF Unidata's EDEX install also comes with a [simple **`edex`** program](#edex-commands) that can help execute basic EDEX utilities.  The most basic of the commands are the following:
 
 To start all EDEX services:
 
-    edex start
+    sudo edex start
     
 To stop all EDEX services:
 
-    edex stop
+    sudo edex stop
 
 ---
 
 ## Service and Boot Settings
 
-The main EDEX services are now stopped/started using systemd (`systemctl`). The services that used to be **/etc/init.d/**, have been removed starting in v23.4.1 (Redhat/Rocky8). Additionally, the each edex_camel service needs to be started manually. The services below are set to start up on boot.
+The main EDEX services are now stopped/started using systemd (`systemctl`). The services that used to be **/etc/init.d/**, have been removed starting in v23.4.1 (Redhat/Rocky8). Additionally, each edex_camel service needs to be started separately. The services below are set to start up on boot.
 
 To manually start, stop, and restart:
 ```
-systemctl start postgres@awips
-systemctl start httpd-pypies
-systemctl start qpidd
-systemctl start edex_camel@ingest
-systemctl start edex_camel@ingestGrib
-systemctl start edex_camel@request
+sudo systemctl start postgres@awips
+sudo systemctl start httpd-pypies
+sudo systemctl start qpidd
+sudo systemctl start edex_camel@ingest
+sudo systemctl start edex_camel@ingestGrib
+sudo systemctl start edex_camel@request
 ```
 
 The last service, `edex_ldm`, does **not run at boot** to prevent filling up disk space if EDEX is not running:
 
-    service edex_ldm start
+    sudo service edex_ldm start
 
 All of these services are started and stopped by the single program: `edex` as mentioned above.
 
@@ -38,7 +36,7 @@ All of these services are started and stopped by the single program: `edex` as m
 
 If the EDEX machine is shut down abruptly, when restarted, it should start up the processes mentioned [above](#service-and-boot-settings).  If `sudo service edex_ldm start` does not start up LDM smoothly, please try these steps:
 
-!!! note "All of the following commands should be run as user *awips* and the `service` commands may need to be run with `sudo`."
+!!! note "All of the following commands should be run as user *awips* except for the `service` command which needs `sudo` or `root`."
 
 -  Run `sudo service edex_ldm start` or `ldmadmin start` and recieve this message:
         
@@ -76,7 +74,7 @@ NSF Unidata's version of EDEX installs with a helpful `edex` script that can be 
 
 ### edex start
 
-    edex start
+   sudo edex start
     
     Starting EDEX PostgreSQL:                                  [  OK  ]
     Starting httpd:                                            [  OK  ]
@@ -91,13 +89,13 @@ NSF Unidata's version of EDEX installs with a helpful `edex` script that can be 
 
 To start all EDEX services *except* the LDM:
 
-    edex start base
+    sudo edex start base
 
 ---
 
 ### edex stop
 
-    edex stop
+    sudo edex stop
 
     Stopping EDEX Camel (request): 
     Stopping EDEX Camel (ingest): 
@@ -112,7 +110,7 @@ To start all EDEX services *except* the LDM:
 
 ### edex setup
 
-    edex setup
+    sudo edex setup
     
     [edex] EDEX IP and Hostname Setup
      Checking /awips2/database/data/pg_hba.conf [OK]
@@ -129,7 +127,7 @@ This command configures and/or confirms that the EDEX hostname and IP address de
 
 ### edex log
 
-    edex log
+    sudo edex log
     
     [edex] EDEX Log Viewer
 
@@ -150,11 +148,11 @@ More edex logs...
 
 ---
 
-### edex qpid
+### sudo edex qpid
 
 Shows a list of the the Qpid message queue to monitor data ingest (messages in vs messages out, i.e. decoded):
 
-    [centos@js-156-89 ~]$ edex qpid
+    [awips@edex ~]$ sudo edex qpid
     Queues
       queue                       dur  excl  msg   msgIn  msgOut  bytes  bytesIn  bytesOut  cons  bind
       ================================================================================================
@@ -179,7 +177,7 @@ Shows a list of the the Qpid message queue to monitor data ingest (messages in v
 
 To see a list of clients connecting to your EDEX server, use the `edex users [YYYYMMDD]` command, where `[YYYYMMDD]` is the optional date string.
 
-    edex users
+    sudo edex users
     
   
         -- EDEX Users 20241022 --
@@ -193,4 +191,4 @@ To see a list of clients connecting to your EDEX server, use the `edex users [YY
 
 ### edex purge
 
-To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run `edex purge reset`.
+To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run `sudo edex purge reset`.

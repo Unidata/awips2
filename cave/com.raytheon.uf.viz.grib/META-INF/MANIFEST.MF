@@ -4,7 +4,7 @@ Bundle-Name: Viz Grib Tools
 Bundle-SymbolicName: com.raytheon.uf.viz.grib;singleton:=true
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.viz.localization.perspective,
  org.eclipse.jface,
  com.raytheon.uf.common.grib,
@@ -18,4 +18,4 @@ Require-Bundle: com.raytheon.uf.viz.localization.perspective,
  com.raytheon.viz.volumebrowser,
  com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.menus.vb,
- javax.xml.bind
+ jakarta.xml.bind

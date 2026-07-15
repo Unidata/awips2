@@ -22,11 +22,11 @@
         This is an incremental override file, indicating that the files
         at different localization levels will be combined. 
     -->
-<DerivedParameter unit="°" name="Dir24Chg" abbreviation="Dir24Chg" xmlns:ns2="group">
+<DerivedParameter unit="deg" name="Dir24Chg" abbreviation="Dir24Chg" xmlns:ns2="group">
     <Method name="Dir24Chg">
         <Field abbreviation="windSpeed" unit="kn"/>
-        <Field abbreviation="windDir" unit="°"/>
+        <Field abbreviation="windDir" unit="deg"/>
         <Field abbreviation="accum_windSpeed24" unit="kn"/>
-        <Field abbreviation="accum_windDir24" unit="°"/>
+        <Field abbreviation="accum_windDir24" unit="deg"/>
     </Method>
 </DerivedParameter>

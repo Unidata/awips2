@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -714,9 +714,10 @@ public class Wes2BridgeManager {
                 bw.write(line + "\n");
             }
 
-            bw.write("<IfModule !mpm_netware_module>\n");
-            bw.write("PidFile \"run/httpd.pid\"\n");
-            bw.write("</IfModule>\n");
+            // This may or may not be needed, so adding it commented out.
+            bw.write("#<IfModule !mpm_netware_module>\n");
+            bw.write("#PidFile \"run/httpd.pid\"\n");
+            bw.write("#</IfModule>\n");
 
         }
     }
@@ -730,7 +731,6 @@ public class Wes2BridgeManager {
                 .resolve(pypiesEnvSuffix);
 
         final String envName = this.wes2BridgeCase.getName();
-        final String envPidLoc = "/run/" + envName; 
         final String envHome = WES2BRIDGE_DIRECTORY.resolve(envName).toString();
 
         try (BufferedReader br = Files.newBufferedReader(srcPypiesEnv);
@@ -752,8 +752,6 @@ public class Wes2BridgeManager {
         final String envName = this.wes2BridgeCase.getName();
         final String envPidLoc = "/run/" + envName; 
         final String envHome = WES2BRIDGE_DIRECTORY.resolve(envName).toString();
-        
-        
         Path srchttpd_pypies = AWIPSII_WES2BRIDGE_SCRIPTS
                 .resolve("httpd-pypies.service");
         Path httpd_pypies = this.wes2BridgeScripts.resolve("httpd-pypies_" + envName.toLowerCase() + ".service");
@@ -780,6 +778,10 @@ public class Wes2BridgeManager {
                 }
                 bw.write(line + "\n");
 
+                if (line.contains("EnvironmentFile")) {
+                    String newLine = "PassEnvironment=PYPIES.CFG";
+                    bw.write(newLine + "\n");
+                }
             }
         }
 
@@ -802,6 +804,11 @@ public class Wes2BridgeManager {
                 line = line.replace("/run", envPidLoc);
 
                 bw.write(line + "\n");
+
+                if (line.contains("EnvironmentFile")) {
+                    String newLine = "PassEnvironment=PYPIES.CFG";
+                    bw.write(newLine + "\n");
+                }
             }
         }
 

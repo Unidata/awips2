@@ -22,7 +22,7 @@
         This is an incremental override file, indicating that the files
         at different localization levels will be combined. 
     -->
-<DerivedParameter abbreviation="accum_windDir24" name="accum_windDir24" unit="°">
+<DerivedParameter abbreviation="accum_windDir24" name="accum_windDir24" unit="deg">
     <Method name="PointAccum">
         <Field abbreviation="stationName" />
         <Field abbreviation="timeObs" />

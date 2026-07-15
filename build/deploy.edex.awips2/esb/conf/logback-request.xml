@@ -41,31 +41,26 @@
 
    <include file="${edex.home}/conf/logback-edex-loggers.xml" />
 
-   <logger name="TextDBSrvRequestLogger" additivity="false">
-      <level value="DEBUG"/>
+   <logger name="TextDBSrvRequestLogger" additivity="false" level="DEBUG">
       <appender-ref ref="TextDBSrvRequestLogAsync"/>
    </logger>
 
-   <logger name="ThriftSrvRequestLogger" additivity="false">
-      <level value="Info"/>
+   <logger name="ThriftSrvRequestLogger" additivity="false" level="INFO">
       <appender-ref ref="ThriftSrvRequestLogAsync" />
    </logger>
 
-   <logger name="com.raytheon.uf.edex.backupsvc" additivity="false">
-      <level value="Info"/>
+   <logger name="com.raytheon.uf.edex.backupsvc" additivity="false" level="INFO">
       <appender-ref ref="BackupSvcRequestLogAsync" />
    </logger>
 
-   <logger name="org.hibernate">
-      <level value="ERROR"/>
+   <logger name="org.hibernate" level="ERROR">
    </logger>
 
    <!-- activeTableChange log -->
    <include file="${edex.home}/conf/logback-activeTableChange.xml"/>
 
    <!-- default logging -->
-   <root>
-      <level value="INFO"/>
+   <root level="INFO">
       <appender-ref ref="asyncConsole"/>
     </root>
 </configuration>

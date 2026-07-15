@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.drawing.polygon;
 
 import org.eclipse.swt.graphics.RGB;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IGraphicsTarget;

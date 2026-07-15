@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="warningDecoder" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
         <property name="pluginName" value="warning"/>
@@ -25,27 +23,11 @@
     </bean>
 
     <bean id="wwaGeometryCompleter" class="com.raytheon.edex.plugin.warning.postprocessor.WWAGeometryCompleter"/>
+    
+    <bean id="warning-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.warning.gis.WarningCamelRoutes" />
+        </constructor-arg>
+    </bean>
 
-    <camelContext id="warning-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <!-- Warning routes -->
-        <route id="warningIngestRoute">
-            <from uri="jms-durable:queue:Ingest.Warning"/>
-            <setHeader name="pluginName">
-                <constant>warning</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile"/>
-                    <bean ref="warningDecoder" method="decode"/>
-                    <bean ref="wwaGeometryCompleter" method="addMissingGeometries"/>
-                    <to uri="direct-vm:indexAlert"/>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:warning?level=ERROR&amp;showBody=true"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
 </beans>

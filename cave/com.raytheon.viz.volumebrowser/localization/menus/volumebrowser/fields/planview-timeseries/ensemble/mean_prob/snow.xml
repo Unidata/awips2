@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+       <contribute xsi:type="menuItem" menuText="1hr Mean Snowfall (using 13:1 SLR)" key="WEASD1hrmeanSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="3hr Mean Snowfall (using 13:1 SLR)" key="WEASD3hrmeanSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="6hr Mean Snowfall (using 13:1 SLR)" key="WEASD6hrmeanSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="12hr Mean Snowfall (using 13:1 SLR)" key="WEASD12hrmeanSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="24hr Mean Snowfall (using 13:1 SLR)" key="WEASD24hrmeanSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="36hr Mean Snowfall (using 13:1 SLR)" key="WEASD36hrmeanSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 1hr Snowfall &gt; 1.3 in (using 13:1 SLR)" key="ProbWEASD1hr2p54mmSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 1hr Snowfall &gt; 4.0 in (using 13:1 SLR)" key="ProbWEASD1hr7p62mmSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 3hr Snowfall &gt; 1.3 in (using 13:1 SLR)" key="ProbWEASD3hr2p54mmSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 3hr Snowfall &gt; 4.0 in (using 13:1 SLR)" key="ProbWEASD3hr7p62mmSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 3hr Snowfall &gt; 7.8 in (using 13:1 SLR)" key="ProbWEASD3hr15p24mmSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 6hr Snowfall &gt; 1.3 in (using 13:1 SLR)" key="ProbWEASD6hr2p54mmSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 6hr Snowfall &gt; 4.0 in (using 13:1 SLR)" key="ProbWEASD6hr7p62mmSN" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 6hr Snowfall &gt; 7.8 in (using 13:1 SLR)" key="ProbWEASD6hr15p24mmSN" indentText="false" />
+	   <contribute xsi:type="menuItem" menuText="1hr Mean Water Equiv Model Snow Accum" key="WEASD1hrmean" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="3hr Mean Water Equiv Model Snow Accum" key="WEASD3hrmean" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="6hr Mean Water Equiv Model Snow Accum" key="WEASD6hrmean" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="12hr Mean Water Equiv Model Snow Accum" key="WEASD12hrmean" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="24hr Mean Water Equiv Model Snow Accum" key="WEASD24hrmean" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="36hr Mean Water Equiv Model Snow Accum" key="WEASD36hrmean" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 1hr Water Equiv Model Snow Accum &gt; 0.1 in" key="ProbWEASD1hr2p54mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 1hr Water Equiv Model Snow Accum &gt; 0.3 in" key="ProbWEASD1hr7p62mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 3hr Water Equiv Model Snow Accum &gt; 0.1 in" key="ProbWEASD3hr2p54mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 3hr Water Equiv Model Snow Accum &gt; 0.3 in" key="ProbWEASD3hr7p62mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 3hr Water Equiv Model Snow Accum &gt; 0.6 in" key="ProbWEASD3hr15p24mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 6hr Water Equiv Model Snow Accum &gt; 0.1 in" key="ProbWEASD6hr2p54mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 6hr Water Equiv Model Snow Accum &gt; 0.3 in" key="ProbWEASD6hr7p62mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 6hr Water Equiv Model Snow Accum &gt; 0.6 in" key="ProbWEASD6hr15p24mm" indentText="false" />
+       <contribute xsi:type="menuItem" menuText="Prob 6hr Water Equiv Model Snow Accum &gt; 1.2 in" key="ProbWEASD6hr30p48mm" indentText="false" />
+ 
+
+   
+</menuTemplate>

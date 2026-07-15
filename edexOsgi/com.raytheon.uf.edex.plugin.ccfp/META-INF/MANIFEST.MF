@@ -6,10 +6,11 @@ Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  org.geotools,
- javax.persistence,
- com.raytheon.uf.common.status
+ jakarta.persistence,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.plugin.ccfp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.wmo

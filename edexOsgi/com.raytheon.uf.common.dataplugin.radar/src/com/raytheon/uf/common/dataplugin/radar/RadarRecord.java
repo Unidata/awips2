@@ -30,29 +30,11 @@ import java.util.Map;
 
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
+import org.geotools.api.referencing.crs.ProjectedCRS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.hibernate.annotations.Index;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.crs.ProjectedCRS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +46,7 @@ import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint.RadarProductType;
 import com.raytheon.uf.common.dataplugin.radar.level3.CPMBlock.CPMMessage;
 import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendVolumeScanPacket;
+import com.raytheon.uf.common.dataplugin.radar.level3.DigitalRasterDataArrayPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.DataLevelThreshold;
@@ -112,6 +95,24 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.units.PiecewisePixel;
 
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import tech.units.indriya.AbstractUnit;
 import tech.units.indriya.format.SimpleUnitFormat;
 
@@ -157,6 +158,7 @@ import tech.units.indriya.format.SimpleUnitFormat;
  * Oct 29, 2022  8959     mapeters     Update how data time levels are set
  * Nov 14, 2022  8973     mapeters     Prevent NPE in setThresholds due to race
  *                                     condition
+ * Mar 03, 2023  2033911  jdynina      Added DigitalRasterDataArray packet defs
  * </pre>
  *
  * @author bphillip
@@ -192,7 +194,23 @@ public class RadarRecord extends PersistablePluginDataObject
     public static final String PLUGIN_NAME = "radar";
 
     public enum ScanType {
-        NORMAL, SAILS, MRLE
+        /**
+         * Normal scan from lower to higher elevation angles, with the
+         * particular elevation angles and rotation speed determined by the
+         * current Volume Coverage Pattern (VCP).
+         */
+        NORMAL,
+        /**
+         * Supplemental Adaptive Intra-Volume Low-Level Scan: an additional scan
+         * of the lowest elevation angle (typically 0.5 degrees) in the middle
+         * of the volume scan
+         */
+        SAILS,
+        /**
+         * Mid-Volume Rescan of Low-Level Elevations: a rescan of the lowest "N"
+         * elevation angles (up to 4) in the middle of the volume scan
+         */
+        MRLE
     }
 
     @Column
@@ -1458,6 +1476,11 @@ public class RadarRecord extends PersistablePluginDataObject
                 } else if ((currPacket instanceof LinkedVectorPacket)
                         || (currPacket instanceof LinkedContourVectorPacket)) {
                     // Nothing to do,
+                    // Doesn't pertain to a specific location (?), so just store
+                    // with index 0,0
+
+                } else if (currPacket instanceof DigitalRasterDataArrayPacket) {
+                    // Nothing to do
                     // Doesn't pertain to a specific location (?), so just store
                     // with index 0,0
 

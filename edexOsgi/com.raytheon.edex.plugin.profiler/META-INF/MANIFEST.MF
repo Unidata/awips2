@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.edex.plugin.profiler
 Bundle-Version: 1.21.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin.profiler,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
@@ -16,7 +16,9 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.profiler,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools,
- com.raytheon.uf.common.geospatial;bundle-version="1.15.1"
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.plugin,
  com.raytheon.uf.common.wmo,

@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.EntityType;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.context.ApplicationListener;

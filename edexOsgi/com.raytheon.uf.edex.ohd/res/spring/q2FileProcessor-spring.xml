@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="q2Proc" class="com.raytheon.uf.edex.ohd.pproc.Q2FileUnzip"/>
 
@@ -13,24 +11,10 @@
         <constructor-arg value="jms-durable:queue:Ingest.q2"/>
     </bean>
 
-    <camelContext id="q2Proc-context"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <!-- Run the Q2 File Processor on new files -->
-        <route id="q2File">
-            <from uri="jms-durable:queue:Ingest.q2"/>
-            <doTry>
-                <pipeline>
-                    <bean ref="q2Proc" method="unzip" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:q2File?level=INFO"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-    </camelContext>
+    <bean id="q2Proc-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.Q2ProcContextRoutes" />
+        </constructor-arg>
+    </bean>
 
 </beans>

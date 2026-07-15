@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -111,6 +111,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     Change getSiteInfoList to take multiple
  *                                     site IDs. Cancel running Python task
  *                                     when the dialog is closed.
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  *

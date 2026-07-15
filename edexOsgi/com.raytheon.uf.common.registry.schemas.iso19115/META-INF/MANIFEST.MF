@@ -4,5 +4,5 @@ Bundle-Name: Iso19115
 Bundle-SymbolicName: com.raytheon.uf.common.registry.schemas.iso19115
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: javax.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: jakarta.xml.bind

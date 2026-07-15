@@ -25,8 +25,8 @@
 <DerivedParameter unit="kn" name="Spd24Chg" abbreviation="Spd24Chg" xmlns:ns2="group">
     <Method name="Spd24Chg">
         <Field abbreviation="windSpeed" unit="kn"/>
-        <Field abbreviation="windDir" unit="°"/>
+        <Field abbreviation="windDir" unit="deg"/>
         <Field abbreviation="accum_windSpeed24" unit="kn"/>
-        <Field abbreviation="accum_windDir24" unit="°"/>
+        <Field abbreviation="accum_windDir24" unit="deg"/>
     </Method>
 </DerivedParameter>

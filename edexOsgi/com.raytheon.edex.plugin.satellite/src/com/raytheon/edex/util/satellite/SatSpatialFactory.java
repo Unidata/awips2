@@ -20,11 +20,11 @@
 
 package com.raytheon.edex.util.satellite;
 
-import java.awt.geom.Rectangle2D;
+import org.geotools.geometry.Position2D;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.operation.MathTransform;
 
-import org.geotools.geometry.DirectPosition2D;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.operation.MathTransform;
+import java.awt.geom.Rectangle2D;
 
 import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.plugin.satellite.dao.SatMapCoverageDao;
@@ -53,6 +53,7 @@ import org.locationtech.jts.io.WKTReader;
  * Nov 05, 2014  3788     bsteffen    use getOrCreateCoverage in place of queryByMapId
  * May 11, 2015           mjames      South polar stereographic support added.
  * May 19, 2015           mjames      Added GVAR native projection support.
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  * 
  * 
  * </pre>
@@ -182,7 +183,7 @@ public class SatSpatialFactory {
  double dy) throws SatelliteDecoderException {
         try {
             ProjectedCRS crs = createCRS(crsType, lov, latin, latin2, 0.0);
-            DirectPosition2D corner = new DirectPosition2D(lo1, la1);
+            Position2D corner = new Position2D(lo1, la1);
             MathTransform fromLatLon = MapUtil.getTransformFromLatLon(crs);
             fromLatLon.transform(corner, corner);
             Envelope e = new Envelope(corner.x, corner.x, corner.y, corner.y);
@@ -312,8 +313,8 @@ public class SatSpatialFactory {
                 cm = 180.0;
             }
             ProjectedCRS crs = createCRS(crsType, lov, latin, latin2, cm);
-            DirectPosition2D corner1 = new DirectPosition2D(lo1, la1);
-            DirectPosition2D corner2 = new DirectPosition2D(lo2, la2);
+            Position2D corner1 = new Position2D(lo1, la1);
+            Position2D corner2 = new Position2D(lo2, la2);
             MathTransform fromLatLon = MapUtil.getTransformFromLatLon(crs);
             fromLatLon.transform(corner1, corner1);
             fromLatLon.transform(corner2, corner2);

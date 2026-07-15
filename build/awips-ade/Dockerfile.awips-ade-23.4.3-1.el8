@@ -1,0 +1,25 @@
+FROM tiffanym13/awips-devel-23.4.3-1:el8
+ENV VERSION 23.4.3
+ENV RELEASE 1
+MAINTAINER Tiffany Meyer<tiffanym@ucar.edu>
+
+USER root
+
+COPY el8-dev.repo /etc/yum.repos.d/awips2.repo
+
+RUN groupadd fxalpha && useradd -G fxalpha awips
+
+#RUN mkdir -p /home/awips/dev/unidata_23.4.3/awips2/dist/awips2_rpms/
+#ADD awips2_rpms /home/awips/dev/unidata_23.4.3/awips2/dist/awips2_rpms
+RUN mkdir -p /home/awips/dev/unidata_23.4.3/awips2/dist/el8-dev
+ADD el8-dev /home/awips/dev/unidata_23.4.3/awips2/dist/el8-dev
+
+RUN yum -y clean all
+
+RUN yum groupinstall awips2-ade -y
+
+RUN mkdir -p /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline && mkdir -p /awips2/jenkins/buildspace/workspace/tmp
+RUN mkdir -p /awips2/jenkins/build/rpms/awips2_latest/{x86_64,noarch}/
+RUN chown -R awips:fxalpha /awips2/jenkins/
+
+ENTRYPOINT ["/bin/bash"]

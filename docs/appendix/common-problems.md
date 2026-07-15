@@ -124,12 +124,27 @@ If you start up CAVE in Windows and notice the map is showing up only in the bot
 
 Try following these steps to fix your issue:
 
-- Right-click on the no_env.exe, select Properties
+- Right-click on the `no_env.exe`, select Properties
 !!! note "This is not the batch file (CAVE.bat) that gets installed as the CAVE shortcut on the Desktop, the no_env.exe is located in `C:\Users\[your_username]\AppData\Roaming\UCAR Unidata\AWIPS CAVE\no_env.exe`."
 - Select the Compatibility tab
 - Click "Change High DPI Settings"
 - At the bottom enable "Override High DPI scaling behavior"
 - Change the dropdown from Application to System
+
+---
+
+### Windows Install Error
+
+If you are trying to install CAVE on windows, and go to install it and get a pop-up like this:
+
+![Install Error](../images/install_error.png)
+
+That means your Windows settings is blocking it, but you can work around that.
+
+- Right click on the `awips-cave-23.4.1-1.msi` application, select Properties
+- Check the "Unblock" checkbox
+- Click OK
+- Now double click on the application and you should be able to install it
 
 ---
 

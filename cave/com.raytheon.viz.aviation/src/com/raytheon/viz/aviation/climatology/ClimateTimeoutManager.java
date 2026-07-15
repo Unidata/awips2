@@ -2,7 +2,7 @@ package com.raytheon.viz.aviation.climatology;
 
 import java.io.File;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;

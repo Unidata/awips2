@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="TafQueueRequestHandler" class="com.raytheon.uf.edex.aviation.TafQueueRequestHandler" />
 
@@ -47,55 +45,20 @@
             </list>
         </constructor-arg>
     </bean>
-
-    <camelContext id="taf-request-camel"
-        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-        <endpoint id="purgeAutoSavedTafCron"
-            uri="clusteredquartz://taf/purgeAutoSavedTafs/?cron=${purge.taf.auto.save.cron}" />
-
-        <route id="purgeAutoSavedTaf">
-            <from uri="purgeAutoSavedTafCron" />
-            <to uri="jms-generic:queue:purgeAutoSavedTafWork" />
-        </route>
-        <route id="purgeAutoSavedTafWork">
-            <from uri="jms-generic:queue:purgeAutoSavedTafWork" />
-            <doTry>
-                <bean ref="autoSaveTafPurger" method="purge" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:autoSavedTafPurge?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-
-    <!-- TAF Send Routes -->
-    <camelContext id="clusteredTafQueueRoutes"
-        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <route id="tafQueueSendJobAggr">
-            <from uri="timer://tafQueue?repeatCount=1" />
-            <doTry>
-                <bean ref="TafQueueManager" method="startManager" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:tafSendQueue?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-        <route id="tafQueueChangedJob">
-            <from uri="jms-generic:topic:tafQueueChanged" />
-            <doTry>
-                <bean ref="TafQueueManager" method="queueChanged" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:tafSendQueue?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredTafQueueRoutes" />
+    
+    <bean id="taf-request-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.aviation.TafRequestCamelRoutes">
+                <constructor-arg name="purgeTafAutoSaveCron" value="${purge.taf.auto.save.cron}" />
+            </bean>
+        </constructor-arg>
     </bean>
+
+    <!-- TAF Send Routes -->    
+    <bean id="clusteredTafQueueRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.aviation.ClusteredTafQueueRoutes" />
+        </constructor-arg>
+    </bean>
+
 </beans>

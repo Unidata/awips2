@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
 import java.util.regex.Pattern;
 
+import javax.measure.MetricPrefix;
 import javax.measure.UnitConverter;
 
 import org.slf4j.Logger;
@@ -34,11 +35,10 @@ import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPressure;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncTemp;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 import si.uom.SI;
-import javax.measure.MetricPrefix;
 
 /**
  * TODO Add Description

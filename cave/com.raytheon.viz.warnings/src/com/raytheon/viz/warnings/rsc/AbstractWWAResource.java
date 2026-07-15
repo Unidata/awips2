@@ -22,7 +22,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
@@ -391,7 +391,7 @@ public abstract class AbstractWWAResource extends
             }
 
         }
-        return null;
+        return "NO DATA";
     }
 
     protected void disposeEntry(final WarningEntry entry) {
@@ -847,7 +847,7 @@ public abstract class AbstractWWAResource extends
 
     @SuppressWarnings("unchecked")
     protected void requestData(DataTime earliest) throws VizException {
-//        System.out.println("requesting data");
+        System.out.println("requesting data");
         Map<String, RequestConstraint> map = (Map<String, RequestConstraint>) resourceData
                 .getMetadataMap().clone();
         if (earliestRequested != null) {

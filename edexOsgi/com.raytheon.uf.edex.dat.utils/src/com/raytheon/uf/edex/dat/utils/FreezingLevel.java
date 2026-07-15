@@ -31,8 +31,8 @@ import java.util.Map.Entry;
 import java.util.TreeSet;
 
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.geometry.Position2D;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +64,7 @@ import org.locationtech.jts.geom.Coordinate;
  * Jan 07, 2013            njensen     Change some logs to debug
  * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
  * Dec 11, 2015 5166       kbisanz     Update logging to use SLF4J
+ * May 07, 2024 2037231    aford       Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -126,14 +127,14 @@ public class FreezingLevel {
      * 
      * @param coors
      */
-    public DirectPosition2D findXYloc(Coordinate coor, String type) {
+    public Position2D findXYloc(Coordinate coor, String type) {
         ScanDataCache cache = ScanDataCache.getInstance();
 
         ISpatialObject iso = cache.getModelData()
                 .getGridRecord(modelName, type).getSpatialObject();
         CoordinateReferenceSystem crs = iso.getCrs();
         GridGeometry2D mapGeometry = MapUtil.getGridGeometry(iso);
-        DirectPosition2D resultPoint;
+        Position2D resultPoint;
         try {
             resultPoint = PointUtil.determineExactIndex(coor, crs, mapGeometry);
             return resultPoint;
@@ -156,7 +157,7 @@ public class FreezingLevel {
         double value = -99999.0;
         try {
             // xyLoc is the location in x,y
-            DirectPosition2D xyLoc = findXYloc(coor, prodType);
+            Position2D xyLoc = findXYloc(coor, prodType);
 
             // data from hdf5
             ScanDataCache cache = ScanDataCache.getInstance();

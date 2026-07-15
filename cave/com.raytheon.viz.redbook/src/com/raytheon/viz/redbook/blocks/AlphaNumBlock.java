@@ -21,8 +21,8 @@ package com.raytheon.viz.redbook.blocks;
 
 import java.nio.ByteBuffer;
 
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 import org.locationtech.jts.geom.Coordinate;

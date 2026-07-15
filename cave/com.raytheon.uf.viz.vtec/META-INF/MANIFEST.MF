@@ -10,6 +10,6 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.common.time,
  org.eclipse.core.runtime,
  org.eclipse.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.vtec

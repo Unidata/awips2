@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.DrawableString;

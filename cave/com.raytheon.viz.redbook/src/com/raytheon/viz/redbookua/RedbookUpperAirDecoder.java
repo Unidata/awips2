@@ -29,13 +29,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -57,6 +57,7 @@ import com.raytheon.viz.redbook.Activator;
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2010 1029       dfriedma    Initial creation
  * Nov 17, 2015 5134       njensen     Fixed loading pointDataDescription
+ * May 07, 2024 2037231    aford       Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -163,7 +164,7 @@ public class RedbookUpperAirDecoder {
             MathTransform toProj = MapUtil.getTransformFromLatLon(crs);
             toProj.transform(new double[] { -135.02, 10.43 }, 0, ll, 0, 1);
             toProj.transform(new double[] { -23.04, 40.31 }, 0, ur, 0, 1);
-            GeneralEnvelope env = new GeneralEnvelope(2);
+            GeneralBounds env = new GeneralBounds(2);
             env.setCoordinateReferenceSystem(crs);
             env.setRange(0, ll[0], ur[0]);
             env.setRange(1, ll[1], ur[1]);
@@ -212,8 +213,8 @@ public class RedbookUpperAirDecoder {
         MathTransform domainToWorld = getDomainToWorld();
         if (domainToWorld == null)
             return;
-        DirectPosition2D domainCoord = new DirectPosition2D();
-        DirectPosition2D worldCoord = new DirectPosition2D();
+        Position2D domainCoord = new Position2D();
+        Position2D worldCoord = new Position2D();
 
         while (li < lines.length) {
             String line = lines[li++];

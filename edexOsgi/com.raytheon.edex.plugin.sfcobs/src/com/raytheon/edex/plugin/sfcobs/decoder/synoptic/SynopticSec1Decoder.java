@@ -28,9 +28,9 @@ import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
 import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Decode synoptic section 1 data. This section has a single group which

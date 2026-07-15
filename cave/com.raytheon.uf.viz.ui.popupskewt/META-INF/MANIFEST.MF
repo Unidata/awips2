@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Popup Skewt
 Bundle-SymbolicName: com.raytheon.uf.viz.ui.popupskewt;singleton:=true
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.uf.viz.ui.popupskewt.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
@@ -16,8 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.sounding,
  com.raytheon.viz.core.graphing,
  javax.measure,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.ui.popupskewt.rsc,
  com.raytheon.uf.viz.ui.popupskewt.ui

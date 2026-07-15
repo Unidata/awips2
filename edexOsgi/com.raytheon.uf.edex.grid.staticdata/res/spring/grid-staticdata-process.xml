@@ -1,30 +1,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="staticDataGenerator"
         class="com.raytheon.uf.edex.grid.staticdata.StaticDataGenerator"
         factory-method="getInstance" />
-
-    <camelContext id="grid-staticdata-process" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <!-- Begin Grid Process Route -->
-        <route id="gridStaticDataGenerationRoute">
-            <!-- Fed from plugin notification -->
-            <from uri="jms-durable:grid-staticdata-generate" />
-            <doTry>
-                <bean ref="serializationUtil" method="transformFromThrift" />
-                <bean ref="staticDataGenerator" method="processNotification"/>
-                <to uri="direct-vm:stageNotification"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:grid-staticdata?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    
+    <bean id="grid-staticdata-process" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.grid.staticdata.GridStaticdataProcessRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

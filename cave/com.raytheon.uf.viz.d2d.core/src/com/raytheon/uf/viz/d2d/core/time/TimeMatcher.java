@@ -67,6 +67,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                   spatial.
  * Oct 29, 2022  8959     mapeters   Prevent spatially matching resources with different
  *                                   level types, cleanup doValTimOverlay variable names
+ * Mar 06, 2025  2038488  mapeters   Add convenience makeOverlayList method, remove dead code
+ *                                   in refTimeSort since majorIndex param was always null
  *
  * </pre>
  *
@@ -558,7 +560,7 @@ public class TimeMatcher {
     // tolerance being half the intrinsic period the existing frames or the
     // data being overlaid, whichever is greater.
     // ---------------------------------------------------------------------------
-    public DataTime[] doValTimOverlay(DataTime[] depictTimeArr,
+    private DataTime[] doValTimOverlay(DataTime[] depictTimeArr,
             DataTime[] frameTimes, long deltaTime, LoadMode mode, Date latest,
             float tolerance) {
 
@@ -759,6 +761,18 @@ public class TimeMatcher {
             spatial = frameTime.isSpatial() && dspatial;
             // have no best match yet
             int bestDTimeIndex = -1;
+            /*-
+             * majorIndex contains indices in depictTimes where valid time
+             * changes. This loops through the first reference/forecast time
+             * combo in each valid time bin.
+             *
+             * Example: depictTimes=[11Z+1, 10Z+2, 17Z+1, 16Z+2]
+             *          valid times=[12Z,   12Z,   18Z,   18Z]
+             *          majorIndex= [0,            2]
+             *
+             * If times are spatial, then majorIndex contains more indices than
+             * just where valid time changes. See validTimeSort.
+             */
             for (int m = 0; m < majorIndex.size(); m++) {
                 int dTimeIndex = majorIndex.get(m);
                 long dValidTime = depictTimes.get(dTimeIndex).getMatchValid();
@@ -780,15 +794,21 @@ public class TimeMatcher {
                     continue;
                 }
                 if (byFcst) {
+                    // determine index where current valid time bin ends
                     int maxDTimeIndex = m == majorIndex.size() - 1
                             ? depictTimes.size()
                             : majorIndex.get(m + 1);
+                    /*
+                     * loop through valid time bin to find exact
+                     * reference/forecast time match
+                     */
                     while (dTimeIndex < maxDTimeIndex && depictTimes
                             .get(dTimeIndex)
                             .getMatchFcst() != frameTime.getMatchFcst()) {
                         dTimeIndex++;
                     }
                     if (dTimeIndex >= maxDTimeIndex) {
+                        // no exact match
                         continue;
                     }
                 }
@@ -938,18 +958,9 @@ public class TimeMatcher {
 
     // This routine sorts a sequence of DataTimes in ascending order with
     // reference time as the primary key and forecast time as the secondary
-    // key. Caller allocates and owns "times" and "majorIndex". Routine
-    // expects "majorIndex" to be an empty sequence when routine is called.
-    // On output, "majorIndex" contains index of first element in "times" for
-    // each unique value of reference time. Sort of allows user to then
-    // treat "times" as a 2d array.
-    // Will not construct majorIndex if pointer is null.
-    // Will return true if there are any non-zero forecast time values.
+    // key. Caller allocates and owns "times".
     // ---------------------------------------------------------------------------
-    private static void refTimeSort(List<DataTime> times,
-            List<Integer> majorIndex, boolean ignoreSpatial) {
-        int i, j;
-
+    private static void refTimeSort(List<DataTime> times) {
         if (times.isEmpty()) {
             return;
         }
@@ -957,39 +968,6 @@ public class TimeMatcher {
         Collections.sort(times,
                 new DataTimeComparator(DataTimeComparator.SortKey.INITIAL_TIME,
                         DataTimeComparator.SortKey.FORECAST_TIME, true));
-
-        if (majorIndex == null) {
-            return;
-        }
-        majorIndex.clear();
-
-        for (i = 0; i < times.size(); i++) {
-            if (!(times).get(i).isNull()) {
-                break;
-            }
-        }
-        if (i >= times.size()) {
-            return;
-        }
-        majorIndex.add(i);
-        if (times.get(i).isSpatial() && !ignoreSpatial) {
-            long val0 = times.get(i).getMatchValid();
-            for (j = i + 1; j < times.size(); i++, j++) {
-                if (times.get(j).getMatchRef() > times.get(i).getMatchRef()) {
-                    val0 = times.get(j).getMatchValid();
-                } else if (val0 != times.get(j).getMatchValid()) {
-                    continue;
-                }
-                majorIndex.add(j);
-            }
-        } else {
-            for (j = i + 1; j < times.size(); i++, j++) {
-                if ((times).get(j).getMatchRef() > (times).get(i)
-                        .getMatchRef()) {
-                    majorIndex.add(j);
-                }
-            }
-        }
     }
 
     // Given a sequence of available DataTimes, the maximum number of frames
@@ -1008,7 +986,7 @@ public class TimeMatcher {
         if (depictTimes.isEmpty()) {
             return new Date(0);
         }
-        refTimeSort(depictTimes, null, false);
+        refTimeSort(depictTimes);
 
         // filterOldForecasts removes any DataTimes that do not belong in a row
         // load and returns index of first item with latest reference time,
@@ -1481,6 +1459,17 @@ public class TimeMatcher {
 
     }
 
+    /**
+     * @see #makeOverlayList(DataTime[], Date, DataTime[], LoadMode, long, long,
+     *      float)
+     */
+    public DataTime[] makeOverlayList(TimeMatchingConfiguration config,
+            DataTime[] frameTimes) {
+        return makeOverlayList(config.getDataTimes(), config.getClock(),
+                frameTimes, config.getLoadMode(), config.getForecast(),
+                config.getDelta(), config.getTolerance());
+    }
+
     // ::makeOverlayList()
     //
     // Given a sequence of available DataTimes for a depictable, the clock time,
@@ -1494,7 +1483,7 @@ public class TimeMatcher {
     // Optional argument "forecast" controls how modes PROG_LOOP,
     // FORCED, FCST_TIME_MATCH and DPROG_DT work.
     // ---------------------------------------------------------------------------
-    public DataTime[] makeOverlayList(DataTime[] depictTimes, Date clock,
+    private DataTime[] makeOverlayList(DataTime[] depictTimes, Date clock,
             DataTime[] frameTimes, LoadMode mode, long forecast, long deltaTime,
             float tolerance) {
         if (depictTimes.length == 0) {
@@ -1612,7 +1601,7 @@ public class TimeMatcher {
         case FORCED:
             loadTimes = new DataTime[frameTimes.length];
             filteredTimes = filterByForecast(depictTimes, forecast);
-            refTimeSort(filteredTimes, null, false); {
+            refTimeSort(filteredTimes); {
             DataTime DunnTime = filteredTimes.get(filteredTimes.size() - 1);
             for (int i = 0; i < frameTimes.length; i++) {
                 loadTimes[i] = DunnTime;

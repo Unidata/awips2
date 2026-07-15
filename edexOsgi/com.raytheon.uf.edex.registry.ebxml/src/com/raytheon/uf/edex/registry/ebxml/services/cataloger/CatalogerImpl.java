@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.cataloger;
 
-import javax.annotation.Resource;
-import javax.xml.ws.WebServiceContext;
+import jakarta.annotation.Resource;
+import jakarta.xml.ws.WebServiceContext;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;

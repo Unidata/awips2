@@ -19,12 +19,12 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.xml.bind.JAXBException;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.xml.bind.JAXBException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

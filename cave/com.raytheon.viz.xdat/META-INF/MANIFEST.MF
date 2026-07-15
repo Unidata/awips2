@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Xdat Plug-in
 Bundle-SymbolicName: com.raytheon.viz.xdat;singleton:=true
 Bundle-Version: 1.15.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -12,9 +13,10 @@ Require-Bundle: org.eclipse.ui,
  org.postgres,
  com.raytheon.uf.viz.application,
  com.raytheon.uf.viz.personalities.cave,
- com.raytheon.viz.ui.personalities.awips
+ com.raytheon.viz.ui.personalities.awips,
+ org.apache.commons.lang3
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.time.util,

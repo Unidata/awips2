@@ -3,10 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ccfp Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.ccfp;singleton:=true
 Bundle-Version: 1.19.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.viz.core,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.ccfp,
@@ -22,7 +23,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.locationtech.jts.geom,
  org.eclipse.swt.graphics,
  org.eclipse.ui.plugin,
- org.opengis.referencing.crs,
+ org.geotools.api.referencing.crs,
  org.osgi.framework
 Export-Package: com.raytheon.uf.viz.ccfp.rsc
 Bundle-ClassPath: com.raytheon.uf.viz.ccfp.jar

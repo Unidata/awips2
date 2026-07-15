@@ -4,7 +4,7 @@ Bundle-Name: Common Grib
 Bundle-SymbolicName: com.raytheon.uf.common.grib
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
@@ -13,6 +13,6 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.grid,
  org.slf4j,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.serialization,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.common.grib,
  com.raytheon.uf.common.grib.tables

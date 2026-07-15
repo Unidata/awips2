@@ -21,22 +21,22 @@ package com.raytheon.uf.common.dataplugin.cwat;
 
 import java.util.HashMap;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
+import org.geotools.api.referencing.crs.ProjectedCRS;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.hibernate.annotations.Index;
-import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -78,7 +78,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361        njensen     Removed XML annotations
  * Jul 23, 2015 2360        rferrel     Add name to unique constraint.
- * 
+ * May 07, 2024 2037231     aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author dhladky
@@ -402,7 +403,7 @@ public class CWATRecord extends PersistablePluginDataObject implements
 
         GridGeometry2D gridGeometry2D = null;
 
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+        GeneralBounds generalEnvelope = new GeneralBounds(2);
         generalEnvelope.setCoordinateReferenceSystem(crs);
 
         double maxExtent = (this.getDx() * (this.getNx() / 2));

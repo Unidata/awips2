@@ -4,7 +4,7 @@ import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
 import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
 import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;
 
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;

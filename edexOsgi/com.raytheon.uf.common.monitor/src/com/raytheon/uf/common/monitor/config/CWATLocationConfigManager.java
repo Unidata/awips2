@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationPathObserver;

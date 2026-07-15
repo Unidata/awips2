@@ -30,20 +30,19 @@ import static java.lang.Math.tan;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 
+import org.geotools.api.parameter.InvalidParameterNameException;
+import org.geotools.api.parameter.InvalidParameterValueException;
+import org.geotools.api.parameter.ParameterDescriptor;
+import org.geotools.api.parameter.ParameterDescriptorGroup;
+import org.geotools.api.parameter.ParameterNotFoundException;
+import org.geotools.api.parameter.ParameterValueGroup;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.geotools.referencing.operation.projection.ProjectionException;
-import org.opengis.parameter.InvalidParameterNameException;
-import org.opengis.parameter.InvalidParameterValueException;
-import org.opengis.parameter.ParameterDescriptor;
-import org.opengis.parameter.ParameterDescriptorGroup;
-import org.opengis.parameter.ParameterNotFoundException;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineSegment;
 
@@ -859,12 +858,6 @@ public class VIIRSMapProjection extends MapProjection {
             super(PARAMETERS);
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.geotools.referencing.operation.MathTransformProvider#
-         * createMathTransform (org.opengis.parameter.ParameterValueGroup)
-         */
         @Override
         protected MathTransform createMathTransform(ParameterValueGroup values)
                 throws InvalidParameterNameException,

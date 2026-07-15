@@ -35,9 +35,9 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;
 import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Duration;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * 

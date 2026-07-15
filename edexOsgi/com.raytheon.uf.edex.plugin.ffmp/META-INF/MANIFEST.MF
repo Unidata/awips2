@@ -19,13 +19,14 @@ Require-Bundle: com.raytheon.uf.edex.cpgsrv;resolution:=optional,
  com.raytheon.uf.common.xmrg,
  org.slf4j,
  com.raytheon.uf.common.serialization.comm,
- org.apache.commons.lang3
+ org.apache.commons.lang3,
+ com.raytheon.uf.edex.routes
 Import-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.dat.utils,
  com.raytheon.uf.edex.plugin.scan.common
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.ffmp,
  com.raytheon.uf.edex.plugin.ffmp.common

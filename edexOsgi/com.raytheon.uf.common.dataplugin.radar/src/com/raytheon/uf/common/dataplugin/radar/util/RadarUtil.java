@@ -27,8 +27,8 @@ import java.util.Set;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.geometry.GeneralBounds;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
@@ -378,7 +378,7 @@ public class RadarUtil {
     public static GridGeometry2D constructGridGeometry(ProjectedCRS crs,
             double maxExtent, int numPoints) {
         GridGeometry2D gridGeometry2D;
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+        GeneralBounds generalEnvelope = new GeneralBounds(2);
         generalEnvelope.setCoordinateReferenceSystem(crs);
 
         generalEnvelope.setRange(0, -maxExtent, maxExtent);

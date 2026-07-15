@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.nc.bufr.tables;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
 

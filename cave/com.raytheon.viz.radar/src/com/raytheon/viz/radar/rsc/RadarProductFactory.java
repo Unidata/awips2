@@ -62,6 +62,7 @@ import com.raytheon.viz.radar.ui.xy.RadarXsectXYResource;
  * 03/04/2013   DCS51     zwang     Handle GFM product
  * 05/02/2013   DR 14587  D. Friedman  Add isVelocityProductCode
  * 09/26/2014   DCS16776  zwang     Add product Microburst AMDA (MBA)
+ * 07/13/2023   2033911   jdynina   Add RDQVP products
  * 
  * </pre>
  * 
@@ -78,7 +79,8 @@ public class RadarProductFactory {
 
     private static final List<Integer> precips = Arrays.asList(138, 80, 79, 78);
 
-    private static final List<Integer> xSects = Arrays.asList(50, 51, 85, 86);
+    private static final List<Integer> xSects = Arrays.asList(50, 51, 85, 86, 
+            189, 190, 191, 192);
 
     public static IRadarInterrogator buildInterrogator(int productCode,
             String format) {

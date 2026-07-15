@@ -4,17 +4,18 @@ Bundle-Name: Datobs
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.fssobs
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.edex.cpgsrv,
  com.raytheon.edex.common,
  com.raytheon.uf.common.dataplugin.fssobs,
- com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.localization,
  org.slf4j,
  com.raytheon.uf.common.alertviz,
- javax.xml.bind,
- javax.measure
+ jakarta.xml.bind,
+ javax.measure,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
 Export-Package: com.raytheon.uf.edex.plugin.fssobs,
  com.raytheon.uf.edex.plugin.fssobs.common
 Import-Package: com.raytheon.uf.common.monitor.config,

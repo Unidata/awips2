@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="bufrncwfDecoder" class="com.raytheon.uf.edex.plugin.bufrncwf.BUFRncwfDecoder">
         <constructor-arg ref="bufrncwfPluginName" />
@@ -14,27 +12,10 @@
         <constructor-arg value="jms-durable:queue:Ingest.bufrncwf"/>
     </bean>
 
-    <camelContext id="bufrncwf-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
+    <bean id="bufrncwf-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.bufrncwf.BufrncwfCamelRoutes" />
+        </constructor-arg>
+    </bean>
 
-        <!-- Begin bufrncwf routes -->
-        <route id="bufrncwfIngestRoute">
-            <from uri="jms-durable:queue:Ingest.bufrncwf"/>
-            <setHeader name="pluginName">
-                <constant>bufrncwf</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="bufrncwfDecoder" method="decode" />
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:bufrncwf?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
 </beans>

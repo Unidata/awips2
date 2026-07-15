@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.ui.IEditorPart;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.parameter.ParameterNotFoundException;
+import org.geotools.api.parameter.ParameterValueGroup;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
@@ -31,9 +34,6 @@ import org.locationtech.jts.densify.Densifier;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.geometry.Envelope;
-import org.opengis.parameter.ParameterNotFoundException;
-import org.opengis.parameter.ParameterValueGroup;
 
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -247,7 +247,7 @@ public class CrossSectionProductCreator extends AbstractProductCreator {
      * @param worldEnvelope
      * @return
      */
-    private static double getMeridian(Envelope worldEnvelope) {
+    private static double getMeridian(Bounds worldEnvelope) {
         MapProjection worldProjection = CRS
                 .getMapProjection(worldEnvelope.getCoordinateReferenceSystem());
         double centralMeridian = 0.0;

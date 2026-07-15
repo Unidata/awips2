@@ -4,7 +4,7 @@ Bundle-Name: Edex Archive
 Bundle-SymbolicName: com.raytheon.uf.edex.archive
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.edex.archive,
  com.raytheon.uf.edex.archive.purge
 Import-Package: com.raytheon.uf.common.archive.config,
@@ -21,4 +21,5 @@ Require-Bundle: com.raytheon.uf.common.auth,
  com.raytheon.uf.common.util,
  com.raytheon.uf.edex.auth,
  com.raytheon.uf.edex.core,
- org.apache.commons.io
+ org.apache.commons.io,
+ com.raytheon.uf.edex.routes

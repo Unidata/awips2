@@ -29,10 +29,10 @@ import java.util.Set;
 
 import javax.measure.Unit;
 
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
@@ -61,6 +61,7 @@ import tech.units.indriya.format.SimpleUnitFormat;
  * Apr 09, 2014  2947     bsteffen    Initial creation
  * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * Jun 06, 2018  7310     mapeters    Handle refactoring of util classes
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -139,7 +140,7 @@ public class DerivedSatelliteRecord extends SatelliteRecord {
             int[] max = req.getMaxIndexForSlab();
             GridEnvelope2D range = new GridEnvelope2D(min[0], min[1],
                     max[0] - min[0], max[1] - min[1]);
-            Envelope env;
+            Bounds env;
             try {
                 env = gridGeometry.gridToWorld(range);
             } catch (TransformException e) {
@@ -150,7 +151,7 @@ public class DerivedSatelliteRecord extends SatelliteRecord {
                 && req.getPoints().length == 1) {
             Point p = req.getPoints()[0];
             GridEnvelope2D range = new GridEnvelope2D(p.x, p.y, 1, 1);
-            Envelope env;
+            Bounds env;
             try {
                 env = gridGeometry.gridToWorld(range);
             } catch (TransformException e) {

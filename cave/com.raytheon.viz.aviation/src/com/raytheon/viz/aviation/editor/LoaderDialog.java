@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -77,6 +77,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf
  * Mar 09, 2018 6958        njensen     Load template if "latest" is selected and there is no latest TAF
  * May 15, 2019 20693    mgamazaychikov ITafSiteConfig, TafSiteConfigFactory, TafSiteData refactor
+ * Jul 08, 2025 2036453     aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 

@@ -4,7 +4,7 @@ Bundle-Name: Gribit2
 Bundle-SymbolicName: com.raytheon.uf.common.mpe.gribit2
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.mpe,
  org.slf4j,
  com.raytheon.uf.common.serialization,
@@ -17,6 +17,6 @@ Require-Bundle: com.raytheon.uf.common.mpe,
  com.raytheon.uf.common.xmrg,
  org.geotools,
  com.mchange,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.common.mpe.gribit2,
  com.raytheon.uf.common.mpe.gribit2.grib

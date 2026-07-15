@@ -40,7 +40,7 @@ class HighSeas_AT2_Overrides:
 # 
 #     def _Text2(self):
 #         return "ATLANTIC FROM 07N TO 31N W OF 35W INCLUDING CARIBBEAN SEA AND\n" + \
-#                "GULF OF MEXICO\n\n"
+#                "GULF OF AMERICA\n\n"
 
 # End REQUIRED OVERRIDES
 #**********************************************************************

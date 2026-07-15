@@ -21,8 +21,8 @@ package com.raytheon.uf.edex.netcdf.description.field.direct;
 
 import java.io.IOException;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.netcdf.description.field.AbstractFieldDescription;
  * Sep 09, 2015  4696     nabowle   Add indexed retrieval and getLength().
  * Dec 08, 2015  5059     nabowle   Add isNumeric() and isPresent().
  * May 19, 2016  5584     nabowle   Updates for consolidation.
+ * May 11, 2026  2041388  tgurney   Fixes for netcdf-java 5.9.1
  *
  * </pre>
  *
@@ -114,12 +115,16 @@ public class VariableDescription extends AbstractFieldDescription {
                 try {
                     switch (var.getDataType()) {
                     case BYTE:
+                    case UBYTE:
                         return var.readScalarByte();
                     case SHORT:
+                    case USHORT:
                         return var.readScalarShort();
                     case INT:
+                    case UINT:
                         return var.readScalarInt();
                     case LONG:
+                    case ULONG:
                         return var.readScalarLong();
                     case FLOAT:
                         return var.readScalarFloat();
@@ -154,12 +159,16 @@ public class VariableDescription extends AbstractFieldDescription {
                 Array array = var.read();
                 switch (var.getDataType()) {
                 case BYTE:
+                case UBYTE:
                     return array.getByte(index);
                 case SHORT:
+                case USHORT:
                     return array.getShort(index);
                 case INT:
+                case UINT:
                     return array.getInt(index);
                 case LONG:
+                case ULONG:
                     return array.getLong(index);
                 case FLOAT:
                     return array.getFloat(index);

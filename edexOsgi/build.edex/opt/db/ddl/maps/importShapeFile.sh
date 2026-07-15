@@ -1,20 +1,20 @@
-#!/bin/sh 
+#!/bin/sh
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 #
@@ -26,17 +26,22 @@
 # 10/23/2014   3685       randerso    Fixed bug where .prj was not recognized when shape file
 #                                     was in the current directory (no directory specified)
 # 02/11/2016   5348       randerso    Add code to create a county_names view into the county table
-# 01/23/2017   6097       randerso    Removed unnecessary command line parameters. Use ogr2ogr to 
+# 01/23/2017   6097       randerso    Removed unnecessary command line parameters. Use ogr2ogr to
 #                                     to convert shapefile to WGS84 (EPSG:4326).
-# 08/02/2017   6362       randerso    Add code to create alaska_marine view     
-# 08/28/2017   6097       randerso    Made command line backward compatible with warning 
-#                                     message if extra arguments are present 
+# 08/02/2017   6362       randerso    Add code to create alaska_marine view
+# 08/28/2017   6097       randerso    Made command line backward compatible with warning
+#                                     message if extra arguments are present
 # 04/11/2018   7140       tgurney     Use a2dbauth
 # 03/25/2021   8398       randerso    Added PROJ_LIB for PostGIS 2.4
 # 07/01/2021   8544       tgurney     Remove PGBINDIR and PSQLBINDIR, not
 #                                     needed anymore. Update GDAL and PROJ data
 #                                     paths
-#     
+# 03/28/2025   2037812    smoorthy    Define pghost appropriately for db calls.
+# 04/15/2025   2038698    dhaines     Warngen: Cities list doesn't always include the Level 1
+#                                     cities
+# 12/31/2025   2040523    dkingfield  Block the hazardservicesarea table from being updated
+#                                     with this script.
+#
 ##
 
 function usage()
@@ -45,7 +50,7 @@ function usage()
     echo usage: `basename $0` shapefile table
     echo "where: shapefile - pathname of the shape file to be imported"
     echo "       table     - database table where the shape file is to be imported"
-    echo "example: `basename $0` ~/Downloads/c_11au16.shp County"
+    echo "example: `basename $0` ~/Downloads/c_11au16.shp county"
 }
 
 if [ $# -lt 2 ] ; then
@@ -60,7 +65,7 @@ if [ $# -gt 2 ] ; then
     echo "!!! WARNING: importShapeFile.sh HAS BEEN CHANGED. OBSOLETE ARGUMENTS WILL BE IGNORED !!!"
     echo "!!! See updated usage information below for new command syntax.                      !!!"
     echo "!!!                                                                                  !!!"
-    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" 
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     usage
     echo
 fi
@@ -76,6 +81,57 @@ TABLE=`echo "${2}" | tr '[:upper:]' '[:lower:]'`
 if [[ "${TABLE}" == "mapdata" && $# -gt 2 ]] ; then
     TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
 fi
+
+# Block the script from performing operations on the hazardservicesarea table
+if [[ "$TABLE" == "hazardservicesarea" ]] ; then
+    echo
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "!!! ERROR: The hazardservicesarea table cannot be updated with this script.          !!!"
+    echo "!!!                                                                                  !!!"
+    echo "!!! To update hazardservicesarea, go to dv1, and run the following script:           !!!"
+    echo "!!! /awips2/edex/scripts/HazardServices/ingestshapefiles.sh                          !!!"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    exit 1
+fi
+
+# Set PGHOST appropriately:
+# - If we're already on "dv1", set it to dv1.
+# - If we're on any other host with postgres running, set it
+#   to "localhost".
+# - If we're on any other host without postgres running, set it
+#   to "dv1".
+
+export PGHOST='localhost'
+
+host=$(hostname)
+
+#extract first part of hostname of the form dv1-xxx.xxx
+IFS="-"
+hostTemp=''
+for part in $host
+do
+    hostTemp=$part
+    break
+done
+unset IFS
+
+
+# if we're on dv1, just set "PGHOST" to dv1
+if [ $hostTemp == 'dv1' ] ; then
+    export PGHOST=$hostTemp
+fi
+
+
+#check if postgres is running on this host. Should be many
+#processes with "postgres" in the name.
+numPostgres=$(ps -ef | grep postgres | wc -l)
+
+#choosing 3 for safety, since the "grep" is atleast 1
+if [ $numPostgres -lt 3 ] ; then
+   export PGHOST='dv1'
+fi
+
+
 
 PGUSER=awipsadmin
 PGPORT=5432
@@ -125,7 +181,12 @@ ${psql} -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
     DROP TABLE IF EXISTS mapdata.${TABLE}
 "
 TEMPDIR=`mktemp --directory`
-a2dbauth -f ogr2ogr -f "ESRI Shapefile" -overwrite ${TEMPDIR} ${SHP_PATH} ${SRC_SRID} -t_srs EPSG:4326
+
+#
+# added -mapFieldType option in issue #2038698 to force shapefile fields with width 10.0 to be
+# imported as an integer (value was not being picked up when converted to double)
+#
+a2dbauth -f ogr2ogr -f "ESRI Shapefile" -overwrite ${TEMPDIR} ${SHP_PATH} ${SRC_SRID} -t_srs EPSG:4326 -mapFieldType "Integer64=Integer"
 a2dbauth -f shp2pgsql -W LATIN1 -s 4326 -g the_geom -I ${TEMPDIR}/${SHP_NAME} mapdata.${TABLE} | ${psql} -d maps -U ${PGUSER} -q -p ${PGPORT} -f -
 ${psql} -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
     INSERT INTO mapdata.map_version (table_name, filename) values ('${TABLE}','${SHP_NAME}');

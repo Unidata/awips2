@@ -21,7 +21,7 @@ package com.raytheon.uf.common.xmrg.hrap;
 
 import java.awt.Rectangle;
 
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;

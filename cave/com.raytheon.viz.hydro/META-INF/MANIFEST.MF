@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hydro Plug-in
 Bundle-SymbolicName: com.raytheon.viz.hydro;singleton:=true
 Bundle-Version: 1.18.3.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.viz.hydro.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.core.runtime,
@@ -26,7 +27,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.dataplugin.shef,
  com.raytheon.uf.viz.core.point,
  com.raytheon.uf.common.auth,
- com.google.guava;bundle-version="32.0.0",
+ com.google.guava;bundle-version="33.5.0",
  org.eclipse.e4.ui.model.workbench,
  org.slf4j,
  com.raytheon.uf.viz.localization.perspective,
@@ -34,13 +35,13 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.xmrg,
  com.raytheon.viz.hydro.timeseries,
  com.raytheon.uf.viz.pdc,
- javax.xml.bind
+ jakarta.xml.bind
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.hydro,
  com.raytheon.viz.hydro.perspective,
  com.raytheon.viz.hydro.resource,
  com.raytheon.viz.hydro.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.mpe.util,
  com.raytheon.uf.common.ohd
 Bundle-ClassPath: com.raytheon.viz.hydro.jar

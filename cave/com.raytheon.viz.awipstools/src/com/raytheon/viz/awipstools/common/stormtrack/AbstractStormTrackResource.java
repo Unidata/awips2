@@ -22,7 +22,7 @@ package com.raytheon.viz.awipstools.common.stormtrack;
 import java.util.Date;
 
 import org.eclipse.jface.action.IMenuManager;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;

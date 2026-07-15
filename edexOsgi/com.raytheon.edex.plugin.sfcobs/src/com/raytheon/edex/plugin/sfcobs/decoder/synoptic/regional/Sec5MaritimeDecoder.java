@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
+import javax.measure.MetricPrefix;
 import javax.measure.UnitConverter;
 
 import com.raytheon.edex.exception.DecoderException;
@@ -33,12 +34,11 @@ import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticSec5Decoder;
 import com.raytheon.uf.common.dataplugin.sfcobs.InterWinds;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 import si.uom.SI;
 import systems.uom.common.USCustomary;
-import javax.measure.MetricPrefix;
 
 /**
  * Decode synoptic section 5 regional data Maritime data.</BR>

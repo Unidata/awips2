@@ -24,9 +24,9 @@
         of the file. 
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <!-- Although text says 24hr AKRFC QPF, the data is actually
+    <!-- Although text says 24hr APRFC QPF, the data is actually
          TP6hr (TP_RFC) In A1, data is just every 24 hours -->
-    <contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml" menuText="24hr AKRFC QPF"
+    <contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml" menuText="24hr APRFC QPF"
         id="24AKQPF">
         <substitute key="param" value="tpACR" />
         <substitute key="modelName" value="RFCqpf" />

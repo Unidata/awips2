@@ -23,7 +23,7 @@ package com.raytheon.edex.plugin.satellite.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;

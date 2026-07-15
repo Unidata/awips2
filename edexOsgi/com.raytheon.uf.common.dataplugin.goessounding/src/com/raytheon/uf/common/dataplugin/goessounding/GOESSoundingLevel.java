@@ -21,7 +21,7 @@ package com.raytheon.uf.common.dataplugin.goessounding;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;

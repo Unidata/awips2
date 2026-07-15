@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Scan Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor.scan;singleton:=true
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.uf.viz.monitor.scan.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
@@ -17,8 +18,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.cwat,
  com.raytheon.uf.common.dataplugin.scan,
  com.raytheon.uf.common.dataplugin.radar,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.monitor.scan,
  com.raytheon.uf.viz.monitor.scan.data,

@@ -19,11 +19,13 @@
  **/
 package com.raytheon.uf.edex.plugin.text.subscription.util;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.TimeZone;
 
-import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.support.CronExpression;
 
 import com.raytheon.uf.common.dataplugin.text.subscription.db.SubscriptionRecord;
 
@@ -42,6 +44,7 @@ import com.raytheon.uf.common.dataplugin.text.subscription.db.SubscriptionRecord
  *                                      edex.plugin.text.subscription
  * Dec  7, 2018 7674       tgurney      Allow product stored with abbreviated
  *                                      PIL to match a CCC trigger
+ * Sep 23, 2024 2037926    aford        Replace quartz CronExpression with spring variant
  *
  * </pre>
  *
@@ -68,9 +71,7 @@ public class TriggerMatcher {
         boolean retVal = false;
         if ("timer".equalsIgnoreCase(type)) {
             try {
-                long date = Long.parseLong(trigger);
-                CronExpression cexp = new CronExpression(recordTrigger);
-                retVal = cexp.isSatisfiedBy(new Date(date));
+                retVal = triggerDateMatchesCron(recordTrigger, trigger);
             } catch (Exception e) {
                 logger.warn("Failed to parse time trigger", e);
                 retVal = false;
@@ -100,6 +101,25 @@ public class TriggerMatcher {
             retVal = trigger.matches(pattern);
         }
         return retVal;
+    }
+
+    private static boolean triggerDateMatchesCron(String cronString,
+            String trigger) {
+        CronExpression cronExpression = CronExpression.parse(cronString);
+
+        Instant triggerInstant = Instant.ofEpochMilli(Long.parseLong(trigger));
+        LocalDateTime triggerTime = LocalDateTime.ofInstant(triggerInstant,
+                TimeZone.getDefault().toZoneId());
+
+        // zero out nanoseconds since cron expressions only go down to seconds.
+        triggerTime = triggerTime.withNano(0);
+
+        // subtract a second to see if the next trigger time of the expression
+        // is the target trigger time.
+        LocalDateTime triggerTimeMinusOne = triggerTime.minusSeconds(1);
+        LocalDateTime nextTrigger = cronExpression.next(triggerTimeMinusOne);
+
+        return nextTrigger != null && triggerTime.isEqual(nextTrigger);
     }
 
 }

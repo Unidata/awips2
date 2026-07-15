@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<project name="package-baseline" default="jar-sources">
+	<target name="jar-sources">
+		<jar zip64Mode="as-needed" jarfile="awips2-ade-baseline-SOURCES.jar">
+			<fileset dir="projects">
+				<include name="**/*" />
+			</fileset>
+		</jar>
+	</target>
+</project>

@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="geospatialDataGenerator" class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGenerator">
         <constructor-arg value="geospatialUpdateNotify"/>
@@ -26,37 +24,13 @@
     <bean id="VerifyProductDecodeHandler" class="com.raytheon.edex.plugin.warning.handler.VerifyProductDecodeHandler">
         <constructor-arg ref="warningDecodeVerifier" />
     </bean>
-
-    <camelContext id="geospatialDataGenerator-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <endpoint id="geospatialDataUpdaterCron"
-            uri="clusteredquartz://warning/checkGeospatialData/?cron=${geospatial.updater.cron}" />
-
-        <!-- Generate once on context start -->
-        <route id="geospatialDataGeneratorRoute">
-            <from uri="timer://generateWarngenGeometries?repeatCount=1"/>
-            <bean ref="geospatialDataGenerator" method="generateUniqueGeospatialMetadataGeometries"/>
-        </route>
-
-        <!-- check generate periodically -->
-        <route id="geospatialDataUpdaterRoute">
-            <from uri="geospatialDataUpdaterCron"/>
-            <doTry>
-                <bean ref="geospatialDataGenerator" method="generateUniqueGeospatialMetadataGeometries"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:geospatialDataUpdater?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-
-        <!-- Route to send geospatial data update notification -->
-        <route id="geospatialUpdateNotify">
-            <from uri="vm:edex.geospatialUpdateNotification" />
-            <bean ref="serializationUtil" method="transformToThrift" />
-            <to uri="jms-generic:topic:edex.geospatialUpdate.msg" />
-        </route>
-    </camelContext>
+    
+    <bean id="geospatialDataGenerator-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGeneratorCamelRoutes">
+                <constructor-arg name="geospatialUpdaterCron" value="${geospatial.updater.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
+    
 </beans>

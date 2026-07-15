@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;

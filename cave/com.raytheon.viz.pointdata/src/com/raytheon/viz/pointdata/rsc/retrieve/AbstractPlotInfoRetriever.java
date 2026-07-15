@@ -22,7 +22,7 @@ package com.raytheon.viz.pointdata.rsc.retrieve;
 import java.util.Map;
 
 import org.locationtech.jts.geom.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;

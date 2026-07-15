@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.kml.export.radar;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.FactoryException;
+import org.geotools.api.referencing.FactoryException;
 
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;

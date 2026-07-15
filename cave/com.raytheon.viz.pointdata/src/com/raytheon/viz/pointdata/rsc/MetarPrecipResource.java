@@ -38,15 +38,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
@@ -80,7 +80,6 @@ import com.raytheon.viz.pointdata.rsc.progdisc.GenericProgressiveDisclosure;
 import com.raytheon.viz.pointdata.rsc.progdisc.GenericProgressiveDisclosure.PlotItem;
 import com.raytheon.viz.pointdata.util.MetarPrecipDataContainer;
 import com.raytheon.viz.pointdata.util.MetarPrecipDataContainer.PrecipData;
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * 
@@ -104,7 +103,8 @@ import org.locationtech.jts.geom.Coordinate;
  * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * Jan 10, 2019 DCS 20579  MPorricelli Modified to handle ice accum
  * Aug 08  2019 DR 21515   MPorricelli Retrofit to handle older user procedures
- * 
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -405,7 +405,7 @@ public class MetarPrecipResource
             updates.clear();
             return;
         }
-        Envelope2D envelope = new Envelope2D(
+        ReferencedEnvelope envelope = new ReferencedEnvelope(
                 descriptor.getGridGeometry().getEnvelope());
         while (!updates.isEmpty()) {
             PluginDataObject pdo = updates.poll();
@@ -415,9 +415,9 @@ public class MetarPrecipResource
                         .doubleValue();
                 double lat = ((Number) map.get("location.latitude"))
                         .doubleValue();
-                DirectPosition2D dp = new DirectPosition2D(lon, lat);
+                Position2D dp = new Position2D(lon, lat);
                 toDescriptor.transform(dp, dp);
-                if (envelope.contains((DirectPosition) dp)) {
+                if (envelope.contains(dp)) {
                     newStations.add(map.get("location.stationId").toString());
                     long validTime = pdo.getDataTime().getMatchValid();
                     if (validTime < earliestTime) {

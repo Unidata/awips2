@@ -19,8 +19,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.hydro.timeseries,
  org.geotools,
  com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.localization
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ com.raytheon.uf.common.localization,
+ org.apache.commons.lang3
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.pdc,
  com.raytheon.uf.viz.pdc.data,

@@ -31,7 +31,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;

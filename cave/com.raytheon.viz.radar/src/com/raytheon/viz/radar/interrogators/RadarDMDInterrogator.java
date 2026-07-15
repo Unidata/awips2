@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.measure.UnitConverter;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;

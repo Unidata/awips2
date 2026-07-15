@@ -7,7 +7,7 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: org.apache.commons.lang3,
  org.slf4j,
  com.raytheon.edex.common,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.site,
@@ -20,8 +20,8 @@ Require-Bundle: org.apache.commons.lang3,
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.text.subscription,
  com.raytheon.uf.edex.maintenance,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
-Import-Package: com.raytheon.uf.common.message,
- org.quartz
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: com.raytheon.uf.common.message
 Export-Package: com.raytheon.uf.edex.plugin.text.subscription.fax

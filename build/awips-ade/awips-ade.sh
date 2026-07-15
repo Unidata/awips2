@@ -14,9 +14,10 @@ existing=$(podman images |grep awips-ade | grep $1 | awk '{ print $3 }')
 if [ ! -z "$existing" ]; then
    podman rmi $existing
 fi
-img="23.4.1-1"
+img="23.4.3-1"
 
-pushd /awips2/repo/awips2-builds/build/awips-ade
+echo "/home/awips/docker_login" | podman login registry-1.docker.io --username tiffanym13 --password-stdin
+pushd /awips2/repo/awips2/build/awips-ade
 podman build -t tiffanym13/awips-ade-${img} -f Dockerfile.awips-ade-${img}.${os_version} .
 podmanID=$(podman images | grep awips-ade | awk '{print $3}' | head -1 )
 #podman tag $podmanID unidata/awips-ade:${AWIPSII_VERSION}-${os_version} 

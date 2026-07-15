@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="logFilePurger" class="com.raytheon.uf.edex.ohd.whfs.WhfsSrv">
         <constructor-arg>
@@ -11,30 +9,11 @@
         </constructor-arg>
     </bean>
 
-    <camelContext id="logFilePurger-context"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="logFilePurgerCron" uri="clusteredquartz://whfs/logFilePurgerScheduled/?cron=${logfilepurger.cron}"/>
-
-        <!-- Run logFilePurger on Scheduled timer -->
-        <route id="logFilePurgerScheduled">
-            <from uri="logFilePurgerCron" />
-            <to uri="jms-generic:queue:logFilePurgerScheduledWork" />
-        </route>
-
-        <route id="logFilePurgerScheduledWork">
-            <from uri="jms-generic:queue:logFilePurgerScheduledWork" />
-            <doTry>
-                <bean ref="logFilePurger" method="execute" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:logFilePurger?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-
-    </camelContext>
-
+    <bean id="logFilePurger-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.LogFilePurgerContextRoutes" >
+                  <constructor-arg name="logfilepurgerCron" value="${logfilepurger.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
 </beans>

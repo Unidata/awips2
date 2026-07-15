@@ -1,59 +1,42 @@
 <included>
 <!-- Logger's shared by all EDEX logback files. -->
-   <logger name="com.raytheon">
-      <level value="INFO"/>
-   </logger>
+   <logger name="com.raytheon" level="INFO" />
 
-   <logger name="PerformanceLogger" additivity="false">
-      <level value="DEBUG"/>
+   <logger name="PerformanceLogger" additivity="false" level="DEBUG">
       <appender-ref ref="PerformanceLogAsync" />
    </logger>
 
-   <logger name="PyPiesRequestLogger" additivity="false">
-      <level value="DEBUG"/>
+   <logger name="PyPiesRequestLogger" additivity="false" level="DEBUG">
       <appender-ref ref="PyPiesRequestLogAsync" />
    </logger>
 
-   <logger name="org.apache.ignite" additivity="false">
-      <level value="INFO"/>
+   <logger name="org.apache.ignite" additivity="false" level="INFO">
       <appender-ref ref="IgniteLogAsync" />
    </logger>
 
    <!-- used by c3p0 -->
-   <logger name="com.mchange">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="mx4j">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.apache">
-      <level value="INFO"/>
-   </logger>
-   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.apache.camel.core.xml">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.qpid">
-      <level value="INFO"/>
-   </logger>
-   <logger name="org.apache.qpid.jms.JmsMessageProducer">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.xbean.spring">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.quartz">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.springframework">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.geotools">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.cxf">
-       <level value="ERROR"/>
-   </logger>
+   <logger name="com.mchange" level="ERROR" />
+
+   <logger name="mx4j" level="ERROR" />
+
+   <logger name="org.apache" level="INFO" />
+
+   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter" level="ERROR" />
+
+   <logger name="org.apache.camel.core.xml" level="WARN" />
+
+   <logger name="org.apache.qpid" level="INFO" />
+
+   <logger name="org.apache.qpid.jms.JmsMessageProducer" level="WARN" />
+
+   <logger name="org.apache.xbean.spring" level="WARN" />
+
+   <logger name="org.quartz" level="ERROR" />
+
+   <logger name="org.springframework" level="ERROR" />
+
+   <logger name="org.geotools" level="WARN" />
+
+   <logger name="org.apache.cxf" level="ERROR" />
+
 </included>

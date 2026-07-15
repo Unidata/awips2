@@ -4,7 +4,7 @@ Bundle-Name: Backup Service Plug-in2
 Bundle-SymbolicName: com.raytheon.uf.common.localization.backup
 Bundle-Version: 1.21.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.localization.backup.request
 Require-Bundle: com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.serialization,
@@ -12,7 +12,7 @@ Require-Bundle: com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.comm,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.util,
- javax.xml.bind,
+ jakarta.xml.bind,
  com.raytheon.uf.common.dataplugin.backupsvc,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.backupsvc

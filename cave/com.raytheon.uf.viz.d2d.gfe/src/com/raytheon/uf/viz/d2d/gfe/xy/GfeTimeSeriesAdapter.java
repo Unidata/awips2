@@ -5,11 +5,11 @@ import java.util.Iterator;
 
 import javax.measure.Unit;
 
-import org.geotools.geometry.DirectPosition2D;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
+import org.geotools.api.geometry.MismatchedDimensionException;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEDataAccessUtil;
@@ -38,6 +38,7 @@ import tech.units.indriya.AbstractUnit;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 05, 2013            mnash        Initial javadoc creation; we aren't able to pinpoint initial creation
+ * May 07, 2024  2037231   aford        Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -66,7 +67,7 @@ public class GfeTimeSeriesAdapter extends AbstractTimeSeriesAdapter<GFERecord> {
             throws VizException {
         ArrayList<XYData> data = new ArrayList<XYData>();
 
-        DirectPosition2D point = null;
+        Position2D point = null;
         for (GFERecord gfeRecord : recordsToLoad) {
             IGridSlice slice = null;
             try {
@@ -80,7 +81,7 @@ public class GfeTimeSeriesAdapter extends AbstractTimeSeriesAdapter<GFERecord> {
                     MathTransform transform = MapUtil.getTransformFromLatLon(
                             PixelOrientation.CENTER, slice.getGridInfo()
                                     .getGridLoc());
-                    point = new DirectPosition2D(
+                    point = new Position2D(
                             resourceData.getCoordinate().x,
                             resourceData.getCoordinate().y);
                     try {

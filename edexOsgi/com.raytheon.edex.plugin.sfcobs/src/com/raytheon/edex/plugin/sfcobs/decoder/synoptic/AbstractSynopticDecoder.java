@@ -29,10 +29,10 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.time.ITimeService;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.ITimeService;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Base class for the synoptic data decoders. Contains code for common decoder

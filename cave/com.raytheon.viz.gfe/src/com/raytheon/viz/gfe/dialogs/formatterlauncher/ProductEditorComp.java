@@ -233,6 +233,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Mar 03, 2022  22994        jkelmer   Added added checks for NEW products
  *                                      loaded from a saved file to prevent
  *                                      ETNs being incremented when they shouldn't
+ * May 12, 2025  2038249      tgurney   Add preloadTimeZones (performance improvement)
  *
  * </pre>
  *
@@ -1107,13 +1108,16 @@ public class ProductEditorComp extends Composite
         if (pds == null) {
             return;
         }
+        List<List<String>> zoneLists = new ArrayList<>();
         String officeTimeZone = dm.getParmManager().compositeGridLocation()
                 .getTimeZone();
         for (SegmentData segment : pds.getSegmentsArray()) {
             if (segment.getSementMap().containsKey("nwstime")) {
-                getTimeZones(decodeUGCs(segment), officeTimeZone);
+                zoneLists.add(decodeUGCs(segment));
             }
         }
+
+        preloadTimeZones(zoneLists, officeTimeZone);
 
         VizApp.runSync(new Runnable() {
             @Override
@@ -2107,6 +2111,26 @@ public class ProductEditorComp extends Composite
                 textComp.endUpdate();
             }
 
+            /*
+             * get the list of zones for each segment and preload the time zones
+             * to avoid many round trips to Python
+             */
+            List<List<String>> zoneLists = new ArrayList<>();
+            List<SegmentData> segments = textComp.getProductDataStruct()
+                    .getSegmentsArray();
+            for (SegmentData seg : segments) {
+                Map<String, TextIndexPoints> segMap = seg.getSementMap();
+                TextIndexPoints tip = segMap.get("nwstime");
+                if (tip != null) {
+                    List<String> zones = decodeUGCs(seg);
+                    zoneLists.add(zones);
+                }
+            }
+
+            String officeTimeZone = dm.getParmManager().compositeGridLocation()
+                    .getTimeZone();
+            preloadTimeZones(zoneLists, officeTimeZone);
+
             // The working assumption here is that any time replacement we will
             // perform will not alter the number of segments in the products. So
             // the number of iterations is predetermined, but we will force
@@ -2119,8 +2143,6 @@ public class ProductEditorComp extends Composite
                 ProductDataStruct pds = textComp.getProductDataStruct();
 
                 if (pds != null) {
-                    String officeTimeZone = dm.getParmManager()
-                            .compositeGridLocation().getTimeZone();
                     int numSegments = pds.getSegmentsArray().size();
                     SimpleDateFormat fmt = new SimpleDateFormat(
                             longLocalFmtStr);
@@ -2205,6 +2227,39 @@ public class ProductEditorComp extends Composite
             zonesToTimeZones.put(zones, result);
         }
         return result;
+    }
+
+    /**
+     * Populate the zonesToTimeZones cache
+     *
+     * @param zoneLists
+     * @param officeTimeZone
+     */
+    private void preloadTimeZones(List<List<String>> zoneLists,
+            String officeTimeZone) {
+        List<List<String>> zoneListsToQuery = new ArrayList<>();
+        // only include zone lists which have not already been cached
+        for (List<String> zones : zoneLists) {
+            if (zonesToTimeZones.get(zones) == null) {
+                zoneListsToQuery.add(zones);
+            }
+        }
+        if (zoneListsToQuery == null || zoneListsToQuery.isEmpty()) {
+            return;
+        }
+        List<List<String>> batchResults = null;
+        try {
+            batchResults = dm.getTextProductMgr()
+                    .getBatchedTimeZones(zoneListsToQuery, officeTimeZone);
+        } catch (Exception e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+            return;
+        }
+        for (int i = 0; i < zoneListsToQuery.size(); i++) {
+            List<String> zones = zoneListsToQuery.get(i);
+            Collection<String> timeZones = batchResults.get(i);
+            zonesToTimeZones.put(zones, timeZones);
+        }
     }
 
     /**

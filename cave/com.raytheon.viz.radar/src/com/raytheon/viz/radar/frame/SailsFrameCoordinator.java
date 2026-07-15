@@ -31,7 +31,6 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.FrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -73,6 +72,7 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager;
  * May 13, 2015  4461     bsteffen    Initial creation
  * Sep 30, 2015  4902     bsteffen    Better determination of best frame.
  * Feb 06, 2018  7168     tgurney     Check for and ignore non-radar data
+ * Mar 06, 2025  2038488  mapeters    Extract logic to RadarDataTime.isSameScan()
  *
  * </pre>
  *
@@ -360,21 +360,12 @@ public class SailsFrameCoordinator extends FrameCoordinator
     private static List<RadarDataTime> getVolumeScan(DataTime[] frames,
             int dataIndex) {
         DataTime example = frames[dataIndex];
-        if (example instanceof RadarDataTime) {
-            int volumeScanNumber = ((RadarDataTime) example)
-                    .getVolumeScanNumber();
-            long exampleRef = example.getRefTime().getTime();
+        if (example instanceof RadarDataTime exampleRadarTime) {
             List<RadarDataTime> result = new ArrayList<>();
             for (DataTime frame : frames) {
-                if (frame instanceof RadarDataTime) {
-                    RadarDataTime radarTime = (RadarDataTime) frame;
-                    if (radarTime.getVolumeScanNumber() == volumeScanNumber) {
-                        long timeRef = radarTime.getRefTime().getTime();
-                        long diff = Math.abs(exampleRef - timeRef);
-                        if (diff < TimeUtil.MILLIS_PER_HOUR) {
-                            result.add(radarTime);
-                        }
-                    }
+                if (frame instanceof RadarDataTime radarTime
+                        && radarTime.isSameScan(exampleRadarTime)) {
+                    result.add(radarTime);
                 }
             }
             return result;
@@ -396,35 +387,16 @@ public class SailsFrameCoordinator extends FrameCoordinator
     /**
      * Used for sorting times based off elevation angle.
      */
-    private static Comparator<DataTime> ELEVATION_ANGLE_COMPARATOR = new Comparator<DataTime>() {
-
-        @Override
-        public int compare(DataTime time1, DataTime time2) {
-            return Double.compare(time1.getLevelValue(), time2.getLevelValue());
-        }
-
-    };
+    private static Comparator<DataTime> ELEVATION_ANGLE_COMPARATOR = Comparator
+            .comparing(DataTime::getLevelValue);
 
     /**
      * Used for sorting times based off elevation number.
      */
-    private static Comparator<RadarDataTime> ELEVATION_NUMBER_COMPARATOR = new Comparator<RadarDataTime>() {
+    private static Comparator<RadarDataTime> ELEVATION_NUMBER_COMPARATOR = Comparator
+            .comparing(RadarDataTime::getElevationNumber);
 
-        @Override
-        public int compare(RadarDataTime time1, RadarDataTime time2) {
-            return Integer.compare(time1.getElevationNumber(),
-                    time2.getElevationNumber());
-        }
-
-    };
-
-    private static Comparator<DataTime> REF_TIME_COMPARATOR = new Comparator<DataTime>() {
-
-        @Override
-        public int compare(DataTime time1, DataTime time2) {
-            return time1.getRefTime().compareTo(time2.getRefTime());
-        }
-
-    };
+    private static Comparator<DataTime> REF_TIME_COMPARATOR = Comparator
+            .comparing(DataTime::getRefTime);
 
 }

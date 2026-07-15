@@ -26,23 +26,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.operation.MathTransform;
-
-import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.contours.util.ContourContainer;
-import com.raytheon.viz.core.contours.util.FortConBuf;
-import com.raytheon.viz.core.contours.util.FortConConfig;
-import com.raytheon.viz.warngen.gui.WarngenLayer;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Envelope;
@@ -58,6 +47,17 @@ import org.locationtech.jts.geom.TopologyException;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.precision.SimpleGeometryPrecisionReducer;
+
+import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.contours.util.ContourContainer;
+import com.raytheon.viz.core.contours.util.FortConBuf;
+import com.raytheon.viz.core.contours.util.FortConConfig;
+import com.raytheon.viz.warngen.gui.WarngenLayer;
 
 /**
  * Utility for polygon operations
@@ -98,6 +98,7 @@ import org.locationtech.jts.precision.SimpleGeometryPrecisionReducer;
  * 12/09/2015  DR 18209   D. Friedman  Support cwaStretch.
  * 12/21/2015  DCS 17942  D. Friedman  Support extension area.  Work around glitch in contour adjustment.
  * 01/11/2016  DR 18474   D. Friedman  Do not allow expansion of polygon into extension area on followup.
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
  * </pre>
  * 
  * @author mschenke
@@ -126,9 +127,9 @@ public class PolygonUtil {
         this.ny = ny;
         this.maxVertices = maxVertices;
 
-        GeneralEnvelope ge = new GeneralEnvelope(new double[] {
-                localExtent.getMinX(), localExtent.getMaxY() }, new double[] {
-                localExtent.getMaxX(), localExtent.getMinY() });
+        GeneralBounds ge = new GeneralBounds(
+                new double[] { localExtent.getMinX(), localExtent.getMaxY() },
+                new double[] { localExtent.getMaxX(), localExtent.getMinY() });
         GeneralGridEnvelope range = new GeneralGridEnvelope(new int[] { 0, 0 },
                 new int[] { nx, ny }, false);
         contourToLatLon = new DefaultMathTransformFactory()

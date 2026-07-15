@@ -24,13 +24,12 @@ import java.awt.Rectangle;
 
 import javax.measure.Unit;
 
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
@@ -62,6 +61,7 @@ import com.raytheon.uf.viz.datacube.CubeUtil;
  * Apr 09, 2014  2947     bsteffen    Initial creation
  * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * Jun 07, 2018  7310     mapeters    Handle refactoring of util classes
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -93,16 +93,16 @@ public class SatelliteRequestableData extends AbstractRequestableData {
             GridGeometry2D recordGeom = record.getGridGeometry();
             validateCRSMatch(requestGeom, recordGeom);
             /* Figure out what level is needed */
-            Envelope2D requestEnv = requestGeom.getEnvelope2D();
+            ReferencedEnvelope requestEnv = requestGeom.getEnvelope2D();
             GridEnvelope2D requestRange = requestGeom.getGridRange2D();
-            double requestDx = requestEnv.width / requestRange.width;
-            double requestDy = requestEnv.height / requestRange.height;
-            Envelope2D recordEnv = recordGeom.getEnvelope2D();
+            double requestDx = requestEnv.getWidth() / requestRange.width;
+            double requestDy = requestEnv.getHeight() / requestRange.height;
+            ReferencedEnvelope recordEnv = recordGeom.getEnvelope2D();
             Rectangle[] levels = GridDownscaler.getDownscaleSizes(recordGeom);
             int bestLevel = 0;
             for (int level = levels.length - 1; level >= 0; level -= 1) {
-                double levelDx = recordEnv.width / levels[level].width;
-                double levelDy = recordEnv.height / levels[level].height;
+                double levelDx = recordEnv.getWidth() / levels[level].width;
+                double levelDy = recordEnv.getHeight() / levels[level].height;
                 if (levelDx <= requestDx || levelDy <= requestDy) {
                     bestLevel = Math.max(0, level);
                     break;
@@ -110,7 +110,7 @@ public class SatelliteRequestableData extends AbstractRequestableData {
             }
             /* figure out what area of the level is needed. */
             GridGeometry2D levelGeom = new GridGeometry2D(
-                    (GridEnvelope) new GridEnvelope2D(levels[bestLevel]),
+                    new GridEnvelope2D(levels[bestLevel]),
                     recordEnv);
             Request request;
             SubGridGeometryCalculator subGrid;

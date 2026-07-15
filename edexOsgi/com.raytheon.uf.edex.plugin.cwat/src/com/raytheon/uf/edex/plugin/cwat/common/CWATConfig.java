@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;

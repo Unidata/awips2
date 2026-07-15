@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.xy.hodo;
 
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;

@@ -1,11 +1,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
+    <bean id="dpaRadarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
     <bean id="dpaDecodeSrv" class="com.raytheon.uf.edex.ohd.pproc.DecodeDpaSrv" />
 
     <bean id="dpaDistRegistry" factory-bean="distributionSrv"
@@ -20,49 +18,15 @@
         <constructor-arg value="jms-durable:queue:Ingest.dpa"/>
     </bean>
 
-    <camelContext id="nonClusteredDPAroutes"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <!-- Begin non-clustered dpa Routes -->
-        <route id="dpaIngestFilter">
-            <from uri="jms-durable:queue:Ingest.dpa"/>
-            <setHeader name="pluginName">
-                <constant>dpa</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile"  />
-                    <bean ref="radarDecompressor" method="decompressWithHeader" />
-                    <bean ref="dpaDecodeSrv" method="process"/>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:dpa?level=INFO"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    <bean id="nonClusteredDPAroutes" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.NonClusteredDPARoutes" />
+        </constructor-arg>
+    </bean>
 
-    <camelContext id="clusteredDPAroutes"
-       xmlns="http://camel.apache.org/schema/spring"
-       errorHandlerRef="errorHandler">
-       <!-- Begin dpa Routes -->
-       <route id="dpaIngestRoute">
-            <from uri="jms-durable:queue:dpaProcess"/>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile"  />
-                    <bean ref="radarDecompressor" method="decompressWithHeader" />
-                    <bean ref="dpaDecodeSrv" method="process"/>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:dpa?level=INFO"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredDPAroutes" />
+    <bean id="clusteredDPAroutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.ClusteredDpaRoutes" />
+        </constructor-arg>
     </bean>
 </beans>

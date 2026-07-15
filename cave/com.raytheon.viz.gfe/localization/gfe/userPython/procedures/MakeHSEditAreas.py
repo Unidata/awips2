@@ -19,6 +19,7 @@
 #  05/22/2018  DR20724    tlefebvre   Remove from menus by default since most 
 #                                     sites will not use these tools
 #
+#  04/08/2025 DCS2038491 mgamazaychikov Rename GULF_OF_MEXICO to GULF_OF_AMERICA
 ##
 # ----------------------------------------------------------------------------
 
@@ -2446,7 +2447,7 @@ class Procedure (SmartScript.SmartScript):
         # Configurable section. Probably will get moved to separate config file.
         self._siteID = self.getSiteID()
         self._sitesWithBasins = ["NH2"]
-        self._basinNames = ["ATLC", "GULF_OF_MEXICO", "CARIBBEAN", "HSF_NP", "HSF_SP", "HSF_AT1", "HSF_EP1", "HSF_EPi"]
+        self._basinNames = ["ATLC", "GULF_OF_AMERICA", "CARIBBEAN", "HSF_NP", "HSF_SP", "HSF_AT1", "HSF_EP1", "HSF_EPi"]
         self._killReasons = ["INLAND.", "MOVED ... OF AREA.", "CONDITIONS MERGED.", "ABSORBED.", "CONDITIONS IMPROVE.",
                              "LITTLE CHANGE.", "NONE."]
         self._defaultKillReason = self._killReasons[-1]

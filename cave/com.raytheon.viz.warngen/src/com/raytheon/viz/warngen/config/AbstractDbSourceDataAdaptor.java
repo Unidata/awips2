@@ -22,7 +22,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.operation.distance.DistanceOp;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;

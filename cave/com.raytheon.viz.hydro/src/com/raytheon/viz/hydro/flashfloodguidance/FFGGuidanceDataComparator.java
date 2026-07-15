@@ -21,7 +21,7 @@ package com.raytheon.viz.hydro.flashfloodguidance;
 
 import java.util.Comparator;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 
 /**
  * Compares {@link FFGGuidanceData}s to ensure that they are supported by: 1)

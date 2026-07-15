@@ -30,15 +30,15 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -75,6 +75,7 @@ import com.raytheon.viz.ui.panes.PaneManager;
  *                                  MakeHazard, and ZoneCombiner
  * Jun 23, 2016  5674     randerso  Change to use mouse-base pan and zoom
  * Sep 03, 2019  7919     randerso  Code cleanup.
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -319,7 +320,7 @@ public abstract class AbstractZoneSelector extends PaneManager {
             Coordinate urGrid = MapUtil.nativeToGridCoordinate(urCrs,
                     PixelOrientation.CENTER, gloc);
 
-            GeneralEnvelope ge = new GeneralEnvelope(2);
+            GeneralBounds ge = new GeneralBounds(2);
             ge.setCoordinateReferenceSystem(gloc.getCrs());
             ge.setRange(0, Math.min(llCrs.x, urCrs.x),
                     Math.max(llCrs.x, urCrs.x));

@@ -42,10 +42,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.lang3.StringUtils;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -139,6 +139,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
+import jakarta.xml.bind.JAXB;
 import jep.JepConfig;
 import jep.JepException;
 
@@ -319,6 +320,7 @@ import jep.JepException;
  * Oct 30, 2018  7525     randerso     Cleanup printing code.
  * May 15, 2019 20693   mgamazaychikov ITafSiteConfig, TafSiteConfigFactory, TafSiteData refactor
  * Jun 03, 2019  7852     dgilling     Update code for jep 3.8.
+ * Jul 08, 2025 2036453   aford        Commons Configuration 2 Upgrade
  *
  * </pre>
  *

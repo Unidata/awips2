@@ -10,17 +10,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
@@ -36,9 +36,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * <pre>
  * SOFTWARE HISTORY
- * Date        Ticket#     Engineer       Description
- * ----------  ----------  -------------  ----------------------------------
- * 2018-08-08  DCS 19452   dfriedman      Initial creation
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 08, 2018 19452      dfriedman    Initial creation
+ * Sep 09, 2022 23257      dgilling     Implement toString.
  *
  * </pre>
  *
@@ -95,11 +96,9 @@ public class IscMosaicJobRecord {
      * res/scripts/iscmosaicparm-index.sql.
      */
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "iscmosaicparm",
-            joinColumns = {
-                    @JoinColumn(name = "job_id", nullable = false,
-                            referencedColumnName = "id") })
-    @Column(name="lockName", nullable = false)
+    @CollectionTable(name = "iscmosaicparm", joinColumns = {
+            @JoinColumn(name = "job_id", nullable = false, referencedColumnName = "id") })
+    @Column(name = "lockName", nullable = false)
     @ForeignKey(name = "fk_iscmosaicparm_to_iscmosaicjob")
     private Set<String> parms;
 
@@ -175,10 +174,18 @@ public class IscMosaicJobRecord {
     }
 
     public Map<String, Object> getArgsMap() throws IOException {
-        return args != null ? new ObjectMapper().readValue(args, HashMap.class) : null;
+        return args != null ? new ObjectMapper().readValue(args, HashMap.class)
+                : null;
     }
 
     public void setArgsMap(Map<String, Object> args) throws IOException {
-        this.args = args != null ? new ObjectMapper().writeValueAsString(args) : null;
+        this.args = args != null ? new ObjectMapper().writeValueAsString(args)
+                : null;
+    }
+
+    @Override
+    public String toString() {
+        return "IscMosaicJobRecord [site=" + site + ", args=" + args
+                + ", parms=" + parms + "]";
     }
 }

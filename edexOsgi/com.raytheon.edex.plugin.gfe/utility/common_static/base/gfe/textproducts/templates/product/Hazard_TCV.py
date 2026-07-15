@@ -40,6 +40,7 @@
 # 07/15/2022    106540   mbelk           Modified to handle the case wind end hour is not defined
 # 06/02/2023    2029646  swhite          Add required options for SGX and LOX to run TCV
 # 06/08/2023    2002960  swhite          TBW B248529 Remove space in header in processProductHeader
+# 09/19/2025    2039492  fcamacho        Modified _createWindowText to fix TCV Formatter wording issue
 ##
 #
 # This file can be subclassed to override behavior. Please see the
@@ -3840,9 +3841,13 @@ class WindSectionStats(SectionCommonStats):
 
                 if len(startTimeDescriptor) != 0:
                     connector = f" {connector}"
-                windowInfo.windowText += (
-                    startTimeDescriptor + connector + endTimeDescriptor
-                )
+                # Add the connector only if start and end time are different
+                if (startTimeDescriptor != endTimeDescriptor):
+                    windowInfo.windowText += (
+                        startTimeDescriptor + connector + endTimeDescriptor
+                    )
+                else:
+                    windowInfo.windowText += startTimeDescriptor
 
         return windowInfo
 

@@ -8,7 +8,7 @@
 
 package net.opengis.gml._3;
 
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 public class AffineCSSub

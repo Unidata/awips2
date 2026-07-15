@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="derivedGridDataAccessFactory"
         class="com.raytheon.uf.common.dataplugin.grid.derivparam.daf.DerivedGridDataAccessFactory"
@@ -25,23 +23,12 @@
         class="com.raytheon.uf.edex.plugin.grid.derivparam.DerivedGridContextStateProcessor">
         <constructor-arg ref="gridCacheUpdater" />
     </bean>
-
-    <camelContext id="derivedgrid-update"
-        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <route id="derivedgridIngestNotification">
-            <from uri="jms-durable:topic:derivedgridDataURINotification" />
-            <doTry>
-                <bean ref="serializationUtil" method="transformFromThrift" />
-                <bean ref="gridCacheUpdater" method="handleDataURINotificationMessage" />
-
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:derivedgrid?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    
+    <bean id="derivedgrid-update" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.grid.derivparam.DerivedgridUpdateRoutes" />
+        </constructor-arg>
+    </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
         <constructor-arg ref="derivedgrid-update" />

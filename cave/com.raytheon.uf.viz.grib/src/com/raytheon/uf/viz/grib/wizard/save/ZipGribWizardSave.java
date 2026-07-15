@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 /**
  * 

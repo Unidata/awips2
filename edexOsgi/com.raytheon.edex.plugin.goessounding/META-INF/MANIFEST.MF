@@ -8,12 +8,14 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools,
  javax.measure,
  org.geotools,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.common.localization,
- org.slf4j
+ org.slf4j,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
 Export-Package: com.raytheon.edex.plugin.goessounding,
  com.raytheon.edex.plugin.goessounding.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataplugin.goessounding,
  com.raytheon.uf.common.geospatial.spi,
  com.raytheon.uf.common.pointdata,

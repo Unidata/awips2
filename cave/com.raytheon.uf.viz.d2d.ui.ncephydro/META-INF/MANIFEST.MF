@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: D2D Ncep Hydro
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui.ncephydro;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -19,7 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.pdc,
  com.raytheon.uf.common.geospatial,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.ui.ncephydro.jar

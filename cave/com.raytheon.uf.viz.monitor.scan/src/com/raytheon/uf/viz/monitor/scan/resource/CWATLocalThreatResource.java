@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.cwat.CWATRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;

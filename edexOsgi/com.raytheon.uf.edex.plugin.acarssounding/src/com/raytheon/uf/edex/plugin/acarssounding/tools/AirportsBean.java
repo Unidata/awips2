@@ -23,12 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
+import com.raytheon.uf.common.decodertools.LatLonPoint;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
 /**
  * Initializes airports from a localization file and allows finding airports by

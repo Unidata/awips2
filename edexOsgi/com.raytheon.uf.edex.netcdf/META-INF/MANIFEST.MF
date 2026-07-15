@@ -4,7 +4,7 @@ Bundle-Name: Netcdf
 Bundle-SymbolicName: com.raytheon.uf.edex.netcdf
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: ucar.nc2,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.dataplugin.level,
@@ -14,7 +14,7 @@ Require-Bundle: ucar.nc2,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization,
  javax.measure,
- javax.xml.bind,
+ jakarta.xml.bind,
  org.slf4j,
  org.apache.commons.beanutils,
  org.apache.camel,

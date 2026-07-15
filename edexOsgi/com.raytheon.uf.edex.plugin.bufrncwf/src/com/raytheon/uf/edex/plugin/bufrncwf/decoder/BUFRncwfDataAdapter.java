@@ -24,8 +24,11 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import org.locationtech.jts.geom.Coordinate;
+
 import com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf;
 import com.raytheon.uf.common.dataplugin.bufrncwf.NCWFFeature;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -39,9 +42,7 @@ import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Point data view framework adapter for National Convective Weather Forecast

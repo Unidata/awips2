@@ -92,7 +92,61 @@ function printFailureMessage()
    exit 1
 }
 
+function cleanup_pg_hba()
+{
+   cp /tmp/pg_hba.conf.orig /awips2/database/data/pg_hba.conf
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   rm -f /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+}
+
+function grant_permissions()
+{
+   cp /awips2/database/data/pg_hba.conf /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   cat >> "/awips2/database/data/pg_hba.conf" <<EOF
+
+# TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+# ===== Maps Configuration (Install) =====
+local        all         all                               trust
+
+EOF
+
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 1
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 1
+   fi
+
+   # Give PostgreSQL time to reload
+   sleep 5
+}
+
 A2LIBS=true source /etc/profile.d/awips2PSQL.sh
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 POSTGRESQL_INSTALL="/usr"
 PSQL_INSTALL="/usr"
@@ -113,6 +167,8 @@ if ! systemctl status postgresql@awips; then
 else
     i_started_postgresql=
 fi
+
+grant_permissions
 
 # Is there a maps database?
 MAPS_DB_EXISTS="false"
@@ -170,6 +226,7 @@ if [ "${MAPS_DB_EXISTS}" = "false" ]; then
       >> ${SQL_LOG} 2>&1
 fi
 
+cleanup_pg_hba
 
 if [[ "$i_started_postgresql" != "" ]]; then
     systemctl stop postgresql@awips
@@ -177,6 +234,68 @@ fi
 
 %preun
 if [ "${1}" = "1" ]; then
+   exit 0
+fi
+
+# We use exit 0 throughout the uninstall, making an assumption that if a step
+# fails, the database has probably already been removed. This is to make sure
+# a full uninstall of awips2 succeeds, otherwise removing individual databases
+# would fail as awips2-database and awips2-postgresql may have already been
+# uninstalled.
+
+function cleanup_pg_hba()
+{
+   cp /tmp/pg_hba.conf.orig /awips2/database/data/pg_hba.conf
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+   rm -f /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+}
+
+function grant_permissions()
+{
+   cp /awips2/database/data/pg_hba.conf /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+
+   cat >> "/awips2/database/data/pg_hba.conf" <<EOF
+
+# TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+# ===== Maps Configuration (Install) =====
+local        all         all                               trust
+
+EOF
+
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 0
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 0
+   fi
+
+   # Give PostgreSQL time to reload
+   sleep 5
+}
+
+A2LIBS=true source /etc/profile.d/awips2PSQL.sh
+if [ $? -ne 0 ]; then
    exit 0
 fi
 
@@ -213,6 +332,8 @@ else
     i_started_postgresql=
 fi
 
+grant_permissions
+
 # Is there a maps database?
 MAPS_DB=`${PSQL} -U awipsadmin -l | grep maps | awk '{print $1}'`
 
@@ -236,6 +357,8 @@ if [ ! "${MAPS_DIR}" = "" ]; then
       su ${DB_OWNER} -c "rmdir ${MAPS_DIR}"
    fi
 fi
+
+cleanup_pg_hba
 
 if [[ "$i_started_postgresql" != "" ]]; then
     systemctl stop postgresql@awips

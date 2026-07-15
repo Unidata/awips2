@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;

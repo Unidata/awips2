@@ -249,7 +249,7 @@ public class MPEFieldResource
             double testPrecipValue;
             try {
                 testPrecipValue = dataToDisplay.convert(converted);
-            } catch (NumberFormatException e) {
+            } catch (IllegalArgumentException e) {
                 testPrecipValue = Double.NaN;
             }
             if (testPrecipValue < precipValue) {
@@ -563,7 +563,7 @@ public class MPEFieldResource
         for (int i = 0; i < length; ++i) {
             try {
                 contourData[i] = (float) dataToDisplay.convert(data[i]);
-            }catch(NumberFormatException e) {
+            }catch(IllegalArgumentException e) {
                 contourData[i] = Float.NaN;
             }
         }

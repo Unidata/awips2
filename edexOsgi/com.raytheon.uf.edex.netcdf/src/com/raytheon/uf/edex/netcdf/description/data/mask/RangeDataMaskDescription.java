@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.netcdf.description.data.mask;
 import java.nio.Buffer;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import ucar.nc2.NetcdfFile;
 

@@ -4,16 +4,16 @@ Bundle-Name: Bufrsigwx Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrsigwx
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.dataplugin.bufrsigwx,
  com.raytheon.uf.common.dataplugin.bufrsigwx.common
 Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.pointdata,
  org.geotools,
- javax.persistence,
+ jakarta.persistence,
  javax.measure,
  com.raytheon.uf.common.dataplugin,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.status,
  org.apache.commons.logging

@@ -1,6 +1,6 @@
 package com.raytheon.viz.mpe.ui.rsc;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.eclipse.swt.graphics.RGB;
 

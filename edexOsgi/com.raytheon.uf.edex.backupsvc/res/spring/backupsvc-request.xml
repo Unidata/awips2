@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="backupSvcDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
         <property name="pluginFQN" value="com.raytheon.uf.edex.backupsvc"/>
@@ -51,27 +49,11 @@
     <bean id="backupConfigFileHandler" class="com.raytheon.uf.edex.backupsvc.handlers.BackupConfigFileHandler" />
         
     <bean id="backupSvc" class="com.raytheon.uf.edex.backupsvc.service.BackupService" depends-on="backupSvcDbRegistered" />
-
-    <camelContext id="clusteredBackupSvcContext"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <endpoint id="backupSvcStatsCron"
-         uri="quartz://backupSvcStatsScheduled/?cron=0+7+*+*+*+?)"/>
-
-        <route id="backupSvcStatsScheduled">
-            <from uri="backupSvcStatsCron" />
-            <doTry>
-                <bean ref="backupSvc" method="reportStats" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:backupSvc?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredBackupSvcContext" />
+    
+    <bean id="clusteredBackupSvcContext" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.backupsvc.service.ClusteredBackupSvcContextRoutes" />
+        </constructor-arg>
     </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
@@ -80,23 +62,11 @@
     </bean>
 
     <bean id="backupSvcPurger" class="com.raytheon.uf.edex.backupsvc.service.BackupServicePurger" />
-
-    <camelContext id="clusteredBackupSvcPurgerContext"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <endpoint id="backupSvcPurgerStatsCron"
-         uri="quartz://backupSvcPurgerStatsScheduled/?cron=0+0+1+*+*+?)"/>
-
-        <route id="backupSvcPurgerStatsScheduled">
-            <from uri="backupSvcPurgerStatsCron" />
-            <doTry>
-                <bean ref="backupSvcPurger" method="purgeExpiredJobs" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:backupSvcPurger?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    
+    <bean id="clusteredBackupSvcPurgerContext" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.backupsvc.service.ClusteredBackupSvcPurgerContextRoutes" />
+        </constructor-arg>
+    </bean>
 
 </beans>

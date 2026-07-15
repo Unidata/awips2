@@ -9,11 +9,11 @@
     
     <path id="WES2BRIDGE.classpath" cache="true">
         <pathelement path="${destination.directory}/com.raytheon.wes2bridge.common.jar" />
-        <fileset dir="${baseline.dir}/javax.xml.bind">
+        <fileset dir="${baseline.dir}/jakarta.xml.bind">
             <include name="**/*.jar" />
             <exclude name="**/*sources.jar" />
         </fileset>
-        <fileset dir="${baseline.dir}/javax.activation">
+        <fileset dir="${baseline.dir}/jakarta.activation">
             <include name="**/*.jar" />
             <exclude name="**/*sources.jar" />
         </fileset>
@@ -51,8 +51,8 @@
             </manifest>
             <zipfileset src="${baseline.dir}/${project.name}/lib/jar-in-jar-loader.zip"/>
             <zipfileset dir="${destination.directory}" includes="com.raytheon.wes2bridge.common.jar"/>
-            <zipfileset dir="${baseline.dir}/javax.activation" includes="*.jar" excludes="*sources.jar" />
-            <zipfileset dir="${baseline.dir}/javax.xml.bind" includes="*.jar" excludes="*sources.jar" />
+            <zipfileset dir="${baseline.dir}/jakarta.activation" includes="*.jar" excludes="*sources.jar" />
+            <zipfileset dir="${baseline.dir}/jakarta.xml.bind" includes="*.jar" excludes="*sources.jar" />
             <fileset dir="${baseline.dir}/${project.name}/bin"/>
         </jar>
     </target>

@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Truecolor
 Bundle-SymbolicName: com.raytheon.uf.viz.truecolor;singleton:=true
 Bundle-Version: 1.19.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -13,8 +14,8 @@ Require-Bundle: org.eclipse.ui,
  javax.measure,
  com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.numeric,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.truecolor.extension
 Import-Package: com.raytheon.uf.common.units

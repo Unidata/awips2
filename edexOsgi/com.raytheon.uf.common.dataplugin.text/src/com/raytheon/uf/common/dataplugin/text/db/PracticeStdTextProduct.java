@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.text.db;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 

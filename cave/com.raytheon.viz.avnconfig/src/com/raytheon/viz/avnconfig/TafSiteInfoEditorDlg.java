@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.locationtech.jts.geom.Point;
 
 import com.raytheon.uf.common.aviation.avnconfig.ITafSiteConfig;
 import com.raytheon.uf.common.aviation.avnconfig.TafSiteConfigFactory;
@@ -68,7 +69,6 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
-import org.locationtech.jts.geom.Point;
 
 /**
  * TAF site information editor dialog.
@@ -94,6 +94,7 @@ import org.locationtech.jts.geom.Point;
  * Aug 10, 2016 5801       tgurney     Remove reference to afos_to_awips table
  * Mar 08, 2018 6933       njensen     Trim metars when checking validity
  * May 15, 2019 20693   mgamazaychikov ITafSiteConfig, TafSiteConfigFactory, TafSiteData refactor
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 

@@ -24,9 +24,8 @@ import java.awt.Point;
 import junit.framework.Assert;
 
 import org.junit.Test;
-//import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;
