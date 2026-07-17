@@ -361,5 +361,7 @@
             </contribute>
         </contribute>
         <contribute xsi:type="subinclude" subMenu="${icao} Dual Pol Raw Products"
-        fileName="menus/radar/with0p3/baseRadarDualPolRawProducts.xml" />
+            fileName="menus/radar/with0p3/baseRadarDualPolRawProducts.xml" />
+        <contribute xsi:type="subinclude" subMenu="${icao} RDQVP Products"
+            fileName="menus/radar/dualPol/baseRadarRDQVP.xml" />
 </menuTemplate>

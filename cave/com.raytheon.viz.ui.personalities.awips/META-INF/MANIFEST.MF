@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: AWIPS Personality Plug-in
 Bundle-SymbolicName: com.raytheon.viz.ui.personalities.awips;singleton:=true
 Bundle-Version: 1.17.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.viz.ui.personalities.awips.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -28,7 +29,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.e4.core.di.annotations,
  org.slf4j
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.viz.ui.personalities.awips
 Import-Package: com.raytheon.uf.common.pypies,
  com.raytheon.uf.viz.core.maps

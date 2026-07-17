@@ -31,7 +31,7 @@ import java.util.Set;
 
 import javax.measure.Unit;
 
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
@@ -70,6 +70,7 @@ import com.raytheon.viz.core.graphing.xy.XYWindImageData;
  * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * Feb 06, 2018  6829     njensen     Check for wind
  * Oct 29, 2022  8959     mapeters    Update how data time levels are set
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -212,7 +213,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
 
             FloatDataRecord yRec = (FloatDataRecord) ((IDataRecord[]) yRecord
                     .getMessageData())[0];
-            DirectPosition2D yPoint = getPoint(yRecord.getLocation());
+            Position2D yPoint = getPoint(yRecord.getLocation());
             Rectangle yRect = getRectangle(yRecord.getLocation());
             float yVal = InterpUtils.getInterpolatedData(yRect, yPoint.x,
                     yPoint.y, yRec.getFloatData());
@@ -220,7 +221,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
                 continue;
             }
             GridRecord xRecord = xMap.get(level);
-            DirectPosition2D xPoint = getPoint(xRecord.getLocation());
+            Position2D xPoint = getPoint(xRecord.getLocation());
             Rectangle xRect = getRectangle(xRecord.getLocation());
             IDataRecord[] results = ((IDataRecord[]) xRecord.getMessageData());
             if (results == null) {
@@ -267,7 +268,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
      * @return
      * @throws VizException
      */
-    private DirectPosition2D getPoint(GridCoverage location)
+    private Position2D getPoint(GridCoverage location)
             throws VizException {
         try {
             return PointUtil.determineExactIndex(resourceData.getPoint(),
@@ -288,7 +289,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
      * @throws VizException
      */
     private Rectangle getRectangle(GridCoverage location) throws VizException {
-        DirectPosition2D point = getPoint(location);
+        Position2D point = getPoint(location);
         Rectangle rectangle = new Rectangle((int) Math.floor(point.x),
                 (int) Math.floor(point.y), 2, 2);
         rectangle = rectangle.intersection(

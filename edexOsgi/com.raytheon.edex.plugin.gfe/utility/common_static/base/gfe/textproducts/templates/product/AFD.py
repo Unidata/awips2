@@ -700,7 +700,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return {}    #use the two-letter ids for the marine areas
 
         # if you want descriptive names for the marine areas
-        #return {'AM': 'Atlantic coastal Waters', 'GM': 'Gulf of Mexico',
+        #return {'AM': 'Atlantic coastal Waters', 'GM': 'Gulf of America',
         #  'LE': 'Lake Erie', 'LO': 'Lake Ontario', 'LH': 'Lake Huron',
         #  'LC': 'Lake St Clair', 'LM': 'Lake Michigan', 'LS': 'Lake Superior',
         #  'PZ': 'Pacific coastal waters', 'PK': 'Alaskan coastal waters',

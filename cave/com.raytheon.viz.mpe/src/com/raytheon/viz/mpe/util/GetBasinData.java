@@ -33,7 +33,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;

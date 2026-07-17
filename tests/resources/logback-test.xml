@@ -18,35 +18,25 @@
       </encoder>
    </appender>
    
-   <logger name="com.raytheon">
-      <level value="INFO"/>
-   </logger>
-      <logger name="org.apache">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.activemq.spring">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.commons.beanutils">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.qpid">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.geotools">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.xbean.spring">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.springframework">
-      <level value="WARN"/>
-   </logger>
-   <logger name="uk.ltd.getahead">
-      <level value="WARN"/>
-   </logger>
-   <root> 
-      <level value="INFO"/> 
+   <logger name="com.raytheon" level="INFO" />
+
+   <logger name="org.apache" level="WARN" />
+
+   <logger name="org.apache.activemq.spring" level="WARN" />
+
+   <logger name="org.apache.commons.beanutils" level="WARN" />
+
+   <logger name="org.apache.qpid" level="WARN" />
+
+   <logger name="org.geotools" level="WARN" />
+
+   <logger name="org.apache.xbean.spring" level="WARN" />
+
+   <logger name="org.springframework" level="WARN" />
+
+   <logger name="uk.ltd.getahead" level="WARN" />
+
+   <root level="INFO"> 
       <appender-ref ref="console"/> 
       <appender-ref ref="errConsole"/>
     </root> 

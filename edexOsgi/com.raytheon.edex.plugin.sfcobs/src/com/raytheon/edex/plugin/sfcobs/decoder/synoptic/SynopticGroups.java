@@ -21,15 +21,15 @@ package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
 import java.util.regex.Pattern;
 
+import javax.measure.MetricPrefix;
 import javax.measure.UnitConverter;
 
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 import si.uom.SI;
-import javax.measure.MetricPrefix;
 
 /**
  * Various methods for decoding specific common data from the synoptic

@@ -10,10 +10,10 @@ package org.isotc211._2005.gmi;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
 import org.isotc211._2005.gco.AbstractObjectType;
 import org.isotc211._2005.gco.CharacterStringPropertyType;
 import org.isotc211._2005.gco.RecordPropertyType;

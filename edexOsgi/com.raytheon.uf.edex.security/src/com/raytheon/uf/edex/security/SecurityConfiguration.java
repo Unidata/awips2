@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,22 +39,25 @@ import org.apache.cxf.transport.http.auth.HttpAuthSupplier;
 import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
 
 /**
- * 
+ *
  * Object containing the security configuration items.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- ---------------------------------------
  * Jun 05, 2014  1712     bphillip  Initial Creation
  * Jul 10, 2014  1717     bphillip  Added authorization policy
  * May 28, 2015  4448     bphillip  Refactor to implement HttpAuthSupplier
  * Jun 07, 2016  5589     tjensen   Re-added getTlsParam and getAuthPolicy
- * 
+ * Sep 04, 2024  2037568  aford     Apache CXF 4 Upgrade - Set host name verifier
+ * Apr 15, 2026  2038243  mapeters  Apache HTTP 5 Upgrade - Remove StrictHostnameVerifier usage
+ *                                  (no longer exists and is unnecessary since registry certs include
+ *                                  all necessary IPs and host names in their SAN lists)
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1
  **/
@@ -87,7 +90,7 @@ public class SecurityConfiguration implements HttpAuthSupplier {
     /**
      * Creates and initializes a new Security configuration object based on the
      * security properties specified
-     * 
+     *
      * @throws IOException
      */
     public SecurityConfiguration() throws IOException {
@@ -106,8 +109,8 @@ public class SecurityConfiguration implements HttpAuthSupplier {
         String user = getProperty("edex.security.auth.user");
         authPolicy.setUserName(user);
         authPolicy.setPassword(getProperty("edex.security.auth.password"));
-        authPolicy
-                .setAuthorizationType(getProperty("edex.security.auth.authorizationType"));
+        authPolicy.setAuthorizationType(
+                getProperty("edex.security.auth.authorizationType"));
     }
 
     /**
@@ -131,8 +134,8 @@ public class SecurityConfiguration implements HttpAuthSupplier {
                 .toCharArray();
 
         try {
-            kmf = KeyManagerFactory
-                    .getInstance(getProperty("edex.security.keystore.algorithm"));
+            kmf = KeyManagerFactory.getInstance(
+                    getProperty("edex.security.keystore.algorithm"));
             fis = new FileInputStream(
                     getProperty("edex.security.keystore.path"));
             keystore = KeyStore
@@ -171,8 +174,8 @@ public class SecurityConfiguration implements HttpAuthSupplier {
                 .toCharArray();
 
         try {
-            tmf = TrustManagerFactory
-                    .getInstance(getProperty("edex.security.truststore.algorithm"));
+            tmf = TrustManagerFactory.getInstance(
+                    getProperty("edex.security.truststore.algorithm"));
             fis = new FileInputStream(
                     getProperty("edex.security.truststore.path"));
             truststore = KeyStore
@@ -200,7 +203,7 @@ public class SecurityConfiguration implements HttpAuthSupplier {
 
     /**
      * Gets a security property.
-     * 
+     *
      * @param propertyName
      *            The name of the property to get
      * @return The property value
@@ -208,8 +211,8 @@ public class SecurityConfiguration implements HttpAuthSupplier {
     public String getProperty(String propertyName) {
         String prop = securityProperties.getProperty(propertyName);
         if (prop == null || prop.trim().isEmpty()) {
-            throw new SecurityException("Required property not set: "
-                    + propertyName);
+            throw new SecurityException(
+                    "Required property not set: " + propertyName);
         }
         return prop;
     }

@@ -199,7 +199,9 @@ function generateKeystores() {
    keytool -delete -alias tmp -keystore $truststore -storepass $truststorePw
    keytool -importcert -trustcacerts -file ${dodcert} -alias $keyAlias -keystore $truststore -storepass $truststorePw
 
-   jettyObscuredPassword=`$JAVA_BIN -cp $LOCAL_CLASSPATH org.eclipse.jetty.util.security.Password $keystorePw 2>&1 | grep OBF`
+   # a username argument must be supplied to the Password class but is irrelevant.
+   # providing "user" as a placeholder username
+   jettyObscuredPassword=`$JAVA_BIN -cp $LOCAL_CLASSPATH org.eclipse.jetty.util.security.Password user $keystorePw 2>&1 | grep OBF`
    obfuscatedTruststorePassword=`$JAVA_BIN -cp $LOCAL_CLASSPATH com.raytheon.uf.common.security.encryption.AESEncryptor encrypt $encryptionKey $truststorePw 2>&1`
 
    echo -n "Generating security properties file..."

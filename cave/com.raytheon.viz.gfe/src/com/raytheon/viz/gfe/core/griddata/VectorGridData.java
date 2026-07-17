@@ -29,8 +29,8 @@ import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.FactoryException;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.FactoryException;
 
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;

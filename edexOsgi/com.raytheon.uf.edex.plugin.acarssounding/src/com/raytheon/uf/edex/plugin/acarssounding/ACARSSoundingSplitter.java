@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSAircraftInfo;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
 

@@ -11,8 +11,7 @@
       <appender-ref ref="activeTableChangeLog" />
    </appender> 
 
-   <logger name="ActiveTableChange" additivity="false">
-      <level value="DEBUG"/>
+   <logger name="ActiveTableChange" additivity="false" level="DEBUG">
       <appender-ref ref="activeTableChangeLogAsync" />
    </logger>
 </included>

@@ -4,7 +4,7 @@ Bundle-Name: MPE Test & Verification Plugin
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.mpe.test
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.edex.database,
  com.raytheon.uf.common.mpe,
  com.raytheon.uf.common.ohd,
@@ -16,4 +16,5 @@ Require-Bundle: com.raytheon.uf.edex.database,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.mpe.gribit2,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes

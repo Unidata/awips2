@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="gridPathProvider" class="com.raytheon.uf.common.dataplugin.grid.GridPathProvider" />
 
@@ -55,21 +53,17 @@
 
     <bean id="gridTreeHandler" class="com.raytheon.uf.edex.plugin.grid.handler.GridTreeHandler" />
 
-    <bean id="gridTreeHandlerRegistered" factory-bean="handlerRegistry" factory-method="register">
+    <bean id="gridTreeHandlerRegistered" factory-bean="handlerRegistry" factory-method="register" depends-on="gridRegistered">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.grid.request.GetGridTreeRequest" />
         <constructor-arg ref="gridTreeHandler" />
     </bean>
-
-    <camelContext id="grid-common-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-        <route id="purgeGridInfoCache">
-            <from uri="jms-generic:topic:purgeGridInfoCache" />
-            <bean ref="gridInfoCache" method="purgeCache" />
-        </route>
-        <route id="purgeGridCoverageCaches">
-            <from uri="jms-generic:topic:purgeGridCoverageCaches" />
-            <bean ref="gridCoveragePurger" method="purgeCaches" />
-        </route>
-    </camelContext>
+    
+    <bean id="grid-common-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.grid.GridCommonCamelRoutes" />
+        </constructor-arg>
+    </bean>
+    
     <bean factory-bean="ignitePluginRegistry" factory-method="registerPluginCacheName">
         <constructor-arg value="grid" />
         <constructor-arg value="gridDataStore" />

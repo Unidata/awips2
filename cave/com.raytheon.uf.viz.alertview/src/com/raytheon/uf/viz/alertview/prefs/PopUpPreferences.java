@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.alertview.prefs;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.viz.alertview.Alert.Priority;
 import com.raytheon.uf.viz.alertview.ui.popup.AlertPopup;

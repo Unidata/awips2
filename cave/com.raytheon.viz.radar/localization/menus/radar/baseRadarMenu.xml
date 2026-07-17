@@ -28,7 +28,8 @@
                         menuText="NEXRAD Display" id="NEXRADDisplay">
  	</contribute>
 	<contribute xsi:type="subinclude" subMenu="NEXRAD Radars" id="allDialRadar" fileName="menus/radar/dialRadars.xml"/>
-    <contribute xsi:type="subinclude" subMenu="TDWR Radars" id="tdwrRadar" fileName="menus/radar/tdwrRadars.xml" />
+        <contribute xsi:type="subinclude" subMenu="TDWR Radars" id="tdwrRadar" fileName="menus/radar/tdwrRadars.xml" />
+        <contribute xsi:type="subinclude" subMenu="Canada Radars" id="caRadar" fileName="menus/odim/caAllRadars.xml" />
 	<contribute xsi:type="separator" id="seperator" />
         <contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
                 id="RadarMosaic" />
@@ -78,8 +79,8 @@
     </contribute>
 	-->	
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
-        id="RadarMosaic" />
-  
+            id="RadarMosaic" />
+
 	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
 		subMenu="N0Q - 0.5 Reflectivity" id="Radar05Reflectivity">
 		<substitute key="product" value="153,94,19,20" />
@@ -181,6 +182,8 @@
 		<substitute key="elevation" value="0.5" />
 		<substitute key="name" value="N0C Correlation Coefficient" />
 	</contribute>
+	<contribute xsi:type="subinclude"
+        fileName="menus/odim/caMosaicProductMenu.xml" />
 	<contribute xsi:type="separator" id="seperator" />
     <contribute xsi:type="subinclude"
         fileName="menus/radar/baseRadarApplications.xml" />

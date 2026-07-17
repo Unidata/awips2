@@ -4,7 +4,7 @@ Bundle-Name: Scan Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.scan
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.common.dataplugin.scan,
  com.raytheon.uf.common.monitor,
@@ -20,7 +20,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.edex.dat.utils,
  org.slf4j,
- javax.measure
+ javax.measure,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.plugin.scan,
  com.raytheon.uf.edex.plugin.scan.lightning,
  com.raytheon.uf.edex.plugin.scan.process

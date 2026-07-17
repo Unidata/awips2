@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.geometry.jts.JTS;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;

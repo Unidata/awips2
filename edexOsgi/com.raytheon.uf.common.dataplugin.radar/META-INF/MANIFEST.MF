@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Radar
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.radar
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Eclipse-RegisterBuddy: org.geotools
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin,
@@ -16,15 +17,16 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataaccess,
  com.raytheon.uf.common.units,
  com.raytheon.uf.common.util,
- javax.persistence,
+ jakarta.persistence,
  org.hibernate,
  org.geotools,
  com.raytheon.uf.common.numeric,
  org.slf4j,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.dataplugin.radar.dataaccess,
  com.raytheon.uf.common.dataplugin.radar.level3,
  com.raytheon.uf.common.dataplugin.radar.level3.generic,
  com.raytheon.uf.common.dataplugin.radar.projection,

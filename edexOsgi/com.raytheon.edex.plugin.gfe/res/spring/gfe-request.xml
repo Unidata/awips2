@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
         depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized, dataStorageAuditerContainer">
@@ -54,7 +52,6 @@
     <bean id="iscMosaicJobManager" class="com.raytheon.edex.plugin.gfe.isc.IscMosaicJobManager"
         depends-on="gfeDbRegistered">
         <constructor-arg ref="iscMosaicPythonThreadPool"/>
-        <constructor-arg value="${iscMosaicJob.threads}"/>
     </bean>
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
         <constructor-arg ref="gfe-request-camel"/>
@@ -156,13 +153,13 @@
         <constructor-arg ref="ifpnetCDFFactory"/>
     </bean>
 
-    <bean id="iscMosaicFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
-        <constructor-arg value="iscMosaic"/>
-    </bean>
-    <bean id="iscMosaicPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
+    <bean id="iscMosaicQueue" class="java.util.concurrent.LinkedBlockingQueue" />
+    <bean id="iscMosaicPythonThreadPool" class="java.util.concurrent.ThreadPoolExecutor">    
         <constructor-arg value="${iscMosaicJob.threads}" />
-        <constructor-arg value="iscMosaic" />
-        <constructor-arg ref="iscMosaicFactory" />
+        <constructor-arg value="${iscMosaicJob.threads}" />
+        <constructor-arg value="0" />
+        <constructor-arg value="MILLISECONDS" />
+        <constructor-arg ref="iscMosaicQueue" />
     </bean>
 
     <!-- End Additional ISC Beans -->
@@ -188,157 +185,26 @@
         <constructor-arg value="/awips2/GFESuite/products/ATBL"/> <!--  directory to be purged -->
         <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
     </bean>
-
-    <camelContext id="gfe-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
-        <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
-        <endpoint id="gfeProductIscPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsIsc/?cron=${purge.gfe.products.isc.cron}"/>
-        <endpoint id="gfeProductAtblPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsAtbl/?cron=${purge.gfe.products.atbl.cron}"/>
-        <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
-        <endpoint id="gfeClearOrphanedLocksCron" uri="clusteredquartz://gfe/clearGfeOrhpanedLocks/?cron=${clear.gfe.orphaned.locks.cron}"/>
-        <endpoint id="iscDataRecEndpoint" uri="jms-durable:queue:gfeIscDataReceive?concurrentConsumers=${iscDataRec.threads}"/>
-
-        <route id="exportDigitalData">
-            <from uri="exportDigitalDataCron"/>
-            <to uri="jms-generic:queue:exportDigitalDataWork"/>
-        </route>
-        <route id="exportDigitalDataWork">
-            <from uri="jms-generic:queue:exportDigitalDataWork"/>
-            <doTry>
-                <bean ref="ExportGridsRequestHandler" method="exportGridsCron"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="purgeGfeLogs">
-            <from uri="gfeLogPurgeCron"/>
-            <to uri="jms-generic:queue:purgeGfeLogWork"/>
-        </route>
-        <route id="purgeGfeLogWork">
-            <from uri="jms-generic:queue:purgeGfeLogWork"/>
-            <doTry>
-                <bean ref="logPurger" method="purge"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="purgeGfeProductsIsc">
-            <from uri="gfeProductIscPurgeCron"/>
-            <to uri="jms-generic:queue:purgeGfeProductIscWork"/>
-        </route>
-        <route id="purgeGfeProductIscWork">
-            <from uri="jms-generic:queue:purgeGfeProductIscWork"/>
-            <doTry>
-                <bean ref="productIscPurger" method="purge"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to 
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="purgeGfeProductsAtbl">
-            <from uri="gfeProductAtblPurgeCron"/>
-            <to uri="jms-generic:queue:purgeGfeProductAtblWork"/>
-        </route>
-        <route id="purgeGfeProductAtblWork">
-            <from uri="jms-generic:queue:purgeGfeProductAtblWork"/>
-            <doTry>
-                <bean ref="productAtblPurger" method="purge"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to 
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="purgeSvcbuLogs">
-            <from uri="svcbuLogPurgeCron"/>
-            <to uri="jms-generic:queue:purgeSvcbuLogWork"/>
-        </route>
-        <route id="purgeSvcbuLogWork">
-            <from uri="jms-generic:queue:purgeSvcbuLogWork"/>
-            <doTry>
-                <bean ref="svcBuLogPurger" method="purge"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="clearGfeOrphanedLocks">
-            <from uri="gfeClearOrphanedLocksCron"/>
-            <to uri="jms-generic:queue:clearOrphanedLocksWork"/>
-        </route>
-        <route id="clearOrphanedLocksWork">
-            <from uri="jms-generic:queue:clearOrphanedLocksWork"/>
-            <doTry>
-                <bean ref="ClearGfeOrphanedLocks" method="clearLocksCron"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <!-- ISC Data Receive route -->
-        <route id="iscReceiveRoute">
-            <from uri="iscDataRecEndpoint" />
-            <doTry>
-                <pipeline>
-                    <bean ref="serializationUtil" method="transformFromThrift"/>
-                    <bean ref="iscReceiveSrv" method="processRequest"/>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:iscDataRec?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <!-- ISC Mosaic job manager notification route -->
-        <route id="iscMosaicStatusNotifyRoute">
-            <from uri="jms-generic:topic:iscMosaicStatusNotify"/>
-            <bean ref="serializationUtil" method="transformFromThrift"/>
-            <to uri="bean:iscMosaicJobManager?method=handleStatusMessage(${body})"/>
-        </route>
-    </camelContext>
+    
+    <bean id="gfe-request-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.gfe.GfeRequestCamelRoutes">
+                <constructor-arg name="gfeCron" value="${gfe.cron}" />
+                <constructor-arg name="purgeGfeLogsCron" value="${purge.gfe.logs.cron}" />
+                <constructor-arg name="purgeGfeProductsIscCron" value="${purge.gfe.products.isc.cron}" />
+                <constructor-arg name="purgeGfeProductsAtblCron" value="${purge.gfe.products.atbl.cron}" />
+                <constructor-arg name="purgeSvcbuLogsCron" value="${purge.svcbu.logs.cron}" />
+                <constructor-arg name="clearGfeOrphanedLocksCron" value="${clear.gfe.orphaned.locks.cron}" />
+                <constructor-arg name="iscdatarecThreads" value="${iscDataRec.threads}" />
+            </bean>
+        </constructor-arg>
+    </bean>
 
     <!-- ISC Send Routes -->
-    <camelContext id="clusteredGfeIscRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <route id="iscSendJobQueueAggr">
-            <from uri="jms-durable:queue:iscSendNotification" />
-            <doTry>
-                <bean ref="serializationUtil" method="transformFromThrift"/>
-                <bean ref="iscSendQueue" method="addSendJobs"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:iscSendQueue?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="iscSendTrigger">
-            <from uri="timer://iscSendTimer?fixedRate=true&amp;period=5000"/>
-            <bean ref="iscSendQueue" method="fireSendJobs"/>
-        </route>
-    </camelContext>
-
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredGfeIscRoutes"/>
+    <bean id="clusteredGfeIscRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.gfe.ClusteredGfeIscRoutes" />
+        </constructor-arg>
     </bean>
 
     <!-- ISC Services Beans -->
@@ -358,15 +224,11 @@
         <constructor-arg ref="clusteredIscBeans" />
         <constructor-arg ref="iscProvider" />
     </bean>
-
-    <camelContext id="clusteredIscBeans" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <route id="activateISC">
-            <from uri="timer://activateISCServices?repeatCount=1"/>
-            <bean ref="iscProvider" method="activateInstance"/>
-        </route>
-    </camelContext>
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredIscBeans"/>
+    
+    <bean id="clusteredIscBeans" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.gfe.ClusteredIscBeansRoutes" />
+        </constructor-arg>
     </bean>
+    
 </beans>

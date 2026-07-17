@@ -3,7 +3,7 @@ package com.raytheon.uf.common.dataplugin.scan.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;

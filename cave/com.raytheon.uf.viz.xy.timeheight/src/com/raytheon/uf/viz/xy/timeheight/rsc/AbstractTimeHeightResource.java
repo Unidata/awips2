@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
@@ -95,6 +95,7 @@ import tech.units.indriya.AbstractUnit;
  * Feb 19, 2018  6666     bsteffen  Get data from adapter using loadPreparedData
  * Feb 28, 2018  7231     njensen   Made statusHandler protected
  * Oct 29, 2022  8959     mapeters  Update how data time levels are set
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -392,7 +393,7 @@ public abstract class AbstractTimeHeightResource extends
             // To be numerically accurate the grid geometry should be 1 grid
             // cell larger than the graph
             extent.scale(1.01);
-            GeneralEnvelope env = new GeneralEnvelope(
+            GeneralBounds env = new GeneralBounds(
                     new double[] { extent.getMinX(), extent.getMinY() },
                     new double[] { extent.getMaxX(), extent.getMaxY() });
             env.setCoordinateReferenceSystem(descriptor.getGridGeometry()

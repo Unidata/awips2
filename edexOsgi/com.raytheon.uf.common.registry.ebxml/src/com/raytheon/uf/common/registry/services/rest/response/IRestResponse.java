@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.registry.services.rest.response;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 

@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.ffmp.collections.ArrayBackedMap;
 import com.raytheon.uf.common.dataplugin.ffmp.collections.BasinMapFactory;

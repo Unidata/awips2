@@ -29,7 +29,7 @@
         id="${icao}Applications" />
     <contribute xsi:type="command"
         commandId="com.raytheon.uf.viz.radarapps.ccm.ccmRequest"
-        menuText="VCP/VMI Change Request..." id="${icao}CcmRequest" />
+        menuText="VCP/VMI/MPDA Change Request..." id="${icao}CcmRequest" />
     <contribute xsi:type="command"
         commandId="com.raytheon.uf.viz.radarapps.otr.oneTimeRequest"
         menuText="One Time Request..." id="${icao}OneTimeRequest" />

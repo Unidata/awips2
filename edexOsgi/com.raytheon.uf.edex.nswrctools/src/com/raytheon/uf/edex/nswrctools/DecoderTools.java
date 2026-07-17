@@ -41,7 +41,8 @@ import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
 
 /**
- * Decoder tools for NextGen Surveillance and Weather Radar Capability (NSWRC) data.
+ * Decoder tools for NextGen Surveillance and Weather Radar Capability (NSWRC)
+ * data.
  *
  * <pre>
  *
@@ -51,6 +52,7 @@ import ucar.nc2.Variable;
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2013            ekladstrup     Initial creation
  * Apr 22, 2014  3048      mweeks      Updates for peer review and 13.5.4 baseline.
+ * May 11, 2026  2041388   tgurney     Fixes for netcdf-java 5.9.1
  *
  * </pre>
  *
@@ -376,11 +378,13 @@ public class DecoderTools {
 
         switch (type) {
         	case BYTE:
+            case UBYTE:
 	            byte[] range = (byte[]) valid_range.getValues().copyTo1DJavaArray();
 	            convertedRange[0] = ((range[0] * scale) + offset);
 	            convertedRange[1] = ((range[1] * scale) + offset);
 	            break;
         	case SHORT:
+            case USHORT:
 	            short[] rangeShort = (short[]) valid_range.getValues().copyTo1DJavaArray();
 	            convertedRange[0] = ((rangeShort[0] * scale) + offset);
 	            convertedRange[1] = ((rangeShort[1] * scale) + offset);
@@ -391,11 +395,13 @@ public class DecoderTools {
 	            convertedRange[1] = ((rangeFloat[1] * scale) + offset);
 	            break;
         	case INT:
+            case UINT:
 	            int[] rangeInt = (int[]) valid_range.getValues().copyTo1DJavaArray();
 	            convertedRange[0] = ((rangeInt[0] * scale) + offset);
 	            convertedRange[1] = ((rangeInt[1] * scale) + offset);
 	            break;
         	case LONG:
+            case ULONG:
 	            long[] rangeLong = (long[]) valid_range.getValues().copyTo1DJavaArray();
 	            convertedRange[0] = ((rangeLong[0] * scale) + offset);
 	            convertedRange[1] = ((rangeLong[1] * scale) + offset);

@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="jmsViirsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
             factory-bean="jmsDurableConfig" factory-method="copy"/>
@@ -23,27 +21,9 @@
 
     <bean id="extractWMOHeader" class="com.raytheon.uf.common.wmo.util.WMOHeaderRemover"/>
 
-    <camelContext id="viirs-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <!-- Begin VIIRS routes -->
-        <route id="viirsIngestRoute">
-            <from uri="jms-durable:queue:Ingest.VIIRS"/>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="extractWMOHeader" method="remove"/>
-                    <bean ref="dataUnzipper" method="gunzip"/>
-                    <bean ref="viirsDecoder" method="decode" />
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:viirs?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-
+    <bean id="viirs-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.npp.viirs.ViirsCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

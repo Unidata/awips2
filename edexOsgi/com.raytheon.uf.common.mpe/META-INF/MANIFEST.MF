@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.common.mpe
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.geotools,
- javax.persistence,
+ jakarta.persistence,
  javax.measure,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.serialization,
@@ -21,4 +21,4 @@ Export-Package: com.raytheon.uf.common.mpe.constants,
  com.raytheon.uf.common.mpe.dqcpreprocessor,
  com.raytheon.uf.common.mpe.fieldgen,
  com.raytheon.uf.common.mpe.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17

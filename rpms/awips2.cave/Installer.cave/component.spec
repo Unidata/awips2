@@ -143,15 +143,6 @@ fi
 # were just deleted.
 rm --recursive --force ${RPM_BUILD_ROOT}/awips2/cave/configuration/org.eclipse.osgi
 
-# Patch org.eclipse.compare plugin to fix NullPointerException in Localization 
-# Perspective
-# We make the change here to avoid Eclipse's signature verification; fortunately
-# CAVE doesn't care about JAR signature verification. :-)
-# Refer to SS DR 22945 / RODO DR 8722 for more information
-# Fixes eclipse bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=578305
-# TODO: Remove when we upgrade to Eclipse 4.23
-cp "%{_baseline_workspace}/rpms/awips2.cave/Installer.cave/org.eclipse.compare_3.8.100.v20210805-1512.jar" "${RPM_BUILD_ROOT}/awips2/cave/plugins"
-
 popd > /dev/null 2>&1
 
 %pre

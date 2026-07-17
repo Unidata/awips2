@@ -4,12 +4,12 @@ Bundle-Name: Shef
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.shef
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.serialization,
  javax.measure,
  com.raytheon.uf.common.serialization.comm,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.common.dataplugin.shef.data,
  com.raytheon.uf.common.dataplugin.shef.tables,
  com.raytheon.uf.common.dataplugin.shef.util

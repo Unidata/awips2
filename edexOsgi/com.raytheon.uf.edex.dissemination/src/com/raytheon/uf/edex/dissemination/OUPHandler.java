@@ -20,10 +20,13 @@
 package com.raytheon.uf.edex.dissemination;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
+import com.raytheon.uf.common.dissemination.OUPDisseminatorObserver;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
@@ -65,7 +68,10 @@ import jep.JepException;
  *                                     common_static
  * Jul 17, 2017  6288     randerso     Changed to use new Roles/Permissions
  *                                     framework
- *Jun 03, 2019   7852     dgilling     Update code for jep 3.8.
+ * Jun 03, 2019  7852     dgilling     Update code for jep 3.8.
+ * Apr  7, 2025  2038247  tgurney      Add Java version of handleOUP and use it
+ *                                     by default
+ * Apr 21, 2025  2038247  tgurney      Add disseminator observers
  *
  * </pre>
  *
@@ -77,6 +83,20 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
             .getHandler(OUPHandler.class);
 
     private OUPAckManager ackManager;
+
+    /* if true use OUPDisseminator.java, if false use handleOUP.py */
+    private boolean useJavaOUPHandler = false;
+
+    private final Set<OUPDisseminatorObserver> observers = new HashSet<>();
+
+    public OUPHandler() {
+        boolean useJava = Boolean.parseBoolean(
+                System.getProperty("handleoup.java.enable", "true"));
+
+        if (useJava) {
+            useJavaOUPHandler = true;
+        }
+    }
 
     @Override
     public OUPResponse handleRequest(OUPRequest request) throws Exception {
@@ -114,21 +134,36 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
 
                 oup.setProductText(convertedProductText);
 
-                try (PythonScript py = initializePython()) {
-                    Map<String, Object> args = new HashMap<>();
-                    args.put("oup", oup);
-                    args.put("afosID", header.getProductId());
-                    args.put("resp", resp);
-                    args.put("ackMgr", ackManager);
-                    args.put("test", test);
-                    resp.setAttempted(true);
-                    py.execute("process", args);
-                } catch (JepException e) {
-                    resp.setMessage("Error executing handleOUP python");
-                    statusHandler.handle(Priority.SIGNIFICANT,
-                            "Error executing handleOUP python", e);
+                if (useJavaOUPHandler) {
+                    try {
+                        OUPDisseminator oupDisseminator = new OUPDisseminator(
+                                getObservers());
+                        resp.setAttempted(true);
+                        oupDisseminator.process(oup, header.getProductId(),
+                                resp, ackManager, test);
+                    } catch (Exception e) {
+                        resp.setMessage("Error disseminating product: "
+                                + e.getLocalizedMessage());
+                        statusHandler.handle(Priority.SIGNIFICANT,
+                                "Error executing OUPDisseminator", e);
+                    }
+                } else {
+                    // use handleOUP.py
+                    try (PythonScript py = initializePython()) {
+                        Map<String, Object> args = new HashMap<>();
+                        args.put("oup", oup);
+                        args.put("afosID", header.getProductId());
+                        args.put("resp", resp);
+                        args.put("ackMgr", ackManager);
+                        args.put("test", test);
+                        resp.setAttempted(true);
+                        py.execute("process", args);
+                    } catch (JepException e) {
+                        resp.setMessage("Error executing handleOUP python");
+                        statusHandler.handle(Priority.SIGNIFICANT,
+                                "Error executing handleOUP python", e);
+                    }
                 }
-
                 /*
                  * TODO: Should be updating TransmittedProductList here, after
                  * success has been confirmed.
@@ -150,7 +185,9 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
         if ((resp != null) && (resp.getMessage() == null)) {
             resp.setMessage("");
         }
+
         return resp;
+
     }
 
     private static boolean oupOk(OfficialUserProduct oup) {
@@ -215,5 +252,15 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
             return new AuthorizationResponse(
                     (request).getNotAuthorizedMessage());
         }
+    }
+
+    public Object addObserver(OUPDisseminatorObserver observer) {
+        observers.add(observer);
+        /* allow calling as a factory method */
+        return this;
+    }
+
+    protected Set<OUPDisseminatorObserver> getObservers() {
+        return Set.copyOf(observers);
     }
 }

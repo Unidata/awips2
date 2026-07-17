@@ -4,9 +4,9 @@ Bundle-Name: Perciprate Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.preciprate
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
-Require-Bundle: javax.persistence,
+Require-Bundle: jakarta.persistence,
  com.raytheon.uf.common.serialization,
  org.geotools,
  com.raytheon.uf.common.monitor,

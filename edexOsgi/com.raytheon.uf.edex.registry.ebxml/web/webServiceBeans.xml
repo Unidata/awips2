@@ -42,6 +42,9 @@
     <import resource="classpath:res/spring/ebxml-webservices.xml" />
     <import resource="classpath*:res/spring/webservices.xml" />
 
+    <bean id="handlerRegistry" class="com.raytheon.uf.edex.requestsrv.HandlerRegistry" 
+        factory-method="getInstance" />
+
     <bean id="errorHandlerRedeliveryPolicy" class="org.apache.camel.model.RedeliveryPolicyDefinition">
         <!-- This policy matches that of the old LoggingErrorHandlerBuilder
              class we used to use. (That class is gone now that we have moved

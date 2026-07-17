@@ -4,7 +4,7 @@ Bundle-Name: Common MPE Data Plugin
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.mpe
 Bundle-Version: 1.17.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.mpe

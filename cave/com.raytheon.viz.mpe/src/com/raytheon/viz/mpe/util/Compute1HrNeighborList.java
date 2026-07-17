@@ -35,7 +35,7 @@ import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;

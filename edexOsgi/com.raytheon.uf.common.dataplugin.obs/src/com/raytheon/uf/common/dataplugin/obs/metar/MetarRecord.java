@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,21 +28,20 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.hibernate.annotations.Index;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -61,11 +60,11 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Record implementation for metar plugin
- * 
+ *
  * <pre>
- * 
+ *
  *  SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- ---------------------------------------
  * Feb 14, 2007  139      bphillip    Initial creation
@@ -91,27 +90,30 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Jul 23, 2014  3410     bclement    location changed to floats
  * Jul 28, 2015  4360     rferrel     Named unique constraint. Make reportType and correction non-nullable.
- * Jan 10, 2019  DCS 20579  MPorricelli Decoding of 1-,3-,6-hour ice accumulation
- * 
+ * Jan 10, 2019  DCS20579 MPorricelli Decoding of 1-,3-,6-hour ice accumulation
+ * Aug 08, 2022  8892     tjensen     Update indexes for Hibernate 5
+ *
  * </pre>
- * 
+ *
  * @author bphillip
- * @version 1
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "obsseq")
-@Table(name = "obs", uniqueConstraints = { @UniqueConstraint(name = "uk_obs_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "obs", indexes = { @Index(name = "obs_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "obs", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_obs_datauri_fields", columnNames = {
+                "dataURI" }) }, indexes = {
+                        @Index(name = "%TABLE%_refTimeIndex", columnList = "refTime, forecastTime"),
+                        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MetarRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData {
+public class MetarRecord extends PersistablePluginDataObject
+        implements ISpatialEnabled, IPointData {
 
     public static final String PLUGIN_NAME = "obs";
 
@@ -182,7 +184,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
     @XmlElement
     @DynamicSerializeElement
     @Transient
-    private Set<SkyCover> skyCoverage = new HashSet<SkyCover>();
+    private Set<SkyCover> skyCoverage = new HashSet<>();
 
     /** A string denoting the vertical visibility */
     @XmlElement
@@ -212,7 +214,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     @Transient
-    private List<WeatherCondition> weatherCondition = new ArrayList<WeatherCondition>();
+    private List<WeatherCondition> weatherCondition = new ArrayList<>();
 
     /** A string denoting the sea level pressure in millibars */
     @XmlElement
@@ -226,7 +228,9 @@ public class MetarRecord extends PersistablePluginDataObject implements
     @Transient
     private int temperature = -9999;
 
-    /** A string denoting the current temperature in tenths of degrees Celsius */
+    /**
+     * A string denoting the current temperature in tenths of degrees Celsius
+     */
     @XmlElement
     @DynamicSerializeElement
     @Transient
@@ -310,19 +314,25 @@ public class MetarRecord extends PersistablePluginDataObject implements
     @Transient
     private float precip1Hour = -9999;
 
-    /** A string denoting inches of precipitation observed in the last 3 hours */
+    /**
+     * A string denoting inches of precipitation observed in the last 3 hours
+     */
     @XmlElement
     @DynamicSerializeElement
     @Transient
     private float precip3Hour = -9999;
 
-    /** A string denoting inches of precipitation observed in the last 6 hours */
+    /**
+     * A string denoting inches of precipitation observed in the last 6 hours
+     */
     @XmlElement
     @DynamicSerializeElement
     @Transient
     private float precip6Hour = -9999;
 
-    /** A string denoting inches of precipitation observed in the last 24 hours */
+    /**
+     * A string denoting inches of precipitation observed in the last 24 hours
+     */
     @XmlElement
     @DynamicSerializeElement
     @Transient
@@ -396,7 +406,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     /**
      * Constructs a metar record from a dataURI
-     * 
+     *
      * @param uri
      *            The dataURI
      * @param tableDef
@@ -911,7 +921,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
      */
     public void setSkyCoverage(Set<SkyCover> skyCoverage) {
         this.skyCoverage = skyCoverage;
-        if ((skyCoverage != null) && (skyCoverage.size() > 0)) {
+        if ((skyCoverage != null) && (!skyCoverage.isEmpty())) {
             for (SkyCover cover : skyCoverage) {
                 cover.setParentMetar(this);
             }
@@ -951,7 +961,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
      */
     public void setWeatherCondition(List<WeatherCondition> weatherCondition) {
         this.weatherCondition = weatherCondition;
-        if ((weatherCondition != null) && (weatherCondition.size() > 0)) {
+        if ((weatherCondition != null) && (!weatherCondition.isEmpty())) {
             for (WeatherCondition cond : weatherCondition) {
                 cond.setParentMetar(this);
             }
@@ -1063,7 +1073,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the station identifier for this observation.
-     * 
+     *
      * @return the stationId
      */
     public String getStationId() {
@@ -1080,7 +1090,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -1089,7 +1099,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -1098,7 +1108,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Integer getElevation() {
@@ -1150,8 +1160,8 @@ public class MetarRecord extends PersistablePluginDataObject implements
         result = (PRIME * result) + vertVisibility;
         result = (PRIME * result) + +Float.floatToIntBits(visibility);
 
-        result = (PRIME * result)
-                + ((weatherCondition == null) ? 0 : weatherCondition.hashCode());
+        result = (PRIME * result) + ((weatherCondition == null) ? 0
+                : weatherCondition.hashCode());
         result = (PRIME * result)
                 + ((weatherKey == null) ? 0 : weatherKey.hashCode());
         result = (PRIME * result)
@@ -1382,7 +1392,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      * @return
      */
     public String getWmoHeader() {
@@ -1390,7 +1400,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      * @param header
      */
     public void setWmoHeader(String header) {
@@ -1405,14 +1415,14 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     @Override
     public String getMessageData() {
-        if ((sampleType != null) && sampleType.equals("PR")) {
+        if ((sampleType != null) && "PR".equals(sampleType)) {
             return getStationId();
         }
         return report;
     }
 
     public void sort(Set<SkyCover> skySet) {
-        SortedSet<SkyCover> skSet = new TreeSet<SkyCover>();
+        SortedSet<SkyCover> skSet = new TreeSet<>();
         for (SkyCover sc : skySet) {
             skSet.add(sc);
         }
@@ -1422,7 +1432,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
      */
     @Override
@@ -1432,7 +1442,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
      * .uf.common.pointdata.PointDataView)

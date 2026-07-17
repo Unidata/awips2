@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Warngen Plug-in
 Bundle-SymbolicName: com.raytheon.viz.warngen;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.viz.warngen.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core.rsc, org.apache.velocity
@@ -18,7 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.geospatial,
  com.raytheon.viz.awipstools,
  com.raytheon.viz.texteditor,
- javax.jms,
+ jakarta.jms,
  com.raytheon.uf.viz.core.maps,
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.warning,
@@ -31,17 +32,16 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.auth,
  com.raytheon.uf.viz.vtec,
  com.raytheon.viz.radar,
- javax.xml.bind
+ jakarta.xml.bind
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.warngen,
  com.raytheon.viz.warngen.gis,
  com.raytheon.viz.warngen.gui,
  com.raytheon.viz.warngen.util
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.text.request,
  org.eclipse.core.expressions,
- com.raytheon.viz.textworkstation,
  com.raytheon.viz.core.mode,
  com.raytheon.viz.core.map
 Bundle-ClassPath: com.raytheon.viz.warngen.jar

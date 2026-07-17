@@ -14,8 +14,8 @@ if [ -z "$1" ]; then
 fi
 os_version=$1
 rpmname=$2
-dirs=" -v `pwd`:/awips2/repo/awips2-builds:Z "
-. /awips2/repo/awips2-builds/build/buildEnvironment.sh
+dirs=" -v `pwd`:/awips2/repo/awips2:Z "
+. /awips2/repo/awips2/build/buildEnvironment.sh
 
 version=${AWIPSII_VERSION}-${AWIPSII_RELEASE}
 java -jar /awips2/repo/awips-unidata-builds/all/awips_splashscreen_updater.jar "$version"
@@ -38,6 +38,11 @@ echo "**************************************************
 *                                                *
 *                                                *
 **************************************************">/awips2/repo/awips2/build/deploy.edex.awips2/esb/conf/banner.txt
+#Run LDM Merge Script
+cd /awips2/repo/awips2/rpms/awips2.upc/Installer.ldm/patch/etc
+perl merge_pqacts.pl main
+perl merge_pqacts.pl all
+cd /awips2/repo/awips2
 
 # If local source directories, exist, mount them to the container
 if [ $rpmname = "buildCAVE" ]; then
@@ -62,12 +67,14 @@ fi
 # Run Docker AWIPS ADE Image
 #
 imgname=tiffanym13/awips-ade
-imgvers=23.4.1
+imgvers=23.4.3
 #podman run --entrypoint=/bin/bash --security-opt label=disable -d -ti -e "container=podman" $dirs $imgname-$imgvers-1:$imgvers-$os_version
 podman run --entrypoint=/bin/bash -d -ti -e "container=podman" $dirs $imgname-$imgvers-1:$imgvers-$os_version
 podmanID=$(podman ps | grep awips-ade | awk '{print $1}' | tail -1 )
 podman logs $podmanID
-podman exec -ti $podmanID /bin/bash -xec "/awips2/repo/awips2-builds/build/build_rpms.sh $os_version $rpmname";
+#podman cp dist/el8-dev-20260615/noarch/awips2-23.4.3-1.el8.noarch.rpm $podmanID:/home/awips/
+#podman exec -ti $podmanID /bin/bash -xec "yum localinstall /home/awips/awips2-23.4.3-1.el8.noarch.rpm -y";
+podman exec -ti $podmanID /bin/bash -xec "/awips2/repo/awips2/build/build_rpms.sh $os_version $rpmname";
 #sudo docker stop $dockerID
 #sudo docker rm -v $dockerID
 
@@ -88,8 +95,6 @@ if [[ $(whoami) == "awips" ]]; then # local build
 
   sudo mv dist/${os_version}-dev dist/${os_version}-dev-${date}
 #Add new path and rsync command to copy over NWS built rpms that we are having trouble building in v23.4.1
-  nwsPath="/home/awips/dev/awips2_rh8/awips2/x86_64" 
-  sudo rsync -aP ${nwsPath}/awips2-postgis* ${nwsPath}/awips2-python-proj* ${nwsPath}/awips2-python-pyproj* /awips2/repo/awips2/dist/${os_version}-dev-${date}/x86_64/
   sudo su - -c "createrepo -g /awips2/repo/awips2/dist/comps.xml /awips2/repo/awips2/dist/${os_version}-dev-${date}/"
   sudo chown -R awips:fxalpha dist/${os_version}-dev-${date}
   echo "rsync -aP dist/${os_version}-dev-${date} tiffanym@downloads:/mnt/downloads/awips2/${AWIPSII_VERSION}/linux/rpms/"

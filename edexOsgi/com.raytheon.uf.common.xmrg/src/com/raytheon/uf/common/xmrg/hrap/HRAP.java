@@ -24,19 +24,19 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Defines the HRAP spatial coordinate system
@@ -53,7 +53,8 @@ import org.locationtech.jts.geom.Coordinate;
  * Dec 05, 2016  19589     snaples     Updated gridmapper to use CELL CENTER instead of corner.
  * Feb 28, 2017  19733     snaples     Updated to use transforms from MapUtil class
  * Sep 15, 2017  6407      bkowal      Minor cleanup.
- * 
+ * May 07, 2024  2037231   aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author randerso
@@ -183,7 +184,7 @@ public class HRAP {
                         0, output, 0, 2);
 
                 // create a grid geometry for the projection
-                GeneralEnvelope userRange = new GeneralEnvelope(2);
+                GeneralBounds userRange = new GeneralBounds(2);
                 userRange.setCoordinateReferenceSystem(getCrs());
                 userRange.setRange(0, Math.min(output[0], output[2]),
                         Math.max(output[0], output[2]));

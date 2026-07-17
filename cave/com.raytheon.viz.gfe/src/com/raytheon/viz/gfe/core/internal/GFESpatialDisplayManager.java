@@ -28,9 +28,9 @@ import java.util.Set;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
+import org.geotools.api.geometry.Bounds;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.geometry.Envelope;
+import org.geotools.geometry.GeneralBounds;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *                                  colorbar.
  * Jan 25, 2018  7153     randerso  Changes to allow new GFE config file to be
  *                                  selected when perspective is re-opened.
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -172,7 +173,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
 
                 GridLocation gloc = parmManager.compositeGridLocation();
                 GridGeometry2D gridGeometry = MapUtil.getGridGeometry(gloc);
-                Envelope envelope = gridGeometry.getEnvelope();
+                Bounds envelope = gridGeometry.getEnvelope();
 
                 double expandLeft = GFEPreference
                         .getDouble("OfficeDomain_expandLeft", 10);
@@ -188,7 +189,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
                 double dyTop = envelope.getSpan(1) * expandTop / 100.0;
                 double dyBottom = envelope.getSpan(1) * expandBottom / 100.0;
 
-                GeneralEnvelope newEnvelope = new GeneralEnvelope(
+                GeneralBounds newEnvelope = new GeneralBounds(
                         envelope.getCoordinateReferenceSystem());
                 newEnvelope.setRange(0, envelope.getMinimum(0) - dxLeft,
                         envelope.getMaximum(0) + dxRight);

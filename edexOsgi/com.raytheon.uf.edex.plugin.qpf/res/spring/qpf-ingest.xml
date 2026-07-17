@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
    <bean id="qpfGenerator" class="com.raytheon.uf.edex.plugin.qpf.QPFGenerator"/>
 
@@ -16,19 +14,9 @@
         <constructor-arg ref="qpfGenerator"/>
     </bean>
 
-    <camelContext id="qpf-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-        <route id="QPFGenerate">
-            <from uri="jms-durable:queue:qpfGenerate"/>
-            <doTry>
-                <bean ref="serializationUtil" method="transformFromThrift" />
-                <bean ref="qpfGenerator" method="generate" />
-                <to uri="direct-vm:persistIndexAlert" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:qpf?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-
+    <bean id="qpf-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.qpf.QPFCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

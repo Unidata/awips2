@@ -23,8 +23,8 @@ import java.util.Calendar;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Declare the methods common to the surface observation class data. In the

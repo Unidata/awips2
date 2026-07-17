@@ -4,13 +4,13 @@ Bundle-Name: Redbook
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.redbook
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.dataplugin.redbook,
  com.raytheon.uf.common.dataplugin.redbook.blocks
 Require-Bundle: com.raytheon.uf.common.serialization,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.status,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.util

@@ -27,8 +27,8 @@ import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;

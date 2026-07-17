@@ -22,9 +22,9 @@ package com.raytheon.uf.edex.menus.dataplugins.satellite;
 import java.io.File;
 import java.util.Arrays;
 
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;

@@ -1,6 +1,6 @@
-# Install EDEX - BETA Version
+# Install EDEX
 
-EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL, and ideally, it should be on its own dedicated machine.  It requires administrator priviledges to make root-level changes. EDEX can run on a single machine or be spread across multiple machines.  To learn more about that please look at [Distributed EDEX, Installing Across Multiple Machines](../../edex/distributed-computing/)
+EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the backend server for AWIPS.  EDEX is only supported for Linux systems: CentOS and RHEL. It requires administrator priviledges to make root-level changes. EDEX can run on a single machine (for smaller domains) or be spread across multiple machines. To learn more about that please look at [Distributed EDEX, Installing Across Multiple Machines](../../edex/distributed-computing/)
 
 > ***Note**: Access to Unidata's IDD data feed (how you receive weather data) is accessible by the University community but is not available to the public freely.
 
@@ -8,12 +8,9 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Latest Version
 
->Note: This release is still in beta since the National Weather Service (NWS) is still working on their 23.4.1 release to operations. In the interim, we are waiting on final clearance from the NWS before releasing a production (non-beta) version and source code.
-- **23.4.1-0.4**
+- **23.4.1-1**
 
 [**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
-
-!!! note "Version 23.\* of CAVE is not compatible with Version 20.\* EDEX and vice versa, Version 20.\* of CAVE is not compatible with Version 23.\* EDEX."
 
 ---
 
@@ -23,8 +20,9 @@ If you come across issues/bugs/missing functionality, we encourage you to <a hre
 
 ---
 
-
 ## System requirements
+
+NOTE: This is for a minimal set-up (running on a regional domain). To run a full EDEX processing all CONUS wide domains/datasets, please review the [Distributed EDEX](../edex/distributed-computing.md)
 
 - 64-bit Rocky/RHEL 8
 - Bash shell environment
@@ -33,8 +31,6 @@ If you come across issues/bugs/missing functionality, we encourage you to <a hre
 - 700GB+ Disk Space
 - A **Solid State Drive (SSD)** is recommended
     - A SSD should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
-
-!!! note "EDEX is only supported for 64-bit Rocky and RHEL 8 Operating Systems."
 
 !!! warning "EDEX is **not** supported in Debian, Ubuntu, SUSE, Solaris, macOS, or Windows. You may have luck with Fedora Core 12 to 14 and Scientific Linux, but we will not provide support."
 
@@ -46,24 +42,25 @@ The first 3 steps should all be run as **root**
 
 ### 1. Install EDEX
 
-Download and run the installer: [**awips_install-v23.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh)
+Download and run the installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
 
 ```
-wget https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/awips_install-v23.sh
-chmod 755 awips_install-v23.sh
-sudo ./awips_install-v23.sh --edex
+wget https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh
+chmod 755 awips_install.sh
+sudo ./awips_install.sh --edex
 ```
 
 
-!!! note "**awips_install-v23.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
+!!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 
        1. Checks to see if EDEX is currently running, if so stops the processes with the `edex stop` command
        2. If EDEX is installed, asks the user if it can be removed and where to backup the data to and does a `yum groupremove awips2-server`
-       3. If the user/group awips:fxalpha does not exist, it gets created
-       4. Saves the appropriate yum repo file to `/etc/yum.repos.d/awips2.repo`
-       5. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
-       6. Creates `/awips2/data_store` if it does not exist already
-       7. Runs `yum groupinstall awips2-server`
+       3. Checks to see if SELinux is disabled
+       4. If the user/group awips:fxalpha does not exist, it gets created
+       5. Saves the appropriate yum repo file to `/etc/yum.repos.d/awips2.repo`
+       6. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
+       7. Creates `/awips2/data_store` if it does not exist already
+       8. Runs `yum groupinstall awips2-server`
 
 !!! warning "If you receive an error relating to yum, then please run"
 
@@ -71,8 +68,44 @@ sudo ./awips_install-v23.sh --edex
     sudo su - -c "[PATH_TO_INSTALL_FILE]/awips_install.sh --edex"
     ```
 
+If this is the first time you are setting up EDEX on your machine before starting EDEX, follow a few more [setup instructions](#3-edex-setup).
 
-### 2. EDEX Setup 
+### 2. Start EDEX
+
+Note: These steps should be run as root or with sudo.
+
+```
+sudo edex start
+```
+It takes a couple minutes for EDEX to fully start up. EDEX has started correctly if you see `* EDEX ESB is now operational` in the EDEX logs. You can grep for it by using the following command:
+
+```
+tail -f /awips2/edex/logs/*.log | grep operational
+```
+You should be ready to connect CAVE to your EDEX! Steps 3 and 4 are only for initial setup.
+
+#### Manual Commands
+If you ever ned to manually start, stop, or restart a single process (this is not normally done, but here for reference):
+```
+systemctl start postgres@awips
+systemctl start httpd-pypies
+systemctl start qpidd
+systemctl start edex_camel@ingest
+systemctl start edex_camel@ingestGrib
+systemctl start edex_camel@request
+```
+The above services start automatically on a reboot. The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. If you need to start ldm manually:
+```
+service edex_ldm start
+```
+
+To restart EDEX
+```
+edex restart
+```
+
+--- 
+### 3. EDEX Setup 
 The external and localhost addresses need to be specified in `/etc/hosts`
 
 ```
@@ -81,7 +114,7 @@ XXX.XXX.XXX.XXX   edex-cloud   edex-cloud.unidata.ucar.edu
 
 ```
 
-### 3. Configure iptables
+### 4. Configure iptables
 
 This should be a one time configuration change. Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data publicly to CAVE clients and the Python API.
 
@@ -144,9 +177,9 @@ COMMIT
 service iptables restart
 ```
 
-#### Troubleshooting 
+#### Troubleshooting
 
-For CentOS 7 error:
+Error:
 
 ```
 Redirecting to /bin/systemctl restart  iptables.service 
@@ -159,31 +192,6 @@ The solution is:
 yum install iptables-services
 systemctl enable iptables
 service iptables restart
-```
-
-### 4. Start EDEX
-
-!!! note "These steps should be run as user *awips* with sudo.  Switch to the user by running `su - awips`."
-
-```
-edex start
-```
-To manually start, stop, and restart:
-```
-systemctl start postgres@awips
-systemctl start httpd-pypies
-systemctl start qpidd
-systemctl start edex_camel@ingest
-systemctl start edex_camel@ingestGrib
-systemctl start edex_camel@request
-```
-The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. Start ldm manually:
-```
-service edex_ldm start
-```
-To restart EDEX
-```
-edex restart
 ```
 
 ---

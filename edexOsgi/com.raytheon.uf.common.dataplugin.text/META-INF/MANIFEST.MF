@@ -4,12 +4,12 @@ Bundle-Name: Textdb Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.text
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.serialization,
  org.hibernate,
  com.raytheon.uf.common.localization,
  org.apache.commons.lang3,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.serialization,
@@ -19,7 +19,7 @@ Import-Package: com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.wmo,
- javax.persistence
+ jakarta.persistence
 Export-Package: com.raytheon.uf.common.dataplugin.text;uses:="com.raytheon.uf.common.dataplugin.text.db,com.raytheon.uf.common.serialization",
  com.raytheon.uf.common.dataplugin.text.alarms,
  com.raytheon.uf.common.dataplugin.text.db;uses:="com.raytheon.uf.common.dataplugin.persist,com.raytheon.uf.common.wmo,com.raytheon.uf.common.serialization",

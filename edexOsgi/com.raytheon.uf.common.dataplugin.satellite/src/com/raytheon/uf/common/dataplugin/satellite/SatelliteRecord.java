@@ -20,20 +20,20 @@
 
 package com.raytheon.uf.common.dataplugin.satellite;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
@@ -76,6 +76,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Apr 15, 2014  4388     bsteffen    Deprecate SAT_FILL_VALUE
  * Feb 10, 2021  20421 mgamazaychikov Add support for centalWaveLength handling
+ * Jul 11, 2025  2039113  alockleigh  Add index to satellite.coverage_gid
  * 
  * </pre>
  * 
@@ -84,18 +85,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "satelliteseq")
-@Table(name = "satellite", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "satellite", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "satellite", indexes = { @Index(name = "satellite_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@org.hibernate.annotations.Table(appliesTo = "satellite", indexes = {
+        @Index(name = "satellite_refTimeIndex", columnNames = { "refTime",
+                "forecastTime" }),
+        @Index(name = "satellite_coveragegididx", columnNames = {
+                "coverage_gid" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SatelliteRecord extends PersistablePluginDataObject implements
-        IGridGeometryProvider {
+public class SatelliteRecord extends PersistablePluginDataObject
+        implements IGridGeometryProvider {
 
     public static final String PLUGIN_NAME = "satellite";
 

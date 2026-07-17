@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,16 +24,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import si.uom.SI;
-import systems.uom.common.USCustomary;
-import tech.units.indriya.AbstractUnit;
 import javax.measure.MetricPrefix;
-
 import javax.measure.Unit;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.hydro.CommonHydroConstants;
 import com.raytheon.uf.common.mpe.util.RFCSiteLookup;
@@ -50,13 +46,17 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData;
 import com.raytheon.viz.mpe.ui.rfcmask.RfcMask;
 
+import si.uom.SI;
+import systems.uom.common.USCustomary;
+import tech.units.indriya.AbstractUnit;
+
 /**
  * Resource data for MPEFieldResource
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Nov 29, 2012           mschenke  Initial creation
@@ -67,9 +67,10 @@ import com.raytheon.viz.mpe.ui.rfcmask.RfcMask;
  * Apr 15, 2019  7596     lsingh    Updated units framework to JSR-363.
  * Jun 20, 2019  7137     bhurley   Changed data type to allow for accumulation
  *                                  values greater than 13 inches.
- * 
+ * May 07, 2025  2038780  mapeters  Change default field from mmosaic to mdmosaic
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -80,7 +81,7 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
     /** mask data of current RFC */
     private XmrgFile maskXmrg = null;
 
-    public static enum ArealDisplay {
+    public enum ArealDisplay {
         GRID, BASIN, COUNTY, ZONE;
     }
 
@@ -128,7 +129,7 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
     }
 
     @XmlElement
-    private DisplayFieldData fieldData = DisplayFieldData.mMosaic;
+    private DisplayFieldData fieldData = DisplayFieldData.mdMosaic;
 
     @XmlElement
     private int accumulationInterval = 0;
@@ -143,7 +144,7 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
     private boolean displayValues = false;
 
     /**
-     * 
+     *
      */
     public MPEFieldResourceData() {
         this.nameGenerator = new AbstractNameGenerator() {
@@ -311,7 +312,7 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
 
     /**
      * mask data so data outside of RFC is not displayed.
-     * 
+     *
      * @param frame
      */
     public void maskData(MPEFieldFrame frame) {
@@ -362,7 +363,7 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
 
     /**
      * Undo what maskData() was done.
-     * 
+     *
      * @param frame
      */
     public void unmaskData(MPEFieldFrame frame) {

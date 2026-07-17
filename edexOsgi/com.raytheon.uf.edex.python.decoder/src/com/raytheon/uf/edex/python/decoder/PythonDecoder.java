@@ -60,6 +60,8 @@ import org.springframework.cglib.beans.BeanMap;
  * Jul 09, 2019  7879     tgurney     Support casting between boxed integer types
  *                                    and check for over/underflow
  * Apr 21, 2022  8709     tjensen     Remove net.sf.cglib
+ * Feb 27, 2026  2041047  njensen     Use ThreadLocal instead of HashMap to
+ *                                    cache Python sub-interpreters
  *
  * </pre>
  *
@@ -73,7 +75,7 @@ public class PythonDecoder {
 
     private static final String MISSING_LAT_LON = "Missing";
 
-    private static Map<Long, PythonScript> cachedInterpreters = new HashMap<>();
+    private static ThreadLocal<PythonScript> pySubInterpreter = new ThreadLocal<>();
 
     private String recordClassname;
 
@@ -105,13 +107,11 @@ public class PythonDecoder {
         List<PluginDataObject> decodedObjects = new ArrayList<>(0);
 
         PythonScript py = null;
-        long id = Thread.currentThread().getId();
         try {
-            if (!cache || cachedInterpreters.get(id) == null) {
+            py = pySubInterpreter.get();
+            if (py == null) {
                 py = PythonDecoderFactory.makePythonDecoder(pluginFQN,
                         moduleName);
-            } else {
-                py = cachedInterpreters.get(id);
             }
             args.put("moduleName", moduleName);
             List<?> result = (List<?>) py.execute("decode", args);
@@ -126,9 +126,12 @@ public class PythonDecoder {
             throw e;
         } finally {
             if (cache) {
-                cachedInterpreters.put(id, py);
+                pySubInterpreter.set(py);
             } else {
-                py.close();
+                if (py != null) {
+                    py.dispose();
+                }
+                pySubInterpreter.remove();
             }
         }
 

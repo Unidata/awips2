@@ -29,12 +29,12 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -127,6 +127,7 @@ import tech.units.indriya.AbstractUnit;
  *                                     of GridResource
  * Dec 20, 2023  2036519  mapeters     Records are now passed into resource constructor
  *                                     instead of being stored in resource data
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
  * Jul 15, 2024  2037624  mapeters     Implement IExtraLegendTextGeneratingResource
  *
  * </pre>
@@ -285,7 +286,7 @@ public class D2DGridResource extends IntermediateGridResource
                 for (int i = 0; i < gridRange.width; i++) {
                     for (int j = 0; j < gridRange.height; j++) {
                         double dir = oldScalar.getDataValue(i, j);
-                        DirectPosition2D dp = new DirectPosition2D(i, j);
+                        Position2D dp = new Position2D(i, j);
                         grid2crs.transform(dp, dp);
                         crs2ll.transform(dp, dp);
                         Coordinate ll = new Coordinate(dp.x, dp.y);

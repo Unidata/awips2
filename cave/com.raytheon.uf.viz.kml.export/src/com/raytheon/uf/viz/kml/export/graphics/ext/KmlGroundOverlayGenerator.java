@@ -25,9 +25,9 @@ import java.nio.FloatBuffer;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.Colormapper;
@@ -60,6 +60,7 @@ import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
  * ------------ ---------- ----------- --------------------------
  * Jun 14, 2012            bsteffen    Initial creation
  * Jul 17, 2013 2185       bsteffen    Cache computed grid reprojections.
+ * May 07, 2024  2037231   aford       Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -100,7 +101,7 @@ public abstract class KmlGroundOverlayGenerator extends KmlFeatureGenerator {
     }
 
     protected void makeOverlay(KmlOutputManager out, RenderedImage image,
-            Envelope2D envelope) {
+            ReferencedEnvelope envelope) {
         GroundOverlay overlay = new GroundOverlay();
         overlay.setColor(toColorStr(alpha, new RGB(255, 255, 255)));
         overlay.setName("Image");

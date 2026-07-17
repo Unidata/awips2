@@ -35,12 +35,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.INotificationFilter;
@@ -121,6 +121,7 @@ import org.locationtech.jts.geom.GeometryFactory;
  *                                  source is time agnostic.
  * Mar 06, 2017  6142     bsteffen  Support dataURI queries
  * Apr 13, 2022  8845     njensen   Fix POINT requests
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -320,7 +321,7 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
                     GridEnvelope2D range = new GridEnvelope2D(minIndices[0],
                             minIndices[1], maxIndices[0] - minIndices[0],
                             maxIndices[1] - minIndices[1]);
-                    Envelope2D envelope = gridGeometry.gridToWorld(range);
+                    ReferencedEnvelope envelope = gridGeometry.gridToWorld(range);
                     /*
                      * The data source will be indexed starting at 0 so adjust
                      * the grid range to match.
@@ -566,7 +567,7 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
                                     .getDataTime() == TimeAndSpace.TIME_AGNOSTIC) {
                                 geometryData.setDataTime(null);
                             }
-                            DirectPosition2D llPoint = GridDataAccessFactory
+                            Position2D llPoint = GridDataAccessFactory
                                     .findResponsePoint(key.getGridGeometry(), x,
                                             y);
                             geometryData.setGeometry(

@@ -22,22 +22,24 @@ package com.raytheon.uf.common.dataplugin.acarssounding;
 import java.io.Serializable;
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
 
 /**
  * Layer for an ACARS Sounding
@@ -50,15 +52,16 @@ import org.locationtech.jts.geom.Point;
  * Apr 30, 2009            jkorman     Initial creation
  * Oct 22, 2013 2361       njensen     Remove XML annotations
  * Jul 22, 2014 3392       nabowle     Change Double fields to Float.
+ * Aug 11, 2022 8892       tjensen     Update indexes for Hibernate 5
  *
  * </pre>
  *
  * @author jkorman
- * @version 1.0
  */
 
 @Entity
-@Table(name = "acarssoundinglayer")
+@Table(name = "acarssoundinglayer", indexes = {
+        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
 @DynamicSerialize
 public class ACARSSoundingLayer implements Serializable, ISpatialEnabled {
 
@@ -531,11 +534,6 @@ public class ACARSSoundingLayer implements Serializable, ISpatialEnabled {
                 getTimeObs());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -548,23 +546,22 @@ public class ACARSSoundingLayer implements Serializable, ISpatialEnabled {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ACARSSoundingLayer other = (ACARSSoundingLayer) obj;
         if (location == null) {
-            if (other.location != null)
+            if (other.location != null) {
                 return false;
+            }
         } else {
             // Get the point geometries and compare those!
             Point p1 = location.getLocation();
@@ -577,13 +574,16 @@ public class ACARSSoundingLayer implements Serializable, ISpatialEnabled {
             if (other.tailNumber != null) {
                 return false;
             }
-        } else if (!tailNumber.equals(other.tailNumber))
+        } else if (!tailNumber.equals(other.tailNumber)) {
             return false;
+        }
         if (timeObs == null) {
-            if (other.timeObs != null)
+            if (other.timeObs != null) {
                 return false;
-        } else if (!timeObs.equals(other.timeObs))
+            }
+        } else if (!timeObs.equals(other.timeObs)) {
             return false;
+        }
         return true;
     }
 
@@ -608,5 +608,4 @@ public class ACARSSoundingLayer implements Serializable, ISpatialEnabled {
         System.out.println(layerB.hashCode());
 
     }
-
 }

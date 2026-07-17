@@ -21,7 +21,7 @@ package com.raytheon.viz.radar;
 
 import java.util.Calendar;
 
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 

@@ -22,8 +22,9 @@ package com.raytheon.viz.aviation.climatology;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.INIConfiguration;
+import org.apache.commons.configuration2.INIConfiguration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -39,6 +40,7 @@ import com.raytheon.uf.viz.core.RGBColors;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 18 JUN 2008  1119       lvenable    Initial creation.
+ * 09 JUL 2025  2036453    aford       Commons Configuration 2 Upgrade
  * 
  * </pre>
  * 
@@ -146,7 +148,7 @@ public class WindRoseConfigData implements Cloneable {
                 throw new IOException("Error: file " + file.getPath()
                         + " does not exist.");
             } else {
-                INIConfiguration config = new INIConfiguration(file);
+                INIConfiguration config = new Configurations().ini(file);
                 calmRgb = RGBColors.getRGBColor(config
                         .getString("wind_calm.color"));
                 variableRgb = RGBColors.getRGBColor(config

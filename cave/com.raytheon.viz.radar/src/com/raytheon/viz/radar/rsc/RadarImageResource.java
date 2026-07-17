@@ -37,10 +37,10 @@ import javax.measure.UnitConverter;
 
 import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.ColorMapException;
 import com.raytheon.uf.common.colormap.ColorMapLoader;
@@ -298,7 +298,7 @@ public class RadarImageResource<D extends IDescriptor>
                     try {
                         convertedValue = params.getDataToDisplayConverter()
                                 .convert(i);
-                    } catch (NumberFormatException e) {
+                    } catch (IllegalArgumentException e) {
                         convertedValue = Double.NaN;
                     }
                     entry.setDisplayValue(convertedValue);
@@ -558,7 +558,7 @@ public class RadarImageResource<D extends IDescriptor>
                 if (converter != null) {
                     try {
                         d = converter.convert(i);
-                    } catch (NumberFormatException e) {
+                    } catch (IllegalArgumentException e) {
                         // The value is likely a special case
                         d = Double.NaN;
                     }
@@ -602,7 +602,7 @@ public class RadarImageResource<D extends IDescriptor>
                         double disp;
                         try {
                             disp = image2disp.convert(j);
-                        } catch (NumberFormatException e) {
+                        } catch (IllegalArgumentException e) {
                             // the value is a special case and represents
                             // "no color" on the color map.
                             continue;

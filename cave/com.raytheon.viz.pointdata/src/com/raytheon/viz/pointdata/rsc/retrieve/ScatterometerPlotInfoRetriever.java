@@ -25,17 +25,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataquery.db.OrderField.ResultOrder;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -271,7 +271,7 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
         try {
             ReferencedEnvelope nativeEnv = new ReferencedEnvelope(envelope,
                     crs);
-            GeneralEnvelope latLonEnv = new GeneralEnvelope(
+            GeneralBounds latLonEnv = new GeneralBounds(
                     nativeEnv.transform(MapUtil.LATLON_PROJECTION, false));
             latLonEnv.normalize(false);
             return new Envelope(latLonEnv.getMinimum(0),

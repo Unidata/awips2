@@ -7,7 +7,7 @@ Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.edex.plugin.satellite,
  com.raytheon.edex.plugin.satellite.dao,
  com.raytheon.edex.util.satellite
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.uf.common.geospatial,

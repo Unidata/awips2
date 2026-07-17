@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Texteditor Plug-in
 Bundle-SymbolicName: com.raytheon.viz.texteditor;singleton:=true
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.viz.texteditor.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: com.raytheon.uf.common.activetable,
@@ -18,7 +19,7 @@ Require-Bundle: com.raytheon.uf.common.activetable,
  com.raytheon.uf.viz.vtec,
  com.raytheon.viz.core,
  com.raytheon.viz.ui,
- javax.xml.bind,
+ jakarta.xml.bind,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
  org.eclipse.ui,
@@ -36,7 +37,7 @@ Export-Package: com.raytheon.viz.texteditor,
  com.raytheon.viz.texteditor.scripting.dialogs,
  com.raytheon.viz.texteditor.scripting.runner,
  com.raytheon.viz.texteditor.util
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.warning.util,
  com.raytheon.uf.common.dissemination,

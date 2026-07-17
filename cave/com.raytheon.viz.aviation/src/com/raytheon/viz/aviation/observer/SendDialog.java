@@ -20,6 +20,8 @@
 package com.raytheon.viz.aviation.observer;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -28,7 +30,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.apache.commons.collections.ListUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -43,6 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -94,7 +97,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     TafSiteData refactor
  * Jan 30, 2020 21710      zalberts    Modify getXmitBbb() to check for underscores
  * Feb 05, 2020 21825      zalberts    Assign timeControlsCalendar date values to xmitTime
- * 
+ * Apr 05, 2023 2033506    jkelmer     Added check and confirmation dialog if TAF xmitTime
+ *                                     is 2 or more hours in the future. Allow forecaster
+ *                                     to use Current time in place of xmitTime
+ *
  * </pre>
  * 
  * @author lvenable
@@ -105,6 +111,12 @@ public class SendDialog extends CaveSWTDialog {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SendDialog.class);
+
+    /**
+     * Formatter to display dates in a readable manner
+     */
+    private static final DateFormat dateFormatter = new SimpleDateFormat(
+            "dd/MM/yyyy HH:mm:ss");
 
     /** Site file to use to find user's forecater id. */
     private final String FORECAST_CONFIG_FILE = "aviation"
@@ -362,8 +374,8 @@ public class SendDialog extends CaveSWTDialog {
         }
         configMgr.setListBoxFont(forecasterLabel);
 
-        forecasterList = new org.eclipse.swt.widgets.List(listComp, SWT.SINGLE
-                | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+        forecasterList = new org.eclipse.swt.widgets.List(listComp,
+                SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
         gd = new GridData(SWT.CENTER, SWT.FILL, true, true);
         forecasterList.setLayoutData(gd);
         Font monoFont = new Font(shell.getDisplay(), "Monospace", 10,
@@ -463,8 +475,8 @@ public class SendDialog extends CaveSWTDialog {
         String forecasterId = null;
 
         try {
-            String selString = forecasterList.getItem(forecasterList
-                    .getSelectionIndex());
+            String selString = forecasterList
+                    .getItem(forecasterList.getSelectionIndex());
             forecasterId = selString.split("\\s+")[1];
         } catch (IllegalArgumentException ex) {
             String msg = "Cannot send the TAF. No forecaster is selected.";
@@ -476,19 +488,64 @@ public class SendDialog extends CaveSWTDialog {
         request.setType(Type.CREATE);
         request.setUser(UserController.getUserObject());
 
+        // get current time
+        Calendar currentTime = TimeUtil.newGmtCalendar();
+
         Calendar xmitTime = TimeUtil.newGmtCalendar();
         xmitTime.set(Calendar.YEAR, timeControlsCalendar.get(Calendar.YEAR));
         xmitTime.set(Calendar.MONTH, timeControlsCalendar.get(Calendar.MONTH));
-        xmitTime.set(Calendar.DAY_OF_MONTH, timeControlsCalendar.get(Calendar.DAY_OF_MONTH));
+        xmitTime.set(Calendar.DAY_OF_MONTH,
+                timeControlsCalendar.get(Calendar.DAY_OF_MONTH));
         xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
         xmitTime.set(Calendar.MINUTE, minuteSpnr.getSelection());
         xmitTime.set(Calendar.SECOND, secondSpnr.getSelection());
         xmitTime.set(Calendar.MILLISECOND, 0);
+
+        // Find difference in time between proposed xmitTime and the current
+        // time
+        long hourDiff = (xmitTime.getTimeInMillis()
+                - currentTime.getTimeInMillis()) / TimeUtil.MILLIS_PER_HOUR;
+        if (hourDiff >= 2) {
+            String logMsg = null;
+            // xmitTime is 2 or more hours in future, verify that this is what
+            // the forecaster intended
+            MessageBox questionMB = new MessageBox(shell,
+                    SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL);
+            questionMB.setText("Transmit Time Check");
+            questionMB.setMessage(
+                    "Transmit time more than 2 hours in the future.\n"
+                            + "Transmit time:"
+                            + dateFormatter.format(xmitTime.getTime()) + "\n"
+                            + "Current Time: "
+                            + dateFormatter.format(currentTime.getTime())
+                            + "\n\n"
+                            + "Do you want to change the Transmit Time to be "
+                            + "the Current Time? This will send the TAF immediately.\n"
+                            + "Press 'Cancel' to return to editing the TAF");
+
+            int result = questionMB.open();
+            if (result == SWT.YES) {
+                // use current time in place of xmitTime
+                xmitTime = (Calendar) currentTime.clone();
+                xmitTime.set(Calendar.MILLISECOND, 0);
+
+                logMsg = "Changed xmit time to match current time: "
+                        + dateFormatter.format(xmitTime.getTime());
+            } else if (result == SWT.NO) {
+                logMsg = "Sending TAF over 2 hours in future with xmit time: "
+                        + dateFormatter.format(xmitTime.getTime());
+            } else if (result == SWT.CANCEL) {
+                logMsg = "Cancelled sending TAF";
+                statusHandler.handle(Priority.DEBUG, logMsg);
+                return;
+            }
+            statusHandler.handle(Priority.INFO, logMsg);
+        }
+
         String xmitTimestamp = String.format(TIMESTAMP_FORMAT,
                 xmitTime.get(Calendar.DAY_OF_MONTH),
                 xmitTime.get(Calendar.HOUR_OF_DAY),
                 xmitTime.get(Calendar.MINUTE));
-
         /*
          * Check for pending entries with same xmitTimestamp. The header
          * timestamp is always adjusted to the xmitTimestamp.
@@ -520,13 +577,14 @@ public class SendDialog extends CaveSWTDialog {
                 message.append("has products with the same header time");
             }
 
-            msgStatComp.setMessageText(message.toString() + ".", shell
-                    .getDisplay().getSystemColor(SWT.COLOR_RED).getRGB());
+            msgStatComp.setMessageText(message.toString() + ".",
+                    shell.getDisplay().getSystemColor(SWT.COLOR_RED).getRGB());
             message.append(":\n");
             for (String filename : pendingList) {
                 message.append(filename.split(",", 2)[1]).append("\n");
             }
-            message.append("\nSelect OK to transmit this product with the same header time.");
+            message.append(
+                    "\nSelect OK to transmit this product with the same header time.");
 
             MessageDialog dlg = new MessageDialog(shell,
                     "Duplicate Transmission Time", null, message.toString(),
@@ -534,8 +592,8 @@ public class SendDialog extends CaveSWTDialog {
             if (0 != dlg.open()) {
                 return;
             } else {
-                statusHandler
-                        .info("WARNING multiple products with same header time in the pending queue.");
+                statusHandler.info(
+                        "WARNING multiple products with same header time in the pending queue.");
             }
         }
 
@@ -594,8 +652,8 @@ public class SendDialog extends CaveSWTDialog {
             }
 
             // Update Header Time to transmission time.
-            tafText = TIMESTAMP_PATTERN.matcher(tafText).replaceFirst(
-                    xmitTimestamp);
+            tafText = TIMESTAMP_PATTERN.matcher(tafText)
+                    .replaceFirst(xmitTimestamp);
             updatedTafs.add(tafText);
             try {
                 ITafSiteConfig config = TafSiteConfigFactory.getInstance();
@@ -605,7 +663,8 @@ public class SendDialog extends CaveSWTDialog {
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error reading site configuration for " + siteId
-                                + ", attempting to proceed anyway", e);
+                                + ", attempting to proceed anyway",
+                        e);
             }
 
             TafQueueRecord record = new TafQueueRecord(forecasterId,
@@ -625,8 +684,8 @@ public class SendDialog extends CaveSWTDialog {
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            msgStatComp.setMessageText(e.getMessage(), shell.getDisplay()
-                    .getSystemColor(SWT.COLOR_RED).getRGB());
+            msgStatComp.setMessageText(e.getMessage(),
+                    shell.getDisplay().getSystemColor(SWT.COLOR_RED).getRGB());
         }
 
         if (tafsQeueued) {
@@ -639,8 +698,8 @@ public class SendDialog extends CaveSWTDialog {
             }
             tabComp.getTextEditorControl().setText(sb.toString());
             msgStatComp.setMessageText(
-                    "The TAF has been sent to the transmission queue.", shell
-                            .getDisplay().getSystemColor(SWT.COLOR_GREEN)
+                    "The TAF has been sent to the transmission queue.",
+                    shell.getDisplay().getSystemColor(SWT.COLOR_GREEN)
                             .getRGB());
         }
         tabComp.setTafSent(tafsQeueued);
@@ -704,7 +763,8 @@ public class SendDialog extends CaveSWTDialog {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Cannot send the TAF. Unable to parse, "
                             + FORECAST_CONFIG_FILE
-                            + ", unable to obtain forecaster's ID. ", ex);
+                            + ", unable to obtain forecaster's ID. ",
+                    ex);
             return ListUtils.EMPTY_LIST;
         }
         return forecasters;

@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: D2D Nsharp
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.nsharp;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.viz.core.graphing,
@@ -26,7 +27,7 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.viz.volumebrowser,
  org.eclipse.e4.ui.model.workbench,
  com.raytheon.uf.viz.d2d.core,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.viz.d2d.nsharp,
  com.raytheon.uf.viz.d2d.nsharp.display,
  com.raytheon.uf.viz.d2d.nsharp.rsc,

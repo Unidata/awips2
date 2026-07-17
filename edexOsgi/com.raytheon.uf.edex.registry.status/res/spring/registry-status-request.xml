@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="RegistryStatusHealthCheck"
         class="com.raytheon.uf.edex.registry.status.RegistryStatusHealthCheck">
@@ -12,18 +10,12 @@
                 class="com.raytheon.uf.common.registry.ebxml.ThriftRegistryHandler" />
         </constructor-arg>
     </bean>
-
-    <camelContext id="Registry-Status-HealthCheck-context"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="registryStatusHealthCheck"
-            uri="clusteredquartz://RegistryStatus/healthCheck?cron=${registry.healthCheck.cron}" />
-
-        <route id="RegistryStatusHealthCheckRoute">
-            <from uri="registryStatusHealthCheck" />
-            <bean ref="RegistryStatusHealthCheck"
-                method="checkRegistryStatus" />
-        </route>
-    </camelContext>
+    
+    <bean id="Registry-Status-HealthCheck-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.registry.status.RegistryStatusHealthCheckContextRoutes">
+                <constructor-arg name="registryHealthcheckCron" value="${registry.healthCheck.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
 </beans>

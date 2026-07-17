@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # awipsPriorities.txt
-# 
+#
 # Table containing AFOS product categories (NNN) and corresponding priorities.
 #
 # Column 1: AFOS product category
@@ -32,8 +32,10 @@ CFS 1
 CFW 2
 CHG 2
 CWA 1
+DSW 2
 EQW 2
 EVI 2
+EWW 2
 EXM 1
 EXT 1
 FFA 2
@@ -70,7 +72,7 @@ RHW 2
 ROB 1
 SAB 2
 SAO 1
-SAW 2 
+SAW 2
 SCP 1
 SDO 1
 SEL 2
@@ -81,6 +83,7 @@ SMW 2
 SPF 2
 SPS 2
 SPW 2
+SQW 2
 STA 2
 STW 2
 SVR 2

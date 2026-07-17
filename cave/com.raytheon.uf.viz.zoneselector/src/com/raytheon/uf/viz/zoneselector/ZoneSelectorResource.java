@@ -38,7 +38,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.jts.geom.Coordinate;
@@ -52,9 +52,9 @@ import org.locationtech.jts.geom.TopologyException;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.io.WKBReader;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
@@ -121,6 +121,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
  * May 19, 2021  8468     randerso  Catch TopologyException from
  *                                  getInteriorPoint() and place label at the
  *                                  point of the exception.
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -586,7 +587,7 @@ public class ZoneSelectorResource extends DbMapResource {
         this.limitZones = limitZones;
         this.clipToDomain = clipToDomain;
 
-        GeneralEnvelope env = new GeneralEnvelope(MapUtil.LATLON_PROJECTION);
+        GeneralBounds env = new GeneralBounds(MapUtil.LATLON_PROJECTION);
         env.setEnvelope(-180.0, -90.0, 180.0, 90.0);
 
         GridGeometry2D latLonGridGeometry = new GridGeometry2D(

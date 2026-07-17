@@ -32,16 +32,16 @@ import javax.measure.UnitConverter;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Time;
 
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.cs.CoordinateSystemAxis;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.cs.CoordinateSystemAxis;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -96,6 +96,7 @@ import tech.units.indriya.unit.Units;
  * Aug 29, 2019  67962    tjensen   Update for GeneralGridData refactor
 
  * Sep 10, 2019  7922     bsteffen  Better mixing of persisted colormap parameters.
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  * Jul 15, 2024  2037624  mapeters  Make getPluginDataObjects public
  *
  * </pre>
@@ -293,9 +294,8 @@ public class GridLightningResource
         for (Iterator<double[]> iter : iterators) {
             while (iter.hasNext()) {
                 double[] lonLat = iter.next();
-                DirectPosition2D src = new DirectPosition2D(lonLat[0],
-                        lonLat[1]);
-                DirectPosition2D dest = new DirectPosition2D();
+                Position2D src = new Position2D(lonLat[0], lonLat[1]);
+                Position2D dest = new Position2D();
                 try {
                     latLonToGrid.transform(src, dest);
                 } catch (Exception e) {
@@ -363,7 +363,7 @@ public class GridLightningResource
         CoordinateSystemAxis csa = crs.getCoordinateSystem().getAxis(axis);
         Unit<Length> crsUnit = csa.getUnit().asType(Length.class);
         UnitConverter converter = crsUnit.getConverterTo(SI.METRE);
-        Envelope env = gridGeometry.getEnvelope();
+        Bounds env = gridGeometry.getEnvelope();
         return (int) Math
                 .round(converter.convert(env.getSpan(axis)) / mResolution);
     }

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,10 +38,9 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import javax.xml.bind.JAXB;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.locationtech.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationPathObserver;
@@ -65,7 +65,8 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableColumnData;
 import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSettings;
-import org.locationtech.jts.geom.Coordinate;
+
+import jakarta.xml.bind.JAXB;
 
 /**
  * Gage Table Data Manager class.
@@ -95,6 +96,8 @@ import org.locationtech.jts.geom.Coordinate;
  * Nov 16, 2017 6524       bkowal      Added {@link #clearCachedGages()}.
  * Aug 23, 2018 6953       tgurney     Don't filter radar locations by office id
  * Nov 26, 2018 7632       lsingh      Removed unused code.
+ * May 05, 2025 2038780    mapeters    Remove DPA fields, update readSettingsFile()
+ *                                     to ignore unknown fields to prevent NPEs
  * </pre>
  *
  * @author mpduff
@@ -113,25 +116,11 @@ public class GageTableDataManager implements ILocalizationPathObserver {
     private static final SimpleDateFormat sdf;
 
     // The grid data
-    private short[][] rMosaic = null;
-
-    private short[][] avgrMosaic = null;
-
-    private short[][] maxrMosaic = null;
-
-    private short[][] bMosaic = null;
-
-    private short[][] lMosaic = null;
-
     private short[][] gageOnly = null;
 
     private short[][] satPrecip = null;
 
     private short[][] lsatPrecip = null;
-
-    private short[][] mMosaic = null;
-
-    private short[][] mlMosaic = null;
 
     // Dual Pol Fields
 
@@ -159,11 +148,7 @@ public class GageTableDataManager implements ILocalizationPathObserver {
 
     private short[][] rfcMosaic = null;
 
-    private short[][] srMosaic = null;
-
     private short[][] sgMosaic = null;
-
-    private short[][] srgMosaic = null;
 
     private short[][] rfcbMosaic = null;
 
@@ -378,7 +363,7 @@ public class GageTableDataManager implements ILocalizationPathObserver {
 
         // Find the location of the gage
         Point p = new Point((int) gage.getHrap().x, (int) gage.getHrap().y);
-        Rectangle extent = null;
+        Rectangle extent;
         short radarIndex = -999;
         Rectangle rect = mpeDataManager.getHRAPExtent();
         try {
@@ -421,17 +406,7 @@ public class GageTableDataManager implements ILocalizationPathObserver {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
         Date currentDate = displayManager.getCurrentEditDate();
 
-        if (type.equalsIgnoreCase(GageTableProductManager.MPE_AVGRMOSAIC)) {
-            if ((avgrMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                avgrMosaic = file.getData(extent);
-            }
-            return avgrMosaic;
-        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_BESTQPE)) {
+        if (type.equalsIgnoreCase(GageTableProductManager.MPE_BESTQPE)) {
             if ((xmrg == null) || !currentDate.equals(dataDate)) {
                 // Set the dataDate
                 dataDate = currentDate;
@@ -441,16 +416,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                 xmrg = file.getData(extent);
             }
             return xmrg;
-        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_BMOSAIC)) {
-            if ((bMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                bMosaic = file.getData(extent);
-            }
-            return bMosaic;
         } else if (type
                 .equalsIgnoreCase(GageTableProductManager.MPE_GAGEONLY)) {
             if ((gageOnly == null) || !currentDate.equals(dataDate)) {
@@ -462,16 +427,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                 gageOnly = file.getData(extent);
             }
             return gageOnly;
-        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_LMOSAIC)) {
-            if ((lMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                lMosaic = file.getData(extent);
-            }
-            return lMosaic;
         } else if (type
                 .equalsIgnoreCase(GageTableProductManager.MPE_LQMOSAIC)) {
             if ((lqMosaic == null) || !currentDate.equals(dataDate)) {
@@ -494,28 +449,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
             }
             return lsatPrecip;
         } else if (type
-                .equalsIgnoreCase(GageTableProductManager.MPE_MAXRMOSAIC)) {
-            if ((maxrMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                maxrMosaic = file.getData(extent);
-            }
-            return maxrMosaic;
-        } else if (type
-                .equalsIgnoreCase(GageTableProductManager.MPE_MLMOSAIC)) {
-            if ((mlMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                mlMosaic = file.getData(extent);
-            }
-            return mlMosaic;
-        } else if (type
                 .equalsIgnoreCase(GageTableProductManager.MPE_MLQMOSAIC)) {
             if ((mlqMosaic == null) || !currentDate.equals(dataDate)) {
                 // Set the dataDate
@@ -526,16 +459,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                 mlqMosaic = file.getData(extent);
             }
             return mlqMosaic;
-        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_MMOSAIC)) {
-            if ((mMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                mMosaic = file.getData(extent);
-            }
-            return mMosaic;
 
             // ---------------------------------------
             // Dual Pol Fields
@@ -705,16 +628,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                 rfcMosaic = file.getData(extent);
             }
             return rfcMosaic;
-        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_RMOSAIC)) {
-            if ((rMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                rMosaic = file.getData(extent);
-            }
-            return rMosaic;
         } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_SATPRE)) {
             if ((satPrecip == null) || !currentDate.equals(dataDate)) {
                 // Set the dataDate
@@ -736,28 +649,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                 sgMosaic = file.getData(extent);
             }
             return sgMosaic;
-        } else if (type
-                .equalsIgnoreCase(GageTableProductManager.MPE_SRGMOSAIC)) {
-            if ((srgMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                srgMosaic = file.getData(extent);
-            }
-            return srgMosaic;
-        } else if (type
-                .equalsIgnoreCase(GageTableProductManager.MPE_SRMOSAIC)) {
-            if ((srMosaic == null) || !currentDate.equals(dataDate)) {
-                // Set the dataDate
-                dataDate = currentDate;
-
-                XmrgFile file = new XmrgFile(path);
-                file.load();
-                srMosaic = file.getData(extent);
-            }
-            return srMosaic;
         }
         return null;
     }
@@ -774,9 +665,7 @@ public class GageTableDataManager implements ILocalizationPathObserver {
         GageTableProductManager prodManager = GageTableProductManager
                 .getInstance();
 
-        List<GageTableColumn> columnList = null;
-
-        columnList = getColumnDataList();
+        List<GageTableColumn> columnList = getColumnDataList();
 
         colArray = new String[columnList.size()];
         int index = 0;
@@ -803,31 +692,15 @@ public class GageTableDataManager implements ILocalizationPathObserver {
             Map<String, Double> productValueMap = new HashMap<>();
 
             for (String col : colArray) {
-                if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_AVGRMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_AVGRMOSAIC,
-                            getData(DisplayFieldData.avgrMosaic, gage,
-                                    GageTableProductManager.MPE_AVGRMOSAIC));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_BESTQPE)) {
+                if (col.equalsIgnoreCase(GageTableProductManager.MPE_BESTQPE)) {
                     productValueMap.put(GageTableProductManager.MPE_BESTQPE,
                             getData(DisplayFieldData.Xmrg, gage,
                                     GageTableProductManager.MPE_BESTQPE));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_BMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_BMOSAIC,
-                            getData(DisplayFieldData.bMosaic, gage,
-                                    GageTableProductManager.MPE_BMOSAIC));
                 } else if (col.equalsIgnoreCase(
                         GageTableProductManager.MPE_GAGEONLY)) {
                     productValueMap.put(GageTableProductManager.MPE_GAGEONLY,
                             getData(DisplayFieldData.gageOnly, gage,
                                     GageTableProductManager.MPE_GAGEONLY));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_LMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_LMOSAIC,
-                            getData(DisplayFieldData.lMosaic, gage,
-                                    GageTableProductManager.MPE_LMOSAIC));
                 } else if (col.equalsIgnoreCase(
                         GageTableProductManager.MPE_LQMOSAIC)) {
                     productValueMap.put(GageTableProductManager.MPE_LQMOSAIC,
@@ -839,25 +712,10 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                             getData(DisplayFieldData.lsatPre, gage,
                                     GageTableProductManager.MPE_LSATPRE));
                 } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_MAXRMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_MAXRMOSAIC,
-                            getData(DisplayFieldData.maxrMosaic, gage,
-                                    GageTableProductManager.MPE_MAXRMOSAIC));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_MLMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_MLMOSAIC,
-                            getData(DisplayFieldData.mlMosaic, gage,
-                                    GageTableProductManager.MPE_MLMOSAIC));
-                } else if (col.equalsIgnoreCase(
                         GageTableProductManager.MPE_MLQMOSAIC)) {
                     productValueMap.put(GageTableProductManager.MPE_MLQMOSAIC,
                             getData(DisplayFieldData.mlqmosaic, gage,
                                     GageTableProductManager.MPE_MLQMOSAIC));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_MMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_MMOSAIC,
-                            getData(DisplayFieldData.mMosaic, gage,
-                                    GageTableProductManager.MPE_MMOSAIC));
 
                     // -------------------------------------------
                     // Dual Pol Fields
@@ -946,11 +804,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                     productValueMap.put(GageTableProductManager.MPE_RFCMMOSAIC,
                             getData(DisplayFieldData.rfcmMosaic, gage,
                                     GageTableProductManager.MPE_RFCMMOSAIC));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_RMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_RMOSAIC,
-                            getData(DisplayFieldData.rMosaic, gage,
-                                    GageTableProductManager.MPE_RMOSAIC));
                 } else if (col
                         .equalsIgnoreCase(GageTableProductManager.MPE_SATPRE)) {
                     productValueMap.put(GageTableProductManager.MPE_SATPRE,
@@ -961,16 +814,6 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                     productValueMap.put(GageTableProductManager.MPE_SGMOSAIC,
                             getData(DisplayFieldData.sgMosaic, gage,
                                     GageTableProductManager.MPE_SGMOSAIC));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_SRGMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_SRGMOSAIC,
-                            getData(DisplayFieldData.srgMosaic, gage,
-                                    GageTableProductManager.MPE_SRGMOSAIC));
-                } else if (col.equalsIgnoreCase(
-                        GageTableProductManager.MPE_SRMOSAIC)) {
-                    productValueMap.put(GageTableProductManager.MPE_SRMOSAIC,
-                            getData(DisplayFieldData.srMosaic, gage,
-                                    GageTableProductManager.MPE_SRMOSAIC));
                 }
             }
             double editValue = -999;
@@ -1346,9 +1189,7 @@ public class GageTableDataManager implements ILocalizationPathObserver {
         columnOrder.clear();
 
         // Get a list of non-data column names
-        for (String colName : GageTableConstants.BASE_COLUMNS) {
-            baseColumns.add(colName);
-        }
+        Collections.addAll(baseColumns, GageTableConstants.BASE_COLUMNS);
 
         IPathManager pm = PathManagerFactory.getPathManager();
         GageTableProductManager prodManager = GageTableProductManager
@@ -1368,17 +1209,19 @@ public class GageTableDataManager implements ILocalizationPathObserver {
             settings = getDefaultSettings();
         }
         List<GageTableColumnData> columnSettingList = settings.getColumn();
-
+        List<GageTableColumnData> filteredColumnSettingList = new ArrayList<>();
         for (GageTableColumnData c : columnSettingList) {
-            GageTableColumn column = null;
-            if (prodManager.lookupProductPrefix(c.getName()) != null) {
-                GageTableProductDescriptor prodDesc = columnMap
-                        .get(prodManager.lookupProductPrefix(c.getName()))
+            GageTableColumn column;
+            String prodPrefix = prodManager.lookupProductPrefix(c.getName());
+            if (prodPrefix != null) {
+                // Data column
+                GageTableProductDescriptor prodDesc = columnMap.get(prodPrefix)
                         .getProductDescriptor();
                 column = new GageTableColumn(prodDesc);
                 column.setName(prodDesc.getProductName());
                 column.setToolTipText(prodDesc.getProductDescription());
-            } else {
+                column.setDataColumn(true);
+            } else if (baseColumns.contains(c.getName())) {
                 // Non-data column, doesn't have a product descriptor
                 column = new GageTableColumn(null);
                 column.setName(c.getName());
@@ -1391,24 +1234,28 @@ public class GageTableDataManager implements ILocalizationPathObserver {
                 } else {
                     column.setToolTipText(column.getName());
                 }
-            }
-            column.setWidth(c.getWidth().intValue());
-
-            if (baseColumns.contains(column.getName())) {
                 column.setDataColumn(false);
             } else {
-                column.setDataColumn(true);
+                /*
+                 * Not a data column and not a base column - this should only
+                 * happen for data types that have been removed from the system,
+                 * such as the removal of DPA fields.
+                 */
+                continue;
             }
+
+            column.setWidth(c.getWidth().intValue());
 
             columnData.put(column.getName(), column);
             columnOrder.add(column.getName());
             selectedColumns.add(column);
+            filteredColumnSettingList.add(c);
         }
 
         setColumnData(columnData);
         setColumnOrder(columnOrder);
         GageTableSortSettings sortSettings = new GageTableSortSettings();
-        sortSettings.setColumnData(columnSettingList);
+        sortSettings.setColumnData(filteredColumnSettingList);
         setSortSettings(sortSettings);
         prodManager.setSelectedColumns(selectedColumns);
     }

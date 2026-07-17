@@ -67,7 +67,61 @@ if [ "${1}" = "2" ]; then
    exit 0
 fi
 
+function cleanup_pg_hba()
+{
+   cp /tmp/pg_hba.conf.orig /awips2/database/data/pg_hba.conf
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   rm -f /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+}
+
+function grant_permissions()
+{
+   cp /awips2/database/data/pg_hba.conf /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   cat >> "/awips2/database/data/pg_hba.conf" <<EOF
+
+# TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+# ===== NCEP Configuration (Install) =====
+local        all         all                               trust
+
+EOF
+
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 1
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 1
+   fi
+
+   # Give PostgreSQL time to reload
+   sleep 5
+}
+
 A2LIBS=true source /etc/profile.d/awips2PSQL.sh
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 POSTGRESQL_INSTALL="/usr"
 DATABASE_INSTALL="/awips2/database"
@@ -111,6 +165,7 @@ rm -f .awips2_escape.tmp
 sed --in-place "s/%{tablespace_dir}%/${TABLESPACE_DIR_ESCAPED}/g" \
    ${SQL_SHARE_DIR}/createNcepDb.sql
 
+grant_permissions
 
 su ${DB_OWNER} -c \
    "${PSQL} -d postgres -U awipsadmin -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepDb.sql" \
@@ -138,12 +193,76 @@ echo -e "\e[1;34m---------------------------------------------------------------
 echo -e "\e[1;34m\| AWIPS II ncep Database Creation ~ SUCCESSFUL...\e[m"
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
+cleanup_pg_hba
+
 if [[ "$i_started_postgresql" != "" ]]; then
     systemctl stop postgresql@awips
 fi
 
 %preun
 if [ "${1}" = "1" ]; then
+   exit 0
+fi
+
+# We use exit 0 throughout the uninstall, making an assumption that if a step
+# fails, the database has probably already been removed. This is to make sure
+# a full uninstall of awips2 succeeds, otherwise removing individual databases
+# would fail as awips2-database and awips2-postgresql may have already been
+# uninstalled.
+
+function cleanup_pg_hba()
+{
+   cp /tmp/pg_hba.conf.orig /awips2/database/data/pg_hba.conf
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+   rm -f /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+}
+
+function grant_permissions()
+{
+   cp /awips2/database/data/pg_hba.conf /tmp/pg_hba.conf.orig
+   if [ $? -ne 0 ]; then
+      exit 0
+   fi
+
+   cat >> "/awips2/database/data/pg_hba.conf" <<EOF
+
+# TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+# ===== NCEP Configuration (Install) =====
+local        all         all                               trust
+
+EOF
+
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 0
+   fi
+
+   # trigger a reload of the configuration in PostgreSQL
+   su ${DB_OWNER} -c \
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl reload -D /awips2/database/data > /dev/null 2>&1"
+   if [ $? -ne 0 ]; then
+      cleanup_pg_hba
+      exit 0
+   fi
+
+   # Give PostgreSQL time to reload
+   sleep 5
+}
+
+A2LIBS=true source /etc/profile.d/awips2PSQL.sh
+if [ $? -ne 0 ]; then
    exit 0
 fi
 
@@ -165,6 +284,8 @@ if ! systemctl status postgresql@awips; then
 else
     i_started_postgresql=
 fi
+
+grant_permissions
 
 echo "--------------------------------------------------------------------------------"
 echo "\| Dropping ncep database..."
@@ -194,6 +315,8 @@ fi
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 echo -e "\e[1;34m\| AWIPS II ncep Database Removal ~ SUCCESSFUL...\e[m"
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
+
+cleanup_pg_hba
 
 if [[ "$i_started_postgresql" != "" ]]; then
     systemctl stop postgresql@awips
@@ -311,4 +434,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/addUgcMzbnd.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/fixMzbnds.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadClimodata.sql
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/setPgHost.sh
 /awips2/database/sqlScripts/share/sql/ncep/shapefiles

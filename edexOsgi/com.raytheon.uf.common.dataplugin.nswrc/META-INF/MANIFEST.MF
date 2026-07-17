@@ -4,17 +4,16 @@ Bundle-Name: NSWCR-Common
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.nswrc
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.dataplugin,
- javax.persistence,
+ jakarta.persistence,
  com.raytheon.uf.common.geospatial,
  org.geotools,
  javax.measure,
- com.raytheon.uf.edex.database,
  com.raytheon.uf.common.datastorage,
  org.springframework,
  com.raytheon.uf.common.time,
  org.hibernate,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.common.dataplugin.nswrc

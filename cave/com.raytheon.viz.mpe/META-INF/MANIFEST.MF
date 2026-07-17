@@ -25,4 +25,4 @@ Export-Package: com.raytheon.viz.mpe.core,
 Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.units,
  org.apache.commons.cli
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17

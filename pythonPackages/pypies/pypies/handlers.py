@@ -38,6 +38,7 @@
 #    Jun 25, 2019    7885          tgurney        Python 3 fixes
 #    07/25/21        8530          mrichardson    Upgrade werkzeug to 1.0.1
 #    Sep 28, 2021    8608          mapeters       Add special handling for certain error types
+#    Apr 23, 2026    2034212       tjensen        Add handling for multiple '/' in file paths
 #
 #
 
@@ -91,7 +92,7 @@ def pypies_response(request):
         timeMap['deserialize']=time.time()-startTime
         # add the hdf5 directory path to the file name
         filename = hdf5Dir + obj.getFilename()
-        obj.setFilename(filename)
+        obj.setFilename(filename.replace("//", "/"))
 
         clz = obj.__class__
         if logger.isEnabledFor(logging.DEBUG):

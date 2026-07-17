@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/com.raytheon.viz.product.awips/icons/ipr.gif"/>
@@ -26,6 +26,7 @@
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
 -Dlogback.configurationFile=logback-viz-alertview.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
+-Dslf4j.provider=ch.qos.logback.classic.spi.LogbackServiceProvider
 -Dthrift.stream.maxsize=320
 -Dviz.memory.warn.threshold=10M
 -Dui.thread.monitor.threshold.millis=500
@@ -38,6 +39,7 @@
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5
 -XX:SoftRefLRUPolicyMSPerMB=1000
+--add-opens=java.base/java.lang=ALL-UNNAMED
       </vmArgs>
       <vmArgsLin>-Xmx8192M -XX:MaxDirectMemorySize=2G
 -XX:OnOutOfMemoryError=&quot;capture -t no -p %p &amp;&quot;
@@ -67,8 +69,8 @@
    </launcher>
 
    <vm>
-      <linux include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</linux>
-      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</windows>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</linux>
+      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</windows>
    </vm>
 
    <plugins>
@@ -134,6 +136,11 @@
       <feature id="com.raytheon.uf.viz.grid.radar.rsc.feature"/>
       <feature id="gov.noaa.nws.obs.viz.geodata.feature"/>
       <feature id="gov.noaa.nws.sr.oun.viz.mping.feature"/>
+      <feature id="gov.noaa.nws.ocp.viz.odim.feature"/>
+      <feature id ="gov.noaa.gsd.viz.ensemble.feature"/>
+      <feature id="com.raytheon.uf.viz.backupsvc.feature"/>
+      <feature id="com.raytheon.uf.viz.grid.radar.rsc.feature"/>
+      <feature id="gov.noaa.gsd.viz.hazards.feature"/>
    </features>
 
    <configurations>

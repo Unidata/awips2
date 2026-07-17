@@ -32,20 +32,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.api.geometry.MismatchedDimensionException;
+import org.geotools.api.geometry.Position;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
+import org.geotools.geometry.Position2D;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.hibernate.type.SerializationException;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -95,6 +95,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  *                                    #initStopoData(GridCoverage)
  * Nov 02, 2016  5979     njensen     Cast to Number where applicable
  * Sep 23, 2021  8608     mapeters    Add metadata id handling
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -708,13 +709,13 @@ public class StaticTopoData {
             FactoryException {
         MathTransform WGS84toPROJCRS = MapUtil.getTransformFromLatLon(crs);
 
-        GeneralEnvelope envelope = new GeneralEnvelope(2);
+        GeneralBounds envelope = new GeneralBounds(2);
 
-        DirectPosition ll = WGS84toPROJCRS
-                .transform(new DirectPosition2D(llCoord.x, llCoord.y), null);
+        Position ll = WGS84toPROJCRS
+                .transform(new Position2D(llCoord.x, llCoord.y), null);
 
-        DirectPosition ur = WGS84toPROJCRS
-                .transform(new DirectPosition2D(urCoord.x, urCoord.y), null);
+        Position ur = WGS84toPROJCRS
+                .transform(new Position2D(urCoord.x, urCoord.y), null);
 
         envelope.setRange(0, Math.min(ll.getOrdinate(0), ur.getOrdinate(0)),
                 Math.max(ll.getOrdinate(0), ur.getOrdinate(0)));

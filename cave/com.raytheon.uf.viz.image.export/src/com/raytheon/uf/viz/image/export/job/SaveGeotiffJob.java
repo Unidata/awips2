@@ -26,21 +26,21 @@ import java.util.LinkedHashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Rectangle;
+import org.geotools.api.coverage.grid.GridCoverage;
+import org.geotools.api.coverage.grid.GridCoverageWriter;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.gce.geotiff.GeoTiffFormat;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.coverage.grid.GridCoverageWriter;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -57,8 +57,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jul 07, 2015  4607     bsteffen    Initial Creation
- * 
- * 
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -70,7 +70,7 @@ public class SaveGeotiffJob extends AbstractSaveImagesJob {
 
     private GeoTiffFormat format;
 
-    private Envelope sourceEnvelope;
+    private Bounds sourceEnvelope;
 
     private GridGeometry2D targetGeometry;
 
@@ -88,16 +88,14 @@ public class SaveGeotiffJob extends AbstractSaveImagesJob {
         IExtent extent = pane.getRenderableDisplay().getView().getExtent();
         GeneralGridGeometry paneGeom = pane.getDescriptor().getGridGeometry();
         MathTransform grid2crs = paneGeom.getGridToCRS();
-        DirectPosition2D min = new DirectPosition2D(extent.getMinX(),
-                extent.getMinY());
-        DirectPosition2D max = new DirectPosition2D(extent.getMaxX(),
-                extent.getMaxY());
+        Position2D min = new Position2D(extent.getMinX(), extent.getMinY());
+        Position2D max = new Position2D(extent.getMaxX(), extent.getMaxY());
         try {
             grid2crs.transform(min, min);
             grid2crs.transform(max, max);
             sourceEnvelope = new ReferencedEnvelope(min.x, max.x, min.y, max.y,
                     paneGeom.getCoordinateReferenceSystem());
-            Envelope targetEnv = CRS.transform(sourceEnvelope,
+            Bounds targetEnv = CRS.transform(sourceEnvelope,
                     DefaultGeographicCRS.WGS84);
             Rectangle b = pane.getRenderableDisplay().getBounds();
             targetGeometry = new GridGeometry2D(new GridEnvelope2D(0, 0,

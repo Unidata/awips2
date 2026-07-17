@@ -15,7 +15,7 @@ Export-Package: com.raytheon.edex.plugin.shef,
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.localization,
- javax.persistence,
+ jakarta.persistence,
  org.apache.commons.cli,
  com.raytheon.uf.common.dataplugin.shef,
  com.raytheon.uf.common.status,
@@ -25,9 +25,11 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.units,
  javax.measure,
  org.postgres,
- javax.xml.bind,
- org.hibernate
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind,
+ org.hibernate,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.edex.plugin.obs.metar,
  com.raytheon.edex.plugin.obs.metar.util,

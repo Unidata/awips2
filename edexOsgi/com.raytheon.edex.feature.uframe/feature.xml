@@ -153,6 +153,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.edex.foss.com.google.re2j.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.edex.foss.ucar.nc2.feature"
          version="0.0.0"/>
 
@@ -270,6 +274,10 @@
 
    <includes
          id="com.raytheon.uf.edex.ncep.nco.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.backupsvc.feature"
          version="0.0.0"/>
 
 </feature>

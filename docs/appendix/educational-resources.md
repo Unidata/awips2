@@ -186,7 +186,8 @@ A full list of all released blogs can be found below:
 - [AWIPS 23.4.1-0.2 Beta CAVE Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-unidata-awips-23)
 - [AWIPS 23.4.1-0.3 Full Beta Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-awips-full-beta)
 - [AWIPS 23.4.1-0.4 Full Beta Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-awips-full-beta1)
-  
+- [AWIPS 23.4.1-1 Software Release](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-nsf-unidata-awips)
+
 #### CAVE
 
 - [Visualizing Data in CAVE](https://www.unidata.ucar.edu/blogs/news/entry/awips-tips-visualizing-data-in)

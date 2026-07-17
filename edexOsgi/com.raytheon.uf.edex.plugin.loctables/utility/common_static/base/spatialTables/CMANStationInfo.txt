@@ -80,7 +80,7 @@
 0000000000|CHAV3| 18.335| -64.92 |   -0|Charlotte Amalie, VI NOS            |US|CMAN
 0000000000|CHCM2| 39.53 | -75.81 |   -0|8573927, Chesapeake City, MD NOS    |US|CMAN
 0000000000|CHDS1| 33.662| -82.200|   89|Strom Thurmond Dam, SC              |US|CMAN
-0000000000|CHII2| 42.00 | -87.50 |  176|Chicago, IL (GLERL)                 |US|CMAN
+0000000000|CHII2| 41.916| -87.572|  176|Chicago, IL (GLERL)                 |US|CMAN
 0000000000|CHLV2| 36.90 | -75.71 |   23|Chesapeake Light, VA/D              |US|CMAN
 0000000000|CHNO3| 43.345|-124.329|   -0|South Slough NERR, OR               |US|CMAN
 0000000000|CHSV3| 17.748| -64.699|    0|Chr Har, St Croix, VI NOS 9751364   |US|CMAN
@@ -158,7 +158,6 @@
 0000000000|GLSM4| 44.02 | -83.54 |  180|CR GLOS, Gravelly Shoals Lt. MI     |US|CMAN
 0000000000|GNJT2| 29.36 | -94.73 |   -0|Galveston Bay (North Jetty), TX     |US|CMAN
 0000000000|GPOM6| 30.230| -88.982|    0|Gulfport Outer Range, MS NOS 8744707|US|CMAN
-0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier, Gulf of Mexico|US|CMAN
 0000000000|GRMM4| 46.68 | -85.97 |  186|GLOS, Grand Marais, MI              |US|CMAN
 0000000000|GSJT2| 29.33 | -94.69 |   -0|Galveston Bay South Jetty, TX NOS   |US|CMAN
 0000000000|GTLM4| 45.21 | -85.55 |  184|Grand Traverse Light, MI GLOS       |US|CMAN

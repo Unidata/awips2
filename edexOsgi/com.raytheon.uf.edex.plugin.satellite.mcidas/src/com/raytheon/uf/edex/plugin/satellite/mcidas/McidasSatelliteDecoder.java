@@ -31,7 +31,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.apache.commons.codec.binary.Base64;
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.crs.ProjectedCRS;
 
 import ar.com.hjg.pngj.ImageLineByte;
 import ar.com.hjg.pngj.PngReaderByte;

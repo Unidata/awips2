@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.radar.textcontributors;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 

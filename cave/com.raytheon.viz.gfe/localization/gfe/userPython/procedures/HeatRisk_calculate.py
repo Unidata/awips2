@@ -3,34 +3,22 @@
 # support, and with no warranty, express or implied, as to its usefulness for
 # any purpose.
 #
-# HeatRisk_calculate Version: 2.5 02/7/2024
+# HeatRisk_calculate Version: 2.7 05/07/2026
 #
 # Authors:
-#    Paul Iniguez, PSR SOO
-#    Mark Loeffelbein, WR/STID
+#    Paul Iniguez, Lynker @ WPC
+#    Chad Kahler, WR/STID
+#    (Mark Loeffelbein, WR/STID)
 #
 # This script calculate the daily HeatRisk based on Obs and Fcst data. It also
 # recommends what WWA to issue. This should be run on-demand by forecasters.
 #
-# ----------------------------------------------------------------------------
-#
-# SOFTWARE HISTORY
-#
-# Date         Ticket#    Engineer       Description
-# ------------ ---------- -----------    -------------------------------------
-# Feb 29, 2024            mgamazaychikov Initial creation
 ########################################################################
 
-##
-# This is an absolute override file, indicating that a higher priority version
-# of the file will completely replace a lower priority version of the file.
-##
 h5loc = '/awips2/edex/data/share/HeatRiskIndex/data/heatrisk.hdf5'
 
-zonesExcludedFromDS=['AZZ005','AZZ006']
-
 MenuItems = ["Populate"]
-import SmartScript, datetime, numpy as np, pickle, os, re, sys, h5py
+import SmartScript, datetime, numpy as np, re, h5py, scipy.ndimage
 from ufpy.dataaccess import DataAccessLayer
 
 RECOMMENDED_SITES = ["ABR", "AKQ", "ALY", "APX", "ARX", "BGM", "BIS", "BMX", 
@@ -62,7 +50,7 @@ class Procedure (SmartScript.SmartScript):
  
             if varName == "noAdvisory":
                 return hdfid[varName].asstr()[...] 
-            elif varName in ['yellowLineTmax','yellowLineTmin','DRM','MaxMaxT']:
+            elif varName in ['yellowLineTmax','yellowLineTmin','DRM','noiseMask','conusMask']:
                 conus = hdfid[varName][()]
             elif varName == 'p9999':
                 conus = np.zeros((2,wfoLons.shape[0], wfoLons.shape[1]))
@@ -120,17 +108,6 @@ class Procedure (SmartScript.SmartScript):
         #
         wfo = self.getSiteID().strip()
         #
-        # Make a mask of all the zones within the GFE domain.
-        #
-        states = ['AL','AK','AZ','AR','CA','CO','CT','DC','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME',
-                  'MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI',
-                  'SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
-        # Get a list of all edit areas and use the ones that conform to Zone names.
-        zones = [z for z in self.editAreaList() if (re.search('^[A-Z]{2}Z[0-9]{3}$', z) and z[:2] in states)]
-        #        
-        # Make a mask of all the zones the GFE (not just CWA) has defined from the list obtained above.
-        wfosMask = np.array([self.encodeEditArea(z) for z in zones]).any(axis=0)
-        #
         # Make a list of zones within the CWA (via DAF).
         #
         reqParms = {'datatype' : 'maps',
@@ -143,22 +120,10 @@ class Procedure (SmartScript.SmartScript):
         req = DataAccessLayer.newDataRequest(**reqParms)
         result = DataAccessLayer.getGeometryData(req)
         zones = [record.getString('state')+'Z'+record.getString('zone') for record in result]
-        #        
-        # Create a mask that will not apply the despeckle algorithm to.
-        despeckleMask = self.empty(np.bool)
-        
-        tmp = []
-        for z in zonesExcludedFromDS:
-            if z in zones:
-                tmp.append(z)
-        if len(tmp)>0:
-            despeckleMask = np.array([self.encodeEditArea(z) for z in tmp]).any(axis=0)
-        #        
-        # Get the NCEI clmate points from the install files. Then add them to the despeckleMask
-        # to keep the despeckle algorithm from removing single points at NCEI locations.                
-        climoPoints = self.getDataLocations()
-        pointMask = self.createMaskFromPoints(climoPoints)
-        despeckleMask[pointMask] = True        
+        #
+        # Load land mask
+        #
+        landMask = self.loadGrid('conusMask')
         #
         # Get list of zones and those where no advisory is to be issued
         #
@@ -176,10 +141,6 @@ class Procedure (SmartScript.SmartScript):
         #
         p9999 = self.loadGrid('p9999')
         #
-        # Load the maximum MaxT Normal
-        #
-        MaxMaxTNormal = self.loadGrid('MaxMaxT')
-        #
         # Load the red/orange base values
         #
         redBaseMaxT    = self.loadGrid('redLineTmax', dateDict, '0101' )
@@ -192,6 +153,7 @@ class Procedure (SmartScript.SmartScript):
             'MaxT': [], 'MinT': [],
             'RedMaxT': [], 'OrangeMaxT': [], 'YellowMaxT': [],
             'RedMinT': [], 'OrangeMinT': [], 'YellowMinT': [],
+            'PCT_moist': [], 'PCT_dry': [],
             'HILMaxT': [], 'HILMinT': [], 'HR': [],
         }
         #
@@ -228,9 +190,9 @@ class Procedure (SmartScript.SmartScript):
                     print(len(Grids['MaxT']),len(Grids['MinT']))
                     break
                 #
-                # Access in descending order Obs/URMA/Fcst/NBM
+                # Access in descending order Obs/RTMA/Fcst/NBM
                 #
-                for model in ['Obs','URMA','Fcst','NBM']:
+                for model in ['Obs','RTMA','Fcst','NBM']:
                     #
                     # Build timerange, pull grid
                     #
@@ -241,13 +203,13 @@ class Procedure (SmartScript.SmartScript):
                     #
                     if grid is not None:
                         #
-                        # If it is an observation grid (Obs/URMA), check
+                        # If it is an observation grid (Obs/RTMA), check
                         # to make sure the current time is beyond the end of the grid.
                         #
                         gridhistory = self.getGridHistory(model, parm, 'SFC', tr)
                         endTime = gridhistory[0][0][2].endTime().timetuple()
                         endTime = datetime.datetime(endTime.tm_year, endTime.tm_mon, endTime.tm_mday, endTime.tm_hour) 
-                        if model in ['Obs','URMA'] and now > endTime:
+                        if model in ['Obs','RTMA'] and now > endTime:
                             break
                         elif model in ['Fcst','NBM']:
                             break
@@ -257,7 +219,7 @@ class Procedure (SmartScript.SmartScript):
                 #
                 # Store the ob/forecast grid
                 #
-
+                grid = np.round(grid+0.005, 0)
                 Grids[parm].append(grid)
                 #
                 # Pull the levels for the corresponding timerange
@@ -287,7 +249,7 @@ class Procedure (SmartScript.SmartScript):
                 # Round the HIL output and mask to WFOs area
                 #
                 HIL = np.round(HIL+0.005, 0)
-                HIL = np.where(wfosMask, HIL, 0)
+                HIL = np.where(landMask, HIL, 0)
                 #
                 # Create the grid, store the array
                 #
@@ -301,6 +263,32 @@ class Procedure (SmartScript.SmartScript):
         #
         ###############################################################
         #
+        #  Calculate Dynamic DRM
+        #
+        ###############################################################
+        #
+        for d in range(len(Grids['MaxT'])):
+            #
+            # Average difference between today's MaxT/MinT and today's MaxT/tomorrow's MinT
+            diff =  Grids['MaxT'][d] - Grids['MinT'][d]
+            diff += Grids['MaxT'][d] - Grids['MinT'][d+1]
+            diff /= 2
+            #
+            # Assign percent moist based on DRM values
+            DRM_dynamic = np.ones(diff.shape)
+            Ts = [24, 25, 26, 27, 28, 29]
+            deltas = [0.9, 0.7, 0.5, 0.3, 0.1, 0.0]
+            for T, delta in zip(Ts, deltas):
+                DRM_dynamic = np.where(diff >= T, delta, DRM_dynamic)
+            #
+            # Average static and dynamic moist values
+            PCT_moist = (DRM + DRM_dynamic) / 2
+            PCT_dry   = np.ones(DRM.shape) - PCT_moist
+            Grids['PCT_moist'].append(PCT_moist)
+            Grids['PCT_dry'].append(PCT_dry)
+        #
+        ###############################################################
+        #
         #  Calculate Initial HeatRisk
         #
         ###############################################################
@@ -309,25 +297,10 @@ class Procedure (SmartScript.SmartScript):
         #
         for d in range(len(Grids['MaxT'])):
             #
-            # Initiate empty HeatRisk grid for today
+            # Compute initial HeatRisk
             #
-            HR = Grids['MaxT'][d].copy() * 0
-            #
-            # Equation for locations west of 104 deg...
-            #
-            HR = np.where(lons<-104, (2.00*Grids['HILMaxT'][d] + 0.35*Grids['HILMinT'][d] + 0.65*Grids['HILMinT'][d+1])/3.0, HR)
-            #
-            # Equation for locations east of 97 deg
-            #
-            HR = np.where(lons>-97, (1.80*Grids['HILMaxT'][d] + 1.10*Grids['HILMinT'][d] + 1.10*Grids['HILMinT'][d+1])/4.0, HR)
-            #
-            # Equation for central areas with DRM
-            #
-            HR = np.where( (lons>=-104)&(lons<=-97)&(DRM), (1.80*Grids['HILMaxT'][d] + 1.10*Grids['HILMinT'][d] + 1.10*Grids['HILMinT'][d+1])/4.0, HR)
-            #
-            # Equation for central areas without DRM
-            #
-            HR = np.where( (lons>=-104)&(lons<=-97)&(~DRM), (2.00*Grids['HILMaxT'][d] + 0.35*Grids['HILMinT'][d] + 0.65*Grids['HILMinT'][d+1])/3.0, HR)
+            HR  = Grids['PCT_moist'][d] * ((1.80*Grids['HILMaxT'][d] + 1.10*Grids['HILMinT'][d] + 1.10*Grids['HILMinT'][d+1])/4.0)
+            HR += Grids['PCT_dry'][d]   * ((2.00*Grids['HILMaxT'][d] + 0.35*Grids['HILMinT'][d] + 0.65*Grids['HILMinT'][d+1])/3.0)
             #
             # Round output
             #
@@ -336,9 +309,9 @@ class Procedure (SmartScript.SmartScript):
             # Identify periods of approaching next higher category (moist areas only),
             # done in consideration of humid/moist conditions.
             #
-            # Apply only to places where the DRM applies and east of 104 deg
+            # Identify areas to make situational adjustments
             #
-            mask = np.where( (lons>-104) & (DRM), True, False)
+            mask = np.where((DRM >= 0.5), True, False)
             #
             # Define the upper part of the red and orange distributions ("hump")
             #
@@ -425,7 +398,7 @@ class Procedure (SmartScript.SmartScript):
             #
             # Adjust for "warm" climates (max normal 93+) to remove single magenta days
             #
-            Grids['HR'][d] = np.where( (MaxMaxTNormal>=93) & (Grids['HR'][d-1]<4) & (Grids['HR'][d]==4) & (Grids['HR'][d+1]<4), 3, Grids['HR'][d])
+            Grids['HR'][d] = np.where( (Grids['HR'][d-1]<4) & (Grids['HR'][d]==4) & (Grids['HR'][d+1]<4), 3, Grids['HR'][d])
             #
         ###############################################################
         #
@@ -457,15 +430,9 @@ class Procedure (SmartScript.SmartScript):
             #
             Grids['HR'][d] = np.where( (Grids['MaxT'][d]>=p9999[0]) & (Grids['MaxT'][d]>=102), 4.0, Grids['HR'][d])
             #
-            # Adjust to push near-magenta days to magenta following a magenta
+            # Apply the land mask
             #
-            # Removed with version 2.3
-            #
-            #Grids['HR'][d] = np.where( (Grids['HR'][d-1]==4) & (Grids['HR'][d]>2.61), 4.0, Grids['HR'][d])
-            #
-            # Apply the WFOs mask
-            #
-            Grids['HR'][d] = np.where(wfosMask, Grids['HR'][d], 0)
+            Grids['HR'][d] = np.where(landMask, Grids['HR'][d], 0)
             #
         ###############################################################
         #
@@ -482,11 +449,10 @@ class Procedure (SmartScript.SmartScript):
             # 
             tr = self.createTimeRange((d-2)*24+6, (d-2)*24+6+24, 'Fcst')
             #
-            # Apply process to remove single pixel
+            # Apply noise reduction algorithm (note rounding)
             #
-            HR = self.despeckle(np.where(wfosMask, np.round(Grids['HR'][d]+0.005), 0), excludeMask=despeckleMask)
-            #HR = np.where(wfosMask, np.round(Grids['HR'][d]+0.005), 0)
-            
+            HR = self.remove_noise( np.round(Grids['HR'][d]+0.005, 0))
+            #
             self.createGrid('Fcst', 'HeatRisk', 'SCALAR', HR.astype('float32'), tr)
             self.saveElements(['HeatRisk'])
             #
@@ -494,7 +460,7 @@ class Procedure (SmartScript.SmartScript):
             #
             HRWWA = np.where(Grids['HR'][d] >= 2.00, 1, 0)
             HRWWA = np.where(Grids['HR'][d] >= 2.35, 2, HRWWA)
-            HRWWA = np.where(Grids['HR'][d] >= 2.62, 3, HRWWA)
+            HRWWA = np.where(Grids['HR'][d] >= 2.56, 3, HRWWA)
             #
             # For WFOs generally east of 100 deg, use "Consider/Recommended" approach.
             #
@@ -533,141 +499,115 @@ class Procedure (SmartScript.SmartScript):
                     pass
                 else:
                     HeatRiskWWA_Median = np.where(mask, med, HeatRiskWWA_Median)
-
-            #
-            # Set the color table based on the type of wfo
-            #
-            if wfo in RECOMMENDED_SITES:
-                definedColorTable = "GFE/HeatRiskWWA_Rec"
-            else:
-                definedColorTable = "GFE/HeatRiskWWA"
-            
             #
             # Create Grids
             #
-
             keys = ["None", "Consider", "Advisory", "Warning", "Recommended"]
             self.createGrid("Fcst", "HeatRiskWWA", "DISCRETE", (HRWWA.astype(np.int8), keys), tr,
-                     discreteKeys=keys, discreteAuxDataLength=0, discreteOverlap=0,
-                     defaultColorTable=definedColorTable)
+                     discreteKeys=keys, discreteAuxDataLength=0, discreteOverlap=0)
             self.createGrid("Fcst", "HeatRiskWWAbyZone", "DISCRETE", (HeatRiskWWA_Median.astype(np.int8), keys), tr,
-                     discreteKeys=keys, discreteAuxDataLength=0, discreteOverlap=0,
-                     defaultColorTable=definedColorTable)
+                     discreteKeys=keys, discreteAuxDataLength=0, discreteOverlap=0)
         #
         # Save the Output
         self.saveElements(['HeatRisk','HeatRiskWWA','HeatRiskWWAbyZone'])
-
-    def despeckle(self, grid,excludeMask=None):
-        #
-        pixelMask = np.ones(grid.shape, bool)
-        pixelMask[:, 1:] = np.logical_and(pixelMask[:, 1:], grid[:, :-1] != grid[:, 1:])# left
-        pixelMask[:, :-1] = np.logical_and(pixelMask[:, :-1], grid[:, 1:] != grid[:, :-1])# right
-        pixelMask[1:, :] = np.logical_and(pixelMask[1:, :], grid[:-1, :] != grid[1:, :])# above
-        pixelMask[:-1, :] = np.logical_and(pixelMask[:-1, :], grid[1:, :] != grid[:-1, :])# below
-        pixelMask2 = np.ones(grid.shape, bool)
-        pixelMask2[:-1, 1:] = np.logical_and(pixelMask2[:-1, 1:], grid[1:, :-1] != grid[:-1, 1:])# right/below
-        pixelMask2[:-1, :-1] = np.logical_and(pixelMask2[:-1, :-1], grid[1:, 1:] != grid[:-1, :-1])# right/below
-        pixelMask2[1:, 1:] = np.logical_and(pixelMask2[1:, 1:], grid[:-1, :-1] != grid[1:, 1:])# left/above
-        pixelMask2[1:, :-1] = np.logical_and(pixelMask2[1:, :-1], grid[:-1, 1:] != grid[1:, :-1])# right/above
-        pixelMask2 = np.logical_not(pixelMask2) # Reverse True/False so values can be combined with pixelMask
-        pixelMask[pixelMask2] = False # Create single mask of all single pixels.
-        gridOriginal = grid.copy()
-        #
-        '''Adapted from SmoothLots tool '''
-        k = 3 # has to be integer number of gridpoints
-        (ny, nx)=grid.shape
-        k2=k*2
-        #
-        #  Remove the minimum from the grid so that cumsum over a full
-        #  row or column of the grid doesn't get so big that precision
-        #  might be lost.
-        #
-        fullmin=np.minimum.reduce(np.minimum.reduce(grid))
-        gridmin=grid-fullmin
-        #
-        #  Average over the first (y) dimension - making the 'mid' grid
-        #
-        mid=grid*0.0
-        c=np.cumsum(gridmin, 0)
-        nym1=ny-1
-        midy=int((ny-1.0)/2.0)
-        ymax=min(k+1, midy+1)
-        for j in range(ymax): # handle edges
-            jk=min(j+k, nym1)
-            jk2=max(nym1-j-k-1, -1)
-            mid[j,:]=c[jk,:]/float(jk+1)
-            if jk2==-1:
-                mid[nym1-j,:]=c[nym1,:]/float(jk+1)
-            else:
-                mid[nym1-j,:]=(c[nym1,:]-c[jk2,:])/float(jk+1)
-        #
-        #  The really fast part
-        #
-        if ((k+1)<=(ny-k)): # middle
-            mid[k+1:ny-k,:]=(c[k2+1:,:]-c[:-k2-1,:])/float(k2+1)
-        #
-        #  Average over the second (x) dimension - making the 'out' grid
-        #
-        c=np.cumsum(mid, 1)
-        out=grid*0.0
-        nxm1=nx-1
-        midx=int((nx-1.0)/2.0)
-        xmax=min(k+1, midx+1)
-        for j in range(xmax): # handle edges
-            jk=min(j+k, nxm1)
-            jk2=max(nxm1-j-k-1, -1)
-            out[:, j]=c[:, jk]/float(jk+1)
-            if jk2==-1:
-                out[:, nxm1-j]=c[:, nxm1]/float(jk+1)
-            else:
-                out[:, nxm1-j]=(c[:, nxm1]-c[:, jk2])/float(jk+1)
-        #
-        #  The really fast part
-        #
-        if ((k+1)<=(nx-k)): # middle
-            out[:, k+1:nx-k]=(c[:, k2+1:]-c[:, :-k2-1])/float(k2+1)
-        #
-        #  Add the minimum back in
-        #
-        out += fullmin
-        #
-        gridOriginal[pixelMask] = out[pixelMask]
-        #
-        if excludeMask is not None:
-            gridOriginal[excludeMask] = grid[excludeMask]
-        return gridOriginal
-    
-    def getDataLocations(self):
-        #
-        valuelist=[]
-
-        with h5py.File(h5loc, 'r') as hdfid:
-            datalines = hdfid['pointList'][()]
-        
-        #
-        for line in datalines:
-            #
-            # Get values
-            #
-
-            latf, lonf = line
-            x, y = self.getGridCell(latf, lonf)
-
-            #
-            # Finally, add it to the list
-            #
-            if x is not None and y is not None:
-                valuelist.append((x, y))
-        #
-        return valuelist
-    
-    def createMaskFromPoints(self,climoPoints):
-        mask = self.empty(np.bool)
-        for (x,y) in climoPoints:
-            mask[y][x] = True
-        return mask
 
     def extractWFOfromConus(self, x, y, xshape, yshape, conusData):
         wfoData = conusData[x:x+int(xshape), y:y+int(yshape)]
         return conusData[x:x+int(xshape), y:y+int(yshape)]
 
+    def remove_noise(self, grid: np.ndarray) -> np.ndarray:
+        ''' Removes noise from the array'''
+        
+        # Load noise and land mask
+        noiseMask = self.loadGrid('noiseMask')
+        landMask = self.loadGrid('conusMask')
+        
+        # Initialize array to hold final values
+        final_grid = np.zeros(grid.shape)
+        
+        # Iterate through all five HeatRisk layers (binary operations)
+        for x in range(1,5):
+            
+            # Make temp layer
+            tmp = np.where(grid>=x, 1, 0).astype(np.uint8)
+            
+            #
+            # Triple Pixels
+            #
+            
+            # Initiate kernel locations
+            locs = [[1, 3], [1, 5], [3, 7], [5, 7]]
+            
+            # Iterate through kernels
+            for L in locs:
+                
+                # Find islands
+                kern = np.zeros(9)
+                kern[L[0]] = 1
+                kern[L[1]] = 1
+                kern[4]    = 1
+                kern = kern.reshape((3,3))
+                hits = scipy.ndimage.binary_hit_or_miss(tmp, structure1=kern)
+                tmp = np.where(hits==1, 0, tmp)
+                
+                # Find lakes
+                kern = np.ones(9)
+                kern[L[0]] = 0
+                kern[L[1]] = 0
+                kern[4]    = 0
+                kern = kern.reshape((3,3))
+                hits = scipy.ndimage.binary_hit_or_miss(tmp, structure1=kern)
+                tmp = np.where(hits==1, 1, tmp)
+            
+            #
+            # Double Pixels
+            #
+            
+            # Iterate through kernels
+            for L in [0,1,2,3,5,6,7,8]:
+                
+                # Find islands
+                kern = np.zeros(9)
+                kern[L] = 1
+                kern[4] = 1
+                kern = kern.reshape((3,3))
+                hits = scipy.ndimage.binary_hit_or_miss(tmp, structure1=kern)
+                tmp = np.where(hits==1, 0, tmp)
+                
+                # Find lakes
+                # Find islands
+                kern = np.ones(9)
+                kern[L] = 0
+                kern[4] = 0
+                kern = kern.reshape((3,3))
+                hits = scipy.ndimage.binary_hit_or_miss(tmp, structure1=kern)
+                tmp = np.where(hits==1, 1, tmp)
+            
+            #
+            # Single Pixels
+            #
+            
+            # Find islands
+            hits = scipy.ndimage.binary_hit_or_miss(tmp, structure1=np.array([
+                [0, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0],
+                ]))
+            tmp = np.where(hits==1, 0, tmp)
+            
+            # Find lakes
+            hits = scipy.ndimage.binary_hit_or_miss(tmp, structure1=np.array([
+                [1, 1, 1],
+                [1, 0, 1],
+                [1, 1, 1],
+                ]))
+            tmp = np.where(hits==1, 1, tmp)
+            
+            # Add to final array
+            final_grid = np.where(tmp==1, x, final_grid)
+        
+        # Replace original values for masked locations
+        final_grid = np.where(landMask, final_grid, 0)
+        final_grid = np.where(noiseMask, grid, final_grid)
+        
+        return final_grid

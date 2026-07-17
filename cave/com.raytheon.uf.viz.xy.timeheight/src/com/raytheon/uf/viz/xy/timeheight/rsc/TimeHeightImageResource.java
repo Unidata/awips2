@@ -23,8 +23,8 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.colormap.ColorMapException;
 import com.raytheon.uf.common.colormap.ColorMapLoader;
@@ -82,6 +82,7 @@ import org.locationtech.jts.geom.Coordinate;
  * Feb 28, 2018  7231     njensen      Cleanup
  * Apr 04, 2018  6889     njensen      Use brightness from ImagePreferences if
  *                                     present but missing in ImagingCapability
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -256,7 +257,7 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
 
         target.setupClippingPlane(descriptor.getGraph(this).getExtent());
 
-        Envelope2D env = geometry.getEnvelope2D();
+        ReferencedEnvelope env = geometry.getEnvelope2D();
         Coordinate ul = new Coordinate(env.getMinX(), env.getMaxY());
         Coordinate ur = new Coordinate(env.getMaxX(), env.getMaxY());
         Coordinate ll = new Coordinate(env.getMinX(), env.getMinY());
@@ -318,7 +319,7 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
                 new double[] { coord.getObject().x, coord.getObject().y });
         if (extent.contains(worldCoord)) {
             try {
-                DirectPosition2D dp = new DirectPosition2D(worldCoord[0],
+                Position2D dp = new Position2D(worldCoord[0],
                         worldCoord[1]);
                 descriptor.getGridGeometry().getGridToCRS().transform(dp, dp);
                 val = reproj.reprojectedGridCell(sampler, (int) dp.x,

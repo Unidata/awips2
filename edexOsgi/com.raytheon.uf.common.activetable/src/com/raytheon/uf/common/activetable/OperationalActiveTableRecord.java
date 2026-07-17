@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.common.activetable;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 import org.hibernate.annotations.Index;
 

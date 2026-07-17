@@ -10,16 +10,12 @@
       <appender-ref ref="asyncConsole"/>
    </appender>
   
-   <logger name="edu">
-      <level value="WARN" />
-   </logger>
-   <logger name="org.apache.cxf">
-         <level value="ERROR"/>
-   </logger>
+   <logger name="edu" level="WARN" />
+
+   <logger name="org.apache.cxf" level="ERROR" />
 
    <!-- default logging --> 
-   <root> 
-      <level value="INFO"/>
+   <root level="INFO"> 
       <appender-ref ref="ThreadBasedLog"/>
     </root> 
 </configuration> 

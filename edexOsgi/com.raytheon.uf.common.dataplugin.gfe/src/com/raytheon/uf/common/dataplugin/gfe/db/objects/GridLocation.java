@@ -24,25 +24,32 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
@@ -58,13 +65,6 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
@@ -115,6 +115,7 @@ import jep.NDArray;
  * Apr 23, 2015  4259     njensen   Updated for new JEP API
  * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup
  * Feb 11, 2020  7596     randerso  Use Coordinate2dType adapter
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -286,7 +287,7 @@ public class GridLocation extends PersistableDataObject<String>
             Coordinate urCrs = this.projection.gridCoordinateToCrs(ur);
 
             // construct the grid geometry that covers the GFE grid
-            GeneralEnvelope ge = new GeneralEnvelope(2);
+            GeneralBounds ge = new GeneralBounds(2);
             ge.setCoordinateReferenceSystem(this.crsObject);
             ge.setRange(0, Math.min(llCrs.x, urCrs.x),
                     Math.max(llCrs.x, urCrs.x));
@@ -358,7 +359,7 @@ public class GridLocation extends PersistableDataObject<String>
         this.nx = gridGeometry.getGridRange().getSpan(0);
         this.ny = gridGeometry.getGridRange().getSpan(1);
 
-        Envelope2D envelope = gridGeometry.getEnvelope2D();
+        ReferencedEnvelope envelope = gridGeometry.getEnvelope2D();
         Coordinate ul = new Coordinate(envelope.getMinX(), envelope.getMinY());
         Coordinate ur = new Coordinate(envelope.getMaxX(), envelope.getMinY());
         Coordinate lr = new Coordinate(envelope.getMaxX(), envelope.getMaxY());

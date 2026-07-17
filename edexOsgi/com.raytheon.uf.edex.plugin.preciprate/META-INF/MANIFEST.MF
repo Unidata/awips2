@@ -4,7 +4,7 @@ Bundle-Name: Preciprate Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.preciprate
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;resolution:=optional,
  com.raytheon.edex.common,
  com.raytheon.uf.common.monitor,
@@ -14,5 +14,6 @@ Require-Bundle: com.raytheon.uf.edex.cpgsrv;resolution:=optional,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.dataplugin.radar,
  com.raytheon.uf.common.localization,
- org.slf4j
+ org.slf4j,
+ com.raytheon.uf.edex.routes
 Import-Package: com.raytheon.uf.edex.plugin.scan.common

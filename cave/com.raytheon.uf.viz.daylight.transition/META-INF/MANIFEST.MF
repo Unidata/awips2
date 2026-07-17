@@ -4,7 +4,7 @@ Bundle-Name: Daylight Transition
 Bundle-SymbolicName: com.raytheon.uf.viz.daylight.transition;singleton:=true
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.viz.ui,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.time,
@@ -18,4 +18,4 @@ Require-Bundle: com.raytheon.viz.ui,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.numeric,
  com.raytheon.viz.awipstools,
- javax.xml.bind
+ jakarta.xml.bind

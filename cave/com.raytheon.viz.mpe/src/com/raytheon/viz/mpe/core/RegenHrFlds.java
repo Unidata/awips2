@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -62,6 +62,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * Apr 24, 2014  16308     lbousaidi   added the ability to send RFC Bias across the WAN
  *                                     after Mpe fieldgen run.
  * Feb 29, 2016   2347     skorolev    Removed extra conversion in the regenFields.
+ * Nov 06, 2025  2039927   jkelmer     Corrected rounding when saving value to rawpp table
  * </pre>
  * 
  * @author snaples
@@ -188,7 +189,7 @@ public class RegenHrFlds {
                         }
                         double hourly_value = pp_value * 100.0;
                         hourly_value = java.lang.Math.round(hourly_value);
-                        pp_value = java.lang.Math.round(pp_value);
+                        pp_value = (double) java.lang.Math.round(pp_value * 100) / 100;
                         new_hourly_value = (int) hourly_value;
                     }
                     GagePPWrite.gage_pp_init(dt, gData.id, gData.ts,

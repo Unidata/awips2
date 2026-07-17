@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Profiler Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.profiler;singleton:=true
 Bundle-Version: 1.21.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.15.0",
@@ -21,7 +22,7 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
  com.raytheon.uf.viz.d2d.core;bundle-version="1.14.0",
  com.raytheon.uf.viz.xy;bundle-version="1.15.0",
  com.raytheon.uf.common.sounding;bundle-version="1.14.0",
- javax.xml.bind;bundle-version="2.4.0"
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.viz.profiler,
  com.raytheon.uf.viz.profiler.ui
 Bundle-ClassPath: com.raytheon.uf.viz.profiler.jar

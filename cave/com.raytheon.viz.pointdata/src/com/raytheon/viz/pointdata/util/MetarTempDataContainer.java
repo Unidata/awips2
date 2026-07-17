@@ -41,8 +41,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import org.locationtech.jts.geom.Coordinate;
+
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 
@@ -129,7 +130,7 @@ public class MetarTempDataContainer {
 
     private final Map<String, RequestConstraint> rcMap;
 
-    private final org.opengis.geometry.Envelope descriptorEnvelope;
+    private final org.geotools.api.geometry.Bounds descriptorEnvelope;
 
     private List<Envelope> latLonEnvelopes;
 
@@ -143,7 +144,7 @@ public class MetarTempDataContainer {
      * @param descriptorEnvelope
      */
     public MetarTempDataContainer(HashMap<String, RequestConstraint> rcMap,
-            org.opengis.geometry.Envelope descriptorEnvelope) {
+            org.geotools.api.geometry.Bounds descriptorEnvelope) {
         this.rcMap = rcMap;
         this.descriptorEnvelope = descriptorEnvelope;
     }

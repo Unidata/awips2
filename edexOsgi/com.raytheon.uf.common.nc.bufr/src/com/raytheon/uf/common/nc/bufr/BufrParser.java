@@ -33,7 +33,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 import ucar.ma2.Array;
-import ucar.ma2.ArraySequence;
 import ucar.ma2.DataType;
 import ucar.ma2.StructureData;
 import ucar.ma2.StructureMembers;
@@ -64,8 +63,9 @@ import ucar.nc2.Variable;
  * Sep 11, 2017 6406       bsteffen    Upgrade ucar
  * Dec 06, 2019 71884      smanoj      Fixed a parser error when a member is
  *                                     of DataType sequence.
+ * Apr 13, 2026 2041388    tgurney     Fixes for netcdf-java 5.x upgrade
  * </pre>
- * 
+ *
  * @author bclement
  */
 public class BufrParser {
@@ -442,18 +442,22 @@ public class BufrParser {
         /*
          * We will promote unsigned values to the next largest signed type
          */
-        boolean isUnsigned = var.isUnsigned();
+        boolean isUnsigned = var.getDataType().isUnsigned();
         switch (var.getDataType()) {
         case BYTE:
+        case UBYTE:
             rval = (isUnsigned ? DataType.SHORT : DataType.BYTE);
             break;
         case SHORT:
+        case USHORT:
             rval = (isUnsigned ? DataType.INT : DataType.SHORT);
             break;
         case INT:
+        case UINT:
             rval = (isUnsigned ? DataType.LONG : DataType.INT);
             break;
         case LONG:
+        case ULONG:
             /*
              * no support for unsigned longs, we would have to use BigInteger
              */
@@ -555,19 +559,23 @@ public class BufrParser {
         if (value == null) {
             return null;
         }
-        if (var.isUnsigned() && value instanceof Number) {
+        if (var.getDataType().isUnsigned() && value instanceof Number) {
             /* promote unsigned values to the next largest signed type */
             switch (var.getDataType()) {
             case BYTE:
-                value = (Short) (UnsignedNumbers.ubyteToShort((Byte) value));
+            case UBYTE:
+                value = (UnsignedNumbers.ubyteToShort((Byte) value));
                 break;
             case SHORT:
-                value = (Integer) (UnsignedNumbers.ushortToInt((Short) value));
+            case USHORT:
+                value = (UnsignedNumbers.ushortToInt((Short) value));
                 break;
             case INT:
-                value = (Long) (UnsignedNumbers.uintToLong((Integer) value));
+            case UINT:
+                value = (UnsignedNumbers.uintToLong((Integer) value));
                 break;
             case LONG:
+            case ULONG:
                 log.warn(
                         "Unsigned long not supported, value may be incorrectly interpreted: "
                                 + var.getFullName());
@@ -762,6 +770,7 @@ public class BufrParser {
             Number numMissing = missingAttrib.getNumericValue();
             switch (getUnscaledDataType(var)) {
             case BYTE:
+            case UBYTE:
                 rval = ((Byte) unscaledValue).byteValue() == numMissing
                         .byteValue();
                 break;
@@ -770,14 +779,17 @@ public class BufrParser {
                         .intValue();
                 break;
             case SHORT:
+            case USHORT:
                 rval = ((Short) unscaledValue).shortValue() == numMissing
                         .shortValue();
                 break;
             case INT:
+            case UINT:
                 rval = ((Integer) unscaledValue).intValue() == numMissing
                         .intValue();
                 break;
             case LONG:
+            case ULONG:
                 rval = ((Long) unscaledValue).longValue() == numMissing
                         .longValue();
                 break;

@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.UFStatus.Priority;

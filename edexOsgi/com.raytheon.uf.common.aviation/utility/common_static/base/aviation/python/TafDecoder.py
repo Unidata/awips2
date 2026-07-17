@@ -34,6 +34,9 @@
 #    Aug 15, 2022    DCS 23235     m. oberfield   Commented out PROB30 nine-hour check
 #    Nov 02, 2023    DR 2036443    m. oberfield   Fixed NIL TAF issues at WFO SJU
 #    Feb 27, 2024    DR 2036979    m. oberfield   Added new check for superfluous zero
+#    Aug 25, 2025    DR 2039321    jkelmer        Added PROB group to regex matching to split the PROB
+#                                                 group and allow for proper formatting
+#    Sep 23, 2025    DR 2038329    rusif.eyvazli  Fixed end-of-year rollover; datetime.utcfromtimestamp() calls removed
 #
 ##
 # This is a base file that is not intended to be overridden.
@@ -451,10 +454,10 @@ def invalid_ds_vsby(i, v):
 
 def invalid_taf_timestamp(d, sday, eday):
     """Double check forecaster timestamps"""
-    dt = datetime.datetime.utcfromtimestamp(d['from'])
+    dt = datetime.datetime.fromtimestamp(d['from'], tz=datetime.timezone.utc)
     r1 = sday != dt.day
 
-    dt = datetime.datetime.utcfromtimestamp(d['to'])
+    dt = datetime.datetime.fromtimestamp(d['to'], tz=datetime.timezone.utc)
     r2 = eday != dt.day
 
     return r1 or r2
@@ -509,19 +512,11 @@ def fix_date(tms, overrideTime=None):
     # Always UTC
     t = calendar.timegm(tuple(tms))
     # tms contains day, hour, min of the report, current year and month
-    if t > now + 3 * 86400.0:     # previous month
-        if tms[1] > 1:
-            tms[1] -= 1
-        else:
-            tms[1] = 12
-            tms[0] -= 1
+    if t > now + 3 * 86400.0:  # previous month
+        tms[0], tms[1] = (tms[0], tms[1] - 1) if tms[1] > 1 else (tms[0] - 1, 12)
 
     elif t < now - 25 * 86400.0:  # next month
-        if tms[1] < 12:
-            tms[1] += 1
-        else:
-            tms[1] = 1
-            tms[0] += 1
+        tms[0], tms[1] = (tms[0], tms[1] + 1) if tms[1] < 12 else (tms[0] + 1, 1)
 
 
 def get_pcp_list(s):
@@ -1372,7 +1367,7 @@ class Decoder(tpg.Parser):
             # typos, like April 31.
             #
             if 'error' not in d:
-                dt = datetime.datetime.utcfromtimestamp(t)
+                dt = datetime.datetime.fromtimestamp(t, tz=datetime.timezone.utc)
                 if sday != dt.day:
                     add_msg(d, 'error', 105)
             #
@@ -1414,7 +1409,7 @@ class Decoder(tpg.Parser):
         #
         # Ending time has rolled over to next month.
         if eday < sday:
-            tms[1] += 1
+            tms[0], tms[1] = (tms[0], tms[1] + 1) if tms[1] < 12 else (tms[0] + 1, 1)
 
         d.update({'from': t, 'to': calendar.timegm(tuple(tms))})
         #
@@ -1471,7 +1466,7 @@ class Decoder(tpg.Parser):
         #
         # Ending time has rolled over to next month.
         if eday < sday:
-            tms[1] += 1
+            tms[0], tms[1] = (tms[0], tms[1] + 1) if tms[1] < 12 else (tms[0] + 1, 1)
 
         d.update({'from': tfrom, 'to': calendar.timegm(tuple(tms))})
         #
@@ -1827,7 +1822,7 @@ class Decoder(tpg.Parser):
 # These methods were grabbed from TafEditDialog, OB9.2.X_source
 # Revision 1.76. Placed here so all the TafEditDialg GUI is not imported.
 ###############################################################################
-_format_pat = re.compile('|'.join([r'(FM\d+)', r'(TEMPO)', r'(AMD\s+[LN])',
+_format_pat = re.compile('|'.join([r'(FM\d+)', r'(TEMPO)', r'(PROB30)', r'(AMD\s+[LN])',
                                    r'(NIL\s+AMD)', r'(TAF\s+AMD)', r'(TAF\s+COR)',
                                    r'(TAF)']))
 

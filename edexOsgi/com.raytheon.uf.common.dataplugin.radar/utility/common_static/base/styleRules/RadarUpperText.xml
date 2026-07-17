@@ -377,6 +377,11 @@
         </productDependent>
     </upperText>
 
+    <!-- RDQVP Products -->
+    <upperText productCodes='189 190 191 192'>
+        <vcp />
+    </upperText>
+
     <!-- rain rate class -->
     <upperText productCodes='197'>
         <vcp />

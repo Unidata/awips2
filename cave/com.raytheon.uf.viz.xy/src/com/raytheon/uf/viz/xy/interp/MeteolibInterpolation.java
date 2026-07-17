@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.xy.interp;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 
 import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.common.wxmath.ScalelessAnalysis;
@@ -40,7 +40,8 @@ import com.raytheon.uf.viz.xy.scales.HeightScale.ScaleType;
  * May 12, 2010            bsteffen    Initial creation
  * Aug 20, 2013 2262       njensen     Use wxmath instead of meteolib
  * Nov 08, 2016 5976       bsteffen    Move to viz.xy plugin
- * 
+ * May 07, 2024 2037231    aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -111,8 +112,8 @@ public class MeteolibInterpolation implements IInterpolation {
         nmaxX += xinc / 2;
         nminY -= yinc / 2;
         nmaxY += yinc / 2;
-        GeneralEnvelope env = new GeneralEnvelope(
-                new double[] { nminX, nminY }, new double[] { nmaxX, nmaxY });
+        GeneralBounds env = new GeneralBounds(new double[] { nminX, nminY },
+                new double[] { nmaxX, nmaxY });
         GeneralGridEnvelope range = new GeneralGridEnvelope(new int[] { 0, 0 },
                 new int[] { (int) gridX, (int) gridY }, false);
         result.setGeometry(new GridGeometry2D(range, env));

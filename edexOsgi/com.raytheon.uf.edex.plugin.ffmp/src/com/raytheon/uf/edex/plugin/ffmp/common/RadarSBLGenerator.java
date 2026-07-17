@@ -35,16 +35,16 @@ import java.util.Set;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.Position2D;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.geometry.jts.JTS;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.geometry.MismatchedDimensionException;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform2D;
+import org.geotools.api.referencing.operation.TransformException;
 import org.slf4j.Logger;
 
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBin;
@@ -83,6 +83,7 @@ import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
  * Dec 14, 2015  5166      kbisanz     Update logging to use SLF4J
  * Aug 09, 2016  5819      mapeters    Debug file moved from SITE to CONFIGURED
  * Jun 05, 2018  6560      njensen     Use PreparedGeometries with BinCenters, cleanup
+ * May 07, 2024  2037231   aford       Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -177,9 +178,9 @@ public class RadarSBLGenerator {
 
         MathTransform2D w2g = searchGridGeometry
                 .getCRSToGrid2D(PixelOrientation.UPPER_LEFT);
-        DirectPosition2D pw = new DirectPosition2D();
-        DirectPosition2D pg = new DirectPosition2D();
-        DirectPosition2D pe = new DirectPosition2D();
+        Position2D pw = new Position2D();
+        Position2D pg = new Position2D();
+        Position2D pe = new Position2D();
         for (Long key : basinSet) {
             Geometry basinGeom = basinMap.get(key);
             if (basinGeom == null) {
@@ -377,7 +378,7 @@ public class RadarSBLGenerator {
     private GridGeometry2D getSearchGridGeometry(RadarRecord radarRec,
             int gridLen) {
         ProjectedCRS crs = radarRec.getCRS();
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+        GeneralBounds generalEnvelope = new GeneralBounds(2);
         generalEnvelope.setCoordinateReferenceSystem(crs);
 
         double range = radarRec.getGateResolution() * radarRec.getNumBins()
@@ -416,8 +417,8 @@ public class RadarSBLGenerator {
         Coordinate[] radialCoords0 = new Coordinate[nBins + 1];
         Coordinate[] radialCoords1 = new Coordinate[nBins + 1];
         Coordinate[] tCoords;
-        DirectPosition2D pw = new DirectPosition2D();
-        DirectPosition2D pe = new DirectPosition2D();
+        Position2D pw = new Position2D();
+        Position2D pe = new Position2D();
         for (int ir = 0; ir <= nRadials; ++ir) {
             double a = ir * Math.PI / 180;
             double sin = Math.sin(a);

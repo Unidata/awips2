@@ -35,10 +35,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -513,9 +513,9 @@ public class RadarMosaicResource extends
                                         * md.getNumBins();
                                 MathTransform ll2crs = MapUtil
                                         .getTransformFromLatLon(md.getCRS());
-                                DirectPosition2D p1 = new DirectPosition2D(
+                                Position2D p1 = new Position2D(
                                         coord.x, coord.y);
-                                DirectPosition2D p2 = new DirectPosition2D(
+                                Position2D p2 = new Position2D(
                                         md.getLongitude(), md.getLatitude());
                                 ll2crs.transform(p1, p1);
                                 ll2crs.transform(p2, p2);

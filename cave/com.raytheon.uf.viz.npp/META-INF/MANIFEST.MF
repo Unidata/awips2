@@ -3,13 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: NPP Viz
 Bundle-SymbolicName: com.raytheon.uf.viz.npp
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.time,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.npp
 Import-Package: com.raytheon.uf.common.inventory.exception,

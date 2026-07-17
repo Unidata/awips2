@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GFE in D2D
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.gfe;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.swt,
  com.raytheon.uf.viz.core,
@@ -26,7 +27,7 @@ Require-Bundle: org.eclipse.swt,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.pointdata,
  com.raytheon.viz.gfe,
- javax.xml.bind,
+ jakarta.xml.bind,
  com.raytheon.viz.ui,
  com.raytheon.viz.core.contours,
  com.raytheon.uf.common.util

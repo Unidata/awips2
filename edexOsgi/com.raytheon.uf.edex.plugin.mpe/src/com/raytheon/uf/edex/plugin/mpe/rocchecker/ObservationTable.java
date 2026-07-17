@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.mpe.rocchecker;
 
-import javax.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnum;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Agricultural;
 import com.raytheon.uf.common.dataplugin.shef.tables.Discharge;

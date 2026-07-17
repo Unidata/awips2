@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.warning.util;
 
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 

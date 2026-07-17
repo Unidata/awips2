@@ -23,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 20121010     1229        jkorman     Added DO_NOT_BLOCK so dialog does not block on open.
  * Sep 15, 2015 4880        njensen     Removed reference to ForecastModel
  * May 15, 2019 20693    mgamazaychikov TafSiteConfigFactory refactor
+ * Jul 08, 2025 2036453     aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  * 

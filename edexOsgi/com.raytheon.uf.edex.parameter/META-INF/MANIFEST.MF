@@ -4,7 +4,7 @@ Bundle-Name: Edex Parameter Plugin
 Bundle-SymbolicName: com.raytheon.uf.edex.parameter
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.serialization.comm,
@@ -14,7 +14,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
  javax.measure,
- javax.persistence,
+ jakarta.persistence,
  org.hibernate,
  org.hibernate.criterion
 Export-Package: com.raytheon.uf.edex.parameter

@@ -34,8 +34,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXB;
+import jakarta.xml.bind.JAXBException;
 
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;

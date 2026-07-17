@@ -4,7 +4,7 @@ Bundle-Name: Grid
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.grid
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataquery.db,
@@ -18,7 +18,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
  com.raytheon.uf.edex.database.query,
- javax.persistence
+ jakarta.persistence
 Export-Package: com.raytheon.uf.edex.plugin.grid,
  com.raytheon.uf.edex.plugin.grid.dao,
  com.raytheon.uf.edex.plugin.grid.handler
@@ -35,6 +35,7 @@ Require-Bundle: com.raytheon.uf.common.parameter,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.comm,
  org.hibernate,
- org.slf4j
+ org.slf4j,
+ com.raytheon.uf.edex.routes
 
 

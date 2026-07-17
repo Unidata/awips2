@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.xml.bind.DataBindingException;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.DataBindingException;
+import jakarta.xml.bind.JAXB;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;

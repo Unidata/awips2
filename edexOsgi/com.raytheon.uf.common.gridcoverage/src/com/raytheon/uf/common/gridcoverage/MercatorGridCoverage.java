@@ -20,18 +20,18 @@
 
 package com.raytheon.uf.common.gridcoverage;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.geotools.geometry.DirectPosition2D;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.geometry.Position2D;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -56,6 +56,7 @@ import org.locationtech.jts.geom.Coordinate;
  * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * Mar 04, 2015 3959        rjpeter     Update for grid based subgridding.
  * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  * </pre>
  * 
  * @author bphillip
@@ -164,9 +165,9 @@ public class MercatorGridCoverage extends GridCoverage {
             MathTransform toLatLon = fromLatLon.inverse();
 
             // Use la1 and lo1 to specify the first point
-            DirectPosition2D firstPosition = new DirectPosition2D();
+            Position2D firstPosition = new Position2D();
 
-            fromLatLon.transform(new DirectPosition2D(lo1, la1), firstPosition);
+            fromLatLon.transform(new Position2D(lo1, la1), firstPosition);
 
             // move firstPosition from cell center to cell corner
             firstPosition.x -= 0.5 * dx * 1000;
@@ -174,22 +175,22 @@ public class MercatorGridCoverage extends GridCoverage {
 
             // Determine the other corner point using the given dx,dy,nx, and
             // ny in meters
-            DirectPosition2D position = null;
+            Position2D position = null;
             switch (firstGridPointCorner) {
             case LowerLeft:
-                position = new DirectPosition2D(firstPosition.x
+                position = new Position2D(firstPosition.x
                         + (dx * 1000 * nx), firstPosition.y + (dy * 1000 * ny));
                 break;
             case UpperLeft:
-                position = new DirectPosition2D(firstPosition.x
+                position = new Position2D(firstPosition.x
                         + (dx * 1000 * nx), firstPosition.y - (dy * 1000 * ny));
                 break;
             case LowerRight:
-                position = new DirectPosition2D(firstPosition.x
+                position = new Position2D(firstPosition.x
                         - (dx * 1000 * nx), firstPosition.y - (dy * 1000 * ny));
                 break;
             case UpperRight:
-                position = new DirectPosition2D(firstPosition.x
+                position = new Position2D(firstPosition.x
                         - (dx * 1000 * nx), firstPosition.y - (dy * 1000 * ny));
                 break;
             default:
@@ -198,7 +199,7 @@ public class MercatorGridCoverage extends GridCoverage {
                                 + this.firstGridPointCorner);
             }
             // Convert the corner points from meters to lat/lon
-            DirectPosition2D cornerPosition = new DirectPosition2D();
+            Position2D cornerPosition = new Position2D();
             toLatLon.transform(position, cornerPosition);
             lo2 = cornerPosition.x;
             la2 = cornerPosition.y;

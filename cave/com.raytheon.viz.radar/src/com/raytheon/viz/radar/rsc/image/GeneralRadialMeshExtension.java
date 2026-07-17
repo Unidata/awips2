@@ -20,7 +20,7 @@
 package com.raytheon.viz.radar.rsc.image;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.opengis.referencing.FactoryException;
+import org.geotools.api.referencing.FactoryException;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;

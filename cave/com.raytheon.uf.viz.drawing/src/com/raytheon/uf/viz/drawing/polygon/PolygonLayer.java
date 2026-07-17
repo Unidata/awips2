@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.eclipse.jface.action.IMenuManager;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;

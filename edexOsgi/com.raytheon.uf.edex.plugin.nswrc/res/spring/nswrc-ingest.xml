@@ -1,7 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" 
     xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="nswrcRadialDistRegistry" factory-bean="distributionSrv"
         factory-method="register">
@@ -16,91 +15,30 @@
 
     <bean id="nswrcRadialDecoder" class="com.raytheon.uf.edex.plugin.nswrc.NSWRCRadialRadarDecoder" />
     <bean id="nswrcGriddedDecoder" class="com.raytheon.uf.edex.plugin.nswrc.NSWRCGriddedRadarDecoder" />
-    
+
     <bean id="nswrcRadial_FileChangeStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy">
           <constructor-arg value="5000" />
     </bean>
 
-
     <bean id="nswrcGridded_FileChangeStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy">
          <constructor-arg value="5000" />
     </bean>
-    
 
-
-    <!-- contextManager ensures endpoints accessed one at a time -->
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="nswrc-fileRoutes" />
+    <bean id="nswrc-fileRoutes" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+           <bean class=" com.raytheon.uf.edex.plugin.nswrc.NSWRCFileRoutes" >
+               <constructor-arg name="edexHome" value="${edex.home}" />
+           </bean>
+        </constructor-arg>
     </bean>
-    
 
-    <camelContext id="nswrc-fileRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler" autoStartup="false">
+    <bean id="nswrc-jmsRoutes" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+           <bean class=" com.raytheon.uf.edex.plugin.nswrc.NSWRCJmsRoutes" >
+               <constructor-arg name="radialThreadcount" value="${nswrc-radar-decode_radial.threadcount}" />
+               <constructor-arg name="griddedThreadcount" value="${nswrc-radar-decode_gridded.threadcount}" />
+           </bean>
+        </constructor-arg>
+    </bean>
 
-        <endpoint id="nswrcRadialFileEndpoint"  uri="file:${edex.home}/data/sbn/nswrc/radial?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#nswrcRadial_FileChangeStrategy" />
-        <endpoint id="nswrcGriddedFileEndpoint" uri="file:${edex.home}/data/sbn/nswrc/gridded?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#nswrcGridded_FileChangeStrategy" />
-        
-        <route id="nswrcRadialFileConsumerRoute">
-            <from uri="nswrcRadialFileEndpoint" />
-            <bean ref="fileToString" />
-            <setHeader name="pluginName">
-                <constant>nswrc_radial</constant>
-            </setHeader>
-            <to uri="jms-durable:queue:Ingest.nswrcRadial" />
-        </route>
-        
-        <route id="nswrcGriddedFileConsumerRoute">
-            <from uri="nswrcGriddedFileEndpoint" />
-            <bean ref="fileToString" />
-            <setHeader name="pluginName">
-                <constant>grid</constant>
-            </setHeader>
-            <to uri="jms-durable:queue:Ingest.nswrcGridded" />
-        </route>
-    </camelContext>
-
-
-    <camelContext id="nswrc-jmsRoutes" xmlns="http://camel.apache.org/schema/spring">
-        <endpoint id="nswrcRadialEndpoint"  uri="jms-durable:queue:Ingest.nswrcRadial?concurrentConsumers=${nswrc-radar-decode_radial.threadcount}"/>
-        <endpoint id="nswrcGriddedEndpoint" uri="jms-durable:queue:Ingest.nswrcGridded?concurrentConsumers=${nswrc-radar-decode_gridded.threadcount}"/>
-      
-        <!-- Radial -->
-        <route id="nswrcRadialIngestRoute">
-            <from uri="nswrcRadialEndpoint"/>
-            <setHeader name="pluginName">
-                <constant>nswrc_radial</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="nswrcRadialDecoder" method="decode" />
-                    <!-- this should match radar-ingest after this point -->
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:nswrc?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-
-        <!-- Grid -->
-        <route id="nswrcGriddedIngestRoute">
-            <from uri="nswrcGriddedEndpoint"/>
-            <setHeader name="pluginName">
-                <constant>grid</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="nswrcGriddedDecoder" method="decode" />
-                    <!-- this should match radar-ingest after this point -->
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:nswrc?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>  
 </beans>

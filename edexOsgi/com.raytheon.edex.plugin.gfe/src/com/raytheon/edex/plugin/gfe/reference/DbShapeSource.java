@@ -28,11 +28,17 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.geotools.data.DataStore;
-import org.geotools.data.Query;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.Query;
+import org.geotools.api.data.SimpleFeatureSource;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.feature.type.AttributeDescriptor;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.geometry.BoundingBox;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.factory.GeoTools;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -43,12 +49,6 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.geometry.BoundingBox;
 
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.MissingLocalMapsException;
@@ -84,7 +84,8 @@ import com.raytheon.uf.edex.database.jdbc.SSLEnabledPostgisNGDataStoreFactory;
  * Mar 13, 2019  6140     tgurney   Hibernate 5 fixes
  * Aug 16, 2019  7913     randerso   Fix issue with datastore introduced by DR
  *                                   6979
- * 
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
+ *
  * </pre>
  *
  * @author randerso
@@ -235,8 +236,8 @@ public class DbShapeSource {
         propNames.add(shapeField);
         query.setPropertyNames(propNames);
 
-        FilterFactory2 ff = CommonFactoryFinder
-                .getFilterFactory2(GeoTools.getDefaultHints());
+        FilterFactory ff = CommonFactoryFinder
+                .getFilterFactory(GeoTools.getDefaultHints());
 
         Filter filter = null;
         if (boundingGeom != null) {

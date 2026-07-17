@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.GeodeticCalculator;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
@@ -729,7 +729,7 @@ public class RadarRecordUtil {
      */
     public static GeneralGridGeometry getRadarGraphicsGridGeometry(
             RadarRecord radarRecord) {
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+        GeneralBounds generalEnvelope = new GeneralBounds(2);
         // Per section 3.3.3
         generalEnvelope.setCoordinateReferenceSystem(radarRecord.getCRS());
         generalEnvelope.setRange(0, -256_000 * 2, 256_000 * 2);

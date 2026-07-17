@@ -24,7 +24,7 @@ import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
 import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 
 /**
  * Decode synoptic section 2 data. This section has a single group which

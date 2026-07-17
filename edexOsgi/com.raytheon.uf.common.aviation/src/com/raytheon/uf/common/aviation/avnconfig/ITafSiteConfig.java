@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -26,6 +26,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Feb 02, 2018 7114       tgurney     Remove unneeded methods
  * May 15, 2019 20693   mgamazaychikov Refactor to move to common
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  *

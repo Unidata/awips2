@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="sacStateUpdate" class="com.raytheon.uf.edex.ohd.whfs.WhfsSrv">
         <constructor-arg>
@@ -11,28 +9,11 @@
         </constructor-arg>
     </bean>
 
-    <camelContext id="sacStateUpdate-context"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="sacStateUpdateCron" uri="clusteredquartz://whfs/sacStateUpdateScheduled/?cron=${sacstateupdate.cron}"/>
-
-        <route id="sacStateUpdateScheduled">
-            <from uri="sacStateUpdateCron"/>
-            <to uri="jms-generic:queue:sacStateUpdateScheduledWork" />
-        </route>
-
-        <route id="sacStateUpdateScheduledWork">
-            <from uri="jms-generic:queue:sacStateUpdateScheduledWork" />
-            <doTry>
-                <bean ref="sacStateUpdate" method="execute" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:sacStateUpdate?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-    </camelContext>
-
+    <bean id="sacStateUpdate-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.SacStateUpdateContextRoutes" >
+                 <constructor-arg name="sacstateupdateCron" value="${sacstateupdate.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
 </beans>

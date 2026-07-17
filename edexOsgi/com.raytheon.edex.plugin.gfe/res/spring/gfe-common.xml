@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="gfeProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" value="gfe"/>
@@ -40,19 +38,10 @@
         <constructor-arg value="gfe" />
         <constructor-arg value="gfeDataStore" />
     </bean>
-
-    <camelContext id="gfe-common-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <route id="notifyIfpServer">
-            <from uri="jms-generic:topic:edex.alerts.gfe?threadName=notifyIfpServer-edex.alerts.gfe" />
-            <doTry>
-                <bean ref="serializationUtil" method="transformFromThrift"/>
-                <bean ref="ifpServer" method="processNotification"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:ifpServer?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    
+    <bean id="gfe-common-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.edex.plugin.gfe.GfeCommonCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

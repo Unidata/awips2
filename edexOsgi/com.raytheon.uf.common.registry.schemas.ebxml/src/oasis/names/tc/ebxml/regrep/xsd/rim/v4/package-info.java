@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-@javax.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.RIM_URI, elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@jakarta.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.RIM_URI, elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;

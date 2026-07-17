@@ -4,7 +4,7 @@ Bundle-Name: Ohd Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.ohd
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.dataaccess.util,
  com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.common.dataplugin.grid,
@@ -17,8 +17,7 @@ Import-Package: com.raytheon.uf.common.dataaccess.util,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
- org.apache.commons.io,
- org.quartz
+ org.apache.commons.io
 Export-Package: com.raytheon.uf.edex.ohd,
  com.raytheon.uf.edex.ohd.areal,
  com.raytheon.uf.edex.ohd.reportalarm,
@@ -39,5 +38,6 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.xmrg,
  com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.uf.common.numeric,
- com.raytheon.uf.common.dataplugin.mpe
+ com.raytheon.uf.common.dataplugin.mpe,
+ com.raytheon.uf.edex.routes
 

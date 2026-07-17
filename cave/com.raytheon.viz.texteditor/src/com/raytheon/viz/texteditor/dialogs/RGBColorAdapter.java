@@ -1,6 +1,6 @@
 package com.raytheon.viz.texteditor.dialogs;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * TODO Add Description

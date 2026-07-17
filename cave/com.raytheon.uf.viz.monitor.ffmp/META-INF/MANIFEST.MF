@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ffmp Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor.ffmp;singleton:=true
 Bundle-Version: 1.18.2.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.uf.viz.monitor.ffmp.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
@@ -23,8 +24,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.plugin.hpe,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.viz.core,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.monitor.ffmp,
  com.raytheon.uf.viz.monitor.ffmp.ffti,

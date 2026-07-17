@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.dataaccess.rsc.grid;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.common.dataaccess.DataAccessLayer;
 import com.raytheon.uf.common.dataaccess.IDataRequest;

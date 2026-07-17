@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.modelsounding
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.pointdata,
@@ -14,10 +14,11 @@ Require-Bundle: com.raytheon.uf.edex.core,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.localization,
- com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.datastorage,
  org.springframework,
- com.raytheon.uf.common.serialization
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.edex.routes,
+ com.raytheon.uf.common.decodertools
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.plugin,
  com.raytheon.uf.common.wmo,

@@ -19,8 +19,7 @@ Require-Bundle: com.raytheon.uf.edex.database,
  org.apache.commons.collections,
  org.slf4j,
  com.raytheon.uf.common.dataplugin.shef,
- javax.xml.bind
+ jakarta.xml.bind
 Export-Package: com.raytheon.uf.edex.plugin.mpe.dpa
-Import-Package: org.apache.commons.io,
- org.apache.commons.lang
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: org.apache.commons.io
+Bundle-RequiredExecutionEnvironment: JavaSE-17

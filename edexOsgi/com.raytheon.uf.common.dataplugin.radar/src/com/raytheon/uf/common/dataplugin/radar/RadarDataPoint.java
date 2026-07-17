@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Feb 17, 2009 2000       askripsk     Initial creation
  * 03/04/2013   DCS51      zwang        Handle GFM product
  * 09/26/2014   DCS16776   zwang        Handle AMDA product
+ * 03/03/2023   2033911    jdynina      Cleanup redundant defs
  * 
  * </pre>
  * 
@@ -86,9 +87,9 @@ public class RadarDataPoint implements ISerializableObject {
     private int dataIndex = 0;
 
     public RadarDataPoint() {
-        displayPacketData = new HashMap<Integer, HashMap<Integer, SymbologyPacket>>();
-        displayPointData = new HashMap<Integer, HashMap<Integer, SymbologyPoint>>();
-        displayGenericPointData = new HashMap<Integer, HashMap<Integer, GenericDataComponent>>();
+        displayPacketData = new HashMap<>();
+        displayPointData = new HashMap<>();
+        displayGenericPointData = new HashMap<>();
         visible = true;
         inForeground = true;
     }
@@ -252,7 +253,7 @@ public class RadarDataPoint implements ISerializableObject {
         if (displayPacketData.containsKey(type)) {
             displayPacketData.get(type).put(dataIndex++, currData);
         } else {
-            HashMap<Integer, SymbologyPacket> arr = new HashMap<Integer, SymbologyPacket>();
+            HashMap<Integer, SymbologyPacket> arr = new HashMap<>();
             arr.put(dataIndex++, currData);
             displayPacketData.put(type, arr);
         }
@@ -274,7 +275,7 @@ public class RadarDataPoint implements ISerializableObject {
         if (displayPointData.containsKey(type)) {
             displayPointData.get(type).put(dataIndex++, point);
         } else {
-            HashMap<Integer, SymbologyPoint> arr = new HashMap<Integer, SymbologyPoint>();
+            HashMap<Integer, SymbologyPoint> arr = new HashMap<>();
             arr.put(dataIndex++, point);
             displayPointData.put(type, arr);
         }
@@ -320,7 +321,7 @@ public class RadarDataPoint implements ISerializableObject {
         if (displayGenericPointData.containsKey(type)) {
             displayGenericPointData.get(type).put(dataIndex++, point);
         } else {
-            HashMap<Integer, GenericDataComponent> arr = new HashMap<Integer, GenericDataComponent>();
+            HashMap<Integer, GenericDataComponent> arr = new HashMap<>();
             arr.put(dataIndex++, point);
             displayGenericPointData.put(type, arr);
         }

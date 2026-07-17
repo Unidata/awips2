@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,18 +28,19 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 
 /**
  * Defines the color combinations used in the MPE legends.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 11, 2008            randerso     Initial creation
  * Aug 08, 2009 2675       mpduff       Added Radar Coverage.
- * Apr 04, 2012 8672       lbousaidi    changed color scale for 24h 
+ * Apr 04, 2012 8672       lbousaidi    changed color scale for 24h
  *                                      gridded precip.
  * Oct 06, 2017 6407       bkowal       Cleanup. Updates to support GOES-R SATPRE.
+ * May 07, 2025 2038780    mapeters     Remove DPA fields
  * </pre>
- * 
+ *
  * @author randerso
  */
 
@@ -92,35 +93,6 @@ public class MPEColors {
 
     private static final double precip_bias_levels[] = { 0.0, 0.05, 0.1, .2, .4,
             0.8, 1.2, 2.0, 3.0, 4.0, 5.0, 8.0, 16.0, 32.0, 100.0 };
-
-    private static final String precip_diff_colors[] = { "GRAY30", "GRAY30",
-
-            "MAGENTA1", "MEDIUMORCHID", "DARKORCHID", "MEDIUMBLUE", "BLUE",
-            "DODGERBLUE", "DARKTURQUOISE",
-
-            "CYAN",
-
-            "BLACK", "BLACK", "GREEN", "GREENYELLOW", "YELLOW",
-
-            "DARKORANGE1", "ORANGERED", "RED2", "RED3",
-
-    };
-
-    private static final double precip_diff_levels[] =
-
-            { -9999.0, -8888.0,
-
-                    -10.0, -0.75, -0.5, -.25, -0.1, -0.08, -0.06, -0.03,
-
-                    -0.01, // CYAN
-
-                    0.0, 0.01,
-
-                    0.03,
-
-                    0.06, 0.08, 0.1, 0.25, 0.50
-
-            };
 
     private static final String precip_ratio_colors[] = { "GRAY30", "GRAY30",
 
@@ -287,11 +259,11 @@ public class MPEColors {
 
     /**
      * Returns the list of default color sets for MPE
-     * 
+     *
      * @return
      */
     public static List<NamedColorUseSet> build_mpe_colors() {
-        NamedColorUseSet pColorUseSet = null;
+        NamedColorUseSet pColorUseSet;
         List<NamedColorUseSet> pColorSetGroup = new ArrayList<>();
 
         /* Create a color use group for each of the MPE products. */
@@ -302,11 +274,12 @@ public class MPEColors {
                 3600);
         pColorSetGroup.add(pColorUseSet);
 
-        pColorUseSet = new NamedColorUseSet("PRECIP_DIFF", "Precip Difference",
-                precip_diff_levels, precip_diff_colors, "GRAY30", "GRAY30",
-                3600);
-        pColorSetGroup.add(pColorUseSet);
-
+        /*
+         * The Precip Ratio field has been removed with the disabling of DPA
+         * data, since its purpose was to compare DPA data with DAA data.
+         * However, this color set is still used by Post Analysis for ratio data
+         * that doesn't depend on DPA.
+         */
         pColorUseSet = new NamedColorUseSet("PRECIP_RATIO", "Precip Ratio",
                 precip_ratio_levels, precip_ratio_colors, "GRAY30", "GRAY30",
                 3600);
@@ -315,12 +288,6 @@ public class MPEColors {
         pColorUseSet = new NamedColorUseSet("PRECIP_ACCUM",
                 "Precip Accumulated", precip_levels, precip_colors, "GRAY30",
                 "GRAY30", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Radar Mosaic */
-        pColorUseSet = new NamedColorUseSet("RMOSAIC", "Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY30", 3600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -378,40 +345,6 @@ public class MPEColors {
 
         pColorSetGroup.add(pColorUseSet);
 
-        /* Radar Mosaic */
-        pColorUseSet = new NamedColorUseSet("RMOSAIC", "Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Average Radar Mosaic */
-        pColorUseSet = new NamedColorUseSet("AVGRMOSAIC",
-                "Average Radar Mosaic", precip_levels, precip_colors, "GRAY30",
-                "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Max Radar Mosaic */
-        pColorUseSet = new NamedColorUseSet("MAXRMOSAIC",
-                "Maximum Radar Mosaic", precip_levels, precip_colors, "GRAY30",
-                "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Field Bias Radar Mosaic */
-        pColorUseSet = new NamedColorUseSet("BMOSAIC",
-                "Field Bias Radar Mosaic", precip_levels, precip_colors,
-                "GRAY30", "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Local Bias Radar Mosaic */
-        pColorUseSet = new NamedColorUseSet("LMOSAIC",
-                "Local Bias Radar Mosaic", precip_levels, precip_colors,
-                "GRAY30", "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
         /* Gage Only Analysis */
         pColorUseSet = new NamedColorUseSet("GAGEONLY", "Gage Only Analysis",
                 precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
@@ -438,19 +371,6 @@ public class MPEColors {
         /* Local Bias Satellite Precip */
         pColorUseSet = new NamedColorUseSet("LSATPRE",
                 "Local Bias Satellite Precip", precip_levels, precip_colors,
-                "GRAY30", "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Multi-sensor Mosaic or Multi-sensor Precip */
-        pColorUseSet = new NamedColorUseSet("MMOSAIC", "Multisensor Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Local Bias Multi-sesnor Mosaic */
-        pColorUseSet = new NamedColorUseSet("MLMOSAIC",
-                "Local Bias Multi-sensor Mosaic", precip_levels, precip_colors,
                 "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
@@ -576,19 +496,6 @@ public class MPEColors {
 
         /* Satellite Gage Mosaic */
         pColorUseSet = new NamedColorUseSet("SGMOSAIC", "Satellite Gage Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Satellite Radar Mosaic */
-        pColorUseSet = new NamedColorUseSet("SRMOSAIC",
-                "Satellite Radar Mosaic", precip_levels, precip_colors,
-                "GRAY30", "GRAY10", 3600);
-
-        pColorSetGroup.add(pColorUseSet);
-
-        /* Satellite Radar Gage Mosaic */
-        pColorUseSet = new NamedColorUseSet("SRGMOSAIC", "Satellite Radar Gage",
                 precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);

@@ -17,7 +17,7 @@ Before=edex_camel.target
 User=awips
 Group=fxalpha
 Type=simple
-Restart=always
+Restart=on-failure
 Environment=JAVA_INSTALL=/awips2/java
 Environment=PYTHON_INSTALL=/awips2/python
 Environment=EDEX_INSTALL=/awips2/edex

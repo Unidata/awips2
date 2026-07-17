@@ -21,9 +21,9 @@ package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
 import java.math.BigInteger;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ParameterType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryDefinitionType;

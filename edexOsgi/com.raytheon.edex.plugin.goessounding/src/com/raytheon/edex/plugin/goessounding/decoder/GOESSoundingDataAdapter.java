@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.goessounding.dao.GOESSoundingDAO;
 import com.raytheon.uf.common.dataplugin.goessounding.GOESSounding;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.geospatial.spi.SPIContainer;
 import com.raytheon.uf.common.geospatial.spi.SPIEntry;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -47,7 +48,6 @@ import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * This class contains several utility methods that construct a GOESSounding

@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Cwa Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.cwa
 Bundle-Version: 1.19.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.cwa,
@@ -25,12 +26,13 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.locationtech.jts.geom,
  org.eclipse.swt.graphics,
  org.eclipse.ui.plugin,
- org.opengis.referencing.crs,
+ org.geotools.api.referencing.crs,
  org.osgi.framework
 Export-Package: com.raytheon.uf.viz.cwa.rsc
 Require-Bundle: com.raytheon.uf.viz.core,
  org.apache.batik,
+ org.apache.commons.configuration2,
  com.raytheon.uf.viz.core,
  org.eclipse.core.runtime,
- javax.xml.bind
+ jakarta.xml.bind
 Bundle-ClassPath: com.raytheon.uf.viz.cwa.jar

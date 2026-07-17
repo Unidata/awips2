@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: True Color GL
 Bundle-SymbolicName: com.raytheon.uf.viz.truecolor.gl;singleton:=true
 Bundle-Version: 1.14.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
@@ -11,6 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.colormap,
  com.jogamp.jogl;bundle-version="2.3.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: com.raytheon.uf.viz.truecolor.gl.jar

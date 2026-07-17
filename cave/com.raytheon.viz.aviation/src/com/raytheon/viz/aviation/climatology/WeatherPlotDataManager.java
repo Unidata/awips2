@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;

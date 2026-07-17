@@ -19,13 +19,14 @@
  **/
 package com.raytheon.uf.common.registry;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import org.glassfish.jaxb.runtime.marshaller.NamespacePrefixMapper;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.jaxb.JaxbMarshallerStrategy;
-import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 
 /**
  * 
@@ -49,7 +50,7 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 public class RegistryJaxbManager extends JAXBManager {
 
     /** The namespace mapper property name on the marshaller */
-    private static final String NAMESPACE_PREFIX_MAPPER_PROPERTY = "com.sun.xml.bind.namespacePrefixMapper";
+    private static final String NAMESPACE_PREFIX_MAPPER_PROPERTY = "org.glassfish.jaxb.runtime.namespacePrefixMapper";
 
     /**
      * Creates a new RegistryJaxbManager with the given namespace mapper

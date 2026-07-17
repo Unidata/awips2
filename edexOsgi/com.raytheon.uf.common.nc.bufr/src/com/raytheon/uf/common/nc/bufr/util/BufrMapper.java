@@ -22,7 +22,7 @@ package com.raytheon.uf.common.nc.bufr.util;
 import java.io.File;
 import java.util.Collection;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.util.mapping.Mapper;
 

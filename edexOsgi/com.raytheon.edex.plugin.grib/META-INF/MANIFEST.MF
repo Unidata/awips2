@@ -22,11 +22,12 @@ Require-Bundle: com.raytheon.edex.common,
  org.jep,
  org.slf4j,
  com.raytheon.uf.common.grib,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.edex.plugin.grib,
  com.raytheon.edex.plugin.grib.decoderpostprocessors,
  com.raytheon.edex.plugin.grib.exception,
  com.raytheon.edex.plugin.grib.spatial,
  com.raytheon.edex.plugin.grib.util,
  com.raytheon.edex.util.grib
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17

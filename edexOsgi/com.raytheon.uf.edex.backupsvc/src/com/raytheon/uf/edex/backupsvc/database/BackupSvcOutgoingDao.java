@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Sep 17, 2021 96153       Gang Chen       Fix the purging bugs for obsolete Accepted / Rejected BSJs
  * Oct 08, 2021 97253       Robert.Blum     Fix wording of purge log msgs.
  * Jul 24, 2023 2035783     Lisa.Singh      Properly handle jobs when unable to reach recipient site.
+ * Apr 23, 2026 2040631     Tim Jensen      Improved exception handling in createOutBSJ()
  *
  * </pre>
  *
@@ -197,17 +198,18 @@ public class BackupSvcOutgoingDao extends CoreDao {
             }
             tx.commit();
         } catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
-            }
             logger.error("Error saving database data entry at Sender Site: ",
                     e);
-            return FAIL;
-        } catch (Exception e) {
             if (tx != null) {
                 tx.rollback();
             }
+
+            return FAIL;
+        } catch (Exception e) {
             logger.error("Error in Backup Service Outgoing Dao: ", e);
+            if (tx != null) {
+                tx.rollback();
+            }
             return FAIL;
         }
         return SUCCCESS;

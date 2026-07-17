@@ -96,6 +96,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     by retrieving a new LocalizationFile from
  *                                     IPathManager for every save operation
  * May 10, 2019  7747     mapeters     Use utility classes, cleanup
+ * Nov 19, 2025  2040042  njensen      Change dictionary encoding from US-ASCII to UTF-8
  *
  * </pre>
  *
@@ -112,7 +113,7 @@ public class SpellCheckDlg extends CaveSWTDialog
     /**
      * The encoding of the user dictionary file
      */
-    private static final String DICTIONARY_ENCODING = "US-ASCII";
+    private static final String DICTIONARY_ENCODING = "UTF-8";
 
     private static final StyleRange REDSTYLE = new StyleRange(0, 0,
             Display.getDefault().getSystemColor(SWT.COLOR_WHITE),

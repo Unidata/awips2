@@ -23,10 +23,10 @@ package com.raytheon.edex.util.grib;
 import java.io.File;
 import java.util.HashMap;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.localization.IPathManager;

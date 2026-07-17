@@ -11,9 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.ws.WebServiceException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +36,8 @@ import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.ReflectionException;
 
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.ws.WebServiceException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;

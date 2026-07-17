@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.edex.plugin.grib.decoderpostprocessors.DecoderPostProcessor;
 import com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor;

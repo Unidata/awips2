@@ -82,11 +82,11 @@
             <substitute value="kblx" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
-            fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            fileName="menus/radar/kbmx/baseLocalRadarMenu.xml">
             <substitute value="kbmx" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
-            fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            fileName="menus/radar/kbox/baseLocalRadarMenu.xml">
             <substitute value="kbox" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
@@ -173,7 +173,7 @@
             <substitute value="kdmx" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
-            fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            fileName="menus/radar/kdox/baseLocalRadarMenu.xml">
             <substitute value="kdox" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
@@ -216,7 +216,7 @@
             <substitute value="kesx" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
-            fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            fileName="menus/radar/kevx/baseLocalRadarMenu.xml">
             <substitute value="kevx" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
@@ -455,7 +455,7 @@
             <substitute value="kmlb" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"
-            fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            fileName="menus/radar/kmob/baseLocalRadarMenu.xml">
             <substitute value="kmob" key="icao" />
         </contribute>
         <contribute xsi:type="subinclude"

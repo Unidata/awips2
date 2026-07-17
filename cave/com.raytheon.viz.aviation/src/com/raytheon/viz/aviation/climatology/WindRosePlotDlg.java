@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -95,6 +95,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jul 25, 2018  6748     randerso  Code cleanup.
  * May 15, 2019 20693 mgamazaychikov ITafSiteConfig, TafSiteConfigFactory, TafSiteData refactor
  * Aug  6, 2019  7878     tgurney   Renamed a method in WindRoseDataMgr
+ * Jul 08, 2025 2036453    aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  *

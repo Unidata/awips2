@@ -14,7 +14,8 @@ import java.util.Map;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * APR 28 2017  17911      wkwock      Initial Creation.
- * 
+ * OCT 02 2025  2036869    jkelmer     Renamed AKRFC to APRFC
+ *
  * </pre>
  * 
  * @author wkwock
@@ -30,7 +31,7 @@ public class RFCSiteLookup {
 
     static {
         RFCMAP.put("TUA", "ABRFC");
-        RFCMAP.put("ACR", "AKRFC");
+        RFCMAP.put("ACR", "APRFC");
         RFCMAP.put("STR", "CBRFC");
         RFCMAP.put("RSA", "CNRFC");
         RFCMAP.put("ORN", "LMRFC");
@@ -44,7 +45,7 @@ public class RFCSiteLookup {
         RFCMAP.put("FWR", "WGRFC");
 
         RFC_SITEMAP.put("ABRFC", "TUA");
-        RFC_SITEMAP.put("AKRFC", "ACR");
+        RFC_SITEMAP.put("APRFC", "ACR");
         RFC_SITEMAP.put("CBRFC", "STR");
         RFC_SITEMAP.put("CNRFC", "RSA");
         RFC_SITEMAP.put("LMRFC", "ORN");

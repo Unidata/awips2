@@ -10079,7 +10079,7 @@ CYBX     718080 BLANC-SABLON A                   QB CN  5145  -5718    37  044
 CYDF     718090 DEER LAKE  A  NFLD.              NF CN  4921  -5738    22  044  
 CWBY     718100 PORT MENIER (AUT)  Q             QB CN  4983  -6429    53  044  
 CYZV     718110 SEPT-ILES  A  QUE.               QB CN  5021  -6624    53  044  
-CYEK     718120 ALERT A NU                       NU CN  6110  -9407    10  044  
+CWLY     718120 LYTTON, B.C.   (AUT)             BC CN  5023 -12158   229  044  
 CYNA     718130 NATASHQUAN  A  QUE               QB CN  5018  -6181    11  044  
 CWDM     718140 CHEVERY (AUT)  QUE               QB CN  5046  -5963     6  044  
 CYJT     718150 STEPHENVILLE  A  NFL             NF CN  4855  -5855    26  044  
@@ -10154,7 +10154,6 @@ CYKA     718870 KAMLOOPS A  B.C.                 BC CN  5070 -12045   346  044
 CWJA     718880 JASPER                           AB CN  5288 -11807  1061  044  
 CYYF     718890 PENTICTON  A  B.C.               BC CN  4946 -11959   344  044  
 CYCD     718900 NANAIMO  A  B.C.                 BC CN  4904 -12386    28  044  
-CWLY     718910 LYTTON, B.C.   (AUT)             BC CN  5023 -12158   229  044  
 CYVR     718920 VANCOUVER INT'L A BC             BC CN  4918 -12318     2  044  
 CYQQ     718930 COMOX  A  B.C.                   BC CN  4971 -12488    24  044  
 CWEB     718940 ESTEVAN POINT (AUT)              BC CN  4938 -12655     7  044  
@@ -10960,7 +10959,7 @@ MDSD     784850 CAUCEDO/DE_LAS_AMER                 DR  1843  -6967    18  014
 9999     784860 SANTO_DOMINGO                       DO  1843  -6988    14  014  
 MDLR     784880 AEROPUERTO INTRNCNL DE LA ROMANA    DR  1845  -6892    94  014  
 MHIC     785010 ISLAS_DEL_CISNE                     HO  1740  -8393    11  044  
-TJBQ     785140 AQUADILLA/BORINQUEN                 PU  1850  -6713    72  044  
+TJBQ     785140 AQUADILLA/BORINQUEN                 PU  1849  -6713    73  044  
 9999     785200 PONCE                               PU  1802 -06657  0009  044  
 TJSJ     785260 SAN_JUAN_INTL_ARPT                  PU  1843  -6600    19  044  
 TJNR     785350 ROOSEVELT_ROADS_NAS                 PU  1825  -6563    12  044  

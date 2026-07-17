@@ -39,8 +39,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.ColorMapException;
 import com.raytheon.uf.common.colormap.ColorMapLoader;
@@ -514,7 +514,7 @@ public class OAResource
                         if (grid[i] != GridUtil.GRID_FILL_VALUE) {
                             try {
                                 grid[i] = (float) converter.convert(grid[i]);
-                            } catch (NumberFormatException e) {
+                            } catch (IllegalArgumentException e) {
                                 grid[i] = Float.NaN;
                             }
                         }
@@ -658,7 +658,7 @@ public class OAResource
                 try {
                     value = parameters.getDataToDisplayConverter()
                             .convert(value);
-                } catch (NumberFormatException e) {
+                } catch (IllegalArgumentException e) {
                     value = Double.NaN;
                 }
 

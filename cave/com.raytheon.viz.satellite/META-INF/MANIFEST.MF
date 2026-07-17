@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Satellite Visualization Plug-in
 Bundle-SymbolicName: com.raytheon.viz.satellite;singleton:=true
 Bundle-Version: 1.19.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Eclipse-BundleShape: dir
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.core.runtime,
@@ -29,7 +30,7 @@ Require-Bundle: org.eclipse.core.runtime,
  javax.measure,
  com.raytheon.uf.common.util,
  com.raytheon.uf.viz.d2d.core,
- javax.xml.bind
+ jakarta.xml.bind
 Import-Package: com.raytheon.uf.common.units,
  com.raytheon.viz.awipstools,
  com.raytheon.viz.core.rsc.hdf5

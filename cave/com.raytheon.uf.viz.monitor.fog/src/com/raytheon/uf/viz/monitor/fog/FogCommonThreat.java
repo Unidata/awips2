@@ -23,8 +23,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;

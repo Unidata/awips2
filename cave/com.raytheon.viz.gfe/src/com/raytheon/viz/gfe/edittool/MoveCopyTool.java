@@ -23,7 +23,7 @@ import java.awt.Point;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.geotools.geometry.jts.JTS;
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;

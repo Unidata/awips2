@@ -25,21 +25,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.MetricPrefix;
 import javax.measure.UnitConverter;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.raytheon.uf.common.decodertools.LatLonPoint;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
-import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import si.uom.SI;
 import systems.uom.common.USCustomary;
-import javax.measure.MetricPrefix;
 
 /**
  * Container for a list of airports read from an XML file

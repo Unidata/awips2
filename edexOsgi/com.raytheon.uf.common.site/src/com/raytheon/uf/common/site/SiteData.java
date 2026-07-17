@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.common.site;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
 
 /**
  * AWIPS 2 site data object holding information regarding the site.

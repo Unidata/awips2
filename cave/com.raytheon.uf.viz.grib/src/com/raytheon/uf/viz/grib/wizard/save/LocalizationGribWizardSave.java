@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.grib.wizard.save;
 
 import java.io.IOException;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;

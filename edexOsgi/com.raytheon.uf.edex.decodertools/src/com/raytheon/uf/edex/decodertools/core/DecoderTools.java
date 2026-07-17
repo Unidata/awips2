@@ -19,11 +19,11 @@
  **/
 package com.raytheon.uf.edex.decodertools.core;
 
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.ASCII_CR;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.ASCII_LF;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.ASCII_SP;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
+import static com.raytheon.uf.common.decodertools.IDecoderConstants.ASCII_CR;
+import static com.raytheon.uf.common.decodertools.IDecoderConstants.ASCII_LF;
+import static com.raytheon.uf.common.decodertools.IDecoderConstants.ASCII_SP;
+import static com.raytheon.uf.common.decodertools.IDecoderConstants.VAL_ERROR;
+import static com.raytheon.uf.common.decodertools.IDecoderConstants.VAL_MISSING;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

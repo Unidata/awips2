@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: AlertViz UI Plugin
 Bundle-SymbolicName: com.raytheon.uf.viz.alertviz.ui;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.uf.viz.alertviz.ui.Activator
 Bundle-Vendor: Raytheon
 Service-Component: OSGI-INF/alertvizService.xml
@@ -18,6 +19,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.python
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.alertviz.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.raytheon.uf.common.alertmonitor
 Bundle-ClassPath: com.raytheon.uf.viz.alertviz.ui.jar

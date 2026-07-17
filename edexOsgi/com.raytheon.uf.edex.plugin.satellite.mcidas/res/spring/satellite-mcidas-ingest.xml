@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="satMcidasDistRegistry" factory-bean="distributionSrv"
         factory-method="register">
@@ -13,27 +11,9 @@
 
     <bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder"/>
 
-    <camelContext id="sat-mcidas-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <!-- Begin McIDAS Sat routes -->
-        <route id="satMcidasIngestRoute">
-            <from uri="jms-durable:queue:Ingest.Satellite.Mcidas" />
-            <setHeader name="pluginName">
-                <constant>satellite-mcidas</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="satelliteMcidasDecoder" method="decode" />
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:sat?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    <bean id="sat-mcidas-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

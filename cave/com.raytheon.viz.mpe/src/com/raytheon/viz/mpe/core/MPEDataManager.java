@@ -38,10 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;

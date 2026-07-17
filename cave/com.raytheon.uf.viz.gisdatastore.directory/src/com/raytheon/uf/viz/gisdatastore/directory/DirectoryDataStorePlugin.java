@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
 import org.geotools.data.shapefile.ShapefileDirectoryFactory;
 
 import com.raytheon.uf.viz.gisdatastore.IGisDataStorePlugin;

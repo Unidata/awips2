@@ -11,7 +11,7 @@ package gov.noaa.nws.ncep.viz.common.graphicUtil;
  */
 import static org.junit.Assert.assertEquals;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.junit.After;
 import org.junit.AfterClass;

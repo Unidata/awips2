@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -41,6 +38,9 @@ import com.raytheon.uf.viz.grid.radar.util.RadarVirtualVolumeUtil;
 import com.raytheon.viz.grid.record.RequestableDataRecord;
 import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.radar.util.RadarAsGridUtil;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 /**
  * Resource data for radar-as-grid data.

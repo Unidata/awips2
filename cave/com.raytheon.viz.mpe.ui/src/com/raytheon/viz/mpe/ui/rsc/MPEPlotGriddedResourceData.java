@@ -23,7 +23,7 @@ import si.uom.NonSI;
 import systems.uom.common.USCustomary;
 
 import javax.measure.Unit;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;

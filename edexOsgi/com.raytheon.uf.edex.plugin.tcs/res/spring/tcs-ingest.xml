@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="tcsDecoder" class="com.raytheon.uf.edex.plugin.tcs.TCSDecoder">
         <constructor-arg ref="tcsPluginName" />
@@ -15,26 +13,9 @@
         <constructor-arg value="jms-durable:queue:Ingest.tcs" />
     </bean>
 
-    <camelContext id="tcs-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <route id="tcsIngestRoute">
-            <from uri="jms-durable:queue:Ingest.tcs"/>
-            <setHeader name="pluginName">
-                <constant>tcs</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile" />
-                    <bean ref="tcsDecoder" method="decode" />
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:tcs?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
+    <bean id="tcs-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.tcs.TCSCamelRoutes" />
+        </constructor-arg>
+    </bean>
 </beans>

@@ -4,9 +4,9 @@ Bundle-Name: QPF common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.qpf
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.dataplugin.qpf
-Require-Bundle: javax.persistence,
+Require-Bundle: jakarta.persistence,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.dataplugin.radar,

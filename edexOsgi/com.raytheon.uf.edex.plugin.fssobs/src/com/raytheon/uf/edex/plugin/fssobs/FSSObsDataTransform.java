@@ -21,17 +21,17 @@ package com.raytheon.uf.edex.plugin.fssobs;
 
 import java.util.Date;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
+import com.raytheon.uf.common.decodertools.time.TimeTools;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+
+import jakarta.xml.bind.JAXBException;
 
 /**
  * Provides a transform from FSSObsRecord to PointDataContainer and vice versa.

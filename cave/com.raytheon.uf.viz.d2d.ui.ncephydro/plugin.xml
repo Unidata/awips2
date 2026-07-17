@@ -127,7 +127,7 @@
 <extension
       point="org.eclipse.ui.commands">
    <command
-         id="ccom.raytheon.uf.viz.d2d.ui.ncephydro.OpenStationObsViewer"
+         id="com.raytheon.uf.viz.d2d.ui.ncephydro.OpenStationObsViewer"
          name="StationObsViewer">
    </command>
 </extension>

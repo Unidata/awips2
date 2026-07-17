@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="redbookDecoder" class="com.raytheon.uf.edex.plugin.redbook.RedbookDecoder">
         <constructor-arg ref="redbookPluginName" />
@@ -15,31 +13,9 @@
         <constructor-arg value="jms-durable:queue:Ingest.redbook"/>
     </bean>
 
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredRedbook-camel" />
+    <bean id="clusteredRedbook-camel" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.redbook.ClusteredRedbookCamelRoutes" />
+        </constructor-arg>
     </bean>
-
-    <camelContext id="clusteredRedbook-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <!-- Begin Redbook routes -->
-        <route id="redbookIngestRoute">
-            <from uri="jms-durable:queue:Ingest.redbook"/>
-            <setHeader name="pluginName">
-                <constant>redbook</constant>
-            </setHeader>
-            <doTry>
-                <pipeline>
-                    <bean ref="stringToFile"  />
-                    <bean ref="redbookDecoder" method="decode" />
-                    <to uri="direct-vm:persistIndexAlert" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:redbook?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
 </beans>

@@ -3,14 +3,15 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tcs Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.tcs
 Bundle-Version: 1.19.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.point,
  com.raytheon.uf.common.geospatial,
- javax.xml.bind,
+ jakarta.xml.bind,
  javax.measure
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.tcs,

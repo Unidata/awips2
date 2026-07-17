@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="acarsDecoder" class="com.raytheon.uf.edex.plugin.acars.ACARSDecoder">
         <constructor-arg ref="acarsPluginName" />
@@ -14,33 +12,11 @@
         <constructor-arg ref="acarsPluginName" />
         <constructor-arg value="jms-durable:queue:Ingest.acars"/>
     </bean>
+    
+    <bean id="acars-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.acars.ACARSCamelRoutes" />
+        </constructor-arg>
+    </bean>
 
-    <camelContext id="acars-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <!-- Begin ACARS routes -->
-        <route id="acarsIngestRoute">
-            <from uri="jms-durable:queue:Ingest.acars"/>
-            <setHeader name="pluginName">
-                <constant>acars</constant>
-            </setHeader>
-            <bean ref="stringToFile" />
-            <doTry>
-                <pipeline>
-                    <bean ref="acarsDecoder" method="decode" />
-                    <multicast>
-                       <to uri="direct-vm:indexAlert" />
-                       <to uri="jms-durable:queue:acarsPersistObs" />
-                    </multicast>
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:acars?level=ERROR"/>
-                </doCatch>
-            </doTry>
-            <!-- bean ref="processUtil" method="delete" / -->
-        </route>
-
-    </camelContext>
 </beans>

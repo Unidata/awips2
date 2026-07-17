@@ -56,7 +56,7 @@ fi
 pushd . > /dev/null 2>&1
 cd %{_baseline_workspace}/rpms/awips2.cave/Installer.cave-wrapper/scripts/memory/iniFileGenerator/src
 CPATH="."
-for JAR in `ls %{_baseline_workspace}/javax.xml.bind/*.jar %{_baseline_workspace}/javax.activation/*.jar`; do
+for JAR in `ls %{_baseline_workspace}/jakarta.xml.bind/*.jar %{_baseline_workspace}/jakarta.activation/*.jar`; do
     CPATH=$CPATH:$JAR
 done
 /awips2/java/bin/javac -classpath $CPATH main/*
@@ -134,7 +134,7 @@ _ini_destination=${RPM_BUILD_ROOT}/awips2/cave
 pushd . > /dev/null 2>&1
 cd %{_baseline_workspace}/rpms/awips2.cave/Installer.cave-wrapper/scripts/memory/iniFileGenerator/src
 CPATH="."
-for JAR in `ls %{_baseline_workspace}/javax.xml.bind/*.jar %{_baseline_workspace}/javax.activation/*.jar`; do
+for JAR in `ls %{_baseline_workspace}/jakarta.xml.bind/*.jar %{_baseline_workspace}/jakarta.activation/*.jar`; do
     CPATH=$CPATH:$JAR
 done
 /awips2/java/bin/java -cp $CPATH main/IniFileGenerator "${_cave_zip}" "${_mem_settings_xml}" "${_ini_destination}"

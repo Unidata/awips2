@@ -34,10 +34,10 @@ import com.raytheon.edex.transform.shef.obs.ObsToSHEFOptions;
 import com.raytheon.edex.transform.shef.obs.SHEF_Obs_Codes;
 import com.raytheon.edex.transform.shef.obs.SHEF_SM_Codes;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Transforms a decoded synoptic observation into a series of SHEF encoded data

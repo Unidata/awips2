@@ -23,13 +23,13 @@ import java.nio.ByteBuffer;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.ProjectedCRS;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.redbook.blocks.Block_004_017;
 import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
@@ -49,6 +49,7 @@ import org.locationtech.jts.geom.Point;
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader
  * Mar 13, 2014	2907      	njensen    	split edex.redbook plugin into common and
  *                                      edex redbook plugins
+ * May 07, 2024 2037231     aford       Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -87,7 +88,7 @@ public class RedbookProjectionBlock extends Block_004_017 {
         toProj.transform(new double[] { -getLlLon(), getLlLat() }, 0, ll, 0, 1);
         toProj.transform(new double[] { -getUrLon(), getUrLat() }, 0, ur, 0, 1);
 
-        GeneralEnvelope env = new GeneralEnvelope(2);
+        GeneralBounds env = new GeneralBounds(2);
         env.setCoordinateReferenceSystem(crs);
         env.setRange(0, ll[0], ur[0]);
         env.setRange(1, ll[1], ur[1]);

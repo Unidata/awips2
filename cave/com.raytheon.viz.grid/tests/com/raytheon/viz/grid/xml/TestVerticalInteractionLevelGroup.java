@@ -30,7 +30,6 @@ import java.text.ParsePosition;
 import java.util.stream.Stream;
 
 import javax.measure.Unit;
-import javax.xml.bind.JAXBException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,6 +43,7 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
+import jakarta.xml.bind.JAXBException;
 import tech.units.indriya.format.SimpleUnitFormat;
 
 /**

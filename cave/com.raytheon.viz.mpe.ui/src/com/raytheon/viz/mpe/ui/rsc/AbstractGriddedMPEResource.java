@@ -29,8 +29,8 @@ import javax.measure.UnitConverter;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -81,9 +81,13 @@ import com.raytheon.viz.mpe.util.MPEConversionUtils;
  *                                  Satellite-Derived Precipitation information.
  * Jun 20, 2019  7137     bhurley   Changed data type to allow for accumulation
  *                                  values greater than 13 inches.
- * 
+ * Aug 20, 2025  2039337  reyvazli  Suppresses negative DP Radar Mosaic
+ *                                  values in poor radar coverage areas by
+ *                                  setting their display label to null,
+ *                                  preventing invalid data from appearing
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  */
 public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedResourceData, F extends Frame>
@@ -229,14 +233,18 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
                     return values;
                 }
                 displayValue = dataToDisplay.convert(dataValue);
-                displayValueLabel = String.format("%.3f", displayValue);
-                /*
-                 * This appears to be how A1 MPE works with widgets by
-                 * specifying string lengths, they format using %.3f but only
-                 * display 2 decimal places
-                 */
-                displayValueLabel = displayValueLabel.substring(0,
-                        displayValueLabel.length() - 1);
+                if (displayValue < 0) {
+                    displayValueLabel = null;
+                } else {
+                    displayValueLabel = String.format("%.3f", displayValue);
+                    /*
+                     * This appears to be how A1 MPE works with widgets by
+                     * specifying string lengths, they format using %.3f but
+                     * only display 2 decimal places
+                     */
+                    displayValueLabel = displayValueLabel.substring(0,
+                            displayValueLabel.length() - 1);
+                }
             }
 
             values.put(MPEInterrogationConstants.INTERROGATE_VALUE,

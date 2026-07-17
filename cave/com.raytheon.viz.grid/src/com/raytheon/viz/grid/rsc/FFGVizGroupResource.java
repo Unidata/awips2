@@ -22,7 +22,7 @@ package com.raytheon.viz.grid.rsc;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.time.DataTime;

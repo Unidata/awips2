@@ -14,7 +14,7 @@
         <property name="record" value="com.raytheon.uf.common.dataplugin.cwa.CWARecord" />
     </bean>
 
-    <bean factory-bean="pluginRegistry" factory-method="register">
+    <bean id="cwaPluginRegistered" factory-bean="pluginRegistry" factory-method="register">
         <constructor-arg ref="cwaPluginName"/>
         <constructor-arg ref="cwaProperties"/>
     </bean>

@@ -6,11 +6,11 @@
     <property name="project.name" value="com.raytheon.wes2bridge.common" />
 
     <path id="WES2BRIDGE.classpath" cache="true">
-        <fileset dir="${baseline.dir}/javax.xml.bind">
+        <fileset dir="${baseline.dir}/jakarta.xml.bind">
             <include name="**/*.jar" />
             <exclude name="**/*sources.jar" />
         </fileset>
-        <fileset dir="${baseline.dir}/javax.activation">
+        <fileset dir="${baseline.dir}/jakarta.activation">
             <include name="**/*.jar" />
             <exclude name="**/*sources.jar" />
         </fileset>
@@ -45,8 +45,8 @@
                 <attribute name="Class-Path" value="."/>
                 <attribute name="Rsrc-Class-Path" value="./ ${manifest.classpath}"/>
             </manifest>
-            <zipfileset dir="${baseline.dir}/javax.activation" includes="*.jar" excludes="*sources.jar" />
-            <zipfileset dir="${baseline.dir}/javax.xml.bind" includes="*.jar" excludes="*sources.jar" />
+            <zipfileset dir="${baseline.dir}/jakarta.activation" includes="*.jar" excludes="*sources.jar" />
+            <zipfileset dir="${baseline.dir}/jakarta.xml.bind" includes="*.jar" excludes="*sources.jar" />
             <fileset dir="${baseline.dir}/${project.name}/bin" />
         </jar>
     </target>

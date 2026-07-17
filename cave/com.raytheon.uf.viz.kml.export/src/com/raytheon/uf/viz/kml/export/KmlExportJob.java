@@ -37,12 +37,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Position2D;
 import org.geotools.referencing.GeodeticCalculator;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
@@ -104,6 +104,7 @@ import de.micromata.opengis.kml.v_2_2_0.Vec2;
  * Jan 23, 2014  2703     bsteffen    Use framesInfo for frame count.
  * Oct 06, 2014  3686     njensen     Ensure lastIndex is at least 1
  * Apr 27, 2018  6985     njensen     Remove all resources that weren't selected
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -385,9 +386,9 @@ public class KmlExportJob extends Job {
     private void setView(KmlPane pane, KmlOutputManager out) {
         IExtent extent = pane.getDisplay().getView().getExtent();
         try {
-            DirectPosition2D center = new DirectPosition2D(
+            Position2D center = new Position2D(
                     extent.getCenter()[0], extent.getCenter()[1]);
-            DirectPosition2D corner = new DirectPosition2D(extent.getMaxX(),
+            Position2D corner = new Position2D(extent.getMaxX(),
                     extent.getMinX());
             MathTransform gridToLatLon = TransformFactory.gridToLatLon(
                     pane.getDisplay().getDescriptor().getGridGeometry(),

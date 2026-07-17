@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Updater
 Bundle-SymbolicName: viz.updater
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.pde.core,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,

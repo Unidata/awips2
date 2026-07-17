@@ -22,9 +22,9 @@ package com.raytheon.viz.volumebrowser.vbui;
 import java.awt.Rectangle;
 
 import org.eclipse.ui.IEditorPart;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.geometry.Position;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.geometry.GeneralBounds;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -49,21 +49,25 @@ public class VbUtil {
      *         is returned at array position 4. null is returned when the Corner
      *         Positions cannot be determined.
      */
-    public static DirectPosition[] getCornerPositions() {
+    public static Position[] getCornerPositions() {
 
-        DirectPosition lowerLeftCornerDirectPosition = null, lowerRightCornerDirectPosition = null, upperRightCornerDirectPosition = null, upperLeftCornerDirectPosition = null, centerDirectPosition = null;
+        Position lowerLeftCornerDirectPosition = null,
+                lowerRightCornerDirectPosition = null,
+                upperRightCornerDirectPosition = null,
+                upperLeftCornerDirectPosition = null,
+                centerDirectPosition = null;
 
         try {
 
-            GeneralEnvelope env = null;
+            GeneralBounds env = null;
 
             IEditorPart editor = EditorUtil.findEditor(VizMapEditor.EDITOR_ID);
             if (editor != null) {
-                env = (GeneralEnvelope) ((AbstractEditor) editor)
+                env = (GeneralBounds) ((AbstractEditor) editor)
                         .getActiveDisplayPane().getDescriptor()
                         .getGridGeometry().getEnvelope();
             } else {
-                env = (GeneralEnvelope) new MapDescriptor().getGridGeometry()
+                env = (GeneralBounds) new MapDescriptor().getGridGeometry()
                         .getEnvelope();
             }
 
@@ -90,7 +94,7 @@ public class VbUtil {
             return null;
         }
 
-        return new DirectPosition[] { lowerLeftCornerDirectPosition,
+        return new Position[] { lowerLeftCornerDirectPosition,
                 lowerRightCornerDirectPosition, upperRightCornerDirectPosition,
                 upperLeftCornerDirectPosition, centerDirectPosition };
     }
@@ -103,14 +107,14 @@ public class VbUtil {
 
         Rectangle rectangle = new Rectangle();
 
-        DirectPosition[] cornerPositions = getCornerPositions();
+        Position[] cornerPositions = getCornerPositions();
 
         double smallestX = cornerPositions[0].getCoordinate()[0], largestX = cornerPositions[0]
                 .getCoordinate()[0], smallestY = cornerPositions[0]
                 .getCoordinate()[1], largestY = cornerPositions[0]
                 .getCoordinate()[1];
 
-        for (DirectPosition cornerPosition : getCornerPositions()) {
+        for (Position cornerPosition : getCornerPositions()) {
             double cornerPositionX = cornerPosition.getCoordinate()[0];
             double cornerPositionY = cornerPosition.getCoordinate()[1];
 

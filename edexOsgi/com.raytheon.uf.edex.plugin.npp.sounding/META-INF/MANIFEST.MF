@@ -4,7 +4,7 @@ Bundle-Name: NPP Sounding
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.npp.sounding
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.edex.plugin.npp,
  com.raytheon.uf.common.dataplugin.npp.sounding;visibility:=reexport,
  com.raytheon.uf.common.dataplugin,

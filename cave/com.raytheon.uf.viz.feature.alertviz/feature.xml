@@ -49,547 +49,482 @@
 
    <plugin
          id="ch.qos.logback"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.slf4j"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.springframework"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.activemq"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.alertviz"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.localization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.serialization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.security"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.jms"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.core"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.collections"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
-    <plugin
+   <plugin
          id="org.apache.commons.collections4"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.codec"
-         download-size="0"
-         install-size="0"
-         version="1.11.0"/>
+         version="0.0.0"/>
 
    <plugin
-         id="org.apache.commons.configuration"
-         download-size="0"
-         install-size="0"
+         id="org.apache.commons.configuration2"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.digester"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.beanutils"
-         download-size="0"
-         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.text"
          version="0.0.0"/>
 
    <plugin
          id="javax.persistence"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.thrift"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.geotools"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.fasterxml.jackson"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.xml.resolver"
-         download-size="0"
-         install-size="0"
          version="1.2.0"/>
 
    <plugin
          id="org.jdom2"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.product.alertviz"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.alertviz.ui"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.status"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.colormap"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.time"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.checkerframework"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.postgres"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.velocity"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="javax.measure"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.pool"
-         download-size="0"
-         install-size="0"
          version="1.6.0"/>
 
    <plugin
          id="com.raytheon.uf.common.message"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.datastorage"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.numeric"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.geospatial"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.dataaccess"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.pointdata"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.serialization.comm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.level"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.qpid"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="javax.jms"
-         download-size="0"
-         install-size="0"
+         id="com.raytheon.uf.common.serialization.comm"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.level"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.qpid"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.jms"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.util"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.javassist"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.hibernate"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="net.sf.ehcache"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.mchange"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.auth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.comm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.alertviz"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.dataquery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.spring.dm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.core.runtime"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.alertmonitor"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.http"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.application"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.thinclient"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.thinclient.alertviz"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.viz.ui"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.viz.core"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.lang"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.apache.commons.lang3"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.units"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.quartz"
-         download-size="0"
-         install-size="0"
+         id="com.raytheon.uf.common.units"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.derby"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.style"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.google.guava"
-         download-size="0"
-         install-size="0"
-         version="32.0.0"/>
+         version="33.5.0"/>
 
    <plugin
          id="org.reflections"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.io"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.datacube"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.derivparam"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.inventory"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.apache.xerces"
-         download-size="0"
-         install-size="0"
          version="2.12.2"/>
 
    <plugin
          id="com.raytheon.uf.common.convert"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.logback"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.emf.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.jep"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.python"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.python.concurrent"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.python.swt"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.json"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.apache.commons.pool2"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.eclipse.jface.text"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.text"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
+
+   <plugin
+         id="org.ehcache"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.commons-io"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.logging"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.felix.scr"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.ibm.icu"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.sun.jna"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.sun.jna.platform"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.jxpath"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.batik"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.batik.css"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.orbit.xml-apis-ext"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.xmlgraphics"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.w3c.xml.ext"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.osgi.service.http.whiteboard"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.osgi.services"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.ecf.provider.filetransfer"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.ecf.filetransfer"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.concurrent"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.ecf.identity"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.ecf"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.transport.ecf"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.http.service.api"
+         version="0.0.0"/>
+
+   <plugin
+         id="javax.servlet"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.core"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.engine"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.metadata"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.metadata.repository"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.repository"
+         version="0.0.0"/>
+
+   <plugin
+         id="bcpg"
+         version="0.0.0"/>
+
+   <plugin
+         id="bcprov"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.security"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.artifact.repository"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.jarprocessor"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.publisher"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.tukaani.xz"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.httpcomponents.client5"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.httpcomponents.core5"
+         version="0.0.0"/>
 
 </feature>

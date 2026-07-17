@@ -19,21 +19,21 @@
  **/
 package com.raytheon.uf.common.dataplugin.npp.viirs;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.hibernate.annotations.Index;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.npp.viirs.projection.VIIRSMapProjectionFactory;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -55,6 +55,7 @@ import org.locationtech.jts.geom.Geometry;
  * Dec 1, 2011            mschenke     Initial creation
  * Feb 21, 2012  #30      mschenke     Removed unused envelopePercentage field
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * May 07, 2024  2037231  aford        Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -139,7 +140,7 @@ public class VIIRSSpatialCoverage extends PersistableDataObject implements
         double[] lowRange = new double[] { -widthBy2, 0 };
         double[] highRange = new double[] { widthBy2, getNy() * getDy() };
 
-        GeneralEnvelope env = new GeneralEnvelope(lowRange, highRange);
+        GeneralBounds env = new GeneralBounds(lowRange, highRange);
         env.setCoordinateReferenceSystem(getCrs());
         return new GridGeometry2D(new GeneralGridEnvelope(new int[] { 0, 0 },
                 new int[] { getNx(), getNy() }, false), env);

@@ -4,8 +4,8 @@ Bundle-Name: Aviation
 Bundle-SymbolicName: com.raytheon.uf.common.aviation
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.aviation.avnconfig
 Require-Bundle: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.status,
- org.apache.commons.configuration
+ org.apache.commons.configuration2

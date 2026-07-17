@@ -31,9 +31,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.INIConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.INIBuilderParameters;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.DisabledListDelimiterHandler;
+import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.configuration2.convert.ListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.FileHandler;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -73,6 +80,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Feb 02, 2018 7114       tgurney     deleteProduct config file null check
  * May 15, 2019 20693   mgamazaychikov Refactor to move to common
  * Mar 10, 2021 20842      jrohwein    change Delimiter Parsing for saving and getting products
+ * Jul 11, 2025 2036453    aford       Commons Configuration 2 Upgrade
  *
  * </pre>
  *
@@ -134,7 +142,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      * Keys are the product names and the value is the parsed configuration
      * information for the product.
      */
-    private Map<String, HierarchicalINIConfiguration> configMaps;
+    private Map<String, INIConfiguration> configMaps;
 
     /**
      * The extension on product configuration files.
@@ -194,8 +202,8 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      * @return config - The configuration mapping for the product or null if
      *         problem getting the mapping.
      */
-    private HierarchicalINIConfiguration getProductConfig(String product) {
-        HierarchicalINIConfiguration config = configMaps.get(product);
+    private INIConfiguration getProductConfig(String product) {
+        INIConfiguration config = configMaps.get(product);
         if (config == null) {
             try {
                 config = readProductMap(product);
@@ -215,7 +223,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      */
     private List<String> getProductSites(String product) {
         List<String> siteList = new ArrayList<>();
-        HierarchicalINIConfiguration config = getProductConfig(product);
+        INIConfiguration config = getProductConfig(product);
         if (config != null) {
             String[] sites = config.getStringArray("sites.idents");
             if (sites != null && sites.length > 0) {
@@ -247,7 +255,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
 
     @Override
     public String getProductWorkPil(String product) {
-        HierarchicalConfiguration config = getProductConfig(product);
+        Configuration config = getProductConfig(product);
         if (config != null) {
             String value = config.getString("sites.workpil");
             if (value != null && value.length() > 0) {
@@ -260,7 +268,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
 
     @Override
     public String getProductCollectivePil(String product) {
-        HierarchicalConfiguration config = getProductConfig(product);
+        Configuration config = getProductConfig(product);
         if (config != null) {
             String value = config.getString("sites.collective");
             if (value != null && value.length() > 0) {
@@ -299,20 +307,27 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         }
 
         try {
-            HierarchicalINIConfiguration config = configMaps.get(newProduct);
+            INIConfiguration config = configMaps
+                    .get(newProduct);
             if (config == null) {
-                config = new HierarchicalINIConfiguration();
+                config = buildINIConfig(new LegacyListDelimiterHandler(','));
             }
 
-            config.setDelimiterParsingDisabled(true);
             String idents = String.join(", ", siteList);
+            // disable parsing the comma delimited list into an array before
+            // writing the file
+            config.setListDelimiterHandler(new DisabledListDelimiterHandler());
             config.setProperty("sites.idents", idents);
             config.setProperty("sites.workpil", workPil);
             config.setProperty("sites.collective", collectivePil);
             try (SaveableOutputStream sos = lFile.openOutputStream()) {
-                config.save(sos);
+                FileHandler configFileHandler = new FileHandler(config);
+                configFileHandler.save(sos);
                 sos.save();
-                config.setDelimiterParsingDisabled(false);
+
+                // reset the configuration with the list parsed into arrays
+                config.setListDelimiterHandler(
+                        new LegacyListDelimiterHandler(','));
                 config.setProperty("sites.idents", idents);
                 config.setProperty("sites.workpil", workPil);
                 config.setProperty("sites.collective", collectivePil);
@@ -328,10 +343,12 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     public void deleteProduct(String product)
             throws ConfigurationException, LocalizationException {
 
-        HierarchicalINIConfiguration config = configMaps.get(product);
+        INIConfiguration config = configMaps
+                .get(product);
 
         if (config != null) {
-            File configFile = config.getFile();
+            FileHandler configFileHandler = new FileHandler(config);
+            File configFile = configFileHandler.getFile();
             if (configFile != null) {
                 configFile.delete();
             }
@@ -439,8 +456,12 @@ public class TafSiteConfigIni implements ITafSiteConfig {
 
         File file = AvnConfigFileUtil.getStaticSiteFile(fileName, siteId);
         site = new TafSiteData();
-        HierarchicalINIConfiguration config = new HierarchicalINIConfiguration(
-                file);
+        INIBuilderParameters iniConfigParams = new Parameters().ini()
+                .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
+                .setFile(file);
+        FileBasedConfigurationBuilder<INIConfiguration> configBuilder = new FileBasedConfigurationBuilder<>(
+                INIConfiguration.class).configure(iniConfigParams);
+        INIConfiguration config = configBuilder.getConfiguration();
         site.wmo = config.getString("headers.wmo");
         site.afos = config.getString("headers.afos");
         site.longitude = config.getString("geography.lon");
@@ -502,16 +523,18 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      * @throws ConfigurationException
      * @throws FileNotFoundException
      */
-    private HierarchicalINIConfiguration readProductMap(String product)
+    private INIConfiguration readProductMap(
+            String product)
             throws ConfigurationException, FileNotFoundException {
         String name = TAFS_DIR + IPathManager.SEPARATOR + product
                 + PROD_DOT_EXT;
         ILocalizationFile lFile = getFile(name);
-        HierarchicalINIConfiguration config = null;
+        INIConfiguration config = null;
         if (lFile.exists()) {
             try (InputStream is = lFile.openInputStream()) {
-                config = new HierarchicalINIConfiguration();
-                config.load(is);
+                config = buildINIConfig(new LegacyListDelimiterHandler(','));
+                FileHandler configFileHandler = new FileHandler(config);
+                configFileHandler.load(is);
                 configMaps.put(product, config);
             } catch (IOException | LocalizationException e) {
                 throw new ConfigurationException(
@@ -589,8 +612,8 @@ public class TafSiteConfigIni implements ITafSiteConfig {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         ILocalizationFile lFile = pm.getLocalizationFile(context, filepath);
         try {
-            HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
-            config.setDelimiterParsingDisabled(true);
+            INIConfiguration config = buildINIConfig(
+                    new DisabledListDelimiterHandler());
             config.setProperty("headers.wmo", site.wmo);
             config.setProperty("headers.afos", site.afos);
             config.setProperty("thresholds.radar_cutoff",
@@ -642,7 +665,8 @@ public class TafSiteConfigIni implements ITafSiteConfig {
             }
 
             try (SaveableOutputStream sos = lFile.openOutputStream()) {
-                config.save(sos);
+                FileHandler configFileHandler = new FileHandler(config);
+                configFileHandler.save(sos);
                 sos.save();
             }
         } catch (LocalizationException e) {
@@ -685,7 +709,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return productList;
     }
 
-    private HierarchicalINIConfiguration idsConfig;
+    private INIConfiguration idsConfig;
 
     /**
      * Get the ids configuration file information.
@@ -693,7 +717,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      * @return
      * @throws ConfigurationException
      */
-    private synchronized HierarchicalINIConfiguration getIdsConfig()
+    private synchronized INIConfiguration getIdsConfig()
             throws ConfigurationException {
         if (idsConfig == null) {
             String filepath = IDS_FILE;
@@ -701,9 +725,12 @@ public class TafSiteConfigIni implements ITafSiteConfig {
             LocalizationContext context = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
             ILocalizationFile lFile = pm.getLocalizationFile(context, filepath);
-            HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
+            INIConfiguration config = buildINIConfig(
+                    new DisabledListDelimiterHandler());
+
             try (InputStream is = lFile.openInputStream()) {
-                config.load(is);
+                FileHandler configFileHandler = new FileHandler(config);
+                configFileHandler.load(is);
                 this.idsConfig = config;
             } catch (IOException | LocalizationException e) {
                 throw new ConfigurationException(
@@ -728,10 +755,18 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return lFile;
     }
 
+    private INIConfiguration buildINIConfig(ListDelimiterHandler listHandler)
+            throws ConfigurationException {
+        INIBuilderParameters params = new Parameters().ini()
+                .setListDelimiterHandler(listHandler);
+        return new FileBasedConfigurationBuilder<>(INIConfiguration.class)
+                .configure(params).getConfiguration();
+    }
+
     @Override
     public List<String> getIdsSiteList()
             throws IOException, ConfigurationException, LocalizationException {
-        HierarchicalINIConfiguration config = getIdsConfig();
+        INIConfiguration config = getIdsConfig();
         List<String> siteList = new ArrayList<>();
         for (Object site : config.getSections()) {
             siteList.add(site.toString());
@@ -743,7 +778,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     @Override
     public String getIdsPil(String site)
             throws IOException, ConfigurationException, LocalizationException {
-        HierarchicalINIConfiguration config = getIdsConfig();
+        INIConfiguration config = getIdsConfig();
         String pil = config.getProperty(site + ".pil").toString();
         return pil;
     }
@@ -751,12 +786,13 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     @Override
     public void setIdsSite(String site, String pil)
             throws IOException, ConfigurationException {
-        HierarchicalINIConfiguration config = getIdsConfig();
+        INIConfiguration config = getIdsConfig();
         config.setProperty(site + ".pil", pil);
 
         ILocalizationFile lFile = getIdsLfile();
         try (SaveableOutputStream sos = lFile.openOutputStream()) {
-            config.save(sos);
+            FileHandler configFileHandler = new FileHandler(config);
+            configFileHandler.save(sos);
             sos.save();
         } catch (LocalizationException e) {
             throw new IOException("Unable to save file: " + lFile.getPath(), e);
@@ -766,8 +802,9 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     @Override
     public synchronized void removeIdsSite(String site)
             throws ConfigurationException {
-        HierarchicalINIConfiguration config = getIdsConfig();
-        HierarchicalINIConfiguration newConfig = new HierarchicalINIConfiguration();
+        INIConfiguration config = getIdsConfig();
+        INIConfiguration newConfig = buildINIConfig(
+                new DisabledListDelimiterHandler());
 
         // Do not include the site in the new config.
         for (Object newSite : config.getSections()) {
@@ -779,7 +816,8 @@ public class TafSiteConfigIni implements ITafSiteConfig {
 
         ILocalizationFile lFile = getIdsLfile();
         try (SaveableOutputStream sos = lFile.openOutputStream()) {
-            newConfig.save(sos);
+            FileHandler newConfigFileHandler = new FileHandler(newConfig);
+            newConfigFileHandler.save(sos);
             sos.save();
             this.idsConfig = newConfig;
         } catch (LocalizationException | IOException e) {

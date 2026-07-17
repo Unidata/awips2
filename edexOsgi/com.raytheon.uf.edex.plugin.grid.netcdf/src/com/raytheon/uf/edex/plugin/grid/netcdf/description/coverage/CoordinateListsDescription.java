@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.grid.netcdf.description.coverage;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import ucar.nc2.NetcdfFile;
 

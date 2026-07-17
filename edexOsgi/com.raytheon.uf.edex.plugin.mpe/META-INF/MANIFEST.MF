@@ -4,7 +4,7 @@ Bundle-Name: EDEX MPE Plugin
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.mpe
 Bundle-Version: 1.19.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.edex.database,
  com.raytheon.uf.common.mpe,
  com.raytheon.uf.common.ohd,
@@ -22,13 +22,14 @@ Require-Bundle: com.raytheon.uf.edex.database,
  org.geotools,
  com.raytheon.uf.common.plugin.hpe,
  com.raytheon.uf.common.nc4,
- com.google.guava;bundle-version="32.0.0",
+ com.google.guava;bundle-version="33.5.0",
  com.raytheon.uf.edex.core,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.dataplugin.mpe,
  com.raytheon.uf.common.dataquery,
- javax.xml.bind
+ jakarta.xml.bind,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.plugin.mpe,
  com.raytheon.uf.edex.plugin.mpe.apps,
  com.raytheon.uf.edex.plugin.mpe.biasmesgen,

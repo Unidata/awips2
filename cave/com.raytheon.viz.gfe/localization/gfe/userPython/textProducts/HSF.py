@@ -599,7 +599,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     # override _Text2 for each specific basin/product
     def _Text2(self):
         return "ATLANTIC FROM 07N TO 31N W OF 35W INCLUDING CARIBBEAN SEA AND\n" + \
-               "GULF OF MEXICO\n\n"
+               "GULF OF AMERICA\n\n"
 #    def _Text2(self):
 #         return "E PACIFIC FROM THE EQUATOR TO 30N E OF 140W AND 03.4S TO THE\n" + \
 #                "EQUATOR E OF 120W\n\n"
@@ -1756,11 +1756,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _basinOrder(self):
         return ["ATLC",
                 "ATLC AND CARIBBEAN",
-                "ATLC AND CARIBBEAN AND GULF OF MEXICO",
-                "ATLC AND GULF OF MEXICO",
+                "ATLC AND CARIBBEAN AND GULF OF AMERICA",
+                "ATLC AND GULF OF AMERICA",
                 "CARIBBEAN",
-                "CARIBBEAN AND GULF OF MEXICO",
-                "GULF OF MEXICO",
+                "CARIBBEAN AND GULF OF AMERICA",
+                "GULF OF AMERICA",
                 None,
                 ]
 

@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Crimss
 Bundle-SymbolicName: com.raytheon.uf.viz.npp.crimss;singleton:=true
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -23,8 +24,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.productbrowser,
  javax.measure,
  com.raytheon.uf.viz.d2d.core,
- javax.xml.bind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ jakarta.xml.bind
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.npp.crimss
 Import-Package: gov.noaa.nws.ncep.edex.common.sounding

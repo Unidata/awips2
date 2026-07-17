@@ -31,7 +31,7 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -33,7 +33,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.localization.ILocalizationFile;

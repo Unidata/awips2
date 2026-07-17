@@ -89,7 +89,7 @@
  GA Georgia
  GB Gambia
  GT Great Lakes
- GX Gulf of Mexico
+ GX Gulf of America
  HI Hawaii
  HW Hawaii
  IA Iowa
@@ -419,7 +419,7 @@
 4BM Wilkerson Pass, CO
 4BQ Broadus, MT
 4BW Burns, OR
-4C0 722339 Oil Platform, Gulf of Mexico
+4C0 722339 Oil Platform, Gulf of America
 4CR Corona, NM
 4DG Douglas, WY
 4HA Whitehall, MT
@@ -1027,14 +1027,14 @@ CA1 Northern California
 CA2 Southern California
 CAD Cadillac/Wexford, MI
 CAE WFO Columbia, SC WSR-88D
-CAF Gulf of Mexico, Caribbean, Atlantic areas (Earthquake Info, English)
+CAF Gulf of America, Caribbean, Atlantic areas (Earthquake Info, English)
 CAG Craig, CO
 CAK Akron, OH
 CAN Canadian Forecast
 CAO Clayton, NM
 CAR WFO Caribou, ME
 CAV Clarion, IA
-CAX Gulf of Mexico, Caribbean, Atlantic areas (Earthquake info)
+CAX Gulf of America, Caribbean, Atlantic areas (Earthquake info)
 CBE Greater Cumberland Rgnl AP, MD
 CBF Council Bluffs, IA
 CBG Cambridge Muni, MN

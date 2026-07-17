@@ -22,11 +22,10 @@ package com.raytheon.uf.edex.registry.ebxml.web.security;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.ws.WebServiceException;
+import jakarta.xml.ws.WebServiceException;
 
-import org.eclipse.jetty.jaas.spi.AbstractLoginModule;
-import org.eclipse.jetty.jaas.spi.UserInfo;
-import org.eclipse.jetty.util.security.Credential;
+import org.eclipse.jetty.security.UserPrincipal;
+import org.eclipse.jetty.security.jaas.spi.AbstractLoginModule;
 import org.eclipse.jetty.util.security.Password;
 
 import com.raytheon.uf.common.registry.services.RegistryServiceException;
@@ -46,6 +45,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * 7/10/2014    1717        bphillip    Initial creation
  * 7/24/2014    1712       bphillip    Spring injection of CredentialCache
  * 11/10/2015   4839        nabowle     Jetty9 compatibility.
+ * 2024-04-30   2037228     tgurney     Fixes for Jetty 11 upgrade
  * </pre>
  *
  * @author bphillip
@@ -69,25 +69,51 @@ public class RegistryLoginModule extends AbstractLoginModule {
                 .getESBComponent("credentialCache");
     }
 
+    public class RegistryJAASUser extends JAASUser {
+
+        public RegistryJAASUser(UserPrincipal u) {
+            super(u);
+        }
+
+        @Override
+        public List<String> doFetchRoles() throws Exception {
+            String userName = getUserName();
+            String[] user = null;
+            try {
+                user = credentialCache.getUser(userName);
+            } catch (RegistryServiceException e) {
+                throw new WebServiceException(
+                        "User [" + userName + " Not authorized!", e);
+            }
+            for (String userField : user) {
+                if (userField == null) {
+                    throw new WebServiceException(
+                            "User [" + userName + " Not authorized!");
+                }
+            }
+            List<String> roleList = new ArrayList<String>(1);
+            roleList.add(user[2]);
+            return roleList;
+        }
+
+    }
+
     @Override
-    public UserInfo getUserInfo(final String userName) {
+    public RegistryJAASUser getUser(String username) throws Exception {
         String[] user = null;
         try {
-            user = credentialCache.getUser(userName);
+            user = credentialCache.getUser(username);
         } catch (RegistryServiceException e) {
-            throw new WebServiceException("User [" + userName
+            throw new WebServiceException("User [" + username
                     + " Not authorized!", e);
         }
         for (String userField : user) {
             if (userField == null) {
-                throw new WebServiceException("User [" + userName
+                throw new WebServiceException("User [" + username
                         + " Not authorized!");
             }
         }
-        List<String> roleList = new ArrayList<String>(1);
-        roleList.add(user[2]);
-        Credential credential = new Password(user[1]);
-        UserInfo userInfo = new UserInfo(userName, credential, roleList);
-        return userInfo;
+        return new RegistryJAASUser(
+                new UserPrincipal(username, new Password(user[1])));
     }
 }

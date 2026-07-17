@@ -5,7 +5,7 @@
         <!-- on a developer machine, the following directories should
              already exist. -->
         <property name="ignite.root.directory" location="${edex.root.directory}" />
-        <property name="ignite.src.directory" location="${repo.dir}/../ufcore/ignite/com.raytheon.uf.ignite.core" />
+        <property name="ignite.src.directory" location="${repo.dir}/../${core.repo}/ignite/com.raytheon.uf.ignite.core" />
 
         <property name="ignite.config.directory" location="${ignite.root.directory}/config" />
         <property name="ignite.tls.directory" location="${ignite.root.directory}/tls" />

@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.locationtech.jts.geom.Coordinate;
@@ -75,11 +75,11 @@ import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.geometry.MismatchedDimensionException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
@@ -292,6 +292,7 @@ import javax.measure.MetricPrefix;
  * 04/15/2019  7596        lsingh      Updated units framework to JSR-363.
  * 02/10/2020  21856       jkelmer     Allows for fallback to getCentroid if getInteriorPoint fails
  * 02/15/2023  DR23452     dkingfield  Update WarnGen templates read into getGeospatialDataAcessor()
+ * May 07, 2024  2037231   aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -2348,7 +2349,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         GeneralGridEnvelope range = new GeneralGridEnvelope(new int[] { 0, 0 },
                 new int[] { gData.nx, gData.ny }, false);
-        GeneralEnvelope ge = new GeneralEnvelope(
+        GeneralBounds ge = new GeneralBounds(
                 new double[] { gData.localExtent.getMinX(),
                         gData.localExtent.getMaxY() },
                 new double[] { gData.localExtent.getMaxX(),

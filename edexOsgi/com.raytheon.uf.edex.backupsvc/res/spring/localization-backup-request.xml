@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="localizationFileSaveHandler" class="com.raytheon.uf.edex.backupsvc.handlers.LocalizationFileSaveHandler" />
     <bean factory-bean="handlerRegistry" factory-method="register">
@@ -18,27 +16,11 @@
     </bean>
 
     <bean id="localizationBackupService" class="com.raytheon.uf.edex.backupsvc.service.LocalizationBackupService" />
-
-    <camelContext id="clusteredLocalizationBackupContext"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <endpoint id="localizationBackupReloadCron"
-         uri="quartz://localizationBackupReloadScheduled/?cron=0+0/5+*+*+*+?)"/>
-
-        <route id="localizationBackupReloadScheduled">
-            <from uri="localizationBackupReloadCron" />
-            <doTry>
-                <bean ref="localizationBackupService" method="reloadConfig" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:localizationBackupService?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredLocalizationBackupContext" />
+    
+    <bean id="clusteredLocalizationBackupContext" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.backupsvc.service.ClusteredLocalizationBackupContextRoutes" />
+        </constructor-arg>
     </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">

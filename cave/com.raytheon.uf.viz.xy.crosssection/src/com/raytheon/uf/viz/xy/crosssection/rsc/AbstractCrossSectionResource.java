@@ -40,14 +40,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.geotools.geometry.jts.JTS;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -116,6 +116,7 @@ import tech.units.indriya.format.SimpleUnitFormat;
  * Feb 22, 2023  9021     mapeters  Cache data as Futures
  * Dec 20, 2023  2036519  mapeters  Clear out more data on dispose
  * Apr 03, 2024  2037091  mapeters  Auto-update as new data comes in
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  * May 22, 2024  2037092  mapeters  Put empty list in slice map for failed data load,
  *                                  schedule data retrieval on first PDO for frame,
  *                                  fix issue where data times' level type is wrong
@@ -226,7 +227,7 @@ public abstract class AbstractCrossSectionResource extends
              * cell larger than the graph
              */
             extent.scale(1.0 + (1.0 / GRID_SIZE));
-            GeneralEnvelope env = new GeneralEnvelope(
+            GeneralBounds env = new GeneralBounds(
                     new double[] { extent.getMinX(), extent.getMinY() },
                     new double[] { extent.getMaxX(), extent.getMaxY() });
             env.setCoordinateReferenceSystem(descriptor.getGridGeometry()

@@ -21,7 +21,7 @@ package com.raytheon.uf.edex.plugin.bufrmos.dao;
 
 import java.io.InputStream;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;

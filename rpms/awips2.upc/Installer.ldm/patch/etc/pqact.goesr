@@ -1,14 +1,9 @@
 #
 # Unidata AWIPS LDM GOES/Satellite Specific Pattern Actions (this is to be used on an ancillary ingest only EDEX for gridded products - the pqact on the main EDEX should be edited to not have any duplicate actions from this file)
 #
-# 20160521	16.1.5	ESRL/GSD exp. HRRR added (HRRRX)
-# 20160801	16.2.2	"GFS" is now 0.25deg global (previously 0.5deg which is now named "GFS0p5")
 # 20170322      16.4.1  GOES-16(R) Experimental/Provisional Products on NOTHER
-# 20171010      17.1.1  Split files by feedtype, rm gridsi retired from NOAAport (DGEX-AK,GFS201,GFS80)
 # 20190109      18.1.1  GOES17 from  NIMAGE feed
-# 20210505      18.2.1  GFS is now 1.00deg global (previously 0.25deg)
-#                       MRMS entries are now from Unidata's IDD NCO feed instead of NOAAPort
-#                       GOES16/17 CMI are coming from Unidata IDD
+# 20210505      18.2.1  GOES16/17 CMI are coming from Unidata IDD
 #                       GOES16 Derived products coming from NOAAPort
 #                       GOES16 GLM data coming from Unidata's IDD via Texas Tech
 #                       CIRA RGB GOES Satellite products added
@@ -20,11 +15,14 @@
 # 20240722      23.4.1  V25 TOWRS Updates
 #                       Update viirs polar product entry (split up)
 #                       Update nucaps sounding entry
+#			Add Wave Altimetery
 # 20240917      23.4.1  New entries for SSEC/CIMSS GOES Products (Lightning Cast and Turbulence)
+# 20251119      23.4.1  Update GOES Mesoscale sector to receive from SBN instead of Unidata (CONUS and FD are still the full stitched tile from Unidata)
+#			Reformatted the GOESR pqact to match other ancillary pqacts
 
 ##########################
 #
-#  GOES Satellite Products
+# GOES Satellite Products
 #
 ##########################
 # GOES 16/17 Single Channel (ABI) via NOAAPort/SBN - (not using)
@@ -33,16 +31,29 @@
 
 #/data/ldm/pub/native/satellite/GOES/GOES16/Products/CloudAndMoistureImagery/Mesoscale-2/Channel03/20210528/OR_ABI-L2-CMIPM2-M6C03_G16_s20211481451520_e20211481451520_c20211481451520.nc
 # GOES 16/17 Single Channel (ABI) via Unidata IDD -(using)
-NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/([^/]*)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/(CONUS)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
 	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CMI-IDD/\5\6\7\8.nc4
-
+NIMAGE	^/data/ldm/pub/native/satellite/GOES/([^/]*)/Products/CloudAndMoistureImagery/(FullDisk)/([^/]*)/([0-9]{8})/([^/]*)(c[0-9]{7})(..)(.....).nc
+	FILE	-close -edex	/awips2/data_store/GOES/\4/\7/CMI-IDD/\5\6\7\8.nc4
+# GOES Mesoscale ABI - via SBN
+#GOES East Meso
+ANY	^(TIS...) (KNES) (..)(..)(..) (...)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/CMI-SBN/\1_\2_\3\4\5_\6_(seq)
+#GOES West Meso
+ANY	^(TIU...) (KNES) (..)(..)(..) (...)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/CMI-SBN/\1_\2_\3\4\5_\6_(seq)
+ANY	^(TIR[APH]..) (KNES) (..)(..)(..) (...)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/CMI-SBN-OCONUS/\1_\2_\3\4\5_\6_(seq)
+ANY	^(TIUY..) (KNES) (..)(..)(..) (...)
+	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/CMI-SBN-OCONUS/\1_\2_\3\4\5_\6_(seq)
 # GOES 16/17 derived products + derived motion wind via SBN - (using)
 HDS	^(IXT.[8-9]9) (KNES) (..)(..)(..)
 	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
 NOTHER	^(IXT[WXY]01) (KNES) (..)(..)(..)
 	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
+
 # Blended Hydro Suite - Advected Layer Preciptial Water (ALPW)
-EXP	^(TICY70) (KNES) (..)(..)(..)
+NOTHER	^(TICY70) (KNES) (..)(..)(..)
 	FILE	-close -edex	/awips2/data_store/GOES/(\3:yyyy)(\3:mm)\3/\4/derived-SBN/\1_KNES_\2\3\4\5-(seq)
 
 # GOES 16/17 derived products via Unidata IDD - (not using)
@@ -89,6 +100,7 @@ EXP	(UWSSEC_AWIPS_LightningCast_GOES.*)
 #UWSSEC_AWIPS_L2-GRIDTURBF-M6_G16_s20242351640205_e20242351649513_c20242351649557.nc
 EXP	(UWSSEC_AWIPS_L2-GRIDTURB.*)
 	FILE	-close -edex	/awips2/data_store/GOES/%Y%m%d/%H/UWSSEC/Turbulence/\1
+
 #
 # NPP/VIIRS
 #

@@ -59,6 +59,7 @@ from PerformanceStatusHandler import PerformanceStatusHandler
 # Dec 17, 2021  8342     sharbison Changes for Performance Logging.
 # May 11, 2023  2033877  smoorthy  Utilize timezone in offsetTime.py, as opposed to 
 #                                  os.environ['TZ']
+# May 12, 2025  2038249  tgurney   Add getBatchedTimeZones (performance improvement)
 #
 ##
 
@@ -530,7 +531,7 @@ def getVTECMessageType(productCategory):
     import VTECMessageType
     return VTECMessageType.getVTECMessageType(productCategory)
 
-def getTimeZones(zones, officeTZ):
+def getTimeZonesInternal(zones, officeTZ):
     import AreaDictionary
     timezones = []
     if zones is not None:
@@ -547,7 +548,15 @@ def getTimeZones(zones, officeTZ):
         timezones.insert(0, officeTZ)
     if len(timezones) == 0:
         timezones.append(officeTZ)
-    return JUtil.pylistToJavaStringList(timezones)
+    return timezones
+
+def getTimeZones(zones, officeTZ):
+    return JUtil.pylistToJavaStringList(getTimeZonesInternal(zones, officeTZ))
+
+def getBatchedTimeZones(zoneLists, officeTZ):
+    if zoneLists is None:
+        return []
+    return [getTimeZonesInternal(zones, officeTZ) for zones in zoneLists]
 
 def reloadModule(moduleName):
 #    m = __import__(moduleName)

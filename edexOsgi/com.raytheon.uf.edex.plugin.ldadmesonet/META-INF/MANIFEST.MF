@@ -4,10 +4,11 @@ Bundle-Name: Ldadmesonet Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.ldadmesonet
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin.ldad,
  com.raytheon.uf.common.dataplugin.ldadmesonet,
  com.raytheon.edex.common,
  com.raytheon.uf.edex.pointdata,
- org.slf4j
+ org.slf4j,
+ com.raytheon.uf.edex.routes
 Import-Package: com.raytheon.uf.common.status

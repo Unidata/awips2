@@ -19,8 +19,8 @@ logExtension=.log
 javacDebugInfo=false
 javacFailOnError=true
 javacVerbose=false
-javacSource=1.8
-javacTarget=1.8
+javacSource=17
+javacTarget=17
 compilerArg=-g:lines,source -nowarn
 
 generate.p2.metadata=true

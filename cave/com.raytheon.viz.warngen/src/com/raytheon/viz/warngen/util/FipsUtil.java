@@ -52,6 +52,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
  * May 10, 2013 1951       rjpeter      Updated ugcZones references
  * May 31, 2013 DR 16237   D. Friedman  Added getUgcFromFips.
  * Mar 17, 2014 DR 16309   Qinglu Lin   Changed parseCountyHeader() to parseHeader() and updated it.
+ * Nov 01, 2024 DCS 2036131 M.Porricelli Map fips value 69 to 'MP'
  *
  * </pre>
  *
@@ -64,7 +65,7 @@ public class FipsUtil {
     private static String[][] abbrlist = new String[][] { { "02", "AK" },
             { "01", "AL" }, { "05", "AR" }, { "60", "AS" }, { "04", "AZ" },
             { "06", "CA" }, { "08", "CO" }, { "09", "CT" }, { "11", "DC" },
-            { "10", "DE" }, { "12", "FL" }, { "13", "GA" }, { "69", "GU" },
+            { "10", "DE" }, { "12", "FL" }, { "13", "GA" }, { "69", "MP" },
             { "66", "GU" }, { "15", "HI" }, { "19", "IA" }, { "16", "ID" },
             { "17", "IL" }, { "18", "IN" }, { "20", "KS" }, { "21", "KY" },
             { "22", "LA" }, { "25", "MA" }, { "24", "MD" }, { "23", "ME" },

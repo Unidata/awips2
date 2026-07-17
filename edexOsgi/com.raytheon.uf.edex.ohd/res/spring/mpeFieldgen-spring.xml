@@ -1,34 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-
-    <camelContext id="mpeFieldGen-context"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="mpeCron" uri="clusteredquartz://pproc/mpeFieldGenScheduled/?cron=${mpefieldgen.cron}"/>
-
-        <!-- Run MpeFieldGen on Scheduled timer -->
-        <route id="mpeScheduled">
-            <from uri="mpeCron" />
-            <to uri="jms-generic:queue:mpeFieldGenScheduledWork" />
-        </route>
-
-        <route id="mpeFieldGenScheduledWork">
-            <from uri="jms-generic:queue:mpeFieldGenScheduledWork" />
-            <doTry>
-                <bean ref="mpeFieldGenService" method="runHourlyMpe" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:mpeFieldGen?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-    </camelContext>
-
+    <bean id="mpeFieldGen-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.MpeFieldGenContextRoutes" >
+                  <constructor-arg name="mpefieldgenCron" value="${mpefieldgen.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
 </beans>

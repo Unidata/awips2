@@ -26,7 +26,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;

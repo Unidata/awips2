@@ -32,10 +32,10 @@ import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.projection.ProjectionException;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.TransformException;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransformFactory;
+import org.geotools.api.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.radar.projection.RadialBinMapProjection;
 import com.raytheon.uf.common.dataplugin.radar.projection.RadialBinMapProjection.AzRanToRadialBinTransform;

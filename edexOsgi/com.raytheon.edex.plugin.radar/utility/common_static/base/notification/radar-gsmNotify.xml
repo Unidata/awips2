@@ -27,7 +27,7 @@
     <pluginNotification>
         <endpointName>radar.gsmNotify</endpointName>
         <format>PDO</format>
-        <endpointType>VM</endpointType>
+        <endpointType>SEDA</endpointType>
         <metadataMap>
             <mapping key="pluginName">
                 <constraint constraintValue="radar" constraintType="EQUALS"/>

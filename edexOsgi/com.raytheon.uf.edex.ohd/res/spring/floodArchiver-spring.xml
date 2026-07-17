@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="floodseqSrv" class="com.raytheon.uf.edex.ohd.whfs.WhfsSrv">
         <constructor-arg>
@@ -11,29 +9,11 @@
         </constructor-arg>
     </bean>
 
-    <camelContext id="floodseqWhfs-context"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="floodseqCron" uri="clusteredquartz://whfs/floodseqWhfsScheduled/?cron=${floodarchiver.cron}"/>
-
-        <!-- Run floodseq on Scheduled timer -->
-        <route id="floodseqScheduled">
-            <from uri="floodseqCron" />
-            <to uri="jms-generic:queue:floodseqWhfsScheduledWork" />
-        </route>
-
-        <route id="floodseqScheduleWork">
-            <from uri="jms-generic:queue:floodseqWhfsScheduledWork" />
-            <doTry>
-                <bean ref="floodseqSrv" method="execute" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:floodseq?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-    </camelContext>
-
+    <bean id="floodseqWhfs-context" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.ohd.camel.FloodseqWhfsContextRoutes" >
+                 <constructor-arg name="floodarchiverCron" value="${floodarchiver.cron}" />
+            </bean>
+        </constructor-arg>
+    </bean>
 </beans>

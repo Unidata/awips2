@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,15 +22,16 @@ package com.raytheon.uf.common.dataplugin.poessounding;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Index;
+import org.locationtech.jts.geom.Geometry;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -41,13 +42,12 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * The POESSounding class encapsulates the location and time information for a
  * sounding observation as well as providing a container for the vertical level
  * data above the location.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -61,25 +61,28 @@ import org.locationtech.jts.geom.Geometry;
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Jul 21, 2015 4360       rferrel     Named unique constraint.
- * 
+ * Aug 08, 2022 8892       tjensen     Update indexes for Hibernate 5
+ *
  * </pre>
- * 
+ *
  * @author jkorman
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "poessoundingseq")
-@Table(name = "poessounding", uniqueConstraints = { @UniqueConstraint(name = "uk_poessounding_datauri_fields", columnNames = {
-        "stationid", "reftime", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "poessounding", indexes = { @Index(name = "poessounding_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "poessounding", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_poessounding_datauri_fields", columnNames = {
+                "stationid", "reftime", "latitude",
+                "longitude" }) }, indexes = {
+                        @Index(name = "%TABLE%_refTimeIndex", columnList = "refTime, forecastTime"),
+                        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
+
 @DynamicSerialize
-public class POESSounding extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData {
+public class POESSounding extends PersistablePluginDataObject
+        implements ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -109,7 +112,7 @@ public class POESSounding extends PersistablePluginDataObject implements
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
-     * 
+     *
      * @param uri
      *            A data uri applicable to this class.
      * @param tableDef
@@ -121,7 +124,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Get this observation's geometry.
-     * 
+     *
      * @return The geometry for this observation.
      */
     public Geometry getGeometry() {
@@ -130,7 +133,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -139,7 +142,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -148,7 +151,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Get the station identifier for this observation.
-     * 
+     *
      * @return the stationId
      */
     public String getStationId() {
@@ -157,7 +160,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Integer getElevation() {
@@ -166,7 +169,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Was this location defined from the station catalog? False if not.
-     * 
+     *
      * @return Was this location defined from the station catalog?
      */
     public Boolean getLocationDefined() {
@@ -175,7 +178,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Set the WMOHeader of the file that contained this data.
-     * 
+     *
      * @return The wmoHeader
      */
     public String getWmoHeader() {
@@ -184,7 +187,7 @@ public class POESSounding extends PersistablePluginDataObject implements
 
     /**
      * Get the WMOHeader of the file that contained this data.
-     * 
+     *
      * @param wmoHeader
      *            The WMOHeader to set
      */
@@ -213,7 +216,7 @@ public class POESSounding extends PersistablePluginDataObject implements
      */
     public void addSoundingLevel(POESSoundingLevel soundingLevel) {
         if (soundingLevels == null) {
-            soundingLevels = new HashSet<POESSoundingLevel>();
+            soundingLevels = new HashSet<>();
         }
         soundingLevels.add(soundingLevel);
     }

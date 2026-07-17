@@ -4,7 +4,7 @@ Bundle-Name: Maintenance
 Bundle-SymbolicName: com.raytheon.uf.edex.maintenance
 Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.serialization,
@@ -12,6 +12,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.util,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.pointdata,
- com.raytheon.uf.common.localization
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.maintenance
 

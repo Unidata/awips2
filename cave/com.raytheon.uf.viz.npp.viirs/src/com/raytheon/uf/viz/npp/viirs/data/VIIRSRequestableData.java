@@ -29,7 +29,6 @@ import javax.measure.quantity.Dimensionless;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.geometry.Envelope;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -76,6 +75,7 @@ import tech.units.indriya.AbstractUnit;
  *                                  unit conversion.
  * Mar 29, 2021  8374     randerso  Renamed IDataRecord.get/setProperties to
  *                                  get/setProps
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -190,7 +190,7 @@ public class VIIRSRequestableData extends AbstractRequestableData {
                     GridEnvelope2D reqGrid = new GridEnvelope2D(0, 0,
                             max[0] - min[0], max[1] - min[1]);
                     requestSliceGeometry = new GridGeometry2D(reqGrid,
-                            (Envelope) requestGeometry.gridToWorld(reqGrid));
+                            requestGeometry.gridToWorld(reqGrid));
                     recordRequest = Request.buildSlab(
                             new int[] { (int) (min[0] * diffRatioX),
                                     (int) (min[1] * diffRatioY) },
@@ -204,7 +204,7 @@ public class VIIRSRequestableData extends AbstractRequestableData {
                     GridEnvelope2D recGrid = new GridEnvelope2D(0, 0,
                             max[0] - min[0], max[1] - min[1]);
                     recordSliceGeometry = new GridGeometry2D(recGrid,
-                            (Envelope) recordGeometry.gridToWorld(recGrid));
+                            recordGeometry.gridToWorld(recGrid));
                     break;
                 case ALL:
                     requestSliceGeometry = requestGeometry;

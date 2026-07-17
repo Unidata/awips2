@@ -48,6 +48,7 @@ from awips.localization import LocalizationUtil
 # Aug 08, 2019  7882     dgilling  Updated for Python 3
 # Aug 20, 2020  7882     dgilling  Re-factor based on localization REST service
 # Sep 08, 2020  8224     randerso  Clean up localization REST implementation
+# Apr 14, 2025  2038564  tgurney   Remove duplicate slash (Jetty 12 fix)
 #
 ##
 
@@ -388,7 +389,7 @@ def sendGridTempData(inputFile, hostName, portNumber, userName):
         fh = sys.stdin.buffer
 
     # Store the main file
-    filename = "/gfe/ifpAG/ifpAG" + str(hash(WSID)) + ".txt"
+    filename = "gfe/ifpAG/ifpAG" + str(hash(WSID)) + ".txt"
     destUrl = url.format(host=hostName, port=portNumber, userName=userName, locPath=filename)
     logVerbose(f"Destination URL: {destUrl}")
     checksum = "NON_EXISTENT_CHECKSUM"

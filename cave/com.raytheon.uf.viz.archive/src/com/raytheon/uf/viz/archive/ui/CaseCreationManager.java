@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.archive.ui;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.apache.commons.io.FileUtils;
 

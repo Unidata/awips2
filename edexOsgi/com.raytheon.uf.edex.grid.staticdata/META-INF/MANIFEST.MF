@@ -4,7 +4,7 @@ Bundle-Name: Grid Static Data
 Bundle-SymbolicName: com.raytheon.uf.edex.grid.staticdata
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: javax.measure,
  com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.edex.plugin.grid,
@@ -20,6 +20,7 @@ Require-Bundle: javax.measure,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.edex.core
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.routes
 Export-Package: com.raytheon.uf.edex.grid.staticdata,
  com.raytheon.uf.edex.grid.staticdata.topo

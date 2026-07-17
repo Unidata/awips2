@@ -32,9 +32,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.measure.UnitConverter;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.swt.graphics.RGB;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

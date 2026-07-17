@@ -69,6 +69,7 @@ import ucar.nc2.Variable;
  * Mar 21, 2016 5450       nabowle     Extracted useful methods to here.
  * Apr 19, 2016 5450       nabowle     Add getTimeDimensionName.
  * May 23, 2016 5584       nabowle     Updates for consolidation.
+ * May 01, 2026 2041388    njensen     Updates for netcdf-java 5
  *
  * </pre>
  *
@@ -423,21 +424,25 @@ public class NetcdfDecoderUtils {
                 numericData = FloatBuffer.wrap(fdata);
                 break;
             case BYTE:
+            case UBYTE:
                 byte[] bdata = (byte[]) getDataArray(dataVariable, sect,
                         flipDimensions).get1DJavaArray(byte.class);
                 numericData = ByteBuffer.wrap(bdata);
                 break;
             case SHORT:
+            case USHORT:
                 short[] sdata = (short[]) getDataArray(dataVariable, sect,
                         flipDimensions).get1DJavaArray(short.class);
                 numericData = ShortBuffer.wrap(sdata);
                 break;
             case INT:
+            case UINT:
                 int[] idata = (int[]) getDataArray(dataVariable, sect,
                         flipDimensions).get1DJavaArray(int.class);
                 numericData = IntBuffer.wrap(idata);
                 break;
             case LONG:
+            case ULONG:
                 long[] ldata = (long[]) getDataArray(dataVariable, sect,
                         flipDimensions).get1DJavaArray(long.class);
                 numericData = LongBuffer.wrap(ldata);

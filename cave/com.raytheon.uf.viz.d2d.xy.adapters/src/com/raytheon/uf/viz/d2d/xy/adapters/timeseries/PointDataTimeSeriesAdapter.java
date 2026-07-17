@@ -28,11 +28,11 @@ import java.util.Set;
 
 import javax.measure.Unit;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.GeneralBounds;
 import org.locationtech.jts.geom.Coordinate;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -77,6 +77,7 @@ import tech.units.indriya.AbstractUnit;
  *                                    work without dataURI.
  * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * Nov 09, 2016  5986     tgurney     Move getDataTime to PointDataView
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -206,7 +207,7 @@ public class PointDataTimeSeriesAdapter
         CoordinateReferenceSystem crs = MapUtil.constructStereographic(
                 MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS, coord.y,
                 coord.x);
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+        GeneralBounds generalEnvelope = new GeneralBounds(2);
         generalEnvelope.setCoordinateReferenceSystem(crs);
 
         double maxExtent = GRID_SPACING * GRID_SIZE / 2;

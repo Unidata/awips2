@@ -3,10 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Pointdata Plug-in
 Bundle-SymbolicName: com.raytheon.viz.pointdata;singleton:=true
 Bundle-Version: 1.19.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: Raytheon
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.apache.batik,
+ org.apache.commons.configuration2,
  org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
@@ -34,11 +36,11 @@ Require-Bundle: org.apache.batik,
  com.raytheon.uf.viz.core.point,
  org.apache.commons.collections,
  com.raytheon.uf.viz.localization.perspective,
- javax.xml.bind,
- org.w3c.dom.svg,
+ jakarta.xml.bind,
+ org.w3c.xml.ext,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.dataquery,
- com.google.guava;bundle-version="32.0.0",
+ com.google.guava;bundle-version="33.5.0",
  com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.def,

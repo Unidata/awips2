@@ -1,11 +1,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="autoFaxDao" class="com.raytheon.uf.edex.plugin.text.subscription.fax.AutoFaxDao">
+    <bean id="autoFaxDao" class="com.raytheon.uf.edex.plugin.text.subscription.fax.AutoFaxDao" depends-on="textRegistered">
        <property name="autoFaxNotifyURI" value="jms-generic:topic:autofax.notify"/>
     </bean>
 
@@ -17,43 +15,11 @@
     <bean id="subscriptionDao" class="com.raytheon.uf.edex.plugin.text.subscription.dao.SubscriptionDAO">
        <property name="subscriptionNotifyURI" value="jms-generic:topic:subscription.notify"/>
     </bean>
-
-    <camelContext id="common-subscription-camel"
-                  xmlns="http://camel.apache.org/schema/spring"
-                  errorHandlerRef="errorHandler">
-        <!-- Watch/Warn triggered script runner, internal use only -->
-        <route id="watchWarnDirect">
-           <from uri="direct-vm:watchWarnDirect"/>
-           <doTry>
-               <bean ref="textScriptRunner" method="runScripts" />
-               <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:subscription?level=ERROR"/>
-               </doCatch>
-           </doTry>
-        </route>
-
-        <route id="autoFaxNotify">
-           <from uri="jms-generic:topic:autofax.notify"/>
-           <doTry>
-               <bean ref="autoFaxDao" method="updateCache" />
-               <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:autoFax?level=ERROR"/>
-               </doCatch>
-           </doTry>
-        </route>
-
-        <route id="subscriptionNotify">
-           <from uri="jms-generic:topic:subscription.notify"/>
-           <doTry>
-               <bean ref="subscriptionDao" method="updateCache" />
-               <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:subscription?level=ERROR"/>
-               </doCatch>
-           </doTry>
-        </route>
-
-    </camelContext>
+    
+    <bean id="common-subscription-camel" factory-bean="routeContextFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.subscription.CommonSubscriptionCamelRoutes" />
+        </constructor-arg>
+    </bean>
+    
 </beans>

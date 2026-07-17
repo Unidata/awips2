@@ -32,6 +32,10 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
 
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.datum.PixelInCell;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -39,10 +43,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.ColorMapException;
 import com.raytheon.uf.common.colormap.ColorMapLoader;
@@ -114,6 +114,7 @@ import tech.units.indriya.quantity.Quantities;
  * Nov 29, 2018  7605     bsteffen  Set colormap unit, remove deprecated calls.
  * Apr 15, 2019  7596     lsingh    Updated units framework to JSR-363.
  * May 29, 2019 60162     ksunil    changes to absorb new Contour Label structure
+ * May 07, 2024  2037231  aford     Upgrade GeoTools to 31
  *
  * </pre>
  *
@@ -209,7 +210,7 @@ public class VIIRSResource
                 tileSet.project(targetGeometry);
 
                 try {
-                    Envelope tileSetEnvelope = tileSet.getTileSetGeometry()
+                    Bounds tileSetEnvelope = tileSet.getTileSetGeometry()
                             .getEnvelope();
 
                     targetIntersection = null;

@@ -42,7 +42,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Mar 26, 2018  6711     randerso    Updated GSMMessage.toString(). Code
  *                                    cleanup.
  * Feb 18, 2021  22417    jdynina     Process VMI in GSM. Code cleanup.
- * Mar-25, 2024  2037151  jdynina     Handle MPDA with SAILS
+ * Mar 25, 2024  2037151  jdynina     Handle MPDA with SAILS
+ * Jun 17, 2024  2037570  jdynina     Read in number of MPDA cuts
  * </pre>
  *
  * @author mnash
@@ -153,6 +154,9 @@ public class GSMBlock extends AbstractBlock {
 
         @DynamicSerializeElement
         private int supplementalCuts;
+
+        @DynamicSerializeElement
+        private int numMpdaElevs;
 
         /**
          * @return the mode
@@ -499,6 +503,20 @@ public class GSMBlock extends AbstractBlock {
             this.supplementalCuts = supplementalCuts;
         }
 
+        /**
+         * @return the numMpdaElevs
+         */
+        public int getNumMpdaElevs() {
+            return numMpdaElevs;
+        }
+
+        /**
+         * @param numMpdaElevs
+         *            the supplementalCuts to set
+         */
+        public void setNumMpdaElevs(int numMpdaElevs) {
+            this.numMpdaElevs = numMpdaElevs;
+        }
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
@@ -537,6 +555,12 @@ public class GSMBlock extends AbstractBlock {
                     vmiString = ", VMI=1.0 m/s";
                 } else {
                     vmiString = ", VMI=0.5 m/s";
+                }
+            }
+            if (getBuildVersion() >= 230) {
+                if (((short) getVcpInfo() & (1 << 9)) != 0) {
+                    vcpInfoString = vcpInfoString.replace("{y}",
+                            String.valueOf(getNumMpdaElevs()));
                 }
             }
             sb.append("VCP Supplemental Info: ").append(vcpInfoString)
@@ -656,9 +680,10 @@ public class GSMBlock extends AbstractBlock {
         int mshw = in.readUnsignedShort();
         message.numSupplementalCuts = mshw >> 9;
         message.supplementalCuts = ((mshw & 0x01FF) << 16) | lshw;
-        if ((message.buildVersion >= 230) && 
+        if ((message.buildVersion >= 230) &&
                 (message.vcpInfo & (1 << 9)) != 0) {
             message.numSupplementalCuts = (mshw >>> 9) & ((1 << 4) - 1);
+            message.numMpdaElevs = (mshw >>> 13);
         }
     }
 

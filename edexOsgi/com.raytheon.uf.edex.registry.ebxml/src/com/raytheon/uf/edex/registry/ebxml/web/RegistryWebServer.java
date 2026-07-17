@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.registry.ebxml.web;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +29,8 @@ import java.util.jar.JarFile;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.resource.PathResourceFactory;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.xml.XmlConfiguration;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -51,6 +52,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * ------------ ----------  ----------- --------------------------
  * 6/5/2014     1712        bphillip    Initial Creation
  * 5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
+ * 2024-05-13   2037228     tgurney     Fixes for Jetty 12 upgrade
  * </pre>
  * 
  * @author bphillip
@@ -98,20 +100,15 @@ public class RegistryWebServer implements RegistryInitializedListener {
         try {
             statusHandler.info("Configuring registry web server from file ["
                     + jettyConfigFile + "]");
-            FileInputStream fis = null;
-            try {
-                System.getProperties().putAll(
-                        securityConfiguration.getSecurityProperties());
-                fis = new FileInputStream(jettyConfigFile);
-                XmlConfiguration configuration = new XmlConfiguration(fis);
-                jettyServer = (Server) configuration.configure();
-            } finally {
-                if (fis != null) {
-                    fis.close();
-                }
-            }
+            Resource rsc = new PathResourceFactory()
+                    .newResource(jettyConfigFile);
+            System.getProperties()
+                    .putAll(securityConfiguration.getSecurityProperties());
+            XmlConfiguration configuration = new XmlConfiguration(rsc);
+            jettyServer = (Server) configuration.configure();
             statusHandler.info("Registry web server configured!");
             Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
                 public void run() {
                     statusHandler.info("Stopping Registry web server...");
                     try {

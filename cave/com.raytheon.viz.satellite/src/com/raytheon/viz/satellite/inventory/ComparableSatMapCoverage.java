@@ -21,10 +21,10 @@ package com.raytheon.viz.satellite.inventory;
 
 import java.awt.geom.Rectangle2D;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
@@ -43,7 +43,8 @@ import com.raytheon.uf.common.inventory.IGridGeometryProviderComparable;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 11, 2014  2947     bsteffen    Initial creation
- * 
+ * May 07, 2024  2037231  aford       Upgrade GeoTools to 31
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -78,11 +79,11 @@ public class ComparableSatMapCoverage implements
                     return other;
                 }
                 /* Resolutions are the same */
-                Envelope2D env = getEnvelope();
-                Envelope2D otherEnv = otherCoverage.getEnvelope();
-                if (area(env) < area(otherEnv)) {
+                ReferencedEnvelope env = getEnvelope();
+                ReferencedEnvelope otherEnv = otherCoverage.getEnvelope();
+                if (env.getArea() < otherEnv.getArea()) {
                     return this;
-                } else if (area(env) > area(otherEnv)) {
+                } else if (env.getArea() > otherEnv.getArea()) {
                     return other;
                 }
                 /* Area is the same. */
@@ -90,19 +91,19 @@ public class ComparableSatMapCoverage implements
                  * there is no meaningful way to pick one so start checking
                  * meaningless things.
                  */
-                if (env.x < otherEnv.x) {
+                if (env.getMinX() < otherEnv.getMinX()) {
                     return this;
-                } else if (env.x > otherEnv.x) {
+                } else if (env.getMinX() > otherEnv.getMinX()) {
                     return other;
                 }
-                if (env.y < otherEnv.y) {
+                if (env.getMinY() < otherEnv.getMinY()) {
                     return this;
-                } else if (env.y > otherEnv.y) {
+                } else if (env.getMinY() > otherEnv.getMinY()) {
                     return other;
                 }
-                if (env.width < otherEnv.width) {
+                if (env.getWidth() < otherEnv.getWidth()) {
                     return this;
-                } else if (env.width > otherEnv.width) {
+                } else if (env.getWidth() > otherEnv.getWidth()) {
                     return other;
                 }
                 /* This is nuts, why aren't they equal, give up. */
@@ -123,20 +124,20 @@ public class ComparableSatMapCoverage implements
         if (!other.getCRS().equals(getCRS())) {
             return false;
         }
-        Rectangle2D i = other.getEnvelope().createIntersection(getEnvelope());
+        ReferencedEnvelope i = other.getEnvelope().intersection(getEnvelope());
         if (i == null || i.isEmpty()) {
             return false;
         }
         /* Intersection must cover at least 25% of area. */
-        double a = area(i) * 4;
-        if (a > area(getEnvelope()) || a > area(other.getEnvelope())) {
+        double a = i.getArea() * 4;
+        if (a > getEnvelope().getArea() || a > other.getEnvelope().getArea()) {
             return true;
         } else {
             return false;
         }
     }
 
-    protected Envelope2D getEnvelope() {
+    protected ReferencedEnvelope getEnvelope() {
         return coverage.getGridGeometry().getEnvelope2D();
     }
 
@@ -146,9 +147,9 @@ public class ComparableSatMapCoverage implements
      */
     protected double getResolution() {
         GridGeometry2D gg = coverage.getGridGeometry();
-        Envelope2D e = gg.getEnvelope2D();
+        ReferencedEnvelope e = gg.getEnvelope2D();
         GridEnvelope2D r = gg.getGridRange2D();
-        return area(r) / area(e);
+        return area(r) / e.getArea();
     }
 
     @Override

@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Monitor Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.uf.viz.monitor.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
@@ -13,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.alerts,
  com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.wxmath,
- javax.xml.bind
+ jakarta.xml.bind,
+ org.apache.commons.lang3
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.monitor,
  com.raytheon.uf.viz.monitor.config,
@@ -27,5 +29,5 @@ Export-Package: com.raytheon.uf.viz.monitor,
 Import-Package: com.raytheon.uf.common.dataplugin.obs.metar.util,
  com.raytheon.uf.common.monitor.xml,
  com.raytheon.viz.pointdata.rsc.retrieve
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: com.raytheon.uf.viz.monitor.jar

@@ -10,8 +10,7 @@
       </encoder>
    </appender>
 
-   <logger name="org.hibernate" additivity="false">
-      <level value="ERROR"/>
+   <logger name="org.hibernate" additivity="false" level="ERROR">
       <appender-ref ref="HibernateLog" />
    </logger>
 </included>

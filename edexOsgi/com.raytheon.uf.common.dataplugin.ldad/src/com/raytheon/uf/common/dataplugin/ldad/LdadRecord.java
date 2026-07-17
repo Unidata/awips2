@@ -21,8 +21,8 @@ package com.raytheon.uf.common.dataplugin.ldad;
 
 import java.util.Date;
 
-import javax.persistence.MappedSuperclass;
-import javax.persistence.SequenceGenerator;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.SequenceGenerator;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;

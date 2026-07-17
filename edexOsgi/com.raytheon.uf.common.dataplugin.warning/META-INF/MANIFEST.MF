@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Warning
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.warning
 Bundle-Version: 1.18.0.qualifier
+Eclipse-BundleShape: dir
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.dataplugin.warning.config,
  com.raytheon.uf.common.dataplugin.warning.gis,
@@ -14,7 +15,7 @@ Export-Package: com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.dataplugin.warning.util
 Import-Package: com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.time,
- javax.persistence,
+ jakarta.persistence,
  org.hibernate.annotations
 Require-Bundle: org.geotools,
  com.raytheon.uf.common.dataplugin,
@@ -27,4 +28,4 @@ Require-Bundle: org.geotools,
  com.raytheon.uf.common.dataquery,
  javax.measure,
  org.apache.commons.lang3,
- javax.xml.bind
+ jakarta.xml.bind

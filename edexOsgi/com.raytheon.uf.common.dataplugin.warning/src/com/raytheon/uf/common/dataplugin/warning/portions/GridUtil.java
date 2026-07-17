@@ -22,15 +22,14 @@ package com.raytheon.uf.common.dataplugin.warning.portions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.metadata.spatial.PixelOrientation;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.operation.MathTransform;
-
-import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Envelope;
@@ -39,6 +38,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+
+import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 
 /**
  * Converts the county or zone and the intersecting warning area to grids. The
@@ -57,6 +58,7 @@ import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
  * Dec 4, 2013  2604      jsanchez     Moved out of viz.warngen.
  * Dec 21, 2020 22409     dhaines      Added 0-check to awips1FinishAreaEntity to 
  *                                     prevent ArithmeticException 
+ * May 07, 2024 2037231   aford        Upgrade GeoTools to 31
  * 
  * </pre>
  * 
@@ -87,7 +89,7 @@ public class GridUtil {
         this.nx = range.getHigh(0);
         this.ny = range.getHigh(1);
 
-        org.opengis.geometry.Envelope ge = localGridGeometry.getEnvelope();
+        Bounds ge = localGridGeometry.getEnvelope();
         contourToLatLon = new DefaultMathTransformFactory()
                 .createConcatenatedTransform(new GridGeometry2D(range, ge)
                         .getGridToCRS(PixelOrientation.CENTER), localToLatLon);

@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring
-    http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="fileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy">
         <constructor-arg value="${manualIngest.minFileAge}" />
@@ -13,41 +11,16 @@
         <constructor-arg value="${manualIngest.inProgressCacheSize}" />
     </bean>
     
-    <camelContext id="clusteredManualProc"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-        <endpoint id="manualFileEndpoint"
-            uri="file:${manualIngest.dropBoxPath}?
-                 delay=${manualIngest.delay}&amp;
-                 useFixedDelay=false&amp;
-                 maxMessagesPerPoll=${manualIngest.maxMessagesPerPoll}&amp;
-                 noop=true&amp;
-                 idempotent=false&amp;
-                 exclusiveReadLockStrategy=#fileChangedStrategy&amp;
-                 inProgressRepository=#inProgressRepository&amp;
-                 recursive=true"/>
-
-        <endpoint id="manualIngest"
-            uri="vm:manualIngestQueue?
-                 size=${manualIngest.vmQueueSize}&amp;
-                 concurrentConsumers=${manualIngest.threads}&amp;
-                 blockWhenFull=true" />
-
-        <route id="manualFileScan">
-            <from uri="manualFileEndpoint" />
-            <to uri="manualIngest" />
-        </route>
-
-        <route id="manualIngestRoute">
-            <from uri="manualIngest"/>
-            <bean ref="manualProc" method="moveFileToArchive"/>
-            <bean ref="manualProc" />
-            <to uri="jms-durable:queue:external.dropbox"/>
-        </route>
-    </camelContext>
-    
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredManualProc" />
+    <bean id="clusteredManualProc" factory-bean="routeContextFactory" factory-method="createClustered">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.manualIngest.ClusteredManualProcRoutes">
+                <constructor-arg name="manualIngestDropBoxPath" value="${manualIngest.dropBoxPath}" />
+                <constructor-arg name="manualIngestDelay" value="${manualIngest.delay}" />
+                <constructor-arg name="manualIngestMaxMessagesPerPoll" value="${manualIngest.maxMessagesPerPoll}" />
+                <constructor-arg name="manualIngestVmQueueSize" value="${manualIngest.vmQueueSize}" />
+                <constructor-arg name="manualIngestThreads" value="${manualIngest.threads}" />
+            </bean>
+        </constructor-arg>
     </bean>
 
 </beans>

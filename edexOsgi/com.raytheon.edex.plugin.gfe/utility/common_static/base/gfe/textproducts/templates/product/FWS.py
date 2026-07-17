@@ -328,6 +328,11 @@
 #                                    period.
 # Feb 22, 2022  8783     randerso    Fix formatting of rounded values.
 #                                    Code cleanup.
+# Oct 22, 2025  2039729  reyvazli    Update timezone handling to ensure consistent FWS
+#                                    time range computation by reapplying the current
+#                                    timezone to trigger internal timezone initialization.
+#
+
 #-------------------------------------------------------------------------
 
 from datetime import datetime
@@ -336,6 +341,7 @@ import os
 import pwd
 import re
 import time
+import offsetTime
 
 import pytz
 
@@ -1334,6 +1340,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _determineTimeRanges(self, argDict):
         self.debug_print("Debug: _determineTimeRanges in FWS.py")
+
+        # Reapply the current timezone to trigger internal timezone initialization.
+        # This ensures correct timezone computations on first run without changing the value.
+        offsetTime.setTimeZone(offsetTime.getTimeZone())
+
         # Set up the Narrative Definition and initial Time Range
         self._issuanceInfo = self.getIssuanceInfo(
             self._productIssuance, self._issuance_list(argDict), argDict["creationTime"])

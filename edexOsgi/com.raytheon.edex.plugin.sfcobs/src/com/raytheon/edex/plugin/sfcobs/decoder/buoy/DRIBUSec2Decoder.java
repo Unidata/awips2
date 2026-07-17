@@ -30,7 +30,7 @@ import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticGroups;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
+import com.raytheon.uf.common.decodertools.IDecoderConstants;
 
 /**
  * Decode synoptic section 2 data. This section has a single group which

@@ -69,6 +69,7 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * Mar 26, 2018  6711     randerso  Changed to use methods/fields from
  *                                  RadarUtil/RadarConstants. Code cleanup.
  * Feb 19, 2021  22417    jdynina   Added VMI to VCP Supplemental
+ * Jun 17, 2024  2037570  jdynina   Added MPDA to VCP Supplemental
  *
  * </pre>
  *
@@ -166,6 +167,12 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                     vmiString = ", VMI=1.0 m/s";
                 } else {
                     vmiString = ", VMI=0.5 m/s";
+                }
+            }
+            if (message.getBuildVersion() >= 230) {
+                if (((short) message.getVcpInfo() & (1 << 9)) != 0) {
+                    vcpInfoString = vcpInfoString.replace("{y}",
+                            String.valueOf(message.getNumMpdaElevs()));
                 }
             }
             drawNexradString(

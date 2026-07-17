@@ -27,7 +27,7 @@ import java.util.Map;
 
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.ColorMapException;
@@ -367,7 +367,7 @@ public class PrecipRateResource extends RadarRadialResource implements
         double val;
         try{
             val = params.getDataToDisplayConverter().convert(dataVal.doubleValue());
-        } catch (NumberFormatException e ) {
+        } catch (IllegalArgumentException e ) {
             val = Double.NaN;
         }
 
@@ -408,7 +408,7 @@ public class PrecipRateResource extends RadarRadialResource implements
                 double d;
                 try {
                     d = unitConverter.convert(i);
-                } catch (NumberFormatException e) {
+                } catch (IllegalArgumentException e) {
                     d = Double.NaN;
                 }
 
@@ -448,7 +448,7 @@ public class PrecipRateResource extends RadarRadialResource implements
                         double disp;
                         try {
                              disp = image2disp.convert(j);
-                         } catch (NumberFormatException e) {
+                         } catch (IllegalArgumentException e) {
                              // the value is a special case and represents
                              // "no color" on the color map.
                              continue;

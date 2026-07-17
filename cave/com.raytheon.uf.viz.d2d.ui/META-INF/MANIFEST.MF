@@ -3,9 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ui Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui;singleton:=true
 Bundle-Version: 1.18.1.qualifier
+Eclipse-BundleShape: dir
 Bundle-Activator: com.raytheon.uf.viz.d2d.ui.Activator
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.d2d.ui,
  com.raytheon.uf.viz.d2d.ui.actions,
@@ -25,8 +26,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core.maps,
  com.raytheon.viz.ui,
  com.raytheon.uf.viz.xy,
- javax.xml.bind,
+ jakarta.xml.bind,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.model.workbench,
- org.apache.commons.collections4
+ org.apache.commons.collections4,
+ org.apache.commons.lang3
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.ui.jar

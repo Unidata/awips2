@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.eclipse.swt.widgets.Composite;
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
 
 import com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResourceData;
 

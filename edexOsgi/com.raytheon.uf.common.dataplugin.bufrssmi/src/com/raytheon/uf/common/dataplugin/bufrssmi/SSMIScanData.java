@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,16 +21,17 @@ package com.raytheon.uf.common.dataplugin.bufrssmi;
 
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
-import org.hibernate.annotations.Index;
+import org.locationtech.jts.geom.Geometry;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -44,13 +45,12 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * PluginDataObject for Special Sensor Microwave/Imager data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -65,25 +65,29 @@ import org.locationtech.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 12, 2014 3133       njensen     Use TimeUtil instead of TimeTools
  * Jul 17, 2015 4360       rferrel     Named unique constraint and satIde no longer nullable.
- * 
+ * Aug 08, 2022 8892       tjensen     Update indexes for Hibernate 5
+ *
  * </pre>
- * 
+ *
  * @author jkorman
- * @version 1.0
  */
+
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrssmiseq")
-@Table(name = "bufrssmi", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrssmi_datauri_fields", columnNames = {
-        "stationid", "refTime", "satId", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "bufrssmi", indexes = { @Index(name = "bufrssmi_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "bufrssmi", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_bufrssmi_datauri_fields", columnNames = {
+                "stationid", "refTime", "satId", "latitude",
+                "longitude" }) }, indexes = {
+                        @Index(name = "%TABLE%_refTimeIndex", columnList = "refTime, forecastTime"),
+                        @Index(name = "%TABLE%_stationIndex", columnList = "stationId") })
+
 @DynamicSerialize
-public class SSMIScanData extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData, IPersistable {
+public class SSMIScanData extends PersistablePluginDataObject
+        implements ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -134,7 +138,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
-     * 
+     *
      * @param uri
      *            A data uri applicable to this class.
      * @param tableDef
@@ -146,7 +150,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
     /**
      * Get this observation's geometry.
-     * 
+     *
      * @return The geometry for this observation.
      */
     public Geometry getGeometry() {
@@ -155,7 +159,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -164,7 +168,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -173,7 +177,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Integer getElevation() {
@@ -182,7 +186,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
     /**
      * Was this location defined from the station catalog? False if not.
-     * 
+     *
      * @return Was this location defined from the station catalog?
      */
     public Boolean getLocationDefined() {
@@ -251,7 +255,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
     /**
      * Get the observation time for this data.
-     * 
+     *
      * @return The data observation time.
      */
     public Calendar getTimeObs() {
@@ -260,7 +264,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
     /**
      * Set the observation time for this data.
-     * 
+     *
      * @param timeObs
      *            The data observation time.
      */
@@ -297,7 +301,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      */
     @Override
     public PointDataView getPointDataView() {
@@ -305,7 +309,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      */
     @Override
     public void setPointDataView(PointDataView pointDataView) {
@@ -313,7 +317,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
+     *
      * @return
      */
     public final SSMIScanData copyObs() {
@@ -332,7 +336,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     /**
      * Returns the hashCode for this object. This implementation returns the
      * hashCode of the generated dataURI.
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -347,7 +351,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     /**
      * Checks if this record is equal to another by checking the generated
      * dataURI.
-     * 
+     *
      * @param obj
      * @see java.lang.Object#equals(java.lang.Object)
      */

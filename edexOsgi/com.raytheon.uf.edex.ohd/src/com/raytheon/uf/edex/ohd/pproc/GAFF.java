@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.api.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;

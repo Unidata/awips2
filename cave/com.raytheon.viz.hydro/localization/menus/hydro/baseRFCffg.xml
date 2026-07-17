@@ -60,7 +60,7 @@
                 <substitute key="model" value="FFG-TUA" />
             </contribute>
         </contribute>
-        <contribute xsi:type="subMenu" menuText="AKRFC" id="AKRFCMenu">
+        <contribute xsi:type="subMenu" menuText="APRFC" id="APRFCMenu">
             <contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
                 menuText="1hr FFG" id="AK1hrFFG">
                 <substitute key="timespan" value="FFG0124hr" />

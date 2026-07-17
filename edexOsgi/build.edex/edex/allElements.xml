@@ -24,11 +24,11 @@
             <fileset dir="${builder}/../lib/ant">
                 <include name="*.jar" />
             </fileset>
-            <fileset dir="${builder}/../../javax.xml.bind">
+            <fileset dir="${builder}/../../jakarta.xml.bind">
                 <include name="*.jar" />
                 <exclude name="*-sources.jar" />
             </fileset>
-            <fileset dir="${builder}/../../javax.activation">
+            <fileset dir="${builder}/../../jakarta.activation">
                 <include name="*.jar" />
                 <exclude name="*-sources.jar" />
             </fileset>

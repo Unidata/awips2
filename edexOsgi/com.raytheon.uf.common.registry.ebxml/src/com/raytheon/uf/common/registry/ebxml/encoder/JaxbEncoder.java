@@ -21,7 +21,7 @@ package com.raytheon.uf.common.registry.ebxml.encoder;
 
 import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type.JAXB;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.ebxml.version.VersionTransformer;
