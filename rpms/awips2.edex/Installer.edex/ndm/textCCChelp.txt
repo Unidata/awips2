@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 07/07/2026
+# FILE UPDATED 07/16/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -177,6 +177,7 @@
 1KM K-Harlowton, MT
 1KN K-Donnybrook 2, ND
 1KW K-6 Miles South of Dix, NE
+1L8 K-General Dick Stout Fld AP, Hurricane, UT
 1LM K-Judith Gap, MT
 1LN K-Bowbells, ND
 1LW K-21.9 Miles North of Stoneham, CO

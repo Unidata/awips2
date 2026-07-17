@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 07/07/2026
+# FILE UPDATED 07/16/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1017,6 +1017,7 @@
 0000000000|K1KM | 46.4441|-109.8010| 1332|Harlowton, MT                       |US|MTR
 0000000000|K1KN | 48.5514|-102.1210|  693|Donnybrook, ND                      |US|MTR
 0000000000|K1KW | 41.1370|-103.4884|  147|Dix, NE                             |US|MTR
+0000000000|K1L8 | 37.1402|-113.3061| 1021|General Dick Stout Fld AP, UT       |US|MTR
 0000000000|K1LM | 46.6939|-109.7400| 1417|Judith Gap, MT                      |US|MTR
 0000000000|K1LN | 48.7895|-102.2670|  599|Bowbells, ND                        |US|MTR
 0000000000|K1LW | 40.9214|-103.6917| 1515|Stoneham, CO                        |US|MTR
