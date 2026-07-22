@@ -66,20 +66,20 @@ else
 #  yum localinstall /awips2/repo/awips2/dist/18.2.1-ade/x86_64/awips2-netcdf* -y
   mkdir -p /awips2/repo/awips2/dist/${os_version}-dev-cp
 
-  #/bin/bash $buildsh -ade
-  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+  /bin/bash $buildsh -ade
+  rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
 
-  #/bin/bash $buildsh -python
-  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+  /bin/bash $buildsh -python
+  rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
 
-  #/bin/bash $buildsh -qpid
-  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+  /bin/bash $buildsh -qpid
+  rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
 
-  #/bin/bash $buildsh -server
-  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+  /bin/bash $buildsh -server
+  rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
 
-  #/bin/bash $buildsh -database
-  #rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
+  /bin/bash $buildsh -database
+  rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
 
   /bin/bash $buildsh -edex
   rsync -aP ${JENKINS_HOME}/build/rpms/awips2_latest/* /awips2/repo/awips2/dist/${os_version}-dev-cp/
