@@ -25,13 +25,15 @@
          id="net.sf.ehcache"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.w3c.xml.ext"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.sun.jna"
@@ -43,7 +45,8 @@
          id="org.dom4j"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.google.re2j"
@@ -55,25 +58,29 @@
          id="ucar.nc2"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.apache.commons.cli"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.apache.derby"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="javax.servlet"
          download-size="0"
          install-size="0"
-         version="3.1.0"/>
+         version="3.1.0"
+         unpack="true"/>
 
    <plugin
          id="jakarta.servlet"
@@ -85,32 +92,36 @@
          id="org.apache.cxf"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.objectweb"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.opensaml"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.apache.xerces"
          download-size="0"
          install-size="0"
          version="2.12.2"
-         unpack="false"/>
+         unpack="true"/>
 
    <plugin
          id="org.apache.commons.ssl"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.beust.jcommander"
@@ -130,19 +141,22 @@
          id="org.jdom2"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.joda.time"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="org.apache.ws.commons.schema"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.sun.jna.platform"

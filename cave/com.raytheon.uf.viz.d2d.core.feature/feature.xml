@@ -34,19 +34,22 @@
          id="com.raytheon.uf.viz.d2d.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.viz.awipstools"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.viz.points"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.common.awipstools"

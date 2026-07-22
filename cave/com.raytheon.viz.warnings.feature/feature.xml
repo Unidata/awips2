@@ -27,12 +27,14 @@
          id="com.raytheon.uf.common.dataplugin.warning"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.viz.warnings"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
 </feature>
