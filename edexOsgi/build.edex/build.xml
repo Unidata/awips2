@@ -337,12 +337,13 @@
     	<antcall target="build">
     				<param name="feature" value="gov.noaa.nws.ocp.edex.odim.feature"/>
     	</antcall>
-    	<antcall target="build">
+	<!-- Comment out hazard services edex features-->
+    	<!---antcall target="build">
     				<param name="feature" value="com.raytheon.uf.edex.hazards.feature"/>
     	</antcall>
     	<antcall target="build">
     				<param name="feature" value="gov.noaa.nws.crh.edex.grib.decoderpostprocessor.feature"/>
-    	</antcall>
+    	</antcall-->
     	
         <!-- SPECIAL CASE -->
         <if>
