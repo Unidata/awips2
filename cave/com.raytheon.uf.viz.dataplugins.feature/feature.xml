@@ -27,13 +27,15 @@
          id="com.raytheon.uf.common.dataplugin.acars"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.binlightning"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.bufrascat"
@@ -81,7 +83,8 @@
          id="com.raytheon.uf.common.dataplugin.bufrua"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.ccfp"
@@ -94,7 +97,8 @@
          id="com.raytheon.uf.common.dataplugin.climate"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.cwa"
@@ -129,7 +133,8 @@
          id="com.raytheon.uf.common.dataplugin.profiler"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.svrwx"
@@ -184,18 +189,21 @@
          id="com.raytheon.uf.common.dataplugin.pointset"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
          
    <plugin
          id="com.raytheon.uf.common.dataplugin.ldad"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
          
    <plugin
          id="com.raytheon.uf.common.dataplugin.ldadmesonet"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="true"/>
 
 </feature>
