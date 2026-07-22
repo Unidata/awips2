@@ -250,10 +250,10 @@ function build_server()
    #buildRPM "awips2-expect-libs/i686"
 
    #buildRPM "awips2-edex-hazards-scripts"
+   #buildRPM "awips2-python-pygresql" # Needed for hazard services but is failing to build
    buildRPM "awips2-ecpg-compat"
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-notification"
-   #buildRPM "awips2-python-pygresql"
 
 #Uniata additions
    buildRPM "awips2-ldm"
