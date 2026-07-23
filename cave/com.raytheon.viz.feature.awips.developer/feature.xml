@@ -184,14 +184,15 @@
    <includes
          id="com.raytheon.uf.viz.d2d.damagepath.feature"
          version="0.0.0"/>
-
-   <includes
+	<!-- Comment out phi plume-->
+   <!--includes
          id="gov.noaa.nssl.viz.phiplume.feature"
-         version="0.0.0"/>
+         version="0.0.0"/-->
 
-   <includes
+	<!-- Comment out hazard services viz feature-->
+   <!--includes
          id="gov.noaa.gsd.viz.hazards.feature"
-         version="0.0.0"/>
+         version="0.0.0"/-->
 
    <includes
          id="com.raytheon.uf.viz.ncep.npp.feature"
@@ -261,9 +262,10 @@
          id="gov.noaa.nws.sti.mdl.viz.griddednucaps.feature"
          version="0.0.0"/>
 
-   <includes
+ <!-- Comment out backupsvc viz feature-->
+   <!--includes
          id="com.raytheon.uf.viz.backupsvc.feature"
-         version="0.0.0"/>
+         version="0.0.0"/-->
 
    <includes
          id="gov.noaa.nws.obs.viz.geodata.feature"
@@ -303,10 +305,6 @@
 
    <includes
          id="gov.noaa.gsl.viz.atomsImagery.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.gsd.viz.hazards.feature"
          version="0.0.0"/>
 
    <requires>
