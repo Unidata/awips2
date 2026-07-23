@@ -184,10 +184,10 @@
    <includes
          id="com.raytheon.uf.viz.d2d.damagepath.feature"
          version="0.0.0"/>
-
-   <includes
+	<!-- Comment out phi plume-->
+   <!--includes
          id="gov.noaa.nssl.viz.phiplume.feature"
-         version="0.0.0"/>
+         version="0.0.0"/-->
 
 	<!-- Comment out hazard services viz feature-->
    <!--includes
