@@ -253,6 +253,7 @@
          <packagereq type="mandatory">awips2-edex-foss</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-beust-jcommander</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-google-protobuf</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-com-google-re2j</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-mchange</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-sun-jna</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-edu-mit-ll-netcdf</packagereq>
