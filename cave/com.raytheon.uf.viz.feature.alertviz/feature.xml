@@ -333,7 +333,8 @@
 
    <plugin
          id="org.apache.xerces"
-         version="2.12.2"/>
+         version="2.12.2"
+         unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.common.convert"
