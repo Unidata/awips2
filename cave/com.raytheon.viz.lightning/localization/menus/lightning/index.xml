@@ -23,7 +23,10 @@
         version of the file will completely replace a lower priority version
         of the file. 
     -->
+
+<!-- Comment out Lightning Menus
 <menuContributionFile>
     <include installTo="menu:obs?after=LIGHTNINGPLACEHOLDER" fileName="menus/lightning/lightningMenuItems.xml"
         subMenu="Lightning" subMenuId="obs-lightning" />
 </menuContributionFile>
+-->
