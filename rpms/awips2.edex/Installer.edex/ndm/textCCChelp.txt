@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 07/16/2026
+# FILE UPDATED 08/11/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -2518,6 +2518,7 @@ JYR K-York Muni AP, York, NE
 JZI K-Charleston Exec AP, Charleston, SC
 JZP K-Pickens Cnty AP, Jasper, GA
 K20 K-Burwell, NE
+K24 K-Russell Cnty AP, Jamestown, KY
 K27 K-Fort Madison Muni AP, Fort Madison, IA
 K59 K-Amelia Earhart AP, Atchison, KS
 K61 K-Moritz Memo AP, Beloit, KS

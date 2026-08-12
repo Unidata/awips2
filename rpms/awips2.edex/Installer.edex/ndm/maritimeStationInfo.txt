@@ -6,7 +6,7 @@
 #
 # Elevations are in meters. Unknown elevation is coded -0.
 #
-# FILE UPDATED 06/23/2026
+# FILE UPDATED 08/11/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -144,6 +144,7 @@
 0000000000|44033| 44.06 | -69.00 |    0|W Penobscot Bay                     |US|BOY
 0000000000|44034| 44.11 | -68.11 |    0|Eastern Maine Shelf                 |US|BOY
 0000000000|44035| 44.89 | -67.02 |    0|Cobscook Bay                        |US|BOY
+0000000000|4403586|42.847|-78.904|  174|Buffalo, NY                         |US|BOY
 0000000000|44036| 45.200| -66.02 |    0|Saint John                          |US|BOY
 0000000000|44037| 43.49 | -67.88 |    0|Jordan Basin                        |US|BOY
 0000000000|44038| 43.62 | -66.55 |    0|Scotian Shelf                       |US|BOY

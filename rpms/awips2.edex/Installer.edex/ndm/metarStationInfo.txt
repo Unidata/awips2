@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 07/16/2026
+# FILE UPDATED 08/11/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2470,6 +2470,7 @@
 0000000000|KJZI | 32.7017| -80.0039|    5|Charleston Exec AP, SC              |US|MTR
 0000000000|KJZP | 34.4535| -84.4572|  468|Pickens Cnty AP, GA                 |US|MTR
 0000000000|KK20 | 41.7900| -99.1500|  664|Burwell, NE                         |US|MTR
+0000000000|KK24 | 37.0097| -85.1028|  308|Russell Cnty AP, KY                 |US|MTR
 0000000000|KK59 | 39.5705| -95.1803|  327|Amelia Earhart AP, KS               |US|MTR
 0000000000|KK61 | 39.4710| -98.1290|  432|Moritz Mem AP, KS                   |US|MTR
 0000000000|KK62 | 38.7041| -84.3918|  274|Gene Synder AP, KY                  |US|MTR
