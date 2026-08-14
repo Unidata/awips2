@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 08/11/2026
+# FILE UPDATED 08/13/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2343,6 +2343,7 @@
 0000000000|KI69 | 39.0784| -84.2102|  257|Clermont Cnty AP, OH                |US|MTR
 0000000000|KI74 | 40.1326| -83.7534|  320|Urbana AP, OH                       |US|MTR
 0000000000|KI75 | 41.0522| -93.6897|  338|Osceola Muni AP, IA                 |US|MTR
+0000000000|KI93 | 37.7848| -86.4413|  223|Breckinridge Cnty AP, KY            |US|MTR
 0000000000|KIAB | 37.6231| -97.2676|  418|McConnell AFB, KS                   |US|MTR
 0000072403|KIAD | 38.9475| -77.4599|   95|Washington Dulles Intl AP, VA       |US|MTR
 0000000000|KIAG | 43.1084| -78.9462|  181|Niagara Falls Intl AP, NY           |US|MTR

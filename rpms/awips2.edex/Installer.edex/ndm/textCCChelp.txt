@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 08/11/2026
+# FILE UPDATED 08/13/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -2108,6 +2108,7 @@ I68 K-Warren Cnty AP/John Lane Fld, Lebanon, OH
 I69 K-Clermont Cnty AP, Batavia, OH
 I74 K-Grimes Fld AP, Urbana, OH
 I75 K-Osceola Muni AP, Osceola, IA
+I93 K-Breckinridge Cnty AP, Hardinsburg, KY
 IA  Iowa
 IAB K-Mc Connell AFB, Wichita, KS
 IAC Arctic
