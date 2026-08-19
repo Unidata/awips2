@@ -110,7 +110,7 @@ import javax.measure.MetricPrefix;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({ LambertConformalGridCoverage.class, LatLonGridCoverage.class,
         MercatorGridCoverage.class, PolarStereoGridCoverage.class,
-        StereographicGridCoverage.class })
+        StereographicGridCoverage.class, RotatedLatLonGridCoverage.class })
 @DynamicSerialize
 public abstract class GridCoverage extends PersistableDataObject<Integer>
         implements ISpatialObject, IGridGeometryProvider, Cloneable {

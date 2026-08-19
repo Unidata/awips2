@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="titleItem" titleText= "------ RRFS O-CONUS Models ------" id="defaultModel"/> 
+
+            <contribute xsi:type="subinclude" subMenu = "RRFS-Alaska"
+             fileName="menus/grid/allFamilies-RRFS.xml">
+             <substitute key="modelName" value="RRFS-AK" />
+             <substitute key="menuName" value="RRFS-Alaska" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+            <contribute xsi:type="subinclude" subMenu = "RRFS-Hawaii"
+             fileName="menus/grid/allFamilies-RRFS.xml">
+             <substitute key="modelName" value="RRFS-HI" />
+             <substitute key="menuName" value="RRFS-Hawaii" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+     </contribute>
+     <contribute xsi:type="subinclude" subMenu = "RRFS-Puerto Rico"
+             fileName="menus/grid/allFamilies-RRFS.xml">
+             <substitute key="modelName" value="RRFS-PR" />
+             <substitute key="menuName" value="RRFS-Puerto Rico" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+     </contribute>
+</menuTemplate>

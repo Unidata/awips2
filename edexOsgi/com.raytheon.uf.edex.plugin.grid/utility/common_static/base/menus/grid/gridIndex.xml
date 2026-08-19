@@ -41,6 +41,32 @@
              <substitute key="menuName" value="HRRR Smoke" />
              <substitute key="frameCount" value="19" />
     </contribute>
+            <contribute xsi:type="subinclude" subMenu = "RRFS-North America"
+             fileName="menus/grid/allFamilies-RRFS.xml">
+             <substitute key="modelName" value="RRFS-NA" />
+             <substitute key="menuName" value="RRFS-North America" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </contribute>
+            <contribute xsi:type="subinclude" subMenu = "RRFS-CONUS"
+             fileName="menus/grid/allFamilies-RRFS.xml">
+             <substitute key="modelName" value="RRFS-CONUS" />
+             <substitute key="menuName" value="RRFS-CONUS" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+     </contribute>
+                 <contribute xsi:type="subinclude" subMenu = "RRFS-Fire"
+             fileName="menus/grid/allFamilies-RRFS.xml">
+             <substitute key="modelName" value="RRFS-Fire" />
+             <substitute key="menuName" value="RRFS-Fire" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+     </contribute>
+
+        <contribute xsi:type="subinclude" subMenu = "RRFS O-CONUS Domains"
+             fileName="menus/grid/rrfsOCONUSmenu.xml">
+    </contribute>
+
 	<contribute xsi:type="subinclude" subMenu = "NAM 12km" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />

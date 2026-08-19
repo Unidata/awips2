@@ -1,0 +1,17 @@
+<mercatorGridCoverage>
+    <name>RRFS_HI</name>
+    <description>RRFS 2.5 km Hawaii Mercator grid</description>
+    <la1>18.072699</la1>
+    <lo1>198.474999</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>321</nx>
+    <ny>225</ny>
+    <dx>2.5</dx>
+    <dy>2.5</dy>
+    <la2>23.087799</la2>
+    <lo2>206.130990</lo2>
+    <latin>20.0</latin>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371200</minorAxis>
+    <majorAxis>6371200</majorAxis>
+</mercatorGridCoverage>
