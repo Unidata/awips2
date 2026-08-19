@@ -47,5 +47,14 @@
 44:44:Simulated Brightness Temperature for ABI GOES-17, Band-15:K:SBTA1715
 45:45:Simulated Brightness Temperature for ABI GOES-17, Band-16:K:SBTA1716
 #46-191:	Reserved 	
+77:77:Simulated Brightness Temperature for ABI GOES-18, Band-8:K:SBTA188
+78:78:Simulated Brightness Temperature for ABI GOES-18, Band-9:K:SBTA189
+79:79:Simulated Brightness Temperature for ABI GOES-18, Band-10:K:SBTA1810
+80:80:Simulated Brightness Temperature for ABI GOES-18, Band-11:K:SBTA1811
+81:81:Simulated Brightness Temperature for ABI GOES-18, Band-12:K:SBTA1812
+82:82:Simulated Brightness Temperature for ABI GOES-18, Band-13:K:SBTA1813
+83:83:Simulated Brightness Temperature for ABI GOES-18, Band-14:K:SBTA1814
+84:84:Simulated Brightness Temperature for ABI GOES-18, Band-15:K:SBTA1815
+85:85:Simulated Brightness Temperature for ABI GOES-18, Band-16:K:SBTA1816
 #192-254 Reserved for Local Use 	
 255:255:Missing

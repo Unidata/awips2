@@ -1,4 +1,5 @@
 # Product Discipline 0: Meteorological products, Parameter Category 5: Long-wave Radiation
+7:7:Brightness Temperature:K:BRTEMP
 #192-254 Reserved for local use
 192:192:Downward Long-Wave Rad. Flux:W/m^2:DLWRF
 193:193:Upward Long-Wave Rad. Flux:W/m^2:ULWRF

@@ -52,6 +52,16 @@
     <vbSource key="NAVGEM" category="Volume" />
     <vbSource key="NDFD" category="Volume" />
     <vbSource key="NationalBlend" category="Volume" />
+    <vbSource key="RRFS-NA" category="Volume" />
+    <vbSource key="RRFS-CONUS" category="Volume" />
+    <vbSource key="RRFS-AK" category="Volume" />
+    <vbSource key="RRFS-HI" category="Volume" />
+    <vbSource key="RRFS-PR" category="Volume" />
+    <vbSource key="RRFS-Fire" category="Volume" />
+    <vbSource key="REFS" category="Ensemble" views="PLANVIEW TIMESERIES" />
+    <vbSource key="REFS-AK" category="Ensemble" views="PLANVIEW TIMESERIES" />
+    <vbSource key="REFS-HI" category="Ensemble" views="PLANVIEW TIMESERIES" />
+    <vbSource key="REFS-PR" category="Ensemble" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTMA" category="Volume" />
     <vbSource key="URMA25" category="Volume" />    
     <vbSource key="RAP13" category="Volume" />
