@@ -33,4 +33,8 @@
 222:222:U Component of Hourly Maximum 10m Wind Speed:m/s:MAXUW
 223:223:V Component of Hourly Maximum 10m Wind Speed:m/s:MAXVW
 224:224:Ventilation Rate:m^2/s:VRATE
+234:234:U Component Inflow Based to 50% EL Shear Vector:kt:UESH
+235:235:V Component Inflow Based to 50% EL Shear Vector:kt:VESH
+236:236:U Component Bunkers Effective Right Motion:kt:UEID
+237:237:V Component Bunkers Effective Right Motion:kt:VEID
 255:255:Missing

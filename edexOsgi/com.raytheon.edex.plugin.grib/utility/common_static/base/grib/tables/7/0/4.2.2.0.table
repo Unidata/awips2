@@ -39,5 +39,7 @@
 228:228:Aerodynamic conductance:m/s:ACOND
 229:229:Canopy water evaporation:W/m^2:EVCW
 230:230:Transpiration:W/m^2:TRANS
+231:231:Seasonally Minimum Green Vegetation Fraction (over 1-year period):%:VEGMIN
+232:232:Seasonally Maximum Green Vegetation Fraction (over 1-year period):%:VEGMAX
 255:255:Missing
 

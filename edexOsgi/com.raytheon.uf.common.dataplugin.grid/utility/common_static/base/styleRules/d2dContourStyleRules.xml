@@ -488,7 +488,7 @@ F  | 1.8 |0| 4 |    |   |..|8000F0FF| | 12 | 1 2 3 5 7 10 15 20 25 30 40 50
             </rangeLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="F">°R</displayUnits>
+            <displayUnits label="F">degree_rankine</displayUnits>
             <contourLabeling labelSpacing="4">
                 <values>1 2 3 5 7 10 15 20 25 30 40 50</values>
             </contourLabeling>
@@ -503,7 +503,7 @@ F  | 1.8 |0| 4 |    |   |..|8000F0FF| | 0 | 1
             <parameter>DpTerranl</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="F">°R</displayUnits>
+            <displayUnits label="F">degree_rankine</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>1</increment>
             </contourLabeling>
@@ -2475,7 +2475,7 @@ F  | 1.8 | | 4 |    |   |..|8000F0FF| | -15 | 0.1
             <singleLevel units="SURFACE"></singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="F">°R</displayUnits>
+            <displayUnits label="F">degree_rankine</displayUnits>
             <contourLabeling numberOfContours="15" labelSpacing="4">
                 <increment>0.1</increment>
             </contourLabeling>
@@ -2488,7 +2488,7 @@ F  | 1.8 | | 4 |    |   |..|8000F0FF| | -15 | 0.1
             <singleLevel units="SURFACE"></singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="F">°R</displayUnits>
+            <displayUnits label="F">degree_rankine</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>0.1</increment>
             </contourLabeling>
