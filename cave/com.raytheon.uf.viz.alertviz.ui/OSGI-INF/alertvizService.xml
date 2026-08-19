@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="com.raytheon.uf.viz.alertviz.ui.AlertVizUILauncher"
-	enabled="true" immediate="true">
+	enabled="false" immediate="true">
 	<implementation class="com.raytheon.uf.viz.alertviz.ui.AlertVizUILauncher" />
 	<reference name="AlertService" bind="setAlertService" unbind="unsetAlertService"
 		interface="com.raytheon.uf.viz.alertviz.AlertService"
