@@ -29,6 +29,7 @@ import java.util.Set;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.eclipse.ui.IPlaceholderFolderLayout;
 
 import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
 import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
@@ -143,6 +144,18 @@ public class D2D5Pane implements IPerspectiveFactory {
                 folder.addView(id);
             }
         }
+        IPlaceholderFolderLayout leftTools = layout.createPlaceholderFolder(
+                "com.raytheon.uf.viz.d2d.ui.leftToolsFolder",
+                IPageLayout.LEFT,
+                0.33f,
+                editorArea);
+
+        leftTools.addPlaceholder(
+                "gov.noaa.gsd.viz.ensemble.tool.viewer");
+        leftTools.addPlaceholder(
+                "com.raytheon.uf.viz.productbrowser.ProductBrowserView");
+        leftTools.addPlaceholder(
+                "com.raytheon.uf.viz.alertview.ui.view.AlertView");
 
     }
 }
