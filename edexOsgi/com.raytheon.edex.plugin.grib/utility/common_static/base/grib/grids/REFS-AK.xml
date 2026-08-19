@@ -1,0 +1,16 @@
+<polarStereoGridCoverage>
+    <name>REFS_AK</name>
+    <description>REFS 2.976 km Alaska Polar Stereographic grid</description>
+    <la1>40.53</la1>
+    <lo1>-178.571</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>1649</nx>
+    <ny>1105</ny>
+    <dx>2.976</dx>
+    <dy>2.976</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371200</minorAxis>
+    <majorAxis>6371200</majorAxis>
+    <lov>-150</lov>
+    <lad>60.0</lad>
+</polarStereoGridCoverage>

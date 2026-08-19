@@ -13,5 +13,6 @@
 202:202:Vertical Diffusion Heating rate:K/s:VDFHR
 203:203:Potential temperature at top of viscous sublayer:K:THZ0
 204:204:Tropical Cyclone Heat Potential:J/m^2*K:TCHP
+205:205:Effective Layer (EL) Temperature:C:ELMELT
 255:255:Missing
 
