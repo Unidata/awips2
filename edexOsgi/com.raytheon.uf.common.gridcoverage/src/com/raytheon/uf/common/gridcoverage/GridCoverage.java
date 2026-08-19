@@ -98,6 +98,7 @@ import javax.measure.MetricPrefix;
  * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
  * Aug 28, 2017  6378     bsteffen    Remove cached lower left ordinates.
  * Mar 20, 2019  6140     tgurney     Hibernate 5 UserType fix
+ * Aug 19, 2026           tiffanym    Added reference to RotatedLatLon
  *
  * </pre>
  *
@@ -110,7 +111,7 @@ import javax.measure.MetricPrefix;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({ LambertConformalGridCoverage.class, LatLonGridCoverage.class,
         MercatorGridCoverage.class, PolarStereoGridCoverage.class,
-        StereographicGridCoverage.class })
+        StereographicGridCoverage.class, RotatedLatLonGridCoverage.class })
 @DynamicSerialize
 public abstract class GridCoverage extends PersistableDataObject<Integer>
         implements ISpatialObject, IGridGeometryProvider, Cloneable {

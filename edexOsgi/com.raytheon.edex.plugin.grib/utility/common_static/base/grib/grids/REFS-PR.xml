@@ -1,0 +1,17 @@
+<mercatorGridCoverage>
+    <name>REFS_PR</name>
+    <description>REFS 2.5 km Puerto Rico Mercator grid</description>
+    <la1>15.0</la1>
+    <lo1>284.5</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>544</nx>
+    <ny>310</ny>
+    <dx>2.5</dx>
+    <dy>2.5</dy>
+    <la2>22.005</la2>
+    <lo2>297.491</lo2>
+    <latin>20.0</latin>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371200</minorAxis>
+    <majorAxis>6371200</majorAxis>
+</mercatorGridCoverage>

@@ -1,0 +1,17 @@
+<lambertConformalGridCoverage>
+    <name>RRFS_CONUS</name>
+    <description>RRFS 3 km CONUS Lambert Conformal grid</description>
+    <la1>21.138123</la1>
+    <lo1>-122.72</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>1799</nx>
+    <ny>1059</ny>
+    <dx>3.0</dx>
+    <dy>3.0</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371229</minorAxis>
+    <majorAxis>6371229</majorAxis>
+    <lov>-97.5</lov>
+    <latin1>38.5</latin1>
+    <latin2>38.5</latin2>
+</lambertConformalGridCoverage>
