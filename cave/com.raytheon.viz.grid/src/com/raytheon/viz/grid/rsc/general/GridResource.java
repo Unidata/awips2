@@ -65,7 +65,6 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  *                                    failing.
  * Aug 29, 2019  67962    tjensen     Update for GeneralGridData refactor
  * Jul 15, 2024  2037624  mapeters    Extract code to new getFirstGridRecord()
- * Aug 19, 2026           tiffanym    Added reference to RotatedLatLon
  *
  * </pre>
  *
