@@ -38,13 +38,10 @@ COMMIT TRANSACTION;
 EOF
 
     else
-        ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q << EOF
-BEGIN TRANSACTION;
-${stmt[@]}
-COMMIT TRANSACTION;
-EOF"
-
+        printf 'BEGIN TRANSACTION;\n%s\nCOMMIT TRANSACTION;\n' "${stmt[*]}" |
+            ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q"
     fi
+
 else
    echo -e "\t\tNo ${fieldType}s to update"
 fi
@@ -90,11 +87,12 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON FUNCTIONS TO $user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON TYPES TO $user;
 COMMIT TRANSACTION;
 EOF
+
     else
-       ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q << EOF
+        ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q" << EOF
 BEGIN TRANSACTION;
 GRANT USAGE ON SCHEMA "${schema}" TO $user;
-GRANT SELECT, INSERT, UPDATE, DELETE, TRIGGER, TRUNCATE ON ALL TABLES IN SCHEMA "$schema" TO $user;
+GRANT SELECT, INSERT, UPDATE, DELETE, TRIGGER, TRUNCATE ON ALL TABLES IN SCHEMA "${schema}" TO $user;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA "${schema}" TO $user;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA "${schema}" TO $user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT, INSERT, UPDATE, DELETE, TRIGGER, TRUNCATE ON TABLES TO $user;
@@ -102,7 +100,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON SEQUENCES TO $user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON FUNCTIONS TO $user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT ALL ON TYPES TO $user;
 COMMIT TRANSACTION;
-EOF"
+EOF
     fi
 done
 }
@@ -129,12 +127,11 @@ COMMIT TRANSACTION;
 EOF
 
 else
-    ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q << EOF
+    ${as_awips} -c "${PSQL} -U ${adminUser} -d $database -q" << EOF
 BEGIN TRANSACTION;
 ${stmt[@]}
 COMMIT TRANSACTION;
-EOF"
-
+EOF
 fi
 
 if [ $USER == "awips" ]; then

@@ -23,6 +23,7 @@
 -Dosgi.instance.area.readOnly=true
 -Dorg.eclipse.update.reconcile=false
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
+-DLOGDIR=caveData/logs/consoleLogs
 -Dlogback.configurationFile=logback-viz-alertview.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dslf4j.provider=ch.qos.logback.classic.spi.LogbackServiceProvider
