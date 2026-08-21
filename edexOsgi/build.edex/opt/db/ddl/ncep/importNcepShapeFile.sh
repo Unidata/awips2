@@ -16,8 +16,6 @@ if [ $# -lt 3 ] ; then
 fi
 
 
-source setPgHost.sh
-
 SHAPEFILE=${1}
 SCHEMA=${2}
 TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
