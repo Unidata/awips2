@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 08/13/2026
+# FILE UPDATED 08/19/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2547,6 +2547,7 @@
 0000000000|KLLJ | 44.5236|-114.2179| 1547|Challis AP, ID                      |US|MTR
 0000000000|KLLN | 33.5511|-102.3736| 1071|Levelland Muni AP, TX               |US|MTR
 0000000000|KLLQ | 33.6386| -91.7510|   82|Monticello Muni AP/Ellis Fld, AR    |US|MTR
+0000000000|KLLR | 39.2621|-123.7538|  175|Little River AP, CA                 |US|MTR
 0000000000|KLMO | 40.1633|-105.1628| 1540|Vance Brand AP, CO                  |US|MTR
 0000000000|KLMS | 33.1464| -89.0631|  175|Louisville Winston Cnty AP, MS      |US|MTR
 0000000000|KLMT | 42.1561|-121.7331| 1248|Klamath Falls AP/Kingsley Field, OR |US|MTR

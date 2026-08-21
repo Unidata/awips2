@@ -1,5 +1,5 @@
 # THIS IS THE BASE pirepsTable.txt FILE
-# FILE UPDATED 07/07/2026
+# FILE UPDATED 08/19/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 AAA           0 ABRAHAM                                 4016  -8934     0  0
@@ -143,6 +143,7 @@ AMT           0 WEST UNION                              3886  -8356     0  0
 AMW           0 AMES,IA                                 4203  -9367     0  0
 ANA           0 ANAHEIM,CA                              3383 -11783     0  0
 ANB           0 ANNISTON,AL                             3358  -8585     0  0
+ANC           0 ANCHORAGE                        AK US  6117 -15000     0  0
 AND           0 ANDERSON COUNTY                         3450  -8271     0  0
 ANE           0 MINNEAPOLIS,MN                          4513  -9322     0  0
 ANI           0 ANIAK                                   6159 -15960     0  0
@@ -166,7 +167,7 @@ AOP           0 ANTELOPE                                4160 -10900     0  0
 AOQ           0 ALLIANCE,NE                             4205 -10280     0  0
 AOV           0 BILMART                                 3697  -9268     0  0
 APA           0 DENVER,CO                               3957 -10488     0  0
-APC           0 NAPA,CA -VOR-                           3820 -12237     0  0
+APC           0 NAPA, -VOR-                      CA US  3820 -12237     0  0
 APE           0 APPLETON                                4015  -8259     0  0
 APF           0 NAPLES                                  2616  -8177     0  0
 APG           0 ABERDEEN                                3954  -7611     0  0
@@ -180,7 +181,7 @@ AQD           0 HARTFORD,CT                             4177  -7263     0  0
 AQE           0 ALWOOD                                  3571  -7737     0  0
 AQH           0 QUINHAGAK                        AK US  5976 -16188     0  0
 AQI           0 COLUMBUS,OH                             4000  -8288     0  0
-AQN           0 ACTON,TX -VOR-                          3245  -9770     0  0
+AQN           0 ACTON, -VOR-                     TX US  3245  -9770     0  0
 AQP           0 APPLETON                                4523  -9601     0  0
 AQQ           0 APALACHICOLA,FL                         2973  -8503     0  0
 AQR           0 ATOKA                            OK US  3440  -9615     0  0
@@ -225,12 +226,12 @@ ATU           0 ATTU                                    5283  17318     0  0
 ATW           0 APPLETON,WI                             4410  -8812     0  0
 ATX           0 ABINGDON,VA                             3672  -8210     0  0
 ATY           0 WATERTOWN                               4498  -9714     0  0
-AUC           0 COEUN D'ALENE,ID -VOR-                  4782 -11685     0  0
+AUC           0 COEUN D'ALENE, -VOR-             ID US  4782 -11685     0  0
 AUE           0 SEBRING,FL                              2733  -8128     0  0
 AUG           0 AUGUSTA                                 4432  -6980     0  0
 AUH           0 AURORA                                  4089  -9800     0  0
 AUI           0 LAS VEGAS,NV                            3608 -11515     0  0
-AUM           0 AUSTIN,MN -VOR-                         4363  -9290     0  0
+AUM           0 AUSTIN, -VOR-                    MN US  4363  -9290     0  0
 AUN           0 AUBURN,CA                               3895 -12108     0  0
 AUO           0 AUBURN,AL                               3282  -8528     0  0
 AUR           0 AURORA,NC                               3530  -7677     0  0
@@ -456,7 +457,7 @@ BPI           0 BIG PINEY                               4258 -11011     0  0
 BPK           0 MOUNTAIN HOME                    AR US  3637  -9247     0  0
 BPO           0 PINEY GROVE                             3654  -8448     0  0
 BPP           0 BOWMAN                           ND US  4619 -10343     0  0
-BPR           0 BRIDGEPORT, TX -VOR-                    3313  -9765     0  0
+BPR           0 BRIDGEPORT, -VOR-                TX US  3313  -9765     0  0
 BPT           0 BEAUMONT                                2995  -9402     0  0
 BPW           0 OSCEOLA                                 3569  -9001     0  0
 BQC           0 CHARLOTTE,NC                            3525  -8085     0  0
@@ -473,7 +474,7 @@ BQV           0 BARTLETT COVE                    AK US  5846 -13588     0  0
 BQZ           0 ROBERT                                  4046 -10687     0  0
 BRA           0 BROAD RIVER                             3527  -8247     0  0
 BRD           0 BRAINERD                                4635  -9403     0  0
-BRG           0 WHITESBURG,KY -VOR-                     3905  -8182     0  0
+BRG           0 WHITESBURG, -VOR-                KY US  3905  -8182     0  0
 BRK           0 BLACK FOREST                            3894 -10463     0  0
 BRL           0 BURLINGTON                              4072  -9093     0  0
 BRN           0 MOUNTAIN HOME,ID                        4315 -11565     0  0
@@ -491,8 +492,8 @@ BSQ           0 MYRTLE BEACH,SC                         3353  -7893     0  0
 BSR           0 BIG SUR                                 3618 -12164     0  0
 BST           0 BELFAST                                 4441  -6901     0  0
 BSV           0 BRIGGS                                  4074  -8143     0  0
-BSY           0 BISCAYNE BAY,FL -VOR-                   2568  -8015     0  0
-BTA           0 BURLINGTON,WA -VOR-                     4850 -12233     0  0
+BSY           0 BISCAYNE BAY, -VOR-              FL US  2568  -8015     0  0
+BTA           0 BURLINGTON, -VOR-                WA US  4850 -12233     0  0
 BTF           0 BOUNTIFUL,UT                            4078 -11197     0  0
 BTG           0 BATTLE GROUND                           4575 -12259     0  0
 BTI           0 BARTER ISLAND                           7013 -14364     0  0
@@ -509,7 +510,7 @@ BUB           0 BURWELL                                 4177  -9915     0  0
 BUD           0 BUCKEYE                                 4062  -8306     0  0
 BUF           0 BUFFALO                                 4293  -7865     0  0
 BUI           0 KNOXVILLE,TN                            3605  -8388     0  0
-BUJ           0 BLUE RIDGE,TX -VOR-                     3327  -9635     0  0
+BUJ           0 BLUE RIDGE, -VOR-                TX US  3327  -9635     0  0
 BUL           0 MIAMI,FL                                2580  -8028     0  0
 BUM           0 BUTLER                                  3827  -9449     0  0
 BUO           0 BEAUMONT,CA                             3393 -11697     0  0
@@ -532,7 +533,7 @@ BVS           0 SKAGIT/BAY VIEW                         4847 -12242     0  0
 BVT           0 BOILER                                  4056  -8707     0  0
 BVU           0 BELLEVUE,WA                             4757 -12213     0  0
 BVV           0 BROOKHAVEN                              3161  -9041     0  0
-BVX           0 BATESVILLE,AR -VOR-                     3567  -9152     0  0
+BVX           0 BATESVILLE, -VOR-                AR US  3567  -9152     0  0
 BVY           0 BEVERLY,MA                              4260  -7087     0  0
 BWB           0 BRYAN,OH                                3620  -9660     0  0
 BWC           0 BRAWLEY,CA                              3298 -11550     0  0
@@ -591,7 +592,7 @@ CBD           0 DALLAS                           TX US  3277  -9680     0  0
 CBE           0 CUMBERLAND                              3965  -7875     0  0
 CBF           0 COUNCIL BLUFFS,IA                       4123  -9582     0  0
 CBG           0 CAMBRIDGE                               4556  -9326     0  0
-CBI           0 COLUMBIA,MO -VOR-                       3893  -9237     0  0
+CBI           0 COLUMBIA, -VOR-                  MO US  3893  -9237     0  0
 CBK           0 COLBY,KS                                3937 -10105     0  0
 CBM           0 CALEDONIA                               3364  -8844     0  0
 CBP           0 COLUMBUS,OH                             4007  -8295     0  0
@@ -599,7 +600,7 @@ CBU           0 PORTLAND,OR                             4558 -12260     0  0
 CCA           0 FT CHAFFEE,AR                           3520  -9400     0  0
 CCB           0 UPLAND,CA                               3412 -11768     0  0
 CCC           0 CALVERTON                               4093  -7280     0  0
-CCE           0 NAPLES,FL -VOR-                         2617  -8187     0  0
+CCE           0 NAPLES, -VOR-                    FL US  2617  -8187     0  0
 CCG           0 CRANE                            TX US  3142 -10236     0  0
 CCH           0 LOGAN,UTAH                              4183 -11188     0  0
 CCI           0 CHARLESTON,SC                           3278  -7988     0  0
@@ -901,7 +902,7 @@ CZB           0 CASEY                                   3931  -8800     0  0
 CZD           0 COZAD,NE                                4090  -9997     0  0
 CZE           0 CLARKSVILLE                             3547  -9342     0  0
 CZF           0 CAPE ROMANZOF                           6179 -16597     0  0
-CZG           0 CASA GRANDE,AZ -VOR-                    3285 -11202     0  0
+CZG           0 CASA GRANDE, -VOR-               AZ US  3285 -11202     0  0
 CZH           0 JACKSONVILLE,FL                         3050  -8168     0  0
 CZI           0 CRAZY WOMAN                             4400 -10644     0  0
 CZJ           0 AMASON                                  3183  -9415     0  0
@@ -1127,7 +1128,7 @@ EEO           0 MEEKER                           CO US  4005 -10789     0  0
 EET           0 ALABASTER                        AL US  3318  -8678     0  0
 EEW           0 NEENAH,WI                               4382  -8855     0  0
 EEX           0 EMANUEL COUNTY                          3267  -8245     0  0
-EEY           0 SHAWNEE,VA -VOR-                        3910  -7815     0  0
+EEY           0 SHAWNEE, -VOR-                   VA US  3910  -7815     0  0
 EFC           0 BELLE FOURCHE                           4474 -10386     0  0
 EFD           0 ELLINGTON AFB,TX                        2960  -9517     0  0
 EFK           0 NEWPORT                                 4495  -7218     0  0
@@ -1186,7 +1187,7 @@ ELX           0 KEELER                                  4214  -8612     0  0
 ELY           0 ELY                                     3930 -11485     0  0
 ELZ           0 WELLSVILLE                              4209  -7800     0  0
 EMC           0 WINNEMUCCA                              4096 -11784     0  0
-EMD           0 ELMWOOD,IA -VOR-                        4213  -9295     0  0
+EMD           0 ELMWOOD, -VOR-                   IA US  4213  -9295     0  0
 EMG           0 ELM GROVE                               3240  -9360     0  0
 EMI           0 WESTMINSTER                             3950  -7698     0  0
 EMM           0 KEMMERER,WY                             4177 -11045     0  0
@@ -1210,7 +1211,7 @@ ENZ           0 NOGALES                                 3142 -11085     0  0
 EOE           0 ENOREE                                  3431  -8164     0  0
 EOG           0 GREENSBORO                              3260  -8766     0  0
 EOK           0 KEOKUK                                  4046  -9143     0  0
-EOL           0 NEOLA,IA -VOR-                          4148  -9567     0  0
+EOL           0 NEOLA, -VOR-                     IA US  4148  -9567     0  0
 EOM           0 OCEAN CITY,MD                           3833  -7508     0  0
 EON           0 PEOTONE                                 4127  -8779     0  0
 EOP           0 WAVERLY                                 3917  -8293     0  0
@@ -1391,7 +1392,7 @@ FMZ           0 BEKLOF                                  4059  -9757     0  0
 FNA           0 FLORENVILLE                             3042  -8982     0  0
 FNB           0 BRENNER                                 4008  -9559     0  0
 FND           0 ELLICOTT                                3929  -7678     0  0
-FNJ           0 FT GORDON,GA -VOR-                      3337  -8217     0  0
+FNJ           0 FT GORDON, -VOR-                 GA US  3337  -8217     0  0
 FNK           0 FIN CREEK,ALASKA                        6935 -14758     0  0
 FNL           0 FT COLLINS,CO                           4045 -10502     0  0
 FNO           0 CLINTON,IA                              4193  -9008     0  0
@@ -1444,14 +1445,15 @@ FST           0 FORT STOCKTON                           3095 -10298     0  0
 FSU           0 FT SUMNER,NM                            3438 -10423     0  0
 FSW           0 FORT MADISON                     IA US  4066  -9133     0  0
 FTA           0 HOT SPRINGS,SOUTH DAKOTA                4333 -10343     0  0
+FTC           0 KALISPELL                        MT US  4821 -11418     0  0
 FTD           0 FRANCE,REPUBLIC OF PANAMA                935  -7987     0  0
 FTE           0 FOLLETT,TEXAS                           3633 -10012     0  0
 FTG           0 DENVER - FRONT RANGE                    3979 -10454     0  0
-FTI           0 FT_UNION                                3566 -10514     0  0
+FTI           0 FORT UNION                       NV US  3566 -10514     0  0
 FTK           0 FORT KNOX                               3791  -8597     0  0
 FTO           0 YUKON RIVER                             6658 -14521     0  0
 FTP           0 FORT PAYNE                              3452  -8567     0  0
-FTQ           0 FT ORD,CA -VOR-                         3663 -12178     0  0
+FTQ           0 FT ORD, -VOR-                    CA US  3663 -12178     0  0
 FTT           0 GUTHRIE                                 3884  -9200     0  0
 FTW           0 FT WORTH,TX                             3282  -9737     0  0
 FTY           0 ATLANTA,GA                              3378  -8452     0  0
@@ -2024,7 +2026,7 @@ IJD           0 WILLIMANTIC                      CT US  4174  -7218     0  0
 IJX           0 JACKSONVILLE                            3978  -9024     0  0
 IJZ           0 NICHOLAS                                3818  -8092     0  0
 IKB           0 WILKESBORO,NC                           3612  -8118     0  0
-IKE           0 RICE LAKE,WI -VOR-                      4542  -9180     0  0
+IKE           0 RICE LAKE, -VOR-                 WI US  4542  -9180     0  0
 IKG           0 KINGSVILLE                       TX US  2755  -9803     0  0
 IKK           0 KANKAKEE                                4107  -8785     0  0
 IKO           0 NIKOLSKI                         AK US  5294 -16885     0  0
@@ -2070,7 +2072,7 @@ INT           0 WINSTON-SALEM,NC                        3610  -8025     0  0
 INW           0 WINSLOW                                 3506 -11080     0  0
 INY           0 INDEPENDENCE COUNTY                     3570  -9179     0  0
 IOB           0 MOUNT STERLING                          3806  -8398     0  0
-IOC           0 KIOWA,CO -VOR-                          3942 -10442     0  0
+IOC           0 KIOWA, -VOR-                     CO US  3942 -10442     0  0
 IOM           0 MC CALL                                 4481 -11610     0  0
 ION           0 IONE                                    4871 -11741     0  0
 IOW           0 IOWA CITY                               4152  -9161     0  0
@@ -2299,7 +2301,7 @@ LEE           0 LEESBURG                                2882  -8181     0  0
 LEG           0 HEBRON                           NE US  4019  -9757     0  0
 LEI           0 RALEIGH,NC                              3587  -7878     0  0
 LEM           0 LEMMON                                  4592 -10210     0  0
-LEU           0 LEWIS,IN -VOR-                          3930  -8723     0  0
+LEU           0 LEWIS, -VOR-                     IN US  3930  -8723     0  0
 LEV           0 LEEVILLE                                2918  -9010     0  0
 LEW           0 LEWISTON,ME                             4405  -7028     0  0
 LEX           0 LEXINGTON,KY                            3803  -8460     0  0
@@ -2344,7 +2346,7 @@ LIZ           0 LIMESTONE,ME                            4695  -6785     0  0
 LJC           0 LOUISVILLE,KY                           3817  -8573     0  0
 LJF           0 LITCHFIELD                       MN US  4510  -9451     0  0
 LJK           0 ASHEY                                   3777  -7748     0  0
-LJN           0 LAKE JACKSON,TX -VOR-                   2910  -9537     0  0
+LJN           0 LAKE JACKSON, -VOR-              TX US  2910  -9537     0  0
 LJT           0 TIMMERMAN                               4311  -8804     0  0
 LJU           0 OSCODA,MI                               4445  -8340     0  0
 LKA           0 CHINO,CALIFORNIA                        3383 -11755     0  0
@@ -2435,7 +2437,7 @@ LST           0 LONE STAR                               3293  -9474     0  0
 LSU           0 FLYING TIGER                            3049  -9129     0  0
 LSV           0 NELLIS AFB,NV                           3625 -11503     0  0
 LSW           0 DETROIT,MI                              4223  -8353     0  0
-LTA           0 LAKE TAHOE,CA -VOR-                     3915 -12023     0  0
+LTA           0 LAKE TAHOE, -VOR-                CA US  3915 -12023     0  0
 LTD           0 LITCHFIELD                              3917  -8967     0  0
 LTJ           0 KLICKITAT                               4571 -12110     0  0
 LTS           0 ALTUS                                   3466  -9927     0  0
@@ -2483,7 +2485,7 @@ LXY           0 MEXIA                                   3164  -9651     0  0
 LYD           0 LAKESIDE                                2982  -9568     0  0
 LYH           0 LYNCHBURG                               3725  -7924     0  0
 LYL           0 LIMA                                    4070  -8402     0  0
-LYN           0 CLAYTON,GA -VOR-                        3497  -8330     0  0
+LYN           0 CLAYTON, -VOR-                   GA US  3497  -8330     0  0
 LYO           0 LYONS                                   3835  -9823     0  0
 LYS           0 OLEAN                                   4228  -7834     0  0
 LYY           0 BATESVILLE,AR                           3583  -9168     0  0
@@ -2519,7 +2521,7 @@ MBY           0 MOBERLY/DCMSND                          3946  -9243     0  0
 MCB           0 MC COMB                                 3130  -9026     0  0
 MCC           0 MC CLELLAN                              3867 -12140     0  0
 MCD           0 MACKINAC ISLAND                  MI US  4586  -8464     0  0
-MCE           0 MERCED,CA -VOR-                         3717 -12037     0  0
+MCE           0 MERCED, -VOR-                    CA US  3717 -12037     0  0
 MCF           0 MC DILL AFB,FL                          2787  -8252     0  0
 MCG           0 MC GRATH                                6295 -15561     0  0
 MCI           0 KANSAS CITY                             3929  -9474     0  0
@@ -2545,7 +2547,7 @@ MDO           0 MIDDLETON ISLAND                        5942 -14635     0  0
 MDQ           0 HUNTSVILLE                       AL US  3486  -8656     0  0
 MDS           0 WENTWORTH                               4401  -9709     0  0
 MDT           0 MIDDLETOWN,PA                           4020  -7677     0  0
-MDV           0 MIDDLE RIVER,MD -VOR-                   3935  -7643     0  0
+MDV           0 MIDDLE RIVER, -VOR-              MD US  3935  -7643     0  0
 MDW           0 MIDWAY ARPT,IL                          4178  -8775     0  0
 MDY           0 MIDWAY                                  2820 -17738     0  0
 MDZ           0 MEDFORD                                 4511  -9031     0  0
@@ -2591,7 +2593,7 @@ MHR           0 MATHER AFB,CA                           3858 -12130     0  0
 MHS           0 MOUNT SHASTA,CA                         4132 -12232     0  0
 MHT           0 MANCHESTER                              4287  -7137     0  0
 MHV           0 MOJAVE,CA                               3508 -11812     0  0
-MHZ           0 MADISON,MS --VOR--                      3243  -9010     0  0
+MHZ           0 MADISON, -VOR-                   MS US  3243  -9010     0  0
 MIA           0 MIAMI,FL                                2580  -8028     0  0
 MIB           0 MINOT AFB,ND                            4842 -10138     0  0
 MIC           0 CRYSTAL ARPT,MN                         4503  -9332     0  0
@@ -2712,7 +2714,7 @@ MRJ           0 MINERAL POINT                           4289  -9023     0  0
 MRK           0 MOLLY RIDGE                             3241  -9177     0  0
 MRN           0 MORGANTON,NC                            3573  -8168     0  0
 MRT           0 MARYSVILLE                              4023  -8335     0  0
-MRX           0 MARCH,CA -VOR-                          3388 -11785     0  0
+MRX           0 MARCH, -VOR-                     CA US  3388 -11785     0  0
 MRY           0 MONTEREY,CA                             3658 -12185     0  0
 MRZ           0 SYRACUSE,NY                             4312  -7612     0  0
 MSA           0 MOUNT PLEASANT                          3313  -9497     0  0
@@ -2905,7 +2907,7 @@ OCF           0 OCALA                                   2918  -8223     0  0
 OCH           0 NACOGDOCHES,TX                          3157  -9475     0  0
 OCN           0 OCEANSIDE                               3324 -11742     0  0
 OCQ           0 OCONTO                                  4488  -8791     0  0
-OCR           0 NORCROSS,GA -VOR-                       3392  -8408     0  0
+OCR           0 NORCROSS, -VOR-                  GA US  3392  -8408     0  0
 OCS           0 ROCK SPRINGS                            4159 -10902     0  0
 OCW           0 WASHINGTON,NC                           3557  -7705     0  0
 OCZ           0 LINCOLN,NE                              4085  -9677     0  0
@@ -2916,7 +2918,7 @@ ODI           0 NODINE                                  4391  -9147     0  0
 ODK           0 KODIAK                                  5778 -15234     0  0
 ODO           0 ODESSA                           TX US  3192 -10239     0  0
 ODR           0 WOODRUM                                 3732  -7998     0  0
-ODU           0 DEVILLE,LA -VOR-                        3133  -9212     0  0
+ODU           0 DEVILLE, -VOR-                   LA US  3133  -9212     0  0
 ODX           0 ORD                                     4162  -9895     0  0
 OEA           0 VINCENNES                               3869  -8756     0  0
 OEB           0 COLDWAER                         MI US  4193  -8505     0  0
@@ -3388,7 +3390,7 @@ RGJ           0 RICHMOND,VA                             3750  -7732     0  0
 RGK           0 RED WING                                4459  -9249     0  0
 RGO           0 AKRON,OH                                4092  -8143     0  0
 RGR           0 OKLAHOMA CITY,OK                        3540  -9760     0  0
-RGS           0 RENO,NV -CANNON VOR-                    3950 -11977     0  0
+RGS           0 RENO, -CANNON VOR-               NV US  3950 -11977     0  0
 RHI           0 RHINELANDER                             4563  -8946     0  0
 RHP           0 ANDREWS                          NC US  3519  -8386     0  0
 RHU           0 FRUITA/DCMSND                           3918 -10864     0  0
@@ -3431,7 +3433,7 @@ RMY           0 MARSHALL                         MI US  4225  -8496     0  0
 RNB           0 RAINBOW                                 3942  -7514     0  0
 RNC           0 MC MINNVILLE,TN                         3548  -8567     0  0
 RND           0 RANDOLPH                                2952  -9829     0  0
-RNE           0 REDSTONE,CO -VOR-                       3918 -10717     0  0
+RNE           0 REDSTONE, -VOR-                  CO US  3918 -10717     0  0
 RNH           0 NEW RICHMOND                            4515  -9253     0  0
 RNI           0 KANSAS CITY,MO                          3930  -9473     0  0
 RNL           0 RAINELLE                                3798  -8081     0  0
@@ -3456,7 +3458,7 @@ RPB           0 REPUBLICAN                              3981  -9766     0  0
 RPD           0 RICE LAKE                               4542  -9178     0  0
 RPF           0 CARTHAGE                                3218  -9430     0  0
 RPH           0 GRAHAM                           TX US  3310  -9856     0  0
-RPI           0 FRESNO,CA -VOR-                         3678 -11972     0  0
+RPI           0 FRESNO, -VOR-                    CA US  3678 -11972     0  0
 RPJ           0 ROCHELLE                         IL US  4189  -8908     0  0
 RPX           0 ROUNDUP                                 4648 -10857     0  0
 RQB           0 BIG RAPIDS                       MI US  4372  -8550     0  0
@@ -3493,7 +3495,7 @@ RSZ           0 PHOENIX,ARIZONA                         3333 -11193     0  0
 RTH           0 NEW YORK,NY                             4063  -7378     0  0
 RTK           0 ROANOKE RAPIDS,NC                       3650  -7783     0  0
 RTN           0 RATON,NM                                3697 -10448     0  0
-RTY           0 MUSCATINE,IA -VOR-                      4137  -9113     0  0
+RTY           0 MUSCATINE, -VOR-                 IA US  4137  -9113     0  0
 RUE           0 RUSSELLVILLE                            3526  -9309     0  0
 RUF           0 MINOCQUA-WOODRUFF,WISCONSIN             4583  -8973     0  0
 RUG           0 RUGBY                                   4839 -10003     0  0
@@ -3524,7 +3526,7 @@ RXQ           0 WASHINGTON,DC                           3885  -7703     0  0
 RXW           0 WATERSMEET                              4629  -8928     0  0
 RXZ           0 CHICAGO,IL                              4202  -8792     0  0
 RYB           0 RAYMOND                                 3230  -9041     0  0
-RYK           0 ROMULUS,NY -VOR-                        4275  -7690     0  0
+RYK           0 ROMULUS, -VOR-                   NY US  4275  -7690     0  0
 RYM           0 CAMP RIPLEY                      MN US  4608  -9435     0  0
 RYN           0 RYAN                                    3214 -11116     0  0
 RYP           0 CUMBERLAND,MARYLAND                     3950  -7877     0  0
@@ -3565,7 +3567,7 @@ SBJ           0 SOLBERG                                 4058  -7474     0  0
 SBM           0 SHEBOYGAN,WI                            4378  -8790     0  0
 SBN           0 SOUTH BEND,IN                           4170  -8632     0  0
 SBO           0 SWAINSBORO,GA                           3260  -8235     0  0
-SBP           0 SAN LUIS OBISPO,CA -VOR-                3528 -12083     0  0
+SBP           0 SAN LUIS OBISPO, -VOR-           CA US  3528 -12083     0  0
 SBQ           0 SCOBEY                                  3389  -8987     0  0
 SBS           0 STEAMBOAT SPRINGS                       4047 -10683     0  0
 SBT           0 SAN BERNARDINO,CA                       3407 -11727     0  0
@@ -3580,7 +3582,7 @@ SCE           0 STATE COLLEGE,PA                        4082  -7788     0  0
 SCG           0 SCOTT                                   4826  -9247     0  0
 SCH           0 SCHENECTADY,NY                          4287  -7397     0  0
 SCK           0 STOCKTON,CA                             3790 -12123     0  0
-SCL           0 SAND COULEE -VOR-                       4753 -11128     0  0
+SCL           0 SAND COULEE, -VOR-               MT US  4753 -11128     0  0
 SCM           0 SCAMMON BAY                      AK US  6184 -16557     0  0
 SCO           0 SCOBEY                                  4881 -10544     0  0
 SCX           0 ONEIDA,TN                               3628  -8342     0  0
@@ -3646,7 +3648,7 @@ SHL           0 SHELDON                                 4321  -9583     0  0
 SHN           0 SHELTON,WA                              4720 -12313     0  0
 SHP           0 WICHITA FALLS,TEXAS                     3385  -9848     0  0
 SHR           0 SHERIDAN                                4484 -10706     0  0
-SHS           0 GALVESTON-SHOLES,TX -VOR-               2938  -9482     0  0
+SHS           0 GALVESTON-SHOLES, -VOR-          TX US  2938  -9482     0  0
 SHV           0 SHREVEPORT,LA                           3245  -9383     0  0
 SHY           0 SUNSHINE                                3804  -9260     0  0
 SIA           0 SAN FRANCISCO,CA                        3762 -12237     0  0
@@ -3977,7 +3979,7 @@ TRK           0 TRUCKEE,CA                              3937 -12017     0  0
 TRL           0 TERRELL,TX                              3267  -9630     0  0
 TRM           0 THERMAL                                 3363 -11616     0  0
 TRT           0 UNIVERSAL CITY,TX                       2953  -9828     0  0
-TRV           0 VERO BEACH, FL - VOR -                  2768  -8049     0  0
+TRV           0 VERO BEACH, -VOR-                FL US  2768  -8049     0  0
 TRX           0 TRENTON                                 4008  -9359     0  0
 TSG           0 TANACROSS                        AK US  6337 -14333     0  0
 TSL           0 CHICAGO,IL                              4202  -8792     0  0
@@ -4272,7 +4274,7 @@ XBG           0 BAGOTVILLE/QUE,CANADA                   4818  -7100     0  0
 XBR           0 BRANTLEY                                3156  -8629     0  0
 XCC           0 OFFSHORE,CALIFORNIA                     3967 -12400     0  0
 XCR           0 RIPLEY                                  4608  -9434     0  0
-XDY           0 MOODY AFB,GA -VOR-                      3097  -8320     0  0
+XDY           0 MOODY AFB, -VOR-                 GA US  3097  -8320     0  0
 XED           0 MEDFORD,OKLAHOMA                        3668  -9775     0  0
 XEN           0 XENIA                                   3972  -8393     0  0
 XLE           0 COLUMBUS,GEORGIA                        3202  -8485     0  0

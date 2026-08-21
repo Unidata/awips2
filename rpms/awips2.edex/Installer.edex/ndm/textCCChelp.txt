@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 08/13/2026
+# FILE UPDATED 08/19/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -2649,6 +2649,7 @@ LKV K-Lake Cnty AP, Lakeview, OR
 LLJ K-Challis AP, Challis, ID
 LLN K-Levelland Muni AP, Levelland, TX
 LLQ K-Monticello Muni AP/Ellis Fld, Monticello, AR
+LLR K-Little River AP, Little River, CA
 LLS Low Level Sounding
 LM  Lake Michigan
 LMK WFO Louisville, KY
