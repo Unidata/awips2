@@ -26,6 +26,8 @@ else
     PGPORT=${3}
 fi
 
+source $PGHOME/setPgHost.sh
+
 for shp in `find ${4}/shapefiles -name "*.shp"` ; do
     base=`basename \`dirname $shp\``
     echo Creating $base...

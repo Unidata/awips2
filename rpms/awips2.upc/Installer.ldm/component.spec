@@ -286,6 +286,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/ldm/SOURCES
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
+%config /var/spool/cron/awips
 %attr(600,awips,fxalpha) /var/spool/cron/awips
 #%attr(755,awips,fxalpha) /awips2/edex/bin/edexBridge
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
