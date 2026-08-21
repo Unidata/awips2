@@ -10,7 +10,7 @@
 # !
 # -----------------------------------------------------------------
 
-source setPgHost.sh
+source ${4}/setPgHost.sh
 
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadAirepWaypnts.sql  >> ${5} 2>&1
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadBuoys.sql  >> ${5} 2>&1
