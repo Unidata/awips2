@@ -10,7 +10,7 @@
 # !
 
 
-source setPgHost.sh
+source ${4}/setPgHost.sh
 
 echo -----------------------------------------------------
 echo  \| Creating NCEP database and tables...
