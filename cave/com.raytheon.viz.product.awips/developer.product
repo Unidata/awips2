@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/Library/caveData -user @user.home/Library/caveData -clean -consoleLog
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog
       </programArgs>
       <vmArgs>-Xmx6144M
 -XX:+UseG1GC
