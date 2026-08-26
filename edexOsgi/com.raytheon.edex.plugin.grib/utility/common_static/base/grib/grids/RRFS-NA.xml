@@ -1,0 +1,15 @@
+<rotatedLatLonGridCoverage>
+    <name>RRFS_NA</name>
+    <description>RRFS 13 km North America Rotated Latitude/Longitude grid</description>
+    <la1>-36.9303</la1>
+    <lo1>299.0</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>1127</nx>
+    <ny>683</ny>
+    <dx>0.1083</dx>
+    <dy>0.1083</dy>
+    <spacingUnit>degree</spacingUnit>
+    <southPoleLat>-35.0</southPoleLat>
+    <southPoleLon>247.0</southPoleLon>
+    <rotationAngle>0.0</rotationAngle>
+</rotatedLatLonGridCoverage>

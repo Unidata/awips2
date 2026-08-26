@@ -614,7 +614,7 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="F">°R</displayUnits>
+            <displayUnits label="F">degree_rankine</displayUnits>
             <range scale="LINEAR">
                 <minValue>-4</minValue>
                 <maxValue>60</maxValue>
@@ -635,7 +635,7 @@
             <parameter>DpTerranl</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="F">°R</displayUnits>
+            <displayUnits label="F">degree_rankine</displayUnits>
             <range scale="LINEAR">
                 <minValue>-4</minValue>
                 <maxValue>20</maxValue>
@@ -3109,7 +3109,7 @@
             <singleLevel units="SURFACE"/>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="F">°R</displayUnits>
+            <displayUnits label="F">degree_rankine</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
         </imageStyle>
     </styleRule>

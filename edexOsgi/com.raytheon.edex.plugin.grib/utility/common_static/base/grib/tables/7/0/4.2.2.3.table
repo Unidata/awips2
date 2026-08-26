@@ -1,4 +1,5 @@
 # Product Discipline 2: Land surface products, Parameter Category 3: Soil Products
+20:20:Column-Integrated Soil Moisture:kg/m^2:CISOILM
 #192-254 Reserved for local use
 192:192:Liquid volumetric soil moisture (non-frozen):Proportion:SOILL
 193:193:Number of soil layers in root zone::RLYRS

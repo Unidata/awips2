@@ -56,7 +56,7 @@
 # Mar 19, 2018  20395    wkwock      Added PDS template 15
 # Jul  3, 2019  7879     tgurney     Python 3 fixes
 # Aug 02, 2021  8520     njensen     Switch from matplotlib.mlab.griddata to scipy.interpolate.griddata
-#
+# Aug 19, 2026           tiffanym    Add in logic for rotated lat lon grid coverage
 
 import grib2
 import numpy
@@ -80,7 +80,9 @@ from com.raytheon.uf.common.gridcoverage import LambertConformalGridCoverage
 from com.raytheon.uf.common.gridcoverage import LatLonGridCoverage
 from com.raytheon.uf.common.gridcoverage import MercatorGridCoverage
 from com.raytheon.uf.common.gridcoverage import PolarStereoGridCoverage
+from com.raytheon.uf.common.gridcoverage import RotatedLatLonGridCoverage
 from com.raytheon.uf.common.gridcoverage.lookup import GridCoverageLookup
+
 
 from com.raytheon.uf.common.grib import GribModelLookup
 from com.raytheon.uf.common.grib.tables import GribTableLookup
@@ -858,7 +860,40 @@ class GribDecoder():
 
         # Rotated Latitude/Longitude projection
         elif gdsTemplateNumber == 1:
-            pass
+            coverage = RotatedLatLonGridCoverage()
+        
+            nx = int(gdsTemplate[7])
+            ny = int(gdsTemplate[8])
+        
+            la1 = self._divideBy10e6(gdsTemplate[11])
+            lo1 = self._divideBy10e6(gdsTemplate[12])
+        
+            dx = self._divideBy10e6(gdsTemplate[16])
+            dy = self._divideBy10e6(gdsTemplate[17])
+        
+            gribDict['scanMode'] = int(gdsTemplate[18])
+        
+            southPoleLat = self._divideBy10e6(gdsTemplate[19])
+            southPoleLon = self._divideBy10e6(gdsTemplate[20])
+            rotationAngle = self._divideBy10e6(gdsTemplate[21])
+        
+            coverage.setSpacingUnit(DEFAULT_SPACING_UNIT2)
+            coverage.setNx(Integer(nx))
+            coverage.setNy(Integer(ny))
+            coverage.setLa1(la1)
+            coverage.setLo1(lo1)
+            coverage.setDx(dx)
+            coverage.setDy(dy)
+        
+            coverage.setSouthPoleLat(southPoleLat)
+            coverage.setSouthPoleLon(southPoleLon)
+            coverage.setRotationAngle(rotationAngle)
+        
+            corner = GribSpatialCache.determineFirstGridPointCorner(
+                    gribDict['scanMode'])
+            coverage.setFirstGridPointCorner(corner)
+        
+            gribDict['coverage'] = self._getGrid(coverage)
 
         # Stretched Latitude/Longitude projection
         elif gdsTemplateNumber == 2:

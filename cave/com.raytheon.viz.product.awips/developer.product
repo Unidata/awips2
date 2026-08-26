@@ -14,14 +14,15 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog
       </programArgs>
       <vmArgs>-Xmx6144M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
 -Dorg.eclipse.update.reconcile=false
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
--Dlogback.configurationFile=logback-viz-core-developer.xml
+-DLOGDIR=caveData/logs/consoleLogs
+-Dlogback.configurationFile=logback-viz-alertview.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dslf4j.provider=ch.qos.logback.classic.spi.LogbackServiceProvider
 -Dthrift.stream.maxsize=320
@@ -64,6 +65,7 @@
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</linux>
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</windows>
+      <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</macos>
    </vm>
 
    <plugins>

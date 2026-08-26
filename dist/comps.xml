@@ -94,7 +94,7 @@
          <packagereq type="mandatory">awips2-common-foss</packagereq>
          <packagereq type="mandatory">awips2-common-base</packagereq>
          <packagereq type="mandatory">awips2-edex-core</packagereq>
-         <packagereq type="mandatory">awips2-edex-registry-client</packagereq>
+         <packagereq type="default">awips2-edex-registry-client</packagereq>
          <packagereq type="mandatory">awips2-edex-foss</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-beust-jcommander</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-google-protobuf</packagereq>
@@ -147,7 +147,7 @@
          <packagereq type="default">awips2-edex-odim</packagereq>
          <packagereq type="mandatory">awips2-edex-ost</packagereq>
          <packagereq type="mandatory">awips2-edex-radar</packagereq>
-	 <packagereq type="mandatory">awips2-edex-registry</packagereq>
+	 <packagereq type="default">awips2-edex-registry</packagereq>
          <packagereq type="mandatory">awips2-edex-probsevere</packagereq>
          <packagereq type="mandatory">awips2-edex-satellite</packagereq>
          <packagereq type="mandatory">awips2-edex-warning</packagereq>
@@ -161,8 +161,8 @@
          <packagereq type="mandatory">awips2-edex-grib-decoderpostprocessor</packagereq>
          <packagereq type="mandatory">awips2-edex-nswrc-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-grid</packagereq>
-         <packagereq type="mandatory">awips2-edex-hazards</packagereq>
-         <packagereq type="mandatory">awips2-edex-hazards-scripts</packagereq>
+         <packagereq type="default">awips2-edex-hazards</packagereq>
+         <packagereq type="default">awips2-edex-hazards-scripts</packagereq>
          <packagereq type="mandatory">awips2-edex-config-auto</packagereq>
          <packagereq type="mandatory">awips2-yajsw</packagereq>
          <packagereq type="mandatory">awips2-edex-menus-vb</packagereq>
@@ -253,6 +253,7 @@
          <packagereq type="mandatory">awips2-edex-foss</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-beust-jcommander</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-google-protobuf</packagereq>
+         <packagereq type="mandatory">awips2-edex-foss-com-google-re2j</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-mchange</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-com-sun-jna</packagereq>
          <packagereq type="mandatory">awips2-edex-foss-edu-mit-ll-netcdf</packagereq>
@@ -593,8 +594,8 @@
          <packagereq type="default">awips2-edex-config-auto</packagereq>
          <packagereq type="default">awips2-edex-mpe</packagereq>
          <packagereq type="default">awips2-edex-cwagenerator</packagereq>
-         <packagereq type="mandatory">awips2-edex-hazards</packagereq>
-         <packagereq type="mandatory">awips2-edex-hazards-scripts</packagereq>
+         <packagereq type="default">awips2-edex-hazards</packagereq>
+         <packagereq type="default">awips2-edex-hazards-scripts</packagereq>
 	 <packagereq type="mandatory">awips2-edex-nsea</packagereq>
          <packagereq type="default">awips2-yajsw</packagereq>
          <packagereq type="default">awips2-gfesuite</packagereq>
@@ -677,7 +678,7 @@
          <packagereq type="mandatory">awips2-scripts</packagereq>
          <packagereq type="mandatory">awips2-notification</packagereq>
          <packagereq type="mandatory">awips2-thrift</packagereq>
-         <packagereq type="mandatory">awips2-edex-hazards-scripts</packagereq>
+         <packagereq type="default">awips2-edex-hazards-scripts</packagereq>
 
          <packagereq type="mandatory">awips2-python-numpy</packagereq>
          <packagereq type="mandatory">awips2-python-scipy</packagereq>
@@ -940,7 +941,7 @@
          <packagereq type="default">awips2-edex-grid</packagereq>
          <packagereq type="default">awips2-edex-menus-vb</packagereq>
          <packagereq type="default">awips2-edex-odim</packagereq>
-         <packagereq type="mandatory">awips2-edex-hazards</packagereq>
+         <packagereq type="default">awips2-edex-hazards</packagereq>
          <packagereq type="default">awips2-yajsw</packagereq>
          <packagereq type="default">awips2-common-foss</packagereq>
          <packagereq type="default">awips2-common-base</packagereq>
