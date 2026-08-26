@@ -87,6 +87,9 @@
             </range>
      <!-- <defaultColormap>NPP/VIIRS/ZA (Vis Default)</defaultColormap> -->
             <defaultColormap>NPP/VIIRS/NCC_zero_to_one</defaultColormap>
+		<colorbarLabeling>
+		    <values>0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6</values>
+		</colorbarLabeling>
         </imageStyle>
     </styleRule>
 <!-- Special Ref 1.378u Satellite Rule based on sample data -->
