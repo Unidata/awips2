@@ -445,7 +445,6 @@
 </styleRule>
 <styleRule>
 	<paramLevelMatches>
-		<parameter>DHR</parameter>
 		<parameter>N0Q</parameter>
 	</paramLevelMatches>
 	<imageStyle>
@@ -467,6 +466,32 @@
 			<entry displayValue=' 94.5' pixelValue='255' label="" />
 		</dataMapping>
 	</imageStyle>
+</styleRule>
+<styleRule>
+    <paramLevelMatches>
+        <parameter>DHR</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+        <displayUnits>dBZ</displayUnits>
+        <colorMapUnits>IRPixel</colorMapUnits>
+        <defaultColormap>Radar/DHR</defaultColormap>
+        <dataMapping>
+            <entry displayValue='-32.0' pixelValue='2' label="" />
+            <entry displayValue='-30.0' pixelValue='6' />
+            <entry displayValue='-20.0' pixelValue='26' />
+            <entry displayValue='-10.0' pixelValue='46' />
+            <entry displayValue='0.0' pixelValue='66' />
+            <entry displayValue='10.0' pixelValue='86' />
+            <entry displayValue='20.0' pixelValue='106' />
+            <entry displayValue='30.0' pixelValue='126' />
+            <entry displayValue='40.0' pixelValue='146' />
+            <entry displayValue='50.0' pixelValue='166' />
+            <entry displayValue='60.0' pixelValue='186' />
+            <entry displayValue='70.0' pixelValue='206' />
+            <entry displayValue='75.0' pixelValue='216' />
+            <entry displayValue='94.5' pixelValue='255' label="" />
+        </dataMapping>
+    </imageStyle>
 </styleRule>
 <styleRule>
 	<paramLevelMatches>

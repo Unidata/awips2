@@ -26,6 +26,105 @@
         be added to the directory instead of overriding a specific file.
     -->
 <gribModelSet>
+<model>
+    <name>RRFS-Fire</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <process>
+        <id>134</id>
+    </process>
+    <fileNameRegex>rrfs\.t\d{2}z\.(prslev|2dfld)\.1p5km\.f\d{3}\.firewx_lcc\.grib2</fileNameRegex>
+</model>
+
+<model>
+    <name>REFS</name>
+    <center>7</center>
+    <subcenter>2</subcenter>
+    <grid>REFS_CONUS</grid>
+    <process>
+        <id>136</id>
+    </process>
+</model>
+
+<model>
+    <name>REFS-AK</name>
+    <center>7</center>
+    <subcenter>2</subcenter>
+    <grid>REFS_AK</grid>
+    <process>
+        <id>136</id>
+    </process>
+</model>
+
+<model>
+    <name>REFS-HI</name>
+    <center>7</center>
+    <subcenter>2</subcenter>
+    <grid>REFS_HI</grid>
+    <process>
+        <id>136</id>
+    </process>
+</model>
+
+<model>
+    <name>REFS-PR</name>
+    <center>7</center>
+    <subcenter>2</subcenter>
+    <grid>REFS_PR</grid>
+    <process>
+        <id>136</id>
+    </process>
+</model>
+
+<model>
+    <name>RRFS-NA</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>RRFS_NA</grid>
+    <process>
+        <id>134</id>
+    </process>
+</model>
+<model>
+    <name>RRFS-CONUS</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>RRFS_CONUS</grid>
+    <process>
+        <id>134</id>
+    </process>
+</model>
+
+<model>
+    <name>RRFS-AK</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>RRFS_AK</grid>
+    <process>
+        <id>134</id>
+    </process>
+</model>
+
+<model>
+    <name>RRFS-HI</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>RRFS_HI</grid>
+    <process>
+        <id>134</id>
+    </process>
+</model>
+
+<model>
+    <name>RRFS-PR</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>RRFS_PR</grid>
+    <process>
+        <id>134</id>
+    </process>
+</model>
+
     <!-- SUBCENTER 0 -->
     <model>
         <name>HRRR</name>
