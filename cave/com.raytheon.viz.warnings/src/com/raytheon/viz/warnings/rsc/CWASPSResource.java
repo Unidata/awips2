@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringJoiner;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -42,12 +41,10 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.JTSCompiler.PointStyle;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKTReader;
 
@@ -68,6 +65,7 @@ import org.locationtech.jts.io.WKTReader;
  * Sep 14, 2016 3241       bsteffen    Update deprecated JTSCompiler method calls
  * Mar 15, 2018 7047       dgilling    Fix order of display of SPS metadata.
  * Jun 24, 2022            srcarter@ucar  Always create outline (wireshapes) and fill (shadedshapes)
+ * Aug 26, 2026            tiffanym@ucar  Cleaned up getGeometry function to fix error
  * </pre>
  *
  * @author rjpeter
@@ -95,10 +93,9 @@ public class CWASPSResource extends WatchesResource {
      */
     private Geometry getGeometry(AbstractWarningRecord record) {
 
-        StringJoiner countyList = new StringJoiner(",", "(", ")");
-        StringJoiner marinezoneList = new StringJoiner(",", "(", ")");
-        // state_zone
-        StringJoiner zoneList = new StringJoiner(",", "(", ")");
+        List<String> countyList = new ArrayList<>();
+        List<String> marinezoneList = new ArrayList<>();
+        List<String> zoneList = new ArrayList<>();
 
         for (String ugc : record.getUgcZones()) {
             if ((ugc.charAt(2) == 'Z')
@@ -113,27 +110,35 @@ public class CWASPSResource extends WatchesResource {
         }
 
         List<String> queries = new ArrayList<>();
-        if (countyList.length() > 0) {
+
+        if (!countyList.isEmpty()) {
             queries.add(
-                    "select ST_AsBinary(the_geom) from mapdata.county where state||'C'||substring(fips,3,3) in "
-                            + countyList.toString());
+                    "select ST_AsBinary(the_geom) from mapdata.county "
+                            + "where state||'C'||substring(fips,3,3) in ("
+                            + String.join(",", countyList) + ")");
         }
-        if (zoneList.length() > 0) {
+
+        if (!zoneList.isEmpty()) {
             queries.add(
-                    "select ST_AsBinary(the_geom) from mapdata.zone where state_zone in "
-                            + zoneList.toString());
+                    "select ST_AsBinary(the_geom) from mapdata.zone "
+                            + "where state_zone in ("
+                            + String.join(",", zoneList) + ")");
         }
-        if (marinezoneList.length() > 0) {
+
+        if (!marinezoneList.isEmpty()) {
             queries.add(
-                    "select ST_AsBinary(the_geom) from mapdata.marinezones where id in "
-                            + marinezoneList.toString());
+                    "select ST_AsBinary(the_geom) from mapdata.marinezones "
+                            + "where id in ("
+                            + String.join(",", marinezoneList) + ")");
         }
 
         List<Geometry> geometries = new ArrayList<>();
+
         for (String sql : queries) {
             try {
                 List<Object[]> result = DirectDbQuery.executeQuery(sql, "maps",
                         QueryLanguage.SQL);
+
                 if ((result != null) && (!result.isEmpty())
                         && (result.get(0)[0] != null)) {
                     for (Object[] obj : result) {
@@ -150,15 +155,15 @@ public class CWASPSResource extends WatchesResource {
         }
 
         Geometry geometry = null;
+
         if (!geometries.isEmpty()) {
             GeometryCollection geometryCollection = new GeometryFactory()
-                    .createGeometryCollection(geometries
-                            .toArray(new Geometry[geometries.size()]));
+                    .createGeometryCollection(
+                            geometries.toArray(new Geometry[geometries.size()]));
             geometry = geometryCollection;
         }
 
         return geometry;
-
     }
 
     /**
