@@ -166,6 +166,7 @@ import tech.units.indriya.quantity.Quantities;
  * May 06, 2020  8083     tgurney   Fix interrogate for units upgrade
  * Feb 10, 2021 20421 mgamazaychikov Add support for centalWaveLength handling
  * Mar 07, 2023 23414     dfriedman Update DR 21057 logic to support derived products
+ * Aug 26, 2026	      tiffanym@ucar Change measuredValue from Double to Number to get sampling to work for NEXRCOMP
  *
  * </pre>
  *
@@ -497,8 +498,8 @@ public class SatResource extends
         Quantity<?> value = (Quantity<?>) dataMap
                 .get(SATELLITE_DATA_INTERROGATE_ID);
         double measuredValue = Double.NaN;
-        if (value != null && value.getValue() instanceof Double) {
-            measuredValue = (Double) value.getValue();
+        if (value != null && value.getValue() instanceof Number) {
+            measuredValue = ((Number) value.getValue()).doubleValue();
         }
         if (Double.isNaN(measuredValue)) {
             return "NO DATA";
