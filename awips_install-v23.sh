@@ -46,7 +46,7 @@ function check_yumfile {
     cp /etc/yum.repos.d/awips2.repo /etc/yum.repos.d/awips2.repo-${date}
   fi
 
-  wget_url="https://downloads.unidata.ucar.edu/awips2/23.4.1/linux/${repofile}"
+  wget_url="https://downloads.unidata.ucar.edu/awips2/23.4.3/linux/${repofile}"
   echo "wget -O /etc/yum.repos.d/awips2.repo ${wget_url}"
   wget -O /etc/yum.repos.d/awips2.repo ${wget_url}
 
