@@ -1,5 +1,5 @@
 # THIS IS THE BASE pirepsTable.txt FILE
-# FILE UPDATED 08/31/2026
+# FILE UPDATED 09/14/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 AAA           0 ABRAHAM                          IL US  4016  -8934     0  0
@@ -149,7 +149,7 @@ ANE           0 MINNEAPOLIS                      MN US  4513  -9322     0  0
 ANI           0 ANIAK                            AK US  6159 -15960     0  0
 ANJ           0 SAULT STE MARIE                  MI US  4648  -8437     0  0
 ANN           0 ANNETTE ISLAND                   AK US  5506 -13158     0  0
-ANP           0 ANNAPOLIS                        MD US  3918  -7623     0  0
+ANP           0 ANNAPOLIS                        MD US  3894  -7657     0  0
 ANQ           0 ANGOLA                           IN US  4164  -8509     0  0
 ANR           0 ANDREWS                          TX US  3235 -10254     0  0
 ANT           0 SAN ANTONIO                      TX US  2953  -9847     0  0
