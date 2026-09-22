@@ -86,6 +86,26 @@
     </process>
 </model>
 <model>
+    <name>RRFS-NA-13km</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>RRFS_NA_13</grid>
+    <process>
+        <id>134</id>
+    </process>
+</model>
+<model>
+    <name>RRFS-NA-Rot</name>
+    <center>7</center>
+    <subcenter>0</subcenter>
+    <grid>RRFS_NA_Rot</grid>
+    <process>
+        <id>134</id>
+    </process>
+</model>
+
+
+<model>
     <name>RRFS-CONUS</name>
     <center>7</center>
     <subcenter>0</subcenter>

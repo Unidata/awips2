@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - unidata_23.4.1
+      - unidata_23.4.3
     paths:
       - 'docs/**'
       - 'mkdocs.yml'

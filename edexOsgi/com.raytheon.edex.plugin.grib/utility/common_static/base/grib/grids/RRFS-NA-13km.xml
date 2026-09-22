@@ -1,17 +1,17 @@
 <polarStereoGridCoverage>
-    <name>RRFS_NA</name>
-    <description>RRFS 3 km Polar Stereographic grid</description>
+    <name>RRFS_NA_13</name>
+    <description>RRFS 13 km North America Polar Stereographic grid</description>
 
     <la1>6.5</la1>
     <lo1>-151.5</lo1>
 
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
 
-    <nx>4680</nx>
-    <ny>2830</ny>
+    <nx>1080</nx>
+    <ny>653</ny>
 
-    <dx>3.0</dx>
-    <dy>3.0</dy>
+    <dx>13.0</dx>
+    <dy>13.0</dy>
     <spacingUnit>km</spacingUnit>
 
     <minorAxis>6371229</minorAxis>

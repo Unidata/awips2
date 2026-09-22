@@ -21,7 +21,7 @@ jobs:
       - name: Checkout awips2
         uses: actions/checkout@v3
         with:
-          ref: unidata_23.4.1
+          ref: unidata_23.4.3
       # Do individual pulls for all the files in the ndm directory
       - name: Pull latest from vlab svn repo
         run: |
