@@ -8,9 +8,9 @@ EDEX is the **E**nvironmental **D**ata **Ex**change system that represents the b
 
 ## Latest Version
 
-- **23.4.1-1**
+- **23.4.3-1**
 
-[**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
+[**View release notes**](https://www.unidata.ucar.edu/news/nsf-unidata-awips-23.4.3-1-release)
 
 ---
 

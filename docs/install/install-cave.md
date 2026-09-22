@@ -168,11 +168,13 @@ If you already have CAVE installed you can either:
 ### Download and Installation Instructions
 
 1. Download and install CAVE for your processor:
+
    - [awips-cave-arm64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-arm64.dmg) (silicon)
    - [awips-cave-x86_64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-x86_64.dmg) (intel)
+
 2. Double click on the downloaded dmg and a window will open 
 
-   <img src="../images/mac-install.png" alt="Cave System Install" width="500">
+   ![CAVE System Install](../images/mac-install.png)
 
 3. Move the Cave application somehwere locally:
      - Applications Directory to install at the System Application level -- this may require Administrator Privileges
@@ -215,6 +217,8 @@ After connecting to an EDEX server, you will have a local directory named **cave
 You can reset CAVE by removing the **caveData** directory and reconnecting to an EDEX server. Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local **~/caveData** (bundles, colormaps, etc.).
 
 - Linux: `/home/<user>/caveData/`
+- Windows: `C:\Users\<user>\caveData`
+- Mac: `Users/<user>/caveData`
 
 ---
 
