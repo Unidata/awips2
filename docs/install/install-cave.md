@@ -25,6 +25,7 @@ Below are the current installers for each operating system. For more information
 ## General System Requirements
 
 **Minimum Requirements**
+
 - Native 64-bit operating system
 - 8GB RAM
 - 2GB of available disk
@@ -33,6 +34,7 @@ Below are the current installers for each operating system. For more information
 - Network connectivity to an AWIPS EDEX Server
 
 **Recommended Requirements**
+
 - 16GB RAM or more
 - 10GB of available disk space
 - Display resolution of 1920X1080 or higher
@@ -169,7 +171,9 @@ If you already have CAVE installed you can either:
    - [awips-cave-arm64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-arm64.dmg) (silicon)
    - [awips-cave-x86_64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-x86_64.dmg) (intel)
 2. Double click on the downloaded dmg and a window will open 
+
    <img src="../images/mac-install.png" alt="Cave System Install" width="500">
+
 3. Move the Cave application somehwere locally:
      - Applications Directory to install at the System Application level -- this may require Administrator Privileges
      - Any other location (Desktop, local user's Applications directory, etc) -- this will not require Administrator Privileges
