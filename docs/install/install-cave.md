@@ -169,9 +169,8 @@ If you already have CAVE installed you can either:
 ### Download and Installation Instructions
 
 1. Download and install CAVE for your processor:
-
-   - [awips-cave-arm64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-arm64.dmg) (silicon)
-   - [awips-cave-x86_64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-x86_64.dmg) (intel)
+     - [awips-cave-arm64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-arm64.dmg) (silicon)
+     - [awips-cave-x86_64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-x86_64.dmg) (intel)
 
 2. Double click on the downloaded dmg and a window will open 
 
