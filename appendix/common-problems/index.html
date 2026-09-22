@@ -330,47 +330,13 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#products-not-loading-properly" title="Products Not Loading Properly" class="md-nav__link">
-    Products Not Loading Properly
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#windows_1" title="Windows" class="md-nav__link">
-    Windows
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mac_1" title="Mac" class="md-nav__link">
-    Mac
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#linux_1" title="Linux" class="md-nav__link">
-    Linux
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#windows_2" title="Windows" class="md-nav__link">
+  <a href="#windows_1" title="Windows" class="md-nav__link">
     Windows
   </a>
   
@@ -391,13 +357,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#windows-cave-start-up-error" title="Windows CAVE Start Up Error" class="md-nav__link">
-    Windows CAVE Start Up Error
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -412,20 +371,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#monterey-cave-warning" title="Monterey CAVE Warning" class="md-nav__link">
-    Monterey CAVE Warning
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#white-boxes-for-surface-resources" title="White Boxes for Surface Resources" class="md-nav__link">
-    White Boxes for Surface Resources
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#model-data-not-rendering" title="Model Data Not Rendering" class="md-nav__link">
     Model Data Not Rendering
   </a>
@@ -438,7 +383,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#linux_2" title="Linux" class="md-nav__link">
+  <a href="#linux_1" title="Linux" class="md-nav__link">
     Linux
   </a>
   
@@ -1036,47 +981,13 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#products-not-loading-properly" title="Products Not Loading Properly" class="md-nav__link">
-    Products Not Loading Properly
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#windows_1" title="Windows" class="md-nav__link">
-    Windows
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mac_1" title="Mac" class="md-nav__link">
-    Mac
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#linux_1" title="Linux" class="md-nav__link">
-    Linux
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#windows_2" title="Windows" class="md-nav__link">
+  <a href="#windows_1" title="Windows" class="md-nav__link">
     Windows
   </a>
   
@@ -1097,13 +1008,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#windows-cave-start-up-error" title="Windows CAVE Start Up Error" class="md-nav__link">
-    Windows CAVE Start Up Error
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1118,20 +1022,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#monterey-cave-warning" title="Monterey CAVE Warning" class="md-nav__link">
-    Monterey CAVE Warning
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#white-boxes-for-surface-resources" title="White Boxes for Surface Resources" class="md-nav__link">
-    White Boxes for Surface Resources
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#model-data-not-rendering" title="Model Data Not Rendering" class="md-nav__link">
     Model Data Not Rendering
   </a>
@@ -1144,7 +1034,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#linux_2" title="Linux" class="md-nav__link">
+  <a href="#linux_1" title="Linux" class="md-nav__link">
     Linux
   </a>
   
@@ -1200,7 +1090,8 @@
 <p><img alt="Windows Remove caveData" src="../../images/windowsRemoveCavedata.png" /></p>
 <h4 id="mac">Mac<a class="headerlink" href="#mac" title="Permanent link"></a></h4>
 <p>For Mac users, the easiest way is to open a new terminal and run the following command:</p>
-<pre><code>rm -rf ~/Library/caveData
+<pre><code>rm -rf ~/caveData
+rm -rf ~/Library/caveData
 </code></pre>
 <hr />
 <h3 id="disappearing-configurations">Disappearing Configurations<a class="headerlink" href="#disappearing-configurations" title="Permanent link"></a></h3>
@@ -1244,39 +1135,7 @@ There is a good chance we can recover your settings.  To do so, please send a sh
 <p class="admonition-title">The VM option has one notable drawback at the moment -- it cannot render RGB satellite products.</p>
 </div>
 <hr />
-<h3 id="products-not-loading-properly">Products Not Loading Properly<a class="headerlink" href="#products-not-loading-properly" title="Permanent link"></a></h3>
-<p>This problem is most commonly seen with the direct Windows installation.  It can also manifest in the Mac installation (and is possible on Linux), and the root of the problem is not having Python installed properly for CAVE to use the packages.</p>
-<p>There are derived products which use the local machine to create and render the data.  This creation is dependent upon python and its required packages working correctly.  The dataset will be available in the menus and product browser, but when loaded, no data is drawn on the editor, but an entry is added to the legend.
-<img alt="failed load" src="../../images/failedJepMetarLoad.png" /></p>
-<p>You may see an error that mentions the python package, <strong>jep</strong>.</p>
-<p>Known datasets this can affect (this is not a comprehensive list):</p>
-<ul>
-<li>Model Winds</li>
-<li>Metars Winds</li>
-<li>METAR Station Plot</li>
-<li>GFS Precip Type</li>
-</ul>
-<h4 id="windows_1">Windows<a class="headerlink" href="#windows_1" title="Permanent link"></a></h4>
-<p>To correct this issue on Windows:</p>
-<ul>
-<li>Make sure you only have the latest version of <a href="https://unidata.github.io/awips2/install/install-cave/#method-1-direct-windows-install">CAVE installed</a> (which now fully bundles the proper version of Python with the application)</li>
-<li>If you have ever previously added <code>PYTHONHOME</code>, <code>PYTHONPATH</code>, or <code>JAVA_HOME</code> to your user or system variables, please delete those.<ul>
-<li>Open the Environment Variables window by typing "env" in the start bar</li>
-</ul>
-</li>
-</ul>
-<h4 id="mac_1">Mac<a class="headerlink" href="#mac_1" title="Permanent link"></a></h4>
-<p>To correct this issue on Mac:</p>
-<ul>
-<li>Make sure you have the latest verison of <a href="https://unidata.github.io/awips2/install/install-cave/#macos">CAVE installed</a> (which now fully bundles the proper version of Python with the application)</li>
-</ul>
-<h4 id="linux_1">Linux<a class="headerlink" href="#linux_1" title="Permanent link"></a></h4>
-<p>To correct this issue on Linux:</p>
-<ul>
-<li>When running <code>which python</code> from a terminal, make sure <code>/awips2/python/</code> is returned, if not, reset that environment variable, or re-run the <a href="install-cave.md#download-and-installation-instructions"><strong>awips_install.sh</strong> script from our installation instructions</a></li>
-</ul>
-<hr />
-<h2 id="windows_2">Windows<a class="headerlink" href="#windows_2" title="Permanent link"></a></h2>
+<h2 id="windows_1">Windows<a class="headerlink" href="#windows_1" title="Permanent link"></a></h2>
 <h3 id="cave-map-display-in-lower-left-quadrant-windows">CAVE Map Display in Lower Left Quadrant - Windows<a class="headerlink" href="#cave-map-display-in-lower-left-quadrant-windows" title="Permanent link"></a></h3>
 <p>If you start up CAVE in Windows and notice the map is showing up only in the bottom left quadrant of your display, you will just need to tweak a few display settings.</p>
 <p><img alt="CAVE Map 1/4 of screen" src="../../images/CAVE_map.png" /></p>
@@ -1305,85 +1164,7 @@ There is a good chance we can recover your settings.  To do so, please send a sh
 <li>Now double click on the application and you should be able to install it</li>
 </ul>
 <hr />
-<h3 id="windows-cave-start-up-error">Windows CAVE Start Up Error<a class="headerlink" href="#windows-cave-start-up-error" title="Permanent link"></a></h3>
-<div class="admonition note">
-<p class="admonition-title">This should no longer be an issue for our v20 release of AWIPS.</p>
-</div>
-<p>One common error some users are seeing manifests itself just after selecting an EDEX server to connect to.  The following error dialogs may show up:</p>
-<ul>
-<li>
-<p><em>Error purging logs</em><br />
-<img alt="Error purging logs. Reason: Error occurred during purge and rotate" src="../../images/errorPurgingLogs.png" /></p>
-</li>
-<li>
-<p><em>Error instantiating workbench: null</em><br />
-<img alt="Error instantiating workbench: null" src="../../images/errorWorkbenchNull.png" /></p>
-</li>
-</ul>
-<p>These errors are actually happening because the Windows machine is using IPv6, which is not compatible with AWIPS at this time.</p>
-<p><strong>To fix the issue simply follow these steps:</strong></p>
-<div class="admonition note">
-<p class="admonition-title">These screenshots may vary from your system.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">These instructions are <i>per connection</i>, so if you use multiple connections or switch between wired and wireless connections, you'll need to do the following for each of those connections so that CAVE will always run properly.</p>
-</div>
-<p><strong>1. Close all error windows and any open windows associated with CAVE.</strong></p>
-<p><strong>2. In the Windows search field, search for "control panel".</strong></p>
-<p><img alt="" src="../../images/ipv6ProblemStep2.png" /></p>
-<p><strong>3. Once in the Control Panel, look for "Network and Sharing Center".</strong></p>
-<p><img alt="" src="../../images/ipv6ProblemStep3a.png" />
-<img alt="" src="../../images/ipv6ProblemStep3b.png" /></p>
-<p><strong>4. Select the adapter for your current connection (should be either "Ethernet" or "Wi-Fi").</strong></p>
-<p><img alt="" src="../../images/ipv6ProblemStep4.png" /></p>
-<p><strong>5. Click on "Properties".</strong></p>
-<p><img alt="" src="../../images/ipv6ProblemStep5.png" /></p>
-<p><strong>6. Uncheck "Internet Protocol Version 6 (TCP/IPv6)" and select OK.</strong></p>
-<p><img alt="" src="../../images/ipv6ProblemStep6.png" /></p>
-<div class="admonition note">
-<p class="admonition-title">You may need to restart your machine for this to take effect</p>
-</div>
-<p><strong>7. Restart CAVE.</strong></p>
-<hr />
 <h2 id="macos">macOS<a class="headerlink" href="#macos" title="Permanent link"></a></h2>
-<h3 id="monterey-cave-warning">Monterey CAVE Warning<a class="headerlink" href="#monterey-cave-warning" title="Permanent link"></a></h3>
-<p>If you are running MacOS Monterey, you may see the following message when starting CAVE:</p>
-<p><img alt="Monterey warning" src="../../images/monterey-warning.png" /></p>
-<p>Monterey versions 12.3 or newer will not support our production (v18) CAVE.</p>
-<div class="admonition note">
-<p class="admonition-title">Please <a href="../install/install-cave-beta-v20.md#macos">download and install our beta v20 CAVE</a> for newer MacOS Versions to avoid this issue.</p>
-</div>
-<hr />
-<h3 id="white-boxes-for-surface-resources">White Boxes for Surface Resources<a class="headerlink" href="#white-boxes-for-surface-resources" title="Permanent link"></a></h3>
-<p>If you do not have an NVIDIA graphics card and driver, you may see "boxes" drawn on the editor for some of the products (<strong>METARS Station Plots</strong> and <strong>Surface Winds</strong> are the resources we're aware of), as shown below:</p>
-<p><img alt="" src="../../images/caveMacGraphicsCard.png" /></p>
-<p>You may be able to fix this issue:</p>
-<ul>
-<li>
-<p>Check what graphics cards are available on your machine, by going to the Apple menu (far left, upper corner) &gt; About This Mac &gt; Overview tab (default):</p>
-<p><img alt="" src="../../images/aboutMac.png" /></p>
-</li>
-<li>
-<p>If you see two entries at the <strong>Graphics</strong> line, like the image shown above, then you have two graphics cards on your system. <strong>Intel graphics cards <em>may</em></strong> be able to render our products properly.  In this case, you can "force" your computer to use the Intel card by running the following in a terminal:</p>
-<p><code>sudo pmset -[a|b|c] gpuswitch 0</code></p>
-<p>Where <code>[a|b|c]</code> is only one of those options, which mean:</p>
-<ul>
-<li>a: adjust settings for <strong>all</strong> scenarios</li>
-<li>b: adjust settings while running off <strong>battery</strong></li>
-<li>c: adjust settings while connected to <strong>charger</strong></li>
-</ul>
-<p>The argument <code>0</code> sets the computer to use the dedicated GPU (in our case above the Intel GPU).</p>
-<p>The two other options for that argument are:</p>
-<ul>
-<li>1: automatic graphics switching</li>
-<li>2: integrated GPU </li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">It may be smart to run <code>pmset -g</code> first, so you can see what the current <code>gpuswitch</code> setting is (likely <code>1</code>), that way you can revert the settings if you want them back to how they were, when not using CAVE.</p>
-</div>
-</li>
-</ul>
-<hr />
 <h3 id="model-data-not-rendering">Model Data Not Rendering<a class="headerlink" href="#model-data-not-rendering" title="Permanent link"></a></h3>
 <p>This behavior has appeared with MacOS Sonoma (v14) -- model data is no longer loading and you see the following errors on the screen or in the AlertView:</p>
 <blockquote>
@@ -1395,7 +1176,7 @@ There is a good chance we can recover your settings.  To do so, please send a sh
 <p>If you encounter this behavior, please close CAVE, <a href="#mac">clear caveData as described above</a>, then restart CAVE and try to load the data again.</p>
 <p>If you still experience issues, please let us know at support-awips@unidata.ucar.edu</p>
 <hr />
-<h2 id="linux_2">Linux<a class="headerlink" href="#linux_2" title="Permanent link"></a></h2>
+<h2 id="linux_1">Linux<a class="headerlink" href="#linux_1" title="Permanent link"></a></h2>
 <h3 id="issue-starting-cave-rockyrhel8">Issue Starting CAVE (Rocky/RHEL8)<a class="headerlink" href="#issue-starting-cave-rockyrhel8" title="Permanent link"></a></h3>
 <p>If you are running CAVE on RHEL or Rocky 8 and are getting an error when CAVE starts up: <code>Error instantiating workbench</code> or if you look in <code>~/caveData/cave_*_console.log</code> and see an error: <code>org.eclipse.swt.SWTException: Unsupported color depth</code> then you may need to change your display from "Wayland" to "X11".</p>
 <p><img alt="" src="../../images/caveError.png" /></p>
