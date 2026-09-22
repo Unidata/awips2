@@ -6,6 +6,7 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment is a desktop 
 
 ## CAVE Installers
 Below are the current installers for each operating system. For more information on each OS, click on the link in the left column.
+
 **Version: 23.4.3-1**
 
 | Operating System | Download |
@@ -18,7 +19,7 @@ Below are the current installers for each operating system. For more information
 
 [**View release notes**](https://www.unidata.ucar.edu/news/nsf-unidata-awips-23.4.3-1-release)
 
-!!! note "Version 23.4.3-* of CAVE is compatible with Version 23.4.1-\* EDEX and vice versa, Version 20.\* of CAVE is not compatible with Version 23.\* EDEX."
+!!! note "Version 23.4.3-* of CAVE is compatible with Version 23.4.1-\* EDEX and vice versa.
 
 ---
 
