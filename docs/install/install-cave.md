@@ -1,18 +1,40 @@
 # Install CAVE
 
-CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
+CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment is a desktop application that is used for rendering and analyzing data for AWIPS.  The installer may require administrator priviledges to install and may require other system changes (environment variables, etc) as well.
 
 ---
 
-## Latest CAVE Versions
+## CAVE Installers
+Below are the current installers for each operating system. For more information on each OS, click on the link in the left column.
+**Version: 23.4.3-1**
+| Operating System | Download |
+|-----------------|-------------|
+| [Linux](#linux) 64-bit Installer | [awips_install.sh](https://downloads.unidata.ucar.edu/awips2/23.4.3/linux/awips_install.sh) |
+| [Windows](#method-1-direct-windows-install) 64-bit Installer | [awips-cave.msi](https://downloads.unidata.ucar.edu/awips2/23.4.3/windows/awips-cave-23.4.3-1.msi) |
+| [Mac](#macos) Silicon Installer | [awips-cave-arm64](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-arm64.dmg) |
+| [Mac](#macos) Intel Installer |  [awips-cave-x86_64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-x86_64.dmg) |
+| [Virtual Machine](#method-2-virtual-machine-running-rocky8) Installer | [Rocky8-NSFUnidata-CAVE-23.4.3-1.tgz](https://downloads.unidata.ucar.edu/awips2/23.4.3/windows/Rocky8-NSFUnidata-CAVE-23.4.3-1.tgz) |
 
-- [**Linux: 23.4.1-1**](#linux)
-- [**Windows: 23.4.1-1**](#windows)
-- [**Mac: 23.4.1-1**](#macos)
+[**View release notes**](https://www.unidata.ucar.edu/news/nsf-unidata-awips-23.4.3-1-release)
 
-[**View release notes**](https://www.unidata.ucar.edu/blogs/news/tags/awips-release)
+!!! note "Version 23.4.3-* of CAVE is compatible with Version 23.4.1-\* EDEX and vice versa, Version 20.\* of CAVE is not compatible with Version 23.\* EDEX."
 
-!!! note "Version 23.\* of CAVE is not compatible with Version 20.\* EDEX and vice versa, Version 20.\* of CAVE is not compatible with Version 23.\* EDEX."
+---
+
+## General System Requirements
+
+**Minimum Requirements**
+- Native 64-bit operating system
+- 8GB RAM
+- 2GB of available disk
+- OpenGL 2.0 or later hardware-accelerated graphics
+- Current graphics driver
+- Network connectivity to an AWIPS EDEX Server
+
+**Recommended Requirements**
+- 16GB RAM or more
+- 10GB of available disk space
+- Display resolution of 1920X1080 or higher
 
 ---
 
@@ -20,38 +42,22 @@ CAVE is the **C**ommon **A**WIPS **V**isualization **E**nvironment that is used 
 
 If you come across issues/bugs/missing functionality, we encourage you to <a href="https://docs.google.com/forms/d/e/1FAIpQLScqWZho98cI8ByYTe99YRidfiYK_VeHvjsAculZmiVdWGwUnw/viewform?usp=sf_link" target="_blank">report it using this short form</a> or emailing at support-awips@unidata.ucar.edu.
 
----
-
-## General Requirements
-
-Regardless of what Operating System CAVE is running on, these general requirements are recommended in order for CAVE to perform optimally:
-
-- Local machine
-
-    !!! error "Running CAVE via X11 forwarding or ssh tunneling is **not** supported. Using a [remote desktop connection like VNC is the only remote option(../appendix/common-problems.md#remotely-connecting-to-cave), but may result in worse performance than running locally."
-
-- OpenGL 2.0 Compatible Devices
-- At least 4GB RAM
-- At least 2GB Disk Space for Caching
-- NVIDIA Graphics Card
-- [Latest NVIDIA Driver](http://www.nvidia.com/Download/index.aspx?lang=en-us)
-
-    !!! warning "While other graphics cards *may* work, NVIDIA Quadro graphics card is recommended for full visualization capability"
 
 ---
 
 ## Linux <i class="fa fa-linux"></i> 
 
-**Latest Version: 23.4.1-1**
+**Latest Version: 23.4.3-1**
 
 ### System Requirements
 
 - 64 bit Rocky/Red Hat 8
 - Bash shell environment
+- Run CAVE in an **X11 session** (Wayland sessions are not supported)
 
 ### Download and Installation Instructions
 
-1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/linux/awips_install.sh)
+1. Download the following installer: [**awips_install.sh** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.3/linux/awips_install.sh)
 2. In a terminal, go to the download directory 
 3. Make the installer an executable by running: `chmod 755 awips_install.sh`
 4. Run the installer: `sudo ./awips_install.sh --cave`
@@ -65,17 +71,15 @@ To run CAVE either:
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
 - Double click on the Desktop icon labeled "AWIPS CAVE"
 
-Additionally users can choose to run a [virtual machine (VM)](#linux-virtual-machine) on Linux.
+Additionally users can choose to run a [virtual machine (VM)](#method-2-virtual-machine-running-rocky8) on Linux.
 
 ---
 
 ## Windows <i class="fa fa-windows"></i> 
 
-**Latest Version: 23.4.1-1**
+**Latest Version: 23.4.3-1**
 
 For Windows, we offer two installation options: a [**Direct Windows Installation**](#method-1-direct-windows-install), or a  [**Linux Virtual Machine**](#method-2-virtual-machine-running-rocky8).
-
-!!! warning "The virtual machine option won't render RGB composites of satellite imagery."
 
 ### Method 1: Direct Windows Install
 
@@ -83,7 +87,7 @@ We offer CAVE installers at both the user-level (no administrative permissions n
 
 #### Download and Installation Instructions
 
-1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/awips-cave-23.4.1-1.msi)
+1. Download and install: [**awips-cave.msi** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.3/windows/awips-cave-23.4.3-1.msi)
 
 Note: If you are having issues with Windows blocking your installation, follow [these](../appendix/common-problems.md#windows-install-error) instructions.
 
@@ -106,17 +110,26 @@ To run CAVE, either:
 
 ### Method 2: Virtual Machine running Rocky8 
 
-This virtual machine can be installed on Windows or Linux. Please note, running CAVE in a Virtual Machine does have reduced functionality than running CAVE directly on hardware (ex: rendering RGB satellite images). Please review the [System Requirements](#system-requirements-1).
+This virtual machine can be installed on Windows or Linux. 
+
+#### System Requirements
+- ~30 GB of disk space
+- VMWare Workstation Pro (Free for personal use, but requires [creating an account](https://profile.broadcom.com/web/registration) with Broadcom) For more information on how to get access click [here](vmware.md).
+- For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Pro
+     1. Create a desktop shortcut for VMWare Workstation Pro
+     2. Right-click the shortcut and select Properties
+     3. Open the Compatibility Tab
+     4. Select the "Change high DPI settings" button
+     5. Check the "High DPI scaling override" checkbox and choose "Application" in the enabled dropdown
+![VMWare Workstation Player DPI Setting](../images/vmware-update-dpi.png)
+
 
 #### Download and Installation Instructions
 
-1. Download the zipped file containing the virtual machine: [**Rocky8-NSFUnidata-CAVE-23.4.1-1** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/current/windows/Rocky8-NSFUnidata-CAVE-23.4.1-1.zip)
-2. Unzip the folder.
-3. Open VMWare Workstation and go to **File...** > **Open** and locate the folder that was created from the downloaded unzipped file.  Select the file called **Rocky8-NSFUnidata-CAVE-23.4.1-1.vmx"**.
+1. Download the zipped tar file containing the virtual machine: [**Rocky8-NSFUnidata-CAVE-23.4.3-1** <i class="fa fa-download"></i>](https://downloads.unidata.ucar.edu/awips2/23.4.3/windows/Rocky8-NSFUnidata-CAVE-23.4.3-1.tgz)
+2. Untar the file
+3. Open VMWare Workstation and go to **File...** > **Open** and locate the folder that was created from the downloaded untarred file.  Select the file called **Rocky8-NSFUnidata-CAVE-23.4.3-1.vmx"**.
 4. This will open a new tab in VMWare Workstation, click "Power on this virtual machine".  If it asks if it's been moved or copied, select **"I Copied It"**.
-
-    ![alt text](../images/newVM.png)
-
 5. There will be a user on the Linux machine named "awips" and the password is "awips" with sudo access
 
 #### Run CAVE 
@@ -127,49 +140,38 @@ Once inside the VM, to run CAVE either:
 - Use the terminal and type the command `cave`
 - Find the application in the Linux Desktop menu: Applications > Internet > AWIPS CAVE
 
-#### System Requirements
-
-- VMWare Workstation Pro (Free for personal use, but requires [creating an account](https://profile.broadcom.com/web/registration) with Broadcom) For more information on how to download click [here](vmware.md).
-
-    OR
-
-- VMWare Workstation Player - [Version 17.5.2](https://downloads.unidata.ucar.edu/awips2/current/windows/VMware-player-17.5.2-23775571.exe) (this is an older version)
-- For high definition monitors (4k), you will want to enable the high DPI setting for VMWare Workstation Player
-     1. Create a desktop shortcut for VMWare Workstation Player
-     2. Right-click the shortcut and select Properties
-     3. Open the Compatibility Tab
-     4. Select the "Change high DPI settings" button
-     5. Check the "High DPI scaling override" checkbox and choose "Application" in the enabled dropdown
-     
-
-![VMWare Workstation Player DPI Setting](../images/vmware-update-dpi.png)
 
 #### Remove/Upgrade Existing Installation
 
-If you do not currently have CAVE installed, please go directly to the [Download and Installation Instructions](#download-and-installation-instructions_2).
+If you do not currently have CAVE installed, please go directly to the [Download and Installation Instructions](#download-and-installation-instructions).
 
 If you already have CAVE installed you can either:
 
 - Download a new Virtual Machine Image ([as described above](#download-and-installation-instructions_2))
   OR
-- Upgrade the version of CAVE within the Virtual Machine by following the [Linux instructions](#upgrade-existing-installation)
+- Upgrade the version of CAVE within the Virtual Machine by following the [Linux instructions](#download-and-installation-instructions)
 
 ---
 
 ## macOS <i class="fa fa-apple"></i> 
 
-**Latest Version: 23.4.1-1**
+**Latest Version: 23.4.3-1**
 
 ### System Requirements
 
-- Nvidia Graphics Card (Some Intel Graphics cards seem to work as well)
+- macOS 12 Monterey or later
+- Intel or Apple Silicon processor
 
 ### Download and Installation Instructions
 
-1. Download and install CAVE: [awips-cave.dmg](https://downloads.unidata.ucar.edu/awips2/current/mac/awips-cave-23.4.1-1.dmg)
-    ![Cave System Install](../images/mac-install.png)
-     - You can click and drag the CAVE icon into the Applications Directory to install at the System Application level -- this may require Administrator Privileges
-     - You can drag that icon to any other location (Desktop, local user's Applications directory, etc) to install CAVE at that location -- this will not require Administrator Privileges
+1. Download and install CAVE for your processor:
+   - [awips-cave-arm64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-arm64.dmg) (silicon)
+   - [awips-cave-x86_64.dmg](https://downloads.unidata.ucar.edu/awips2/23.4.3/mac/awips-cave-23.4.3-1-x86_64.dmg) (intel)
+2. Double click on the downloaded dmg and a window will open 
+   <img src="../images/mac-install.png" alt="Cave System Install" width="500">
+3. Move the Cave application somehwere locally:
+     - Applications Directory to install at the System Application level -- this may require Administrator Privileges
+     - Any other location (Desktop, local user's Applications directory, etc) -- this will not require Administrator Privileges
 
 ### Run CAVE
 
@@ -178,7 +180,7 @@ To run CAVE either:
 - Use the System Menu Go > Applications > CAVE
 - Type &#8984; + Spacebar and then type "cave", the application should appear and you can hit **enter** to run it
 
-!!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet and not the Apple Store.  This is normal, and hit Open.  Your message my differ slightly but should look like the image below:"
+!!! note "The first time CAVE is opened, it will ask you if you are sure you want to run it, because it was downloaded from the internet. This is normal, and hit Open."
 ![internet warning](../images/mac-cave-internet-download2.png)
 
 
