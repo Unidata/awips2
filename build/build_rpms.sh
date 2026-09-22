@@ -64,6 +64,7 @@ else
   # If RPM name is not given build all groups in this order
 #  yum localinstall /awips2/repo/awips2/dist/18.2.1-ade/x86_64/awips2-hdf5* -y
 #  yum localinstall /awips2/repo/awips2/dist/18.2.1-ade/x86_64/awips2-netcdf* -y
+  rm -rf /awips2/repo/awips2/dist/${os_version}-dev-cp
   mkdir -p /awips2/repo/awips2/dist/${os_version}-dev-cp
 
   /bin/bash $buildsh -ade
