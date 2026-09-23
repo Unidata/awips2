@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 05/20/2026
+# FILE UPDATED 08/19/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -177,6 +177,7 @@
 1KM K-Harlowton, MT
 1KN K-Donnybrook 2, ND
 1KW K-6 Miles South of Dix, NE
+1L8 K-General Dick Stout Fld AP, Hurricane, UT
 1LM K-Judith Gap, MT
 1LN K-Bowbells, ND
 1LW K-21.9 Miles North of Stoneham, CO
@@ -537,6 +538,7 @@
 9L2 K-Edwards Air Force Auxiliary North Base, Edwards, CA
 9MN K-St Marys Hosp Helipad, Rochester, MN
 9R9 Block 245 SAWRS, Offshr Vermilion Area
+9S2 K-Scobey AP, Scobey, MT
 9S5 K-Three Forks AP, Three Forks, MT
 9S9 K-Lexington AP, Lexington, OR
 9V9 K-Chamberlain Muni AP, Chamberlain, SD
@@ -1461,6 +1463,7 @@ E23 K-Taos, NM
 E28 K-White Sands Space Harbor, NM
 E29 K-Sonora Muni AP, Sonora, TX
 E33 K-Chama, NM
+E35 K-Fabens AP, Fabens, TX
 E38 K-Casparis Muni AP, Alpine, TX
 E41 K-Reagan Cnty AP, Big Lake, TX
 E42 K-Major Samuel B Cornelius Fld AP, Spearman, TX
@@ -2105,6 +2108,7 @@ I68 K-Warren Cnty AP/John Lane Fld, Lebanon, OH
 I69 K-Clermont Cnty AP, Batavia, OH
 I74 K-Grimes Fld AP, Urbana, OH
 I75 K-Osceola Muni AP, Osceola, IA
+I93 K-Breckinridge Cnty AP, Hardinsburg, KY
 IA  Iowa
 IAB K-Mc Connell AFB, Wichita, KS
 IAC Arctic
@@ -2515,6 +2519,7 @@ JYR K-York Muni AP, York, NE
 JZI K-Charleston Exec AP, Charleston, SC
 JZP K-Pickens Cnty AP, Jasper, GA
 K20 K-Burwell, NE
+K24 K-Russell Cnty AP, Jamestown, KY
 K27 K-Fort Madison Muni AP, Fort Madison, IA
 K59 K-Amelia Earhart AP, Atchison, KS
 K61 K-Moritz Memo AP, Beloit, KS
@@ -2644,6 +2649,7 @@ LKV K-Lake Cnty AP, Lakeview, OR
 LLJ K-Challis AP, Challis, ID
 LLN K-Levelland Muni AP, Levelland, TX
 LLQ K-Monticello Muni AP/Ellis Fld, Monticello, AR
+LLR K-Little River AP, Little River, CA
 LLS Low Level Sounding
 LM  Lake Michigan
 LMK WFO Louisville, KY
@@ -2677,6 +2683,7 @@ LOZ K-London/Corbin Magee AP, London, KY
 LPC K-Lompoc AP, Lompoc, CA (AWOS); T-Vigie, St Lucia, LC
 LPL T-Hewanorra Intl AP, LC
 LPR K-Lorain Cnty Rgnl AP, Elyria/Lorain, OH
+LQR K-Larned/Pawnee Cnty AP, Larned, KS
 LQK K-Pickens Cnty AP, Pickens, SC
 LRD K-Laredo Intl AP, Laredo, TX
 LRF K-Little Rock AFB, Jacksonville, AR
@@ -3395,7 +3402,7 @@ PAT K-Pathfinder Hill, WY
 PBF K-Pinebluff Rgnl AP/Grider Fld, Pine Bluff, AR
 PBG K-Plattsburgh Intl AP, Plattsburgh, NY
 PBH K-Price Cnty AP, Phillips, WI
-PBI P-Palm Beach Intl AP, West Palm Beach, FL
+DJT K-President Donald J Trump Intl AP, West Palm Beach, FL
 PBP Pacific Region HQs, Honolulu, HI
 PBS K-Portage Bay, WA
 PBX K-Pike Cnty AP/Hatcher Fld, Pikeville, KY
@@ -3470,7 +3477,7 @@ PNS K-Pensacola Intl AP, Pensacola, FL
 PNT K-Pontiac Muni AP, Pontiac, IL
 PO  Pend Oreille River
 PO1 K-Poplar Muni AP, Poplar, MT
-POB K-Pope AFB, Fayetteville, NC
+POB K-Pope AAF, Fayetteville, NC
 POC K-Brackett Fld AP, La Verne, CA
 POE K-MaksAAF, Fort Polk, LA WSR-88D RPG
 POF K-Poplar Bluff Rgnl Business AP, Poplar Bluff, MO

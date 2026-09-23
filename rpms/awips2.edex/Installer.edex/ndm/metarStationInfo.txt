@@ -3,27 +3,14 @@
 # are now converted at OSO to METAR form, we note them as SAO here.)
 #
 # Good sources of station information include
-# NWS/O0S:  http://www.nws.noaa.gov/tg/siteloc.shtml
-# FAA ASOS: http://www.faa.gov/asos/asos.htm
-# Unidata:  http://www.unidata.ucar.edu/staff/chiz/stations/stations.shtml
-# AFWA:     ftp://ncardata.ucar.edu/datasets/ds900.0/data_1999.01
+# FAA ASOS/AWOS: https://www.faa.gov/air_traffic/weather/asos
 # AirNav, linked to the Unidata site, is excellent for U.S. sites.
-# AES Canada has provided metadata on their stations. As much as possible,
-# this file has been updated to reflect that information.
-# There is now a Web site from which the data are available:
-#           http://www.cmc.ec.gc.ca/climate/doc/metstat/
-#
-# Although most present geographic info carries a precision of .01 degree,
-# space is available for an additional digit. As Jim Ramer points out, at
-# maximum zoom on the WFO scale, .01 degree is about 30 pixels.
+# METAR & TAF  : https://metar-taf.com/country
 #
 # Elevations are in meters. "-0" is used to signify unknown elevation.
-#
 # Stations marked "e" at the right include guesses for some of the information.
-# In some cases, this is the lat/lon/elev, given a name, while in others, it's
-# the station name, when we know ID & location.
 #
-# FILE UPDATED 04/24/2026
+# FILE UPDATED 08/19/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1030,6 +1017,7 @@
 0000000000|K1KM | 46.4441|-109.8010| 1332|Harlowton, MT                       |US|MTR
 0000000000|K1KN | 48.5514|-102.1210|  693|Donnybrook, ND                      |US|MTR
 0000000000|K1KW | 41.1370|-103.4884|  147|Dix, NE                             |US|MTR
+0000000000|K1L8 | 37.1402|-113.3061| 1021|General Dick Stout Fld AP, UT       |US|MTR
 0000000000|K1LM | 46.6939|-109.7400| 1417|Judith Gap, MT                      |US|MTR
 0000000000|K1LN | 48.7895|-102.2670|  599|Bowbells, ND                        |US|MTR
 0000000000|K1LW | 40.9214|-103.6917| 1515|Stoneham, CO                        |US|MTR
@@ -1248,6 +1236,7 @@
 0000000000|K9L0 | 33.4600|-117.6900|   15|Dana Point, CA                      |US|MTR
 0000000000|K9L2 | 34.9865|-117.8649|  701|Edwards AFB, CA                     |US|MTR
 0000000000|K9MN | 44.0200| -92.4800|  335|St Marys Hospital Helipad, MN       |US|MTR
+0000000000|K9S2 | 48.8077|-105.4395|  742|Scobey AP, MT                       |US|MTR
 0000000000|K9S5 | 45.8781|-111.5694| 1246|Three Forks AP, MT                  |US|MTR
 0000000000|K9S9 | 45.4541|-119.6903|  498|Lexington AP, OR                    |US|MTR
 0000072653|K9V9 | 43.8000| -99.3200|  530|Chamberlain, SD                     |US|MTR
@@ -1867,6 +1856,7 @@
 0000000000|KE16 | 37.0816|-121.5968|   87|San Martin AP, CA                   |US|MTR
 0000000000|KE23 | 36.4300|-105.5700| 2123|Taos Pueblo, NM                     |US|MTR
 0000000000|KE33 | 36.9100|-106.5700| 2362|Chama, NM                           |US|MTR
+0000000000|KE35 | 31.5152|-106.1482| 1121|Fabens AP, TX                       |US|MTR
 0000000000|KE38 | 30.3842|-103.6836| 1376|Alpine-Casparis Muni AP, TX         |US|MTR
 0000000000|KE41 | 31.1986|-101.4752|  825|Reagan Cnty AP, TX                  |US|MTR
 0000000000|KE42 | 36.2210|-101.1945|  942|Major Samuel B Cornelius Fld, TX    |US|MTR
@@ -2353,6 +2343,7 @@
 0000000000|KI69 | 39.0784| -84.2102|  257|Clermont Cnty AP, OH                |US|MTR
 0000000000|KI74 | 40.1326| -83.7534|  320|Urbana AP, OH                       |US|MTR
 0000000000|KI75 | 41.0522| -93.6897|  338|Osceola Muni AP, IA                 |US|MTR
+0000000000|KI93 | 37.7848| -86.4413|  223|Breckinridge Cnty AP, KY            |US|MTR
 0000000000|KIAB | 37.6231| -97.2676|  418|McConnell AFB, KS                   |US|MTR
 0000072403|KIAD | 38.9475| -77.4599|   95|Washington Dulles Intl AP, VA       |US|MTR
 0000000000|KIAG | 43.1084| -78.9462|  181|Niagara Falls Intl AP, NY           |US|MTR
@@ -2480,6 +2471,7 @@
 0000000000|KJZI | 32.7017| -80.0039|    5|Charleston Exec AP, SC              |US|MTR
 0000000000|KJZP | 34.4535| -84.4572|  468|Pickens Cnty AP, GA                 |US|MTR
 0000000000|KK20 | 41.7900| -99.1500|  664|Burwell, NE                         |US|MTR
+0000000000|KK24 | 37.0097| -85.1028|  308|Russell Cnty AP, KY                 |US|MTR
 0000000000|KK59 | 39.5705| -95.1803|  327|Amelia Earhart AP, KS               |US|MTR
 0000000000|KK61 | 39.4710| -98.1290|  432|Moritz Mem AP, KS                   |US|MTR
 0000000000|KK62 | 38.7041| -84.3918|  274|Gene Synder AP, KY                  |US|MTR
@@ -2555,6 +2547,7 @@
 0000000000|KLLJ | 44.5236|-114.2179| 1547|Challis AP, ID                      |US|MTR
 0000000000|KLLN | 33.5511|-102.3736| 1071|Levelland Muni AP, TX               |US|MTR
 0000000000|KLLQ | 33.6386| -91.7510|   82|Monticello Muni AP/Ellis Fld, AR    |US|MTR
+0000000000|KLLR | 39.2621|-123.7538|  175|Little River AP, CA                 |US|MTR
 0000000000|KLMO | 40.1633|-105.1628| 1540|Vance Brand AP, CO                  |US|MTR
 0000000000|KLMS | 33.1464| -89.0631|  175|Louisville Winston Cnty AP, MS      |US|MTR
 0000000000|KLMT | 42.1561|-121.7331| 1248|Klamath Falls AP/Kingsley Field, OR |US|MTR
@@ -2578,6 +2571,7 @@
 0000000000|KLPC | 34.6656|-120.4675|   27|Lompoc AP, CA (AWOS)                |US|MTR
 0000000000|KLPR | 41.3443| -82.1776|  242|Lorain Cnty Rgnl AP, OH             |US|MTR
 0000000000|KLQK | 34.8100| -82.7033|  309|Pickens Cnty AP, SC                 |US|MTR
+0000000000|KLQR | 38.2086| -99.0859|  613|Larned-Pawnee Cnty AP, KS           |US|MTR
 0000072252|KLRD | 27.5436| -99.4542|  155|Laredo Intl AP, TX                  |US|MTR
 0000000000|KLRF | 34.9169| -92.1497|   95|Little Rock AFB, AR                 |US|MTR
 0000000000|KLRJ | 42.7786| -96.1936|  365|Le Mars Muni AP, IA                 |US|MTR
@@ -3040,7 +3034,7 @@
 0000000000|KPBF | 34.1739| -91.9351|   63|Grider Fld AP, AR                   |US|MTR
 0000000000|KPBG | 44.6509| -73.4681|   71|Plattsburgh Intl AP, NY             |US|MTR
 0000000000|KPBH | 45.7067| -90.4039|  455|Price Cnty AP, WI                   |US|MTR
-0000072203|KPBI | 26.6857| -80.0928|    6|Palm Beach Intl AP, FL              |US|MTR
+0000072203|KDJT | 26.6857| -80.0928|    6|President Donald J Trump Intl AP, FL|US|MTR
 0000000000|KPBX | 37.5589| -82.5649|  449|Pike Cnty AP, KY                    |US|MTR
 0000000000|KPCD | 37.8585| -89.8698|  114|Perryville Rgnl AP, MO              |US|MTR
 0000000000|KPCM | 28.0011| -82.1618|   47|Plant City AP, FL                   |US|MTR
@@ -3097,7 +3091,7 @@
 0000000000|KPNS | 30.4734| -87.1866|   37|Pensacola Intl AP, FL               |US|MTR
 0000000000|KPNT | 40.9244| -88.6239|  203|Pontiac Muni AP, IL                 |US|MTR
 0000000000|KPO1 | 48.1344|-105.1621|  621|Poplar Muni AP, MT                  |US|MTR
-0000072303|KPOB | 35.1709| -79.0145|   66|Pope AFB, NC                        |US|MTR
+0000072303|KPOB | 35.1709| -79.0145|   66|Pope AAF, NC                        |US|MTR
 0000000000|KPOC | 34.0917|-117.7818|  309|Brackett Fld AP, CA                 |US|MTR
 0000072239|KPOE | 31.0448| -93.1916|  101|Polk Army Airfield, LA              |US|MTR
 0000000000|KPOF | 36.7739| -90.3249|  101|Poplar Bluff Rgnl Business AP, MO   |US|MTR
