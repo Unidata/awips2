@@ -1,4 +1,4 @@
-#!/bin/sh -xe
+#!/bin/bash -xe
 #
 # Build Unidata AWIPS RPMs from source
 # author: Michael James
@@ -39,7 +39,7 @@ pushd $REPO
 #
 # AWIPS Static files are too large to host on github
 #
-if [ ! -d awips2-static && ! $rpmname = "buildCAVE" ]; then
+if [ ! -d awips2-static ] && [ "$rpmname" != "buildCAVE" ]; then
    mkdir awips2-static
    cd awips2-static
    wget https://www.unidata.ucar.edu/downloads/awips2/static.tar
