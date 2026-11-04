@@ -1,7 +1,7 @@
 # This is the main file for model BUFR sounding ingest.  This will be clipped to the
 # regional scale for most sites to produce the file modelBufrStationInfo.txt
 #
-# FILE UPDATED 09/03/2026
+# FILE UPDATED 11/03/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -631,9 +631,9 @@
 0000045006    |LS3  | 47.320 | -89.870   | 183 |  BUOY WESTERN LAKE SUPER --   |US|20
 0000045007    |LM2  | 42.670 | -87.020   | 177 |  BUOY SOUTHERN LAKE MICH --   |US|20
 0000045008    |LH2  | 44.280 | -82.420   | 177 |  BUOY SOUTHERN LAKE HURO --   |US|20
-0000045012    |LO1  | 43.620 | -77.410   |  75 |  BUOY CENTER LAKE ONTARI --   |US|20
+0000045012    |LO1  | 43.620 | -77.410   |  75 |  BUOY CENTER LAKE AMERIC --   |US|20
 0000045132    |LE2  | 42.470 | -81.220   |9999 |  BUOY PORT STANLEY       --   |US|20
-0000045139    |LO2  | 43.400 | -79.450   |9999 |  BUOY WESTERN LAKE ONTAR --   |US|20
+0000045139    |LO2  | 43.400 | -79.450   |9999 |  BUOY WESTERN LAKE AMERI --   |US|20
 0000045142    |LE3  | 42.740 | -79.350   |9999 |  BUOY PORT COLBORNE      --   |US|20
 0000046001    |B#C  | 56.300 |-148.200   |   0 |  BUOY GULF OF AK        PAC   |US|20
 0000046002    |B#D  | 42.500 |-130.500   |   0 |  BUOY OREGON            PAC   |US|20
