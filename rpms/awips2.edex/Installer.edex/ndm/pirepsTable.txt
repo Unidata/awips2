@@ -1895,7 +1895,7 @@ HSK           0 HACKENSACK                       MN US  4682  -9473     0  0
 HSL           0 HUSLIA                           AK US  6571 -15637     0  0
 HSP           0 HOT SPRINGS                      VA US  3798  -7998     0  0
 HSQ           0 HOUSTON                          TX US  2965  -9528     0  0
-HSR           0 HOT SPRINGS                      SD US  4337 -10340     0  0
+HSR           0 HOT SPRINGS                      SD US  4337 -10339     0  0
 HSS           0 HOT SPRING                       ND US  3590  -8282     0  0
 HST           0 HOMESTEAD AFB                    FL US  2548  -8038     0  0
 HSV           0 HUNTSVILLE                       AL US  3465  -8678     0  0

@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 10/13/2026
+# FILE UPDATED 11/05/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -326,6 +326,7 @@
 3KK K-Kankakee AP, Kankakee, IL
 3L4 K-Little Pecan Is AP, Grand Chenier, LA
 3LF K-Litchfield Muni AP, Litchfield, IL
+3M7 K-Lafayette Muni AP, Lafayette, TN
 3N8 K-Mahnomen Cnty AP, Mahnomen, MN
 3R0 K-Beeville Muni AP, Beeville, TX
 3R5 K-New Braunfels Muni AP, New Braunfels, TX
@@ -1551,6 +1552,7 @@ ENS El Nino/Southern Oscillation Discussion
 ENV K-Wendover AP, Wendover, UT
 ENW K-Kenosha Rgnl AP, Kenosha, WI
 ENX K-Albany, NY WSR-88D
+EOD K-Sabre Army Airfield, Fort Campbell, TN
 EOE K-Newberry Cnty AP, Newberry, SC
 EOK K-Keokuk Muni AP, Keokuk, IA
 EOP K-Pike Cnty AP, Waverly, OH
@@ -2056,6 +2058,7 @@ HSF P-Bradshaw AAF, Camp Pohakuloa, HI
 HSG K-Hot Springs Cnty AP, Thermopolis, WY
 HSI K-Hastings Muni AP, Hastings, NE
 HSP K-Ingalls Fld AP, Hot Springs, VA
+HSR K-Hot Springs Muni AP, Hot Springs, SD (AWOS)
 HSS K-Hot Springs, NC
 HST K-Homestead AFB, Homestead, FL
 HSV K-Huntsville Intl AP/Carl T Jones Fld, Huntsville, AL
@@ -2636,6 +2639,7 @@ LIH P-Lihue AP, Lihue, HI
 LIK Licking River
 LIO Ice Outlook
 LIT K-Bill and Hillary Clinton Natl AP/Adams Fld, Little Rock, AR
+LIU K-Littlefield Muni AP, Littlefield, TX (AWOS)
 LIX WFO New Orleans/Baton Rouge, LA WSR-88D
 LIZ K-Loring Intl AP, Limestone, ME
 LJF K-Litchfield Muni AP, Litchfield, MN

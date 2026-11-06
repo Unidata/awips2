@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 08/19/2026
+# FILE UPDATED 11/05/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1101,6 +1101,7 @@
 0000000000|K3K8 | 37.2233| -99.3317|  636|Comanche Cnty AP, KS                |US|MTR
 0000000000|K3L4 | 29.7997| -92.8035|    2|Little Pecan Is AP, LA              |US|MTR
 0000000000|K3LF | 39.1630| -89.6750|  210|Litchfield Muni AP, IL              |US|MTR
+0000000000|K3M7 | 36.5200| -86.0581|  295|Lafayette Muni AP, TN               |US|MTR
 0000000000|K3N8 | 47.2605| -95.9281|  379|Mahnomen Cnty AP, MN                |US|MTR
 0000000000|K3R0 | 28.3620| -97.7910|   82|Beeville Muni AP, TX                |US|MTR
 0000000000|K3R7 | 30.2427| -92.6735|    7|Jennings AP, LA                     |US|MTR
@@ -1926,6 +1927,7 @@
 0000000000|KENL | 38.5065| -89.0911|  163|Centralia Muni AP, IL               |US|MTR
 0000072581|KENV | 40.7183|-114.0311| 1292|Wendover AP, UT                     |US|MTR
 0000000000|KENW | 42.5954| -87.9288|  226|Kenosha Rgnl AP, WI                 |US|MTR
+0000000000|KEOD | 36.5677| -87.4815|  181|Sabre Army Airfield, TN             |US|MTR
 0000000000|KEOE | 34.3117| -81.6371|  174|Newberry Cnty AP, SC                |US|MTR
 0000000000|KEOK | 40.4602| -91.4258|  205|Keokuk Muni AP, IA                  |US|MTR
 0000000000|KEOP | 39.1606| -82.9269|  202|Pike Cnty AP, OH                    |US|MTR
@@ -2298,7 +2300,8 @@
 0000000000|KHSG | 43.7136|-108.3897| 1492|Hot Springs Cnty AP, WY             |US|MTR
 0000000000|KHSI | 40.6039| -98.4281|  588|Hastings Muni AP, NE                |US|MTR
 0000000000|KHSP | 37.9511| -79.8339| 1156|Ingalls Fld AP, VA                  |US|MTR
-0000000000|KHSS | 35.9100| -82.8200|  451|Hot Srings, NC                      |US|MTR
+0000000000|KHSR | 43.3683|-103.3883|  960|Hot Springs Muni AP, SD             |US|MTR
+0000000000|KHSS | 35.9100| -82.8200|  451|Hot Springs, NC                     |US|MTR
 0000000000|KHST | 25.4886| -80.3842|    2|Homestead AFB, FL                   |US|MTR
 0000072323|KHSV | 34.6372| -86.7751|  192|Huntsville Intl AP, AL              |US|MTR
 0000000000|KHTH | 38.5447|-118.6339| 1285|Hawthorne Industrial AP, NV         |US|MTR
@@ -2539,6 +2542,7 @@
 0000000000|KLHZ | 36.0233| -78.3303|  112|Triangle North Exec AP, NC          |US|MTR
 0000000000|KLIC | 39.2747|-103.6669| 1634|Limon Muni AP, CO                   |US|MTR
 0000000000|KLIT | 34.7294| -92.2247|   80|Bill & Hillary Clinton Natl AP, AR  |US|MTR
+0000000000|KLIU | 33.9329|-102.3867| 1102|Littlefield Muni AP, TX             |US|MTR
 0000000000|KLIZ | 46.9600| -67.8800|  227|Loring-Limestone Intl AP, ME        |US|MTR
 0000000000|KLJF | 45.0971| -94.5073|  347|Litchfield Muni AP, MN              |US|MTR
 0000000000|KLKR | 34.6931| -80.8544|  148|Lancaster Cnty AP/McWhirter Fld, SC |US|MTR
@@ -2828,6 +2832,7 @@
 0000000000|KN27 | 41.7400| -76.4471|  223|Bradford Cnty AP, PA                |US|MTR
 0000000000|KN38 | 41.7279| -77.3965|  577|Grand Canyon Rgnl AP, PA            |US|MTR
 0000000000|KN60 | 47.6100|-101.4000|  582|Garrison, ND                        |US|MTR
+0000000000|KN66 | 45.5248| -75.0645|  538|Albert S Nader Rgnl AP, NY          |US|MTR
 0000000000|KN79 | 40.8369| -76.5525|  262|Northumberland Cnty AP, PA          |US|MTR
 0000000000|KN87 | 40.2300| -74.6100|   36|Robbinsville Twp, NJ                |US|MTR
 0000000000|KNAE | 29.1500| -81.6300|   29|Camp Ocala, FL                      |US|MTR
