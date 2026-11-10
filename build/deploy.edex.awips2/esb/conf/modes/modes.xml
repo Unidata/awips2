@@ -12,7 +12,7 @@
                 <exclude>webservices.xml</exclude>
                 <exclude>ohd-common-database.xml</exclude>
 
-        </mode>
+	</mode>
 
         <mode name="ingestGrib">
                 <include>time-common.xml</include>
@@ -47,16 +47,13 @@
                 <includeMode>goesrExclude</includeMode>
                 <exclude>.*(airmet|atcf|aww|convsigmet|gfe|grid|hydro|intlsigmet|modis|ncpafm|ncuair|profiler|netcdf-grid).*</exclude>
                 <exclude>.*(nonconvsigmet|satellite|sgwh|ssha|stats|stormtrack|textlightning_ep|useradmin|wcp).*</exclude>
-                <exclude>purge-spring.*</exclude>
         </mode>
 
         <mode name="ingestGoesR">
                 <includeMode>ingest</includeMode>
                 <includeMode>pluginExclude</includeMode>
                 <includeMode>radarExclude</includeMode>
-                <exclude>purge-spring.*</exclude>
-                <exclude>.*(taf|nctext).*</exclude>
-                <exclude>text-subscription.*</exclude>
+		<exclude>text-subscription.*</exclude>
         </mode>
 
         <mode name="ingestGrids">
@@ -64,15 +61,14 @@
                 <includeMode>pluginModelSoundingExclude</includeMode>
                 <includeMode>radarExclude</includeMode>
                 <includeMode>goesrExclude</includeMode>
-                <exclude>purge-spring.*</exclude>
         </mode>
 
         <mode name="pluginExclude">
-                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|goessounding|lma|lsr|modelsounding|nucaps|obs|poes|redbook|sfcobs|svrwx|tc|vaa|warning).*</exclude>
+                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|database-watcher|goessounding|griddednucaps|lma|lsr|modelsounding|ndm-watcher|nctext|nucaps|obs|poes|purge-spring|redbook|sfcobs|svrwx|taf|tc|vaa|warning).*</exclude>
         </mode>
 
         <mode name="pluginModelSoundingExclude">
-                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|geodb|goessounding|lma|lsr|nucaps|obs|poes|redbook|sfcobs|svrwx|tc|vaa|viirs|warning).*</exclude>
+                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|database-watcher|geodb|goessounding|griddednucaps|lma|lsr|ndm-watcher|nucaps|obs|poes|purge-spring|redbook|sfcobs|svrwx|tc|vaa|viirs|warning).*</exclude>
         </mode>
 
         <mode name="goesrExclude">
