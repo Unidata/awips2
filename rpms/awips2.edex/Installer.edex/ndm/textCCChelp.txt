@@ -1,5 +1,5 @@
 # THIS IS THE BASE textCCChelp.txt FILE
-# FILE UPDATED 11/05/2026
+# FILE UPDATED 11/09/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 0   Bulletin No. 0
@@ -270,7 +270,6 @@
 2R8 K-Port Aransas, TX
 2R9 K-Kenedy Rgnl AP, Kenedy, TX
 2V0 K-Craig, CO
-2V5 K-Wray Muni AP, Wray, CO
 2V6 K-Yuma Muni AP, Yuma, CO
 2W6 K-St Mary's Cnty Rgnl AP, Leonardtown, MD
 2WX K-Buffalo, SD
@@ -3704,6 +3703,7 @@ RWI K-Rocky Mount/Wilson Rgnl AP, Rocky Mount, NC
 RWL K-Rawlins Muni AP/Harvey Fld, Rawlins, WY
 RWV K-Caldwell Muni AP, Caldwell, TX
 RXE K-Rexburg-Madison Cnty AP, Rexburg, ID
+RYA K-Wray Muni AP, Wray, CO
 RYM K-Ray S Miller Army Airfield, Camp Riley, MN
 RYN K-Ryan Fld AP, Tucson, AZ
 RYT K-Fountain Dale, PA

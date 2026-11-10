@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 11/05/2026
+# FILE UPDATED 11/09/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -1073,7 +1073,6 @@
 0000000000|K2P2 | 45.3883| -86.9240|  199|Washington Is AP, WI                |US|MTR
 0000000000|K2R2 | 39.7468| -86.4752|  274|Hendricks Cnty AP, IN               |US|MTR
 0000000000|K2R9 | 28.8250| -97.8656|   88|Kenedy Rgnl AP, TX                  |US|MTR
-0000000000|K2V5 | 40.1003|-102.2410| 1118|Wray Muni AP, CO                    |US|MTR
 0000000000|K2V6 | 40.1042|-102.7130| 1261|Yuma Muni AP, CO                    |US|MTR
 0000000000|K2W6 | 38.3150| -76.5500|   43|St Mary's Cnty Rgnl AP, MD          |US|MTR
 0000000000|K2WX | 45.6043|-103.5469|  881|Buffalo, SD                         |US|MTR
@@ -3263,6 +3262,7 @@
 0000000000|KRWL | 41.8055|-107.2017| 2077|Rawlins Muni AP/Harvey Fld, WY      |US|MTR
 0000000000|KRWV | 30.5155| -96.7041|  119|Caldwell Muni AP, TX                |US|MTR
 0000000000|KRXE | 43.8345|-111.8044| 1481|Rexburg-Madison Cnty AP, ID         |US|MTR
+0000000000|KRYA | 40.1004|-102.2412| 1121|Wray Muni AP, CO                    |US|MTR
 0000000000|KRYM | 46.0907| -94.3605|  350|Ray S Miller Army Airfield, MN      |US|MTR
 0000000000|KRYN | 32.1422|-111.1746|  737|Ryan Fld AP, AZ                     |US|MTR
 0000000000|KRYT | 39.7341| -77.4304|  274|Fountain Dale, PA                   |US|MTR

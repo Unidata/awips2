@@ -1,7 +1,7 @@
 # This is the main file for model BUFR sounding ingest.  This will be clipped to the
 # regional scale for most sites to produce the file modelBufrStationInfo.txt
 #
-# FILE UPDATED 11/03/2026
+# FILE UPDATED 11/09/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -391,7 +391,7 @@
 0000000668    |KRPD | 45.420 | -91.770   | 347 |  RICE LAKE               WI   |US|12
 0000000669    |KLJF | 45.097 | -94.507   | 347 |  LITCHFIELD              MN   |US|12
 0000000670    |KCNB | 44.730 | -96.270   | 364 |  CANBY                   MN   |US|12
-0000000671    |K2V5 | 40.100 |-102.240   |1121 |  WRAY                    CO   |US|12
+0000000671    |KRYA | 40.100 |-102.241   |1121 |  WRAY                    CO   |US|12
 0000000672    |KC1  | 38.760 |-102.790   |1306 |  KIT CARSON              CO   |US|12
 0000000673    |DDOR | 45.290 | -86.980   | 178 |  DEATHS DOOR             WI   |US|22
 0000000674    |KISW | 44.360 | -89.840   | 311 |  WISCONSIN RAPIDS        WI   |US|12
