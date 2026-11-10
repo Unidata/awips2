@@ -11,7 +11,7 @@
         <constructor-arg value="${manualIngest.inProgressCacheSize}" />
     </bean>
     
-    <bean id="clusteredManualProc" factory-bean="routeContextFactory" factory-method="createClustered">
+    <bean id="clusteredManualProc" factory-bean="routeContextFactory" factory-method="create">
         <constructor-arg>
             <bean class="com.raytheon.uf.edex.plugin.manualIngest.ClusteredManualProcRoutes">
                 <constructor-arg name="manualIngestDropBoxPath" value="${manualIngest.dropBoxPath}" />
