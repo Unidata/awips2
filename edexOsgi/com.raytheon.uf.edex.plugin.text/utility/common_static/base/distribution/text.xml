@@ -25,7 +25,8 @@
         of the file.
     -->
 <requestPatterns>
-    <regex>^[ACFNRUW][A-Z][A-Z0-9]{4} [A-Z0-9]{4}</regex>
+    <!-- Modify regex to not include the REFS Alaska products -->
+    <regex>^(?!AEAD02 KWDB)[ACFNRUW][A-Z][A-Z0-9]{4} [A-Z0-9]{4}</regex>
     <regex>^S[A-CEG-Z].*</regex>
     <!-- Only have AFOS mapping for T[BCX] -->
     <regex>^T[BCX].*</regex>

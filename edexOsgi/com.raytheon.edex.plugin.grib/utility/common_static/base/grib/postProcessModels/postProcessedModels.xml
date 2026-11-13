@@ -138,6 +138,12 @@
         <modelName>GFS229|GFS215|GFS217|GFS20-.*|GFS.*</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
+    <!-- RRFS-NA cumulative precipitation normalization and accumulation -->
+	<postProcessedModel id="RRFS-NA">
+	    <modelName>RRFS-NA</modelName>
+	    <processorName>RRFSPrecipPostProcessor</processorName>
+	    <processorName>PrecipAccumPostProcessor</processorName>
+	</postProcessedModel>
 
     <!-- Post processor definition for the HWRF model -->
     <!-- This breaks GFE and volume browser. The post processing

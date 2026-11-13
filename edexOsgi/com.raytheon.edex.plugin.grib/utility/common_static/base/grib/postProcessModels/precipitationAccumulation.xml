@@ -52,7 +52,30 @@
         <create forecastPeriodHours="6" accumulationParam="TP6hr" minuendParam="TP12hr" subtrahendParam="TP6hr" />
         <create forecastPeriodHours="6" accumulationParam="CP6hr" minuendParam="CP12hr" subtrahendParam="CP6hr" />
     </accumulation>
-
+	<!-- RRFS-NA precipitation accumulations -->
+	<accumulation>
+	    <model>RRFS-NA</model>
+	
+	    <create forecastPeriodHours="3"
+	            accumulationParam="TP3hr"
+	            minuendParam="TPrun"
+	            subtrahendParam="TPrun" />
+	
+	    <create forecastPeriodHours="6"
+	            accumulationParam="TP6hr"
+	            minuendParam="TPrun"
+	            subtrahendParam="TPrun" />
+	
+	    <create forecastPeriodHours="12"
+	            accumulationParam="TP12hr"
+	            minuendParam="TPrun"
+	            subtrahendParam="TPrun" />
+	
+	    <create forecastPeriodHours="24"
+	            accumulationParam="TP24hr"
+	            minuendParam="TPrun"
+	            subtrahendParam="TPrun" />
+	</accumulation>
     <!-- NamNestPostProcessor equivalent. -->
     <!--
     <accumulation>

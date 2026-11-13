@@ -42,9 +42,6 @@
 	<contribute xsi:type="bundleItem" file="bundles/grid/SfcRH.xml"
 			menuText="Sfc Relative Humidity" id="" useReferenceTime="true">
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grid/30mbMeanDewpoint.xml"
-			menuText="30mb Mean Dewpoint" id="" useReferenceTime="true">
-	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/grid/PrecipitableWater.xml"
 			menuText="Precipitable Water" id="" useReferenceTime="true">
 	</contribute>
