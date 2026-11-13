@@ -10,7 +10,7 @@
 # Elevations are in meters. "-0" is used to signify unknown elevation.
 # Stations marked "e" at the right include guesses for some of the information.
 #
-# FILE UPDATED 11/09/2026
+# FILE UPDATED 11/12/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 #
@@ -2768,7 +2768,7 @@
 0000000000|KMQM | 44.5800|-112.3200| 2068|Monida, MT                          |US|MTR
 0000000000|KMQS | 39.9789| -75.8647|  201|Chester County G O Carlson AP, PA   |US|MTR
 0000072743|KMQT | 46.5344| -87.5586|  372|Marquette Cnty AP, MI               |US|MTR
-0000000000|KMQY | 35.9189| -86.5197|  165|Smyrna AP, TN                       |US|MTR
+0000000000|KMQY | 36.0090| -86.5201|  166|Smyrna AP, TN                       |US|MTR
 0000000000|KMRB | 39.4032| -77.9829|  172|Eastern WV Rgnl AP, WV              |US|MTR
 0000000000|KMRC | 35.5539| -87.1850|  191|Maury Cnty Rgnl AP, TN              |US|MTR
 0000072264|KMRF | 30.3719|-104.0175| 1478|Marfa Muni AP, TX                   |US|MTR

@@ -1,5 +1,5 @@
 # THIS IS THE BASE pirepsTable.txt FILE
-# FILE UPDATED 09/14/2026
+# FILE UPDATED 11/12/2026
 # FOR CHANGES TO THIS FILE PLEASE CONTACT
 # xiaobiao.fan@noaa.gov
 AAA           0 ABRAHAM                          IL US  4016  -8934     0  0
@@ -2704,7 +2704,7 @@ MQS           0 COATESVILLE                      PA US  3992  -7590     0  0
 MQT           0 MARQUETTE                        MI US  4653  -8759     0  0
 MQU           0 BECKLEY                          WV US  3778  -8112     0  0
 MQW           0 MC RAE                           GA US  3209  -8288     0  0
-MQY           0 SMYRNA                           TN US  3602  -8842     0  0
+MQY           0 SMYRNA                           TN US  3601  -8652     0  0
 MRB           0 MARTINSBURG                      WV US  3939  -7785     0  0
 MRC           0 MOUNT PLEASANT                   TN US  3572  -8718     0  0
 MRF           0 MARFA                            TX US  3030 -10395     0  0
