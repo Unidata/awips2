@@ -64,11 +64,11 @@
         </mode>
 
         <mode name="pluginExclude">
-                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|database-watcher|goessounding|griddednucaps|lma|lsr|modelsounding|ndm-watcher|nctext|nucaps|obs|poes|purge-spring|redbook|sfcobs|svrwx|taf|tc|vaa|warning).*</exclude>
+                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|database-watcher|goessounding|griddednucaps|lma|lsr|modelsounding|ndm-watcher|nctext|nucaps|obs|poes|purge-spring|redbook|sfcobs|spc|svrwx|taf|tc|vaa|warning).*</exclude>
         </mode>
 
         <mode name="pluginModelSoundingExclude">
-                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|database-watcher|geodb|goessounding|griddednucaps|lma|lsr|ndm-watcher|nucaps|obs|poes|purge-spring|redbook|sfcobs|svrwx|tc|vaa|viirs|warning).*</exclude>
+                <exclude>^(acars|activetable|bufr|ccfp|climate|convectprob|cwa|database-watcher|geodb|goessounding|griddednucaps|lma|lsr|ndm-watcher|nucaps|obs|poes|purge-spring|redbook|sfcobs|spc|svrwx|tc|vaa|viirs|warning).*</exclude>
         </mode>
 
         <mode name="goesrExclude">
