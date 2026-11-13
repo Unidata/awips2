@@ -9,8 +9,8 @@ awips2-gsd
 awips2-nativelib 
 awips2-ncep 
 awips2-nws
-awips2-ogc 
 awips2-rpm 
 awips2-static 
 python-awips
 awips2-hazards
+awips2-unidata

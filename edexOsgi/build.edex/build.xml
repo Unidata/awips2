@@ -337,6 +337,10 @@
     	<antcall target="build">
     				<param name="feature" value="gov.noaa.nws.ocp.edex.odim.feature"/>
     	</antcall>
+    	<antcall target="build">
+    				<param name="feature" value="edu.ucar.unidata.uf.edex.upc.feature"/>
+		</antcall>
+
 	<!-- Comment out hazard services edex features-->
     	<!---antcall target="build">
     				<param name="feature" value="com.raytheon.uf.edex.hazards.feature"/>

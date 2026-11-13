@@ -60,3 +60,4 @@ gov.noaa.nws.obs.viz.geodata.feature
 gov.noaa.nws.sr.oun.viz.mping.feature
 gov.noaa.nws.ocp.viz.odim.feature
 gov.noaa.gsd.viz.ensemble.feature
+edu.ucar.unidata.uf.viz.feature
