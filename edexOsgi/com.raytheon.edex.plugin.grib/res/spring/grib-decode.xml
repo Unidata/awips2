@@ -40,6 +40,7 @@
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC236GribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.TemperatureCorrectionPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.precipitation.PrecipAccumPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RRFSPrecipPostProcessor</value>
             </list>
         </property>
     </bean>

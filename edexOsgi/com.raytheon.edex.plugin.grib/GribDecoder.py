@@ -57,6 +57,7 @@
 # Jul  3, 2019  7879     tgurney     Python 3 fixes
 # Aug 02, 2021  8520     njensen     Switch from matplotlib.mlab.griddata to scipy.interpolate.griddata
 # Aug 19, 2026           tiffanym    Add in logic for rotated lat lon grid coverage
+# Nov 12, 2026           tiffanym    Updated GRIB2 decoding to support files larger than 2 GB
 
 import grib2
 import numpy
@@ -178,23 +179,39 @@ class GribDecoder():
     def decode(self):
         # The GribRecords to be returned back to Java
         records = []
-
+    
         gribDictList = []
         gribFile = open(self.fileName, "rb")
+        fd = None
+    
         try:
-            # This structure is a list of dicts for each field. For more
-            # information on what keys are available see the documentation on
-            # the gribfield struct in g2clib-1.1.8/grib2c.doc
-            gribDictList = grib2.decode(gribFile, self.startPosition, self.messageLength)
-        except:
-            self.log.exception("Error processing file [" + self.fileName + "]: ")
+            # Verify that Python can retrieve the file descriptor
+            fd = gribFile.fileno()
+    
+            # This structure is a list of dicts for each field.
+            gribDictList = grib2.decode(
+                gribFile, self.startPosition, self.messageLength
+            )
+    
+        except Exception:
+            self.log.exception(
+                "Error processing file [%s]: fd=%s, closed=%s, "
+                "startPosition=%s, messageLength=%s",
+                self.fileName,
+                fd,
+                gribFile.closed,
+                self.startPosition,
+                self.messageLength
+            )
+    
         finally:
             gribFile.close()
+    
         for gribDict in gribDictList:
             record = self._getData(gribDict)
             if record is not None:
                 records.append(record)
-
+    
         return records
 
     ##
