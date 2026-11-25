@@ -313,4 +313,13 @@
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
         </dataSet>
     </category>
+    <category>
+        <name>SPC</name>
+	<selectedRetentionHours>24</selectedRetentionHours>
+	<dataSet>
+	    <dirPattern>spc/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+	    <displayLabel>SPC {5}</displayLabel>
+	    <dateGroupIndices>1,2,3,4</dateGroupIndices>
+	</dataSet>
+    </category>
 </archive>

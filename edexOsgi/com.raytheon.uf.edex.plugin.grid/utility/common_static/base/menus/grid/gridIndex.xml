@@ -48,20 +48,6 @@
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP6hr"/>
      </contribute>
-	<contribute xsi:type="subinclude" subMenu = "NAM 12km" 
-             fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="NAM12" />
-             <substitute key="menuName" value="NAM 12km" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP3hr"/>
-    </contribute>
-	<contribute xsi:type="subinclude" subMenu = "NAM 40km" 
-             fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="NAM40" />
-             <substitute key="menuName" value="NAM 40km" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP3hr"/>
-    </contribute>
 	<contribute xsi:type="subinclude" subMenu = "RAP 13km" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="RAP13" />
@@ -69,36 +55,13 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </contribute>
-    <contribute xsi:type="subinclude" subMenu = "HiResW-ARW" 
+	<contribute xsi:type="subinclude" subMenu = "RDPS" 
              fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="HiResW-ARW" />
-             <substitute key="menuName" value="HiResW-ARW" />
-             <substitute key="frameCount" value="19" />
+             <substitute key="modelName" value="RDPS" />
+             <substitute key="menuName" value="RDPS" />
+             <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </contribute>
-    <contribute xsi:type="subinclude" subMenu = "HiResW-FV3" 
-             fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="HiResW-FV3" />
-             <substitute key="menuName" value="HiResW-FV3" />
-             <substitute key="frameCount" value="19" />
-             <substitute key="TP" value="TP"/>
-    </contribute>
-<!-- Tiffany Meyer commented out because we aren't ignesting these models #20210507
-	<contribute xsi:type="subinclude" subMenu = "RAP 20km" 
-             fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="RAP20" />
-             <substitute key="menuName" value="RAP 20km" />
-             <substitute key="frameCount" value="19" />
-             <substitute key="TP" value="TP"/>
-    </contribute>
-    <contribute xsi:type="subinclude" subMenu = "RAp 40km" 
-             fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="RAP40" />
-             <substitute key="menuName" value="RAP 40km" />
-             <substitute key="frameCount" value="19" />
-             <substitute key="TP" value="TP"/>
-    </contribute>
--->
     <contribute xsi:type="subinclude" subMenu = "Comparison Families" 
              fileName="menus/grid/baseComparisonFamilies.xml">
     </contribute>
@@ -186,15 +149,8 @@
              <substitute key="TP" value="TP"/>
     </contribute>
         <contribute xsi:type="separator" id="MySeparatorId"/>
-
-    <contribute xsi:type="titleItem" titleText="------ Optional Models ------" id="optionalModels"/>
-	<contribute xsi:type="subinclude" subMenu = "CMC" 
-             fileName="menus/grid/cmcFamilies.xml">
-             <substitute key="modelName" value="CMC" />
-             <substitute key="menuName" value="CMC" />
-             <substitute key="frameCount" value="19" />
-             <substitute key="TP" value="TP"/>
-    </contribute>
+<!-- 
+    
     <contribute xsi:type="subinclude" subMenu = "NAVGEM" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAVGEM" />
@@ -209,4 +165,5 @@
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </contribute>
+-->
 </menuTemplate>

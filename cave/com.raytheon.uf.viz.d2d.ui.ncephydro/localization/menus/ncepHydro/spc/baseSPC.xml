@@ -23,6 +23,8 @@
         of the file will completely replace a lower priority version of the file. 
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="subinclude"
+        fileName="menus/ncepHydro/spc/OutlookMenus.xml"/>
     <contribute xsi:type="bundleItem"
         file="bundles/ncepHydro/ConvectiveWatchPlot.xml" menuText="Convective Watches"
         id="convectiveWatches">

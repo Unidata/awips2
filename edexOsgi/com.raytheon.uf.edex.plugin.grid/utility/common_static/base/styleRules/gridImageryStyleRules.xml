@@ -7108,4 +7108,22 @@
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
+    <!-- NBM Joint Fire Weather Probabilities -->
+	<styleRule>
+	    <paramLevelMatches>
+	        <parameter>JFWPRB-.*</parameter>
+	        <creatingEntity>NationalBlend</creatingEntity>
+	    </paramLevelMatches>
+	    <imageStyle>
+	        <displayUnits>%</displayUnits>
+	        <range scale="LINEAR">
+	            <minValue>0</minValue>
+	            <maxValue>100</maxValue>
+	        </range>
+	        <defaultColormap>Grid/Fire Weather Probability</defaultColormap>
+	        <colorbarLabeling>
+	            <increment>10</increment>
+	        </colorbarLabeling>
+	    </imageStyle>
+	</styleRule>
 </styleRuleset>

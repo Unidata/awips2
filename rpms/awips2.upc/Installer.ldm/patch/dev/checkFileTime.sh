@@ -22,19 +22,18 @@ do
         files=($(find $path -name "*-concat-*" -mmin +2 | grep "staging"))
         unset IFS
 
-        for file in "${files[@]}";
-        do
-                # get the parent directory the staging dir is in
-                dir=$(dirname $file)
-                filename=$(basename $file)
-                parentDir=$(dirname $dir)
-                # move file to parent dir
-                mv $file $parentDir
+        for file in "${files[@]}"; do
+            dir=$(dirname "$file")
+            filename=$(basename "$file")
+            parentDir=$(dirname "$dir")
+            newFile="$parentDir/$filename"
+            if mv -- "$file" "$newFile"; then
+                echo "Running qpidNotify.py $newFile"
 
-                newFile=$parentDir/$filename
-
-                echo "Running /awips2/python/bin/python /awips2/fxa/bin/src/qpidNotify/qpidNotify.py $newFile"
-
-                /awips2/python/bin/python /awips2/fxa/bin/src/qpidNotify/qpidNotify.py $newFile
+                /awips2/python/bin/python \
+                    /awips2/fxa/bin/src/qpidNotify/qpidNotify.py "$newFile"
+            else
+                echo "WARNING: Could not move $file; skipping EDEX notification" >&2
+            fi
         done
 done
