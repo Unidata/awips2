@@ -58,6 +58,7 @@
 # Aug 02, 2021  8520     njensen     Switch from matplotlib.mlab.griddata to scipy.interpolate.griddata
 # Aug 19, 2026           tiffanym    Add in logic for rotated lat lon grid coverage
 # Nov 12, 2026           tiffanym    Updated GRIB2 decoding to support files larger than 2 GB
+# Nov 25, 2026           tiffanym    Use GRIB2 Section 2 metadata to distinguish NBM joint fire weather probabilities by threshold
 
 import grib2
 import numpy
@@ -350,6 +351,48 @@ class GribDecoder():
         else:
             parameterAbbreviation = newAbbr
         parameterAbbreviation = parameterAbbreviation.replace('_', '-')
+
+        # Distinguish NBM joint fire weather probabilities using
+        # the thresholds encoded in GRIB2 Section 2.
+        if modelName == "NationalBlend" and parameterAbbreviation == "JFWPRB":
+            local = gribDict.get('local')
+
+            if local is not None and len(local) > 1 and local[0] == 2:
+                localText = bytes(int(v) for v in local[1:])
+                localText = localText.split(b'\x00', 1)[0].decode(
+                    'ascii', errors='replace'
+                )
+
+                match = re.fullmatch(
+                    r'RH_le_(\d+(?:\.\d+)?)_(WSPD|GUST)_ge_(\d+(?:\.\d+)?)',
+                    localText
+                )
+
+                if match:
+                    rh, windType, windSpeed = match.groups()
+
+                    parameterAbbreviation = (
+                        "JFWPRB-RH" + rh + "-" + windType + windSpeed
+                    )
+
+                    windName = "Wind Speed" if windType == "WSPD" else "Wind Gust"
+
+                    gribDict['parameterName'] = (
+                        "Fire Weather Probability (RH <= " + rh
+                        + "%, " + windName + " >= " + windSpeed + " m/s)"
+                    )
+
+                    gribDict['parameterUnit'] = "%"
+
+                    self.log.info(
+                        "NBM Section 2: %s -> %s",
+                        localText, parameterAbbreviation
+                    )
+                else:
+                    self.log.warning(
+                        "Unrecognized NBM JFWPRB Section 2: %s",
+                        localText
+                    )
 
         # check sub gridding
         spatialCache = GribSpatialCache.getInstance()

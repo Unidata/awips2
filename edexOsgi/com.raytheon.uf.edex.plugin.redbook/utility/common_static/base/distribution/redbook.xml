@@ -26,5 +26,5 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <!-- Modify regex to not include the REFS Puerto Rico products -->
-    <regex>^(?!PYAD01 KWDB)[PQ]..... .... ......</regex>
+    <regex>^(?!P.[A-Q]... KWDB)[PQ]..... .... ......</regex>
 </requestPatterns>

@@ -59,6 +59,16 @@
     </process>
   </model>
 
+  <model>
+    <name>RDPS</name>
+    <center>54</center>
+    <subcenter>0</subcenter>
+    <grid>RDPS_RLatLon_10km</grid>
+    <process>
+        <id>36</id>
+    </process>
+  </model>
+
   <!-- END SUBCENTER 0 -->
   <model>
     <name>cmce</name>

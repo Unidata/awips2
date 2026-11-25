@@ -14,6 +14,7 @@
 # 20251119      23.4.1  Reformatted the Grids pqact to match other ancillary pqacts
 # 20260402	23.4.1  Added in new entries for AI GFS models (AI-GFS, AI-GEFS, H-GEFS)
 # 20260915	23.4.3	Added in new entries for RRFS and REFS models
+# 20261120	23.4.3	Updated RRFS and REFS models to use WMO headers and concat files
 #
 #########################
 #
@@ -130,12 +131,12 @@ CONDUIT	^data/nccf/com/hgefs/.*/hgefs\.(........)/(..)/ensstat/products/atmos/gr
 # RRFS North American 3 km
 #
 NGRID	^Y.A... KWDA ([0-3][0-9])([0-2][0-9])([0-6][0-9])
-	FILE	-close -edex	/awips2/data_store/grid/%Y%m%d/\2/RRFS_NA/RRFS_NA_3km_(\1:yyyy)(\1:mm)\1_\2\3.grib2
+	FILE	-close	/awips2/data_store/grid/%Y%m%d/\2/RRFS_NA/staging/RRFS_NA_3km-concat-%Y%m%d_%H%M.grib2
 #
 # RRFS North American 13 km
 #
 NGRID	^Y.H... KWDA ([0-3][0-9])([0-2][0-9])([0-6][0-9])
-	FILE	-close -edex	/awips2/data_store/grid/%Y%m%d/\2/RRFS_NA/RRFS_NA_13km_(\1:yyyy)(\1:mm)\1_\2\3.grib2
+	FILE	-close	/awips2/data_store/grid/%Y%m%d/\2/RRFS_NA/staging/RRFS_NA_13km-concat-%Y%m%d_%H%M.grib2
 # ---------------------------------------------
 # - NCEP RRFS Ensemble Forecast System (REFS) -
 # ---------------------------------------------
@@ -143,23 +144,22 @@ NGRID	^Y.H... KWDA ([0-3][0-9])([0-2][0-9])([0-6][0-9])
 # REFS CONUS 3 km
 #
 NGRID	^Y.[A-Q]... KWDB ([0-3][0-9])([0-2][0-9])([0-6][0-9])
-	FILE	-close -edex	/awips2/data_store/grid/%Y%m%d/\2/REFS/REFS_CONUS_3km_(\1:yyyy)(\1:mm)\1_\2\3.grib2
+	FILE	-close	/awips2/data_store/grid/%Y%m%d/\2/REFS/staging/REFS_CONUS_3km-concat-%Y%m%d_%H%M.grib2
 #
 # REFS Alaska 3 km
 #
 NGRID	^A.[A-Q]... KWDB ([0-3][0-9])([0-2][0-9])([0-6][0-9])
-	FILE	-close -edex	/awips2/data_store/grid/%Y%m%d/\2/REFS/REFS_Alaska_3km_(\1:yyyy)(\1:mm)\1_\2\3.grib2
+	FILE	-close	/awips2/data_store/grid/%Y%m%d/\2/REFS/staging/REFS_Alaska_3km-concat-%Y%m%d_%H%M.grib2
 #
 # REFS Hawaii 2.5 km
 #
 NGRID	^H.[A-Q]... KWDB ([0-3][0-9])([0-2][0-9])([0-6][0-9])
-	FILE	-close -edex	/awips2/data_store/grid/%Y%m%d/\2/REFS/REFS_Hawaii_2p5km_(\1:yyyy)(\1:mm)\1_\2\3.grib2
+	FILE	-close	/awips2/data_store/grid/%Y%m%d/\2/REFS/staging/REFS_Hawaii_2p5km-concat-%Y%m%d_%H%M.grib2
 #
 # REFS Puerto Rico 2.5 km
 #
 NGRID	^P.[A-Q]... KWDB ([0-3][0-9])([0-2][0-9])([0-6][0-9])
-	FILE	-close -edex	/awips2/data_store/grid/%Y%m%d/\2/REFS/REFS_Puerto_Rico_2p5km_(\1:yyyy)(\1:mm)\1_\2\3.grib2
-
+	FILE	-close	/awips2/data_store/grid/%Y%m%d/\2/REFS/staging/REFS_Puerto_Rico_2p5km-concat-%Y%m%d_%H%M.grib2
 #
 #
 # --------------------------------
@@ -694,8 +694,8 @@ HDS	^O.J.88 KWBJ.*!grib/ncep/[^/]*/#[^/]*/(............)/F(...)/(.*)/(.*)/
 # WW3 Global
 #
 NGRID	E.A.88 KWBJ.*ncep/[^/]*/#[^/]*/(............)F(...)/.*
-	FILE	-edex -close
-	/awips2/data_store/grid/WW3_Global/WW3_Global_\1_\200-concat-%Y%m%d_%H%M.grib2
+	FILE	-close
+	/awips2/data_store/grid/WW3_Global/staging/WW3_Global_\1_\200-concat-%Y%m%d_%H%M.grib2
 #
 # WW3 Regional Alaska
 #

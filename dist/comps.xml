@@ -161,6 +161,7 @@
          <packagereq type="mandatory">awips2-edex-grib-decoderpostprocessor</packagereq>
          <packagereq type="mandatory">awips2-edex-nswrc-radar</packagereq>
          <packagereq type="mandatory">awips2-edex-grid</packagereq>
+         <packagereq type="mandatory">awips2-edex-upc</packagereq>
          <packagereq type="default">awips2-edex-hazards</packagereq>
          <packagereq type="default">awips2-edex-hazards-scripts</packagereq>
          <packagereq type="mandatory">awips2-edex-config-auto</packagereq>

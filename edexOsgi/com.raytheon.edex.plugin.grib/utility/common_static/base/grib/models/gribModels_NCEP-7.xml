@@ -80,7 +80,10 @@
     <name>RRFS-NA</name>
     <center>7</center>
     <subcenter>0</subcenter>
-    <grid>RRFS_NA</grid>
+    <grids>
+	<id>RRFS_NA</id>
+	<id>RRFS_NA_13</id>
+    </grids>
     <process>
         <id>134</id>
     </process>

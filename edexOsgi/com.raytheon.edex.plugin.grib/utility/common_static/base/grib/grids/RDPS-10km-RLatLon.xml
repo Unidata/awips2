@@ -1,0 +1,15 @@
+<rotatedLatLonGridCoverage>
+    <name>RDPS_RLatLon_10km</name>
+    <description>MSC RDPS 10 km Rotated Latitude/Longitude grid</description>
+    <la1>-48.805954</la1>
+    <lo1>306.141412</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>1140</nx>
+    <ny>1045</ny>
+    <dx>0.090298</dx>
+    <dy>0.090298</dy>
+    <spacingUnit>degree</spacingUnit>
+    <southPoleLat>-31.758312</southPoleLat>
+    <southPoleLon>267.597031</southPoleLon>
+    <rotationAngle>0.0</rotationAngle>
+</rotatedLatLonGridCoverage>
